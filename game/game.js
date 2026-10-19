@@ -254,6 +254,10 @@ function coinBurst(x,y,amt,quick){const tg=document.querySelector('.coin i').get
 /* ---------- shop ---------- */
 const nowPh=()=>phaseOf(GH())[1];
 const onSale=it=>!it.t||it.t.includes(nowPh());
+/* "🌙 夜専用" etc. for events that only happen at some times of day */
+function timeBadge(t){const k=t.join(',');return ({'night':'🌙 夜専用','sunset,night':'🌙 夕暮れ・夜専用','sunset,night,dawn':'🌙 夕暮れ〜夜明け専用','dawn,morning':'🌅 朝専用','noon':'☀️ 昼専用','morning,noon,evening':'☀️ 昼間専用','noon,evening':'☀️ 昼〜夕方専用','sunset':'🌇 夕暮れ専用','morning,noon,evening,sunset':'☀️ 朝〜夕暮れ専用','noon,evening,sunset,night':'🎪 昼〜夜専用'})[k]||t.map(x=>PH_LABEL[x]).join('・')+'専用'}
+/* real minutes until the first of these times of day begins (one game day = three real hours) */
+function minutesUntil(t){const h=GH();let best=24;for(const x of t){const st=PHASES.find(p=>p[1]===x)[0];best=Math.min(best,(st-h+24)%24)}return Math.max(1,Math.ceil(best*60*10800/1440/60))}
 function row(ico,name,desc,btns,cls=''){return `<div class="ritem ${cls}"><span class="ri">${ico}</span><span class="rn"><b>${name}</b><small>${desc}</small></span><span class="rbtn">${btns}</span></div>`}
 const coin=n=>n?'🪙'+n.toLocaleString():'むりょう';
 let shopScroll=0;
@@ -270,8 +274,11 @@ function shop(tab){
   if(tab==='music')body=CATALOG.music.filter(([id])=>TRACKS[id]).map(([id,c,ico,d])=>{const has=ST.music.includes(id),pl=MUS.on&&MUS.id===id;
     return row(ico,esc(TRACKS[id].name),pl?'🎵 いま ながれているよ':d,has?`<button class="play ${pl?'on':''}" data-pl="${id}">${pl?'■ とめる':'▶ ながす'}</button><button class="sell sub" data-sm="${id}">うる +${c/2|0}</button>`:`<button class="buy" data-bm="${id}" ${ST.coins<c?'disabled':''}>かう ${coin(c)}</button>`,has?'has':'')}).join('')
     +'<p class="note">いちど かえば いつでも ながせるよ。ラジオが しゃべる時は 小さくなる</p>';
-  if(tab==='event'){const ph=nowPh();body=`<p class="note">いまは ${PH_LABEL[ph]}。かうと 浜辺で すぐ はじまるよ</p>`+[...CATALOG.event].sort((a,b)=>onSale(b)-onSale(a)||a.p-b.p).map(it=>{const ok=onSale(it);
-    return row(it.ico,it.n,ok?it.d:`${it.t.map(t=>PH_LABEL[t]).join('・')}だけ`,`<button class="buy" data-ev="${it.id}" ${!ok||ST.coins<it.p?'disabled':''}>かう ${coin(it.p)}</button>`,ok?'':'off')}).join('')}
+  if(tab==='event'){const ph=nowPh(),ev=[...CATALOG.event].sort((a,b)=>a.p-b.p),now=ev.filter(onSale),later=ev.filter(it=>!onSale(it));
+    const evRow=(it,ok)=>row(it.ico,it.n+(it.t?` <em class="tb">${timeBadge(it.t)}</em>`:''),ok?it.d:`あと やく${minutesUntil(it.t)}ぷんで かえるよ`,
+      ok?`<button class="buy" data-ev="${it.id}" ${ST.coins<it.p?'disabled':''}>かう ${coin(it.p)}</button>`:`<button class="buy" disabled>いまは かえない</button>`,ok?'':'off');
+    body=`<p class="note">いまは ${PH_LABEL[ph]}。かうと 浜辺で すぐ はじまるよ</p>`+now.map(it=>evRow(it,true)).join('')
+      +(later.length?`<p class="sub-h">⏳ いまは かえない イベント</p>`+later.map(it=>evRow(it,false)).join(''):'')}
   show('shop',`<section class="pnl shop">
     <div class="qtop"><button class="x" id="sx" aria-label="ショップを とじる">←</button><b>🛍️ ショップ</b><span></span></div>
     <div class="seg tabs">${TABS.map(([k,i,n])=>`<button data-t="${k}" class="${tab===k?'on':''}"><span>${i}</span>${n}</button>`).join('')}</div>
