@@ -64,14 +64,14 @@ function home(){
     <div class="lvs">${LV_ORDER.map(k=>{const L=LEVELS[k];return `<button class="lv lv-${k}" data-lv="${k}"><span class="li">${L.ico}</span><b>${L.name}</b><small>${L.books.length}さつ</small></button>`}).join('')}</div>
     <div class="row">
       <button id="shopOpen" class="sub">🛍️ ショップ</button>
-      <button id="mini" class="sub">🎮 ミニゲーム</button>
+      <button id="mini" class="sub">🗺️ 宝の地図</button>
     </div>
     ${MUS.on&&MUS.id?`<div class="np"><span>🎵 ${esc(TRACKS[MUS.id].name)}</span><button id="npStop" class="sub">■ とめる</button></div>`:''}
     ${ST.radios.length?`<label class="gap"><span>📻 つぶやき</span><input id="gapR" type="range" min="3" max="30" step="1" value="${ST.radioGap}"><output id="gapV">${ST.radioGap}秒ごと</output></label>`:''}
   </section>`);
   panel.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{SFX.vopen();books(b.dataset.lv)});
   $('shopOpen').onclick=()=>{SFX.vopen();shop('radio')};
-  $('mini').onclick=()=>{SFX.pop();toast('🎮 <b>ミニゲーム</b><small>じゅんびちゅう だよ</small>')};
+  $('mini').onclick=()=>{SFX.vopen();window.ADV&&ADV.open()};
   const ns=$('npStop');if(ns)ns.onclick=()=>{stopMusic(true);SFX.pop();home()};
   const g=$('gapR');if(g)g.oninput=()=>{ST.radioGap=+g.value;$('gapV').textContent=g.value+'秒ごと';save();if(nextAt>performance.now()+ST.radioGap*1000)nextAt=performance.now()+ST.radioGap*1000};
   rqIdle();radioWake();
@@ -268,13 +268,16 @@ function shop(tab){
     return row(`📻<b class="lv-${k}">${L.short}</b>`,`${L.name}ラジオ`,`${L.choices}たく・せいかい +${L.reward}${L.fast?`（${FAST_MS/1000}びょう いないなら +${L.fast}）`:''}　もっている ${n}だい`,
       `<button class="buy" data-k="${k}" ${ST.coins<L.price?'disabled':''}>${L.price?'かう '+coin(L.price):'もらう（むりょう）'}</button><button class="sell sub" data-k="${k}" ${n?'':'disabled'}>${L.price?'うる +'+(L.price/2|0):'てばなす'}</button>`)}).join('')
     +'<p class="note">ラジオは 何台でも おけるよ（小学生ラジオは むりょう）</p>';
-  if(tab==='deco')body=CATALOG.deco.map(([n,c,ico,d])=>{const has=hasDeco(n);
+  if(tab==='deco')body=CATALOG.deco.map(([n,c,ico,d,rare])=>{const has=hasDeco(n);
+    if(rare)return row(ico,n+' <em class="tb rare">🗝️ レア</em>',has?'✨ 宝の地図で 手に入れた たからもの':'宝の地図の 宝箱から 見つかる',`<button class="buy" disabled>${has?'たからもの':'🗺️ 宝の地図'}</button>`,has?'has':'off');
     return row(ico,n,has?'✨ 浜辺に かざっているよ':d,has?`<button class="sell sub" data-sd="${n}">うる +${c/2|0}</button>`:`<button class="buy" data-bd="${n}" ${ST.coins<c?'disabled':''}>かう ${coin(c)}</button>`,has?'has':'')}).join('')
     +'<p class="note">うると かった ねだんの はんぶんが もどってくる</p>';
-  if(tab==='music')body=CATALOG.music.filter(([id])=>TRACKS[id]).map(([id,c,ico,d])=>{const has=ST.music.includes(id),pl=MUS.on&&MUS.id===id;
-    return row(ico,esc(TRACKS[id].name),pl?'🎵 いま ながれているよ':d,has?`<button class="play ${pl?'on':''}" data-pl="${id}">${pl?'■ とめる':'▶ ながす'}</button><button class="sell sub" data-sm="${id}">うる +${c/2|0}</button>`:`<button class="buy" data-bm="${id}" ${ST.coins<c?'disabled':''}>かう ${coin(c)}</button>`,has?'has':'')}).join('')
+  if(tab==='music')body=CATALOG.music.filter(([id])=>TRACKS[id]).map(([id,c,ico,d,rare])=>{const has=ST.music.includes(id),pl=MUS.on&&MUS.id===id;
+    const name=esc(TRACKS[id].name)+(rare?' <em class="tb rare">🗝️ レア</em>':'');
+    if(rare&&!has)return row(ico,name,'宝の地図の 宝箱から 見つかる','<button class="buy" disabled>🗺️ 宝の地図</button>','off');
+    return row(ico,name,pl?'🎵 いま ながれているよ':d,has?`<button class="play ${pl?'on':''}" data-pl="${id}">${pl?'■ とめる':'▶ ながす'}</button>${rare?'':`<button class="sell sub" data-sm="${id}">うる +${c/2|0}</button>`}`:`<button class="buy" data-bm="${id}" ${ST.coins<c?'disabled':''}>かう ${coin(c)}</button>`,has?'has':'')}).join('')
     +'<p class="note">いちど かえば いつでも ながせるよ。ラジオが しゃべる時は 小さくなる</p>';
-  if(tab==='event'){const ph=nowPh(),ev=[...CATALOG.event].sort((a,b)=>a.p-b.p),now=ev.filter(onSale),later=ev.filter(it=>!onSale(it));
+  if(tab==='event'){const ph=nowPh(),ev=CATALOG.event.filter(e=>!e.rare).sort((a,b)=>a.p-b.p),now=ev.filter(onSale),later=ev.filter(it=>!onSale(it));
     const evRow=(it,ok)=>row(it.ico,it.n+(it.t?` <em class="tb">${timeBadge(it.t)}</em>`:''),ok?it.d:`あと やく${minutesUntil(it.t)}ぷんで かえるよ`,
       ok?`<button class="buy" data-ev="${it.id}" ${ST.coins<it.p?'disabled':''}>かう ${coin(it.p)}</button>`:`<button class="buy" disabled>いまは かえない</button>`,ok?'':'off');
     body=`<p class="note">いまは ${PH_LABEL[ph]}。かうと 浜辺で すぐ はじまるよ</p>`+now.map(it=>evRow(it,true)).join('')
@@ -310,6 +313,8 @@ function shop(tab){
 }
 function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
+/* what the treasure map (game/adventure.js) needs from here */
+window.HE={panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,get screen(){return screen}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();

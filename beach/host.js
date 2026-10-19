@@ -6,7 +6,9 @@ var S=(()=>{const d={coins:0,sound:true,waves:true,vol:{se:1,wave:1,mus:1},gameM
   try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');for(const k of ['coins','sound','waves','vol','gameMin','gday','deco','fireOff'])if(s[k]!=null)d[k]=s[k]}catch(e){}
   return d})();
 var _saveHooks=[];
-var save=function(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({coins:S.coins,sound:S.sound,waves:S.waves,vol:S.vol,gameMin:Math.round(S.gameMin*10)/10,gday:S.gday,deco:S.deco,fireOff:S.fireOff}))}catch(e){}_saveHooks.forEach(f=>{try{f()}catch(e){}})};
+/* merges into the saved record, so parts saved by other scripts (game, treasure map) are never dropped */
+var save=function(){try{let s={};try{s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch(e){}
+  Object.assign(s,{coins:S.coins,sound:S.sound,waves:S.waves,vol:S.vol,gameMin:Math.round(S.gameMin*10)/10,gday:S.gday,deco:S.deco,fireOff:S.fireOff});localStorage.setItem(SAVE_KEY,JSON.stringify(s))}catch(e){}_saveHooks.forEach(f=>{try{f()}catch(e){}})};
 /* beach events fire these; the host page can listen via BEACH.on(...) */
 var BEACH_EV={};
 function beachEmit(n,...a){(BEACH_EV[n]||[]).forEach(f=>{try{f(...a)}catch(e){}})}
