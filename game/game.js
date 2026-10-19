@@ -309,7 +309,9 @@ function coinBurst(x,y,amt,quick){const tg=document.querySelector('.coin i').get
    tap it and it says something in English — pick the right Japanese for coins. */
 const folkLayer=document.createElement('div');folkLayer.id='folk';$('window').appendChild(folkLayer);
 const FOLK_REWARD=5;
-let folkNow=null,folkNext=performance.now()+20000;
+/* a resident drops by once every ten minutes */
+const FOLK_EVERY=10*60*1000;
+let folkNow=null,folkNext=performance.now()+FOLK_EVERY;
 const decoCount=()=>Object.keys(ST.deco||{}).length;
 function folkUnlocked(){const n=Math.min(FOLK.length,1+Math.floor(decoCount()/3));return FOLK.slice(0,n).filter(f=>!f[4]||isNight()).concat(isNight()&&n<FOLK.length?[FOLK.find(f=>f[4])]:[])}
 function folkSpawn(){const pool=folkUnlocked().filter(Boolean);if(!pool.length)return;const F=pick(pool),[fx]=fireSpot();
@@ -319,7 +321,7 @@ function folkSpawn(){const pool=folkUnlocked().filter(Boolean);if(!pool.length)r
   requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.left=x*100+'%'}));el.classList.toggle('flip',from>x);
   folkNow={F,el,x,until:performance.now()+26000,talked:false};
   el.onclick=()=>folkTalk()}
-function folkLeave(){const f=folkNow;if(!f)return;folkNow=null;const el=f.el;el.classList.remove('flip');el.classList.toggle('flip',f.x>.5);el.style.left=(f.x>.5?1.1:-.1)*100+'%';el.classList.add('bye');setTimeout(()=>el.remove(),3200);folkNext=performance.now()+40000+Math.random()*40000}
+function folkLeave(){const f=folkNow;if(!f)return;folkNow=null;const el=f.el;el.classList.remove('flip');el.classList.toggle('flip',f.x>.5);el.style.left=(f.x>.5?1.1:-.1)*100+'%';el.classList.add('bye');setTimeout(()=>el.remove(),3200);folkNext=performance.now()+FOLK_EVERY}
 /* a resident's line uses the same floating answers as the radios */
 function folkTalk(){const f=folkNow;if(!f||f.talked||screen!=='home')return;if(cur&&!cur.done&&talking)return;
   f.talked=true;f.el.querySelector('.fq').textContent='…';radioQuiet();
