@@ -73,3 +73,24 @@
 .got{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
 .got li{padding:6px 12px;border-radius:10px;background:rgba(201,140,255,.15);border:1px solid rgba(201,140,255,.4)}
 .chest .row{width:100%}
+
+/* 🍉 watermelon */
+.field{position:relative;height:clamp(170px,27vh,220px);border-radius:12px;overflow:hidden;display:grid;grid-template-columns:repeat(var(--c),1fr);grid-template-rows:repeat(var(--r),1fr);background:linear-gradient(#e9d3a1,#d8bd88)}
+.field i{border:1px dashed rgba(107,74,42,.18)}
+.field .kid,.field .melon{position:absolute;transform:translate(-50%,-50%);font-size:2rem;transition:left .25s,top .25s;line-height:1}
+.field .melon{font-size:1.7rem;opacity:.85}
+.field .melon.split{animation:split .6s forwards}
+@keyframes split{40%{transform:translate(-50%,-50%) scale(1.4)}100%{transform:translate(-50%,-50%) scale(.2);opacity:0}}
+.field .kid.swing{animation:swing .4s}
+@keyframes swing{50%{transform:translate(-50%,-50%) rotate(-25deg) scale(1.15)}}
+.pad{display:grid;grid-template-columns:repeat(3,64px);gap:6px;justify-content:center}
+.pad button{height:46px;font-size:1.3rem;padding:0!important}
+.pad .hit{background:linear-gradient(#ffb04a,#ff7a1a)!important;border-color:#ffe2b0!important}
+.prompt.suika small{font-family:"Libre Baskerville",Georgia,serif;color:#fff6d8;font-size:1rem;width:auto}
+/* 🦀 crabs */
+.beachrow{position:relative;min-height:clamp(180px,30vh,240px);border-radius:12px;padding:14px 8px;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-content:center;background:linear-gradient(#62b4e6 0,#e9d3a1 30%,#d8bd88 100%)}
+.crab{display:flex;flex-direction:column;align-items:center;gap:2px;min-width:30%;padding:8px 6px!important;background:rgba(255,248,234,.92)!important;color:#3a2a20!important;border-color:#e8c9a0!important;text-shadow:none;animation:scuttle 1.4s ease-in-out var(--d) infinite alternate}
+.crab .ce{font-size:2rem;line-height:1.1}.crab .cj{font-weight:800;font-size:.95rem}
+.crab .cr{font-size:1.4rem}
+.crab.got{background:rgba(143,240,200,.95)!important;border-color:#55e0b4!important;animation:popb .4s}
+@keyframes scuttle{from{transform:translateX(-6px) rotate(-2deg)}to{transform:translateX(6px) rotate(2deg)}}

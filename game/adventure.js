@@ -10,17 +10,18 @@ const MAPS=[
  {name:'さざなみ海岸',sky:['#2b6fb3','#8ec9ef'],land:'#e8d3a2',
   reward:{deco:['ミラーボール'],music:['orch'],title:'さざなみの 冒険家'},
   nodes:{S:[50,128,'start',['a','b']],a:[28,110,'shell',['c']],b:[72,110,'star',['d']],c:[22,88,'dj',['e']],d:[76,90,'mys',['e','f']],
-   e:[46,72,'shop',['g']],f:[80,68,'shell',['h']],g:[26,52,'star',['i']],h:[70,48,'dj',['i']],i:[48,32,'mys',['G']],G:[50,12,'goal',[]]}},
+   e:[46,72,'shop',['g']],f:[80,68,'crab',['h']],g:[26,52,'star',['i']],h:[70,48,'dj',['i']],i:[48,32,'mys',['G']],G:[50,12,'goal',[]]}},
  {name:'ほたる入り江',sky:['#3b2f7a','#c06c84'],land:'#d9c08f',
   reward:{deco:['星のプロジェクター'],event:['goldrain'],title:'ほたる入り江の 探検家'},
-  nodes:{S:[50,128,'start',['a','b','c']],a:[18,108,'dj',['d']],b:[50,106,'shell',['d','e']],c:[82,108,'star',['e']],d:[30,86,'mys',['f']],
-   e:[68,86,'shop',['f','g']],f:[42,66,'star',['h']],g:[80,64,'dj',['h']],h:[60,46,'shell',['i','j']],i:[26,32,'shop',['G']],j:[80,30,'mys',['G']],G:[50,12,'goal',[]]}},
+  nodes:{S:[50,128,'start',['a','b','c']],a:[18,108,'dj',['d']],b:[50,106,'crab',['d','e']],c:[82,108,'star',['e']],d:[30,86,'mys',['f']],
+   e:[68,86,'shop',['f','g']],f:[42,66,'star',['h']],g:[80,64,'suika',['h']],h:[60,46,'shell',['i','j']],i:[26,32,'shop',['G']],j:[80,30,'mys',['G']],G:[50,12,'goal',[]]}},
  {name:'星くず岬',sky:['#0b1030','#2c3f86'],land:'#b9a77f',
   reward:{deco:['星の門'],event:['dragon','mstorm'],title:'星くず岬の 伝説'},
-  nodes:{S:[50,128,'start',['a','b']],a:[30,112,'star',['c','d']],b:[70,112,'dj',['d']],c:[14,92,'shell',['e']],d:[52,94,'mys',['e','f']],
-   e:[30,74,'dj',['g']],f:[78,76,'star',['g','h']],g:[50,58,'shop',['i']],h:[84,52,'shell',['i']],i:[60,40,'dj',['j','k']],j:[30,28,'star',['G']],k:[78,24,'mys',['G']],G:[52,8,'goal',[]]}},
+  nodes:{S:[50,128,'start',['a','b']],a:[30,112,'star',['c','d']],b:[70,112,'dj',['d']],c:[14,92,'suika',['e']],d:[52,94,'mys',['e','f']],
+   e:[30,74,'dj',['g']],f:[78,76,'star',['g','h']],g:[50,58,'shop',['i']],h:[84,52,'crab',['i']],i:[60,40,'dj',['j','k']],j:[30,28,'star',['G']],k:[78,24,'mys',['G']],G:[52,8,'goal',[]]}},
 ];
-const GAMES={shell:{ico:'🐚',name:'貝がらつり',desc:'日本語に あう 英単語の 貝を ひろう'},dj:{ico:'📻',name:'DJチャレンジ',desc:'ながれた 英文を ならべかえる'},star:{ico:'✨',name:'星座つなぎ',desc:'きこえた 単語の つづりを なぞる'}};
+const GAMES={shell:{ico:'🐚',name:'貝がらつり',desc:'日本語に あう 英単語の 貝を ひろう'},dj:{ico:'📻',name:'DJチャレンジ',desc:'ながれた 英文を ならべかえる'},star:{ico:'✨',name:'星座つなぎ',desc:'きこえた 単語の つづりを なぞる'},
+  suika:{ico:'🍉',name:'スイカ割り',desc:'カニの 英語の 指示どおりに すすんで スイカを わる'},crab:{ico:'🦀',name:'カニの早押し',desc:'きこえた 単語の カードを もった カニを タップ'}};
 const NODE_ICO={start:'⛵',shop:'🏪',mys:'❓',goal:'💎',...Object.fromEntries(Object.entries(GAMES).map(([k,g])=>[k,g.ico]))};
 const COST={es:5,jh:15,hs:30,adv:50};
 const ITEMS={compass:{ico:'🧭',name:'コンパス',desc:'失敗しても もどらない',p:40},glass:{ico:'⏳',name:'砂時計',desc:'ゲーム中に 時間を +10びょう',p:20},hint:{ico:'💡',name:'ヒント貝',desc:'ゲーム中に 答えを 1回 光らせる',p:15}};
@@ -139,7 +140,7 @@ function frame(t,{need,miss,time},body){const G=GAMES[t];
   $('useH').onclick=()=>{if(!AD.items.hint||g.over||!g.onHint)return;AD.items.hint--;save();g.onHint();$('useH').innerHTML=`💡 ヒント ×${AD.items.hint}`;$('useH').disabled=!AD.items.hint;SFX.chime()};
   $('quit').onclick=()=>g.end(false);
   draw();requestAnimationFrame(tick);return g}
-function play(t,done){H.loadAud(AD.lv);const g=({shell:shellGame,dj:djGame,star:starGame})[t]();g.done=done}
+function play(t,done){H.loadAud(AD.lv);const g=({shell:shellGame,dj:djGame,star:starGame,suika:suikaGame,crab:crabGame})[t]();g.done=done}
 
 /* 🐚 shells with English words drift along the shore; pick the one that matches the Japanese */
 function shellGame(){const lv=AD.lv,pool=shuffle(H.allWords(lv)),kids=lv==='es';
@@ -191,6 +192,47 @@ function starGame(){const lv=AD.lv,maxL=lv==='es'||lv==='jh'?7:9,kids=lv==='es';
     H.say(lv,W[0]);$('sw').onclick=()=>H.say(lv,W[0])};
   g.onHint=()=>{const b=[...sk.querySelectorAll('.st:not(.lit)')].find(x=>x.dataset.c===word[pos]);b&&b.classList.add('glow')};
   next();return g}
+
+/* 🍉 the crab guide shouts directions in English; follow them blindfolded and swing at the watermelon */
+const SUIKA_SAY={L:['Go left!','Turn left.','Move to your left.','Step to the left.'],R:['Go right!','Turn right.','Move to your right.','Step to the right.'],
+  U:['Go forward!','Walk straight ahead.','Keep going forward.','Take a step forward.'],D:['Go back!','Step back.','Move backward.','Take a step back.'],
+  HIT:['Hit it!','Swing now!','Right there! Hit it!','Stop! Swing the stick!']};
+function suikaGame(){const lv=AD.lv,kids=lv==='es',C=5,R=4;H.loadAud('suika');
+  const g=frame('suika',{need:3,miss:3,time:50},`<div class="prompt suika"><button id="sa" class="sub">🦀 🔁</button><small id="st"></small></div>
+    <div class="field" id="fd" style="--c:${C};--r:${R}">${Array.from({length:C*R},(_,i)=>`<i data-i="${i}"></i>`).join('')}<span class="kid" id="kd">🙈</span><span class="melon" id="ml">🍉</span></div>
+    <div class="pad"><span></span><button data-d="U" aria-label="まえ">↑</button><span></span><button data-d="L" aria-label="ひだり">←</button><button data-d="HIT" class="hit" aria-label="わる">🔨</button><button data-d="R" aria-label="みぎ">→</button><span></span><button data-d="D" aria-label="うしろ">↓</button><span></span></div>`);
+  let kid=[2,3],melon=[0,0],want='';
+  const put=(el,[x,y])=>{el.style.left=`calc(${(x+.5)/C*100}% )`;el.style.top=`calc(${(y+.5)/R*100}% )`};
+  /* the next instruction is the first step on the way from the kid to the melon */
+  const instruct=()=>{const [kx,ky]=kid,[mx,my]=melon;want=kx<mx?'R':kx>mx?'L':ky>my?'U':ky<my?'D':'HIT';
+    const line=kids?SUIKA_SAY[want][0]:pick(SUIKA_SAY[want]);$('st').textContent=kids?line:'';$('st').dataset.l=line;H.say('suika',line)};
+  const newMelon=()=>{do{melon=[Math.random()*C|0,Math.random()*R|0]}while(melon[0]===kid[0]&&melon[1]===kid[1]);put($('ml'),melon);$('ml').className='melon';instruct()};
+  $p().querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(g.over)return;const d=b.dataset.d;$p().querySelectorAll('.pad .glow').forEach(x=>x.classList.remove('glow'));
+    if(d!==want){b.classList.add('bad');setTimeout(()=>b.classList.remove('bad'),300);g.miss_();if(!g.over)setTimeout(instruct,500);return}
+    if(d==='HIT'){$('ml').className='melon split';$('kd').classList.add('swing');setTimeout(()=>$('kd').classList.remove('swing'),400);g.hit();if(!g.over)setTimeout(newMelon,800);return}
+    kid=[kid[0]+(d==='R')-(d==='L'),kid[1]+(d==='D')-(d==='U')];put($('kd'),kid);SFX.tick();setTimeout(instruct,250)});
+  $('sa').onclick=()=>H.say('suika',$('st').dataset.l||'');
+  g.onHint=()=>{$('st').textContent=$('st').dataset.l;const b=$p().querySelector(`[data-d="${want}"]`);b&&b.classList.add('glow')};
+  put($('kd'),kid);newMelon();return g}
+
+/* 🦀 a word is read out; tap the crab holding its picture (or meaning) before it scuttles off */
+function crabGame(){const lv=AD.lv,kids=lv==='es',pool=shuffle(H.allWords(lv).filter(w=>!kids||w[2]));
+  const g=frame('crab',{need:6,miss:3,time:40},`<div class="prompt crabq"><button id="cw" class="sub">🔊 もう一度</button></div><div class="beachrow" id="cb"></div>`);
+  let qi=0,target=null;const cb=$('cb');
+  const label=w=>kids?`<span class="ce">${w[2]}</span>`:`<span class="cj">${esc(w[1])}</span>`;
+  const round=()=>{target=pool[qi++%pool.length];const n=kids?3:4;
+    const others=shuffle(pool.filter(w=>w!==target&&w[1]!==target[1]&&(!kids||w[2]!==target[2]))).slice(0,n-1);
+    cb.innerHTML=shuffle([target,...others]).map((w,i)=>`<button class="crab" data-i="${pool.indexOf(w)}" style="--d:${(i*.12).toFixed(2)}s">${label(w)}<span class="cr">🦀</span></button>`).join('');
+    const t0=performance.now();
+    cb.querySelectorAll('.crab').forEach(b=>b.onclick=()=>{if(g.over||b.disabled)return;const w=pool[+b.dataset.i];
+      if(w===target){b.classList.add('got');cb.querySelectorAll('.crab').forEach(x=>x.disabled=true);
+        if(performance.now()-t0<2500){g.left=Math.min(g.total,g.left+2);H.toast('⚡ はやい！ +2びょう',900)}
+        g.hit();if(!g.over)setTimeout(round,600)}
+      else{b.classList.add('bad');setTimeout(()=>b.classList.remove('bad'),300);g.miss_()}});
+    setTimeout(()=>{if(!g.over)H.say(lv,target[0])},250)};
+  $('cw').onclick=()=>target&&H.say(lv,target[0]);
+  g.onHint=()=>{const b=cb.querySelector(`.crab[data-i="${pool.indexOf(target)}"]`);b&&b.classList.add('glow')};
+  round();return g}
 
 window.ADV={open};
 })();
