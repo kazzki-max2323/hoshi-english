@@ -1,5 +1,5 @@
 // 星降るイングリッシュ: offline cache
-const CACHE='hoshienglish-v1';
+const CACHE='hoshienglish-v2';
 const CORE=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png','apple-touch-icon.png',
  'beach/scene.js','beach/scene.css','beach/host.js','beach/host-after.js','game/words.js','game/game.js','game/game.css'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()))});

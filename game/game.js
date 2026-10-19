@@ -43,7 +43,7 @@ function addCoins(n){ST.coins+=n;save();head();const c=document.querySelector('.
 function weakWords(){return list().filter(w=>ST.weak[ST.course+':'+w[0]])}
 function home(){
   const wk=weakWords().length;
-  panel.innerHTML=`<section class="card home">
+  panel.innerHTML=`<section class="pnl home">
     <div class="seg" role="tablist">${Object.entries(WORDS).map(([k,v])=>`<button data-c="${k}" class="${ST.course===k?'on':''}">${v.ico} ${v.name}</button>`).join('')}</div>
     <div class="modes">${Object.entries(MODES).map(([k,m])=>`<button class="mode" data-m="${k}" ${k==='weak'&&wk<4?'disabled':''}><b>${m.ico} ${m.name}</b><small>${k==='weak'?(wk<4?'まちがえた ことばが 4つ たまると あそべるよ':wk+'こ'):m.sub}</small></button>`).join('')}</div>
     <div class="row"><button id="shopOpen" class="sub">🛍️ 浜辺の かざり</button><span class="note">おぼえた ことば ${Object.keys(ST.learned).filter(k=>k.startsWith(ST.course+':')).length} / ${list().length}</span></div>
@@ -76,7 +76,7 @@ function ask(){
   else if(k==='ja2en')prompt=`${showEmoji?`<div class="emo">${w[2]}</div>`:''}<div class="big ja">${esc(w[1])}</div>`;
   else prompt=`<button class="hear" id="hear" aria-label="もういちど きく">🔊</button><div class="hint">${kids()?'おとを きいてね':'音声を 聞いて 意味を 選ぼう'}</div>`;
   const label=o=>k==='ja2en'?esc(o[0]):`${kids()&&o[2]?`<span class="oe">${o[2]}</span>`:''}${esc(o[1])}`;
-  panel.innerHTML=`<section class="card quiz">
+  panel.innerHTML=`<section class="pnl quiz">
     <div class="qtop"><button class="x" id="quit" aria-label="やめる">✕</button><div class="prog"><i style="width:${Q.i/Q.qs.length*100}%"></i></div><span class="qn">${Q.i+1}/${Q.qs.length}</span></div>
     <div class="prompt">${prompt}${k==='en2ja'?'<button class="say" id="hear" aria-label="きく">🔊</button>':''}</div>
     <div class="combo ${Q.combo>=2?'on':''}">🔥 ${Q.combo} れんぞく</div>
@@ -117,7 +117,7 @@ function result(){
   if(perfect){bonus=50;addCoins(bonus);Q.earned+=bonus}
   ST.best=Math.max(ST.best||0,Q.maxCombo);save();
   const stars=Q.ok>=n?3:Q.ok>=n*.7?2:Q.ok>=n*.4?1:0;
-  panel.innerHTML=`<section class="card result">
+  panel.innerHTML=`<section class="pnl result">
     <div class="stars">${'★'.repeat(stars)}<i>${'★'.repeat(3-stars)}</i></div>
     <div class="score">${Q.ok} / ${n}</div>
     <div class="earn">🪙 +${Q.earned}${perfect?' <small>(ぜんもん せいかい +50)</small>':''}</div>
@@ -132,7 +132,7 @@ function result(){
 
 /* ---------- shop: beach decorations ---------- */
 function shop(){
-  panel.innerHTML=`<section class="card shop">
+  panel.innerHTML=`<section class="pnl shop">
     <div class="qtop"><button class="x" id="sx" aria-label="とじる">✕</button><b>🛍️ 浜辺の かざり</b><span></span></div>
     <p class="note">かったものは 浜辺に かざられるよ</p>
     <div class="goods">${DECOS.map(([n,c,ico])=>{const has=hasDeco(n);return `<button class="good ${has?'has':''}" data-n="${n}" data-c="${c}" ${has||ST.coins<c?'disabled':''}><span class="gi">${ico}</span><span class="gn">${n}</span><span class="gc">${has?'かざり中':'🪙 '+c.toLocaleString()}</span></button>`}).join('')}</div>
