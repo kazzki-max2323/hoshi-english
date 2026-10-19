@@ -108,5 +108,7 @@
 @keyframes note{from{opacity:1;transform:translate(0,0)}to{opacity:0;transform:translate(10px,-18px)}}
 
 .fly{position:fixed;z-index:21;transform:translate(-50%,-50%);font-family:var(--pixel);color:#ffd23f;font-size:2rem;text-shadow:0 2px 0 #6b3d00;pointer-events:none;animation:fly 1s ease-out forwards}
+.fly small{display:block;font-size:.8rem;color:#fff3c4;text-align:center}
+.fly.quick{color:#ffe066;font-size:2.4rem}
 @keyframes fly{to{transform:translate(-50%,-260%);opacity:0}}
 @media (prefers-reduced-motion:reduce){.fc,.radio.talk .rb,.radio.talk::before{animation:none!important;transition:none!important}}

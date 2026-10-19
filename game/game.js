@@ -53,7 +53,7 @@ function head(){$('coins').textContent=ST.coins.toLocaleString();const ph=phaseO
 setInterval(head,1000);
 $('snd').onclick=()=>{ST.sound=!ST.sound;ST.waves=ST.sound;ambient();if(!ST.sound){try{stopMusic(true)}catch(e){}stopClip()}else SFX.snd();save();head()};
 function addCoins(n){ST.coins+=n;save();head();const c=document.querySelector('.coin');c.classList.remove('bump');void c.offsetWidth;c.classList.add('bump')}
-function flyCoin(x,y,n){const d=document.createElement('div');d.className='fly';d.textContent='+'+n;d.style.left=x+'px';d.style.top=y+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
+function flyCoin(x,y,n,quick){const d=document.createElement('div');d.className='fly'+(quick?' quick':'');d.innerHTML=(quick?'<small>はやい！</small>':'')+'+'+n;d.style.left=x+'px';d.style.top=y+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
 
 /* ---------- screens ---------- */
 let screen='home';
@@ -126,6 +126,10 @@ function cards(lv,bi){
   draw();
 }
 let cardKeys=null;
+/* tapping anywhere outside the shop panel closes the shop (and that tap does nothing else) */
+document.addEventListener('pointerdown',e=>{if(screen!=='shop'||e.target.closest('#panel,#toast,header'))return;
+  e.preventDefault();e.stopPropagation();const eat=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',eat,true),400);
+  SFX.pop();home()},true);
 document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys)cardKeys(e)});
 
 /* ---------- radios on the beach ---------- */
@@ -157,14 +161,14 @@ function tick(){
   if(screen!=='home'||talking||document.hidden||performance.now()<nextAt)return;
   const on=ST.radios.map((r,i)=>[r,i]).filter(([r])=>r.on);if(!on.length)return;
   let pickd=pick(on);if(on.length>1)while(pickd[1]===lastRadio)pickd=pick(on);
-  const [r,ri]=pickd;lastRadio=ri;cur=makeLine(r.lv);cur.ri=ri;talking=true;
+  const [r,ri]=pickd;lastRadio=ri;cur=makeLine(r.lv);cur.ri=ri;cur.t0=performance.now();talking=true;
   const btn=layer.querySelector(`[data-i="${ri}"]`);btn&&btn.classList.add('talk');
   SFX.tick();drawLine(r);
   const c=cur;setTimeout(()=>{if(cur!==c){talking=false;return}say(c.lv,c.en,()=>{talking=false;btn&&btn.classList.remove('talk');nextAt=performance.now()+ST.radioGap*1000})},250);
 }
 setInterval(tick,250);
 const BC=['#ffe066','#ff9ec4','#8ff0c8','#9fd3ff','#d4b8ff','#ffc078'];
-const RISE=9;
+const RISE=9,FAST_MS=5000;
 /* the radio's line pops up above it; the answers rise from the sand one by one, like the poker mumbles */
 function bubbleEl(html,cls){const b=document.createElement('div');b.className='bubble ab '+cls;
   b.innerHTML=`<span class="in" style="--bc:${pick(BC)};--tilt:${(Math.random()*8-4).toFixed(1)}deg">${html}${Math.random()<.35?'<i class="sp a">✦</i><i class="sp b">✦</i>':''}</span>`;bub.appendChild(b);return b}
@@ -231,12 +235,14 @@ function answer(c,i,b){if(c!==cur||c.done)return;c.done=1;const ok=c.opts[i]===c
   bodies.forEach(o=>{if(o.c===c){o.frozen=1;o.vx=o.vy=0}});
   bub.querySelectorAll('.opt').forEach(x=>{if(c.opts[+x.dataset.o]===c.ja)x.classList.add('right');else if(x!==b)x.classList.add('gone')});
   const rc=b.getBoundingClientRect(),cx=rc.left+rc.width/2,cy=rc.top+rc.height/2;
-  if(ok){coinBurst(cx,cy,L.reward);FX.ring(cx,cy,'#ffd23f');FX.firework(cx,cy-10);SFX.chime()}
+  /* a quick answer (within FAST_MS of the line starting) earns the level's fast reward */
+  const quick=L.fast&&performance.now()-c.t0<=FAST_MS,amt=quick?L.fast:L.reward;
+  if(ok){coinBurst(cx,cy,amt,quick);FX.ring(cx,cy,'#ffd23f');FX.firework(cx,cy-10);SFX.chime()}
   else{b.classList.add('wrong');SFX.tie()}
   setTimeout(()=>{if(cur===c){cur=null;clearBubbles()}},ok?1500:2400)}
 /* coins burst out of the bubble and fly into the coin counter, ringing as each one lands */
-function coinBurst(x,y,amt){const tg=document.querySelector('.coin i').getBoundingClientRect(),tx=tg.left+tg.width/2,ty=tg.top+tg.height/2;
-  const n=Math.min(12,Math.max(5,amt));let left=amt;flyCoin(x,y-18,amt);
+function coinBurst(x,y,amt,quick){const tg=document.querySelector('.coin i').getBoundingClientRect(),tx=tg.left+tg.width/2,ty=tg.top+tg.height/2;
+  const n=Math.min(12,Math.max(3,amt*2));let left=amt;flyCoin(x,y-18,amt,quick);
   for(let k=0;k<n;k++){const share=k===n-1?left:Math.floor(amt/n);left-=share;
     const d=document.createElement('i');d.className='cfly';document.body.appendChild(d);
     const a=Math.random()*Math.PI*2,sp=36+Math.random()*46,mx=x+Math.cos(a)*sp,my=y+Math.sin(a)*sp-24;
@@ -248,7 +254,7 @@ function coinBurst(x,y,amt){const tg=document.querySelector('.coin i').getBoundi
 function shop(tab){
   const radioRows=LV_ORDER.map(k=>{const L=LEVELS[k],n=ST.radios.filter(r=>r.lv===k).length;return `<div class="ritem">
       <span class="ri">📻<b class="lv-${k}">${L.short}</b></span>
-      <span class="rn"><b>${L.name}ラジオ</b><small>${L.choices}たく・せいかい +${L.reward}　もっている ${n}だい</small></span>
+      <span class="rn"><b>${L.name}ラジオ</b><small>${L.choices}たく・せいかい +${L.reward}${L.fast?`（${FAST_MS/1000}びょう いないなら +${L.fast}）`:''}　もっている ${n}だい</small></span>
       <span class="rbtn"><button class="buy" data-k="${k}" ${ST.coins<L.price?'disabled':''}>${L.price?'かう 🪙'+L.price.toLocaleString():'もらう（むりょう）'}</button><button class="sell sub" data-k="${k}" ${n?'':'disabled'}>${L.price?'うる +'+(L.price/2|0):'てばなす'}</button></span>
     </div>`}).join('');
   const decoGrid=`<div class="goods">${DECOS.map(([n,c,ico])=>{const has=hasDeco(n);return `<button class="good ${has?'has':''}" data-n="${n}" data-c="${c}" ${has||ST.coins<c?'disabled':''}><span class="gi">${ico}</span><span class="gn">${n}</span><span class="gc">${has?'かざり中':'🪙 '+c.toLocaleString()}</span></button>`}).join('')}</div>`;
