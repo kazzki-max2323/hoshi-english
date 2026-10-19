@@ -4,7 +4,12 @@
 #snd{cursor:pointer;font-size:.9rem;padding:2px 8px}
 .coin.bump{animation:cbump .35s}
 @keyframes cbump{50%{transform:scale(1.18)}}
-#panel{flex:0 0 auto;display:flex;flex-direction:column;justify-content:flex-end}
+/* the beach keeps its size; panels sit on top of it so opening one never moves the scene */
+.wrap{height:100vh;height:100dvh!important;min-height:0!important;overflow:hidden!important}
+/* --dock is the room the home panel needs; taller panels (shop, word books) cover the beach instead of pushing it */
+:root{--dock:250px}
+#window{flex:1 1 auto!important;min-height:0!important;max-height:none!important;margin-bottom:var(--dock)}
+#panel{position:absolute;left:16px;right:16px;bottom:max(6px,env(safe-area-inset-bottom,0px));max-height:calc(100% - 64px);overflow:auto;z-index:3;display:flex;flex-direction:column;justify-content:flex-end}
 .pnl{box-sizing:border-box;width:100%;min-width:0;background:rgba(11,13,36,.8);border:3px solid var(--gold);border-radius:14px;box-shadow:0 0 0 3px var(--panel),0 0 0 5px var(--gold2),0 8px 24px #0008;padding:12px;color:var(--ink);text-shadow:0 1px 2px #000;backdrop-filter:blur(2px);display:flex;flex-direction:column;gap:10px}
 .pnl button{font:inherit;color:inherit;cursor:pointer;border-radius:10px;border:2px solid rgba(255,255,255,.18);background:rgba(255,255,255,.07);padding:9px 12px;transition:transform .1s,background .2s;word-break:keep-all;overflow-wrap:anywhere}
 .pnl button:active{transform:scale(.97)}
@@ -32,22 +37,6 @@
 .gap{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--mute)}
 .gap input{flex:1;min-width:0;accent-color:var(--gold)}
 .gap output{font-family:var(--pixel);color:#ffe7a8;min-width:5.5em;text-align:right}
-.rq{border-radius:10px;padding:10px;background:rgba(255,255,255,.05);border:1px dashed rgba(255,255,255,.18);font-size:.8rem;line-height:1.5}
-.rq.idle{color:var(--mute);text-align:center}
-.rq.live{border-style:solid;border-color:rgba(255,210,63,.4);animation:rqIn .25s ease-out}
-@keyframes rqIn{from{transform:translateY(6px);opacity:0}}
-.rl{display:flex;align-items:center;gap:8px;margin-bottom:8px}
-.rt{font-family:var(--pixel);font-size:.72rem;padding:2px 6px;border-radius:99px;border:1px solid var(--c);color:var(--c);white-space:nowrap}
-.re{flex:1;min-width:0;font-family:"Libre Baskerville",Georgia,serif;font-size:1.05rem;color:#fff6d8}
-.ragain{padding:4px 8px!important}
-.ro{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
-.ro.n3{grid-template-columns:1fr}
-.ro.n5 button:last-child{grid-column:1/-1}
-.ro button{font-size:.85rem;font-weight:800;padding:8px!important;min-height:40px}
-.ro button.right{background:rgba(85,224,180,.3)!important;border-color:#55e0b4!important;opacity:1!important}
-.ro button.wrong{background:rgba(226,71,90,.3)!important;border-color:var(--red)!important;opacity:1!important;animation:shk .3s}
-@keyframes shk{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
-
 /* word books */
 .shelf{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;max-height:min(52vh,420px);overflow:auto;padding-right:2px}
 .book{display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:8px;text-align:left;align-items:center;padding:8px 10px!important}
@@ -86,6 +75,17 @@
 .good .gi{font-size:1.6rem}.good .gn{font-size:.72rem;font-weight:800}.good .gc{font-size:.7rem;color:#ffe7a8;font-family:var(--pixel)}
 .good.has{opacity:1!important;border-color:#55e0b4}.good.has .gc{color:#55e0b4}
 
+/* answers floating over the beach (the poker mumble bubbles) */
+#abubs{position:absolute;inset:0;pointer-events:none;z-index:2}
+.bubble.ab{translate:-50% -50%;animation:none;white-space:normal;width:max-content;max-width:min(64vw,300px);text-align:center}
+.bubble.ab .in{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;line-height:1.35;animation:popb .55s cubic-bezier(.2,1.9,.4,1) both,abBob var(--fd,3s) ease-in-out calc(.55s + var(--d,0s)) infinite alternate}
+@keyframes abBob{from{transform:rotate(var(--tilt)) translateY(0)}to{transform:rotate(calc(var(--tilt) * -1)) translateY(-8px)}}
+.bubble.ab.line .in{--bc:#fff6e0!important;font-family:"Libre Baskerville",Georgia,serif;font-size:.9rem}
+.bubble.ab .again{font-style:normal;font-size:.8em;margin-left:2px}
+.bubble.ab.opt .in{font-size:1rem;padding:8px 16px 9px}
+.bubble.ab.right .in{--bc:#8ff0c8!important;box-shadow:0 4px 0 #1b1740,0 0 0 4px #55e0b4,0 0 22px #55e0b4}
+.bubble.ab.wrong .in{--bc:#ff9aa8!important;filter:saturate(.7)}
+
 /* radios standing on the sand */
 #window{position:relative}
 #radios{position:absolute;inset:0;pointer-events:none}
@@ -100,4 +100,4 @@
 
 .fly{position:fixed;z-index:9;transform:translate(-50%,-50%);font-family:var(--pixel);color:#ffd23f;font-size:1.3rem;text-shadow:0 2px 0 #6b3d00;pointer-events:none;animation:fly 1s ease-out forwards}
 @keyframes fly{to{transform:translate(-50%,-260%);opacity:0}}
-@media (prefers-reduced-motion:reduce){.fc,.radio.talk .rb,.radio.talk::before{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){.bubble.ab .in,.fc,.radio.talk .rb,.radio.talk::before{animation:none!important;transition:none!important}}

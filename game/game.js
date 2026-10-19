@@ -9,22 +9,39 @@ const DECOS=[['ランタン',100,'🏮'],['ロッキングチェア',200,'🪑']
 const START_COINS=150;
 
 /* ---------- save ---------- */
-try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=s.radios||[];ST.radioGap=s.radioGap||5;ST.bookPos=s.bookPos||{};
-  if(!s.started){ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}else ST.started=1}catch(e){ST.radios=[];ST.radioGap=5;ST.bookPos={};ST.started=1}
-_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');Object.assign(s,{radios:ST.radios,radioGap:ST.radioGap,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
+const GAP0=10;
+try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=s.radios||[];ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};
+  if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.started=1}
+_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');Object.assign(s,{radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
 
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
 const allWords=lv=>LEVELS[lv].books.flatMap(b=>b.w);
 
-/* ---------- voice ---------- */
+/* ---------- voice ----------
+   every word and line is pre-recorded into one mp3 per level (audio/<lv>.mp3 + .json offsets),
+   played through Web Audio so it also works inside app web views without speech synthesis */
+const AUD={};
+function loadAud(lv){if(AUD[lv])return AUD[lv].p;const a=AUD[lv]={};
+  a.p=Promise.all([fetch(`audio/${lv}.json`).then(r=>r.json()),fetch(`audio/${lv}.mp3`).then(r=>r.arrayBuffer())])
+    .then(([m,ab])=>{a.map=m;return new Promise((res,rej)=>A().decodeAudioData(ab,res,rej))}).then(b=>{a.buf=b}).catch(e=>{a.err=e});return a.p}
+let voiceOut=null,clip=null;
+function stopClip(){if(clip){try{clip.onended=null;clip.stop()}catch(e){}clip=null}window.speechSynthesis&&speechSynthesis.cancel()}
+function say(lv,t,done){let fin=false;const end=()=>{if(!fin){fin=true;done&&done()}};
+  if(!ST.sound){setTimeout(end,1500);return}
+  const a=AUD[lv];
+  if(!a||(!a.buf&&!a.err)){loadAud(lv).then(()=>say(lv,t,done));return}
+  const seg=a.buf&&a.map[t];if(!seg){speak(t,{done:end});return}
+  try{A();if(ac.state==='suspended')ac.resume();if(!voiceOut){voiceOut=ac.createGain();voiceOut.gain.value=1.5;voiceOut.connect(master)}
+    stopClip();const s=ac.createBufferSource();s.buffer=a.buf;s.connect(voiceOut);s.onended=()=>{if(clip===s)clip=null;end()};s.start(0,seg[0],seg[1]);clip=s}catch(e){speak(t,{done:end})}}
+document.addEventListener('pointerdown',()=>{try{A()}catch(e){}loadAud('es')},{once:true});
 let voice=null;
 function pickVoice(){const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));voice=vs.find(v=>/en[-_]US/i.test(v.lang)&&/Samantha|Google|Natural/i.test(v.name))||vs.find(v=>/en[-_]US/i.test(v.lang))||vs[0]||null}
 if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
 /* speaks and calls done() once the line has finished (or right away when it can't speak) */
-function speak(t,{slow=false,done}={}){let fin=false;const end=()=>{if(!fin){fin=true;done&&done()}};
+function speak(t,{done}={}){let fin=false;const end=()=>{if(!fin){fin=true;done&&done()}};
   if(!window.speechSynthesis||!ST.sound){setTimeout(end,1200);return}
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';if(voice)u.voice=voice;u.rate=slow?.6:.85;u.onend=end;u.onerror=end;speechSynthesis.speak(u);setTimeout(end,600+t.length*160)}catch(e){end()}}
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';if(voice)u.voice=voice;u.rate=.85;u.onend=end;u.onerror=end;speechSynthesis.speak(u);setTimeout(end,600+t.length*160)}catch(e){end()}}
 
 /* ---------- toast ---------- */
 function toast(html,ms=2600){const el=$('toast');el.innerHTML=html;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),ms)}
@@ -34,7 +51,7 @@ $('toast').addEventListener('click',()=>$('toast').classList.remove('on'));
 /* ---------- header ---------- */
 function head(){$('coins').textContent=ST.coins.toLocaleString();const ph=phaseOf(GH());$('clock').textContent=ph[2]+' '+clockStr();$('snd').textContent=ST.sound?'🔊':'🔇'}
 setInterval(head,1000);
-$('snd').onclick=()=>{ST.sound=!ST.sound;ST.waves=ST.sound;ambient();if(!ST.sound){try{stopMusic(true)}catch(e){}window.speechSynthesis&&speechSynthesis.cancel()}else SFX.snd();save();head()};
+$('snd').onclick=()=>{ST.sound=!ST.sound;ST.waves=ST.sound;ambient();if(!ST.sound){try{stopMusic(true)}catch(e){}stopClip()}else SFX.snd();save();head()};
 function addCoins(n){ST.coins+=n;save();head();const c=document.querySelector('.coin');c.classList.remove('bump');void c.offsetWidth;c.classList.add('bump')}
 function flyCoin(x,y,n){const d=document.createElement('div');d.className='fly';d.textContent='+'+n;d.style.left=x+'px';d.style.top=y+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
 
@@ -44,7 +61,7 @@ function show(name,html){screen=name;panel.innerHTML=html;if(name!=='home')radio
 
 function home(){
   show('home',`<section class="pnl home">
-    <div id="rq" class="rq"></div>
+    <p id="rq" class="note"></p>
     <div class="lvs">${LV_ORDER.map(k=>{const L=LEVELS[k];return `<button class="lv lv-${k}" data-lv="${k}"><span class="li">${L.ico}</span><b>${L.name}</b><small>${L.books.length}さつ</small></button>`}).join('')}</div>
     <div class="row">
       <button id="shopOpen" class="sub">🛍️ ショップ</button>
@@ -102,7 +119,8 @@ function cards(lv,bi){
   fc.addEventListener('pointerup',up);fc.addEventListener('pointercancel',()=>{sx=null;fc.style.transform=''});
   fc.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();fc.classList.toggle('flip')}});
   $('cp').onclick=()=>go(-1);$('cnx').onclick=()=>go(1);
-  $('cs').onclick=e=>{e.stopPropagation();const b=$('cs');b._n=(b._n||0)+1;speak(B.w[i][0],{slow:b._n%2===0})};
+  $('cs').onclick=e=>{e.stopPropagation();say(lv,B.w[i][0])};
+  loadAud(lv);
   $('cx').onclick=()=>{SFX.pop();books(lv)};
   cardKeys=e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)};
   draw();
@@ -112,16 +130,23 @@ document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys)cardKeys(e
 
 /* ---------- radios on the beach ---------- */
 const layer=document.createElement('div');layer.id='radios';$('window').appendChild(layer);
-function freeSpot(){const xs=ST.radios.map(r=>r.x);for(let t=0;t<40;t++){const x=.08+Math.random()*.84;if(xs.every(v=>Math.abs(v-x)>.09))return x}return .08+Math.random()*.84}
+const bub=document.createElement('div');bub.id='abubs';$('window').appendChild(bub);
+/* where the campfire sits, as fractions of the beach window, so radios keep clear of it */
+function fireSpot(){try{const d=SC.dbg(),[fx,fy]=d.fire;return [(fx-d.WL)/d.WW,(fy-d.WT)/d.WH]}catch(e){return [.42,.8]}}
+function clearOfFire(x,y){const [fx,fy]=fireSpot();return Math.abs(x-fx)>.17||Math.abs(y-fy)>.12}
+function freeSpot(skip){const others=ST.radios.filter(r=>r!==skip);
+  for(let t=0;t<80;t++){const x=.07+Math.random()*.86,y=.66+Math.random()*.1;if(clearOfFire(x,y)&&others.every(o=>Math.abs(o.x-x)>.1||Math.abs(o.y-y)>.06))return [x,y]}
+  return [Math.random()<.5?.1:.9,.7]}
+function placeRadios(){ST.radios.forEach(r=>{if(r.y==null||r.y>.78||!clearOfFire(r.x,r.y)){[r.x,r.y]=freeSpot(r)}})}
 function drawRadios(){layer.innerHTML=ST.radios.map((r,i)=>`<button class="radio ${r.on?'on':''}" data-i="${i}" style="left:${r.x*100}%;top:${r.y*100}%" aria-label="${LEVELS[r.lv].name}ラジオ ${r.on?'オン':'オフ'}"><span class="rb">📻</span><b class="lv-${r.lv}">${LEVELS[r.lv].short}</b></button>`).join('');
   layer.querySelectorAll('.radio').forEach(b=>b.onclick=()=>{const r=ST.radios[+b.dataset.i];r.on=!r.on;save();drawRadios();SFX.beep(r.on?880:440);toast(`📻 ${LEVELS[r.lv].name}ラジオ <b>${r.on?'オン':'オフ'}</b>`,1400);if(screen==='home'){rqIdle();radioWake()}})}
-ST.radios.forEach(r=>{if(r.y==null)r.y=.68+Math.random()*.14});
 
 let nextAt=0,talking=false,lastRadio=-1,cur=null;
-function radioQuiet(){talking=false;cur=null;window.speechSynthesis&&speechSynthesis.cancel();layer.querySelectorAll('.talk').forEach(b=>b.classList.remove('talk'))}
+function clearBubbles(){bub.querySelectorAll('.bubble').forEach(b=>{b.classList.add('gone');setTimeout(()=>b.remove(),260)})}
+function radioQuiet(){talking=false;cur=null;stopClip();clearBubbles();layer.querySelectorAll('.talk').forEach(b=>b.classList.remove('talk'))}
 function radioWake(){nextAt=Math.min(nextAt||Infinity,performance.now()+1500)}
-function rqIdle(){const el=$('rq');if(!el||cur)return;const on=ST.radios.filter(r=>r.on).length;
-  el.className='rq idle';el.innerHTML=!ST.radios.length?'📻 ショップで ラジオを かうと、浜辺で 英語を つぶやくよ。<br>こたえを タップして コインを ためよう！':on?'📻 ラジオに 耳を すませて…':'📻 ラジオが ぜんぶ オフだよ。浜辺の ラジオを タップすると オンになるよ'}
+function rqIdle(){const el=$('rq');if(!el)return;const on=ST.radios.filter(r=>r.on).length;
+  el.textContent=!ST.radios.length?'📻 ショップで 小学生ラジオを もらおう（むりょう）。浜辺で 英語を つぶやくよ':on?'📻 ラジオの こたえが 浜辺に うかぶよ。タップして コインを もらおう':'📻 ラジオが ぜんぶ オフだよ。浜辺の ラジオを タップすると オンになるよ'}
 /* distractors must not share a meaning with the answer (e.g. 提案 / 提案する) */
 const overlap=(a,b)=>{a=a.replace(/[〜（）・、。？！ ]/g,'');b=b.replace(/[〜（）・、。？！ ]/g,'');for(let i=0;i<a.length-1;i++)if(b.includes(a.slice(i,i+2)))return true;return false};
 function makeLine(lv){const L=LEVELS[lv],useTalk=Math.random()<.5&&L.talk.length,pool=useTalk?L.talk:allWords(lv);
@@ -134,44 +159,57 @@ function tick(){
   let pickd=pick(on);if(on.length>1)while(pickd[1]===lastRadio)pickd=pick(on);
   const [r,ri]=pickd;lastRadio=ri;cur=makeLine(r.lv);cur.ri=ri;talking=true;
   const btn=layer.querySelector(`[data-i="${ri}"]`);btn&&btn.classList.add('talk');
-  SFX.tick();drawLine();
-  setTimeout(()=>speak(cur?cur.en:'',{done:()=>{talking=false;btn&&btn.classList.remove('talk');nextAt=performance.now()+ST.radioGap*1000}}),200);
+  SFX.tick();drawLine(r);
+  const c=cur;setTimeout(()=>{if(cur!==c){talking=false;return}say(c.lv,c.en,()=>{talking=false;btn&&btn.classList.remove('talk');nextAt=performance.now()+ST.radioGap*1000})},250);
 }
 setInterval(tick,250);
-function drawLine(){const el=$('rq');if(!el||!cur)return;const L=LEVELS[cur.lv],c=cur;
-  el.className='rq live';
-  el.innerHTML=`<div class="rl"><span class="rt lv-${c.lv}">📻 ${L.short}</span><span class="re">${esc(c.en)}</span><button class="ragain" aria-label="もういちど きく">🔁</button></div>
-    <div class="ro n${c.opts.length}">${c.opts.map((o,i)=>`<button data-o="${i}">${esc(o)}</button>`).join('')}</div>`;
-  el.querySelector('.ragain').onclick=()=>speak(c.en,{slow:true});
-  el.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{if(c!==cur||c.done)return;c.done=1;const ok=c.opts[+b.dataset.o]===c.ja;
-    el.querySelectorAll('[data-o]').forEach((x,j)=>{x.disabled=true;if(c.opts[j]===c.ja)x.classList.add('right')});
-    const rc=b.getBoundingClientRect();
-    if(ok){const got=L.reward;addCoins(got);SFX.coin();FX.ring(rc.left+rc.width/2,rc.top+rc.height/2,'#ffd23f');flyCoin(rc.left+rc.width/2,rc.top,got)}
-    else{b.classList.add('wrong');SFX.tie()}
-    setTimeout(()=>{if(cur===c){cur=null;rqIdle()}},ok?1200:2200)})}
+const BC=['#ffe066','#ff9ec4','#8ff0c8','#9fd3ff','#d4b8ff','#ffc078'];
+/* the radio's line pops up above it; the answers float over the sea like the poker mumbles */
+function drawLine(r){const c=cur,L=LEVELS[c.lv];clearBubbles();
+  const mk=(html,cls,x,y)=>{const b=document.createElement('div');b.className='bubble ab '+cls;b.style.left=x*100+'%';b.style.top=y*100+'%';
+    b.innerHTML=`<span class="in" style="--bc:${pick(BC)};--tilt:${(Math.random()*6-3).toFixed(1)}deg;--d:${(Math.random()*1.2).toFixed(2)}s">${html}</span>`;bub.appendChild(b);return b};
+  const line=mk(`📻 ${esc(c.en)} <i class="again">🔁</i>`,'line',Math.min(.8,Math.max(.2,r.x)),r.y-.07);
+  line.onclick=()=>say(c.lv,c.en);
+  /* spread the answers over sky and sea in two staggered columns */
+  const n=c.opts.length,top=.1,bot=.58;
+  c.opts.forEach((o,i)=>{const col=i%2,x=(col?.68:.32)+(Math.random()*.08-.04),y=top+(bot-top)*(i+.5)/n+(Math.random()*.03);
+    const b=mk(esc(o),'opt',x,y);b.style.setProperty('--fd',(2.6+Math.random()*1.4).toFixed(2)+'s');
+    b.onclick=()=>answer(c,i,b)});
+  fitBubbles()}
+/* keep every bubble inside the beach window */
+function fitBubbles(){const W=bub.getBoundingClientRect();bub.querySelectorAll('.bubble').forEach(b=>{const r=b.getBoundingClientRect();
+  if(r.right>W.right-6)b.style.left=(parseFloat(b.style.left)/100*W.width-(r.right-W.right+6))/W.width*100+'%';
+  if(r.left<W.left+6)b.style.left=(parseFloat(b.style.left)/100*W.width+(W.left+6-r.left))/W.width*100+'%'})}
+function answer(c,i,b){if(c!==cur||c.done)return;c.done=1;const ok=c.opts[i]===c.ja,L=LEVELS[c.lv];
+  const opts=[...bub.querySelectorAll('.opt')];opts.forEach((x,j)=>{if(c.opts[j]===c.ja)x.classList.add('right');else if(x!==b)x.classList.add('gone')});
+  const rc=b.getBoundingClientRect();
+  if(ok){addCoins(L.reward);SFX.coin();FX.ring(rc.left+rc.width/2,rc.top+rc.height/2,'#ffd23f');flyCoin(rc.left+rc.width/2,rc.top,L.reward)}
+  else{b.classList.add('wrong');SFX.tie()}
+  setTimeout(()=>{if(cur===c){cur=null;clearBubbles()}},ok?1300:2400)}
 
 /* ---------- shop ---------- */
 function shop(tab){
   const radioRows=LV_ORDER.map(k=>{const L=LEVELS[k],n=ST.radios.filter(r=>r.lv===k).length;return `<div class="ritem">
       <span class="ri">📻<b class="lv-${k}">${L.short}</b></span>
       <span class="rn"><b>${L.name}ラジオ</b><small>${L.choices}たく・せいかい +${L.reward}　もっている ${n}だい</small></span>
-      <span class="rbtn"><button class="buy" data-k="${k}" ${ST.coins<L.price?'disabled':''}>かう 🪙${L.price.toLocaleString()}</button><button class="sell sub" data-k="${k}" ${n?'':'disabled'}>うる +${L.price/2|0}</button></span>
+      <span class="rbtn"><button class="buy" data-k="${k}" ${ST.coins<L.price?'disabled':''}>${L.price?'かう 🪙'+L.price.toLocaleString():'もらう（むりょう）'}</button><button class="sell sub" data-k="${k}" ${n?'':'disabled'}>${L.price?'うる +'+(L.price/2|0):'てばなす'}</button></span>
     </div>`}).join('');
   const decoGrid=`<div class="goods">${DECOS.map(([n,c,ico])=>{const has=hasDeco(n);return `<button class="good ${has?'has':''}" data-n="${n}" data-c="${c}" ${has||ST.coins<c?'disabled':''}><span class="gi">${ico}</span><span class="gn">${n}</span><span class="gc">${has?'かざり中':'🪙 '+c.toLocaleString()}</span></button>`}).join('')}</div>`;
   show('shop',`<section class="pnl shop">
     <div class="qtop"><button class="x" id="sx" aria-label="ショップを とじる">←</button><b>🛍️ ショップ</b><span></span></div>
     <div class="seg"><button data-t="radio" class="${tab==='radio'?'on':''}">📻 ラジオ</button><button data-t="deco" class="${tab==='deco'?'on':''}">✨ かざり</button></div>
-    ${tab==='radio'?`<div class="rlist">${radioRows}</div><p class="note">ラジオは 何台でも おけるよ。うると かった ねだんの はんぶん もどってくる</p>`:decoGrid}
+    ${tab==='radio'?`<div class="rlist">${radioRows}</div><p class="note">ラジオは 何台でも おけるよ。うると かった ねだんの はんぶんが もどってくる（小学生ラジオは むりょう）</p>`:decoGrid}
   </section>`);
   $('sx').onclick=()=>{SFX.pop();home()};
   panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{SFX.pop();shop(b.dataset.t)});
   panel.querySelectorAll('.buy').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];if(ST.coins<L.price)return;
-    ST.coins-=L.price;ST.radios.push({lv:k,on:true,x:freeSpot(),y:.68+Math.random()*.14});save();head();drawRadios();SFX.save();toast(`📻 <b>${L.name}ラジオ</b> を 浜辺に おいた！`);shop('radio')});
+    ST.coins-=L.price;const [x,y]=freeSpot();ST.radios.push({lv:k,on:true,x,y});save();head();drawRadios();SFX.save();toast(`📻 <b>${L.name}ラジオ</b> を 浜辺に おいた！`);shop('radio')});
   panel.querySelectorAll('.sell').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];let idx=-1;ST.radios.forEach((r,i)=>{if(r.lv===k)idx=i});if(idx<0)return;
-    ST.radios.splice(idx,1);addCoins(L.price/2|0);drawRadios();SFX.coin();toast(`📻 ${L.name}ラジオを うった`);shop('radio')});
+    ST.radios.splice(idx,1);if(L.price)addCoins(L.price/2|0);drawRadios();SFX.coin();toast(`📻 ${L.name}ラジオを ${L.price?'うった':'てばなした'}`);shop('radio')});
   panel.querySelectorAll('.good').forEach(b=>b.onclick=()=>{const n=b.dataset.n,c=+b.dataset.c;if(ST.coins<c||hasDeco(n))return;
     ST.coins-=c;ST.deco[n]=true;save();head();SC.update(ST.coins);SFX.save();const r=b.getBoundingClientRect();FX.firework(r.left+r.width/2,r.top);toast(`✨ <b>${n}</b> を かざった！`);shop('deco')});
 }
 
-save();head();drawRadios();home();SC.update(ST.coins);
+save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
+addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();
