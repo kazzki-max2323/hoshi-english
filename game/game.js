@@ -3,16 +3,13 @@
 (()=>{
 const {scene:SC,sfx:SFX,S:ST}=BEACH;
 const panel=$('panel');
-/* decorations sold in the shop: names must match the beach scene's ITEMS */
-const DECOS=[['ランタン',100,'🏮'],['ロッキングチェア',200,'🪑'],['ヤシの木',350,'🌴'],['テント',500,'⛺'],['ライトのガーランド',800,'💡'],['ヨット',1200,'⛵'],
- ['ハンモック',1800,'🛏️'],['サーフボード',2500,'🏄'],['ビーチパラソル',3500,'⛱️'],['気球',5000,'🎈'],['豪華クルーザー',7500,'🛳️'],['星の門',10000,'🌟']];
 const START_COINS=150;
 
 /* ---------- save ---------- */
 const GAP0=10;
-try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=s.radios||[];ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};
-  if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.started=1}
-_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');Object.assign(s,{radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
+try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=s.radios||[];ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];
+  if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.music=[];ST.started=1}
+_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');Object.assign(s,{music:ST.music,radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
 
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -33,8 +30,10 @@ function say(lv,t,done){let fin=false;const end=()=>{if(!fin){fin=true;done&&don
   if(!a||(!a.buf&&!a.err)){loadAud(lv).then(()=>say(lv,t,done));return}
   const seg=a.buf&&a.map[t];if(!seg){speak(t,{done:end});return}
   try{A();if(ac.state==='suspended')ac.resume();if(!voiceOut){voiceOut=ac.createGain();voiceOut.gain.value=1.5;voiceOut.connect(master)}
-    stopClip();const s=ac.createBufferSource();s.buffer=a.buf;s.connect(voiceOut);s.onended=()=>{if(clip===s)clip=null;end()};s.start(0,seg[0],seg[1]);clip=s}catch(e){speak(t,{done:end})}}
+    stopClip();duck(true);const s=ac.createBufferSource();s.buffer=a.buf;s.connect(voiceOut);s.onended=()=>{if(clip===s)clip=null;duck(false);end()};s.start(0,seg[0],seg[1]);clip=s}catch(e){speak(t,{done:end})}}
 document.addEventListener('pointerdown',()=>{try{A()}catch(e){}loadAud('es')},{once:true});
+/* music steps back while someone speaks */
+function duck(on){try{if(musOut)musOut.gain.setTargetAtTime(((ST.vol&&ST.vol.mus)??1)*(on?.3:1),ac.currentTime,on?.08:.4)}catch(e){}}
 let voice=null;
 function pickVoice(){const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));voice=vs.find(v=>/en[-_]US/i.test(v.lang)&&/Samantha|Google|Natural/i.test(v.name))||vs.find(v=>/en[-_]US/i.test(v.lang))||vs[0]||null}
 if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
@@ -67,11 +66,13 @@ function home(){
       <button id="shopOpen" class="sub">🛍️ ショップ</button>
       <button id="mini" class="sub">🎮 ミニゲーム</button>
     </div>
+    ${MUS.on&&MUS.id?`<div class="np"><span>🎵 ${esc(TRACKS[MUS.id].name)}</span><button id="npStop" class="sub">■ とめる</button></div>`:''}
     ${ST.radios.length?`<label class="gap"><span>📻 つぶやき</span><input id="gapR" type="range" min="3" max="30" step="1" value="${ST.radioGap}"><output id="gapV">${ST.radioGap}秒ごと</output></label>`:''}
   </section>`);
   panel.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{SFX.vopen();books(b.dataset.lv)});
   $('shopOpen').onclick=()=>{SFX.vopen();shop('radio')};
   $('mini').onclick=()=>{SFX.pop();toast('🎮 <b>ミニゲーム</b><small>じゅんびちゅう だよ</small>')};
+  const ns=$('npStop');if(ns)ns.onclick=()=>{stopMusic(true);SFX.pop();home()};
   const g=$('gapR');if(g)g.oninput=()=>{ST.radioGap=+g.value;$('gapV').textContent=g.value+'秒ごと';save();if(nextAt>performance.now()+ST.radioGap*1000)nextAt=performance.now()+ST.radioGap*1000};
   rqIdle();radioWake();
 }
@@ -251,27 +252,56 @@ function coinBurst(x,y,amt,quick){const tg=document.querySelector('.coin i').get
     an.onfinish=()=>{d.remove();if(share)addCoins(share);SFX.coin()}}}
 
 /* ---------- shop ---------- */
+const nowPh=()=>phaseOf(GH())[1];
+const onSale=it=>!it.t||it.t.includes(nowPh());
+function row(ico,name,desc,btns,cls=''){return `<div class="ritem ${cls}"><span class="ri">${ico}</span><span class="rn"><b>${name}</b><small>${desc}</small></span><span class="rbtn">${btns}</span></div>`}
+const coin=n=>n?'🪙'+n.toLocaleString():'むりょう';
+let shopScroll=0;
 function shop(tab){
-  const radioRows=LV_ORDER.map(k=>{const L=LEVELS[k],n=ST.radios.filter(r=>r.lv===k).length;return `<div class="ritem">
-      <span class="ri">📻<b class="lv-${k}">${L.short}</b></span>
-      <span class="rn"><b>${L.name}ラジオ</b><small>${L.choices}たく・せいかい +${L.reward}${L.fast?`（${FAST_MS/1000}びょう いないなら +${L.fast}）`:''}　もっている ${n}だい</small></span>
-      <span class="rbtn"><button class="buy" data-k="${k}" ${ST.coins<L.price?'disabled':''}>${L.price?'かう 🪙'+L.price.toLocaleString():'もらう（むりょう）'}</button><button class="sell sub" data-k="${k}" ${n?'':'disabled'}>${L.price?'うる +'+(L.price/2|0):'てばなす'}</button></span>
-    </div>`}).join('');
-  const decoGrid=`<div class="goods">${DECOS.map(([n,c,ico])=>{const has=hasDeco(n);return `<button class="good ${has?'has':''}" data-n="${n}" data-c="${c}" ${has||ST.coins<c?'disabled':''}><span class="gi">${ico}</span><span class="gn">${n}</span><span class="gc">${has?'かざり中':'🪙 '+c.toLocaleString()}</span></button>`}).join('')}</div>`;
+  const TABS=[['radio','📻','ラジオ'],['deco','🏖️','かざり'],['music','🎵','おんがく'],['event','🎆','イベント']];
+  let body='';
+  if(tab==='radio')body=LV_ORDER.map(k=>{const L=LEVELS[k],n=ST.radios.filter(r=>r.lv===k).length;
+    return row(`📻<b class="lv-${k}">${L.short}</b>`,`${L.name}ラジオ`,`${L.choices}たく・せいかい +${L.reward}${L.fast?`（${FAST_MS/1000}びょう いないなら +${L.fast}）`:''}　もっている ${n}だい`,
+      `<button class="buy" data-k="${k}" ${ST.coins<L.price?'disabled':''}>${L.price?'かう '+coin(L.price):'もらう（むりょう）'}</button><button class="sell sub" data-k="${k}" ${n?'':'disabled'}>${L.price?'うる +'+(L.price/2|0):'てばなす'}</button>`)}).join('')
+    +'<p class="note">ラジオは 何台でも おけるよ（小学生ラジオは むりょう）</p>';
+  if(tab==='deco')body=CATALOG.deco.map(([n,c,ico,d])=>{const has=hasDeco(n);
+    return row(ico,n,has?'✨ 浜辺に かざっているよ':d,has?`<button class="sell sub" data-sd="${n}">うる +${c/2|0}</button>`:`<button class="buy" data-bd="${n}" ${ST.coins<c?'disabled':''}>かう ${coin(c)}</button>`,has?'has':'')}).join('')
+    +'<p class="note">うると かった ねだんの はんぶんが もどってくる</p>';
+  if(tab==='music')body=CATALOG.music.filter(([id])=>TRACKS[id]).map(([id,c,ico,d])=>{const has=ST.music.includes(id),pl=MUS.on&&MUS.id===id;
+    return row(ico,esc(TRACKS[id].name),pl?'🎵 いま ながれているよ':d,has?`<button class="play ${pl?'on':''}" data-pl="${id}">${pl?'■ とめる':'▶ ながす'}</button><button class="sell sub" data-sm="${id}">うる +${c/2|0}</button>`:`<button class="buy" data-bm="${id}" ${ST.coins<c?'disabled':''}>かう ${coin(c)}</button>`,has?'has':'')}).join('')
+    +'<p class="note">いちど かえば いつでも ながせるよ。ラジオが しゃべる時は 小さくなる</p>';
+  if(tab==='event'){const ph=nowPh();body=`<p class="note">いまは ${PH_LABEL[ph]}。かうと 浜辺で すぐ はじまるよ</p>`+[...CATALOG.event].sort((a,b)=>onSale(b)-onSale(a)||a.p-b.p).map(it=>{const ok=onSale(it);
+    return row(it.ico,it.n,ok?it.d:`${it.t.map(t=>PH_LABEL[t]).join('・')}だけ`,`<button class="buy" data-ev="${it.id}" ${!ok||ST.coins<it.p?'disabled':''}>かう ${coin(it.p)}</button>`,ok?'':'off')}).join('')}
   show('shop',`<section class="pnl shop">
     <div class="qtop"><button class="x" id="sx" aria-label="ショップを とじる">←</button><b>🛍️ ショップ</b><span></span></div>
-    <div class="seg"><button data-t="radio" class="${tab==='radio'?'on':''}">📻 ラジオ</button><button data-t="deco" class="${tab==='deco'?'on':''}">✨ かざり</button></div>
-    ${tab==='radio'?`<div class="rlist">${radioRows}</div><p class="note">ラジオは 何台でも おけるよ。うると かった ねだんの はんぶんが もどってくる（小学生ラジオは むりょう）</p>`:decoGrid}
+    <div class="seg tabs">${TABS.map(([k,i,n])=>`<button data-t="${k}" class="${tab===k?'on':''}"><span>${i}</span>${n}</button>`).join('')}</div>
+    <div class="rlist" id="slist">${body}</div>
   </section>`);
+  const sl=$('slist');if(shop.last===tab)sl.scrollTop=shopScroll;shop.last=tab;sl.onscroll=()=>{shopScroll=sl.scrollTop};
   $('sx').onclick=()=>{SFX.pop();home()};
-  panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{SFX.pop();shop(b.dataset.t)});
-  panel.querySelectorAll('.buy').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];if(ST.coins<L.price)return;
-    ST.coins-=L.price;const [x,y]=freeSpot();ST.radios.push({lv:k,on:true,x,y});save();head();drawRadios();SFX.save();toast(`📻 <b>${L.name}ラジオ</b> を 浜辺に おいた！`);shop('radio')});
-  panel.querySelectorAll('.sell').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];let idx=-1;ST.radios.forEach((r,i)=>{if(r.lv===k)idx=i});if(idx<0)return;
-    ST.radios.splice(idx,1);if(L.price)addCoins(L.price/2|0);drawRadios();SFX.coin();toast(`📻 ${L.name}ラジオを ${L.price?'うった':'てばなした'}`);shop('radio')});
-  panel.querySelectorAll('.good').forEach(b=>b.onclick=()=>{const n=b.dataset.n,c=+b.dataset.c;if(ST.coins<c||hasDeco(n))return;
-    ST.coins-=c;ST.deco[n]=true;save();head();SC.update(ST.coins);SFX.save();const r=b.getBoundingClientRect();FX.firework(r.left+r.width/2,r.top);toast(`✨ <b>${n}</b> を かざった！`);shop('deco')});
+  panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{SFX.pop();shopScroll=0;shop(b.dataset.t)});
+  const spend=(c,b)=>{if(ST.coins<c)return false;ST.coins-=c;save();head();const r=b.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,'#ffd23f');return true};
+  /* radios */
+  panel.querySelectorAll('[data-k].buy').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];if(!spend(L.price,b))return;
+    const [x,y]=freeSpot();ST.radios.push({lv:k,on:true,x,y});save();drawRadios();SFX.save();toast(`📻 <b>${L.name}ラジオ</b> を 浜辺に おいた！`);shop('radio')});
+  panel.querySelectorAll('[data-k].sell').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];let idx=-1;ST.radios.forEach((r,i)=>{if(r.lv===k)idx=i});if(idx<0)return;
+    ST.radios.splice(idx,1);if(L.price)addCoins(L.price/2|0);save();drawRadios();SFX.coin();toast(`📻 ${L.name}ラジオを ${L.price?'うった':'てばなした'}`);shop('radio')});
+  /* decorations */
+  panel.querySelectorAll('[data-bd]').forEach(b=>b.onclick=()=>{const n=b.dataset.bd,it=CATALOG.deco.find(d=>d[0]===n);if(hasDeco(n)||!spend(it[1],b))return;
+    ST.deco[n]=true;save();SC.update(ST.coins);SFX.save();toast(`${it[2]} <b>${n}</b> を かざった！`);shop('deco')});
+  panel.querySelectorAll('[data-sd]').forEach(b=>b.onclick=()=>{const n=b.dataset.sd,it=CATALOG.deco.find(d=>d[0]===n);if(!hasDeco(n))return;
+    delete ST.deco[n];addCoins(it[1]/2|0);SC.update(ST.coins);SFX.coin();toast(`${it[2]} ${n}を うった`);shop('deco')});
+  /* music */
+  panel.querySelectorAll('[data-bm]').forEach(b=>b.onclick=()=>{const id=b.dataset.bm,it=CATALOG.music.find(m=>m[0]===id);if(ST.music.includes(id)||!spend(it[1],b))return;
+    ST.music.push(id);save();SFX.save();playTrack(id);shop('music')});
+  panel.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>{const id=b.dataset.pl;if(MUS.on&&MUS.id===id){stopMusic(true)}else playTrack(id);setTimeout(()=>shop('music'),60)});
+  panel.querySelectorAll('[data-sm]').forEach(b=>b.onclick=()=>{const id=b.dataset.sm,it=CATALOG.music.find(m=>m[0]===id);
+    if(MUS.on&&MUS.id===id)stopMusic(true);ST.music=ST.music.filter(m=>m!==id);addCoins(it[1]/2|0);save();SFX.coin();toast(`🎵 ${TRACKS[id].name}を うった`);shop('music')});
+  /* events: buy, close the shop and watch it happen on the beach */
+  panel.querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>{const it=CATALOG.event.find(e=>e.id===b.dataset.ev);if(!onSale(it)||!spend(it.p,b))return;
+    SFX.chime();home();toast(`${it.ico} <b>${it.n}</b>`,2200);setTimeout(()=>{try{it.k==='show'?SC.show(it.id,it.sec):SC.play(it.id)}catch(e){}},500)});
 }
+function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
