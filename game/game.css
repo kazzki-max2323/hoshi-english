@@ -82,7 +82,7 @@
 .bubble.ab .in{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;line-height:1.35}
 .bubble.ab.line{animation:none;z-index:5}
 .bubble.ab.opt{animation:abRise 9s cubic-bezier(.2,.7,.3,1) forwards}
-@keyframes abRise{0%{transform:translateY(var(--from));opacity:0}8%{opacity:1}16%{transform:translateY(0)}82%{opacity:1}100%{transform:translate(var(--dx),-26px);opacity:0}}
+@keyframes abRise{0%{transform:translateY(var(--from));opacity:0}8%{opacity:1}16%{transform:translateY(0)}82%{opacity:1}100%{transform:translate(var(--dx),-12px);opacity:0}}
 .bubble.ab .lvt{font-family:var(--pixel);font-size:.6rem;font-weight:400;background:var(--c);color:#1b1530;border-radius:99px;padding:0 4px;margin-left:1px;vertical-align:2px}
 .bubble.ab.line .in{--bc:#fff6e0!important;font-family:"Libre Baskerville",Georgia,serif;font-size:.95rem}
 .bubble.ab.line .in::before,.bubble.ab.line .in::after{display:none}

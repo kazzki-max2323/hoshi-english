@@ -175,13 +175,13 @@ function drawLine(r){const c=cur;clearBubbles();const W=bub.getBoundingClientRec
   line.style.left=(W.width/2-line.offsetWidth/2)+'px';line.style.top='10px';clampX(line,W);
   line.onclick=()=>say(c.lv,c.en);
   /* each answer rises from below into its own row, then bobs there and drifts up as it fades, so none overlap */
-  const ceil=line.offsetTop+line.offsetHeight+14,floor=W.height*.84,n=c.opts.length,rowH=(floor-ceil)/n;
+  const ceil=line.offsetTop+line.offsetHeight+30,floor=W.height*.84,n=c.opts.length,rowH=(floor-ceil)/n;
   const rows=shuffle(c.opts.map((o,k)=>k));
   shuffle(c.opts.map((o,i)=>i)).forEach((i,k)=>setTimeout(()=>{if(cur!==c)return;
     const b=bubbleEl(esc(c.opts[i]),'opt');b.dataset.o=i;
     const row=rows[k],top=ceil+row*rowH+(rowH-b.offsetHeight)/2,side=row%2?.62:.38;
     b.style.left=(W.width*side-b.offsetWidth/2+(Math.random()*30-15))+'px';b.style.top=top+'px';clampX(b,W);
-    b.style.setProperty('--dx',(Math.random()*24-12)+'px');b.style.setProperty('--from',Math.min(140,floor-top+40)+'px');
+    b.style.setProperty('--dx',(Math.random()*24-12)+'px');b.style.setProperty('--from',Math.min(rowH*1.1,floor-top+40)+'px');
     b.style.animationDuration=(RISE-k*.4)+'s';
     b.onclick=()=>answer(c,i,b);SFX.pop()},350+k*520));
   /* nobody answered: the question drifts away with its bubbles */
