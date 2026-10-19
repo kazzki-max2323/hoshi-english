@@ -1,5 +1,5 @@
 // 星降るイングリッシュ: offline cache
-const CACHE='hoshienglish-v7';
+const CACHE='hoshienglish-v8';
 const CORE=['./','index.html','manifest.webmanifest','icon-192.png','icon-512.png','apple-touch-icon.png',
  'beach/scene.js','beach/scene.css','beach/host.js','beach/host-after.js','game/levels/index.js','game/levels/es.js','game/levels/jh.js','game/levels/hs.js','game/levels/adv.js',
  'audio/es.mp3','audio/es.json','audio/jh.mp3','audio/jh.json','audio/hs.mp3','audio/hs.json','audio/adv.mp3','audio/adv.json','game/game.js','game/game.css'];

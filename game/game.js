@@ -174,22 +174,43 @@ function drawLine(r){const c=cur;clearBubbles();const W=bub.getBoundingClientRec
   const line=bubbleEl(`📻<b class="lvt lv-${c.lv}">${LEVELS[c.lv].short}</b> ${esc(c.en)} <i class="again">🔁</i>`,'line');
   line.style.left=(W.width/2-line.offsetWidth/2)+'px';line.style.top='10px';clampX(line,W);
   line.onclick=()=>say(c.lv,c.en);
-  /* each answer rises from below into its own row, then bobs there and drifts up as it fades, so none overlap */
-  const ceil=line.offsetTop+line.offsetHeight+30,floor=W.height*.84,n=c.opts.length,rowH=(floor-ceil)/n;
-  const rows=shuffle(c.opts.map((o,k)=>k));
+  /* answers are born on the sand and float up like balloons until they press against the line */
+  const room={ceil:line.offsetTop+line.offsetHeight+12,w:W.width,floor:W.height*.86};
   shuffle(c.opts.map((o,i)=>i)).forEach((i,k)=>setTimeout(()=>{if(cur!==c)return;
-    const b=bubbleEl(esc(c.opts[i]),'opt');b.dataset.o=i;
-    const row=rows[k],top=ceil+row*rowH+(rowH-b.offsetHeight)/2,side=row%2?.62:.38;
-    b.style.left=(W.width*side-b.offsetWidth/2+(Math.random()*30-15))+'px';b.style.top=top+'px';clampX(b,W);
-    b.style.setProperty('--dx',(Math.random()*24-12)+'px');b.style.setProperty('--from',Math.min(rowH*1.1,floor-top+40)+'px');
-    b.style.animationDuration=(RISE-k*.4)+'s';
-    b.onclick=()=>answer(c,i,b);SFX.pop()},350+k*520));
+    const b=bubbleEl(esc(c.opts[i]),'opt');b.dataset.o=i;b.onclick=()=>answer(c,i,b);
+    const w=b.offsetWidth,h=b.offsetHeight,x=w/2+8+Math.random()*(room.w-w-16);
+    addBody({el:b,w,h,x,y:room.floor-h/2,vx:Math.random()*40-20,vy:-90-Math.random()*40,born:performance.now(),room,c});SFX.pop()},350+k*520));
   /* nobody answered: the question drifts away with its bubbles */
   setTimeout(()=>{if(cur===c&&!c.done)cur=null},350+c.opts.length*520+RISE*1000)}
+/* ---------- bubble physics: buoyancy, walls, and soft bounces between bubbles ---------- */
+let bodies=[],phys=0,lastT=0;
+function addBody(o){o.el.style.left='0';o.el.style.top='0';bodies.push(o);place(o);if(!phys){lastT=performance.now();phys=requestAnimationFrame(step)}}
+function place(o){o.el.style.transform=`translate(${(o.x-o.w/2).toFixed(1)}px,${(o.y-o.h/2).toFixed(1)}px)`}
+function boing(o,now){if(now-(o.bt||0)<260)return;o.bt=now;const i=o.el.querySelector('.in');i.classList.remove('boing');void i.offsetWidth;i.classList.add('boing')}
+function step(now){const dt=Math.min(.05,(now-lastT)/1000);lastT=now;
+  for(const o of bodies){if(o.frozen)continue;const R=o.room;
+    o.vy-=60*dt;                                   // buoyancy
+    o.vx+=Math.sin(now/700+o.born)*14*dt;          // a little breeze
+    const damp=Math.pow(.35,dt);o.vx*=damp;o.vy*=damp;
+    o.x+=o.vx*dt;o.y+=o.vy*dt;
+    if(o.y-o.h/2<R.ceil){o.y=R.ceil+o.h/2;if(o.vy<-25)boing(o,now);o.vy=-o.vy*.45}
+    if(o.x-o.w/2<6){o.x=6+o.w/2;if(o.vx<-25)boing(o,now);o.vx=-o.vx*.6}
+    if(o.x+o.w/2>R.w-6){o.x=R.w-6-o.w/2;if(o.vx>25)boing(o,now);o.vx=-o.vx*.6}
+    if(now-o.born>RISE*1000&&!o.fading){o.fading=1;o.el.classList.add('gone')}}
+  /* push overlapping bubbles apart along the shallower axis and bounce them */
+  for(let i=0;i<bodies.length;i++)for(let j=i+1;j<bodies.length;j++){const a=bodies[i],b=bodies[j];if(a.fading||b.fading)continue;
+    const ox=(a.w+b.w)/2+4-Math.abs(a.x-b.x),oy=(a.h+b.h)/2+4-Math.abs(a.y-b.y);if(ox<=0||oy<=0)continue;
+    const fa=a.frozen?0:b.frozen?1:.5,fb=1-fa;
+    if(oy<ox){const s=a.y<b.y?-1:1;a.y+=s*oy*fa;b.y-=s*oy*fb;const rv=b.vy-a.vy;if(rv*s>0){const imp=rv*.8;if(Math.abs(rv)>30){boing(a,now);boing(b,now)}a.vy+=imp*fa*2;b.vy-=imp*fb*2}}
+    else{const s=a.x<b.x?-1:1;a.x+=s*ox*fa;b.x-=s*ox*fb;const rv=b.vx-a.vx;if(rv*s>0){const imp=rv*.8;if(Math.abs(rv)>30){boing(a,now);boing(b,now)}a.vx+=imp*fa*2;b.vx-=imp*fb*2}}}
+  bodies=bodies.filter(o=>{if(o.fading&&now-o.born>RISE*1000+400){o.el.remove();return false}return o.el.isConnected});
+  bodies.forEach(place);
+  phys=bodies.length?requestAnimationFrame(step):0}
 /* keep the line bubble inside the beach window when the screen size changes */
-function fitBubbles(){const W=bub.getBoundingClientRect();bub.querySelectorAll('.bubble').forEach(b=>clampX(b,W))}
+function fitBubbles(){const W=bub.getBoundingClientRect();bub.querySelectorAll('.bubble.line').forEach(b=>clampX(b,W));bodies.forEach(o=>o.room.w=W.width)}
 function answer(c,i,b){if(c!==cur||c.done)return;c.done=1;const ok=c.opts[i]===c.ja,L=LEVELS[c.lv];
-  bub.querySelectorAll('.opt').forEach(x=>{x.classList.add('hold');if(c.opts[+x.dataset.o]===c.ja)x.classList.add('right');else if(x!==b)x.classList.add('gone')});
+  bodies.forEach(o=>{if(o.c===c)o.frozen=1});
+  bub.querySelectorAll('.opt').forEach(x=>{if(c.opts[+x.dataset.o]===c.ja)x.classList.add('right');else if(x!==b)x.classList.add('gone')});
   const rc=b.getBoundingClientRect(),cx=rc.left+rc.width/2,cy=rc.top+rc.height/2;
   if(ok){coinBurst(cx,cy,L.reward);FX.ring(cx,cy,'#ffd23f');FX.firework(cx,cy-10);SFX.chime()}
   else{b.classList.add('wrong');SFX.tie()}
