@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#0b1030">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="星降るイングリッシュ">
+<meta name="description" content="星降る浜辺で、ゲーム感覚で英単語をおぼえよう">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>星降るイングリッシュ</title>
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+html,body{margin:0}
+body{font-size:14px;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;overscroll-behavior:none}
+button{touch-action:manipulation}
+[hidden]{display:none!important}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DotGothic16&family=M+PLUS+Rounded+1c:wght@500;800&display=swap">
+<link rel="stylesheet" href="beach/scene.css">
+<link rel="stylesheet" href="game/game.css">
+</head>
+<body>
+<canvas id="stars"></canvas>
+<div class="wrap">
+  <header>
+    <h1>★ 星降るイングリッシュ</h1><div id="clock" class="chip clk"></div>
+    <div class="hr"><div class="coin" aria-live="polite"><i></i><span id="coins">0</span> 枚</div><button id="snd" class="chip" aria-label="音の オン・オフ">🔊</button></div>
+  </header>
+  <div id="window"></div>
+  <main id="panel"></main>
+</div>
+<button id="nowplay" hidden><span>♪</span><span id="npTitle"></span><span id="npTime"></span></button>
+<div id="toast" aria-live="polite"></div>
+<div id="vig"></div>
+<canvas id="fx"></canvas>
+<script src="beach/host.js"></script>
+<script src="beach/scene.js"></script>
+<script src="beach/host-after.js"></script>
+<script src="game/words.js"></script>
+<script src="game/game.js"></script>
+<script>
+if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>
