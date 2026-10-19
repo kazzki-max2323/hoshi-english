@@ -7,9 +7,10 @@ const START_COINS=150;
 
 /* ---------- save ---------- */
 const GAP0=10;
-try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=s.radios||[];ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];
-  if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.music=[];ST.started=1}
-_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');Object.assign(s,{music:ST.music,radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
+try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=s.radios||[];ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;
+  if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.music=[];ST.learned={};ST.slow=false;ST.started=1}
+ST.vol=Object.assign({se:1,wave:1,mus:1,voice:1},ST.vol||{});
+_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');Object.assign(s,{learned:ST.learned,slow:ST.slow,music:ST.music,radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
 
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -19,6 +20,9 @@ const allWords=lv=>LEVELS[lv].books.flatMap(b=>b.w);
    every word and line is pre-recorded into one mp3 per level (audio/<lv>.mp3 + .json offsets),
    played through Web Audio so it also works inside app web views without speech synthesis */
 const AUD={};
+/* which sprite holds which line: every sprite's small .json index is read up front */
+const SPRITES=['es','jh','hs','adv','suika','pop','season','star','folk'],IDX={};
+const idxP=Promise.all(SPRITES.map(k=>fetch(`audio/${k}.json`).then(r=>r.json()).then(m=>{for(const t in m)if(!(t in IDX))IDX[t]=k}).catch(()=>{})));let idxOk=false;idxP.then(()=>{idxOk=true});
 function loadAud(lv){if(AUD[lv])return AUD[lv].p;const a=AUD[lv]={};
   a.p=Promise.all([fetch(`audio/${lv}.json`).then(r=>r.json()),fetch(`audio/${lv}.mp3`).then(r=>r.arrayBuffer())])
     .then(([m,ab])=>{a.map=m;return new Promise((res,rej)=>A().decodeAudioData(ab,res,rej))}).then(b=>{a.buf=b}).catch(e=>{a.err=e});return a.p}
@@ -26,21 +30,23 @@ let voiceOut=null,clip=null;
 function stopClip(){if(clip){try{clip.onended=null;clip.stop()}catch(e){}clip=null}window.speechSynthesis&&speechSynthesis.cancel()}
 function say(lv,t,done){let fin=false;const end=()=>{if(!fin){fin=true;done&&done()}};
   if(!ST.sound){setTimeout(end,1500);return}
+  if(!idxOk){idxP.then(()=>say(lv,t,done));return}
+  if(!(AUD[lv]&&AUD[lv].map&&AUD[lv].map[t])&&IDX[t])lv=IDX[t];
   const a=AUD[lv];
   if(!a||(!a.buf&&!a.err)){loadAud(lv).then(()=>say(lv,t,done));return}
   const seg=a.buf&&a.map[t];if(!seg){speak(t,{done:end});return}
-  try{A();if(ac.state==='suspended')ac.resume();if(!voiceOut){voiceOut=ac.createGain();voiceOut.gain.value=1.5;voiceOut.connect(master)}
-    stopClip();duck(true);const s=ac.createBufferSource();s.buffer=a.buf;s.connect(voiceOut);s.onended=()=>{if(clip===s)clip=null;duck(false);end()};s.start(0,seg[0],seg[1]);clip=s}catch(e){speak(t,{done:end})}}
+  try{A();if(ac.state==='suspended')ac.resume();if(!voiceOut){voiceOut=ac.createGain();voiceOut.connect(master)}voiceOut.gain.value=1.5*ST.vol.voice;
+    stopClip();duck(true);const s=ac.createBufferSource();s.buffer=a.buf;s.playbackRate.value=ST.slow?.8:1;s.connect(voiceOut);s.onended=()=>{if(clip===s)clip=null;duck(false);end()};s.start(0,seg[0],seg[1]);clip=s}catch(e){speak(t,{done:end})}}
 document.addEventListener('pointerdown',()=>{try{A()}catch(e){}loadAud('es')},{once:true});
 /* music steps back while someone speaks */
-function duck(on){try{if(musOut)musOut.gain.setTargetAtTime(((ST.vol&&ST.vol.mus)??1)*(on?.3:1),ac.currentTime,on?.08:.4)}catch(e){}}
+function duck(on){try{if(musOut)musOut.gain.setTargetAtTime(ST.vol.mus*(on?.3:1),ac.currentTime,on?.08:.4)}catch(e){}}
 let voice=null;
 function pickVoice(){const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));voice=vs.find(v=>/en[-_]US/i.test(v.lang)&&/Samantha|Google|Natural/i.test(v.name))||vs.find(v=>/en[-_]US/i.test(v.lang))||vs[0]||null}
 if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
 /* speaks and calls done() once the line has finished (or right away when it can't speak) */
 function speak(t,{done}={}){let fin=false;const end=()=>{if(!fin){fin=true;done&&done()}};
   if(!window.speechSynthesis||!ST.sound){setTimeout(end,1200);return}
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';if(voice)u.voice=voice;u.rate=.85;u.onend=end;u.onerror=end;speechSynthesis.speak(u);setTimeout(end,600+t.length*160)}catch(e){end()}}
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';if(voice)u.voice=voice;u.rate=ST.slow?.65:.85;u.onend=end;u.onerror=end;speechSynthesis.speak(u);setTimeout(end,600+t.length*160)}catch(e){end()}}
 
 /* ---------- toast ---------- */
 function toast(html,ms=2600){const el=$('toast');el.innerHTML=html;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),ms)}
@@ -50,6 +56,7 @@ $('toast').addEventListener('click',()=>$('toast').classList.remove('on'));
 /* ---------- header ---------- */
 function head(){$('coins').textContent=ST.coins.toLocaleString();const ph=phaseOf(GH());$('clock').textContent=ph[2]+' '+clockStr();$('snd').textContent=ST.sound?'🔊':'🔇'}
 setInterval(head,1000);
+$('gear').onclick=()=>{SFX.pop();screen==='settings'?home():settings()};
 $('snd').onclick=()=>{ST.sound=!ST.sound;ST.waves=ST.sound;ambient();if(!ST.sound){try{stopMusic(true)}catch(e){}stopClip()}else SFX.snd();save();head()};
 function addCoins(n){ST.coins+=n;save();head();const c=document.querySelector('.coin');c.classList.remove('bump');void c.offsetWidth;c.classList.add('bump')}
 function flyCoin(x,y,n,quick){const d=document.createElement('div');d.className='fly'+(quick?' quick':'');d.innerHTML=(quick?'<small>はやい！</small>':'')+'+'+n;d.style.left=x+'px';d.style.top=y+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
@@ -78,57 +85,93 @@ function home(){
 }
 
 /* ---------- word books ---------- */
+/* the seasonal book (game/extras/season.js) sits at the top of every level's shelf while its season lasts */
+function getBook(lv,bi){if(bi==='season'){const sn=seasonNow();return sn&&{t:`${sn[1].name}の たんごちょう`,ico:sn[1].ico,w:sn[1].w}}return LEVELS[lv].books[bi]}
+const lkey=(lv,bi,w)=>(bi==='season'?'season':lv)+':'+w[0];
+const isLearned=(lv,bi,w)=>!!ST.learned[lkey(lv,bi,w)];
 function books(lv){
-  const L=LEVELS[lv];
+  const L=LEVELS[lv],sn=seasonNow();
+  const tile=(bi,num)=>{const b=getBook(lv,bi),p=ST.bookPos[lv+':'+bi]||0,n=b.w.filter(w=>isLearned(lv,bi,w)).length;
+    return `<button class="book ${bi==='season'?'season':''} ${n===b.w.length?'mastered':''}" data-i="${bi}"><span class="bn">${num}</span><span class="bt">${esc(b.t)}</span><span class="bp">${n?`✓ ${n}/${b.w.length}`:p?`${p+1} / ${b.w.length}`:`${b.w.length}ご`}</span><i class="lbar" style="width:${n/b.w.length*100}%"></i></button>`};
+  const all=L.books.flatMap((b,i)=>b.w.map(w=>[i,w])),got=all.filter(([i,w])=>isLearned(lv,i,w)).length;
   show('books',`<section class="pnl books">
-    <div class="qtop"><button class="x" id="bx" aria-label="もどる">←</button><b>${L.ico} ${L.name}の たんごちょう</b><span class="qn">${L.books.length}さつ</span></div>
-    <div class="shelf">${L.books.map((b,i)=>{const p=ST.bookPos[lv+':'+i]||0;return `<button class="book" data-i="${i}"><span class="bn">${i+1}</span><span class="bt">${esc(b.t)}</span><span class="bp">${p?`${p+1} / ${b.w.length}`:`${b.w.length}ご`}</span></button>`}).join('')}</div>
+    <div class="qtop"><button class="x" id="bx" aria-label="もどる">←</button><b>${L.ico} ${L.name}の たんごちょう</b><span class="qn">✓ ${got}/${all.length}</span></div>
+    <div class="shelf">${sn?tile('season',sn[1].ico):''}${L.books.map((b,i)=>tile(i,i+1)).join('')}</div>
+    ${sn?`<p class="note">${sn[1].ico} いまだけ「${sn[1].name}の たんごちょう」が あるよ</p>`:''}
   </section>`);
   $('bx').onclick=()=>{SFX.pop();home()};
-  panel.querySelectorAll('.book').forEach(b=>b.onclick=()=>{SFX.flip();cards(lv,+b.dataset.i)});
+  panel.querySelectorAll('.book').forEach(b=>b.onclick=()=>{SFX.flip();const v=b.dataset.i;cards(lv,v==='season'?v:+v)});
 }
 
-function cards(lv,bi){
-  const L=LEVELS[lv],B=L.books[bi],key=lv+':'+bi;let i=Math.min(ST.bookPos[key]||0,B.w.length-1);
+function cards(lv,bi,onlyLeft=false){
+  const L=LEVELS[lv],B=getBook(lv,bi),key=lv+':'+bi;if(!B)return books(lv);
+  const left=()=>B.w.map((w,j)=>j).filter(j=>!isLearned(lv,bi,B.w[j]));
+  let i=Math.min(ST.bookPos[key]||0,B.w.length-1);if(onlyLeft&&isLearned(lv,bi,B.w[i]))i=left()[0]??0;
   show('cards',`<section class="pnl wb">
-    <div class="qtop"><button class="x" id="cx" aria-label="たんごちょうを とじる">←</button><b>${bi+1}. ${esc(B.t)}</b><span class="qn" id="cn"></span></div>
+    <div class="qtop"><button class="x" id="cx" aria-label="たんごちょうを とじる">←</button><b>${bi==='season'?B.ico:bi+1+'.'} ${esc(B.t)}</b><span class="qn" id="cn"></span></div>
+    <div class="seg only"><button data-o="0" class="${onlyLeft?'':'on'}">ぜんぶ</button><button data-o="1" class="${onlyLeft?'on':''}">のこりだけ（<span id="ln"></span>）</button></div>
     <div class="deck" id="deck"><div class="fc" id="fc" tabindex="0" role="button" aria-label="カードを めくる"><div class="cface cfront" id="ff"></div><div class="cface cback" id="fb"></div></div></div>
-    <div class="ctl"><button id="cp" aria-label="まえの カード">◀</button><button id="cs" class="say" aria-label="はつおんを きく">🔊</button><button id="cnx" aria-label="つぎの カード">▶</button></div>
-    <p class="note">タップで うら・おもて　よこに スワイプで めくる</p>
+    <div class="ctl"><button id="cp" aria-label="まえの カード">◀</button><button id="cs" class="say" aria-label="はつおんを きく">🔊</button><button id="ck" class="mark" aria-label="おぼえた">✓</button><button id="cnx" aria-label="つぎの カード">▶</button></div>
+    <p class="note">タップで うら・おもて　よこに スワイプで めくる　うえに スワイプで「おぼえた」</p>
   </section>`);
   const fc=$('fc');
-  function draw(){const w=B.w[i];fc.classList.remove('flip');
-    $('ff').innerHTML=`${w[2]?`<span class="ce">${w[2]}</span>`:''}<span class="cw">${esc(w[0])}</span>`;
+  function draw(){const w=B.w[i],lr=isLearned(lv,bi,w);fc.classList.remove('flip');fc.classList.toggle('learned',lr);
+    $('ff').innerHTML=`${lr?'<em class="lmark">✓ おぼえた</em>':''}${w[2]?`<span class="ce">${w[2]}</span>`:''}<span class="cw">${esc(w[0])}</span>`;
     $('fb').innerHTML=`<span class="cj">${esc(w[1])}</span><span class="cw2">${esc(w[0])}</span>`;
-    $('cn').textContent=`${i+1} / ${B.w.length}`;ST.bookPos[key]=i;save()}
-  function go(d){const n=i+d;
+    $('cn').textContent=`${i+1} / ${B.w.length}`;$('ln').textContent=left().length;$('ck').classList.toggle('on',lr);ST.bookPos[key]=i;save()}
+  /* the next card in direction d (skipping learned ones in のこりだけ); -1 when there is none */
+  const nextIdx=d=>{let n=i+d;while(n>=0&&n<B.w.length&&onlyLeft&&isLearned(lv,bi,B.w[n]))n+=d;return n};
+  function slide(n,dir,up){fc.style.transition='transform .18s ease-in,opacity .18s';fc.style.transform=up?'translateY(-130%) rotate(-4deg)':`translateX(${dir>0?-120:120}%) rotate(${dir>0?-8:8}deg)`;fc.style.opacity='0';SFX.flip();
+    setTimeout(()=>{i=n;draw();fc.style.transition='none';fc.style.transform=up?'translateY(40%)':`translateX(${dir>0?120:-120}%)`;void fc.offsetWidth;fc.style.transition='transform .2s ease-out,opacity .2s';fc.style.transform='';fc.style.opacity='1'},180)}
+  function go(d){const n=nextIdx(d);
     if(n<0){fc.classList.add('nudge');setTimeout(()=>fc.classList.remove('nudge'),250);return}
     if(n>=B.w.length){done();return}
-    fc.style.transition='transform .18s ease-in,opacity .18s';fc.style.transform=`translateX(${d>0?-120:120}%) rotate(${d>0?-8:8}deg)`;fc.style.opacity='0';SFX.flip();
-    setTimeout(()=>{i=n;draw();fc.style.transition='none';fc.style.transform=`translateX(${d>0?120:-120}%)`;void fc.offsetWidth;fc.style.transition='transform .2s ease-out,opacity .2s';fc.style.transform='';fc.style.opacity='1'},180)}
+    slide(n,d)}
+  /* mark the card learned (or not) and move on */
+  function mark(){const w=B.w[i],k=lkey(lv,bi,w);if(ST.learned[k]){delete ST.learned[k];save();draw();SFX.pop();return}
+    ST.learned[k]=1;save();SFX.chime();const r=fc.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,'#55e0b4');
+    if(onlyLeft&&!left().length){draw();done();return}
+    const n=nextIdx(1);if(n>=B.w.length){draw();done();return}slide(n,1,true)}
   function done(){ST.bookPos[key]=0;save();SFX.fanfare(1);const r=$('deck').getBoundingClientRect();FX.firework(r.left+r.width/2,r.top+r.height/2);
-    const nx=bi+1<L.books.length;
-    $('deck').innerHTML=`<div class="fin"><b>🎉 ${B.w.length}ご ぜんぶ めくったよ！</b><div class="row"><button id="again" class="sub">もういちど</button>${nx?'<button id="nextB">つぎの たんごちょう ▶</button>':''}</div></div>`;
+    const nx=typeof bi==='number'&&bi+1<L.books.length,rest=left().length;
+    $('deck').innerHTML=`<div class="fin"><b>${rest?`🎉 さいごまで めくったよ！<small>のこり ${rest}ご</small>`:'🌟 ぜんぶ おぼえた！'}</b><div class="row">${rest?'<button id="leftB" class="sub">のこりだけ もういちど</button>':'<button id="again" class="sub">もういちど</button>'}${nx?'<button id="nextB">つぎの たんごちょう ▶</button>':''}</div></div>`;
     panel.querySelector('.ctl').hidden=true;panel.querySelector('.wb .note').hidden=true;
-    $('again').onclick=()=>cards(lv,bi);if(nx)$('nextB').onclick=()=>{SFX.flip();cards(lv,bi+1)}}
-  /* swipe: drag the card sideways; a short tap flips it */
-  let sx=null,sy=0,dx=0;
-  fc.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;dx=0;fc.setPointerCapture(e.pointerId);fc.style.transition='none'});
-  fc.addEventListener('pointermove',e=>{if(sx==null)return;dx=e.clientX-sx;if(Math.abs(dx)>6)fc.style.transform=`translateX(${dx}px) rotate(${dx/30}deg)`});
-  const up=e=>{if(sx==null)return;const moved=Math.abs(dx),vy=Math.abs(e.clientY-sy);sx=null;fc.style.transition='transform .2s';
-    if(moved>60&&moved>vy)go(dx<0?1:-1);else{fc.style.transform='';if(moved<8&&vy<8){fc.classList.toggle('flip');SFX.pop()}}};
+    const a=$('again');if(a)a.onclick=()=>cards(lv,bi);const lb=$('leftB');if(lb)lb.onclick=()=>{ST.bookPos[key]=0;cards(lv,bi,true)};if(nx)$('nextB').onclick=()=>{SFX.flip();cards(lv,bi+1)}}
+  /* swipe: sideways turns the page, up marks it learned; a short tap flips it */
+  let sx=null,sy=0,dx=0,dy=0;
+  fc.addEventListener('pointerdown',e=>{sx=e.clientX;sy=e.clientY;dx=dy=0;fc.setPointerCapture(e.pointerId);fc.style.transition='none'});
+  fc.addEventListener('pointermove',e=>{if(sx==null)return;dx=e.clientX-sx;dy=e.clientY-sy;
+    if(Math.abs(dy)>Math.abs(dx)&&dy<-6)fc.style.transform=`translateY(${dy}px)`;else if(Math.abs(dx)>6)fc.style.transform=`translateX(${dx}px) rotate(${dx/30}deg)`});
+  const up=()=>{if(sx==null)return;const ax=Math.abs(dx),ay=Math.abs(dy);sx=null;fc.style.transition='transform .2s';
+    if(dy<-60&&ay>ax){fc.style.transform='';mark()}else if(ax>60&&ax>ay)go(dx<0?1:-1);else{fc.style.transform='';if(ax<8&&ay<8){fc.classList.toggle('flip');SFX.pop()}}};
   fc.addEventListener('pointerup',up);fc.addEventListener('pointercancel',()=>{sx=null;fc.style.transform=''});
   fc.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();fc.classList.toggle('flip')}});
-  $('cp').onclick=()=>go(-1);$('cnx').onclick=()=>go(1);
+  $('cp').onclick=()=>go(-1);$('cnx').onclick=()=>go(1);$('ck').onclick=mark;
   $('cs').onclick=e=>{e.stopPropagation();say(lv,B.w[i][0])};
-  loadAud(lv);
+  panel.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const o=b.dataset.o==='1';if(o&&!left().length){toast('🌟 この たんごちょうは ぜんぶ おぼえたよ');return}SFX.pop();cards(lv,bi,o)});
+  loadAud(bi==='season'?'season':lv);
   $('cx').onclick=()=>{SFX.pop();books(lv)};
-  cardKeys=e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1)};
+  cardKeys=e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1);if(e.key==='ArrowUp')mark()};
   draw();
 }
 let cardKeys=null;
+/* ---------- settings: volumes and voice speed ---------- */
+function settings(){
+  const S_=[['se','🔔','効果音'],['wave','🌊','波の音'],['mus','🎵','BGM'],['voice','🗣️','英語の 発音']];
+  show('settings',`<section class="pnl settings">
+    <div class="qtop"><button class="x" id="gx" aria-label="設定を とじる">←</button><b>⚙️ 設定</b><span></span></div>
+    ${S_.map(([k,i,n])=>`<label class="vol"><span>${i} ${n}</span><input type="range" id="v_${k}" min="0" max="100" step="5" value="${Math.round(ST.vol[k]*100)}"><output id="o_${k}">${Math.round(ST.vol[k]*100)}%</output></label>`).join('')}
+    <div class="vol"><span>🐢 発音の 速さ</span><div class="seg spd"><button data-sp="0" class="${ST.slow?'':'on'}">ふつう</button><button data-sp="1" class="${ST.slow?'on':''}">ゆっくり</button></div></div>
+    <button id="vtest" class="sub">🔊 ためしに きく（hello）</button>
+    <p class="note">枠の 外を タップすると とじるよ</p>
+  </section>`);
+  $('gx').onclick=()=>{SFX.pop();home()};
+  S_.forEach(([k])=>{const r=$('v_'+k);r.oninput=()=>{ST.vol[k]=r.value/100;$('o_'+k).textContent=r.value+'%';try{applyVol()}catch(e){}if(voiceOut)voiceOut.gain.value=1.5*ST.vol.voice;save()};
+    r.onchange=()=>{if(k==='se')SFX.coin();if(k==='voice')say('es','hello')}});
+  panel.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{ST.slow=b.dataset.sp==='1';save();say('es','hello');settings()});
+  $('vtest').onclick=()=>say('es','hello')}
 /* tapping anywhere outside the shop panel closes the shop (and that tap does nothing else) */
-document.addEventListener('pointerdown',e=>{if(screen!=='shop'||e.target.closest('#panel,#toast,header'))return;
+document.addEventListener('pointerdown',e=>{if((screen!=='shop'&&screen!=='settings')||e.target.closest('#panel,#toast,header'))return;
   e.preventDefault();e.stopPropagation();const eat=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',eat,true),400);
   SFX.pop();home()},true);
 document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys)cardKeys(e)});
@@ -143,8 +186,10 @@ function freeSpot(skip){const others=ST.radios.filter(r=>r!==skip);
   for(let t=0;t<80;t++){const x=.07+Math.random()*.86,y=.66+Math.random()*.1;if(clearOfFire(x,y)&&others.every(o=>Math.abs(o.x-x)>.1||Math.abs(o.y-y)>.06))return [x,y]}
   return [Math.random()<.5?.1:.9,.7]}
 function placeRadios(){ST.radios.forEach(r=>{if(r.y==null||r.y>.78||!clearOfFire(r.x,r.y)){[r.x,r.y]=freeSpot(r)}})}
-function drawRadios(){layer.innerHTML=ST.radios.map((r,i)=>`<button class="radio ${r.on?'on':''}" data-i="${i}" style="left:${r.x*100}%;top:${r.y*100}%" aria-label="${LEVELS[r.lv].name}ラジオ ${r.on?'オン':'オフ'}"><span class="rb">📻</span><b class="lv-${r.lv}">${LEVELS[r.lv].short}</b></button>`).join('');
-  layer.querySelectorAll('.radio').forEach(b=>b.onclick=()=>{const r=ST.radios[+b.dataset.i];r.on=!r.on;save();drawRadios();SFX.beep(r.on?880:440);toast(`📻 ${LEVELS[r.lv].name}ラジオ <b>${r.on?'オン':'オフ'}</b>`,1400);if(screen==='home'){rqIdle();radioWake()}})}
+const isNight=()=>phaseOf(GH())[1]==='night';
+const asleep=r=>LEVELS[r.lv].nightOnly&&!isNight();
+function drawRadios(){layer.innerHTML=ST.radios.map((r,i)=>`<button class="radio ${r.on?'on':''} ${asleep(r)?'sleep':''}" data-i="${i}" style="left:${r.x*100}%;top:${r.y*100}%" aria-label="${LEVELS[r.lv].name}ラジオ ${r.on?'オン':'オフ'}"><span class="rb">📻</span><b class="lv-${r.lv}">${LEVELS[r.lv].short}</b>${asleep(r)?'<i class="zz">💤</i>':''}</button>`).join('');
+  layer.querySelectorAll('.radio').forEach(b=>b.onclick=()=>{const r=ST.radios[+b.dataset.i];r.on=!r.on;save();drawRadios();SFX.beep(r.on?880:440);toast(`📻 ${LEVELS[r.lv].name}ラジオ <b>${r.on?'オン':'オフ'}</b>${asleep(r)?'<small>夜に なると しゃべるよ 💤</small>':''}`,1600);if(screen==='home'){rqIdle();radioWake()}})}
 
 let nextAt=0,talking=false,lastRadio=-1,cur=null;
 function clearBubbles(){bub.querySelectorAll('.bubble').forEach(b=>{b.classList.add('gone');setTimeout(()=>b.remove(),260)})}
@@ -154,13 +199,16 @@ function rqIdle(){const el=$('rq');if(!el)return;const on=ST.radios.filter(r=>r.
   el.textContent=!ST.radios.length?'📻 ショップで 小学生ラジオを もらおう（むりょう）。浜辺で 英語を つぶやくよ':on?'📻 ラジオの こたえが 浜辺に うかぶよ。タップして コインを もらおう':'📻 ラジオが ぜんぶ オフだよ。浜辺の ラジオを タップすると オンになるよ'}
 /* distractors must not share a meaning with the answer (e.g. 提案 / 提案する) */
 const overlap=(a,b)=>{a=a.replace(/[〜（）・、。？！ ]/g,'');b=b.replace(/[〜（）・、。？！ ]/g,'');for(let i=0;i<a.length-1;i++)if(b.includes(a.slice(i,i+2)))return true;return false};
-function makeLine(lv){const L=LEVELS[lv],useTalk=Math.random()<.5&&L.talk.length,pool=useTalk?L.talk:allWords(lv);
+/* a radio line: a word, a sentence, a character / trend line, or (in season) a seasonal line */
+function makeLine(lv){const L=LEVELS[lv],r=Math.random(),sn=seasonNow();
+  const pool=L.pop&&r<.25?L.pop:sn&&!L.nightOnly&&r<.37?[...sn[1].talk,...L.talk]:r<.65&&L.talk.length?L.talk:allWords(lv);
   const ans=pick(pool),n=L.choices;
   const others=shuffle(pool.filter(o=>o!==ans&&o[0]!==ans[0]&&o[1]!==ans[1]&&!overlap(o[1],ans[1]))).slice(0,n-1);
   return {lv,en:ans[0],ja:ans[1],opts:shuffle([ans[1],...others.map(o=>o[1])])}}
 function tick(){
   if(screen!=='home'||talking||document.hidden||performance.now()<nextAt)return;
-  const on=ST.radios.map((r,i)=>[r,i]).filter(([r])=>r.on);if(!on.length)return;
+  if(cur&&cur.src==='folk'&&!cur.done)return;                // a resident is talking
+  const on=ST.radios.map((r,i)=>[r,i]).filter(([r])=>r.on&&!asleep(r));if(!on.length)return;
   let pickd=pick(on);if(on.length>1)while(pickd[1]===lastRadio)pickd=pick(on);
   const [r,ri]=pickd;lastRadio=ri;cur=makeLine(r.lv);cur.ri=ri;cur.t0=performance.now();talking=true;
   const btn=layer.querySelector(`[data-i="${ri}"]`);btn&&btn.classList.add('talk');
@@ -168,6 +216,8 @@ function tick(){
   const c=cur;setTimeout(()=>{if(cur!==c){talking=false;return}say(c.lv,c.en,()=>{talking=false;btn&&btn.classList.remove('talk');nextAt=performance.now()+ST.radioGap*1000})},250);
 }
 setInterval(tick,250);
+/* wake the star radios at nightfall (and put them to sleep at dawn) */
+let wasNight=isNight();setInterval(()=>{const n=isNight();if(n!==wasNight){wasNight=n;drawRadios();if(n&&ST.radios.some(r=>r.on&&LEVELS[r.lv].nightOnly))toast('🌙 星空ラジオが 目を さました')}},2000);
 const BC=['#ffe066','#ff9ec4','#8ff0c8','#9fd3ff','#d4b8ff','#ffc078'];
 const RISE=9,FAST_MS=5000;
 /* the radio's line pops up above it; the answers rise from the sand one by one, like the poker mumbles */
@@ -176,7 +226,7 @@ function bubbleEl(html,cls){const b=document.createElement('div');b.className='b
 function clampX(b,W){const w=b.offsetWidth,l=parseFloat(b.style.left);b.style.left=Math.max(6,Math.min(W.width-6-w,l))+'px'}
 function drawLine(r){const c=cur;clearBubbles();const W=bub.getBoundingClientRect();
   /* the radio's English line sits at the top of the sky, in front of everything, so answers never cover it */
-  const line=bubbleEl(`📻<b class="lvt lv-${c.lv}">${LEVELS[c.lv].short}</b> ${esc(c.en)} <i class="again">🔁</i>`,'line');
+  const line=bubbleEl(c.src==='folk'?`${c.ico}<b class="lvt folkt">${esc(c.who)}</b> ${esc(c.en)} <i class="again">🔁</i>`:`📻<b class="lvt lv-${c.lv}">${LEVELS[c.lv].short}</b> ${esc(c.en)} <i class="again">🔁</i>`,'line');
   line.style.left=(W.width/2-line.offsetWidth/2)+'px';line.style.top='10px';clampX(line,W);
   line.onclick=()=>say(c.lv,c.en);
   /* answers are born on the sand and float up like balloons until they press against the line */
@@ -237,9 +287,10 @@ function answer(c,i,b){if(c!==cur||c.done)return;c.done=1;const ok=c.opts[i]===c
   bub.querySelectorAll('.opt').forEach(x=>{if(c.opts[+x.dataset.o]===c.ja)x.classList.add('right');else if(x!==b)x.classList.add('gone')});
   const rc=b.getBoundingClientRect(),cx=rc.left+rc.width/2,cy=rc.top+rc.height/2;
   /* a quick answer (within FAST_MS of the line starting) earns the level's fast reward */
-  const quick=L.fast&&performance.now()-c.t0<=FAST_MS,amt=quick?L.fast:L.reward;
+  const quick=L&&L.fast&&performance.now()-c.t0<=FAST_MS,amt=c.reward||(quick?L.fast:L.reward);
   if(ok){coinBurst(cx,cy,amt,quick);FX.ring(cx,cy,'#ffd23f');FX.firework(cx,cy-10);SFX.chime()}
   else{b.classList.add('wrong');SFX.tie()}
+  if(c.src==='folk')folkDone(ok);
   setTimeout(()=>{if(cur===c){cur=null;clearBubbles()}},ok?1500:2400)}
 /* coins burst out of the bubble and fly into the coin counter, ringing as each one lands */
 function coinBurst(x,y,amt,quick){const tg=document.querySelector('.coin i').getBoundingClientRect(),tx=tg.left+tg.width/2,ty=tg.top+tg.height/2;
@@ -250,6 +301,33 @@ function coinBurst(x,y,amt,quick){const tg=document.querySelector('.coin i').get
     const an=d.animate([{transform:`translate(${x}px,${y}px) scale(.3)`,opacity:1},{transform:`translate(${mx}px,${my}px) scale(1.15)`,opacity:1,offset:.32},{transform:`translate(${tx}px,${ty}px) scale(.6)`,opacity:.9}],
       {duration:760+k*70,easing:'cubic-bezier(.45,0,.55,1)',fill:'forwards'});
     an.onfinish=()=>{d.remove();if(share)addCoins(share);SFX.coin()}}}
+
+/* ---------- beach residents ----------
+   the more decorations on the beach, the more residents drop by. One walks in now and then;
+   tap it and it says something in English — pick the right Japanese for coins. */
+const folkLayer=document.createElement('div');folkLayer.id='folk';$('window').appendChild(folkLayer);
+const FOLK_REWARD=5;
+let folkNow=null,folkNext=performance.now()+20000;
+const decoCount=()=>Object.keys(ST.deco||{}).length;
+function folkUnlocked(){const n=Math.min(FOLK.length,1+Math.floor(decoCount()/3));return FOLK.slice(0,n).filter(f=>!f[4]||isNight()).concat(isNight()&&n<FOLK.length?[FOLK.find(f=>f[4])]:[])}
+function folkSpawn(){const pool=folkUnlocked().filter(Boolean);if(!pool.length)return;const F=pick(pool),[fx]=fireSpot();
+  let x;do{x=.12+Math.random()*.76}while(Math.abs(x-fx)<.16);const from=Math.random()<.5?-.08:1.08;
+  const el=document.createElement('button');el.className='folk';el.innerHTML=`<span class="fe">${F[1]}</span><b>${F[2]}</b><i class="fq">💬</i>`;
+  el.style.left=from*100+'%';el.style.top=(.72+Math.random()*.06)*100+'%';el.setAttribute('aria-label',`${F[2]}（${F[3]}）`);folkLayer.appendChild(el);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.left=x*100+'%'}));el.classList.toggle('flip',from>x);
+  folkNow={F,el,x,until:performance.now()+26000,talked:false};
+  el.onclick=()=>folkTalk()}
+function folkLeave(){const f=folkNow;if(!f)return;folkNow=null;const el=f.el;el.classList.remove('flip');el.classList.toggle('flip',f.x>.5);el.style.left=(f.x>.5?1.1:-.1)*100+'%';el.classList.add('bye');setTimeout(()=>el.remove(),3200);folkNext=performance.now()+40000+Math.random()*40000}
+/* a resident's line uses the same floating answers as the radios */
+function folkTalk(){const f=folkNow;if(!f||f.talked||screen!=='home')return;if(cur&&!cur.done&&talking)return;
+  f.talked=true;f.el.querySelector('.fq').textContent='…';radioQuiet();
+  const lines=f.F[5],ans=pick(lines),others=shuffle(FOLK.flatMap(x=>x[5]).filter(l=>l!==ans&&!overlap(l[1],ans[1]))).slice(0,2);
+  cur={lv:'folk',src:'folk',who:f.F[2],ico:f.F[1],en:ans[0],ja:ans[1],opts:shuffle([ans[1],...others.map(o=>o[1])]),reward:FOLK_REWARD,t0:performance.now()};
+  drawLine({x:f.x,y:.7});talking=true;f.el.classList.add('talk');say('folk',ans[0],()=>{talking=false;f.el.classList.remove('talk')})}
+function folkDone(ok){const f=folkNow;if(!f)return;f.el.querySelector('.fq').textContent=ok?'❤️':'💦';setTimeout(folkLeave,1800);nextAt=Math.max(nextAt,performance.now()+4000)}
+setInterval(()=>{const now=performance.now();
+  if(folkNow&&(now>folkNow.until&&!(cur&&cur.src==='folk'&&!cur.done)))folkLeave();
+  if(!folkNow&&screen==='home'&&!document.hidden&&now>folkNext&&!(cur&&!cur.done))folkSpawn()},1000);
 
 /* ---------- shop ---------- */
 const nowPh=()=>phaseOf(GH())[1];
@@ -264,8 +342,8 @@ let shopScroll=0;
 function shop(tab){
   const TABS=[['radio','📻','ラジオ'],['deco','🏖️','かざり'],['music','🎵','おんがく'],['event','🎆','イベント']];
   let body='';
-  if(tab==='radio')body=LV_ORDER.map(k=>{const L=LEVELS[k],n=ST.radios.filter(r=>r.lv===k).length;
-    return row(`📻<b class="lv-${k}">${L.short}</b>`,`${L.name}ラジオ`,`${L.choices}たく・せいかい +${L.reward}${L.fast?`（${FAST_MS/1000}びょう いないなら +${L.fast}）`:''}　もっている ${n}だい`,
+  if(tab==='radio')body=[...LV_ORDER,'star'].map(k=>{const L=LEVELS[k],n=ST.radios.filter(r=>r.lv===k).length;
+    return row(`📻<b class="lv-${k}">${L.short}</b>`,`${L.name}ラジオ${L.nightOnly?' <em class="tb">🌙 夜だけ しゃべる</em>':''}`,`${L.nightOnly?'星と 宇宙の 英語・':''}${L.choices}たく・せいかい +${L.reward}${L.fast?`（${FAST_MS/1000}びょう いないなら +${L.fast}）`:''}　もっている ${n}だい`,
       `<button class="buy" data-k="${k}" ${ST.coins<L.price?'disabled':''}>${L.price?'かう '+coin(L.price):'もらう（むりょう）'}</button><button class="sell sub" data-k="${k}" ${n?'':'disabled'}>${L.price?'うる +'+(L.price/2|0):'てばなす'}</button>`)}).join('')
     +'<p class="note">ラジオは 何台でも おけるよ（小学生ラジオは むりょう）</p>';
   if(tab==='deco')body=CATALOG.deco.map(([n,c,ico,d,rare])=>{const has=hasDeco(n);
@@ -314,7 +392,7 @@ function shop(tab){
 function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,get screen(){return screen}};
+window.HE={panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,folkSoon:()=>{folkNext=0},get screen(){return screen}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();
