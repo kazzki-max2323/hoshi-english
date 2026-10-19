@@ -3,11 +3,14 @@
 const fs=require('fs'),path=require('path');
 global.LEVELS={};for(const f of ['es','jh','hs','adv'])eval(fs.readFileSync(path.join(__dirname,'../game/levels',f+'.js'),'utf8'));
 const [src,arr,lv,out]=process.argv.slice(2);
-eval(fs.readFileSync(src,'utf8').replace(new RegExp('^const '+arr+'=','m'),'global.'+arr+'='));
+eval(fs.readFileSync(src,'utf8').replace(new RegExp('^const '+arr+'=','m'),'global.'+arr+'=').replace(new RegExp('^const '+arr+'_FILL=','m'),'global.'+arr+'_FILL='));
 const key=w=>w[0].toLowerCase().replace(/[^a-z' ]/g,'').trim();
 const seen=new Set();for(const k of [lv])LEVELS[k].books.forEach(b=>b.w.forEach(w=>seen.add(key(w))));
 const books=[],short=[];
 for(const b of global[arr]){const w=[];for(const x of b.w){const k=key(x);if(seen.has(k)||w.length>=20)continue;seen.add(k);w.push(x)}
+  // 足りない冊は <ARRAY>_FILL（v=動詞 n=名詞 a=形容詞 g=そのほか）から品詞の合う語で うめる
+  const F=global[arr+'_FILL'];if(F&&w.length<20){const pool=F[/動詞/.test(b.t)?'v':/名詞/.test(b.t)?'n':/形容詞/.test(b.t)?'a':'g']||[];
+    while(w.length<20&&pool.length){const x=pool.shift(),k=key(x);if(!seen.has(k)){seen.add(k);w.push(x)}}}
   if(w.length<20)short.push(`${b.t}:${w.length}`);books.push({t:b.t,w})}
 fs.writeFileSync(out,`/* ${LEVELS[lv].name}の 追加の単語帳（${path.basename(src)} から 重なりを取りのぞいて 作った） */\nLEVELS.${lv}.books.push(\n`+books.map(b=>' '+JSON.stringify(b).replace(/"([tw])":/g,'$1:')).join(',\n')+'\n);\n');
 console.log('books',books.length,'words',books.reduce((a,b)=>a+b.w.length,0),'short',short.join(' '));
