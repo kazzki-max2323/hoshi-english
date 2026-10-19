@@ -77,14 +77,19 @@
 
 /* answers floating over the beach (the poker mumble bubbles) */
 #abubs{position:absolute;inset:0;pointer-events:none;z-index:2}
-.bubble.ab{translate:-50% -50%;animation:none;white-space:normal;width:max-content;max-width:min(64vw,300px);text-align:center}
-.bubble.ab .in{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;line-height:1.35;animation:popb .55s cubic-bezier(.2,1.9,.4,1) both,abBob var(--fd,3s) ease-in-out calc(.55s + var(--d,0s)) infinite alternate}
-@keyframes abBob{from{transform:rotate(var(--tilt)) translateY(0)}to{transform:rotate(calc(var(--tilt) * -1)) translateY(-8px)}}
-.bubble.ab.line .in{--bc:#fff6e0!important;font-family:"Libre Baskerville",Georgia,serif;font-size:.9rem}
+/* rise, pop and wobble come from the poker's own .bubble rules */
+.bubble.ab{white-space:normal;width:max-content;max-width:min(68vw,300px);text-align:center}
+.bubble.ab .in{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;line-height:1.35}
+.bubble.ab.line{animation:none}
+.bubble.ab.line .in{--bc:#fff6e0!important;font-family:"Libre Baskerville",Georgia,serif;font-size:.88rem}
 .bubble.ab .again{font-style:normal;font-size:.8em;margin-left:2px}
 .bubble.ab.opt .in{font-size:1rem;padding:8px 16px 9px}
-.bubble.ab.right .in{--bc:#8ff0c8!important;box-shadow:0 4px 0 #1b1740,0 0 0 4px #55e0b4,0 0 22px #55e0b4}
-.bubble.ab.wrong .in{--bc:#ff9aa8!important;filter:saturate(.7)}
+.bubble.ab.hold,.bubble.ab.gone{animation-play-state:paused!important}
+.bubble.ab.gone{animation:rise 9s cubic-bezier(.25,.6,.35,1) forwards!important;animation-play-state:paused!important;pointer-events:none}
+.bubble.ab.gone .in{animation:popBye .24s ease-in forwards!important}
+.bubble.ab.right .in{--bc:#8ff0c8!important;box-shadow:0 4px 0 #1b1740,0 0 0 4px #55e0b4,0 0 22px #55e0b4;animation:popb .4s cubic-bezier(.2,1.9,.4,1) both}
+.bubble.ab.wrong .in{--bc:#ff9aa8!important;animation:shk .3s}
+.cfly{position:fixed;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;z-index:20;pointer-events:none;background:radial-gradient(circle at 35% 35%,#fff6c9,var(--gold) 45%,var(--gold2));box-shadow:0 0 8px rgba(255,210,63,.9)}
 
 /* radios standing on the sand */
 #window{position:relative}
@@ -98,6 +103,6 @@
 @keyframes rtalk{to{transform:translateY(-3px) rotate(-4deg)}}
 @keyframes note{from{opacity:1;transform:translate(0,0)}to{opacity:0;transform:translate(10px,-18px)}}
 
-.fly{position:fixed;z-index:9;transform:translate(-50%,-50%);font-family:var(--pixel);color:#ffd23f;font-size:1.3rem;text-shadow:0 2px 0 #6b3d00;pointer-events:none;animation:fly 1s ease-out forwards}
+.fly{position:fixed;z-index:21;transform:translate(-50%,-50%);font-family:var(--pixel);color:#ffd23f;font-size:2rem;text-shadow:0 2px 0 #6b3d00;pointer-events:none;animation:fly 1s ease-out forwards}
 @keyframes fly{to{transform:translate(-50%,-260%);opacity:0}}
-@media (prefers-reduced-motion:reduce){.bubble.ab .in,.fc,.radio.talk .rb,.radio.talk::before{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){.fc,.radio.talk .rb,.radio.talk::before{animation:none!important;transition:none!important}}

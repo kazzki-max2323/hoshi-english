@@ -164,28 +164,42 @@ function tick(){
 }
 setInterval(tick,250);
 const BC=['#ffe066','#ff9ec4','#8ff0c8','#9fd3ff','#d4b8ff','#ffc078'];
-/* the radio's line pops up above it; the answers float over the sea like the poker mumbles */
-function drawLine(r){const c=cur,L=LEVELS[c.lv];clearBubbles();
-  const mk=(html,cls,x,y)=>{const b=document.createElement('div');b.className='bubble ab '+cls;b.style.left=x*100+'%';b.style.top=y*100+'%';
-    b.innerHTML=`<span class="in" style="--bc:${pick(BC)};--tilt:${(Math.random()*6-3).toFixed(1)}deg;--d:${(Math.random()*1.2).toFixed(2)}s">${html}</span>`;bub.appendChild(b);return b};
-  const line=mk(`📻 ${esc(c.en)} <i class="again">🔁</i>`,'line',Math.min(.8,Math.max(.2,r.x)),r.y-.07);
+const RISE=9;
+/* the radio's line pops up above it; the answers rise from the sand one by one, like the poker mumbles */
+function bubbleEl(html,cls){const b=document.createElement('div');b.className='bubble ab '+cls;
+  b.innerHTML=`<span class="in" style="--bc:${pick(BC)};--tilt:${(Math.random()*8-4).toFixed(1)}deg">${html}${Math.random()<.35?'<i class="sp a">✦</i><i class="sp b">✦</i>':''}</span>`;bub.appendChild(b);return b}
+function clampX(b,W){const w=b.offsetWidth,l=parseFloat(b.style.left);b.style.left=Math.max(6,Math.min(W.width-6-w,l))+'px'}
+function drawLine(r){const c=cur;clearBubbles();const W=bub.getBoundingClientRect();
+  const line=bubbleEl(`📻 ${esc(c.en)} <i class="again">🔁</i>`,'line');
+  line.style.left=(r.x*W.width-line.offsetWidth/2)+'px';line.style.top=(r.y*W.height-line.offsetHeight-26)+'px';clampX(line,W);
   line.onclick=()=>say(c.lv,c.en);
-  /* spread the answers over sky and sea in two staggered columns */
-  const n=c.opts.length,top=.1,bot=.58;
-  c.opts.forEach((o,i)=>{const col=i%2,x=(col?.68:.32)+(Math.random()*.08-.04),y=top+(bot-top)*(i+.5)/n+(Math.random()*.03);
-    const b=mk(esc(o),'opt',x,y);b.style.setProperty('--fd',(2.6+Math.random()*1.4).toFixed(2)+'s');
-    b.onclick=()=>answer(c,i,b)});
-  fitBubbles()}
-/* keep every bubble inside the beach window */
-function fitBubbles(){const W=bub.getBoundingClientRect();bub.querySelectorAll('.bubble').forEach(b=>{const r=b.getBoundingClientRect();
-  if(r.right>W.right-6)b.style.left=(parseFloat(b.style.left)/100*W.width-(r.right-W.right+6))/W.width*100+'%';
-  if(r.left<W.left+6)b.style.left=(parseFloat(b.style.left)/100*W.width+(W.left+6-r.left))/W.width*100+'%'})}
+  const third=Math.max(10,(W.width-150)/3);
+  shuffle(c.opts.map((o,i)=>i)).forEach((i,k)=>setTimeout(()=>{if(cur!==c)return;
+    const b=bubbleEl(esc(c.opts[i]),'opt');b.dataset.o=i;
+    const top=W.height*(.6+Math.random()*.3),zone=k%3;
+    b.style.left=(8+zone*third+Math.random()*third)+'px';b.style.top=top+'px';clampX(b,W);
+    b.style.setProperty('--dx',(Math.random()*40-20)+'px');b.style.setProperty('--rise',-(Math.max(160,top*.8))+'px');
+    b.style.animationDuration=(RISE-k*.3)+'s';
+    b.onclick=()=>answer(c,i,b);SFX.pop()},350+k*480));
+  /* nobody answered: the question drifts away with its bubbles */
+  setTimeout(()=>{if(cur===c&&!c.done)cur=null},350+c.opts.length*480+RISE*1000)}
+/* keep the line bubble inside the beach window when the screen size changes */
+function fitBubbles(){const W=bub.getBoundingClientRect();bub.querySelectorAll('.bubble').forEach(b=>clampX(b,W))}
 function answer(c,i,b){if(c!==cur||c.done)return;c.done=1;const ok=c.opts[i]===c.ja,L=LEVELS[c.lv];
-  const opts=[...bub.querySelectorAll('.opt')];opts.forEach((x,j)=>{if(c.opts[j]===c.ja)x.classList.add('right');else if(x!==b)x.classList.add('gone')});
-  const rc=b.getBoundingClientRect();
-  if(ok){addCoins(L.reward);SFX.coin();FX.ring(rc.left+rc.width/2,rc.top+rc.height/2,'#ffd23f');flyCoin(rc.left+rc.width/2,rc.top,L.reward)}
+  bub.querySelectorAll('.opt').forEach(x=>{x.classList.add('hold');if(c.opts[+x.dataset.o]===c.ja)x.classList.add('right');else if(x!==b)x.classList.add('gone')});
+  const rc=b.getBoundingClientRect(),cx=rc.left+rc.width/2,cy=rc.top+rc.height/2;
+  if(ok){coinBurst(cx,cy,L.reward);FX.ring(cx,cy,'#ffd23f');FX.firework(cx,cy-10);SFX.chime()}
   else{b.classList.add('wrong');SFX.tie()}
-  setTimeout(()=>{if(cur===c){cur=null;clearBubbles()}},ok?1300:2400)}
+  setTimeout(()=>{if(cur===c){cur=null;clearBubbles()}},ok?1500:2400)}
+/* coins burst out of the bubble and fly into the coin counter, ringing as each one lands */
+function coinBurst(x,y,amt){const tg=document.querySelector('.coin i').getBoundingClientRect(),tx=tg.left+tg.width/2,ty=tg.top+tg.height/2;
+  const n=Math.min(12,Math.max(5,amt));let left=amt;flyCoin(x,y-18,amt);
+  for(let k=0;k<n;k++){const share=k===n-1?left:Math.floor(amt/n);left-=share;
+    const d=document.createElement('i');d.className='cfly';document.body.appendChild(d);
+    const a=Math.random()*Math.PI*2,sp=36+Math.random()*46,mx=x+Math.cos(a)*sp,my=y+Math.sin(a)*sp-24;
+    const an=d.animate([{transform:`translate(${x}px,${y}px) scale(.3)`,opacity:1},{transform:`translate(${mx}px,${my}px) scale(1.15)`,opacity:1,offset:.32},{transform:`translate(${tx}px,${ty}px) scale(.6)`,opacity:.9}],
+      {duration:760+k*70,easing:'cubic-bezier(.45,0,.55,1)',fill:'forwards'});
+    an.onfinish=()=>{d.remove();if(share)addCoins(share);SFX.coin()}}}
 
 /* ---------- shop ---------- */
 function shop(tab){
