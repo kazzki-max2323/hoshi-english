@@ -1,7 +1,7 @@
 // 「読み上げる英語」の一覧を、音声ファイルごとに書き出す（make_audio.py が使う）
 // node tools/list_texts.js <出力フォルダ>
 //   es / jh / hs / adv … レベルの単語とセリフ   pop … キャラクター・流行りの英文
-//   season … 季節の単語帳とセリフ   star … 星空ラジオ   folk … 浜辺の住人   (suika は手で作った一覧)
+//   season … 季節の単語帳とセリフ   gram … 文法ノートの例文   star … 星空ラジオ   folk … 浜辺の住人   (suika は手で作った一覧)
 const fs=require('fs'),path=require('path');
 global.LEVELS={};
 const load=f=>eval(fs.readFileSync(path.join(__dirname,'..',f),'utf8').replace(/^const (SEASON_BOOKS|FOLK)=/m,'global.$1='));
@@ -16,4 +16,7 @@ for(const s of Object.values(SEASON_BOOKS)){s.w.forEach(w=>add('season',w[0],'af
 LEVELS.star.books[0].w.forEach(w=>add('star',w[0],'af_heart'));LEVELS.star.talk.forEach(t=>add('star',t[0],'am_michael'));
 const V={mike:'af_bella',kani:'am_puck',penta:'af_sky',rakko:'af_nicole',kame:'bm_george',hakase:'bm_lewis'};  // 住人ごとの声
 for(const f of FOLK)f[5].forEach(t=>add('folk',t[0],V[f[0]]));
+// gram … 文法ノートの例文
+eval(fs.readFileSync(path.join(__dirname,'../game/grammar/es.js'),'utf8').replace('const GRAMMAR','global.GRAMMAR'));['jh','hs'].forEach(f=>load(`game/grammar/${f}.js`));
+for(const G of Object.values(GRAMMAR))for(const n of G.notes)n.ex.forEach(e=>add('gram',e[0],'am_michael'));
 for(const [k,m] of Object.entries(lists)){fs.writeFileSync(path.join(out,k+'.texts.json'),JSON.stringify([...m]));console.log(k,m.size)}

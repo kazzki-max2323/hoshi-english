@@ -166,3 +166,31 @@
 @keyframes walk{to{transform:translateY(-3px) rotate(4deg)}}
 .folk.flip .fe{animation-name:walkf}
 @keyframes walkf{from{transform:scaleX(-1)}to{transform:scaleX(-1) translateY(-3px) rotate(-4deg)}}
+
+/* grammar notes */
+.home .row button{font-size:.85rem}
+.glist{max-height:min(48vh,400px);overflow:auto}
+.gnote{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;text-align:left;padding:8px 10px!important}
+.gnote .gi{font-size:1.2rem}
+.gnote .gt{font-weight:800;font-size:.85rem;line-height:1.35}
+.gnote small{font-size:.66rem;color:var(--mute);white-space:nowrap}
+.gnote.locked{opacity:.55}
+.gnote.clear{border-color:#55e0b4!important;background:rgba(85,224,180,.1)!important}
+.gbody{max-height:min(50vh,420px);overflow:auto;display:flex;flex-direction:column;gap:6px;padding-right:2px}
+.gbody h4{margin:4px 0 0;font-size:.85rem;color:#ffe7a8}
+.grules{margin:0;padding-left:1.2em;font-size:.84rem;line-height:1.65}
+.grules li{margin:2px 0}
+.gex{display:flex;flex-direction:column;gap:6px}
+.gexr{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:7px 10px!important}
+.gexr .ge{font-family:"Libre Baskerville",Georgia,serif;font-size:.92rem;color:#fff6d8}
+.gexr small{font-size:.75rem;color:var(--mute)}
+.gsent{margin:6px 0 0;text-align:center;font-family:"Libre Baskerville",Georgia,serif;font-size:1.15rem;line-height:1.6;color:#fff6d8}
+.gsent .blank{display:inline-block;min-width:3.2em;margin:0 4px;padding:0 8px;border-bottom:3px solid var(--gold);color:var(--gold);font-weight:700}
+.gsent .blank.ok{color:#55e0b4;border-color:#55e0b4}
+.gsent .blank.ng{color:#ff9aa8;border-color:#ff9aa8}
+.gopts{display:flex;flex-direction:column;gap:8px}
+.gopts button{font-family:"Libre Baskerville",Georgia,serif;font-size:1rem;font-weight:700;min-height:46px}
+.gopts button.right{background:rgba(85,224,180,.3)!important;border-color:#55e0b4!important;opacity:1!important}
+.gopts button.wrong{background:rgba(226,71,90,.3)!important;border-color:var(--red)!important;opacity:1!important;animation:shk .3s}
+.ritem.set{background:linear-gradient(90deg,rgba(255,179,71,.2),rgba(255,92,138,.12));box-shadow:inset 0 0 0 1px rgba(255,179,71,.5)}
+.shop .tabs button{font-size:.66rem}
