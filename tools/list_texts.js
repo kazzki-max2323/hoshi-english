@@ -5,7 +5,7 @@
 const fs=require('fs'),path=require('path');
 global.LEVELS={};
 const load=f=>eval(fs.readFileSync(path.join(__dirname,'..',f),'utf8').replace(/^const (SEASON_BOOKS|FOLK)=/m,'global.$1='));
-['es','jh','jh-more','hs','hs-more','adv'].forEach(f=>load(`game/levels/${f}.js`));['pop','season','folk'].forEach(f=>load(`game/extras/${f}.js`));
+['es','jh','jh-more','hs','hs-more','adv','adv-more'].forEach(f=>load(`game/levels/${f}.js`));['pop','season','folk'].forEach(f=>load(`game/extras/${f}.js`));
 const out=process.argv[2]||'.',lists={};
 const add=(k,t,v)=>{(lists[k]=lists[k]||new Map()).set(t,v)};
 for(const k of ['es','jh','hs','adv']){const L=LEVELS[k];
