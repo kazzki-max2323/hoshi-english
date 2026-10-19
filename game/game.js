@@ -175,41 +175,60 @@ function drawLine(r){const c=cur;clearBubbles();const W=bub.getBoundingClientRec
   line.style.left=(W.width/2-line.offsetWidth/2)+'px';line.style.top='10px';clampX(line,W);
   line.onclick=()=>say(c.lv,c.en);
   /* answers are born on the sand and float up like balloons until they press against the line */
-  const room={ceil:line.offsetTop+line.offsetHeight+12,w:W.width,floor:W.height*.86};
+  const lw=line.offsetWidth,lh=line.offsetHeight,lx=parseFloat(line.style.left)+lw/2,ly=10+lh/2;
+  const room={w:W.width,floor:W.height*.86,fixed:[{x:lx,y:ly,r:lh/2,a:Math.max(0,lw/2-lh/2),im:0,vx:0,vy:0}]};
   shuffle(c.opts.map((o,i)=>i)).forEach((i,k)=>setTimeout(()=>{if(cur!==c)return;
     const b=bubbleEl(esc(c.opts[i]),'opt');b.dataset.o=i;b.onclick=()=>answer(c,i,b);
     const w=b.offsetWidth,h=b.offsetHeight,x=w/2+8+Math.random()*(room.w-w-16);
-    addBody({el:b,w,h,x,y:room.floor-h/2,vx:Math.random()*40-20,vy:-90-Math.random()*40,born:performance.now(),room,c});SFX.pop()},350+k*520));
+    addBody({el:b,w,h,x,y:room.floor-h/2,vx:Math.random()*30-15,vy:-40-Math.random()*30,born:performance.now(),room,c});SFX.pop()},350+k*520));
   /* nobody answered: the question drifts away with its bubbles */
   setTimeout(()=>{if(cur===c&&!c.done)cur=null},350+c.opts.length*520+RISE*1000)}
-/* ---------- bubble physics: buoyancy, walls, and soft bounces between bubbles ---------- */
+/* ---------- bubble physics ----------
+   each bubble is a horizontal capsule (a pill: segment of half-length a, radius r) with mass from its area.
+   Buoyancy lifts it, air drag slows it, and contacts are solved with impulses (restitution + friction).
+   The hit also feeds a spring that squashes the bubble along the contact normal, so it wobbles back. */
+const BUOY=230,DRAG=1.7,REST=.45,FRIC=.25,SQ_K=380,SQ_C=11,SUB=3;
 let bodies=[],phys=0,lastT=0;
-function addBody(o){o.el.style.left='0';o.el.style.top='0';bodies.push(o);place(o);if(!phys){lastT=performance.now();phys=requestAnimationFrame(step)}}
-function place(o){o.el.style.transform=`translate(${(o.x-o.w/2).toFixed(1)}px,${(o.y-o.h/2).toFixed(1)}px)`}
-function boing(o,now){if(now-(o.bt||0)<260)return;o.bt=now;const i=o.el.querySelector('.in');i.classList.remove('boing');void i.offsetWidth;i.classList.add('boing')}
-function step(now){const dt=Math.min(.05,(now-lastT)/1000);lastT=now;
-  for(const o of bodies){if(o.frozen)continue;const R=o.room;
-    o.vy-=60*dt;                                   // buoyancy
-    o.vx+=Math.sin(now/700+o.born)*14*dt;          // a little breeze
-    const damp=Math.pow(.35,dt);o.vx*=damp;o.vy*=damp;
-    o.x+=o.vx*dt;o.y+=o.vy*dt;
-    if(o.y-o.h/2<R.ceil){o.y=R.ceil+o.h/2;if(o.vy<-25)boing(o,now);o.vy=-o.vy*.45}
-    if(o.x-o.w/2<6){o.x=6+o.w/2;if(o.vx<-25)boing(o,now);o.vx=-o.vx*.6}
-    if(o.x+o.w/2>R.w-6){o.x=R.w-6-o.w/2;if(o.vx>25)boing(o,now);o.vx=-o.vx*.6}
+function addBody(o){Object.assign(o,{r:o.h/2,a:Math.max(0,o.w/2-o.h/2),d:0,dv:0,nx:0,ny:1,tilt:0});o.im=1/(o.w*o.h/1000);
+  o.el.style.left='0';o.el.style.top='0';bodies.push(o);place(o);if(!phys){lastT=performance.now();phys=requestAnimationFrame(step)}}
+function place(o){const th=Math.atan2(o.ny,o.nx),d=Math.max(-.16,Math.min(.22,o.d));
+  o.el.style.transform=`translate(${(o.x-o.w/2).toFixed(1)}px,${(o.y-o.h/2).toFixed(1)}px) rotate(${o.tilt.toFixed(2)}deg) rotate(${th}rad) scale(${(1-d).toFixed(3)},${(1+d*.8).toFixed(3)}) rotate(${-th}rad)`}
+/* a hit squashes the bubble along the normal; harder hits squash more */
+function squash(o,nx,ny,dv){if(!o.el||o.frozen)return;const k=Math.min(.9,dv*.0045);if(k<.02)return;
+  if(Math.abs(o.d)<.03){o.nx=nx;o.ny=ny}o.dv+=k*6}
+/* closest approach of two horizontal capsules */
+function contact(A,B){const dx=B.x-A.x,gap=Math.abs(dx)-(A.a+B.a),cx=gap>0?Math.sign(dx)*gap:0,cy=B.y-A.y;
+  let len=Math.hypot(cx,cy);const pen=A.r+B.r+3-len;if(pen<=0)return null;
+  if(len<1e-3)return {nx:0,ny:-1,pen};return {nx:cx/len,ny:cy/len,pen}}
+function solve(A,B){const n=contact(A,B);if(!n)return;const ia=A.frozen?0:A.im,ib=B.frozen?0:B.im,is=ia+ib;if(!is)return;
+  const rvx=B.vx-A.vx,rvy=B.vy-A.vy,vn=rvx*n.nx+rvy*n.ny;
+  if(vn<0){const j=-(1+REST)*vn/is;A.vx-=j*ia*n.nx;A.vy-=j*ia*n.ny;B.vx+=j*ib*n.nx;B.vy+=j*ib*n.ny;
+    const tx=-n.ny,ty=n.nx,vt=rvx*tx+rvy*ty,jt=Math.max(-FRIC*j,Math.min(FRIC*j,-vt/is));A.vx-=jt*ia*tx;A.vy-=jt*ia*ty;B.vx+=jt*ib*tx;B.vy+=jt*ib*ty;
+    squash(A,n.nx,n.ny,-vn*ia/is*2);squash(B,n.nx,n.ny,-vn*ib/is*2)}
+  const corr=Math.max(0,n.pen-.5)*.6/is;A.x-=n.nx*corr*ia;A.y-=n.ny*corr*ia;B.x+=n.nx*corr*ib;B.y+=n.ny*corr*ib}
+function walls(o){const R=o.room,L=o.a+o.r;
+  if(o.x-L<6){o.x=6+L;if(o.vx<0){squash(o,1,0,-o.vx);o.vx=-o.vx*REST}}
+  if(o.x+L>R.w-6){o.x=R.w-6-L;if(o.vx>0){squash(o,-1,0,o.vx);o.vx=-o.vx*REST}}
+  if(o.y-o.r<4){o.y=4+o.r;if(o.vy<0){squash(o,0,1,-o.vy);o.vy=-o.vy*REST}}}
+function step(now){const DT=Math.min(.05,(now-lastT)/1000);lastT=now;const dt=DT/SUB;
+  for(let s=0;s<SUB;s++){
+    for(const o of bodies){if(o.frozen||o.fading)continue;
+      o.vy-=BUOY*dt;o.vx+=Math.sin(now/900+o.born)*10*dt;                 // buoyancy and a light breeze
+      const drag=Math.exp(-DRAG*dt);o.vx*=drag;o.vy*=drag;o.x+=o.vx*dt;o.y+=o.vy*dt}
+    const live=bodies.filter(o=>!o.fading);
+    for(let i=0;i<live.length;i++){for(let j=i+1;j<live.length;j++)solve(live[i],live[j]);for(const f of live[i].room.fixed)solve(f,live[i])}
+    live.forEach(o=>{if(!o.frozen)walls(o)})}
+  for(const o of bodies){
+    o.dv+=(-SQ_K*o.d-SQ_C*o.dv)*DT;o.d+=o.dv*DT;                             // squash spring
+    o.tilt+=((Math.max(-9,Math.min(9,o.vx*.06)))-o.tilt)*Math.min(1,DT*5);
     if(now-o.born>RISE*1000&&!o.fading){o.fading=1;o.el.classList.add('gone')}}
-  /* push overlapping bubbles apart along the shallower axis and bounce them */
-  for(let i=0;i<bodies.length;i++)for(let j=i+1;j<bodies.length;j++){const a=bodies[i],b=bodies[j];if(a.fading||b.fading)continue;
-    const ox=(a.w+b.w)/2+4-Math.abs(a.x-b.x),oy=(a.h+b.h)/2+4-Math.abs(a.y-b.y);if(ox<=0||oy<=0)continue;
-    const fa=a.frozen?0:b.frozen?1:.5,fb=1-fa;
-    if(oy<ox){const s=a.y<b.y?-1:1;a.y+=s*oy*fa;b.y-=s*oy*fb;const rv=b.vy-a.vy;if(rv*s>0){const imp=rv*.8;if(Math.abs(rv)>30){boing(a,now);boing(b,now)}a.vy+=imp*fa*2;b.vy-=imp*fb*2}}
-    else{const s=a.x<b.x?-1:1;a.x+=s*ox*fa;b.x-=s*ox*fb;const rv=b.vx-a.vx;if(rv*s>0){const imp=rv*.8;if(Math.abs(rv)>30){boing(a,now);boing(b,now)}a.vx+=imp*fa*2;b.vx-=imp*fb*2}}}
   bodies=bodies.filter(o=>{if(o.fading&&now-o.born>RISE*1000+400){o.el.remove();return false}return o.el.isConnected});
   bodies.forEach(place);
   phys=bodies.length?requestAnimationFrame(step):0}
 /* keep the line bubble inside the beach window when the screen size changes */
 function fitBubbles(){const W=bub.getBoundingClientRect();bub.querySelectorAll('.bubble.line').forEach(b=>clampX(b,W));bodies.forEach(o=>o.room.w=W.width)}
 function answer(c,i,b){if(c!==cur||c.done)return;c.done=1;const ok=c.opts[i]===c.ja,L=LEVELS[c.lv];
-  bodies.forEach(o=>{if(o.c===c)o.frozen=1});
+  bodies.forEach(o=>{if(o.c===c){o.frozen=1;o.vx=o.vy=0}});
   bub.querySelectorAll('.opt').forEach(x=>{if(c.opts[+x.dataset.o]===c.ja)x.classList.add('right');else if(x!==b)x.classList.add('gone')});
   const rc=b.getBoundingClientRect(),cx=rc.left+rc.width/2,cy=rc.top+rc.height/2;
   if(ok){coinBurst(cx,cy,L.reward);FX.ring(cx,cy,'#ffd23f');FX.firework(cx,cy-10);SFX.chime()}

@@ -81,9 +81,9 @@
 .bubble.ab{white-space:normal;width:max-content;max-width:min(68vw,300px);text-align:center}
 .bubble.ab .in{white-space:normal;word-break:keep-all;overflow-wrap:anywhere;line-height:1.35}
 .bubble.ab.line{animation:none;z-index:5}
-.bubble.ab.opt{animation:none;left:0;top:0;will-change:transform}
-.bubble.ab .in.boing{animation:boing .42s cubic-bezier(.3,1.8,.5,1)!important}
-@keyframes boing{0%{transform:rotate(var(--tilt)) scale(1)}30%{transform:rotate(var(--tilt)) scale(1.14,.84)}60%{transform:rotate(var(--tilt)) scale(.93,1.08)}100%{transform:rotate(var(--tilt)) scale(1)}}
+.bubble.ab.opt{animation:none;left:0;top:0;will-change:transform;transform-origin:50% 50%}
+/* the physics does the moving and tilting; the bubble only pops in */
+.bubble.ab.opt .in{animation:popb .5s cubic-bezier(.2,1.9,.4,1) both;--tilt:0deg}
 .bubble.ab .lvt{font-family:var(--pixel);font-size:.6rem;font-weight:400;background:var(--c);color:#1b1530;border-radius:99px;padding:0 4px;margin-left:1px;vertical-align:2px}
 .bubble.ab.line .in{--bc:#fff6e0!important;font-family:"Libre Baskerville",Georgia,serif;font-size:.95rem}
 .bubble.ab.line .in::before,.bubble.ab.line .in::after{display:none}
