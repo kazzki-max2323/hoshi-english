@@ -7,10 +7,10 @@ const START_COINS=150;
 
 /* ---------- save ---------- */
 const GAP0=10;
-try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=s.radios||[];ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;ST.gram=Object.assign({owned:[],cleared:[]},s.gram||{});
-  if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.music=[];ST.learned={};ST.slow=false;ST.gram={owned:[],cleared:[]};ST.started=1}
+try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=s.radios||[];ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;ST.autoSay=s.autoSay!==false;ST.gram=Object.assign({owned:[],cleared:[]},s.gram||{});
+  if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.music=[];ST.learned={};ST.slow=false;ST.autoSay=true;ST.gram={owned:[],cleared:[]};ST.started=1}
 ST.vol=Object.assign({se:1,wave:1,mus:1,voice:1},ST.vol||{});
-_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');Object.assign(s,{gram:ST.gram,learned:ST.learned,slow:ST.slow,music:ST.music,radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
+_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');Object.assign(s,{gram:ST.gram,learned:ST.learned,slow:ST.slow,autoSay:ST.autoSay,music:ST.music,radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
 
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -121,10 +121,13 @@ function cards(lv,bi,onlyLeft=false){
     $('ff').innerHTML=`${lr?'<em class="lmark">✓ おぼえた</em>':''}${w[2]?`<span class="ce">${w[2]}</span>`:''}<span class="cw">${esc(w[0])}</span>`;
     $('fb').innerHTML=`<span class="cj">${esc(w[1])}</span><span class="cw2">${esc(w[0])}</span>`;
     $('cn').textContent=`${i+1} / ${B.w.length}`;$('ln').textContent=left().length;$('ck').classList.toggle('on',lr);ST.bookPos[key]=i;save()}
+  /* read the card aloud as it appears (after its sound file loads, and only if it is still the card on screen) */
+  function autoSay(){if(!ST.autoSay)return;const t=B.w[i][0];idxP.then(()=>loadAud(IDX[t]||lv)).then(()=>{if(screen==='cards'&&B.w[i]&&B.w[i][0]===t&&fc.isConnected)say(lv,t)})}
   /* the next card in direction d (skipping learned ones in のこりだけ); -1 when there is none */
   const nextIdx=d=>{let n=i+d;while(n>=0&&n<B.w.length&&onlyLeft&&isLearned(lv,bi,B.w[n]))n+=d;return n};
-  function slide(n,dir,up){fc.style.transition='transform .18s ease-in,opacity .18s';fc.style.transform=up?'translateY(-130%) rotate(-4deg)':`translateX(${dir>0?-120:120}%) rotate(${dir>0?-8:8}deg)`;fc.style.opacity='0';SFX.flip();
-    setTimeout(()=>{i=n;draw();fc.style.transition='none';fc.style.transform=up?'translateY(40%)':`translateX(${dir>0?120:-120}%)`;void fc.offsetWidth;fc.style.transition='transform .2s ease-out,opacity .2s';fc.style.transform='';fc.style.opacity='1'},180)}
+  let sliding=false;  // ignore turns while a card is still flying, so quick taps don't replay the same card
+  function slide(n,dir,up){if(sliding)return;sliding=true;fc.style.transition='transform .18s ease-in,opacity .18s';fc.style.transform=up?'translateY(-130%) rotate(-4deg)':`translateX(${dir>0?-120:120}%) rotate(${dir>0?-8:8}deg)`;fc.style.opacity='0';SFX.flip();
+    setTimeout(()=>{i=n;draw();autoSay();fc.style.transition='none';fc.style.transform=up?'translateY(40%)':`translateX(${dir>0?120:-120}%)`;void fc.offsetWidth;fc.style.transition='transform .2s ease-out,opacity .2s';fc.style.transform='';fc.style.opacity='1';sliding=false},180)}
   function go(d){const n=nextIdx(d);
     if(n<0){fc.classList.add('nudge');setTimeout(()=>fc.classList.remove('nudge'),250);return}
     if(n>=B.w.length){done();return}
@@ -154,7 +157,7 @@ function cards(lv,bi,onlyLeft=false){
   loadAud(bi==='season'?'season':lv);
   $('cx').onclick=()=>{SFX.pop();books(lv)};
   cardKeys=e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1);if(e.key==='ArrowUp')mark()};
-  draw();
+  draw();autoSay();
 }
 let cardKeys=null;
 /* ---------- settings: volumes and voice speed ---------- */
@@ -164,12 +167,14 @@ function settings(){
     <div class="qtop"><button class="x" id="gx" aria-label="設定を とじる">←</button><b>⚙️ 設定</b><span></span></div>
     ${S_.map(([k,i,n])=>`<label class="vol"><span>${i} ${n}</span><input type="range" id="v_${k}" min="0" max="100" step="5" value="${Math.round(ST.vol[k]*100)}"><output id="o_${k}">${Math.round(ST.vol[k]*100)}%</output></label>`).join('')}
     <div class="vol"><span>🐢 発音の 速さ</span><div class="seg spd"><button data-sp="0" class="${ST.slow?'':'on'}">ふつう</button><button data-sp="1" class="${ST.slow?'on':''}">ゆっくり</button></div></div>
+    <div class="vol"><span>📖 カードを 出したら 読みあげ</span><div class="seg spd"><button data-as="1" class="${ST.autoSay?'on':''}">オン</button><button data-as="0" class="${ST.autoSay?'':'on'}">オフ</button></div></div>
     <button id="vtest" class="sub">🔊 ためしに きく（hello）</button>
     <p class="note">枠の 外を タップすると とじるよ</p>
   </section>`);
   $('gx').onclick=()=>{SFX.pop();home()};
   S_.forEach(([k])=>{const r=$('v_'+k);r.oninput=()=>{ST.vol[k]=r.value/100;$('o_'+k).textContent=r.value+'%';try{applyVol()}catch(e){}if(voiceOut)voiceOut.gain.value=1.5*ST.vol.voice;save()};
     r.onchange=()=>{if(k==='se')SFX.coin();if(k==='voice')say('es','hello')}});
+  panel.querySelectorAll('[data-as]').forEach(b=>b.onclick=()=>{ST.autoSay=b.dataset.as==='1';save();SFX.pop();settings()});
   panel.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{ST.slow=b.dataset.sp==='1';save();say('es','hello');settings()});
   $('vtest').onclick=()=>say('es','hello')}
 /* tapping anywhere outside the panel works like its ← button (and that tap does nothing else); screens without ← (mini games, chests) ignore it */
