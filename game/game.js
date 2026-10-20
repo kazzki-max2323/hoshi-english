@@ -125,15 +125,15 @@ function cards(lv,bi,onlyLeft=false){
   function autoSay(){if(!ST.autoSay)return;const t=B.w[i][0];idxP.then(()=>loadAud(IDX[t]||lv)).then(()=>{if(screen==='cards'&&B.w[i]&&B.w[i][0]===t&&fc.isConnected)say(lv,t)})}
   /* the next card in direction d (skipping learned ones in のこりだけ); -1 when there is none */
   const nextIdx=d=>{let n=i+d;while(n>=0&&n<B.w.length&&onlyLeft&&isLearned(lv,bi,B.w[n]))n+=d;return n};
-  let sliding=false;  // ignore turns while a card is still flying, so quick taps don't replay the same card
+  let sliding=false,pend=0;  // a turn asked for while a card is still flying waits for it, so quick taps neither get lost nor replay the same card
   function slide(n,dir,up){if(sliding)return;sliding=true;fc.style.transition='transform .18s ease-in,opacity .18s';fc.style.transform=up?'translateY(-130%) rotate(-4deg)':`translateX(${dir>0?-120:120}%) rotate(${dir>0?-8:8}deg)`;fc.style.opacity='0';SFX.flip();
-    setTimeout(()=>{i=n;draw();autoSay();fc.style.transition='none';fc.style.transform=up?'translateY(40%)':`translateX(${dir>0?120:-120}%)`;void fc.offsetWidth;fc.style.transition='transform .2s ease-out,opacity .2s';fc.style.transform='';fc.style.opacity='1';sliding=false},180)}
-  function go(d){const n=nextIdx(d);
+    setTimeout(()=>{i=n;draw();autoSay();fc.style.transition='none';fc.style.transform=up?'translateY(40%)':`translateX(${dir>0?120:-120}%)`;void fc.offsetWidth;fc.style.transition='transform .2s ease-out,opacity .2s';fc.style.transform='';fc.style.opacity='1';sliding=false;if(pend){const d=pend;pend=0;go(d)}},180)}
+  function go(d){if(sliding){pend=d;return}const n=nextIdx(d);
     if(n<0){fc.classList.add('nudge');setTimeout(()=>fc.classList.remove('nudge'),250);return}
     if(n>=B.w.length){done();return}
     slide(n,d)}
   /* mark the card learned (or not) and move on */
-  function mark(){const w=B.w[i],k=lkey(lv,bi,w);if(ST.learned[k]){delete ST.learned[k];save();draw();SFX.pop();return}
+  function mark(){if(sliding)return;const w=B.w[i],k=lkey(lv,bi,w);if(ST.learned[k]){delete ST.learned[k];save();draw();SFX.pop();return}
     ST.learned[k]=1;save();SFX.chime();const r=fc.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,'#55e0b4');
     if(onlyLeft&&!left().length){draw();done();return}
     const n=nextIdx(1);if(n>=B.w.length){draw();done();return}slide(n,1,true)}
@@ -148,7 +148,7 @@ function cards(lv,bi,onlyLeft=false){
   fc.addEventListener('pointermove',e=>{if(sx==null)return;dx=e.clientX-sx;dy=e.clientY-sy;
     if(Math.abs(dy)>Math.abs(dx)&&dy<-6)fc.style.transform=`translateY(${dy}px)`;else if(Math.abs(dx)>6)fc.style.transform=`translateX(${dx}px) rotate(${dx/30}deg)`});
   const up=()=>{if(sx==null)return;const ax=Math.abs(dx),ay=Math.abs(dy);sx=null;fc.style.transition='transform .2s';
-    if(dy<-60&&ay>ax){fc.style.transform='';mark()}else if(ax>60&&ax>ay)go(dx<0?1:-1);else{fc.style.transform='';if(ax<8&&ay<8){fc.classList.toggle('flip');SFX.pop()}}};
+    if(dy<-60&&ay>ax){fc.style.transform='';mark()}else if(ax>60&&ax>ay)go(dx<0?1:-1);else{fc.style.transform='';if(ax<20&&ay<20){fc.classList.toggle('flip');SFX.pop()}}};
   fc.addEventListener('pointerup',up);fc.addEventListener('pointercancel',()=>{sx=null;fc.style.transform=''});
   fc.addEventListener('keydown',e=>{if(e.key===' '||e.key==='Enter'){e.preventDefault();fc.classList.toggle('flip')}});
   $('cp').onclick=()=>go(-1);$('cnx').onclick=()=>go(1);$('ck').onclick=mark;
@@ -182,6 +182,12 @@ document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest
   const x=panel.querySelector('.qtop .x');if(!x)return;
   e.preventDefault();e.stopPropagation();x.click();
   const eat=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',eat,true),400)},true);
+/* moving things (answer bubbles, residents, mini-game targets) answer the moment a finger touches them.
+   A normal click needs the finger to go down and up on the same element, which fails when it drifts away in between. */
+const FAST='.ab.opt,.ab.line,button.folk,#ar .shell,#ar .st,#ar .crab,#ar .tile,#ar [data-d]';let eatUntil=0;
+document.addEventListener('pointerdown',e=>{if(e.button>0)return;const t=e.target.closest(FAST);if(!t)return;
+  e.preventDefault();t.click();eatUntil=performance.now()+600},true);
+document.addEventListener('click',e=>{if(e.isTrusted&&performance.now()<eatUntil){eatUntil=0;e.stopPropagation();e.preventDefault()}},true);
 document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys)cardKeys(e)});
 
 /* ---------- radios on the beach ---------- */
