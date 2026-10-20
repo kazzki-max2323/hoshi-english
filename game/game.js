@@ -172,10 +172,11 @@ function settings(){
     r.onchange=()=>{if(k==='se')SFX.coin();if(k==='voice')say('es','hello')}});
   panel.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{ST.slow=b.dataset.sp==='1';save();say('es','hello');settings()});
   $('vtest').onclick=()=>say('es','hello')}
-/* tapping anywhere outside the shop panel closes the shop (and that tap does nothing else) */
-document.addEventListener('pointerdown',e=>{if((screen!=='shop'&&screen!=='settings')||e.target.closest('#panel,#toast,header'))return;
-  e.preventDefault();e.stopPropagation();const eat=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',eat,true),400);
-  SFX.pop();home()},true);
+/* tapping anywhere outside the panel works like its ← button (and that tap does nothing else); screens without ← (mini games, chests) ignore it */
+document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay'))return;
+  const x=panel.querySelector('.qtop .x');if(!x)return;
+  e.preventDefault();e.stopPropagation();x.click();
+  const eat=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',eat,true),400)},true);
 document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys)cardKeys(e)});
 
 /* ---------- radios on the beach ---------- */
