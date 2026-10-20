@@ -61,7 +61,11 @@ button{touch-action:manipulation}
 <script src="game/game.js"></script>
 <script src="game/adventure.js"></script>
 <script>
-if('serviceWorker' in navigator){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}))}
+if('serviceWorker' in navigator){addEventListener('load',()=>{
+  navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});
+  /* 新しい版に入れかわったら、ホーム画面にいるときに1回だけ読みこみ直す */
+  let had=!!navigator.serviceWorker.controller,want=false;const go=()=>{if(want&&(!window.HE||HE.screen==='home'))location.reload()};
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had){want=true;go()}});setInterval(go,3000)})}
 </script>
 </body>
 </html>
