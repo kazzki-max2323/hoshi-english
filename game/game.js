@@ -65,7 +65,7 @@ function flyCoin(x,y,n,quick){const d=document.createElement('div');d.className=
 let screen='home';
 function show(name,html){screen=name;panel.innerHTML=html;if(name!=='home')radioQuiet()}
 
-function home(){
+function home(){const back=screen!=='home';   // coming back from a word book, the shop, settings…
   show('home',`<section class="pnl home">
     <p id="rq" class="note"></p>
     <div class="lvs">${LV_ORDER.map(k=>{const L=LEVELS[k];return `<button class="lv lv-${k}" data-lv="${k}"><span class="li">${L.ico}</span><b>${L.name}</b><small>${L.books.length}さつ</small></button>`}).join('')}</div>
@@ -83,7 +83,7 @@ function home(){
   $('gramOpen').onclick=()=>{SFX.vopen();gramList()};
   const ns=$('npStop');if(ns)ns.onclick=()=>{stopMusic(true);SFX.pop();home()};
   const g=$('gapR');if(g)g.oninput=()=>{ST.radioGap=+g.value;$('gapV').textContent=g.value+'秒ごと';save();if(nextAt>performance.now()+ST.radioGap*1000)nextAt=performance.now()+ST.radioGap*1000};
-  rqIdle();radioWake();
+  rqIdle();if(back)nextAt=Math.max(nextAt,performance.now()+RADIO_REST);else radioWake();
 }
 
 /* ---------- word books ---------- */
@@ -133,8 +133,10 @@ function cards(lv,bi,onlyLeft=false){
     if(n>=B.w.length){done();return}
     slide(n,d)}
   /* mark the card learned (or not) and move on */
+  /* a soft two-note bell for "learned" (much quieter than the coin chime) */
+  const learnSnd=()=>{try{bell(1319,.012,0,.45);bell(1760,.008,.07,.5)}catch(e){}};
   function mark(){if(sliding)return;const w=B.w[i],k=lkey(lv,bi,w);if(ST.learned[k]){delete ST.learned[k];save();draw();SFX.pop();return}
-    ST.learned[k]=1;save();SFX.chime();const r=fc.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,'#55e0b4');
+    ST.learned[k]=1;save();learnSnd();const r=fc.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,'#55e0b4');
     if(onlyLeft&&!left().length){draw();done();return}
     const n=nextIdx(1);if(n>=B.w.length){draw();done();return}slide(n,1,true)}
   function done(){ST.bookPos[key]=0;save();SFX.fanfare(1);const r=$('deck').getBoundingClientRect();FX.firework(r.left+r.width/2,r.top+r.height/2);
@@ -226,6 +228,7 @@ function drawRadios(){layer.innerHTML=ST.radios.map((r,i)=>`<button class="radio
 let nextAt=0,talking=false,lastRadio=-1,cur=null;
 function clearBubbles(){bub.querySelectorAll('.bubble').forEach(b=>{b.classList.add('gone');setTimeout(()=>b.remove(),260)})}
 function radioQuiet(){talking=false;cur=null;stopClip();clearBubbles();layer.querySelectorAll('.talk').forEach(b=>b.classList.remove('talk'))}
+const RADIO_REST=10000;  // after closing a panel, the radios wait this long before talking again
 function radioWake(){nextAt=Math.min(nextAt||Infinity,performance.now()+1500)}
 function rqIdle(){const el=$('rq');if(!el)return;const on=ST.radios.filter(r=>r.on).length;
   el.textContent=!ST.radios.length?'📻 ショップで 小学生ラジオを もらおう（むりょう）。浜辺で 英語を つぶやくよ':on?'📻 ラジオの こたえが 浜辺に うかぶよ。タップして コインを もらおう':'📻 ラジオが ぜんぶ オフだよ。浜辺の ラジオを タップすると オンになるよ'}
