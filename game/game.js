@@ -192,17 +192,21 @@ document.addEventListener('pointerdown',e=>{if(e.button>0)return;const t=e.targe
 document.addEventListener('click',e=>{if(e.isTrusted&&performance.now()<eatUntil){eatUntil=0;e.stopPropagation();e.preventDefault()}},true);
 document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys)cardKeys(e)});
 
-/* ---------- cheer: a few warm words in the sky after every 5 minutes of play (paused while the app is hidden or a mini game runs) ---------- */
-const CHEER_EVERY=5*60*1000;let cheerAt=0,cheerLast=performance.now(),cheerBag=[];
+/* ---------- cheer: a few warm words in the sky after every 5 minutes of play (paused while the app is hidden or a mini game runs) ----------
+   It takes turns with the other things on the beach: it waits until no radio or resident is talking, no fresh question is waiting
+   and no message is up; while it shows, radios and residents stay quiet, and they come back 10 seconds after it goes. */
+const CHEER_EVERY=5*60*1000,CHEER_REST=10000;let cheerAt=0,cheerLast=performance.now(),cheerBag=[],cheerOn=false;
+const cheerDue=()=>ST.cheer&&cheerAt>=CHEER_EVERY;   // once due, radios and residents hold their next turn so it can come in
+const beachBusy=()=>talking||folkNow||(cur&&!cur.done&&performance.now()-cur.t0<7000)||document.querySelector('#toast.on');
 const cheerEl=document.createElement('div');cheerEl.id='cheerBox';cheerEl.hidden=true;$('window').appendChild(cheerEl);
 function cheerShow(){if(!cheerBag.length)cheerBag=shuffle(CHEER.map((c,i)=>i));const [en,ja,who]=CHEER[cheerBag.pop()];
   cheerEl.innerHTML=`${en?`<p class="che">${esc(en)} <i>🔊</i></p>`:''}<p class="chj">${esc(ja)}</p>${who?`<small>— ${esc(who)}</small>`:''}`;
-  cheerEl.hidden=false;cheerEl.classList.remove('on','bye');void cheerEl.offsetWidth;cheerEl.classList.add('on');SFX.chime();
+  cheerOn=true;if(cur&&!cur.done)radioQuiet();cheerEl.hidden=false;cheerEl.classList.remove('on','bye');void cheerEl.offsetWidth;cheerEl.classList.add('on');SFX.chime();
   cheerEl.onclick=()=>{if(en){say('cheer',en);clearTimeout(cheerEl._t);cheerEl._t=setTimeout(cheerHide,8000)}else cheerHide()};
   clearTimeout(cheerEl._t);cheerEl._t=setTimeout(cheerHide,en?12000:9000)}
-function cheerHide(){if(cheerEl.hidden)return;cheerEl.classList.add('bye');setTimeout(()=>{cheerEl.hidden=true;cheerEl.classList.remove('on','bye')},400)}
+function cheerHide(){if(cheerEl.hidden)return;cheerOn=false;const t=performance.now()+CHEER_REST;nextAt=Math.max(nextAt,t);folkNext=Math.max(folkNext,t);cheerEl.classList.add('bye');setTimeout(()=>{cheerEl.hidden=true;cheerEl.classList.remove('on','bye')},400)}
 setInterval(()=>{const now=performance.now(),dt=now-cheerLast;cheerLast=now;if(document.hidden||!ST.cheer)return;cheerAt+=dt;
-  if(cheerAt>=CHEER_EVERY&&!$('ar')){cheerAt=0;cheerShow()}},2000);
+  if(cheerAt>=CHEER_EVERY&&!cheerOn&&!$('ar')&&!beachBusy()){cheerAt=0;cheerShow()}},2000);
 
 /* ---------- radios on the beach ---------- */
 const layer=document.createElement('div');layer.id='radios';$('window').appendChild(layer);
@@ -234,7 +238,7 @@ function makeLine(lv){const L=LEVELS[lv],r=Math.random(),sn=seasonNow();
   const others=shuffle(pool.filter(o=>o!==ans&&o[0]!==ans[0]&&o[1]!==ans[1]&&!overlap(o[1],ans[1]))).slice(0,n-1);
   return {lv,en:ans[0],ja:ans[1],opts:shuffle([ans[1],...others.map(o=>o[1])])}}
 function tick(){
-  if(screen!=='home'||talking||document.hidden||performance.now()<nextAt)return;
+  if(screen!=='home'||talking||cheerOn||cheerDue()||document.hidden||performance.now()<nextAt)return;
   if(cur&&cur.src==='folk'&&!cur.done)return;                // a resident is talking
   const on=ST.radios.map((r,i)=>[r,i]).filter(([r])=>r.on&&!asleep(r));if(!on.length)return;
   let pickd=pick(on);if(on.length>1)while(pickd[1]===lastRadio)pickd=pick(on);
@@ -357,7 +361,7 @@ function folkTalk(){const f=folkNow;if(!f||f.talked||screen!=='home')return;if(c
 function folkDone(ok){const f=folkNow;if(!f)return;f.el.querySelector('.fq').textContent=ok?'❤️':'💦';setTimeout(folkLeave,1800);nextAt=Math.max(nextAt,performance.now()+4000)}
 setInterval(()=>{const now=performance.now();
   if(folkNow&&(now>folkNow.until&&!(cur&&cur.src==='folk'&&!cur.done)))folkLeave();
-  if(!folkNow&&screen==='home'&&!document.hidden&&now>folkNext&&!(cur&&!cur.done))folkSpawn()},1000);
+  if(!folkNow&&!cheerOn&&!cheerDue()&&screen==='home'&&!document.hidden&&now>folkNext&&!(cur&&!cur.done))folkSpawn()},1000);
 
 /* ---------- grammar notes (game/grammar/*.js): bought in the shop, read and practised here ---------- */
 const GLV=['es','jh','hs'];
@@ -484,7 +488,7 @@ function shop(tab,glv='es'){
 function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,cheerSoon:()=>{cheerAt=CHEER_EVERY},folkSoon:()=>{folkNext=0},get screen(){return screen}};
+window.HE={panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,cheerSoon:()=>{cheerAt=CHEER_EVERY},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();
