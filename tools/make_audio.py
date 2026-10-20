@@ -5,6 +5,7 @@
   # https://github.com/thewh1teagle/kokoro-onnx/releases から取得
   node tools/list_texts.js /tmp/texts
   python tools/make_audio.py <レベル> /tmp/texts audio  (es / jh / hs / adv)
+  日本語の声（jf_ / jm_ で始まる声）は pip install "misaki[ja]" で読みを作る
 
 audio/<レベル>.json には {英語: [開始秒, 長さ秒]} が入る。ffmpeg が必要。
 """
@@ -18,8 +19,15 @@ texts = json.load(open(f"{texts_dir}/{lv}.texts.json"))
 SR = 24000
 GAP = np.zeros(int(SR * .25), dtype=np.float32)  # 単語のあいだの無音
 parts, idx, pos = [], {}, 0
+jag2p = None
 for i, (t, voice) in enumerate(texts):
-    s, _ = k.create(t, voice=voice, speed=0.9, lang="en-us")
+    if voice[:2] in ("jf", "jm"):  # 日本語：misaki で読み（音素）にしてから
+        if jag2p is None:
+            from misaki import ja
+            jag2p = ja.JAG2P()
+        s, _ = k.create(jag2p(t), voice=voice, speed=1.0, is_phonemes=True)
+    else:
+        s, _ = k.create(t, voice=voice, speed=0.9, lang="en-us")
     s = s.astype(np.float32)
     nz = np.where(np.abs(s) > 0.01)[0]  # 前後の無音を切る
     if len(nz):
