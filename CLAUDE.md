@@ -1,4 +1,4 @@
-# 星降るイングリッシュ のルール
+# 浜辺の英語 のルール
 
 ## 更新のしくみ（sw.js）
 - `sw.js` は「更新がかならず届く」しくみ。ほかのアプリでも使うひな形は kazzki-max2323/my-web-toys の `templates/pwa-update/`

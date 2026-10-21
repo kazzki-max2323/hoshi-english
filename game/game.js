@@ -1,4 +1,4 @@
-/* 星降るイングリッシュ: 浜辺でめくる単語帳と、つぶやくラジオ。
+/* 浜辺の英語: 浜辺でめくる単語帳と、つぶやくラジオ。
    ラジオの問題に正解するとコインがもらえ、コインでラジオや浜辺のかざりを買う。 */
 (()=>{
 const {scene:SC,sfx:SFX,S:ST}=BEACH;
@@ -7,7 +7,7 @@ const START_COINS=150;
 
 /* ---------- save ---------- */
 const GAP0=10;
-try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=s.radios||[];ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;ST.autoSay=s.autoSay!==false;ST.cheer=s.cheer!==false;ST.gram=Object.assign({owned:[],cleared:[]},s.gram||{});
+try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=oneRadioEach(s.radios||[]);ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;ST.autoSay=s.autoSay!==false;ST.cheer=s.cheer!==false;ST.gram=Object.assign({owned:[],cleared:[]},s.gram||{});
   if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.music=[];ST.learned={};ST.slow=false;ST.autoSay=true;ST.cheer=true;ST.gram={owned:[],cleared:[]};ST.started=1}
 ST.vol=Object.assign({se:1,wave:1,mus:1,voice:1},ST.vol||{});
 _saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');Object.assign(s,{gram:ST.gram,learned:ST.learned,slow:ST.slow,autoSay:ST.autoSay,cheer:ST.cheer,music:ST.music,radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
@@ -211,6 +211,11 @@ setInterval(()=>{const now=performance.now(),dt=now-cheerLast;cheerLast=now;if(d
   if(cheerAt>=CHEER_EVERY&&!cheerOn&&!$('ar')&&!beachBusy()){cheerAt=0;cheerShow()}},2000);
 
 /* ---------- radios on the beach ---------- */
+/* one radio of each kind: extra copies from older saves are sold back for half price */
+function oneRadioEach(list){const out=list.filter((r,i)=>list.findIndex(x=>x.lv===r.lv)===i),gone=list.filter(r=>!out.includes(r));
+  if(gone.length){const back=gone.reduce((a,r)=>a+((LEVELS[r.lv]&&LEVELS[r.lv].price||0)/2|0),0);ST.coins+=back;
+    setTimeout(()=>{save();head();toast(`📻 おなじ ラジオは 1台まで に なったよ<small>2台目からを うって ${back}まい もどしたよ</small>`,3600)},1500)}
+  return out}
 const layer=document.createElement('div');layer.id='radios';$('window').appendChild(layer);
 const bub=document.createElement('div');bub.id='abubs';$('window').appendChild(bub);
 /* where the campfire sits, as fractions of the beach window, so radios keep clear of it */
@@ -437,8 +442,8 @@ function shop(tab,glv='es'){
   let body='';
   if(tab==='radio')body=[...LV_ORDER,'star'].map(k=>{const L=LEVELS[k],n=ST.radios.filter(r=>r.lv===k).length;
     return row(`📻<b class="lv-${k}">${L.short}</b>`,`${L.name}ラジオ${L.nightOnly?' <em class="tb">🌙 夜だけ しゃべる</em>':''}`,`${L.nightOnly?'星と 宇宙の 英語・':''}${L.choices}たく・せいかい +${L.reward}${L.fast?`（${FAST_MS/1000}びょう いないなら +${L.fast}）`:''}　もっている ${n}だい`,
-      `<button class="buy" data-k="${k}" ${ST.coins<L.price?'disabled':''}>${L.price?'かう '+coin(L.price):'もらう（むりょう）'}</button><button class="sell sub" data-k="${k}" ${n?'':'disabled'}>${L.price?'うる +'+(L.price/2|0):'てばなす'}</button>`)}).join('')
-    +'<p class="note">ラジオは 何台でも おけるよ（小学生ラジオは むりょう）</p>';
+      `<button class="buy" data-k="${k}" ${n||ST.coins<L.price?'disabled':''}>${n?'✅ もっている':L.price?'かう '+coin(L.price):'もらう（むりょう）'}</button><button class="sell sub" data-k="${k}" ${n?'':'disabled'}>${L.price?'うる +'+(L.price/2|0):'てばなす'}</button>`)}).join('')
+    +'<p class="note">ラジオは 1しゅるい 1台まで（小学生ラジオは むりょう）</p>';
   if(tab==='deco')body=CATALOG.deco.map(([n,c,ico,d,rare])=>{const has=hasDeco(n);
     if(rare)return row(ico,n+' <em class="tb rare">🗝️ レア</em>',has?'✨ 宝の地図で 手に入れた たからもの':'宝の地図の 宝箱から 見つかる',`<button class="buy" disabled>${has?'たからもの':'🗺️ 宝の地図'}</button>`,has?'has':'off');
     return row(ico,n,has?'✨ 浜辺に かざっているよ':d,has?`<button class="sell sub" data-sd="${n}">うる +${c/2|0}</button>`:`<button class="buy" data-bd="${n}" ${ST.coins<c?'disabled':''}>かう ${coin(c)}</button>`,has?'has':'')}).join('')
@@ -467,7 +472,7 @@ function shop(tab,glv='es'){
   panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{SFX.pop();shopScroll=0;shop(b.dataset.t)});
   const spend=(c,b)=>{if(ST.coins<c)return false;ST.coins-=c;save();head();const r=b.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,'#ffd23f');return true};
   /* radios */
-  panel.querySelectorAll('[data-k].buy').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];if(!spend(L.price,b))return;
+  panel.querySelectorAll('[data-k].buy').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];if(ST.radios.some(r=>r.lv===k)||!spend(L.price,b))return;
     const [x,y]=freeSpot();ST.radios.push({lv:k,on:true,x,y});save();drawRadios();SFX.save();toast(`📻 <b>${L.name}ラジオ</b> を 浜辺に おいた！`);shop('radio')});
   panel.querySelectorAll('[data-k].sell').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];let idx=-1;ST.radios.forEach((r,i)=>{if(r.lv===k)idx=i});if(idx<0)return;
     ST.radios.splice(idx,1);if(L.price)addCoins(L.price/2|0);save();drawRadios();SFX.coin();toast(`📻 ${L.name}ラジオを ${L.price?'うった':'てばなした'}`);shop('radio')});
