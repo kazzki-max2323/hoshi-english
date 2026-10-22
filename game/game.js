@@ -194,6 +194,11 @@ document.addEventListener('pointerdown',e=>{if(e.button>0)return;const t=e.targe
 document.addEventListener('click',e=>{if(e.isTrusted&&performance.now()<eatUntil){eatUntil=0;e.stopPropagation();e.preventDefault()}},true);
 document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys)cardKeys(e)});
 
+/* when the app goes to the background (another app, the lock screen, another tab) every sound stops, and comes back when it returns */
+function bgSound(){const hide=document.hidden;try{if(ac){if(hide)ac.suspend();else if(ST.sound)ac.resume()}}catch(e){}
+  if(hide){try{speechSynthesis.cancel()}catch(e){}}}
+document.addEventListener('visibilitychange',bgSound);addEventListener('pagehide',()=>{try{ac&&ac.suspend()}catch(e){}});
+
 /* ---------- cheer: a few warm words in the sky after every 5 minutes of play (paused while the app is hidden or a mini game runs) ----------
    It takes turns with the other things on the beach: it waits until no radio or resident is talking, no fresh question is waiting
    and no message is up; while it shows, radios and residents stay quiet, and they come back 10 seconds after it goes. */
