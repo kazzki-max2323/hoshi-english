@@ -21,7 +21,7 @@ const allWords=lv=>LEVELS[lv].books.flatMap(b=>b.w);
    played through Web Audio so it also works inside app web views without speech synthesis */
 const AUD={};
 /* which sprite holds which line: every sprite's small .json index is read up front */
-const SPRITES=['es','jh','hs','adv','suika','pop','season','star','folk','gram','jh2a','jh2b','jh2c','jh2d','hs2a','hs2b','hs2c','hs2d','adv2a','adv2b','adv2c','adv2d','cheer','owarai','talk2es','talk2jh','talk2hs','talk2adv'],IDX={};
+const SPRITES=['es','jh','hs','adv','suika','pop','season','star','folk','gram','jh2a','jh2b','jh2c','jh2d','hs2a','hs2b','hs2c','hs2d','adv2a','adv2b','adv2c','adv2d','cheer','talk2es','talk2jh','talk2hs','talk2adv'],IDX={};
 const idxP=Promise.all(SPRITES.map(k=>fetch(`audio/${k}.json`).then(r=>r.json()).then(m=>{for(const t in m)if(!(t in IDX))IDX[t]=k}).catch(()=>{})));let idxOk=false;idxP.then(()=>{idxOk=true});
 function loadAud(lv){if(AUD[lv])return AUD[lv].p;const a=AUD[lv]={};
   a.p=Promise.all([fetch(`audio/${lv}.json`).then(r=>r.json()),fetch(`audio/${lv}.mp3`).then(r=>r.arrayBuffer())])
@@ -245,11 +245,8 @@ function rqIdle(){const el=$('rq');if(!el)return;const on=ST.radios.filter(r=>r.
 /* distractors must not share a meaning with the answer (e.g. 提案 / 提案する) */
 const overlap=(a,b)=>{a=a.replace(/[〜（）・、。？！ ]/g,'');b=b.replace(/[〜（）・、。？！ ]/g,'');for(let i=0;i<a.length-1;i++)if(b.includes(a.slice(i,i+2)))return true;return false};
 /* a radio line: a word, a sentence, a character / trend line, or (in season) a seasonal line */
-/* what a radio says: words 45%, character/trend lines 15%, sentences the rest (seasonal lines join them in season),
-   and once in a long while a comedy bit (game/extras/owarai.js) where the right answer is the tsukkomi */
-let owaraiForce=false;const OWARAI_RATE=.02,owSay=t=>t.replace(/（[^）]*）/g,'').trim();
+/* what a radio says: words 45%, character/trend lines 15%, sentences the rest (seasonal lines join them in season) */
 function makeLine(lv){const L=LEVELS[lv],r=Math.random(),sn=seasonNow();
-  if(!L.nightOnly&&(owaraiForce||Math.random()<OWARAI_RATE)){owaraiForce=false;const o=pick(OWARAI);return {lv,src:'owarai',en:o[0],ja:o[1],say:owSay(o[0]),opts:shuffle(o.slice(1,4)),reward:3}}
   const pool=r<.45?allWords(lv):L.pop&&r<.6?L.pop:sn&&!L.nightOnly&&r<.7?[...sn[1].talk,...L.talk]:L.talk.length?L.talk:allWords(lv);
   const ans=pick(pool),n=L.choices;
   const others=shuffle(pool.filter(o=>o!==ans&&o[0]!==ans[0]&&o[1]!==ans[1]&&!overlap(o[1],ans[1]))).slice(0,n-1);
@@ -262,7 +259,7 @@ function tick(){
   const [r,ri]=pickd;lastRadio=ri;cur=makeLine(r.lv);cur.ri=ri;cur.t0=performance.now();talking=true;
   const btn=layer.querySelector(`[data-i="${ri}"]`);btn&&btn.classList.add('talk');
   SFX.tick();drawLine(r);
-  const c=cur;setTimeout(()=>{if(cur!==c){talking=false;return}say(c.lv,c.say||c.en,()=>{talking=false;btn&&btn.classList.remove('talk');nextAt=performance.now()+ST.radioGap*1000})},250);
+  const c=cur;setTimeout(()=>{if(cur!==c){talking=false;return}say(c.lv,c.en,()=>{talking=false;btn&&btn.classList.remove('talk');nextAt=performance.now()+ST.radioGap*1000})},250);
 }
 setInterval(tick,250);
 /* wake the star radios at nightfall (and put them to sleep at dawn) */
@@ -275,9 +272,9 @@ function bubbleEl(html,cls){const b=document.createElement('div');b.className='b
 function clampX(b,W){const w=b.offsetWidth,l=parseFloat(b.style.left);b.style.left=Math.max(6,Math.min(W.width-6-w,l))+'px'}
 function drawLine(r){const c=cur;clearBubbles();const W=bub.getBoundingClientRect();
   /* the radio's English line sits at the top of the sky, in front of everything, so answers never cover it */
-  const line=bubbleEl(c.src==='owarai'?`🎤<b class="lvt owat">お笑い</b> ${esc(c.en)} <i class="again">🔁</i>`:c.src==='folk'?`${c.ico}<b class="lvt folkt">${esc(c.who)}</b> ${esc(c.en)} <i class="again">🔁</i>`:`📻<b class="lvt lv-${c.lv}">${LEVELS[c.lv].short}</b> ${esc(c.en)} <i class="again">🔁</i>`,'line');
+  const line=bubbleEl(c.src==='folk'?`${c.ico}<b class="lvt folkt">${esc(c.who)}</b> ${esc(c.en)} <i class="again">🔁</i>`:`📻<b class="lvt lv-${c.lv}">${LEVELS[c.lv].short}</b> ${esc(c.en)} <i class="again">🔁</i>`,'line');
   line.style.left=(W.width/2-line.offsetWidth/2)+'px';line.style.top='10px';clampX(line,W);
-  line.onclick=()=>say(c.lv,c.say||c.en);
+  line.onclick=()=>say(c.lv,c.en);
   /* answers are born on the sand and float up like balloons until they press against the line */
   const lw=line.offsetWidth,lh=line.offsetHeight,lx=parseFloat(line.style.left)+lw/2,ly=10+lh/2;
   const room={w:W.width,floor:W.height*.86,fixed:[{x:lx,y:ly,r:lh/2,a:Math.max(0,lw/2-lh/2),im:0,vx:0,vy:0}]};
@@ -340,7 +337,6 @@ function answer(c,i,b){if(c!==cur||c.done)return;c.done=1;const ok=c.opts[i]===c
   if(ok){coinBurst(cx,cy,amt,quick);FX.ring(cx,cy,'#ffd23f');FX.firework(cx,cy-10);SFX.chime()}
   else{b.classList.add('wrong');SFX.tie()}
   if(c.src==='folk')folkDone(ok);
-  if(c.src==='owarai'){nextAt=Math.max(nextAt,performance.now()+4000);if(ok){toast('🎤 ナイス ツッコミ！');setTimeout(()=>{if(cur===c)say('owarai',c.ja)},350)}else toast('🎤 そこは ツッコまな〜')}
   setTimeout(()=>{if(cur===c){cur=null;clearBubbles()}},ok?1500:2400)}
 /* coins burst out of the bubble and fly into the coin counter, ringing as each one lands */
 function coinBurst(x,y,amt,quick){const tg=document.querySelector('.coin i').getBoundingClientRect(),tx=tg.left+tg.width/2,ty=tg.top+tg.height/2;
@@ -506,7 +502,7 @@ function shop(tab,glv='es'){
 function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,cheerSoon:()=>{cheerAt=CHEER_EVERY},owaraiSoon:()=>{owaraiForce=true},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
+window.HE={panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,cheerSoon:()=>{cheerAt=CHEER_EVERY},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();
