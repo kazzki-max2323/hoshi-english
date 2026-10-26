@@ -25,6 +25,7 @@ button{touch-action:manipulation}
 <link rel="stylesheet" href="beach/scene.css">
 <link rel="stylesheet" href="game/game.css">
 <link rel="stylesheet" href="game/adventure.css">
+<link rel="stylesheet" href="game/cards.css">
 </head>
 <body>
 <canvas id="stars"></canvas>
@@ -62,6 +63,8 @@ button{touch-action:manipulation}
 <script src="game/catalog.js"></script>
 <script src="game/game.js"></script>
 <script src="game/adventure.js"></script>
+<script src="game/cards-data.js"></script>
+<script src="game/cards.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});

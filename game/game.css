@@ -168,7 +168,10 @@
 @keyframes walkf{from{transform:scaleX(-1)}to{transform:scaleX(-1) translateY(-3px) rotate(-4deg)}}
 
 /* grammar notes */
-.home .row button{font-size:.85rem}
+.home .row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.home .row button{font-size:.78rem;display:flex;flex-direction:column;align-items:center;gap:1px;padding:6px 2px!important;position:relative}
+.home .row button span{font-size:1.25rem;line-height:1.1}
+.home .row .dot{position:absolute;top:4px;right:8px;width:9px;height:9px;border-radius:50%;background:#ff3d6e;box-shadow:0 0 6px #ff3d6e}
 .glist{max-height:min(48vh,400px);overflow:auto}
 .gnote{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;text-align:left;padding:8px 10px!important}
 .gnote .gi{font-size:1.2rem}

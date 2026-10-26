@@ -21,7 +21,7 @@ const allWords=lv=>LEVELS[lv].books.flatMap(b=>b.w);
    played through Web Audio so it also works inside app web views without speech synthesis */
 const AUD={};
 /* which sprite holds which line: every sprite's small .json index is read up front */
-const SPRITES=['es','jh','hs','adv','suika','pop','season','star','folk','gram','jh2a','jh2b','jh2c','jh2d','hs2a','hs2b','hs2c','hs2d','adv2a','adv2b','adv2c','adv2d','cheer','talk2es','talk2jh','talk2hs','talk2adv'],IDX={};
+const SPRITES=['es','jh','hs','adv','suika','pop','season','star','folk','gram','jh2a','jh2b','jh2c','jh2d','hs2a','hs2b','hs2c','hs2d','adv2a','adv2b','adv2c','adv2d','cheer','cards','talk2es','talk2jh','talk2hs','talk2adv'],IDX={};
 const idxP=Promise.all(SPRITES.map(k=>fetch(`audio/${k}.json`).then(r=>r.json()).then(m=>{for(const t in m)if(!(t in IDX))IDX[t]=k}).catch(()=>{})));let idxOk=false;idxP.then(()=>{idxOk=true});
 function loadAud(lv){if(AUD[lv])return AUD[lv].p;const a=AUD[lv]={};
   a.p=Promise.all([fetch(`audio/${lv}.json`).then(r=>r.json()),fetch(`audio/${lv}.mp3`).then(r=>r.arrayBuffer())])
@@ -70,9 +70,10 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
     <p id="rq" class="note"></p>
     <div class="lvs">${LV_ORDER.map(k=>{const L=LEVELS[k];return `<button class="lv lv-${k}" data-lv="${k}"><span class="li">${L.ico}</span><b>${L.name}</b><small>${L.books.length}さつ</small></button>`}).join('')}</div>
     <div class="row">
-      <button id="shopOpen" class="sub">🛍️ ショップ</button>
-      <button id="mini" class="sub">🗺️ 宝の地図</button>
-      <button id="gramOpen" class="sub">📚 文法</button>
+      <button id="shopOpen" class="sub"><span>🛍️</span>ショップ</button>
+      <button id="cardOpen" class="sub"><span>🃏</span>カード${window.CARDS&&CARDS.freeOk()?'<i class="dot"></i>':''}</button>
+      <button id="mini" class="sub"><span>🗺️</span>宝の地図</button>
+      <button id="gramOpen" class="sub"><span>📚</span>文法</button>
     </div>
     ${MUS.on&&MUS.id?`<div class="np"><span>🎵 ${esc(TRACKS[MUS.id].name)}</span><button id="npStop" class="sub">■ とめる</button></div>`:''}
     ${ST.radios.length?`<label class="gap"><span>📻 つぶやき</span><input id="gapR" type="range" min="3" max="30" step="1" value="${ST.radioGap}"><output id="gapV">${ST.radioGap}秒ごと</output></label>`:''}
@@ -80,6 +81,7 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
   panel.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{SFX.vopen();books(b.dataset.lv)});
   $('shopOpen').onclick=()=>{SFX.vopen();shop('radio')};
   $('mini').onclick=()=>{SFX.vopen();window.ADV&&ADV.open()};
+  $('cardOpen').onclick=()=>{SFX.vopen();window.CARDS&&CARDS.open()};
   $('gramOpen').onclick=()=>{SFX.vopen();gramList()};
   const ns=$('npStop');if(ns)ns.onclick=()=>{stopMusic(true);SFX.pop();home()};
   const g=$('gapR');if(g)g.oninput=()=>{ST.radioGap=+g.value;$('gapV').textContent=g.value+'秒ごと';save();if(nextAt>performance.now()+ST.radioGap*1000)nextAt=performance.now()+ST.radioGap*1000};
@@ -182,7 +184,7 @@ function settings(){
   panel.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{ST.slow=b.dataset.sp==='1';save();say('es','hello');settings()});
   $('vtest').onclick=()=>say('es','hello')}
 /* tapping anywhere outside the panel works like its ← button (and that tap does nothing else); screens without ← (mini games, chests) ignore it */
-document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox'))return;
+document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv'))return;
   const x=panel.querySelector('.qtop .x');if(!x)return;
   e.preventDefault();e.stopPropagation();x.click();
   const eat=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',eat,true),400)},true);

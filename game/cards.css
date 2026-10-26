@@ -1,0 +1,119 @@
+/* カード図鑑: trading cards that are fun to look at. Rarer cards get richer frames and moving shine. */
+.cardsp{gap:8px}
+.kbar{display:flex;align-items:center;gap:8px}
+.kdraw{flex:1;font-weight:800;background:linear-gradient(#ffcf5a,#ff8a1a)!important;border-color:#fff1c2!important;color:#3a1d00;text-shadow:none}
+.kdraw em{font-style:normal;font-size:.7rem;background:#fff;color:#e8590c;border-radius:99px;padding:1px 7px;margin-left:4px;animation:kpulse 1.2s ease-in-out infinite alternate}
+@keyframes kpulse{to{transform:scale(1.08)}}
+.kshard{font-family:var(--pixel);font-size:.8rem;color:#bfe9ff;white-space:nowrap}
+.kser{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.kser::-webkit-scrollbar{display:none}
+.kser button{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:0;padding:4px 8px!important;min-width:54px}
+.kser button span{font-size:1.25rem;line-height:1.1}
+.kser button small{font-family:var(--pixel);font-size:.6rem;color:var(--mute)}
+.kser button.on{background:linear-gradient(#ffd86a,#ff9a1a)!important;border-color:#fff3c4!important}
+.kser button.on small{color:#3a2000}
+.kser button.done{box-shadow:inset 0 0 0 2px #55e0b4}
+.khead{display:flex;align-items:center;gap:8px}
+.khead b{flex:1;font-size:.9rem}
+.kf{flex:0 0 auto}.kf button{padding:3px 8px!important;font-size:.7rem}
+.kgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;max-height:min(46vh,400px);overflow:auto;padding:2px 2px 6px}
+
+/* ---------- the card ---------- */
+.tc{--sc:#3a6;position:relative;aspect-ratio:5/7;border-radius:9px;cursor:pointer;container-type:inline-size;
+  background:linear-gradient(155deg,color-mix(in srgb,var(--sc) 35%,#fff),var(--sc) 70%,color-mix(in srgb,var(--sc) 70%,#000));
+  box-shadow:0 2px 6px #0007,inset 0 0 0 1.5px rgba(255,255,255,.55);overflow:hidden;transform-style:preserve-3d;user-select:none}
+.tcin{position:absolute;inset:4%;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;
+  background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.55),rgba(255,255,255,.08) 62%);padding:3% 4% 5%}
+.tctop{width:100%;display:flex;justify-content:space-between;align-items:center;font-family:var(--pixel);font-size:max(7px,7.5cqw);color:#fff;text-shadow:0 1px 1px #0008}
+.tcr{font-weight:400;padding:0 3cqw;border-radius:99px;background:rgba(0,0,0,.25)}
+.tcart{flex:1;display:flex;align-items:center;justify-content:center;width:100%}
+.tce{font-size:46cqw;line-height:1;filter:drop-shadow(0 3cqw 2cqw rgba(0,0,0,.35))}
+.tcname{text-align:center;line-height:1.15;color:#fff;text-shadow:0 1px 2px #000a;width:100%}
+.tcname b{display:block;font-family:"Libre Baskerville",Georgia,serif;font-size:max(8px,10.5cqw);overflow-wrap:anywhere}
+.tcname small{display:block;font-size:max(7px,8cqw);opacity:.92}
+.tcser{position:absolute;right:4%;bottom:3%;font-size:9cqw;opacity:.8}
+.tcholo{position:absolute;inset:0;pointer-events:none;border-radius:inherit}
+/* not owned yet: a dark silhouette */
+.tc.lock{background:linear-gradient(155deg,#3a3f5c,#1d2036)}
+.tc.lock .tce{filter:brightness(0) opacity(.35)}
+.tc.lock .tcr{background:rgba(255,255,255,.12)}
+.tc.lock .tcname{color:#8a90b8;font-family:var(--pixel);font-size:9cqw}
+/* R: a silver frame */
+.tc.r2{box-shadow:0 2px 6px #0007,inset 0 0 0 2px #eef3fb,inset 0 0 0 4px #9aa8bc}
+/* SR: gold frame and a soft sheen */
+.tc.r3{box-shadow:0 2px 8px #0008,0 0 8px rgba(255,210,63,.45),inset 0 0 0 2.5px #ffe48a,inset 0 0 0 4.5px #b8860b}
+.tc.r3 .tcholo{background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.55) 45%,transparent 60%);background-size:250% 100%;background-position:var(--mx,100%) 0}
+/* SSR: holographic rainbow foil */
+.tc.r4{box-shadow:0 2px 10px #0008,0 0 12px rgba(150,230,255,.6),inset 0 0 0 2.5px #e8fbff,inset 0 0 0 4.5px #6ec6ff}
+.tc.r4 .tcholo{background:linear-gradient(125deg,#ff8ad855,#ffd76a55,#7dffb455,#6ec6ff55,#c08cff55,#ff8ad855);background-size:300% 300%;background-position:var(--mx,50%) var(--my,50%);mix-blend-mode:color-dodge}
+.tc.r4 .tcin{background:radial-gradient(circle at 50% 42%,rgba(255,255,255,.7),rgba(190,240,255,.15) 62%)}
+/* UR: starry night card with a rainbow frame */
+.tc.r5{background:radial-gradient(circle at 50% 40%,#3d2a7a,#120c2e 75%);box-shadow:0 2px 12px #000a,0 0 16px rgba(255,120,220,.6)}
+.tc.r5::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:2.5%;background:conic-gradient(from var(--ang,0deg),#ff5f6d,#ffc371,#fff36b,#5dff9d,#56ccf2,#a16bff,#ff5fd2,#ff5f6d);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.tc.r5 .tcin{background:radial-gradient(circle at 50% 42%,rgba(255,240,180,.35),transparent 60%),
+  radial-gradient(1px 1px at 20% 30%,#fff,transparent),radial-gradient(1px 1px at 70% 20%,#fff,transparent),radial-gradient(1.5px 1.5px at 80% 60%,#fff,transparent),radial-gradient(1px 1px at 30% 75%,#fff,transparent),radial-gradient(1px 1px at 55% 12%,#fff,transparent)}
+.tc.r5 .tce{filter:drop-shadow(0 0 4cqw rgba(255,230,150,.9)) drop-shadow(0 3cqw 2cqw rgba(0,0,0,.4))}
+.tc.r5 .tcholo{background:linear-gradient(125deg,#ff5fd244,#fff36b44,#56ccf244,#a16bff44);background-size:300% 300%;background-position:var(--mx,50%) var(--my,50%);mix-blend-mode:screen}
+.tc.lock::before,.tc.lock .tcholo{display:none}
+.tc.lock.r5{background:linear-gradient(155deg,#3a3f5c,#1d2036)}
+
+/* moving shine only on cards being looked at (big view and draw results), to keep the album light */
+@property --ang{syntax:"<angle>";inherits:false;initial-value:0deg}
+.tc.live.r3 .tcholo{animation:ksheen 3s linear infinite}
+@keyframes ksheen{from{background-position:120% 0}to{background-position:-120% 0}}
+.tc.live.r4 .tcholo{animation:kholo 6s ease-in-out infinite alternate}
+@keyframes kholo{from{background-position:0% 0%}to{background-position:100% 100%}}
+.tc.live.r5::before{animation:kspin 4s linear infinite}
+@keyframes kspin{to{--ang:360deg}}
+.tc.live.r5 .tce{animation:kfloat 2.4s ease-in-out infinite alternate}
+@keyframes kfloat{to{transform:translateY(-3cqw) scale(1.04)}}
+
+/* ---------- overlay ---------- */
+#cardOv{position:fixed;inset:0;z-index:60;background:rgba(5,6,20,.82);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;animation:kfade .2s}
+@keyframes kfade{from{opacity:0}}
+.kview{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:340px}
+.kview .tc{width:min(72vw,280px);transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .08s;touch-action:none}
+.kvinfo{display:flex;flex-direction:column;align-items:center;gap:6px;color:#fff;width:100%}
+.kvinfo span{font-size:.8rem;color:#c9d0f2}
+.rk{font-family:var(--pixel);font-weight:400;padding:1px 8px;border-radius:99px;background:#ffffff22}
+.rk.r2{background:#dfe6ee;color:#334}.rk.r3{background:#ffd23f;color:#3a2a00}.rk.r4{background:linear-gradient(90deg,#9fe8ff,#e3b6ff);color:#1d1440}.rk.r5{background:linear-gradient(90deg,#ff5f6d,#ffc371,#5dff9d,#56ccf2,#a16bff);color:#fff;text-shadow:0 1px 2px #000}
+.kbtn{font:inherit;font-weight:800;color:#fff;cursor:pointer;border-radius:12px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);padding:10px 16px;width:100%;max-width:300px}
+.kbtn small{display:block;font-size:.68rem;font-weight:400;color:#ffe7a8}
+.kbtn.gold{background:linear-gradient(#ffcf5a,#ff8a1a);border-color:#fff1c2;color:#3a1d00}
+.kbtn:disabled{opacity:.45;cursor:default}
+.kbtn.sub{font-weight:400;background:none}
+.kmenu{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:320px;color:#fff;text-align:center}
+.kmenu>b{font-size:1.2rem}
+.kodds{margin:2px 0 0;font-size:.72rem;color:#c9d0f2;line-height:1.9}
+.kchest{font-size:4.5rem;line-height:1;filter:drop-shadow(0 0 18px rgba(255,210,63,.6))}
+.kchest.shake{animation:kshake .5s ease-in-out 2}
+@keyframes kshake{25%{transform:rotate(-9deg) scale(1.05)}75%{transform:rotate(9deg) scale(1.05)}}
+.kopen{display:flex;flex-direction:column;align-items:center;gap:8px;color:#fff;--glow:#fff3c4}
+.kopen.b3{--glow:#ffd23f}.kopen.b4{--glow:#8fe6ff}.kopen.b5{--glow:#ff6ad5}
+.kopen.burst .kchest{animation:kburst .7s ease-out forwards}
+@keyframes kburst{0%{filter:drop-shadow(0 0 10px var(--glow))}100%{transform:scale(1.6);opacity:0;filter:drop-shadow(0 0 60px var(--glow)) drop-shadow(0 0 30px var(--glow))}}
+/* draw results */
+.kr{flex-direction:column;gap:14px}
+.kres{display:grid;gap:8px;width:100%;max-width:420px}
+.kres.ten{grid-template-columns:repeat(5,minmax(0,1fr))}
+.kres.one{grid-template-columns:min(66vw,250px);justify-content:center}
+.kresb{display:flex;gap:8px;width:100%;max-width:300px}
+.kslot{position:relative;aspect-ratio:5/7;perspective:600px;cursor:pointer}
+.kslot>.tc,.kslot>.kback{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;transition:transform .45s}
+.kslot>.tc{transform:rotateY(180deg)}
+.kslot.open>.tc{transform:rotateY(0)}
+.kslot.open>.kback{transform:rotateY(-180deg)}
+.kback{border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#ffe7a8;
+  background:repeating-linear-gradient(45deg,#1d2a6b 0 6px,#25358a 6px 12px);box-shadow:0 2px 6px #0008,inset 0 0 0 2px #ffd23f88}
+/* the back already hints at what is inside */
+.kback.b3{box-shadow:0 0 10px rgba(255,210,63,.8),inset 0 0 0 2px #ffd23f}
+.kback.b4{box-shadow:0 0 14px rgba(140,230,255,.9),inset 0 0 0 2px #9fe8ff}
+.kback.b5{box-shadow:0 0 18px rgba(255,106,213,1),inset 0 0 0 2px #ff9be5;animation:kpulse .6s ease-in-out infinite alternate}
+.knew,.kdup{position:absolute;left:50%;top:-7px;transform:translateX(-50%);font-style:normal;font-family:var(--pixel);font-size:.6rem;padding:0 6px;border-radius:99px;opacity:0;transition:opacity .2s .35s;white-space:nowrap;z-index:2}
+.knew{background:#ff3d6e;color:#fff}.kdup{background:#2a3570;color:#bfe9ff}
+.kslot.open .knew,.kslot.open .kdup{opacity:1}
+@media (prefers-reduced-motion:reduce){.tc .tcholo,.tc::before,.tc .tce,.kchest{animation:none!important}}
+/* not owned: always a silhouette, whatever the rarity */
+.tc.lock .tce{filter:brightness(0) opacity(.35)!important;animation:none!important}
+.kf button{white-space:nowrap}
