@@ -72,7 +72,7 @@ function view(c){const own=has(c),R=RAR[c.r];
     <div class="kvinfo">${own?`<b class="rk r${c.r}">${R.k}　${R.n}</b><span>もっている数 ×${CD.own[c.e]}</span>
       ${c.r>=3?`<span class="khint">✨ 絵を タップすると 動くよ</span>`:''}
       <button id="ksay" class="kbtn">🔊 ${esc(c.en)}</button>
-      ${c.r>=4?`<button id="kspecial" class="kbtn gold">💫 ひっさつわざ</button>`:''}
+      ${c.r>=4?`<button id="kspecial" class="kbtn gold">💫 タップ</button>`:''}
       ${c.r>=3&&summonOf(c)?`<button id="ksummon" class="kbtn">${summonOk(c)?`🏖️ 浜辺に よぶ：${summonOf(c).n}`:'🏖️ きょうは もう よんだよ（あしたまた）'}</button>`:''}`
     :`<b class="rk r${c.r}">${R.k}　${R.n}</b><span>まだ もっていない</span>
       <button id="ktrade" class="kbtn" ${CD.shards<R.cost?'disabled':''}>✦ かけら ${R.cost}こ で こうかん（いま ${CD.shards}こ）</button>`}
