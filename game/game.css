@@ -33,7 +33,7 @@
 .lv .li{font-size:1.5rem;line-height:1.1}
 .lv b{font-size:.82rem;white-space:nowrap}
 .lv small{font-size:.66rem;color:var(--mute)}
-.lv-es{--c:var(--es)}.lv-jh{--c:var(--jh)}.lv-hs{--c:var(--hs)}.lv-adv{--c:var(--adv)}
+.lv-es{--c:var(--es)}.lv-jh{--c:var(--jh)}.lv-hs{--c:var(--hs)}.lv-adv{--c:var(--adv)}.lv-it{--c:#4dd0e1}.lv-star{--c:#ffe28a}
 .gap{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--mute)}
 .gap input{flex:1;min-width:0;accent-color:var(--gold)}
 .gap output{font-family:var(--pixel);color:#ffe7a8;min-width:5.5em;text-align:right}
