@@ -2292,7 +2292,7 @@ const SCENE=(()=>{
   });
   function tideLv(){const h=gameHour();return Math.cos(2*Math.PI*(h-3)/12.4)}
   function tideDraw(){if(still)return;const tl=tideLv(),bot=WT+WH;window._tide=tl;
-    if(tl>.2){const a=(tl-.2)/.8,up=a*9*k;x.save();x.beginPath();x.moveTo(WL,shore-2*k);for(let i=0;i<=24;i++){const xx=WL+WW*i/24;x.lineTo(xx,shore+up+Math.sin(t*1.3+i*.9)*2*k)}x.lineTo(WL+WW,shore-2*k);x.closePath();
+    if(tl>.2){const a=(tl-.2)/.8,up=a*9*k;x.save();x.beginPath();const n=Math.max(24,Math.ceil(W/20));x.moveTo(0,shore-2*k);for(let i=0;i<=n;i++){const xx=W*i/n;x.lineTo(xx,shore+up+Math.sin(t*1.3+xx/20*.9)*2*k)}x.lineTo(W,shore-2*k);x.closePath();
       const g=x.createLinearGradient(0,shore-2*k,0,shore+up+2*k);g.addColorStop(0,PAL.seaB);g.addColorStop(1,'rgba(255,255,255,.35)');x.globalAlpha=.55*a;x.fillStyle=g;x.fill();x.restore()}
     window._tidePts=[];if(tl<-.25){const a=Math.min(1,(-tl-.25)/.5);x.save();x.globalAlpha=a;
       for(const [u,v,w] of [[.07,.2,1],[.15,.6,.7],[.86,.3,1.1],[.93,.75,.6]]){const rx=WL+WW*u,ry=shore+(2+v*6)*k,rw=16*k*w;
