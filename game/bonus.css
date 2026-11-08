@@ -15,3 +15,35 @@
 .bwin .bgo{display:block;margin:8px auto 0}
 @keyframes bpop{from{transform:scale(.6);opacity:0}}
 @media (prefers-reduced-motion:reduce){.bchip,.bwin{animation:none}}
+/* the pop badge over the beach (every screen) while 授業タイム is on */
+.bbadge{position:absolute;left:50%;top:10px;transform:translateX(-50%);z-index:5;pointer-events:auto;cursor:pointer;display:flex!important;align-items:center;gap:8px;
+  padding:6px 12px 6px 8px!important;border:3px solid #fff!important;border-radius:999px!important;color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.35);white-space:nowrap;
+  background:linear-gradient(100deg,#ff5fa2,#ff8a3d 55%,#ffd23f)!important;box-shadow:0 4px 0 #b8336b,0 8px 18px rgba(0,0,0,.45),0 0 18px rgba(255,138,61,.6);
+  animation:bbin .6s cubic-bezier(.2,1.6,.4,1),bbhop 3.2s ease-in-out .6s infinite}
+.bbadge .bbg{font-size:1.7rem;line-height:1;animation:bbwob 1.6s ease-in-out infinite;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+.bbadge .bbt{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1}
+.bbadge .bbt b{font-size:.95rem;letter-spacing:.04em}
+.bbadge .bbt small{font-size:.62rem;opacity:.95}
+.bbadge .bbr{display:flex;align-items:center;gap:3px;background:rgba(255,255,255,.95);color:#c2185b;text-shadow:none;border-radius:999px;padding:2px 9px 2px 5px;font-weight:800}
+.bbadge .bbr i{font-style:normal;font-size:1.05rem}
+.bbadge .bbr small{font-size:.74rem;max-width:8.5em;overflow:hidden;text-overflow:ellipsis}
+.bbadge .bbc{display:flex;align-items:center;gap:2px;font-size:.8rem}
+.bbadge .bbc b{font-family:var(--pixel);font-size:1.05rem;background:rgba(0,0,0,.25);border-radius:7px;padding:0 5px}
+.bbadge .bbs{position:absolute;font-style:normal;color:#fff;font-size:.8rem;pointer-events:none;animation:bbtw 1.8s ease-in-out infinite}
+.bbadge .s1{left:-6px;top:-8px}.bbadge .s2{right:8px;top:-12px;animation-delay:.6s}.bbadge .s3{right:-8px;bottom:-6px;animation-delay:1.2s}
+.bbadge.hurry{background:linear-gradient(100deg,#ff3b5c,#ff6a3d)!important;box-shadow:0 4px 0 #a3152f,0 8px 18px rgba(0,0,0,.45),0 0 22px rgba(255,59,92,.8);animation:bbin .6s cubic-bezier(.2,1.6,.4,1),bbpulse .8s ease-in-out infinite}
+.bbadge .bbm{display:none}
+/* no room over the beach: a small pill in the middle of the header */
+.bbadge.mini{position:fixed;top:max(8px,env(safe-area-inset-top,0px));padding:2px 9px 2px 5px!important;gap:4px;border-width:2px!important;z-index:30;box-shadow:0 2px 0 #b8336b,0 4px 10px rgba(0,0,0,.45)}
+.bbadge.mini .bbt,.bbadge.mini .bbr,.bbadge.mini .bbs{display:none}
+.bbadge.mini .bbg{font-size:1.1rem}
+.bbadge.mini .bbc{font-size:0}
+.bbadge.mini .bbc b{font-size:.9rem;background:none;padding:0}
+.bbadge:active{transform:translateX(-50%) translateY(3px);box-shadow:0 1px 0 #b8336b,0 4px 10px rgba(0,0,0,.45)}
+@keyframes bbin{from{transform:translateX(-50%) scale(.3) rotate(-8deg);opacity:0}}
+@keyframes bbhop{0%,80%,100%{transform:translateX(-50%)}86%{transform:translateX(-50%) translateY(-8px) rotate(-2deg)}92%{transform:translateX(-50%) translateY(0) rotate(1.5deg)}}
+@keyframes bbpulse{50%{transform:translateX(-50%) scale(1.07)}}
+@keyframes bbwob{0%,100%{transform:rotate(0)}20%{transform:rotate(-14deg) scale(1.1)}40%{transform:rotate(10deg)}60%{transform:rotate(-6deg)}}
+@keyframes bbtw{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1.15) rotate(20deg)}}
+@media (max-width:380px){.bbadge .bbt small{display:none}}
+@media (prefers-reduced-motion:reduce){.bbadge,.bbadge .bbg,.bbadge .bbs{animation:none}}

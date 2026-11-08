@@ -213,7 +213,7 @@ function wipeAll(){
   try{localStorage.removeItem(SAVE_KEY);localStorage.removeItem('hoshiEco')}catch(e){}
   location.reload()}
 /* tapping anywhere outside the panel works like its ← button (and that tap does nothing else); screens without ← (mini games, chests) ignore it */
-document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#meteor'))return;
+document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#meteor,#bbadge,#minaPop'))return;
   const x=panel.querySelector('.qtop .x');if(!x)return;
   e.preventDefault();e.stopPropagation();x.click();
   const eat=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',eat,true),400)},true);
