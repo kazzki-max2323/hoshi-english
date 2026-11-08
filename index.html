@@ -68,6 +68,11 @@ button{touch-action:manipulation}
 <script src="game/cards.js"></script>
 <script src="game/mina-lines.js"></script>
 <script src="game/mina.js"></script>
+<script src="game/lessons/index.js"></script>
+<script src="game/lessons/es.js"></script>
+<script src="game/lessons/jh.js"></script>
+<script src="game/lessons/hs.js"></script>
+<script src="game/lesson.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});
