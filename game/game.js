@@ -4,6 +4,8 @@
 const {scene:SC,sfx:SFX,S:ST}=BEACH;
 const panel=$('panel');
 const START_COINS=150;
+/* listeners for what the player does (answers, grammar quizzes, learned marks, home shown); the tutor in game/mina.js listens */
+const hooks={},emit=(n,...a)=>(hooks[n]||[]).forEach(f=>{try{f(...a)}catch(e){}});
 
 /* ---------- save ---------- */
 const GAP0=10;
@@ -67,7 +69,7 @@ function show(name,html){screen=name;panel.innerHTML=html;if(name!=='home')radio
 
 function home(){const back=screen!=='home';   // coming back from a word book, the shop, settings…
   show('home',`<section class="pnl home">
-    <p id="rq" class="note"></p>
+    <div class="mrow"><button id="minaFace" class="mface" aria-label="ミナ先生と 話す"></button><div class="mbub"><p id="minaSay" hidden></p><p id="rq" class="note"></p></div><span id="hamaFace" class="mface hama" hidden></span></div>
     <div class="lvs">${LV_ORDER.map(k=>{const L=LEVELS[k];return `<button class="lv lv-${k}" data-lv="${k}"><span class="li">${L.ico}</span><b>${L.name}</b><small>${L.books.length}さつ</small></button>`}).join('')}</div>
     <div class="row">
       <button id="shopOpen" class="sub"><span>🛍️</span>ショップ</button>
@@ -85,7 +87,7 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
   $('gramOpen').onclick=()=>{SFX.vopen();gramList()};
   const ns=$('npStop');if(ns)ns.onclick=()=>{stopMusic(true);SFX.pop();home()};
   const g=$('gapR');if(g)g.oninput=()=>{ST.radioGap=+g.value;$('gapV').textContent=g.value+'秒ごと';save();if(nextAt>performance.now()+ST.radioGap*1000)nextAt=performance.now()+ST.radioGap*1000};
-  rqIdle();if(back)nextAt=Math.max(nextAt,performance.now()+RADIO_REST);else radioWake();
+  rqIdle();emit('home',back);if(back)nextAt=Math.max(nextAt,performance.now()+RADIO_REST);else radioWake();
 }
 
 /* ---------- word books ---------- */
@@ -141,7 +143,7 @@ function cards(lv,bi,onlyLeft=false){
   /* a soft two-note bell for "learned" (much quieter than the coin chime) */
   const learnSnd=()=>{try{bell(1319,.012,0,.45);bell(1760,.008,.07,.5)}catch(e){}};
   function mark(){if(sliding)return;const w=B.w[i],k=lkey(lv,bi,w);if(ST.learned[k]){delete ST.learned[k];save();draw();SFX.pop();return}
-    ST.learned[k]=1;save();learnSnd();const r=fc.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,'#55e0b4');
+    ST.learned[k]=1;save();learnSnd();emit('learned',lv,bi,w);const r=fc.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,'#55e0b4');
     if(onlyLeft&&!left().length){draw();done();return}
     const n=nextIdx(1);if(n>=B.w.length){draw();done();return}slide(n,1,true)}
   function done(){ST.bookPos[key]=0;save();SFX.fanfare(1);const r=$('deck').getBoundingClientRect();FX.firework(r.left+r.width/2,r.top+r.height/2);
@@ -288,12 +290,14 @@ const overlap=(a,b)=>{a=a.replace(/[〜（）・、。？！ ]/g,'');b=b.replace
 /* a radio line: a word, a sentence, a character / trend line, or (in season) a seasonal line */
 /* what a radio says: words 45%, character/trend lines 15%, sentences the rest (seasonal lines join them in season) */
 function makeLine(lv){const L=LEVELS[lv],r=Math.random(),sn=seasonNow();
-  const pool=r<.45?allWords(lv):L.pop&&r<.6?L.pop:sn&&!L.nightOnly&&!L.noSeason&&r<.7?[...sn[1].talk,...L.talk]:L.talk.length?L.talk:allWords(lv);
-  const ans=pick(pool),n=L.choices;
+  /* now and then the tutor slips in a word the player keeps missing (復習) */
+  const rv=window.MINA&&MINA.reviewPick(lv),words=allWords(lv),rw=rv&&words.find(w=>w[0]===rv);
+  const pool=rw||r<.45?words:L.pop&&r<.6?L.pop:sn&&!L.nightOnly&&!L.noSeason&&r<.7?[...sn[1].talk,...L.talk]:L.talk.length?L.talk:words;
+  const ans=rw||pick(pool),n=L.choices;
   const others=shuffle(pool.filter(o=>o!==ans&&o[0]!==ans[0]&&o[1]!==ans[1]&&!overlap(o[1],ans[1]))).slice(0,n-1);
-  return {lv,en:ans[0],ja:ans[1],opts:shuffle([ans[1],...others.map(o=>o[1])])}}
+  return {lv,en:ans[0],ja:ans[1],kind:pool===words?'w':'s',review:!!rw,opts:shuffle([ans[1],...others.map(o=>o[1])])}}
 function tick(){
-  if(screen!=='home'||talking||cheerOn||cheerDue()||document.hidden||performance.now()<nextAt)return;
+  if(screen!=='home'||talking||cheerOn||cheerDue()||document.hidden||performance.now()<nextAt||(window.MINA&&MINA.busy()))return;
   if(cur&&cur.src==='folk'&&!cur.done)return;                // a resident is talking
   const on=ST.radios.map((r,i)=>[r,i]).filter(([r])=>r.on&&!asleep(r));if(!on.length)return;
   let pickd=pick(on);if(on.length>1)while(pickd[1]===lastRadio)pickd=pick(on);
@@ -313,7 +317,7 @@ function bubbleEl(html,cls){const b=document.createElement('div');b.className='b
 function clampX(b,W){const w=b.offsetWidth,l=parseFloat(b.style.left);b.style.left=Math.max(6,Math.min(W.width-6-w,l))+'px'}
 function drawLine(r){const c=cur;clearBubbles();const W=bub.getBoundingClientRect();
   /* the radio's English line sits at the top of the sky, in front of everything, so answers never cover it */
-  const line=bubbleEl(c.src==='folk'?`${c.ico}<b class="lvt folkt">${esc(c.who)}</b> ${esc(c.en)} <i class="again">🔁</i>`:`📻<b class="lvt lv-${c.lv}">${LEVELS[c.lv].short}</b> ${esc(c.en)} <i class="again">🔁</i>`,'line');
+  const line=bubbleEl(c.src==='folk'?`${c.ico}<b class="lvt folkt">${esc(c.who)}</b> ${esc(c.en)} <i class="again">🔁</i>`:`📻<b class="lvt lv-${c.lv}">${LEVELS[c.lv].short}</b>${c.review?'<b class="lvt revt">ふくしゅう</b>':''} ${esc(c.en)} <i class="again">🔁</i>`,'line');
   line.style.left=(W.width/2-line.offsetWidth/2)+'px';line.style.top='10px';clampX(line,W);
   line.onclick=()=>say(c.lv,c.en);
   /* answers are born on the sand and float up like balloons until they press against the line */
@@ -369,7 +373,7 @@ function step(now){const DT=Math.min(.05,(now-lastT)/1000);lastT=now;const dt=DT
   phys=bodies.length?requestAnimationFrame(step):0}
 /* keep the line bubble inside the beach window when the screen size changes */
 function fitBubbles(){const W=bub.getBoundingClientRect();bub.querySelectorAll('.bubble.line').forEach(b=>clampX(b,W));bodies.forEach(o=>o.room.w=W.width)}
-function answer(c,i,b){if(c!==cur||c.done)return;c.done=1;const ok=c.opts[i]===c.ja,L=LEVELS[c.lv];
+function answer(c,i,b){if(c!==cur||c.done)return;c.done=1;const ok=c.opts[i]===c.ja,L=LEVELS[c.lv];if(c.src!=='folk')emit('answer',c,ok,performance.now()-c.t0);
   bodies.forEach(o=>{if(o.c===c){o.frozen=1;o.vx=o.vy=0}});
   bub.querySelectorAll('.opt').forEach(x=>{if(c.opts[+x.dataset.o]===c.ja)x.classList.add('right');else if(x!==b)x.classList.add('gone')});
   const rc=b.getBoundingClientRect(),cx=rc.left+rc.width/2,cy=rc.top+rc.height/2;
@@ -457,7 +461,7 @@ function gramQuiz(lv,i){const G=GRAMMAR[lv],n=G.notes[i];let k=0,miss=0;
     $('gx').onclick=()=>{SFX.pop();gramNote(lv,i)};
     panel.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const j=+b.dataset.go,ok=j===q[2];panel.querySelectorAll('[data-go]').forEach(x=>x.disabled=true);
       const right=panel.querySelector(`[data-go="${q[2]}"]`);right.classList.add('right');$('bl').textContent=q[1][q[2]];$('bl').classList.add(ok?'ok':'ng');
-      if(ok)SFX.coin();else{miss++;b.classList.add('wrong');SFX.tie()}
+      emit('gram',lv,i,n,ok);if(ok)SFX.coin();else{miss++;b.classList.add('wrong');SFX.tie()}
       setTimeout(()=>{k++;k<n.q.length?ask():finish()},ok?800:1600)})};
   const finish=()=>{const first=!miss&&!gCleared(n.id);if(!miss&&!gCleared(n.id)){ST.gram.cleared.push(n.id);save()}
     show('gram',`<section class="pnl gram chest">
@@ -544,7 +548,7 @@ function shop(tab,glv='es'){
 function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
+window.HE={on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();
