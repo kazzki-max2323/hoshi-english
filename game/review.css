@@ -1,0 +1,26 @@
+/* 授業の ふくしゅう（game/review.js）: リスト、問題、まちがえた ときの ポイント、おわりの まとめ */
+.rvhead{display:flex;flex-direction:column;gap:8px}
+.rvhead p{margin:0;font-size:.8rem;line-height:1.6;opacity:.9}
+.rvbig{font-size:.95rem!important;padding:10px 12px!important;background:linear-gradient(90deg,rgba(122,162,255,.3),rgba(85,224,180,.3))!important;border-color:#7aa2ff!important}
+.rvbig b{color:var(--gold)}
+.rvrow.due{border-color:#7aa2ff!important;background:rgba(122,162,255,.12)!important}
+.rvst{font-style:normal;color:var(--gold);letter-spacing:-1px}
+.rvrow .lp{display:flex;flex-direction:column;align-items:flex-end;gap:2px}
+.rvrow .lp em{font-style:normal;font-size:.68rem;border-radius:999px;padding:1px 6px}
+.rvm{background:rgba(226,71,90,.35);color:#ffd0d6}
+.rvd{background:rgba(122,162,255,.35);color:#dfe7ff}
+.rvopen{width:100%;font-size:.84rem!important}
+.rvopen b{color:var(--gold)}
+.rvbar{display:block;height:5px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
+.rvbar>i{display:block;height:100%;background:linear-gradient(90deg,#7aa2ff,#55e0b4);transition:width .4s}
+.rvfrom{margin:0;font-size:.72rem;color:var(--mute);display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.rvtag{background:rgba(226,71,90,.35);color:#ffd0d6;border-radius:999px;padding:1px 7px}
+.rvpt{border:2px solid var(--gold);border-radius:12px;padding:8px 10px;background:rgba(255,210,63,.08);font-size:.82rem;line-height:1.6}
+.rvpt>b{color:var(--gold);font-size:.76rem}
+.rvpt p{margin:2px 0 4px}
+.rvsum{display:flex;flex-direction:column;gap:4px;font-size:.82rem}
+.rvsum span{padding:5px 9px;border-radius:9px;background:rgba(255,255,255,.06)}
+.rvsum span.ok{border-left:3px solid #55e0b4}.rvsum span.ng{border-left:3px solid var(--red)}
+.rvsum small{display:block;font-size:.68rem;color:var(--mute)}
+.mvc.rv{border-color:#55e0b4!important}
+.bchip.rv{background:linear-gradient(90deg,rgba(122,162,255,.25),rgba(85,224,180,.25))!important;border-color:#7aa2ff!important}

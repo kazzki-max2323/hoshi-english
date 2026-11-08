@@ -59,7 +59,7 @@ function quiz(l,back){let k=0,miss=0;
       <div id="lfb"></div>
     </section>`);
     $('lx').onclick=()=>{SFX.pop();back()};
-    const fb=(ok,ans)=>{if(!ok)miss++;SFX[ok?'coin':'tie']();
+    const fb=(ok,ans)=>{if(!ok)miss++;SFX[ok?'coin':'tie']();(window.LESSON_ANS||[]).forEach(f=>{try{f(l,k,ok,'lesson')}catch(e){console.error(e)}});
       $('lfb').innerHTML=`<div class="lsay by-m"><span class="lface">${MINA.face('m',ok?'happy':'worry')}</span><div class="lbody"><p>${ok?MINA.pick(['せいかい！ ばっちり','そう！ よく できたね','すごい、 その とおり']):'おしい！ こたえは <b>'+esc(ans)+'</b> だよ'}</p></div></div>
         <div class="row"><button id="lgo">${k+1<l.quiz.length?'つぎの もんだい ▶':'おわり 🎉'}</button></div>`;
       $('lgo').onclick=()=>{k++;k<l.quiz.length?ask():finish()}};

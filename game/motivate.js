@@ -129,7 +129,7 @@ function quizOpen(){const z=MV.qz.now;if(!z)return;const l=lesOf(z.id),q=l&&l.qu
   $('zx').onclick=()=>{SFX.pop();H.home()};
   H.panel.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const ok=+b.dataset.o===q.a;H.panel.querySelectorAll('[data-o]').forEach(x=>x.disabled=true);
     H.panel.querySelector(`[data-o="${q.a}"]`).classList.add('right');if(!ok)b.classList.add('wrong');
-    const r=MV.qz.rv[l.id]||{n:0};MV.qz.rv[l.id]={n:ok?r.n+1:0,t:Date.now()};MV.qz.now=null;save();SFX[ok?'coin':'tie']();
+    const r=MV.qz.rv[l.id]||{n:0};MV.qz.rv[l.id]={n:ok?r.n+1:0,t:Date.now()};MV.qz.now=null;save();SFX[ok?'coin':'tie']();(window.LESSON_ANS||[]).forEach(f=>{try{f(l,z.qi,ok,'quiz')}catch(e){console.error(e)}});
     const nx=ok?GAPS[Math.min(r.n+1,GAPS.length-1)]:1;
     $('zfb').innerHTML=`<div class="lsay by-m"><span class="lface">${MINA.face('m',ok?'love':'worry')}</span><div class="lbody"><p>${ok?`せいかい！ ちゃんと おぼえてたね。 🪙<b>15</b>まい ＆ ❤️ なかよし +3<br><small>つぎは ${nx}日後に また 出すね</small>`:`おしい！ こたえは <b>${esc(q.o[q.a])}</b>。 あした もう一度 出すね`}</p></div></div>
       <div class="row">${ok?'':`<button id="zles" class="sub">📖 授業を みなおす</button>`}<button id="zok">ホームへ</button></div>`;
@@ -154,12 +154,14 @@ LESSON_AFTER.push((l,info)=>{if(info.first&&!MV.qz.ct[l.id]){MV.qz.ct[l.id]=Date
 /* ---------- home: chips for what is waiting; Mina's page: the whole picture ---------- */
 function chips(){const old=$('mchips');if(H.screen!=='home'){return}const row=H.panel.querySelector('.mrow');if(!row)return;
   const z=MV.qz.now&&lesOf(MV.qz.now.id),hc=hcOn()&&lesOf(MV.hc.id),pc=MV.pc.length;
+  const ex=(window.MOTI_CHIPS||[]).map(f=>{try{return f()}catch(e){return null}}).filter(Boolean);   // more chips from other files (game/review.js)
   const html=(z?`<button class="bchip qz" data-m="qz"><span>❓ 思い出しクイズ</span><span>${esc(z.t)}</span></button>`:'')
     +(hc?`<button class="bchip hc" data-m="hc"><span>🍬 ハマ子の 挑戦状</span><span>${esc(hc.t)}</span></button>`:'')
-    +(pc?`<button class="bchip cd" data-m="cd"><span>🎁 ごほうびの 宝箱</span><span>×${pc}</span></button>`:'');
+    +(pc?`<button class="bchip cd" data-m="cd"><span>🎁 ごほうびの 宝箱</span><span>×${pc}</span></button>`:'')
+    +ex.map((x,i)=>`<button class="bchip ${x.cls||''}" data-m="x${i}"><span>${x.a}</span><span>${x.b}</span></button>`).join('');
   if(!html){if(old)old.remove();return}
   const c=old||document.createElement('div');c.id='mchips';c.innerHTML=html;if(!old){const bc=$('bchip');(bc||row).after(c)}
-  c.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{SFX.vopen();const m=b.dataset.m;if(m==='qz')quizOpen();else if(m==='hc')LESSON.open(MV.hc.id,H.home);else openCards()})}
+  c.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{SFX.vopen();const m=b.dataset.m;if(m[0]==='x')ex[+m.slice(1)].go();else if(m==='qz')quizOpen();else if(m==='hc')LESSON.open(MV.hc.id,H.home);else openCards()})}
 function minaBox(){const p=H.panel.querySelector('.minap');if(!p||p.querySelector('.mvbox'))return;const n=MV.st.n,k=n?(n-1)%10+1:0,[a,b]=window.CARDS&&CARDS.lesCount?CARDS.lesCount():[0,0];
   const z=MV.qz.now&&lesOf(MV.qz.now.id),hc=hcOn()&&lesOf(MV.hc.id),need=nkNeed();
   const d=document.createElement('div');d.className='mvbox';
@@ -185,6 +187,6 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
   if(homeT>=hcAt&&MV.hc.d!==today()){hcAt=homeT+5*60000;if(hcStart())return}},1000);
 nkUnlock();chips();
 
-window.MOTI={pendCard,pendShow,coins,gain:n=>{if(inLesson)inLesson.gain+=n;else nkOut(n)},rec:()=>MV,openCards,
+window.MOTI={pendCard,pendShow,coins,gain:n=>{if(inLesson)inLesson.gain+=n;else nkOut(n)},rec:()=>MV,openCards,chips,
   _test:{quiz:()=>{MV.qz.n=0;MV.qz.now=null;return quizStart()},hama:()=>{MV.hc.d='';MINA.rec().hama={d:'',n:0};return hcStart()},nk:p=>nkOut(p),stamps:n=>{MV.st.n=n;save()}}};
 })();
