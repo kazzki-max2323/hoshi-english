@@ -115,7 +115,7 @@ const summonOf=c=>{const id=SUMMON[c.e];return id&&CATALOG.event.find(x=>x.id===
 const summonOk=c=>(CD.summon||{})[c.e]!==today();
 function summon(c){const it=summonOf(c);if(!it||!summonOk(c))return;
   if(!H.onSale(it)){H.toast(`${it.ico} <b>${it.n}</b> は ${H.timeBadge(it.t)}<small>その時間に また よんでね</small>`,3000);return}
-  CD.summon=CD.summon||{};CD.summon[c.e]=today();save();closeOv();SFX.chime();H.home();H.toast(`${c.e} <b>${esc(c.ja)}</b> が ${it.ico} ${it.n} を よんだ！`,2600);
+  CD.summon=CD.summon||{};CD.summon[c.e]=today();save();closeOv();SFX.chime();H.home();H.radioWake&&H.radioWake();H.toast(`${c.e} <b>${esc(c.ja)}</b> が ${it.ico} ${it.n} を よんだ！`,2600);
   setTimeout(()=>{try{it.k==='show'?SC.show(it.id,it.sec):SC.play(it.id)}catch(e){}},600)}
 
 /* ---------- draw ---------- */
