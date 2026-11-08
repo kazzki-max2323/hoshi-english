@@ -187,15 +187,31 @@ function settings(){
     <div class="vol"><span>📖 カードを 出したら 読みあげ</span><div class="seg spd"><button data-as="1" class="${ST.autoSay?'on':''}">オン</button><button data-as="0" class="${ST.autoSay?'':'on'}">オフ</button></div></div>
     <div class="vol"><span>💪 おうえん メッセージ</span><div class="seg spd"><button data-ch="1" class="${ST.cheer?'on':''}">オン</button><button data-ch="0" class="${ST.cheer?'':'on'}">オフ</button></div></div>
     <button id="vtest" class="sub">🔊 ためしに きく（hello）</button>
+    <div class="reset" id="rst"><button id="rs0" class="sub">🗑️ 全て リセット</button></div>
     <p class="note">枠の 外を タップすると とじるよ</p>
   </section>`);
   $('gx').onclick=()=>{SFX.pop();home()};
+  resetSteps();
   S_.forEach(([k])=>{const r=$('v_'+k);r.oninput=()=>{ST.vol[k]=r.value/100;$('o_'+k).textContent=r.value+'%';try{applyVol()}catch(e){}if(voiceOut)voiceOut.gain.value=1.5*ST.vol.voice;save()};
     r.onchange=()=>{if(k==='se')SFX.coin();if(k==='voice')say('es','hello')}});
   panel.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{ST.cheer=b.dataset.ch==='1';save();SFX.pop();settings()});
   panel.querySelectorAll('[data-as]').forEach(b=>b.onclick=()=>{ST.autoSay=b.dataset.as==='1';save();SFX.pop();settings()});
   panel.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{ST.slow=b.dataset.sp==='1';save();say('es','hello');settings()});
   $('vtest').onclick=()=>say('es','hello')}
+/* "reset everything": two confirmations, then the save is wiped and the page reloads fresh.
+   Only this app's own keys are removed (other apps may share the same site's storage). */
+function resetSteps(){const box=$('rst');if(!box)return;
+  const step=(html,on)=>{box.innerHTML=html;on()};
+  const s0=()=>step(`<button id="rs0" class="sub">🗑️ 全て リセット</button>`,()=>{$('rs0').onclick=()=>{SFX.pop();s1()}});
+  const s1=()=>step(`<p>コイン・覚えた 単語・カード・ラジオ など、<b>セーブデータが 全部 消えるよ</b>。いい？</p>
+    <div class="seg"><button id="rsn">やめる</button><button id="rsy" class="warn">リセットする</button></div>`,()=>{$('rsn').onclick=()=>{SFX.pop();s0()};$('rsy').onclick=()=>{SFX.pop();s2()}});
+  const s2=()=>step(`<p><b>本当に いい？</b> 消したら もとに もどせないよ。</p>
+    <div class="seg"><button id="rsn">やめる</button><button id="rsy" class="warn">消して 最初から</button></div>`,()=>{$('rsn').onclick=()=>{SFX.pop();s0()};$('rsy').onclick=wipeAll});
+  s0()}
+function wipeAll(){
+  try{Storage.prototype.setItem=function(){}}catch(e){}   // nothing may write the old save back before the reload
+  try{localStorage.removeItem(SAVE_KEY);localStorage.removeItem('hoshiEco')}catch(e){}
+  location.reload()}
 /* tapping anywhere outside the panel works like its ← button (and that tap does nothing else); screens without ← (mini games, chests) ignore it */
 document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#meteor'))return;
   const x=panel.querySelector('.qtop .x');if(!x)return;
