@@ -74,14 +74,17 @@ function quiz(l,back){let k=0,miss=0;
   const finish=()=>{const D=done(),first=!D[l.id];D[l.id]=1;save();const pay=first?PAY[l.lv]:0,nx=suggest(4).filter(x=>x.id!==l.id)[0];
     /* extra prizes from game/bonus.js and game/motivate.js: each gives {html, after} or nothing */
     const info={first,miss,n:l.quiz.length,pay},ext=LESSON_AFTER.map(f=>{try{return f(l,info)}catch(e){console.error(e);return null}}).filter(Boolean);
+    /* この授業の 文法を 文法テストで ためす（game/gram-link.js） */
+    let gk=null;try{gk=window.GRAMLINK&&GRAMLINK.afterLesson(l)}catch(e){console.error(e)}
     H.show('lesson',`<section class="pnl lsn">
       <div class="lsay by-m big"><span class="lface">${MINA.face('m','proud')}</span><div class="lbody"><p>「${esc(l.t)}」 おつかれさま！ ${miss?`${l.quiz.length-miss}/${l.quiz.length} せいかい。 また ふくしゅう しようね`:'ぜんもん せいかい！'}${pay?`<br>ごほうびに 🪙<b>${pay}</b>まい`:''}</p></div></div>
+      ${gk?gk.html:''}
       ${ext.length?`<div class="bwin"><b class="bt">🎁 ごほうび</b>${ext.map(x=>`<div class="brow">${x.html}</div>`).join('')}</div>`:''}
       ${nx?`<p class="note">つぎの おすすめ</p>${row(nx)}`:''}
       <div class="row"><button id="lagain" class="sub">もう一度</button><button id="lback">ミナ先生へ</button></div>
     </section>`);
     SFX.fanfare(1);if(pay){const r=H.panel.getBoundingClientRect();setTimeout(()=>H.coinBurst(r.left+r.width/2,r.top+70,pay),300)}
-    $('lagain').onclick=()=>{SFX.pop();open(l.id,back)};$('lback').onclick=()=>{SFX.pop();MINA.open()};bindRows(back);ext.forEach(x=>{try{x.after&&x.after()}catch(e){console.error(e)}})};
+    $('lagain').onclick=()=>{SFX.pop();open(l.id,back)};$('lback').onclick=()=>{SFX.pop();MINA.open()};bindRows(back);if(gk)gk.bind();ext.forEach(x=>{try{x.after&&x.after()}catch(e){console.error(e)}})};
   ask()}
 
 window.LESSON_AFTER=window.LESSON_AFTER||[];

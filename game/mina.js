@@ -32,7 +32,7 @@ H.on('skip',c=>{const k=c.lv+'|'+c.en,e=MD.w[k]=MD.w[k]||{s:0,m:0,k:0,t:0,j:c.ja
   e.n=(e.n||0)+1;e.k=0;e.t=Date.now();e.j=c.ja;e.kind=c.kind;prune();save()});
 /* grammar: mt = last miss, rv = last time the note was opened, k = right in a row since the last miss */
 H.on('gram',(lv,i,n,ok)=>{const e=MD.g[n.id]=MD.g[n.id]||{s:0,m:0,t:0,lv,i,title:n.t};e.s++;e.t=Date.now();
-  if(ok)e.k=(e.k||0)+1;else{e.m++;e.k=0;e.mt=e.t;gramMissNow={g:n.t}}save()});
+  if(ok)e.k=(e.k||0)+1;else{e.m++;e.k=0;e.mt=e.t;gramMissNow={g:n.t,id:n.id}}save()});
 H.on('gramView',(lv,i,n)=>{const e=MD.g[n.id];if(e&&e.m>0)e.rv=Date.now();MD.gv=MD.gv||{};MD.gv[n.id]=Date.now();save()});
 let gramMissNow=null;
 H.on('learned',()=>{const D=day();D.l++;save();if([10,20,50,100].includes(D.l))queue('learned',{n:D.l},'proud')});
@@ -176,7 +176,10 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
   if(H.screen==='home'){talkAt+=dt;hamaAt+=dt}
   if(!canTalk())return;
   if(!opened){opened=true;const [ex,tx,go]=hello();sayRow('m',ex,tx,go?10000:8000,null,go);return}
-  if(gramMissNow){const g=gramMissNow;gramMissNow=null;const [ex,tx]=line('gramMiss',{g:'「'+g.g+'」'});sayRow('m',ex,tx);return}
+  if(gramMissNow){const g=gramMissNow;gramMissNow=null;const L=window.GRAMLINK?GRAMLINK.lessonsFor(g.id):[];
+    /* a lesson about it? she points there (game/gram-link.js) */
+    if(L.length){const [ex,tx]=line('gramMissLes',{g:'「'+g.g+'」',t:'「'+L[0].t+'」'});sayRow('m',ex,tx,9000,null,['📖 授業を ひらく',()=>LESSON.open(L[0].id,panelOpen)]);return}
+    const [ex,tx]=line('gramMiss',{g:'「'+g.g+'」'});sayRow('m',ex,tx);return}
   if(Q.length){const [k,v,ex]=Q.shift();const [e2,tx]=line(k,v);sayRow('m',ex||e2,tx);return}
   const hamaOk=MD.hama.d!==today()||MD.hama.n<2;
   if(hamaAt>=hamaGap&&hamaOk){hamaAt=0;hamaGap=(15+Math.random()*15)*60000;hamaVisit();return}
@@ -223,6 +226,6 @@ setFace('smile');const f0=$('minaFace');if(f0)f0.onclick=()=>{SFX.vopen();panelO
 /* ---------- review words for the radio ---------- */
 function reviewPick(lv){if(Math.random()>.15)return null;const ww=weakWords(lv,null);return ww.length?pickL(ww.slice(0,8)).en:null}
 
-window.MINA={busy,say:sayRow,canTalk,canAnnounce,announce,sinceAnn:()=>performance.now()-annAt,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,
+window.MINA={busy,say:sayRow,canTalk,canAnnounce,announce,sinceAnn:()=>performance.now()-annAt,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,line,
   _test:{say:()=>{talkAt=talkGap},hama:()=>{hamaAt=hamaGap;MD.hama={d:'',n:0}},hello:()=>{opened=false}}};
 })();
