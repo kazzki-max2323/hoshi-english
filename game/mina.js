@@ -27,7 +27,10 @@ H.on('answer',(c,ok,ms)=>{const k=c.lv+'|'+c.en,e=MD.w[k]=MD.w[k]||{s:0,m:0,k:0,
   streak=ok?streak+1:0;if(streak>MD.best)MD.best=streak;prune();save();
   if(ok&&[5,10,20,30].includes(streak))queue('streak',{n:streak},'happy');
   if(!ok&&e.m===3)queue('weakWord',{w:c.en,ja:c.ja,n:e.m},'think')});
-H.on('gram',(lv,i,n,ok)=>{const e=MD.g[n.id]=MD.g[n.id]||{s:0,m:0,t:0,lv,i,title:n.t};e.s++;e.t=Date.now();if(!ok){e.m++;gramMissNow={g:n.t}}save()});
+/* grammar: mt = last miss, rv = last time the note was opened, k = right in a row since the last miss */
+H.on('gram',(lv,i,n,ok)=>{const e=MD.g[n.id]=MD.g[n.id]||{s:0,m:0,t:0,lv,i,title:n.t};e.s++;e.t=Date.now();
+  if(ok)e.k=(e.k||0)+1;else{e.m++;e.k=0;e.mt=e.t;gramMissNow={g:n.t}}save()});
+H.on('gramView',(lv,i,n)=>{const e=MD.g[n.id];if(e&&e.m>0)e.rv=Date.now();MD.gv=MD.gv||{};MD.gv[n.id]=Date.now();save()});
 let gramMissNow=null;
 H.on('learned',()=>{const D=day();D.l++;save();if([10,20,50,100].includes(D.l))queue('learned',{n:D.l},'proud')});
 
@@ -39,11 +42,14 @@ let bookOf=null;
 function weakBook(){if(!bookOf){bookOf={};H.LV_ORDER.forEach(lv=>LEVELS[lv].books.forEach(b=>b.w.forEach(w=>bookOf[lv+'|'+w[0]]=[lv,b.t])))}
   const cnt={};weakWords().forEach(w=>{const b=bookOf[w.lv+'|'+w.en];if(b){const k=b.join('|');cnt[k]=(cnt[k]||0)+1}});
   const top=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0];return top&&top[1]>=3?{lv:top[0].split('|')[0],book:top[0].split('|')[1],n:top[1]}:null}
-function weakGram(){const g=Object.values(MD.g).filter(e=>e.m>0&&Date.now()-e.t<7*864e5).sort((a,b)=>b.m-a.m)[0];return g||null}
-/* sentences going badly at a level: point to the first grammar note there not cleared yet */
+/* a grammar note stops being weak once it is reviewed after the last miss: the note opened again, or 3 right in a row (a whole quiz).
+   old records (no mt) count as reviewed if the note's quiz was cleared */
+const gramFixed=(e,id)=>e.mt?((e.rv||0)>e.mt||(e.k||0)>=3):(e.rv||(e.k||0)>=3||(ST.gram.cleared||[]).includes(id));
+function weakGram(){const g=Object.entries(MD.g).filter(([id,e])=>e.m>0&&Date.now()-e.t<7*864e5&&!gramFixed(e,id)).map(([,e])=>e).sort((a,b)=>b.m-a.m||b.t-a.t)[0];return g||null}
+/* sentences going badly at a level: point to the first grammar note there not cleared yet (and not opened in the last 3 days) */
 function gramForSentences(){for(const lv of ['es','jh','hs']){const ws=Object.entries(MD.w).filter(([k,e])=>k.startsWith(lv+'|')&&e.kind==='s');
     const s=ws.reduce((a,[,e])=>a+e.s,0),m=ws.reduce((a,[,e])=>a+e.m,0);if(s>=8&&m/s>.4&&window.GRAMMAR&&GRAMMAR[lv]){
-      const i=GRAMMAR[lv].notes.findIndex(n=>!(ST.gram.cleared||[]).includes(n.id));if(i>=0)return {lv,i,title:GRAMMAR[lv].notes[i].t}}}return null}
+      const i=GRAMMAR[lv].notes.findIndex(n=>!(ST.gram.cleared||[]).includes(n.id)&&!(MD.gv&&Date.now()-(MD.gv[n.id]||0)<3*864e5));if(i>=0)return {lv,i,title:GRAMMAR[lv].notes[i].t}}}return null}
 const LVN={es:'小学生',jh:'中学生',hs:'高校生',adv:'ハイレベル'};
 function stepUp(){for(const lv of ['es','jh','hs']){const R=MD.r[lv]||[];if(R.length>=30){const acc=Math.round(R.reduce((a,b)=>a+b,0)/R.length*100);
     const nx=H.LV_ORDER[H.LV_ORDER.indexOf(lv)+1];if(acc>=85&&nx&&!(MD.r[nx]&&MD.r[nx].length>=10))return {lv:LVN[lv],next:LVN[nx],acc,nlv:nx}}}return null}

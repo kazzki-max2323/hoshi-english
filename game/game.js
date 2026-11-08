@@ -449,7 +449,7 @@ function gramList(lv='es'){
   panel.querySelectorAll('[data-gl]').forEach(b=>b.onclick=()=>{SFX.pop();gramList(b.dataset.gl)});
   panel.querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{const n=G.notes[+b.dataset.gn];if(!gOwned(n.id)){SFX.tie();toast(`🔒 ショップで「${n.t}」を かうと よめるよ`);return}SFX.flip();gramNote(lv,+b.dataset.gn)});
   const gs=$('gshop');if(gs)gs.onclick=()=>{SFX.vopen();shop('gram',lv)}}
-function gramNote(lv,i){const G=GRAMMAR[lv],n=G.notes[i];loadAud('gram');
+function gramNote(lv,i){const G=GRAMMAR[lv],n=G.notes[i];loadAud('gram');emit('gramView',lv,i,n);
   show('gram',`<section class="pnl gram gview">
     <div class="qtop"><button class="x" id="gx" aria-label="ノートの 一覧に もどる">←</button><b>${esc(n.t)}</b><span class="qn">${G.ico}</span></div>
     <div class="gbody">
