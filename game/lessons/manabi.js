@@ -686,3 +686,259 @@ LESSONS.push(
    {q:'その 時期に いいのは？',o:['前の 教材で 成長を 確かめる','すぐ やめる'],a:0},
   ]},
 );
+
+/* ---------- 学び方 その3（音の きまり・使いわけの 図・数と 時こく・続ける 道具） ---------- */
+LESSONS.push(
+/* 小学生 */
+ {id:'es-clock', lv:'es', cat:'kotsu', t:'とけいの いいかた', key:['時刻','数字','half','quarter'],
+  steps:[
+   ['m','smile','じこくは すうじを ならべるだけで いえるよ。3:15 は three fifteen'],
+   ['m','think','とけいを 4つに わけた 「quarter（4ぶんの1）」と 「half（はんぶん）」も つかうよ', '<svg viewBox="0 0 320 130" role="img" aria-label="とけいの 図。15分が quarter past、30分が half past、45分が quarter to"><circle cx="70" cy="65" r="55" fill="#fff" stroke="#2a2340" stroke-width="3"/><path d="M70 65 L70 10 A55 55 0 0 1 125 65 Z" fill="#3f6ad8" opacity=".25"/><path d="M70 65 L70 120 A55 55 0 0 1 15 65 Z" fill="#d8433f" opacity=".2"/><line x1="70" y1="65" x2="70" y2="22" stroke="#2a2340" stroke-width="3"/><circle cx="70" cy="65" r="4" fill="#2a2340"/><g font-size="11" text-anchor="middle" fill="#2a2340"><text x="70" y="24">12</text><text x="114" y="69">3</text><text x="70" y="114">6</text><text x="26" y="69">9</text></g><g font-size="12"><text x="140" y="30" fill="#3f6ad8">:15 a quarter past</text><text x="140" y="68" fill="#2a2340">:30 half past</text><text x="140" y="106" fill="#d8433f">:45 a quarter to</text></g></svg>'],
+   ['m','think','past は 「〜を すぎて」、to は 「〜まで あと」。3:45 は 4じまで あと 15ふん だから a quarter to four'],
+   ['h','happy','おやつは 3じ！ three o\'clock や。o\'clock は ちょうどの ときだけ やで'],
+  ],
+  quiz:[
+   {q:'3:30 は？',o:['half past three','half to three'],a:0},
+   {q:'4:45 は？',o:['a quarter to five','a quarter past four'],a:0},
+   {q:'ちょうど 7じ は？',o:["seven o'clock",'seven half'],a:0},
+  ]},
+
+ {id:'es-animal-sounds', lv:'es', cat:'kotsu', t:'えいごの どうぶつの なきごえ', key:['単語','擬音語','どうぶつ'],
+  steps:[
+   ['m','smile','どうぶつの なきごえは、くにが かわると きこえかたも かわるんだよ'],
+   ['m','think','えいごでは こう いうよ', '<table class="fz-table"><tr><th>どうぶつ</th><th>にほんご</th><th>えいご</th></tr><tr><td>🐶 dog</td><td>ワンワン</td><td><b>woof</b> / bow-wow</td></tr><tr><td>🐱 cat</td><td>ニャー</td><td><b>meow</b></td></tr><tr><td>🐮 cow</td><td>モー</td><td><b>moo</b></td></tr><tr><td>🐷 pig</td><td>ブーブー</td><td><b>oink</b></td></tr><tr><td>🐔 rooster</td><td>コケコッコー</td><td><b>cock-a-doodle-doo</b></td></tr><tr><td>🐸 frog</td><td>ケロケロ</td><td><b>ribbit</b></td></tr></table>'],
+   ['h','wow','ぶたが 「オインク」やて！ おばちゃん びっくりや'],
+   ['m','happy','The dog says woof. の ように 「〜は ○○と なく」と いって みよう'],
+  ],
+  quiz:[
+   {q:'えいごで ねこは？',o:['meow','moo','oink'],a:0},
+   {q:'えいごで ぶたは？',o:['oink','woof','ribbit'],a:0},
+   {q:'ならべかえて 文に しよう',order:['The cow','says','moo'],ja:'うしは モーと なく'},
+  ]},
+
+ {id:'es-sound-words', lv:'es', cat:'kotsu', t:'おとの ことば（ザブーン・ブーン）', key:['単語','擬音語','動詞'],
+  steps:[
+   ['m','smile','えいごにも おとを あらわす ことばが あるよ。しかも そのまま うごきの ことばに なる ものが おおいんだ'],
+   ['m','think','おとと いみを いっしょに', '<div class="fz-row"><div class="fz-pic"><span>🌊</span><small><b>splash</b><br>バシャッ</small></div><div class="fz-pic"><span>🐝</span><small><b>buzz</b><br>ブーン</small></div><div class="fz-pic"><span>💥</span><small><b>boom</b><br>ドーン</small></div><div class="fz-pic"><span>🚪</span><small><b>knock knock</b><br>トントン</small></div><div class="fz-pic"><span>🤧</span><small><b>achoo</b><br>ハクション</small></div><div class="fz-pic"><span>🍪</span><small><b>crunch</b><br>ザクッ</small></div></div>'],
+   ['m','happy','The kids splash in the sea.（こどもたちが うみで バシャバシャ する）。おとが そのまま うごきに なったね'],
+   ['h','happy','ハクションは achoo！ いわれたら Bless you! って かえすんやで'],
+  ],
+  quiz:[
+   {q:'はちの ブーンは？',o:['buzz','boom','splash'],a:0},
+   {q:'くしゃみの あとに いう ことばは？',o:['Bless you!','Thank you!'],a:0},
+  ]},
+
+/* 中学生 */
+ {id:'jh-ed-sound', lv:'jh', cat:'oto', t:'-ed の 読み方は 3つ', key:['発音','過去形','ed','規則動詞'],
+  steps:[
+   ['m','smile','過去形の -ed は いつも 「エド」じゃ ないよ。前の 音で 3つに 分かれるんだ'],
+   ['m','think','分け方', '<table class="fz-table"><tr><th>前の 音</th><th>-ed の 音</th><th>例</th></tr><tr><td>t・d</td><td><b>イド</b></td><td>wanted, needed</td></tr><tr><td>のどが ふるえない 音（k・p・s・sh・ch・f）</td><td><b>ト</b></td><td>walked, stopped, washed</td></tr><tr><td>のどが ふるえる 音（母音・g・b・l・n など）</td><td><b>ド</b></td><td>played, opened, called</td></tr></table>'],
+   ['m','think','のどに 手を あてて 前の 音を 出して みて。ふるえなければ ト、ふるえれば ド'],
+   ['h','proud','walked は 「ウォークト」、「ウォーキッド」ちゃうで！ イドは t と d の あとだけや'],
+  ],
+  quiz:[
+   {q:'wanted の -ed は？',o:['イド','ト','ド'],a:0},
+   {q:'walked の -ed は？',o:['ト','イド','ド'],a:0},
+   {q:'played の -ed は？',o:['ド','ト','イド'],a:0},
+  ]},
+
+ {id:'jh-s-sound', lv:'jh', cat:'oto', t:'s の 読み方も 3つ', key:['発音','複数形','三単現','s'],
+  steps:[
+   ['m','smile','複数形や 三単現の s も、-ed と 同じ 考え方で 3つの 音に 分かれるよ'],
+   ['m','think','分け方', '<table class="fz-table"><tr><th>前の 音</th><th>s の 音</th><th>例</th></tr><tr><td>s・z・sh・ch・ge</td><td><b>イズ</b>（es）</td><td>buses, watches, oranges</td></tr><tr><td>のどが ふるえない 音</td><td><b>ス</b></td><td>cats, books, cups</td></tr><tr><td>のどが ふるえる 音</td><td><b>ズ</b></td><td>dogs, pens, plays</td></tr></table>'],
+   ['m','happy','dogs は 「ドッグス」より 「ドッグズ」。にごるだけで ぐっと 英語らしく なるよ'],
+   ['m','proud','-ed と s は 同じ ルール。「前の 音が ふるえるか」を 覚えれば 両方 使えるね'],
+  ],
+  quiz:[
+   {q:'dogs の s は？',o:['ズ','ス','イズ'],a:0},
+   {q:'watches の es は？',o:['イズ','ス','ズ'],a:0},
+   {q:'cats の s は？',o:['ス','ズ','イズ'],a:0},
+  ]},
+
+ {id:'jh-contraction', lv:'jh', cat:'kotsu', t:'ちぢめた 形 I\'m・don\'t・won\'t', key:['短縮形','会話','否定文','will'],
+  steps:[
+   ['m','smile','会話では 2つの 語を くっつけて 短く する ことが 多いよ。アポストロフィ（\'）が 消えた 文字の 目印'],
+   ['m','think','よく 使う ちぢめた 形', '<table class="fz-table"><tr><th>もとの 形</th><th>ちぢめた 形</th></tr><tr><td>I am</td><td><b>I\'m</b></td></tr><tr><td>I will</td><td><b>I\'ll</b></td></tr><tr><td>do not</td><td><b>don\'t</b></td></tr><tr><td>cannot</td><td><b>can\'t</b></td></tr><tr><td>will not</td><td><b>won\'t</b>（とくべつ！）</td></tr><tr><td>it is</td><td><b>it\'s</b></td></tr></table>'],
+   ['m','worry','it\'s（それは〜だ）と its（その）は べつの 語。its には \' が つかないよ'],
+   ['h','happy','won\'t は 「ウォント」、want と まちがえんように 口を まるく や！'],
+  ],
+  quiz:[
+   {q:'will not を ちぢめると？',o:["won't","willn't","wan't"],a:0},
+   {q:'「その 色」は？',o:['its color',"it's color"],a:0},
+  ]},
+
+ {id:'jh-few-little', lv:'jh', cat:'zu', t:'few と little を 4マスで', key:['few','little','数えられる名詞','数量'],
+  steps:[
+   ['m','smile','few も little も 「少し」。でも 数えられるか と、気持ちが 前向きか で 4つに 分かれるよ'],
+   ['m','think','4マスで 整理', '<table class="fz-table"><tr><th></th><th>数えられる（books）</th><th>数えられない（water）</th></tr><tr><th>少し ある 😊</th><td><b>a few</b> books</td><td><b>a little</b> water</td></tr><tr><th>ほとんど ない 😟</th><td><b>few</b> books</td><td><b>little</b> water</td></tr></table>'],
+   ['m','think','a が つくと 「少し ある」、a が ないと 「ほとんど ない」。コップの 絵で 考えよう', '<div class="fz-row"><div class="fz-pic"><span>🥛</span><small><b>a little</b> water<br>少し ある</small></div><div class="fz-pic"><span>🫗</span><small><b>little</b> water<br>ほとんど ない</small></div></div>'],
+   ['m','proud','たくさん は many（数えられる）と much（数えられない）。同じ 分け方だよ'],
+  ],
+  quiz:[
+   {q:'友だちが 少し いる（うれしい）：I have ___ friends.',o:['a few','a little','little'],a:0},
+   {q:'時間が ほとんど ない：We have ___ time.',o:['little','a few','few'],a:0},
+  ]},
+
+ {id:'jh-some-any', lv:'jh', cat:'zu', t:'some と any の 使いわけ', key:['some','any','疑問文','否定文'],
+  steps:[
+   ['m','smile','some は 「いくつか ある」と 思って いる とき、any は 「あるか ないか 分からない・ない」 とき に 使うよ'],
+   ['m','think','基本の 形', '<table class="fz-table"><tr><td>ふつうの 文</td><td>I have <b>some</b> apples.</td></tr><tr><td>疑問文</td><td>Do you have <b>any</b> apples?</td></tr><tr><td>否定文</td><td>I don\'t have <b>any</b> apples.</td></tr></table>'],
+   ['m','think','でも すすめる・たのむ ときは 疑問文でも some。「ある」と 思って いるからだよ', '<div class="fz-tip">Would you like <b>some</b> tea?　（お茶 いかが？）</div>'],
+   ['m','proud','ふつうの 文の any は 「どれでも」。You can take any book.（どの 本でも いいよ）'],
+  ],
+  quiz:[
+   {q:'Do you have ___ pets?',o:['any','some'],a:0},
+   {q:'すすめる とき：Would you like ___ cake?',o:['some','any'],a:0},
+   {q:'ならべかえて 文に しよう',order:["I don't",'have','any','money'],ja:'お金を まったく 持っていない'},
+  ]},
+
+ {id:'jh-by-until', lv:'jh', cat:'zu', t:'by は 期限、until は ずっと', key:['by','until','前置詞','時'],
+  steps:[
+   ['m','smile','どちらも 「〜まで」と 訳すけど、絵に すると ぜんぜん ちがうよ'],
+   ['m','think','by は 「その 時までに 1回 すませる」。until は 「その 時まで ずっと 続ける」', '<div class="fz-col"><div class="fz-line"><i class="pt now" style="--x:20%">now</i><i class="pt" style="--x:50%">ここで 出す<small>OK</small></i><i class="pt" style="--x:80%">5時<small>しめきり</small></i><i class="span" style="--a:20%;--b:80%">by five：どこかで 1回</i></div><div class="fz-line"><i class="pt now" style="--x:20%">now</i><i class="pt" style="--x:80%">5時<small>おわり</small></i><i class="span" style="--a:20%;--b:80%">until five：ずっと</i></div></div>'],
+   ['m','think','Finish your homework by five.（5時までに 宿題を 終えて） / I\'ll wait until five.（5時まで 待つ）'],
+   ['h','proud','by は しめきり、until は がまん大会や！'],
+  ],
+  quiz:[
+   {q:'レポートは 金曜までに 出して：Hand it in ___ Friday.',o:['by','until'],a:0},
+   {q:'雨が やむまで ここに いる：I\'ll stay here ___ the rain stops.',o:['until','by'],a:0},
+  ]},
+
+ {id:'jh-polite-stairs', lv:'jh', cat:'zu', t:'たのみ方の ていねい階段', key:['依頼','Could you','ていねい','会話'],
+  steps:[
+   ['m','smile','英語にも ていねいさの 段階が あるよ。言葉を 足すほど やわらかく なるんだ'],
+   ['m','think','下ほど ていねい', '<div class="fz-col"><div class="fz-blocks"><span class="b m">Open the window.<small>命令</small></span></div><div class="fz-blocks"><span class="b s">Please open the window.<small>お願い（まだ 少し 強め）</small></span></div><div class="fz-blocks"><span class="b o">Can you open the window?<small>友だちに</small></span></div><div class="fz-blocks"><span class="b t">Could you open the window?<small>目上の 人・店で</small></span></div><div class="fz-blocks"><span class="b c">Would you mind opening the window?<small>とても ていねい</small></span></div></div>'],
+   ['m','worry','Would you mind 〜ing? は 「〜するのは いやですか？」の 意味。OK なら No, not at all. と 答えるよ'],
+   ['m','proud','迷ったら Could you 〜? を 使えば だいたい 安心だよ'],
+  ],
+  quiz:[
+   {q:'店員さんに たのむ ときに ちょうど いいのは？',o:['Could you help me?','Help me.'],a:0},
+   {q:'Would you mind closing the door? に OK と 答えるには？',o:['No, not at all.','Yes, I mind.'],a:0},
+  ]},
+
+ {id:'jh-big-numbers', lv:'jh', cat:'kotsu', t:'大きな 数は 3けたで 区切る', key:['数字','thousand','million','数'],
+  steps:[
+   ['m','smile','日本語は 4けたごとに 万・億と 名前が かわる。英語は 3けたごと（カンマごと）に かわるよ'],
+   ['m','think','カンマが 名前の 目印', '<div class="fz-split"><span>1<small>billion</small></span><span>,000<small>million</small></span><span>,000<small>thousand</small></span><span>,000<small>（1〜999）</small></span></div><small style="text-align:center">カンマを 左へ 1つ こえる たびに thousand → million → billion</small>'],
+   ['m','think','だから 1万は 「10 thousand」、100万は 「1 million」、1億は 「100 million」', '<table class="fz-table"><tr><th>日本語</th><th>英語</th></tr><tr><td>1万（10,000）</td><td>ten thousand</td></tr><tr><td>10万（100,000）</td><td>a hundred thousand</td></tr><tr><td>100万（1,000,000）</td><td>a million</td></tr><tr><td>1億（100,000,000）</td><td>a hundred million</td></tr></table>'],
+   ['h','proud','宝くじ 1億円は a hundred million yen！ 当たったら 英語で 自慢したるわ'],
+  ],
+  quiz:[
+   {q:'1万は 英語で？',o:['ten thousand','one man','a million'],a:0},
+   {q:'100万は？',o:['a million','a hundred thousand','a billion'],a:0},
+  ]},
+
+ {id:'jh-proverbs', lv:'jh', cat:'kotsu', t:'英語の ことわざを 絵で 覚える', key:['ことわざ','表現','文化'],
+  steps:[
+   ['m','smile','ことわざは 短くて リズムが いいから、文の 形ごと 覚えるのに ぴったりだよ'],
+   ['m','think','日本語の ことわざと くらべて みよう', '<table class="fz-table"><tr><th>英語</th><th>近い 日本語</th></tr><tr><td>🏛️ Rome wasn\'t built in a day.</td><td>ローマは 1日に して ならず</td></tr><tr><td>👀 Seeing is believing.</td><td>百聞は 一見に しかず</td></tr><tr><td>🧠🧠 Two heads are better than one.</td><td>三人 寄れば 文殊の 知恵</td></tr><tr><td>⏰ Time is money.</td><td>時は 金なり</td></tr><tr><td>☁️ Every cloud has a silver lining.</td><td>どんな 雲にも 銀の ふち（悪い ことにも よい 面）</td></tr></table>'],
+   ['m','think','日本語は 「三人」、英語は 「2つの 頭」。数の ちがいも おもしろいね'],
+   ['h','happy','おばちゃんの お気に入りは Every cloud has a silver lining や。雨の 日も ええ ことある！'],
+  ],
+  quiz:[
+   {q:'百聞は 一見に しかず は？',o:['Seeing is believing.','Time is money.'],a:0},
+   {q:'Two heads are better than one. の 意味は？',o:['みんなで 考えると よい 知恵が 出る','頭が 2つ ある 動物'],a:0},
+  ]},
+
+ {id:'jh-mistake-note', lv:'jh', cat:'yarikata', t:'まちがいノートの 作り方', key:['勉強法','復習','まちがい','ノート'],
+  steps:[
+   ['m','smile','まちがえた 問題は 「自分専用の 弱点リスト」。ノートに 集めると 宝物に なるよ'],
+   ['m','think','3つの らんに 分けて 書く', '<table class="fz-table"><tr><th>まちがい</th><th>正しい</th><th>なぜ？</th></tr><tr><td>He go to school.</td><td>He <b>goes</b> to school.</td><td>三単現の s</td></tr><tr><td>I have seen him yesterday.</td><td>I <b>saw</b> him yesterday.</td><td>yesterday は 過去形</td></tr></table>'],
+   ['m','think','いちばん 大事なのは 「なぜ？」の らん。理由が 書ければ 同じ ミスを くり返さないよ'],
+   ['m','proud','週に 1回、答えを かくして ときなおす。3回 続けて できたら ✔ を つけて 卒業！'],
+  ],
+  quiz:[
+   {q:'まちがいノートで いちばん 大事な らんは？',o:['なぜ？','日付'],a:0},
+   {q:'ノートから 卒業させる めやすは？',o:['かくして 何回か 続けて できたら','1回 書いたら'],a:0},
+  ]},
+
+/* 高校生 */
+ {id:'hs-stress-shift', lv:'hs', cat:'oto', t:'名詞は 前、動詞は 後ろを 強く', key:['発音','アクセント','名詞','動詞'],
+  steps:[
+   ['m','smile','つづりが 同じでも、名詞か 動詞かで 強く 読む 場所が かわる 単語が あるよ'],
+   ['m','think','名詞は 前、動詞は 後ろ', '<div class="fz-col"><div class="fz-pair"><div><b>REcord</b><small>名詞：記録</small></div><div><b>reCORD</b><small>動詞：記録する</small></div></div><div class="fz-pair"><div><b>PREsent</b><small>名詞：プレゼント</small></div><div><b>preSENT</b><small>動詞：贈る・発表する</small></div></div><div class="fz-pair"><div><b>INcrease</b><small>名詞：増加</small></div><div><b>inCREASE</b><small>動詞：増える</small></div></div><div class="fz-pair"><div><b>OBject</b><small>名詞：物</small></div><div><b>obJECT</b><small>動詞：反対する</small></div></div></div>'],
+   ['m','think','すべての 単語では ないけど、2音節の この タイプは 「名詞は 前、動詞は 後ろ」で 当たる ことが 多いよ'],
+   ['m','proud','リスニングでも、強い 場所で 名詞か 動詞か 分かる。文の 形を つかむ ヒントに なるんだ'],
+  ],
+  quiz:[
+   {q:'動詞の record（記録する）の 強い 場所は？',o:['後ろ（reCORD）','前（REcord）'],a:0},
+   {q:'名詞の present（プレゼント）は？',o:['PREsent','preSENT'],a:0},
+  ]},
+
+ {id:'hs-did-you', lv:'hs', cat:'oto', t:'Did you は 「ディジュ」、going to は 「ガナ」', key:['リスニング','発音','会話','音の変化'],
+  steps:[
+   ['m','smile','会話の 英語では、よく 使う 組み合わせが くっついて 別の 音に 聞こえるよ'],
+   ['m','think','d・t と you が くっつくと 「ジュ」「チュ」に なる', '<div class="fz-col"><div class="fz-sound"><span>Did</span><span>you</span><b>ディジュ</b></div><div class="fz-sound"><span>Would</span><span>you</span><b>ウッジュ</b></div><div class="fz-sound"><span>meet</span><span>you</span><b>ミーチュ</b></div></div>'],
+   ['m','think','会話で とても 多い 「ちぢめ読み」', '<table class="fz-table"><tr><th>書くと</th><th>話すと</th></tr><tr><td>going to</td><td><b>gonna</b>（ガナ）</td></tr><tr><td>want to</td><td><b>wanna</b>（ワナ）</td></tr><tr><td>have got to</td><td><b>gotta</b>（ガラ）</td></tr></table>'],
+   ['m','worry','gonna や wanna は 話し言葉。作文や 試験の 答えでは もとの 形で 書こうね'],
+   ['h','happy','「ナイストゥミーチュ」！ 最初から 1つの 言葉や 思て 覚えたら ええ'],
+  ],
+  quiz:[
+   {q:'「ワナ」と 聞こえたら もとの 形は？',o:['want to','wanna be'],a:0},
+   {q:'作文で 書くのは？',o:["I'm going to study.","I'm gonna study."],a:0},
+  ]},
+
+ {id:'hs-make-let-have', lv:'hs', cat:'zu', t:'make・have・let の 「させる」メーター', key:['使役動詞','make','let','have','文法'],
+  steps:[
+   ['m','smile','「〜させる」の 3つは、相手の 気持ちを どれくらい 無視するかで ちがうよ'],
+   ['m','think','強さメーター', '<svg viewBox="0 0 320 110" role="img" aria-label="させるの 強さ。make が いちばん 強く、have が 中くらい、let が いちばん 弱い"><defs><linearGradient id="mlh" x1="0" x2="1"><stop offset="0" stop-color="#2e9e4f"/><stop offset=".5" stop-color="#e67e22"/><stop offset="1" stop-color="#d8433f"/></linearGradient></defs><rect x="20" y="40" width="280" height="16" rx="8" fill="url(#mlh)"/><g font-size="15" font-weight="700" text-anchor="middle"><text x="45" y="30" fill="#2e9e4f">let</text><text x="160" y="30" fill="#e67e22">have</text><text x="275" y="30" fill="#d8433f">make</text></g><g font-size="10" text-anchor="middle" fill="#2a2340"><text x="45" y="74">したい ことを</text><text x="45" y="88">許す</text><text x="160" y="74">当然の 仕事として</text><text x="160" y="88">してもらう</text><text x="275" y="74">いやでも</text><text x="275" y="88">むりやり させる</text></g><text x="160" y="106" font-size="9" text-anchor="middle" fill="#5b5577">弱い ← させる 力 → 強い</text></svg>'],
+   ['m','think','形は どれも 「動詞 + 人 + 動詞の 原形」', '<table class="fz-table"><tr><td>My mom <b>let</b> me play games.</td><td>ゲームを させて くれた</td></tr><tr><td>I <b>had</b> the shop fix my bike.</td><td>店に 自転車を 直して もらった</td></tr><tr><td>The coach <b>made</b> us run.</td><td>コーチに 走らされた</td></tr></table>'],
+   ['m','worry','to は つけないよ。× made us to run。get なら to が つく：get him to help'],
+  ],
+  quiz:[
+   {q:'「やりたい ことを させて くれた」は？',o:['let','make','have'],a:0},
+   {q:'正しいのは？',o:['He made me wait.','He made me to wait.'],a:0},
+   {q:'ならべかえて 文に しよう',order:['My dad','let','me','drive'],ja:'父は わたしに 運転させて くれた'},
+  ]},
+
+ {id:'hs-for-during', lv:'hs', cat:'zu', t:'for は 長さ、during は 出来事', key:['for','during','前置詞','期間'],
+  steps:[
+   ['m','smile','どちらも 「〜の 間」。後ろに 来る ものが ちがうよ'],
+   ['m','think','for の 後ろは 数字の 長さ、during の 後ろは 出来事や 期間の 名前', '<div class="fz-pair"><div><b>for</b><small>どれだけの 長さ？</small><i>for three days<br>for two hours</i></div><div><b>during</b><small>いつの 間？</small><i>during the summer<br>during the movie</i></div></div>'],
+   ['m','think','during は 「その 期間の どこかで」も OK。I fell asleep during the movie.（映画の とちゅうで 寝た）'],
+   ['m','proud','迷ったら 後ろを 見る。数字なら for、名前なら during だよ'],
+  ],
+  quiz:[
+   {q:'I stayed in Okinawa ___ a week.',o:['for','during'],a:0},
+   {q:'Don\'t talk ___ the test.',o:['during','for'],a:0},
+  ]},
+
+ {id:'hs-voice-check', lv:'hs', cat:'yarikata', t:'音声入力と 録音で 発音チェック', key:['発音','スピーキング','録音','勉強法'],
+  steps:[
+   ['m','smile','自分の 発音が 通じるか、スマホで かんたんに たしかめられるよ'],
+   ['m','think','① 音声入力（英語に 設定）で 話して、ちゃんと 文字に なるか 見る', '<div class="fz-pair"><div><b>言ったつもり</b><i>I like rice.</i></div><div><b>文字に なったのが</b><i>I like lice.（シラミ😱）</i></div></div>'],
+   ['m','think','② お手本と 自分の 録音を 聞き比べる', '<ol class="fz-steps"><li>お手本を 1文 聞く</li><li>自分も 録音する</li><li>交互に 聞いて、ちがう ところを 1つだけ 見つける</li><li>そこだけ 直して もう一度 録音</li></ol>'],
+   ['m','proud','一度に 全部 直そうと しない のが コツ。1回 1か所で、少しずつ 近づこう'],
+   ['h','happy','おばちゃん 録音 聞いたら 自分の 声に びっくりや。でも 慣れたら 楽しいで！'],
+  ],
+  quiz:[
+   {q:'聞き比べで 見つけるのは？',o:['ちがう ところを 1つ','全部の ちがい'],a:0},
+   {q:'音声入力で わかる ことは？',o:['発音が 通じるか','単語の 意味'],a:0},
+  ]},
+
+/* ハイレベル */
+ {id:'adv-reading-log', lv:'adv', cat:'yarikata', t:'読んだ 語数を 記録する', key:['多読','記録','モチベーション','読解'],
+  steps:[
+   ['m','smile','多読は 「何冊」より 「何語」で 記録すると、成長が 見えやすいよ'],
+   ['m','think','記録の 例', '<table class="fz-table"><tr><th>日付</th><th>本</th><th>語数</th><th>合計</th><th>感想</th></tr><tr><td>11/1</td><td>短い 物語</td><td>2,000</td><td>2,000</td><td>😊</td></tr><tr><td>11/5</td><td>やさしい 伝記</td><td>5,000</td><td>7,000</td><td>😐</td></tr></table>'],
+   ['m','think','語数の 目安：1ページの 語数 × ページ数 で だいたいで OK。マイルストーンを 決めて 目指そう', '<svg viewBox="0 0 320 70" role="img" aria-label="1万語、10万語、30万語、100万語の マイルストーン"><line x1="20" y1="35" x2="300" y2="35" stroke="#c9c3e0" stroke-width="6" stroke-linecap="round"/><g fill="#e67e22"><circle cx="40" cy="35" r="8"/><circle cx="120" cy="35" r="8"/><circle cx="200" cy="35" r="8"/><circle cx="285" cy="35" r="10"/></g><g font-size="11" text-anchor="middle" fill="#2a2340" font-weight="700"><text x="40" y="62">1万語</text><text x="120" y="62">10万語</text><text x="200" y="62">30万語</text><text x="285" y="62">100万語</text></g><text x="285" y="20" font-size="14" text-anchor="middle">🏆</text></svg>'],
+   ['m','proud','つまらない 本は 途中で やめて OK。楽しく 続く ことが 語数を いちばん のばすよ'],
+  ],
+  quiz:[
+   {q:'多読の 記録で おすすめなのは？',o:['語数','読んだ 時間だけ'],a:0},
+   {q:'つまらない 本は？',o:['途中で やめて 次へ','最後まで がまん'],a:0},
+  ]},
+
+ {id:'adv-my-phrases', lv:'adv', cat:'yarikata', t:'自分が 言いたい ことを 先に 英語に', key:['スピーキング','自己紹介','フレーズ','勉強法'],
+  steps:[
+   ['m','smile','会話で 言いたく なる ことの 多くは 「自分の こと」。それを 先に 英語に して おくと、話す ときに 困らないよ'],
+   ['m','think','自分専用 フレーズ集を 作る テーマ', '<div class="fz-row"><div class="fz-pic"><span>🙋</span><small>自己紹介<br>名前・住んでいる 所</small></div><div class="fz-pic"><span>🎸</span><small>好きな こと<br>しゅみ・理由</small></div><div class="fz-pic"><span>📅</span><small>毎日<br>ふだんの 1日</small></div><div class="fz-pic"><span>🎯</span><small>夢<br>やりたい こと</small></div></div>'],
+   ['m','think','例：I live near the sea, so I often walk on the beach at night. I love looking at the stars.'],
+   ['m','proud','各テーマ 3〜5文。声に 出して すらすら 言えるまで 練習しよう。会話の 「持ちネタ」が できるよ'],
+   ['h','proud','おばちゃんの 持ちネタは 「I love sweets!」や。どこ行っても これで 盛り上がるで'],
+  ],
+  quiz:[
+   {q:'先に 英語に しておくと いいのは？',o:['自分の こと（しゅみ・毎日 など）','ニュースの 専門用語'],a:0},
+   {q:'ならべかえて 文に しよう',order:['I','love','looking at','the stars'],ja:'星を 見るのが 大好き'},
+  ]},
+);
