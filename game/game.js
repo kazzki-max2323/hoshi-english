@@ -9,10 +9,10 @@ const hooks={},emit=(n,...a)=>(hooks[n]||[]).forEach(f=>{try{f(...a)}catch(e){}}
 
 /* ---------- save ---------- */
 const GAP0=10;
-try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=oneRadioEach(s.radios||[]);ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;ST.flipCoin=s.flipCoin||{d:'',n:0};ST.autoSay=s.autoSay!==false;ST.cheer=s.cheer!==false;ST.gram=Object.assign({owned:[],cleared:[]},s.gram||{});decoRefund(s.deco);
-  if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.music=[];ST.learned={};ST.slow=false;ST.autoSay=true;ST.cheer=true;ST.gram={owned:[],cleared:[]};ST.started=1}
+try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=oneRadioEach(s.radios||[]);ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;ST.flipCoin=s.flipCoin||{d:'',n:0};ST.autoSay=s.autoSay!==false;ST.cheer=s.cheer!==false;ST.gram=Object.assign({owned:[],cleared:[]},s.gram||{});ST.rh=s.rh||{};ST.cheerBag=s.cheerBag||[];ST.cheerLast=s.cheerLast??-1;decoRefund(s.deco);
+  if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.music=[];ST.learned={};ST.slow=false;ST.autoSay=true;ST.cheer=true;ST.gram={owned:[],cleared:[]};ST.rh={};ST.cheerBag=[];ST.cheerLast=-1;ST.started=1}
 ST.vol=Object.assign({se:1,wave:1,mus:1,voice:1},ST.vol||{});
-_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');delete s.deco;delete s.rareBack;Object.assign(s,{gram:ST.gram,learned:ST.learned,slow:ST.slow,flipCoin:ST.flipCoin,autoSay:ST.autoSay,cheer:ST.cheer,music:ST.music,radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
+_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');delete s.deco;delete s.rareBack;Object.assign(s,{gram:ST.gram,learned:ST.learned,slow:ST.slow,flipCoin:ST.flipCoin,autoSay:ST.autoSay,cheer:ST.cheer,music:ST.music,radios:ST.radios,radioGap:ST.radioGap,rh:ST.rh,cheerBag:ST.cheerBag,cheerLast:ST.cheerLast,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
 
 /* the beach decorations were taken out of the game: whatever was on the beach is sold back for half its price, like selling it in the shop */
 function decoRefund(deco){const names=Object.keys(deco||{});if(!names.length)return;
@@ -265,11 +265,15 @@ document.addEventListener('visibilitychange',bgSound);addEventListener('pagehide
 /* ---------- cheer: a few warm words in the sky after every 5 minutes of play (paused while the app is hidden or a mini game runs) ----------
    It takes turns with the other things on the beach: it waits until no radio or resident is talking, no fresh question is waiting
    and no message is up; while it shows, radios and residents stay quiet, and they come back 10 seconds after it goes. */
-const CHEER_EVERY=5*60*1000,CHEER_REST=10000;let cheerAt=0,cheerLast=performance.now(),cheerBag=[],cheerOn=false,cheerWait=0;
+const CHEER_EVERY=5*60*1000,CHEER_REST=10000;let cheerAt=0,cheerLast=performance.now(),cheerOn=false,cheerWait=0;
 const cheerDue=()=>ST.cheer&&cheerAt>=CHEER_EVERY;   // once due, radios and residents hold their next turn so it can come in
 const beachBusy=()=>talking||folkNow||(cur&&!cur.done&&performance.now()-cur.t0<7000)||document.querySelector('#toast.on');
 const cheerEl=document.createElement('div');cheerEl.id='cheerBox';cheerEl.hidden=true;$('window').appendChild(cheerEl);
-function cheerShow(){if(!cheerBag.length)cheerBag=shuffle(CHEER.map((c,i)=>i));const [en,ja,who]=CHEER[cheerBag.pop()];
+/* the cheer bag is kept in the save, so every line comes once before any comes again, even across visits */
+function cheerNext(){let b=ST.cheerBag.filter(i=>i<CHEER.length);
+  if(!b.length){b=shuffle(CHEER.map((c,i)=>i));const n=b.length-1;if(n>0&&b[n]===ST.cheerLast)[b[0],b[n]]=[b[n],b[0]]}   // a new round never opens with the line just shown
+  const i=b.pop();ST.cheerBag=b;ST.cheerLast=i;save();return CHEER[i]}
+function cheerShow(){const [en,ja,who]=cheerNext();
   cheerEl.innerHTML=`${en?`<p class="che">${esc(en)} <i>🔊</i></p>`:''}<p class="chj">${esc(ja)}</p>${who?`<small>— ${esc(who)}</small>`:''}`;
   cheerOn=true;if(cur&&!cur.done)radioQuiet();cheerEl.hidden=false;cheerEl.classList.remove('on','bye');void cheerEl.offsetWidth;cheerEl.classList.add('on');SFX.chime();
   cheerEl.onclick=()=>{if(en){say('cheer',en);clearTimeout(cheerEl._t);cheerEl._t=setTimeout(cheerHide,8000)}else cheerHide()};
@@ -317,11 +321,17 @@ const overlap=(a,b)=>{a=a.replace(/[〜（）・、。？！ ]/g,'');b=b.replace
 /* a radio line: a word, a sentence, a character / trend line, or (in season) a seasonal line */
 /* what a radio says: words 45%, character/trend lines 15%, sentences the rest (seasonal lines join them in season) */
 /* in season, a third of the words come from the season's book (ハロウィンなら pumpkin, ghost …) */
+/* no repeats too soon: each pool (level × words / season words / pop / sentences) remembers its last lines
+   (70% of the pool, up to 150) and picks from the rest. The memory is in the save, so it carries over to the next visit */
+function fresh(key,pool){const h=ST.rh[key]=ST.rh[key]||[],W=Math.min(150,pool.length*.7|0);while(h.length>W)h.shift();
+  const seen=new Set(h),c=pool.filter(o=>!seen.has(o[0])),o=pick(c.length?c:pool);if(W)h.push(o[0]);return o}
 function makeLine(lv){const L=LEVELS[lv],r=Math.random(),sn=seasonNow(),inSn=sn&&!L.nightOnly&&!L.noSeason,sw=inSn&&sn[1].w;
   /* now and then the tutor slips in a word the player keeps missing (復習) */
-  const rv=window.MINA&&MINA.reviewPick(lv),words=allWords(lv),rw=rv&&words.find(w=>w[0]===rv);
+  /* (not if the same word came in the last 30 words, so one weak word does not keep coming back) */
+  const rv=window.MINA&&MINA.reviewPick(lv),words=allWords(lv),hw=ST.rh[lv+':w']=ST.rh[lv+':w']||[],rw0=rv&&words.find(w=>w[0]===rv),rw=rw0&&!hw.slice(-30).includes(rw0[0])?rw0:null;
   const pool=rw?words:r<.45?(sw&&r<.15?sw:words):L.pop&&r<.6?L.pop:inSn&&r<.7?[...sn[1].talk,...L.talk]:L.talk.length?L.talk:words;
-  const ans=rw||pick(pool),n=L.choices;
+  const key=lv+':'+(pool===words?'w':pool===sw?'sw':pool===L.pop?'pop':'talk');
+  if(rw)hw.push(rw[0]);const ans=rw||fresh(key,pool),n=L.choices;save();
   const others=shuffle(pool.filter(o=>o!==ans&&o[0]!==ans[0]&&o[1]!==ans[1]&&!overlap(o[1],ans[1]))).slice(0,n-1);
   return {lv,en:ans[0],ja:ans[1],kind:pool===words||pool===sw?'w':'s',review:!!rw,sea:pool===sw&&sn[1],opts:shuffle([ans[1],...others.map(o=>o[1])])}}
 function tick(){
