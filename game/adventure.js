@@ -8,15 +8,15 @@ const H=HE,$p=()=>H.panel,esc=H.esc,shuffle=H.shuffle;
 /* ---------- maps: nodes on a 100×140 board, each points to the nodes you can go to next ---------- */
 const MAPS=[
  {name:'さざなみ海岸',sky:['#2b6fb3','#8ec9ef'],land:'#e8d3a2',
-  reward:{deco:['ミラーボール'],music:['orch'],title:'さざなみの 冒険家'},
+  reward:{coins:450,music:['orch'],title:'さざなみの 冒険家'},
   nodes:{S:[50,128,'start',['a','b']],a:[28,110,'shell',['c']],b:[72,110,'star',['d']],c:[22,88,'dj',['e']],d:[76,90,'mys',['e','f']],
    e:[46,72,'shop',['g']],f:[80,68,'crab',['h']],g:[26,52,'star',['i']],h:[70,48,'dj',['i']],i:[48,32,'mys',['G']],G:[50,12,'goal',[]]}},
  {name:'ほたる入り江',sky:['#3b2f7a','#c06c84'],land:'#d9c08f',
-  reward:{deco:['星のプロジェクター'],event:['goldrain'],title:'ほたる入り江の 探検家'},
+  reward:{coins:400,event:['goldrain'],title:'ほたる入り江の 探検家'},
   nodes:{S:[50,128,'start',['a','b','c']],a:[18,108,'dj',['d']],b:[50,106,'crab',['d','e']],c:[82,108,'star',['e']],d:[30,86,'mys',['f']],
    e:[68,86,'shop',['f','g']],f:[42,66,'star',['h']],g:[80,64,'suika',['h']],h:[60,46,'shell',['i','j']],i:[26,32,'shop',['G']],j:[80,30,'mys',['G']],G:[50,12,'goal',[]]}},
  {name:'星くず岬',sky:['#0b1030','#2c3f86'],land:'#b9a77f',
-  reward:{deco:['星の門'],event:['dragon','mstorm'],title:'星くず岬の 伝説'},
+  reward:{coins:1250,event:['dragon','mstorm'],title:'星くず岬の 伝説'},
   nodes:{S:[50,128,'start',['a','b']],a:[30,112,'star',['c','d']],b:[70,112,'dj',['d']],c:[14,92,'suika',['e']],d:[52,94,'mys',['e','f']],
    e:[30,74,'dj',['g']],f:[78,76,'star',['g','h']],g:[50,58,'shop',['i']],h:[84,52,'crab',['i']],i:[60,40,'dj',['j','k']],j:[30,28,'star',['G']],k:[78,24,'mys',['G']],G:[52,8,'goal',[]]}},
 ];
@@ -106,7 +106,7 @@ function mystery(){const r=Math.random(),c=cost();let msg;
 
 /* ---------- the treasure chest ---------- */
 function treasure(){const M=map(),R=M.reward,first=AD.map<MAPS.length,got=[];
-  if(first){(R.deco||[]).forEach(n=>{ST.deco[n]=true;const d=CATALOG.deco.find(x=>x[0]===n);got.push(`${d?d[2]:'✨'} ${n}`)});
+  if(first){if(R.coins){ST.coins+=R.coins;got.push(`💰 たからの コイン ${R.coins}まい`)}
     (R.music||[]).forEach(id=>{if(!ST.music.includes(id))ST.music.push(id);got.push(`🎵 ${TRACKS[id].name}`)});
     (R.event||[]).forEach(id=>{if(!AD.rareEv.includes(id))AD.rareEv.push(id);got.push(`${RARE_EV[id].ico} ${RARE_EV[id].n}（いつでも よべる）`)});
     if(R.title&&!AD.titles.includes(R.title)){AD.titles.push(R.title);got.push(`🏅 しょうごう「${R.title}」`)}}

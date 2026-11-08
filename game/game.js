@@ -1,5 +1,5 @@
 /* 浜辺の英語: 浜辺でめくる単語帳と、つぶやくラジオ。
-   ラジオの問題に正解するとコインがもらえ、コインでラジオや浜辺のかざりを買う。 */
+   ラジオの問題に正解するとコインがもらえ、コインでラジオや音楽、イベントを買う。 */
 (()=>{
 const {scene:SC,sfx:SFX,S:ST}=BEACH;
 const panel=$('panel');
@@ -9,10 +9,18 @@ const hooks={},emit=(n,...a)=>(hooks[n]||[]).forEach(f=>{try{f(...a)}catch(e){}}
 
 /* ---------- save ---------- */
 const GAP0=10;
-try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=oneRadioEach(s.radios||[]);ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;ST.flipCoin=s.flipCoin||{d:'',n:0};ST.autoSay=s.autoSay!==false;ST.cheer=s.cheer!==false;ST.gram=Object.assign({owned:[],cleared:[]},s.gram||{});ST.rareBack=s.rareBack||[];
-  if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.music=[];ST.learned={};ST.slow=false;ST.autoSay=true;ST.cheer=true;ST.gram={owned:[],cleared:[]};ST.rareBack=[];ST.started=1}
+try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=oneRadioEach(s.radios||[]);ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;ST.flipCoin=s.flipCoin||{d:'',n:0};ST.autoSay=s.autoSay!==false;ST.cheer=s.cheer!==false;ST.gram=Object.assign({owned:[],cleared:[]},s.gram||{});decoRefund(s.deco);
+  if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.music=[];ST.learned={};ST.slow=false;ST.autoSay=true;ST.cheer=true;ST.gram={owned:[],cleared:[]};ST.started=1}
 ST.vol=Object.assign({se:1,wave:1,mus:1,voice:1},ST.vol||{});
-_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');Object.assign(s,{gram:ST.gram,rareBack:ST.rareBack,learned:ST.learned,slow:ST.slow,flipCoin:ST.flipCoin,autoSay:ST.autoSay,cheer:ST.cheer,music:ST.music,radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
+_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');delete s.deco;delete s.rareBack;Object.assign(s,{gram:ST.gram,learned:ST.learned,slow:ST.slow,flipCoin:ST.flipCoin,autoSay:ST.autoSay,cheer:ST.cheer,music:ST.music,radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
+
+/* the beach decorations were taken out of the game: whatever was on the beach is sold back for half its price, like selling it in the shop */
+function decoRefund(deco){const names=Object.keys(deco||{});if(!names.length)return;
+  const PRICE={'ランタン':20,'ビーチボール':25,'スイカ':30,'ロッキングチェア':40,'浮き輪':45,'砂の城':50,'ふきながし':60,'キャンドル':70,'ヤシの木':80,'イルカの浮き輪':90,'ふうりん':100,'テント':110,
+    'かき氷の屋台':120,'ホタルの小びん':130,'シャボン玉マシン':140,'ちょうちん':150,'ライトのガーランド':170,'カイト':190,'ビーチチェア':200,'流木アート':220,'浮き玉ランプ':240,'ブランコ':260,'ヨット':280,'小舟':300,
+    'ドリームキャッチャー':330,'カヌー':360,'ハンモック':400,'サーフボード':450,'ビーチパラソル':500,'石灯籠':550,'天体望遠鏡':600,'ビーチハウス':700,'星のプロジェクター':800,'ミラーボール':900,'気球':1200,'豪華クルーザー':1600,'星の門':2500};
+  const back=names.reduce((a,n)=>a+((PRICE[n]||0)/2|0),0);ST.coins+=back;
+  setTimeout(()=>{save();head();SC.update(ST.coins);toast(`🏖️ 浜辺の かざりは なくなったよ${back?`<small>うって ${back}まい もどしたよ</small>`:''}`,3600)},1500)}
 
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -398,16 +406,15 @@ function coinBurst(x,y,amt,quick){const tg=document.querySelector('.coin i').get
     an.onfinish=()=>{d.remove();if(share)addCoins(share);SFX.coin()}}}
 
 /* ---------- beach residents ----------
-   the more decorations on the beach, the more residents drop by. One walks in now and then;
+   one walks in now and then (the owl only at night);
    tap it and it says something in English — pick the right Japanese for coins. */
 const folkLayer=document.createElement('div');folkLayer.id='folk';$('window').appendChild(folkLayer);
 const FOLK_REWARD=5;
 /* a resident drops by once every ten minutes */
 const FOLK_EVERY=10*60*1000;
 let folkNow=null,folkNext=performance.now()+FOLK_EVERY;
-const decoCount=()=>Object.keys(ST.deco||{}).length;
-function folkUnlocked(){const n=Math.min(FOLK.length,1+Math.floor(decoCount()/3));return FOLK.slice(0,n).filter(f=>!f[4]||isNight()).concat(isNight()&&n<FOLK.length?[FOLK.find(f=>f[4])]:[])}
-function folkSpawn(){const pool=folkUnlocked().filter(Boolean);if(!pool.length)return;const F=pick(pool),[fx]=fireSpot();
+function folkUnlocked(){return FOLK.filter(f=>!f[4]||isNight())}
+function folkSpawn(){const pool=folkUnlocked();if(!pool.length)return;const F=pick(pool),[fx]=fireSpot();
   let x;do{x=.12+Math.random()*.76}while(Math.abs(x-fx)<.16);const from=Math.random()<.5?-.08:1.08;
   const el=document.createElement('button');el.className='folk';el.innerHTML=`<span class="fe">${F[1]}</span><b>${F[2]}</b><i class="fq">💬</i>`;
   el.style.left=from*100+'%';el.style.top=(.72+Math.random()*.06)*100+'%';el.setAttribute('aria-label',`${F[2]}（${F[3]}）`);folkLayer.appendChild(el);
@@ -488,19 +495,12 @@ function row(ico,name,desc,btns,cls=''){return `<div class="ritem ${cls}"><span 
 const coin=n=>n?'🪙'+n.toLocaleString():'むりょう';
 let shopScroll=0;
 function shop(tab,glv='es'){
-  const TABS=[['radio','📻','ラジオ'],['deco','🏖️','かざり'],['music','🎵','おんがく'],['event','🎆','イベント'],['gram','📚','文法']];
+  const TABS=[['radio','📻','ラジオ'],['music','🎵','おんがく'],['event','🎆','イベント'],['gram','📚','文法']];
   let body='';
   if(tab==='radio')body=[...LV_ORDER,'star'].map(k=>{const L=LEVELS[k],n=ST.radios.filter(r=>r.lv===k).length;
     return row(`📻<b class="lv-${k}">${L.short}</b>`,`${L.name}ラジオ${L.nightOnly?' <em class="tb">🌙 夜だけ しゃべる</em>':''}`,`${L.desc?L.desc+'・':L.nightOnly?'星と 宇宙の 英語・':''}${L.choices}たく・せいかい +${L.reward}${L.fast?`（${FAST_MS/1000}びょう いないなら +${L.fast}）`:''}　もっている ${n}だい`,
       `<button class="buy" data-k="${k}" ${n||ST.coins<L.price?'disabled':''}>${n?'✅ もっている':L.price?'かう '+coin(L.price):'もらう（むりょう）'}</button><button class="sell sub" data-k="${k}" ${n?'':'disabled'}>${L.price?'うる +'+(L.price/2|0):'てばなす'}</button>`)}).join('')
     +'<p class="note">ラジオは 1しゅるい 1台まで（小学生ラジオは むりょう）</p>';
-  if(tab==='deco')body=CATALOG.deco.map(([n,c,ico,d,rare])=>{const has=hasDeco(n);
-    /* rare ones come from the treasure map; they can be sold too, and bought back later at full price */
-    if(rare){const back=!has&&ST.rareBack.includes(n);
-      return row(ico,n+' <em class="tb rare">🗝️ レア</em>',has?'✨ 宝の地図で 手に入れた たからもの':back?'うった たからもの。また かいもどせるよ':'宝の地図の 宝箱から 見つかる',
-        has?`<button class="sell sub" data-sd="${n}">うる +${c/2|0}</button>`:back?`<button class="buy" data-bd="${n}" ${ST.coins<c?'disabled':''}>かいもどす ${coin(c)}</button>`:'<button class="buy" disabled>🗺️ 宝の地図</button>',has?'has':back?'':'off')}
-    return row(ico,n,has?'✨ 浜辺に かざっているよ':d,has?`<button class="sell sub" data-sd="${n}">うる +${c/2|0}</button>`:`<button class="buy" data-bd="${n}" ${ST.coins<c?'disabled':''}>かう ${coin(c)}</button>`,has?'has':'')}).join('')
-    +'<p class="note">うると ねだんの はんぶんが もどってくる（レアの たからものも うれる。うったあとは かいもどせるよ）</p>';
   if(tab==='music')body=CATALOG.music.filter(([id])=>TRACKS[id]).map(([id,c,ico,d,rare])=>{const has=ST.music.includes(id),pl=MUS.on&&MUS.id===id;
     const name=esc(TRACKS[id].name)+(rare?' <em class="tb rare">🗝️ レア</em>':'');
     if(rare&&!has)return row(ico,name,'宝の地図の 宝箱から 見つかる','<button class="buy" disabled>🗺️ 宝の地図</button>','off');
@@ -529,11 +529,6 @@ function shop(tab,glv='es'){
     const [x,y]=freeSpot();ST.radios.push({lv:k,on:true,x,y});save();drawRadios();SFX.save();toast(`📻 <b>${L.name}ラジオ</b> を 浜辺に おいた！`);shop('radio')});
   panel.querySelectorAll('[data-k].sell').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];let idx=-1;ST.radios.forEach((r,i)=>{if(r.lv===k)idx=i});if(idx<0)return;
     ST.radios.splice(idx,1);if(L.price)addCoins(L.price/2|0);save();drawRadios();SFX.coin();toast(`📻 ${L.name}ラジオを ${L.price?'うった':'てばなした'}`);shop('radio')});
-  /* decorations */
-  panel.querySelectorAll('[data-bd]').forEach(b=>b.onclick=()=>{const n=b.dataset.bd,it=CATALOG.deco.find(d=>d[0]===n);if(hasDeco(n)||(it[4]&&!ST.rareBack.includes(n))||!spend(it[1],b))return;
-    ST.deco[n]=true;ST.rareBack=ST.rareBack.filter(x=>x!==n);save();SC.update(ST.coins);SFX.save();toast(`${it[2]} <b>${n}</b> を かざった！`);shop('deco')});
-  panel.querySelectorAll('[data-sd]').forEach(b=>b.onclick=()=>{const n=b.dataset.sd,it=CATALOG.deco.find(d=>d[0]===n);if(!hasDeco(n))return;
-    delete ST.deco[n];if(it[4]&&!ST.rareBack.includes(n))ST.rareBack.push(n);addCoins(it[1]/2|0);SC.update(ST.coins);SFX.coin();toast(`${it[2]} ${n}を うった`);shop('deco')});
   /* music */
   panel.querySelectorAll('[data-bm]').forEach(b=>b.onclick=()=>{const id=b.dataset.bm,it=CATALOG.music.find(m=>m[0]===id);if(ST.music.includes(id)||!spend(it[1],b))return;
     ST.music.push(id);save();SFX.save();playTrack(id);shop('music')});
