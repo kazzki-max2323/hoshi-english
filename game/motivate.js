@@ -4,7 +4,7 @@
       ハマ子さんとの おしゃべりが ふえる。Lv10 で ミナ先生が 夜空に 花火を あげてくれる
    3. 思い出しクイズ: 前に クリアした 授業から 1問（1日・3日・7日・14日・30日 あけて 出す）。ホームで ミナ先生が 声を かける
    4. ハマ子の 挑戦状: 1日 1回 ハマ子さんが「この授業 ぜんもん 正解なら コイン 2ばい＋レアカード」
-   5. 授業カード: 授業を クリアすると その授業の カードが かならず もらえる（カード図鑑「ミナの授業」。授業が ふえると カードも ふえる）
+   5. 授業カード: 授業を クリアすると その授業の カードが かならず もらえる（ミナ先生の 授業カード図鑑。宝箱の 図鑑とは べつ。授業が ふえると カードも ふえる）
    アナウンスは ラジオが しゃべっていても 出る（ラジオ中は 浜辺の上にも 吹き出し）。
    ごほうびの カードや ショーは、その場で 見なくても つぎに ホームへ もどると もらえる */
 (()=>{
@@ -94,10 +94,10 @@ function sheet(n,fresh){const k=n?(n-1)%10+1:0,full=n&&k===10&&fresh;
 
 /* ---------- 5. lesson cards ---------- */
 function cardRow(l){if(!window.CARDS||!CARDS.lessonGet)return null;const c=CARDS.lessonGet(l.id);if(!c)return null;const [a,b]=CARDS.lesCount();
-  return `<span class="lcrow"><span class="lcard">${CARDS.face(c,{show:1})}</span><span>📖 授業カード <b>「${esc(l.t)}」</b> ゲット！<small>カード図鑑「ミナの授業」 ${a}/${b}</small></span></span>`}
+  return `<span class="lcrow"><span class="lcard">${CARDS.face(c,{show:1})}</span><span>📖 授業カード <b>「${esc(l.t)}」</b> ゲット！<small>ミナ先生の 授業カード ${a}/${b}（ミナ先生の ページから 見られるよ）</small></span></span>`}
 /* lessons cleared before cards came: their cards arrive now */
 setTimeout(()=>{if(!window.CARDS||!CARDS.lessonGet)return;const got=Object.keys(cleared()).filter(id=>lesOf(id)&&CARDS.lessonGet(id,true));
-  if(got.length)H.toast(`📖 これまでの 授業カード <b>${got.length}まい</b> が とどいたよ<small>カード図鑑「ミナの授業」</small>`,4200)},2500);
+  if(got.length)H.toast(`📖 これまでの 授業カード <b>${got.length}まい</b> が とどいたよ<small>ミナ先生の ページの 📖 授業カード から 見られるよ</small>`,4200)},2500);
 
 /* ---------- 4. Hamako's challenge ---------- */
 const hcOn=()=>MV.hc.d===today()&&!MV.hc.done&&!!lesOf(MV.hc.id);
