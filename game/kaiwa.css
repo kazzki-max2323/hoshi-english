@@ -1,0 +1,62 @@
+/* 浜辺の 会話（game/kaiwa.js） */
+.kmina{display:flex;align-items:flex-start;gap:8px}
+.kmina p{margin:0;flex:1;background:#fff6e0;color:#2a2340;text-shadow:none;border-radius:4px 14px 14px 14px;padding:7px 11px;font-size:.84rem;line-height:1.55}
+.kmina p b{color:#c2410c}
+.klist{max-height:min(40vh,330px);overflow:auto}
+.krow .ci{font-size:1.6rem}
+.kjat{display:flex;align-items:center;justify-content:center;gap:6px;font-size:.74rem;color:var(--mute)}
+.kjat small{font-size:.64rem}
+/* the talk */
+.kw .kwlog{height:min(38vh,320px);cursor:default}
+.kf{display:flex;align-items:center;justify-content:center;font-size:1.6rem;background:#1f2a5c;position:relative;overflow:visible!important}
+.kf.you{font-size:1.2rem;background:#3a2a10}
+.kfx{position:absolute;right:-10px;top:-12px;font-style:normal;font-size:1.1rem;animation:kfx .5s cubic-bezier(.3,1.6,.6,1) both}
+@keyframes kfx{from{transform:scale(0) rotate(-30deg);opacity:0}}
+.kth.k-oops .kf,.kth.k-huh .kf{animation:kshake .45s}
+@keyframes kshake{20%{transform:translateX(-4px) rotate(-6deg)}40%{transform:translateX(4px) rotate(6deg)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+.kth.k-good .kf{animation:kbob .5s}
+@keyframes kbob{40%{transform:translateY(-6px)}}
+.ken{font-family:"Libre Baskerville",Georgia,serif;position:relative;padding-right:34px!important}
+.ksay{position:absolute;right:4px;top:50%;transform:translateY(-50%);padding:0 4px!important;border:none!important;background:none!important;font-size:.9rem}
+.kja{display:none;font-size:.74rem;color:#ffe7a8;padding-left:6px}
+.kja.on{display:block}
+.kjab{align-self:flex-start;font-size:.66rem!important;padding:2px 8px!important}
+.kth.k-oops .lbody>p{background:#ffe0ea}
+.kth.k-huh .lbody>p{background:#e6e9ff}
+.kyou-b .lbody>p{font-family:"Libre Baskerville",Georgia,serif;background:#d8f5ec!important}
+.kty{margin-left:6px;font-family:var(--body,inherit)}
+.knote{margin:2px 0;text-align:center;font-size:.76rem;color:#ffe7a8}
+.knote b{color:#fff}
+.kans{display:flex;flex-direction:column;gap:8px}
+.kopts{gap:6px}
+.kopts button{min-height:40px;padding:7px 10px!important;text-align:left}
+.kopts button.tried{opacity:.55!important;text-decoration:line-through}
+.kopts button i{font-style:normal;text-decoration:none;display:inline-block}
+.khint{margin:0;font-size:.76rem;color:#ffe7a8}
+.khint b{font-family:"Libre Baskerville",Georgia,serif;color:#fff}
+.kfree{display:flex;gap:6px}
+.kfree input{flex:1;min-width:0;font:inherit;font-family:"Libre Baskerville",Georgia,serif;font-size:16px;border-radius:10px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:var(--ink);padding:7px 10px;-webkit-user-select:text;user-select:text}
+.kfree input::placeholder{color:var(--mute);font-family:var(--body,inherit);font-size:.78rem}
+.kfree button{padding:6px 12px!important}
+.kfree #kmic.on{background:#e2475a!important;animation:kbob 1s infinite}
+/* the end */
+.kres{display:flex;flex-direction:column;gap:8px}
+.kpay{margin:0;text-align:center;font-size:1rem;color:#ffe7a8}
+.kpay small{font-size:.7rem;color:#ff9a1a}
+.kstat{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;font-size:.76rem}
+.kstat b{color:#ffe7a8}
+.kstat small{font-size:.64rem;color:var(--mute)}
+.knew{margin:0;text-align:center;font-size:.85rem;color:#55e0b4}
+.kwords small{font-size:.68rem;color:var(--mute)}
+.kwords>div{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.kwords button{padding:3px 8px!important;font-family:"Libre Baskerville",Georgia,serif;font-size:.8rem;display:flex;flex-direction:column;align-items:center;line-height:1.2}
+.kwords button small{font-family:var(--body,inherit);font-size:.6rem}
+.kwords button.got{border-color:#55e0b4!important;background:rgba(85,224,180,.12)!important}
+/* the funny-reaction book */
+.kfunl{display:flex;flex-direction:column;gap:6px;max-height:min(50vh,420px);overflow:auto}
+.kfi{display:flex;gap:8px;align-items:flex-start;background:rgba(255,255,255,.06);border-radius:10px;padding:6px 8px}
+.kfi .ki{font-size:1.5rem}
+.kfi p{margin:0}
+.kfi .kyou{font-family:"Libre Baskerville",Georgia,serif;font-size:.82rem}
+.kfi .kre{font-size:.74rem;color:#ffe7a8}
+.kfi .kre i{font-style:normal}
