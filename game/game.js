@@ -289,13 +289,14 @@ function rqIdle(){const el=$('rq');if(!el)return;const on=ST.radios.filter(r=>r.
 const overlap=(a,b)=>{a=a.replace(/[〜（）・、。？！ ]/g,'');b=b.replace(/[〜（）・、。？！ ]/g,'');for(let i=0;i<a.length-1;i++)if(b.includes(a.slice(i,i+2)))return true;return false};
 /* a radio line: a word, a sentence, a character / trend line, or (in season) a seasonal line */
 /* what a radio says: words 45%, character/trend lines 15%, sentences the rest (seasonal lines join them in season) */
-function makeLine(lv){const L=LEVELS[lv],r=Math.random(),sn=seasonNow();
+/* in season, a third of the words come from the season's book (ハロウィンなら pumpkin, ghost …) */
+function makeLine(lv){const L=LEVELS[lv],r=Math.random(),sn=seasonNow(),inSn=sn&&!L.nightOnly&&!L.noSeason,sw=inSn&&sn[1].w;
   /* now and then the tutor slips in a word the player keeps missing (復習) */
   const rv=window.MINA&&MINA.reviewPick(lv),words=allWords(lv),rw=rv&&words.find(w=>w[0]===rv);
-  const pool=rw||r<.45?words:L.pop&&r<.6?L.pop:sn&&!L.nightOnly&&!L.noSeason&&r<.7?[...sn[1].talk,...L.talk]:L.talk.length?L.talk:words;
+  const pool=rw?words:r<.45?(sw&&r<.15?sw:words):L.pop&&r<.6?L.pop:inSn&&r<.7?[...sn[1].talk,...L.talk]:L.talk.length?L.talk:words;
   const ans=rw||pick(pool),n=L.choices;
   const others=shuffle(pool.filter(o=>o!==ans&&o[0]!==ans[0]&&o[1]!==ans[1]&&!overlap(o[1],ans[1]))).slice(0,n-1);
-  return {lv,en:ans[0],ja:ans[1],kind:pool===words?'w':'s',review:!!rw,opts:shuffle([ans[1],...others.map(o=>o[1])])}}
+  return {lv,en:ans[0],ja:ans[1],kind:pool===words||pool===sw?'w':'s',review:!!rw,sea:pool===sw&&sn[1],opts:shuffle([ans[1],...others.map(o=>o[1])])}}
 function tick(){
   if(screen!=='home'||talking||cheerOn||cheerDue()||document.hidden||performance.now()<nextAt||(window.MINA&&MINA.busy()))return;
   if(cur&&cur.src==='folk'&&!cur.done)return;                // a resident is talking
@@ -317,7 +318,7 @@ function bubbleEl(html,cls){const b=document.createElement('div');b.className='b
 function clampX(b,W){const w=b.offsetWidth,l=parseFloat(b.style.left);b.style.left=Math.max(6,Math.min(W.width-6-w,l))+'px'}
 function drawLine(r){const c=cur;clearBubbles();const W=bub.getBoundingClientRect();
   /* the radio's English line sits at the top of the sky, in front of everything, so answers never cover it */
-  const line=bubbleEl(c.src==='folk'?`${c.ico}<b class="lvt folkt">${esc(c.who)}</b> ${esc(c.en)} <i class="again">🔁</i>`:`📻<b class="lvt lv-${c.lv}">${LEVELS[c.lv].short}</b>${c.review?'<b class="lvt revt">ふくしゅう</b>':''} ${esc(c.en)} <i class="again">🔁</i>`,'line');
+  const line=bubbleEl(c.src==='folk'?`${c.ico}<b class="lvt folkt">${esc(c.who)}</b> ${esc(c.en)} <i class="again">🔁</i>`:`📻<b class="lvt lv-${c.lv}">${LEVELS[c.lv].short}</b>${c.review?'<b class="lvt revt">ふくしゅう</b>':''}${c.sea?`<b class="lvt seat">${c.sea.ico} ${esc(c.sea.name)}</b>`:''} ${esc(c.en)} <i class="again">🔁</i>`,'line');
   line.style.left=(W.width/2-line.offsetWidth/2)+'px';line.style.top='10px';clampX(line,W);
   line.onclick=()=>say(c.lv,c.en);
   /* answers are born on the sand and float up like balloons until they press against the line */

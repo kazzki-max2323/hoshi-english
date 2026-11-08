@@ -16,6 +16,7 @@
 .msay.mnew{animation:mpop .35s cubic-bezier(.2,1.6,.4,1)}
 @keyframes mpop{from{transform:scale(.85);opacity:0}}
 .bubble.ab .revt{background:#ffd23f;color:#3a2000}
+.bubble.ab .seat{background:#ff9a3c;color:#3a1600}
 
 /* Mina's page */
 .minap{gap:10px}
