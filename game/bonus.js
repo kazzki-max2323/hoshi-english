@@ -53,18 +53,19 @@ function expire(){BD.r=null;BD.until=0;BD.inL=0;save();chip()}
 
 /* ---------- the countdown on the home screen and on Mina's pages ---------- */
 /* a pop badge over the beach, on every screen, while the window is open: tap = Mina's page (her lessons are there) */
-function chip(){const old=$('bbadge');if(!active()){if(old)old.remove();return}const W=$('window');if(!W)return;
+function chip(){const old=$('bbadge');if(!active()){if(old)old.remove();return}
   const hurry=left()<2*60000,ico=BD.r.k==='coin'?'🪙':BD.r.k==='event'?((evOf(BD.r.id)||{}).ico||'🎆'):BD.r.k==='music'?'🎵':'🃏';
   let c=old;if(!c){c=document.createElement('button');c.id='bbadge';c.setAttribute('aria-label','授業タイム。ミナ先生の ページを ひらく');
-    c.onclick=e=>{e.stopPropagation();SFX.vopen();MINA.open()};W.appendChild(c)}
+    c.onclick=e=>{e.stopPropagation();SFX.vopen();MINA.open()};document.body.appendChild(c)}
   const key=BD.r.k+(BD.r.id||'')+(BD.r.amt||'')+(BD.r.min||'');
   if(c.dataset.k!==key){c.dataset.k=key;
     c.innerHTML=`<span class="bbg">🎁</span><span class="bbm">${ico}</span><span class="bbt"><b>授業タイム！</b><small>授業を 1つ おえると</small></span><span class="bbr"><i>${ico}</i><small>${BD.r.k==='coin'?BD.r.amt+'まい':BD.r.k==='event'?esc((evOf(BD.r.id)||{n:'イベント'}).n):BD.r.k==='music'?'新しい 曲':RAR_N[BD.r.min]+'以上の カード'}</small></span><span class="bbc">⏰<b class="bcount">${mmss(left())}</b></span><i class="bbs s1">✦</i><i class="bbs s2">✧</i><i class="bbs s3">✦</i>`}
-  /* when a tall panel leaves no room over the beach, it shrinks to a little pill in the header: 🎁 9:46 */
-  const room=H.panel.getBoundingClientRect().top-W.getBoundingClientRect().top;
-  const mini=room<84;c.className='bbadge'+(hurry?' hurry':'')+(mini?' mini':'');
-  if(mini){const ck=$('clock'),cn=document.querySelector('.coin');if(ck&&cn){const a=ck.getBoundingClientRect(),b=cn.getBoundingClientRect();c.style.left=(a.right+b.left)/2+'px';c.style.top=a.top+'px'}}
-  else{c.style.left='';c.style.top=''}}
+  /* it lives in the header, between the clock and the coins, so it never covers the radios' bubbles over the beach.
+     The wider that gap, the more it shows: full / mid (🎁 授業タイム 🎵 9:46) / mini (🎁 9:46) */
+  const ck=$('clock'),cn=document.querySelector('.coin');let size='mini';
+  if(ck&&cn){const a=ck.getBoundingClientRect(),b=cn.getBoundingClientRect(),gap=b.left-a.right-16;size=gap>=360?'full':gap>=200?'mid':'mini';
+    c.style.left=(a.right+b.left)/2+'px';c.style.top=(a.top+a.height/2)+'px'}
+  c.className='bbadge '+size+(hurry?' hurry':'')}
 function banner(){if(!active())return;const p=H.panel.querySelector('.minap,.lsnp');if(!p||p.querySelector('.bban'))return;
   const b=document.createElement('p');b.className='bban';b.innerHTML=`⏰ 授業タイム のこり <b class="bcount">${mmss(left())}</b><br>授業を 1つ おえると 🎁 <b>${label(BD.r)}</b>`;
   const top=p.querySelector('.qtop');top?top.after(b):p.prepend(b)}
