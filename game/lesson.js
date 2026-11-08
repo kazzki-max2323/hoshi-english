@@ -5,7 +5,7 @@
 const {S:ST,sfx:SFX}=BEACH;
 const H=HE,esc=H.esc,$=id=>document.getElementById(id);
 const LV=['es','jh','hs','adv'],LVN={es:'小学生',jh:'中学生',hs:'高校生',adv:'ハイレベル'};
-const CAT={zu:['🖼️','図解で 分かる'],kotsu:['💡','覚え方の コツ'],yarikata:['📝','勉強の やり方'],oto:['👄','音と 発音'],hama:['🍬','ハマ子の 語呂']};
+const CAT={zu:['🖼️','図解で 分かる'],kotsu:['💡','覚え方の コツ'],yarikata:['📝','勉強の やり方'],oto:['👄','音と 発音'],hama:['🍬','ハマ子の 語呂'],kagaku:['🧠','学び方の 科学']};
 const PAY={es:10,jh:15,hs:20,adv:20};   // coins for the first clear of a lesson
 
 /* cleared lessons live in the tutor's record */

@@ -113,3 +113,11 @@
 .fz-tip{background:#fff6c9;border-left:5px solid #ffb347;border-radius:8px;padding:8px 10px;font-weight:700}
 .fz-steps{margin:0;padding-left:1.3em}
 .fz-steps li{margin:2px 0}
+.fz svg{display:block;width:100%;max-width:340px;height:auto;margin:0 auto}
+.fz-pic svg{max-width:64px;margin:0 auto 2px}
+.fz-col>.fz-tip{margin:0}
+.fz-beat{display:flex;flex-wrap:wrap;gap:6px;align-items:baseline;justify-content:center;background:#fff;border-radius:8px;padding:4px 8px}
+.fz-beat>span{font-family:"Libre Baskerville",Georgia,serif;font-weight:700;font-size:.8rem;color:#7a7f99}
+.fz-beat>span.S{font-size:1.3rem;color:#d8433f}
+.fz-beat.sm{gap:4px}.fz-beat.sm>span{font-size:.7rem}.fz-beat.sm>span.S{font-size:1rem}
+.fz-beat>small{flex-basis:100%;text-align:center}
