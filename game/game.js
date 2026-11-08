@@ -507,11 +507,14 @@ function gramQuiz(lv,i){const G=GRAMMAR[lv],n=G.notes[i];let k=0,miss=0;
       emit('gram',lv,i,n,ok);if(ok)SFX.coin();else{miss++;b.classList.add('wrong');SFX.tie()}
       setTimeout(()=>{k++;k<n.q.length?ask():finish()},ok?800:1600)})};
   const finish=()=>{const first=!miss&&!gCleared(n.id);if(!miss&&!gCleared(n.id)){ST.gram.cleared.push(n.id);save()}
+    /* ミナ先生が この文法の 授業を すすめる（game/gram-link.js） */
+    let lk=null;try{lk=window.GRAMLINK&&GRAMLINK.afterTest(lv,i,miss,()=>gramNote(lv,i))}catch(e){console.error(e)}
     show('gram',`<section class="pnl gram chest">
       <div class="box">${miss?'📝':'💯'}</div><b class="ct">${miss?`${n.q.length-miss}/${n.q.length} せいかい`:'ぜんもん せいかい！'}</b>
       <p class="note">${miss?'ルールを 見なおして もう一度 ちょうせんしよう':first?`「${esc(n.t)}」を クリア！`:'クリアずみの ノートだよ'}</p>
+      ${lk?lk.html:''}
       <div class="row">${miss?'<button id="gr">もう一度</button>':''}<button id="gb" class="sub">ノートに もどる</button></div>
-    </section>`);
+    </section>`);if(lk)lk.bind();
     if(!miss){SFX.fanfare(1);if(first){const r=panel.getBoundingClientRect();coinBurst(r.left+r.width/2,r.top+60,G.reward)}}
     const gr=$('gr');if(gr)gr.onclick=()=>gramQuiz(lv,i);$('gb').onclick=()=>gramNote(lv,i)};
   ask()}
@@ -582,7 +585,7 @@ function shop(tab,glv='es'){
 function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={books,book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
+window.HE={books,book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();

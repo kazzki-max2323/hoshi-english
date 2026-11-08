@@ -157,6 +157,18 @@ const R=[
 ['x_gramEx',3,F=>{const a=F.gram.filter(g=>g.own&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=pickL(g.n.ex);return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>['🔊 きいてみる',()=>H.say('gram',v.en)]],
 ['x_gramPeek',2,F=>{const a=F.gram.filter(g=>!g.own&&g.lv===(lvOf(F)==='adv'?'hs':lvOf(F))&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=g.n.ex[0];return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>goGram(v._g.lv,v._g.i)],
 
+/* ===== 文法テスト と 授業の つながり（game/gram-link.js） ===== */
+['x_gramLes',4,F=>{if(!window.GRAMLINK)return null;const G=MINA.rec().g||{};const a=Object.entries(G).filter(([,e])=>e.m>0&&(e.k||0)<3).map(([id,e])=>({id,e,L:GRAMLINK.lessonsFor(id).filter(l=>!F.les[l.id])})).filter(x=>x.L.length);
+  if(!a.length)return null;const x=pickL(a);return {g:x.e.title,t:x.L[0].t,_id:x.L[0].id}},v=>goLesson(v._id)],
+['x_lesGram',3,F=>{if(!window.GRAMLINK)return null;const a=F.lesAll.filter(l=>F.les[l.id]).map(l=>({l,g:GRAMLINK.notesFor(l.id).find(g=>(ST.gram.owned||[]).includes(g.n.id)&&!(ST.gram.cleared||[]).includes(g.n.id))})).filter(x=>x.g);
+  if(!a.length)return null;const x=pickL(a);return {t:x.l.t,g:x.g.n.t,_g:x.g}},v=>['✏️ 文法テストで ためす',()=>GRAMLINK.tryTest(v._g)]],
+['x_lesGramShop',2,F=>{if(!window.GRAMLINK)return null;const a=F.lesAll.filter(l=>F.les[l.id]).map(l=>({l,g:GRAMLINK.notesFor(l.id).find(g=>!(ST.gram.owned||[]).includes(g.n.id))})).filter(x=>x.g&&F.coins>=GRAMMAR[x.g.lv].price);
+  if(!a.length)return null;const x=pickL(a);return {t:x.l.t,g:x.g.n.t,price:GRAMMAR[x.g.lv].price,_g:x.g}},v=>['🛍️ 文法ノートを 見る',()=>H.gramShop(v._g.lv)]],
+['x_gramLesBoth',2,F=>{if(!window.GRAMLINK)return null;const a=F.gram.filter(g=>g.clr).map(g=>({g,l:GRAMLINK.lessonsFor(g.n.id).find(l=>F.les[l.id])})).filter(x=>x.l);
+  if(!a.length)return null;const x=pickL(a);return {g:x.g.n.t,t:x.l.t,n:a.length,_g:x.g}},v=>goGram(v._g.lv,v._g.i)],
+['x_gramLesPeek',2,F=>{if(!window.GRAMLINK)return null;const a=F.gram.filter(g=>g.own&&!g.clr&&!(MINA.rec().g||{})[g.n.id]).map(g=>({g,l:GRAMLINK.lessonsFor(g.n.id).find(l=>!F.les[l.id])})).filter(x=>x.l);
+  if(!a.length)return null;const x=pickL(a);return {g:x.g.n.t,t:x.l.t,_id:x.l.id}},v=>goLesson(v._id)],
+
 /* ===== ミニ授業 ===== */
 ['x_lesCount',1,F=>F.lesN?{n:F.lesN,tot:F.lesAll.length}:null,()=>['📖 授業を 見る',()=>LESSON.list()]],
 ['x_lesLevel',2,F=>{const lv=lvOf(F),a=F.lesAll.filter(l=>l.lv===lv),n=a.filter(l=>F.les[l.id]).length;if(!a.length||n===a.length)return null;const nx=pickL(a.filter(l=>!F.les[l.id]));
