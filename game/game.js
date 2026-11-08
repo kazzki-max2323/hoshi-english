@@ -582,7 +582,7 @@ function shop(tab,glv='es'){
 function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={books,on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
+window.HE={books,book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();

@@ -77,11 +77,13 @@ button{touch-action:manipulation}
 <script src="game/cards-data.js"></script>
 <script src="game/cards.js"></script>
 <script src="game/mina-lines.js"></script>
+<script src="game/mina-talk.js"></script>
 <script src="game/mina.js"></script>
 <script src="game/lesson.js"></script>
 <script src="game/bonus.js"></script>
 <script src="game/motivate.js"></script>
 <script src="game/review.js"></script>
+<script src="game/mina-sense.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});

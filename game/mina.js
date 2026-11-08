@@ -52,7 +52,7 @@ const gramFixed=(e,id)=>e.mt?((e.rv||0)>e.mt||(e.k||0)>=3):(e.rv||(e.k||0)>=3||(
 function weakGram(){const g=Object.entries(MD.g).filter(([id,e])=>e.m>0&&Date.now()-e.t<7*864e5&&!gramFixed(e,id)).map(([,e])=>e).sort((a,b)=>b.m-a.m||b.t-a.t)[0];return g||null}
 /* sentences going badly at a level: point to the first grammar note there not cleared yet (and not opened in the last 3 days) */
 function gramForSentences(){for(const lv of ['es','jh','hs']){const ws=Object.entries(MD.w).filter(([k,e])=>k.startsWith(lv+'|')&&e.kind==='s');
-    const s=ws.reduce((a,[,e])=>a+e.s,0),m=ws.reduce((a,[,e])=>a+e.m,0);if(s>=8&&m/s>.4&&window.GRAMMAR&&GRAMMAR[lv]){
+    const s=ws.reduce((a,[,e])=>a+e.s,0),m=ws.reduce((a,[,e])=>a+e.m,0);if(s>=8&&m/s>.4&&(typeof GRAMMAR!=='undefined')&&GRAMMAR[lv]){
       const i=GRAMMAR[lv].notes.findIndex(n=>!(ST.gram.cleared||[]).includes(n.id)&&!(MD.gv&&Date.now()-(MD.gv[n.id]||0)<3*864e5));if(i>=0)return {lv,i,title:GRAMMAR[lv].notes[i].t}}}return null}
 const LVN={es:'小学生',jh:'中学生',hs:'高校生',adv:'ハイレベル'};
 function stepUp(){for(const lv of ['es','jh','hs']){const R=MD.r[lv]||[];if(R.length>=30){const acc=Math.round(R.reduce((a,b)=>a+b,0)/R.length*100);
@@ -84,13 +84,15 @@ function advice(){const ww=weakWords(),opts=[];
   if(window.LESSON){const l=LESSON.suggest(1)[0];if(l)opts.push(['lesson',{t:'「'+l.t+'」'},l])}
   return opts}
 
+/* a line for what she sees now (game/mina-sense.js): [key, values, null, go] or null */
+const sense=()=>window.MINA_SENSE?MINA_SENSE.pick():null;
 /* tapping what she says takes you there: the lesson, the grammar note, the word book… (null = nothing to open) */
-function goTo(o){if(!o)return null;const [k,,x]=o;
+function goTo(o){if(!o)return null;const [k,,x]=o;if(o[3])return o[3];
   if(k==='lesson'&&x&&window.LESSON)return ['📖 授業を ひらく',()=>LESSON.open(x.id,panelOpen)];
-  if(k==='grammar'&&x&&window.GRAMMAR&&GRAMMAR[x.lv])return ['📚 文法ノートを 見る',()=>{const owned=(ST.gram.owned||[]).includes(GRAMMAR[x.lv].notes[x.i].id);owned?H.gramNote(x.lv,x.i):H.gramShop(x.lv)}];
+  if(k==='grammar'&&x&&(typeof GRAMMAR!=='undefined')&&GRAMMAR[x.lv])return ['📚 文法ノートを 見る',()=>{const owned=(ST.gram.owned||[]).includes(GRAMMAR[x.lv].notes[x.i].id);owned?H.gramNote(x.lv,x.i):H.gramShop(x.lv)}];
   if((k==='weakBook'||k==='stepUp')&&x&&H.books)return ['📕 単語帳を ひらく',()=>H.books(k==='stepUp'?x.nlv:x.lv)];
   if(k==='weakWord'&&x)return ['🔊 きいてみる',()=>H.say(x.lv,x.en)];
-  if(k==='review')return ['🔁 苦手な ことばを 見る',()=>{const w=H.panel.querySelector('.mweak');if(w)w.scrollIntoView({behavior:'smooth',block:'center'})}];
+  if(k==='review')return ['🔁 苦手な ことばを 見る',()=>{const sc=()=>{const w=H.panel.querySelector('.mweak');if(w)w.scrollIntoView({behavior:'smooth',block:'center'})};if(H.screen==='mina')sc();else{panelOpen();setTimeout(sc,200)}}];
   return null}
 
 /* ---------- face ---------- */
@@ -119,9 +121,11 @@ function setFace(ex){minaEx=ex||'smile';const f=$('minaFace');if(f)f.innerHTML=f
 /* ---------- speaking in the home row ---------- */
 let speakUntil=0,talkOn=false,hideT=0;
 const busy=()=>talkOn||performance.now()<speakUntil;
-function sayRow(who,ex,text,ms=6500,pop){const b=$('minaSay'),rq=$('rq');if(!b)return false;if(pop)popSay(who,ex,text,ms,pop);
-  b.hidden=false;if(rq)rq.hidden=true;b.className='msay '+(who==='m'?'by-m':'by-h');
-  b.innerHTML=`<b>${who==='m'?'ミナ先生':'ハマ子'}</b>${text}`;b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew');
+function sayRow(who,ex,text,ms=6500,pop,go){const b=$('minaSay'),rq=$('rq');if(!b)return false;if(pop)popSay(who,ex,text,ms,pop);
+  b.hidden=false;if(rq)rq.hidden=true;b.className='msay '+(who==='m'?'by-m':'by-h')+(go?' go':'');
+  b.innerHTML=`<b>${who==='m'?'ミナ先生':'ハマ子'}</b>${text}${go?`<small class="mgo">${go[0]} ▶</small>`:''}`;
+  /* tap her words = go where she talks about (the word book, the lesson, the shop…) */
+  b.onclick=go?e=>{e.stopPropagation();SFX.vopen();b.hidden=true;if(rq)rq.hidden=false;go[1]()}:null;b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew');
   if(who==='m')setFace(ex);else{const h=$('hamaFace');if(h)h.innerHTML=face('h',ex)}
   SFX.pop();speakUntil=performance.now()+ms;clearTimeout(hideT);hideT=setTimeout(()=>{if(talkOn)return;b.hidden=true;if(rq)rq.hidden=false;setFace('smile');H.rest(2500)},ms);return true}
 /* lines waiting for a good moment (praise after a streak, etc.) */
@@ -164,27 +168,36 @@ let opened=false,talkAt=0,talkGap=(3+Math.random()*2)*60000,hamaAt=0,hamaGap=(12
 function hello(){const gap=MD.last?Math.floor((Date.now()-MD.last)/864e5):0;MD.last=Date.now();save();
   const h=new Date().getHours(),opts=advice();
   if(gap>=3)return line('openBack',{days:gap});
-  if(opts.length&&Math.random()<.5){const o=pickL(opts);if(o[0]==='stepUp')MD.said.step=today();return line(o[0],o[1])}
+  const r=Math.random();
+  if(opts.length&&r<.35){const o=pickL(opts);if(o[0]==='stepUp')MD.said.step=today();return [...line(o[0],o[1]),goTo(o)]}
+  const sn=r<.75&&sense();if(sn)return [...line(sn[0],sn[1]),goTo(sn)];
   return line(h>=5&&h<11?pickL(['morning','open']):h>=19||h<4?pickL(['night','open']):'open')}
 setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.hidden)return;
   if(H.screen==='home'){talkAt+=dt;hamaAt+=dt}
   if(!canTalk())return;
-  if(!opened){opened=true;const [ex,tx]=hello();sayRow('m',ex,tx,8000);return}
+  if(!opened){opened=true;const [ex,tx,go]=hello();sayRow('m',ex,tx,go?10000:8000,null,go);return}
   if(gramMissNow){const g=gramMissNow;gramMissNow=null;const [ex,tx]=line('gramMiss',{g:'「'+g.g+'」'});sayRow('m',ex,tx);return}
   if(Q.length){const [k,v,ex]=Q.shift();const [e2,tx]=line(k,v);sayRow('m',ex||e2,tx);return}
   const hamaOk=MD.hama.d!==today()||MD.hama.n<2;
   if(hamaAt>=hamaGap&&hamaOk){hamaAt=0;hamaGap=(15+Math.random()*15)*60000;hamaVisit();return}
-  if(talkAt>=talkGap){talkAt=0;talkGap=(3+Math.random()*2)*60000;const opts=advice();let l;
-    if(opts.length&&Math.random()<.45){const o=pickL(opts);if(o[0]==='stepUp')MD.said.step=today();l=line(o[0],o[1])}
-    else l=line(Math.random()<.15?pickL(['cards','coins']):'idle');sayRow('m',l[0],l[1])}},1500);
+  if(talkAt>=talkGap){talkAt=0;talkGap=(3+Math.random()*2)*60000;const opts=advice(),r=Math.random();let l,go=null,sn;
+    if(opts.length&&r<.3){const o=pickL(opts);if(o[0]==='stepUp')MD.said.step=today();l=line(o[0],o[1]);go=goTo(o)}
+    else if(r<.85&&(sn=sense())){l=line(sn[0],sn[1]);go=goTo(sn)}
+    else l=line(Math.random()<.15?pickL(['cards','coins']):'idle');sayRow('m',l[0],l[1],go?9000:6500,null,go)}},1500);
 
 /* ---------- Mina's page: tap her face ---------- */
+/* what she says at the top of her page: her face, the line, and where tapping it goes */
+function talkBox(o){const [ex,tx]=o?line(o[0],o[1]):line('tap'),go=goTo(o);
+  return {go,html:`<span class="mbig">${face('m',ex)}</span>${go?`<button class="mline go" id="mgo">${tx}<small>${go[0]} ▶</small></button>`:`<p class="mline">${tx}</p>`}`}}
+function bindTalk(o,t){if(!t.go)return;$('mgo').onclick=()=>{SFX.vopen();if(o[0]==='stepUp')MD.said.step=today();t.go[1]()};H.panel.querySelector('.mbig').onclick=()=>$('mgo').click()}
 function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advice(),ra=recentAcc(),wg=weakGram()||gramForSentences(),su=stepUp();
-  const first=opts.length?opts[0]:null,[ex,tx]=first?line(first[0],first[1]):line('tap'),go=goTo(first);
+  /* half the time the most useful advice, else something about what she sees now */
+  const first=opts.length&&Math.random()<.5?opts[0]:(sense()||opts[0]||null),T0=talkBox(first);
   const accToday=D.a?Math.round(D.o/D.a*100):null;
   H.show('mina',`<section class="pnl minap">
     <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b><span></span></div>
-    <div class="mtalk"><span class="mbig">${face('m',ex)}</span>${go?`<button class="mline go" id="mgo">${tx}<small>${go[0]} ▶</small></button>`:`<p class="mline">${tx}</p>`}</div>
+    <div class="mtalk" id="mtalk">${T0.html}</div>
+    ${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}
     <div class="mstats"><div><b>${D.a}</b><small>きょう 答えた</small></div><div><b>${accToday==null?'-':accToday+'%'}</b><small>きょうの 正解率</small></div><div><b>${D.l}</b><small>きょう おぼえた</small></div><div><b>${MD.best}</b><small>さいこう れんぞく</small></div></div>
     ${su?`<p class="msug">⬆️ ${esc(su.lv)}の 正解率 ${su.acc}%。<b>${esc(su.next)}</b>に ちょうせん してみよう</p>`:''}
     ${wg?`<button id="mgram" class="msug btn">📚 文法ノート「${esc(wg.title)}」を 見る</button>`:''}
@@ -195,7 +208,9 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     <div class="mweak">${ww.map(w=>`<button data-say="${esc(w.en)}" data-lv="${w.lv}"><span class="en">${esc(w.en)}</span><span class="ja">${esc(w.ja||'')}</span><span class="mm">${w.m?'✗'+w.m:''}${w.m&&w.n?' ':''}${w.n?'💤'+w.n:''}</span></button>`).join('')||'<p class="note">ラジオで あそぶと、まちがえた ことばや こたえなかった ことばが ここに たまるよ</p>'}</div>
   </section>`);
   setTimeout(()=>{const b=H.panel.querySelector('.mbig');if(b)b.classList.add('mnew')},10);
-  if(go){$('mgo').onclick=()=>{SFX.vopen();if(first[0]==='stepUp')MD.said.step=today();go[1]()};H.panel.querySelector('.mbig').onclick=()=>$('mgo').click()}
+  bindTalk(first,T0);
+  const mm=$('mmore');if(mm)mm.onclick=()=>{SFX.pop();const o=sense()||(opts.length?pickL(opts):null),t=talkBox(o);$('mtalk').innerHTML=t.html;bindTalk(o,t);
+    const b=H.panel.querySelector('.mbig');if(b){b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew')}}
   $('mx').onclick=()=>{SFX.pop();const [e2,t2]=line('bye');H.home();setTimeout(()=>sayRow('m',e2,t2,4000),150)};
   H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.say));
   if(window.LESSON){LESSON.bindRows(panelOpen);$('mall').onclick=()=>{SFX.vopen();LESSON.list()}}

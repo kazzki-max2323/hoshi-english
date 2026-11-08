@@ -207,6 +207,6 @@ function checkSeries(newCards){const done=[...new Set(newCards.map(c=>c.s))].fil
   done.forEach((s,i)=>setTimeout(()=>{SFX.fanfare(3);H.toast(`🏆 <b>${SER[s][1]} ${SER[s][2]}</b> コンプリート！`,3600)},800+i*1600))}
 
 /* a free draw given as a reward (Mina's lesson time): n cards, each at least rarity min */
-window.CARDS={open,openLes,count:()=>[ownedN(),BOOK.length],freeOk,gift:(n=1,min=1)=>draw(n,min),face,lessonGet,lesCard,has,lesCount:()=>[LES.filter(has).length,LES.length]};
+window.CARDS={open,openLes,count:()=>[ownedN(),BOOK.length],freeOk,gift:(n=1,min=1)=>draw(n,min),face,lessonGet,lesCard,has,lesCount:()=>[LES.filter(has).length,LES.length],book:BOOK,les:LES,series:TABS,rar:RAR,shards:()=>CD.shards,n:c=>CD.own[c.e]||0};
 if(H.screen==='home')H.home();   // show the free-draw dot on the home button
 })();

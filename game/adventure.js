@@ -234,5 +234,5 @@ function crabGame(){const lv=AD.lv,kids=lv==='es',pool=shuffle(H.allWords(lv).fi
   g.onHint=()=>{const b=cb.querySelector(`.crab[data-i="${pool.indexOf(target)}"]`);b&&b.classList.add('glow')};
   round();return g}
 
-window.ADV={open};
+window.ADV={open,rec:()=>AD,maps:MAPS,items:ITEMS};
 })();
