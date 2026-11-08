@@ -1210,8 +1210,223 @@ LESSONS.push(
   ]},
 );
 
+/* ---------- 学び方 その5（使いわけ文法・気持ちの 音・英語の 文化・意見と 発表） ---------- */
+LESSONS.push(
+/* 中学生 */
+ {id:'jh-too-enough', lv:'jh', cat:'zu', t:'too 〜 to と 〜 enough to', key:['too','enough','不定詞','程度'],
+  tip:'too tired to walk は 「つかれすぎて 歩けない」、old enough to drive は 「運転できる くらい 大人」。enough は 形容詞の 後ろだよ',
+  steps:[
+   ['m','smile','「〜すぎて できない」と 「〜できる くらい じゅうぶん」。ものさしで 考えよう'],
+   ['m','think','「多すぎ」か 「じゅうぶん」か', '<div class="fz-pair"><div><b>too 〜 to</b><small>🍵🔥 こえすぎて できない</small><i>too hot to drink</i></div><div><b>〜 enough to</b><small>🚗✅ とどいて いて できる</small><i>old enough to drive</i></div></div>'],
+   ['m','think','形', '<table class="fz-table"><tr><td>This tea is <b>too</b> hot <b>to</b> drink.</td><td>熱すぎて 飲めない</td></tr><tr><td>He is old <b>enough to</b> drive.</td><td>運転できる 年れい だ</td></tr></table>'],
+   ['m','worry','enough は 形容詞の 後ろ！ × enough old ⭕ old enough。名詞なら 前で enough money'],
+  ],
+  quiz:[
+   {q:'疲れすぎて 歩けない：I\'m ___ tired to walk.',o:['too','enough'],a:0},
+   {q:'正しいのは？',o:['tall enough','enough tall'],a:0},
+   {q:'ならべかえて 文に しよう',order:['This box','is','too heavy','to carry'],ja:'この 箱は 重すぎて 運べない'},
+  ]},
+
+ {id:'jh-have-to-must', lv:'jh', cat:'zu', t:'must not と don\'t have to は 大ちがい', key:['must','have to','助動詞','否定'],
+  tip:'must not は 「してはいけない」、don\'t have to は 「しなくて いい」。否定に すると 意味が 大きく 分かれるよ',
+  steps:[
+   ['m','smile','must と have to は どちらも 「〜しなければ ならない」。でも 否定に すると…'],
+   ['m','think','否定で 道が 分かれる', '<div class="fz-pair"><div><b>must not</b><small>🚫 してはいけない</small><i>You must not run here.</i></div><div><b>don\'t have to</b><small>🙆 しなくて いい</small><i>You don\'t have to run.</i></div></div>'],
+   ['m','think','肯定でも 少し ちがう。must は 話す 人の 気持ち（ぜったい！）、have to は 外の 事情（ルールや 予定）', '<table class="fz-table"><tr><td>I <b>must</b> study harder.</td><td>（自分で そう 思う）</td></tr><tr><td>I <b>have to</b> wear a uniform.</td><td>（学校の きまりで）</td></tr></table>'],
+   ['h','proud','日曜は 学校 行かんで ええ。You don\'t have to go！ 行ったら あかん わけちゃうで'],
+  ],
+  quiz:[
+   {q:'ここで 泳いでは いけない：You ___ swim here.',o:["must not","don't have to"],a:0},
+   {q:'急がなくて いいよ：You ___ hurry.',o:["don't have to","must not"],a:0},
+  ]},
+
+ {id:'jh-by-with', lv:'jh', cat:'zu', t:'by は 手段、with は 道具', key:['by','with','前置詞','手段'],
+  tip:'by bus・by email の by は 「〜を 使う 方法で」、with a pen の with は 「手に 持つ 道具で」。by の 後ろは a も the も つけないよ',
+  steps:[
+   ['m','smile','「〜で」と 訳す by と with。何で 区別すると いいかな？'],
+   ['m','think','by は 方法・手段、with は 手で 使う 道具', '<div class="fz-pair"><div><b>by</b><small>方法（a・the なし）</small><i>by bus 🚌<br>by email 📧<br>by hand ✋</i></div><div><b>with</b><small>手に 持つ 道具</small><i>with a pen 🖊️<br>with chopsticks 🥢<br>with a knife 🔪</i></div></div>'],
+   ['m','think','乗り物でも 「その バスで」と 特定するなら on：on the 8:00 bus。by の 後ろは いつも むき出しの 名詞だよ'],
+   ['m','proud','歩いて は by foot じゃ なくて on foot。これだけ 例外として 覚えておこう'],
+  ],
+  quiz:[
+   {q:'電車で 来た：I came ___ train.',o:['by','with'],a:0},
+   {q:'はしで 食べる：eat ___ chopsticks',o:['with','by'],a:0},
+  ]},
+
+ {id:'jh-diphthong', lv:'jh', cat:'oto', t:'go は 「ゴー」じゃなく 「ゴウ」', key:['発音','母音','二重母音','カタカナ'],
+  tip:'go は 「ゴウ」、make は 「メイク」。カタカナで のばす 音の 多くは 英語では 2つの 音が すべる 「二重母音」だよ',
+  steps:[
+   ['m','smile','カタカナの 「ー（のばす）」は、英語では 2つの 音が すべって つながる ことが 多いよ'],
+   ['m','think','よく 出る すべる 音', '<table class="fz-table"><tr><th>単語</th><th>カタカナ</th><th>英語らしく</th></tr><tr><td>go</td><td>ゴー</td><td>ゴ<b>ウ</b></td></tr><tr><td>boat</td><td>ボート</td><td>ボ<b>ウ</b>ト</td></tr><tr><td>make</td><td>メーク</td><td>メ<b>イ</b>ク</td></tr><tr><td>table</td><td>テーブル</td><td>テ<b>イ</b>ボウ</td></tr></table>'],
+   ['m','think','口の 形が とちゅうで 動くのが ポイント。go なら 「オ」から 唇を すぼめて 「ウ」へ', '<div class="fz-sound"><span>o</span><span>→ u</span><b>ゴ → ウ（口が すぼまる）</b></div>'],
+   ['h','happy','ボートと ボウト、浜辺で 叫ぶなら ボウト！ や'],
+  ],
+  quiz:[
+   {q:'go の 英語らしい 音は？',o:['ゴウ','ゴー'],a:0},
+   {q:'make の 母音は？',o:['エイ','エー'],a:0},
+  ]},
+
+ {id:'jh-feeling-tone', lv:'jh', cat:'oto', t:'上げ下げで 気持ちが かわる', key:['イントネーション','会話','気持ち','発音'],
+  tip:'Sorry?↗ は 「なんて？」と 聞き返し、Sorry.↘ は 「ごめんね」。同じ 言葉でも 上げ下げで 意味が かわるよ',
+  steps:[
+   ['m','smile','同じ 単語でも、こえを 上げるか 下げるかで 気持ちが まるで ちがうよ'],
+   ['m','think','くらべて みよう', '<table class="fz-table"><tr><th>言葉</th><th>↗ 上げる</th><th>↘ 下げる</th></tr><tr><td>Sorry</td><td>なんて？（聞き返し）</td><td>ごめんね</td></tr><tr><td>Really</td><td>ほんとに？（おどろき）</td><td>そうなんだ（なっとく）</td></tr><tr><td>Oh</td><td>え、そうなの？</td><td>ああ…（がっかり）</td></tr></table>'],
+   ['m','think','気持ちを こめて 大げさに 上げ下げ すると、相手に 伝わりやすく なるよ。日本語より 大きめが ちょうどいい'],
+   ['h','happy','Oh↗ と Oh↘、おばちゃんは 1日 100回は 言うとるで！'],
+  ],
+  quiz:[
+   {q:'聞き返す ときの Sorry は？',o:['↗ 上げる','↘ 下げる'],a:0},
+   {q:'Really↘ の 気持ちは？',o:['そうなんだ（なっとく）','ほんとに？（おどろき）'],a:0},
+  ]},
+
+ {id:'jh-us-uk', lv:'jh', cat:'kotsu', t:'アメリカ英語と イギリス英語', key:['アメリカ英語','イギリス英語','単語','つづり'],
+  tip:'エレベーターは アメリカで elevator、イギリスで lift。どっちも 正しい 英語だから、両方 知っていると 安心だよ',
+  steps:[
+   ['m','smile','英語は 国によって 単語や つづりが 少し ちがうよ。どちらも 正しい 英語だよ'],
+   ['m','think','単語の ちがい', '<table class="fz-table"><tr><th></th><th>🇺🇸 アメリカ</th><th>🇬🇧 イギリス</th></tr><tr><td>エレベーター</td><td>elevator</td><td>lift</td></tr><tr><td>アパート</td><td>apartment</td><td>flat</td></tr><tr><td>クッキー</td><td>cookie</td><td>biscuit</td></tr><tr><td>秋</td><td>fall</td><td>autumn</td></tr><tr><td>サッカー</td><td>soccer</td><td>football</td></tr><tr><td>地下鉄</td><td>subway</td><td>underground</td></tr></table>'],
+   ['m','think','つづりの ちがい：color / colour、center / centre、favorite / favourite'],
+   ['m','worry','建物の 1階は アメリカで first floor、イギリスでは ground floor。first floor は 2階の ことに なるよ！'],
+  ],
+  quiz:[
+   {q:'イギリスで エレベーターは？',o:['lift','elevator'],a:0},
+   {q:'イギリス式の つづりは？',o:['colour','color'],a:0},
+  ]},
+
+ {id:'jh-directions', lv:'jh', cat:'yarikata', t:'道案内を ロールプレイ', key:['道案内','会話','場所','前置詞'],
+  tip:'道案内は Go straight. Turn right at the second corner. It\'s on your left. の 3つの 型で だいたい 言えるよ',
+  steps:[
+   ['m','smile','道を 聞かれたら 答えられるかな？ 3つの 型で だいたい 言えるよ'],
+   ['m','think','地図で 見て みよう', '<svg viewBox="0 0 320 140" role="img" aria-label="道案内の 地図。まっすぐ行って 2つめの 角を 右、左側に 駅"><rect x="0" y="0" width="320" height="140" fill="#eef2e6"/><rect x="140" y="0" width="30" height="140" fill="#c9c3e0"/><rect x="0" y="40" width="320" height="22" fill="#c9c3e0"/><rect x="170" y="95" width="150" height="22" fill="#c9c3e0"/><text x="155" y="135" font-size="14" text-anchor="middle">🧍</text><path d="M155 120 V106 M155 106 H230" fill="none" stroke="#d8433f" stroke-width="3" stroke-dasharray="6 4"/><path d="M228 100 L238 106 L228 112 Z" fill="#d8433f"/><text x="250" y="90" font-size="16">🚉</text><g font-size="9" fill="#2a2340"><text x="178" y="58">1つめの 角</text><text x="176" y="128">2つめの 角を 右</text><text x="236" y="70">左側に 駅</text></g></svg>'],
+   ['m','think','使う 文', '<ol class="fz-steps"><li><b>Go straight</b> (for two blocks).</li><li><b>Turn right</b> at the second corner.</li><li>It\'s <b>on your left</b>. / It\'s <b>next to</b> the bank. / It\'s <b>across from</b> the park.</li></ol>'],
+   ['m','proud','家の 近くの 駅や コンビニまでを 英語で 説明する 練習を して みよう。1人で できる ロールプレイだよ'],
+  ],
+  quiz:[
+   {q:'「2つめの 角を 右に 曲がって」',o:['Turn right at the second corner.','Go right two corner.'],a:0},
+   {q:'「公園の 向かいに あります」',o:["It's across from the park.","It's on the park."],a:0},
+  ]},
+
+ {id:'jh-wordbook', lv:'jh', cat:'yarikata', t:'単語帳の えらび方・使い方', key:['単語','単語帳','勉強法','復習'],
+  tip:'単語帳は 1語に 何分も かけず、1語 数秒で 何周も 回す ほうが 覚えられるよ',
+  steps:[
+   ['m','smile','単語帳は 「どれを 使うか」より 「どう 使うか」が 大事。でも えらび方の コツも あるよ'],
+   ['m','think','えらぶ ときの チェック', '<ul class="fz-steps"><li>パラパラ 見て 6〜8割 知っている レベル</li><li>例文と 音声が ついている</li><li>持ち歩ける・アプリでも 見られる</li></ul>'],
+   ['m','think','使い方：ゆっくり 1周より、速く 何周も', '<div class="fz-pair"><div><b>1語 1分 × 1周</b><i>まだ 半分も 進まない…</i></div><div><b>1語 3秒 × 10周</b><i>何回も 会うから 覚える</i></div></div>'],
+   ['m','proud','知っている 語には ✔、知らない 語だけ 次の 周で。この アプリの 単語帳の 「のこりだけ」も 同じ 考え方だよ'],
+  ],
+  quiz:[
+   {q:'えらぶ 単語帳の レベルは？',o:['6〜8割 知っている','ほとんど 知らない'],a:0},
+   {q:'覚えやすい 使い方は？',o:['速く 何周も','1語ずつ じっくり 1周'],a:0},
+  ]},
+
+/* 高校生 */
+ {id:'hs-perception', lv:'hs', cat:'zu', t:'see him run と see him running', key:['知覚動詞','原形','ing','文法'],
+  tip:'see・hear ＋ 人 ＋ 原形は 「最初から 最後まで 全部」、＋ ing は 「その とちゅうを」。見え方の ちがいだよ',
+  steps:[
+   ['m','smile','see・hear・watch・feel の 後ろに 「人 ＋ 動詞」が 来る 形。動詞は 原形か ing か'],
+   ['m','think','全部 見たか、とちゅうを 見たか', '<div class="fz-col"><div class="fz-line"><i class="pt" style="--x:15%">わたり はじめ</i><i class="pt" style="--x:85%">わたり おわり</i><i class="span" style="--a:15%;--b:85%">I saw him cross：全部 見た</i></div><div class="fz-line"><i class="pt" style="--x:15%">はじめ</i><i class="pt now" style="--x:50%">ここを 見た</i><i class="pt" style="--x:85%">おわり</i><i class="span" style="--a:42%;--b:58%">crossing</i></div></div>'],
+   ['m','think','I heard her sing a song.（1曲 全部 聞いた） / I heard her singing.（歌って いる ところが 聞こえた）'],
+   ['m','worry','to は つけないよ。× I saw him to cross。make・let と 同じ なかまだね'],
+  ],
+  quiz:[
+   {q:'正しいのは？',o:['I saw him cross the street.','I saw him to cross the street.'],a:0},
+   {q:'「とちゅう」を 見た ときは？',o:['crossing','cross'],a:0},
+  ]},
+
+ {id:'hs-used-to', lv:'hs', cat:'zu', t:'used to と be used to', key:['used to','慣れる','過去','動名詞'],
+  tip:'used to swim は 「昔は よく 泳いだ（今は ちがう）」、be used to swimming は 「泳ぐのに 慣れて いる」。後ろの 形も ちがうよ',
+  steps:[
+   ['m','smile','見た目が そっくりな 2つ。意味も 後ろの 形も ちがうから 注意！'],
+   ['m','think','2つの ちがい', '<div class="fz-pair"><div><b>used to ＋ 原形</b><small>昔は 〜した（今は しない）</small><i>I used to live here.</i></div><div><b>be used to ＋ 名詞・ing</b><small>〜に 慣れて いる</small><i>I\'m used to living here.</i></div></div>'],
+   ['m','think','「慣れる」と 変化を 言う ときは get used to：You\'ll get used to it.（すぐ 慣れるよ）'],
+   ['m','proud','be が あるか ないか、後ろが 原形か ing か。この 2つを 見れば 見分けられるよ'],
+  ],
+  quiz:[
+   {q:'昔は よく 釣りを した：I ___ go fishing.',o:['used to','am used to'],a:0},
+   {q:'早起きに 慣れて いる：I\'m used to ___ up early.',o:['getting','get'],a:0},
+  ]},
+
+ {id:'hs-i-wish', lv:'hs', cat:'zu', t:'I wish は 「かなわない ねがい」', key:['仮定法','wish','過去形','願望'],
+  tip:'I wish I could fly. の ように、I wish の 後ろは 現実から 一歩 はなれた 過去形。かなわない ねがいを 表すよ',
+  steps:[
+   ['m','smile','「〜だったら いいのになあ」。I wish は 現実と ちがう ことを ねがう 形だよ'],
+   ['m','think','時制を 1つ 過去に ずらして 「現実から はなす」', '<table class="fz-table"><tr><th>現実</th><th>I wish 〜</th></tr><tr><td>I can\'t fly.</td><td>I wish I <b>could</b> fly.</td></tr><tr><td>I am not tall.</td><td>I wish I <b>were</b> taller.</td></tr><tr><td>I didn\'t study.（過去）</td><td>I wish I <b>had studied</b>.</td></tr></table>'],
+   ['m','think','実現 できそうな ことは hope を 使う：I hope it\'s sunny tomorrow.（晴れると いいな）'],
+   ['h','happy','I wish I were 20 years younger！ おばちゃんの 毎日の ねがいや'],
+  ],
+  quiz:[
+   {q:'泳げたら いいのに：I wish I ___ swim.',o:['could','can'],a:0},
+   {q:'明日 晴れると いいな（かないそう）',o:["I hope it's sunny.","I wish it were sunny."],a:0},
+  ]},
+
+ {id:'hs-dark-l', lv:'hs', cat:'oto', t:'最後の l は 「ウ」に 近い', key:['発音','l','子音','リスニング'],
+  tip:'milk は 「ミウク」、people は 「ピーポウ」に 近く 聞こえる。単語の 最後や 子音の 前の l は 暗い 「ウ」っぽい 音に なるよ',
+  steps:[
+   ['m','smile','l には 2つの 顔が あるよ。母音の 前の 明るい l と、最後の 暗い l'],
+   ['m','think','暗い l は 「ウ」に 近く 聞こえる', '<table class="fz-table"><tr><th>単語</th><th>聞こえ方</th></tr><tr><td>milk</td><td>ミ<b>ウ</b>ク</td></tr><tr><td>feel</td><td>フィー<b>ウ</b></td></tr><tr><td>people</td><td>ピーポ<b>ウ</b></td></tr><tr><td>ball</td><td>ボー<b>ウ</b></td></tr></table>'],
+   ['m','think','舌先は 上の 歯ぐきに 軽く ふれても OK。舌の 奥を 少し 下げる イメージ。「ル」と 母音を つけないのが コツ'],
+   ['m','proud','聞き取りで 「ウ」が 聞こえたら l かも、と 思えると ぐんと 楽に なるよ'],
+  ],
+  quiz:[
+   {q:'milk は どう 聞こえる？',o:['ミウク','ミルクー'],a:0},
+   {q:'暗い l が 出るのは？',o:['単語の 最後や 子音の 前','単語の 最初'],a:0},
+  ]},
+
+ {id:'hs-gesture-culture', lv:'hs', cat:'kotsu', t:'ジェスチャーの 文化の ちがい', key:['文化','ジェスチャー','コミュニケーション'],
+  tip:'日本の 「おいで」の 手まねきは、英語圏では 「あっち行け」に 見える ことも。ジェスチャーも ことばの 一部だよ',
+  steps:[
+   ['m','smile','ことばだけ じゃなく、身ぶりも 国で ちがうよ。知らないと 誤解の もと'],
+   ['m','think','よく ある ちがい', '<table class="fz-table"><tr><th>場面</th><th>日本</th><th>英語圏で よく ある</th></tr><tr><td>おいで</td><td>手の ひら 下で ふる</td><td>手の ひら 上で 指を 曲げる</td></tr><tr><td>自分を 指す</td><td>鼻を 指す</td><td>胸を 指す</td></tr><tr><td>数を 数える</td><td>指を 折る</td><td>指を 立てて いく</td></tr><tr><td>話を 聞く</td><td>うなずき 多め</td><td>目を 見て 聞く</td></tr></table>'],
+   ['m','worry','国や 地域に よっても ちがうから、「これが 正解」と 決めつけないで、相手を よく 見る ことが 大事だよ'],
+   ['h','happy','手まねきで 外国の 人が 帰ってもうたら、それや！ 手の ひら 上で 呼んだって'],
+  ],
+  quiz:[
+   {q:'英語圏で 自分を 指す ときは？',o:['胸を 指す','鼻を 指す'],a:0},
+   {q:'話を 聞く ときに 大事に される ことが 多いのは？',o:['目を 見る','目を そらす'],a:0},
+  ]},
+
+ {id:'hs-email', lv:'hs', cat:'kotsu', t:'英語メールの 型', key:['メール','ライティング','ていねい','型'],
+  tip:'英語の メールは 件名 → Hi 名前 → 用件 → お願い → お礼 → 結び（Best regards）の 型に 当てはめると 書きやすいよ',
+  steps:[
+   ['m','smile','英語の メールには 決まった 型が あるよ。当てはめれば 初めてでも 書けるんだ'],
+   ['m','think','メールの 型', '<div class="fz-col"><div class="fz-tip">Subject: Question about the homework</div><ol class="fz-steps"><li><b>Hi</b> Ms. Brown,（あいさつ）</li><li>I have a question about today\'s homework.（用件）</li><li><b>Could you</b> tell me the page number?（お願い）</li><li><b>Thank you</b> for your help.（お礼）</li><li><b>Best regards,</b> Ken（結びと 名前）</li></ol></div>'],
+   ['m','think','件名は 中身が 分かる 短い 言葉で。日本語の 「お世話に なって おります」に あたる 決まり文句は いらないよ'],
+   ['m','proud','結びは Best regards, / Best wishes, / Thanks, など。相手との 近さで えらんでね'],
+  ],
+  quiz:[
+   {q:'メールの 結びに 使えるのは？',o:['Best regards,','Good night.'],a:0},
+   {q:'件名に 書くのは？',o:['中身が 分かる 短い 言葉','長い あいさつ'],a:0},
+  ]},
+
+ {id:'hs-opinion-prep', lv:'hs', cat:'yarikata', t:'意見は 「結論 → 理由 → 例 → 結論」', key:['ライティング','スピーキング','意見','英作文'],
+  tip:'意見は I think 〜. → This is because 〜. → For example, 〜. → That\'s why 〜. の 4段で 言うと 伝わるよ',
+  steps:[
+   ['m','smile','英語で 意見を 言う ときは、結論を 最初に 言うのが 基本。そのための 型が あるよ'],
+   ['m','think','4段の 型（ハンバーガーの ように 結論で はさむ）', '<div class="fz-col"><div class="fz-blocks"><span class="b v">① 結論<small>I think 〜.</small></span></div><div class="fz-blocks"><span class="b s">② 理由<small>This is because 〜.</small></span></div><div class="fz-blocks"><span class="b o">③ 例<small>For example, 〜.</small></span></div><div class="fz-blocks"><span class="b v">④ 結論<small>That\'s why 〜.</small></span></div></div>'],
+   ['m','think','例：I think students should read more books. This is because reading helps us learn new words. For example, … That\'s why I recommend reading every day.'],
+   ['m','proud','英検の ライティングや スピーチでも そのまま 使えるよ。理由を 2つに すれば もっと 説得力が 出るね'],
+  ],
+  quiz:[
+   {q:'最初に 言うのは？',o:['結論','例'],a:0},
+   {q:'理由を 言う ときの 書き出しは？',o:['This is because','For example'],a:0},
+  ]},
+
+/* ハイレベル */
+ {id:'adv-speech', lv:'adv', cat:'yarikata', t:'英語スピーチの 作り方', key:['スピーチ','発表','スピーキング','練習'],
+  tip:'スピーチは 問いかけで つかんで → 言いたい ことを 3つ → 最初の 問いに もどって しめる。原稿は キーワードだけに しよう',
+  steps:[
+   ['m','smile','人前での 英語スピーチ。組み立てと 練習の しかたで ぐっと 伝わるように なるよ'],
+   ['m','think','組み立て', '<ol class="fz-steps"><li><b>つかみ</b>：問いかけ・おどろく 数字・短い 話（Have you ever 〜?）</li><li><b>本体</b>：言いたい ことを 3つまでに しぼる（First, Second, Finally）</li><li><b>しめ</b>：つかみに もどって 一言（So, next time you 〜, …）</li></ol>'],
+   ['m','think','練習の コツ', '<ul class="fz-steps"><li>原稿を 読み上げず、キーワードの メモで 話す</li><li>大事な 言葉の 前で 1秒 間を とる</li><li>録音して 速すぎないか 聞く（1分 120〜150語 くらいが 目安）</li></ul>'],
+   ['m','proud','完ぺきな 英語より、伝えたい 気持ちと 目線。それが いちばん 届くよ'],
+  ],
+  quiz:[
+   {q:'本体の ポイントは いくつまで？',o:['3つまで','10こ 以上'],a:0},
+   {q:'本番で 見るのは？',o:['キーワードの メモ','全文の 原稿'],a:0},
+  ]},
+);
+
 /* 新しく ふえた 授業（ミナ先生が 「ふえたよ」と 教える） */
-const LESSON_NEW=['es-i-spy','es-weather','es-aizuchi','jh-bored-boring','jh-negative-q','jh-indirect-q','jh-tag-q','jh-if-present','jh-teen-ty','jh-long-short','jh-a-piece-of','jh-ordinal','jh-ask-again','jh-keep-talking','hs-rise-raise','hs-between-among','hs-n-ng','hs-body-idioms','hs-easy-news','adv-clil'];
+const LESSON_NEW=['jh-too-enough','jh-have-to-must','jh-by-with','jh-diphthong','jh-feeling-tone','jh-us-uk','jh-directions','jh-wordbook','hs-perception','hs-used-to','hs-i-wish','hs-dark-l','hs-gesture-culture','hs-email','hs-opinion-prep','adv-speech'];
 
 /* 学び方の 授業の 「ひとくち コツ」。ミナ先生が ふだんの おしゃべりで 思い出させて くれる（game/mina-sense.js の x_tip〜） */
 (()=>{const TIPS={
