@@ -21,7 +21,7 @@ const allWords=lv=>LEVELS[lv].books.flatMap(b=>b.w);
    played through Web Audio so it also works inside app web views without speech synthesis */
 const AUD={};
 /* which sprite holds which line: every sprite's small .json index is read up front */
-const SPRITES=['es','jh','hs','adv','suika','pop','season','star','folk','gram','jh2a','jh2b','jh2c','jh2d','hs2a','hs2b','hs2c','hs2d','adv2a','adv2b','adv2c','adv2d','cheer','cards','it','talk2es','talk2jh','talk2hs','talk2adv'],IDX={};
+const SPRITES=['es','jh','hs','adv','suika','pop','season','star','folk','gram','jh2a','jh2b','jh2c','jh2d','hs2a','hs2b','hs2c','hs2d','adv2a','adv2b','adv2c','adv2d','cheer','cards','talk2es','talk2jh','talk2hs','talk2adv'],IDX={};
 const idxP=Promise.all(SPRITES.map(k=>fetch(`audio/${k}.json`).then(r=>r.json()).then(m=>{for(const t in m)if(!(t in IDX))IDX[t]=k}).catch(()=>{})));let idxOk=false;idxP.then(()=>{idxOk=true});
 function loadAud(lv){if(AUD[lv])return AUD[lv].p;const a=AUD[lv]={};
   a.p=Promise.all([fetch(`audio/${lv}.json`).then(r=>r.json()),fetch(`audio/${lv}.mp3`).then(r=>r.arrayBuffer())])
@@ -233,7 +233,7 @@ document.addEventListener('visibilitychange',bgSound);addEventListener('pagehide
 /* ---------- cheer: a few warm words in the sky after every 5 minutes of play (paused while the app is hidden or a mini game runs) ----------
    It takes turns with the other things on the beach: it waits until no radio or resident is talking, no fresh question is waiting
    and no message is up; while it shows, radios and residents stay quiet, and they come back 10 seconds after it goes. */
-const CHEER_EVERY=5*60*1000,CHEER_REST=10000;let cheerAt=0,cheerLast=performance.now(),cheerBag=[],cheerOn=false;
+const CHEER_EVERY=5*60*1000,CHEER_REST=10000;let cheerAt=0,cheerLast=performance.now(),cheerBag=[],cheerOn=false,cheerWait=0;
 const cheerDue=()=>ST.cheer&&cheerAt>=CHEER_EVERY;   // once due, radios and residents hold their next turn so it can come in
 const beachBusy=()=>talking||folkNow||(cur&&!cur.done&&performance.now()-cur.t0<7000)||document.querySelector('#toast.on');
 const cheerEl=document.createElement('div');cheerEl.id='cheerBox';cheerEl.hidden=true;$('window').appendChild(cheerEl);
@@ -244,13 +244,20 @@ function cheerShow(){if(!cheerBag.length)cheerBag=shuffle(CHEER.map((c,i)=>i));c
   clearTimeout(cheerEl._t);cheerEl._t=setTimeout(cheerHide,en?12000:9000)}
 function cheerHide(){if(cheerEl.hidden)return;cheerOn=false;const t=performance.now()+CHEER_REST;nextAt=Math.max(nextAt,t);folkNext=Math.max(folkNext,t);cheerEl.classList.add('bye');setTimeout(()=>{cheerEl.hidden=true;cheerEl.classList.remove('on','bye')},400)}
 setInterval(()=>{const now=performance.now(),dt=now-cheerLast;cheerLast=now;if(document.hidden||!ST.cheer)return;cheerAt+=dt;
-  if(cheerAt>=CHEER_EVERY&&!cheerOn&&!$('ar')&&!beachBusy()){cheerAt=0;cheerShow()}},2000);
+  if(cheerAt<CHEER_EVERY||cheerOn){cheerWait=0;return}
+  if(!$('ar')&&!beachBusy()){cheerAt=0;cheerWait=0;cheerShow();return}
+  /* still busy after 20 seconds: skip this one, so the radio is never held for long */
+  cheerWait=cheerWait||now;if(now-cheerWait>20000){cheerAt=0;cheerWait=0}},2000);
 
 /* ---------- radios on the beach ---------- */
 /* one radio of each kind: extra copies from older saves are sold back for half price */
-function oneRadioEach(list){const out=list.filter((r,i)=>list.findIndex(x=>x.lv===r.lv)===i),gone=list.filter(r=>!out.includes(r));
+function oneRadioEach(list){const RETIRED={it:100};   // radios taken out of the game, with the price they were bought for
+  const old=list.filter(r=>!LEVELS[r.lv]);list=list.filter(r=>LEVELS[r.lv]);
+  const out=list.filter((r,i)=>list.findIndex(x=>x.lv===r.lv)===i),gone=list.filter(r=>!out.includes(r));
   if(gone.length){const back=gone.reduce((a,r)=>a+((LEVELS[r.lv]&&LEVELS[r.lv].price||0)/2|0),0);ST.coins+=back;
     setTimeout(()=>{save();head();toast(`📻 おなじ ラジオは 1台まで に なったよ<small>2台目からを うって ${back}まい もどしたよ</small>`,3600)},1500)}
+  if(old.length){const back=old.reduce((a,r)=>a+((RETIRED[r.lv]||0)/2|0),0);ST.coins+=back;
+    setTimeout(()=>{save();head();toast(`📻 ITラジオは なくなったよ${back?`<small>うって ${back}まい もどしたよ</small>`:''}`,3600)},1500)}
   return out}
 const layer=document.createElement('div');layer.id='radios';$('window').appendChild(layer);
 const bub=document.createElement('div');bub.id='abubs';$('window').appendChild(bub);
@@ -472,7 +479,7 @@ let shopScroll=0;
 function shop(tab,glv='es'){
   const TABS=[['radio','📻','ラジオ'],['deco','🏖️','かざり'],['music','🎵','おんがく'],['event','🎆','イベント'],['gram','📚','文法']];
   let body='';
-  if(tab==='radio')body=[...LV_ORDER,'it','star'].map(k=>{const L=LEVELS[k],n=ST.radios.filter(r=>r.lv===k).length;
+  if(tab==='radio')body=[...LV_ORDER,'star'].map(k=>{const L=LEVELS[k],n=ST.radios.filter(r=>r.lv===k).length;
     return row(`📻<b class="lv-${k}">${L.short}</b>`,`${L.name}ラジオ${L.nightOnly?' <em class="tb">🌙 夜だけ しゃべる</em>':''}`,`${L.desc?L.desc+'・':L.nightOnly?'星と 宇宙の 英語・':''}${L.choices}たく・せいかい +${L.reward}${L.fast?`（${FAST_MS/1000}びょう いないなら +${L.fast}）`:''}　もっている ${n}だい`,
       `<button class="buy" data-k="${k}" ${n||ST.coins<L.price?'disabled':''}>${n?'✅ もっている':L.price?'かう '+coin(L.price):'もらう（むりょう）'}</button><button class="sell sub" data-k="${k}" ${n?'':'disabled'}>${L.price?'うる +'+(L.price/2|0):'てばなす'}</button>`)}).join('')
     +'<p class="note">ラジオは 1しゅるい 1台まで（小学生ラジオは むりょう）</p>';
