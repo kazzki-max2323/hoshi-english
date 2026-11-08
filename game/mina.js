@@ -65,7 +65,10 @@ function weakKeys(){const k=[];const g=weakGram();if(g)k.push(g.title);const s=g
 /* ---------- lines ---------- */
 const fill=(t,v={})=>t.replace(/\{(\w+)\}/g,(m,k)=>v[k]!=null?esc(String(v[k])):m);
 MINA_LINES.lesson=MINA_LINES.lesson||[['smile','ミニ授業 {t} が おすすめだよ。 わたしの 顔を タップしてね'],['happy','きょうは {t} を いっしょに やってみない？'],['think','{t} を 知ると、 もっと 分かるように なるよ'],['proud','{t}、 2分で できるよ。 コインも もらえるからね']];
-const line=(key,v)=>{const L=MINA_LINES[key]||MINA_LINES.tap;const l=pickL(L);return [l[0],fill(l[1],v)]};
+/* she does not say a line again until 12 others have come (when the list is long enough) */
+const saidRecent=[];
+const line=(key,v)=>{const L=MINA_LINES[key]||MINA_LINES.tap,c=L.filter(l=>!saidRecent.includes(l[1])),l=pickL(c.length?c:L);
+  saidRecent.push(l[1]);if(saidRecent.length>12)saidRecent.shift();return [l[0],fill(l[1],v)]};
 /* the most useful thing to say now, or a plain line */
 function advice(){const ww=weakWords(),opts=[];
   if(ww.length)opts.push(['weakWord',{w:ww[0].en,ja:ww[0].ja,n:ww[0].m},ww[0]]);
@@ -199,7 +202,7 @@ H.on('home',()=>{setFace(minaEx);const f=$('minaFace');if(f)f.onclick=()=>{SFX.v
 setFace('smile');const f0=$('minaFace');if(f0)f0.onclick=()=>{SFX.vopen();panelOpen()};
 
 /* ---------- review words for the radio ---------- */
-function reviewPick(lv){if(Math.random()>.25)return null;const ww=weakWords(lv,'w');return ww.length?pickL(ww.slice(0,8)).en:null}
+function reviewPick(lv){if(Math.random()>.15)return null;const ww=weakWords(lv,'w');return ww.length?pickL(ww.slice(0,8)).en:null}
 
 window.MINA={busy,say:sayRow,canTalk,canAnnounce,announce,sinceAnn:()=>performance.now()-annAt,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,
   _test:{say:()=>{talkAt=talkGap},hama:()=>{hamaAt=hamaGap;MD.hama={d:'',n:0}},hello:()=>{opened=false}}};
