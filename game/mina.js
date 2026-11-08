@@ -170,6 +170,6 @@ setFace('smile');const f0=$('minaFace');if(f0)f0.onclick=()=>{SFX.vopen();panelO
 /* ---------- review words for the radio ---------- */
 function reviewPick(lv){if(Math.random()>.25)return null;const ww=weakWords(lv,'w');return ww.length?pickL(ww.slice(0,8)).en:null}
 
-window.MINA={busy,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,
+window.MINA={busy,say:sayRow,canTalk,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,
   _test:{say:()=>{talkAt=talkGap},hama:()=>{hamaAt=hamaGap;MD.hama={d:'',n:0}},hello:()=>{opened=false}}};
 })();
