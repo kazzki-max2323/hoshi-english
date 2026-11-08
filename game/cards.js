@@ -20,8 +20,14 @@ const PRICE1=80,PRICE10=720;   // one draw / ten draws (ten draws always include
 /* cards in album order: by series, then rarity high→low; a card's number is its place in this order */
 /* 「ミナの授業」: one card for each mini lesson (game/lessons/*.js), made here, so a new lesson brings its own card.
    It is never in the chest: clearing the lesson always gives it. A lesson may set its own picture with ico:'🦉' */
-const LES_ICO={zu:'🖼️',kotsu:'💡',yarikata:'📝',oto:'👄',hama:'🍬',kagaku:'🧠'},LES_R={es:1,jh:2,hs:3,adv:4},LES_LV={es:'小学生',jh:'中学生',hs:'高校生',adv:'ハイレベル'};
-const LES=(typeof LESSONS!=='undefined'?LESSONS:[]).map(l=>({e:'les:'+l.id,ico:l.ico||LES_ICO[l.cat]||'📖',en:l.t,ja:LES_LV[l.lv]||'',s:'lesson',r:LES_R[l.lv]||1,les:l.id}));
+/* each kind of lesson has its own colour and corner mark; the picture comes from game/lessons/icons.js (LESSON_ICO),
+   and a lesson not listed there gets one from its kind's set, picked by its id so it stays the same */
+const LES_CAT={zu:['🖼️','#2f6fd6',['📐','🧭','🗺️','📊','🔷','🧱']],kotsu:['💡','#d89a1e',['🗝️','🌟','🍀','🎁','🧠','🪄']],yarikata:['📝','#2e9e6a',['✏️','📒','🏃','🎒','🪴','⏳']],
+ oto:['👄','#d0457a',['🎵','🔔','🎙️','🎺','📻','🎹']],hama:['🍬','#e2683c',['🍭','🍡','🎐','🧁','🐙','🍊']],kagaku:['🧠','#7b4fd0',['🔬','🧪','🧬','🔭','⚗️','🛰️']]};
+const LES_R={es:1,jh:2,hs:3,adv:4},LES_LV={es:'小学生',jh:'中学生',hs:'高校生',adv:'ハイレベル'};
+const hashPick=(id,a)=>a[[...id].reduce((h,ch)=>(h*31+ch.charCodeAt(0))>>>0,7)%a.length];
+const LES=(typeof LESSONS!=='undefined'?LESSONS:[]).map(l=>{const K=LES_CAT[l.cat]||['📖','#0f766e',['📖']];
+  return {e:'les:'+l.id,ico:l.ico||(typeof LESSON_ICO!=='undefined'&&LESSON_ICO[l.id])||hashPick(l.id,K[2]),mark:K[0],col:K[1],en:l.t,ja:LES_LV[l.lv]||'',s:'lesson',r:LES_R[l.lv]||1,les:l.id}});
 const ALL=CARDS_DATA.map(([e,en,ja,s,r])=>({e,en,ja,s,r})).concat(LES).sort((a,b)=>SERIES.findIndex(x=>x[0]===a.s)-SERIES.findIndex(x=>x[0]===b.s)||(a.les?a.r-b.r:b.r-a.r));
 ALL.forEach((c,i)=>c.no=i+1);
 const BY_R=[[],[],[],[],[],[]];ALL.forEach(c=>{if(!c.les)BY_R[c.r].push(c)});
@@ -35,11 +41,11 @@ const freeOk=()=>CD.free!==today();
 
 /* one card face */
 function face(c,opt={}){const S=SER[c.s],R=RAR[c.r],lock=!opt.show&&!has(c);
-  return `<div class="tc r${c.r} ${lock?'lock':''} ${opt.big?'big':''} ${c.les?'les':''}" style="--sc:${S[3]}" data-e="${esc(c.e)}">
+  return `<div class="tc r${c.r} ${lock?'lock':''} ${opt.big?'big':''} ${c.les?'les':''}" style="--sc:${c.col||S[3]}" data-e="${esc(c.e)}">
     <div class="tcin"><div class="tctop"><span class="tcno">No.${String(c.no).padStart(4,'0')}</span><span class="tcr">${R.k}</span></div>
     <div class="tcart"><span class="tce">${c.ico||c.e}</span></div>
     <div class="tcname">${lock?'？？？':`<b>${esc(c.en)}</b><small>${esc(c.ja)}</small>`}</div>
-    <div class="tcser">${S[1]}</div></div><i class="tcholo"></i></div>`}
+    <div class="tcser">${c.mark||S[1]}</div></div><i class="tcholo"></i></div>`}
 
 /* ---------- album ---------- */
 let tab='sea',filt='all';
