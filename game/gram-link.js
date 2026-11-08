@@ -21,9 +21,9 @@ const GRAM_LES={
  es_way:['jh-directions'],
  /* 中学生 */
  jh_be:['es-be-am-are'],
- jh_do:['es-question','jh-negative-q'],
+ jh_do:['es-question','jh-negative-q','jh-so-do-i'],
  jh_3s:['jh-3sg-s','jh-s-sound'],
- jh_plural:['es-plural-s','jh-s-sound','jh-a-piece-of'],
+ jh_plural:['es-plural-s','jh-s-sound','jh-a-piece-of','jh-uncountable-common'],
  jh_prog:['jh-progressive'],
  jh_wh:['es-question','jh-indirect-q'],
  jh_past1:['jh-tense-line','jh-ed-sound'],
@@ -32,8 +32,8 @@ const GRAM_LES={
  jh_future:['hs-will-goingto','jh-tense-line','jh-if-present'],
  jh_modal:['jh-modal-strength','jh-have-to-must','es-can','jh-polite-stairs'],
  jh_there:['jh-there-is'],
- jh_inf:['jh-to-ing','jh-too-enough'],
- jh_ger:['jh-to-ing'],
+ jh_inf:['jh-to-ing','jh-too-enough','jh-it-to'],
+ jh_ger:['jh-to-ing','jh-go-ing'],
  jh_comp:['jh-comparison','jh-hama-better-best'],
  jh_passive:['jh-passive'],
  jh_perfect:['jh-present-perfect','jh-hama-for-since'],
@@ -44,7 +44,7 @@ const GRAM_LES={
  jh_indq:['jh-indirect-q'],
  jh_subj:['hs-kateiho-kyori','hs-i-wish'],
  jh_svoo:['jh-word-order'],
- jh_prep:['jh-prep-time','jh-by-until','jh-by-with','hs-core-prep'],
+ jh_prep:['jh-prep-time','jh-by-until','jh-by-with','hs-core-prep','jh-adj-prep','jh-no-prep-verbs'],
  jh_art:['es-a-an','hs-article-a-the'],
  /* 高校生 */
  hs_5:['jh-word-order','es-word-order'],
@@ -63,8 +63,9 @@ const GRAM_LES={
  hs_neg:['jh-negative-q'],
  hs_conj2:['jh-if-present'],
  hs_seq:['hs-jisei-itchi'],
+ hs_noun:['hs-nonliving-subject','hs-noun-style'],
  hs_caus:['hs-make-let-have','hs-perception'],
- hs_quant:['jh-few-little','jh-some-any','hs-kazoe-countable','hs-hama-uncountable'],
+ hs_quant:['jh-few-little','jh-some-any','hs-kazoe-countable','hs-hama-uncountable','jh-uncountable-common'],
 };
 
 (()=>{

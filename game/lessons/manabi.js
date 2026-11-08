@@ -1425,8 +1425,230 @@ LESSONS.push(
   ]},
 );
 
+/* ---------- 学び方 その6（日本人が まちがえやすい ところ・数の 読み方・AIの 使い方） ---------- */
+LESSONS.push(
+/* 中学生 */
+ {id:'jh-no-skip-subject', lv:'jh', cat:'zu', t:'英語は 主語を 省かない', key:['主語','It','天気','語順'],
+  tip:'日本語は 「雨だ」で OK でも、英語は It\'s raining. と かならず 主語を 置くよ。天気・時間・きょりは It が 主語',
+  steps:[
+   ['m','smile','日本語は 「行ってきます」「おいしい！」と 主語なしで 話せるね。でも 英語は ほぼ かならず 主語が いるよ'],
+   ['m','think','日本語では 消える 主語を 英語では 出す', '<table class="fz-table"><tr><th>日本語</th><th>英語</th></tr><tr><td>（きのう）学校に 行った</td><td><b>I</b> went to school.</td></tr><tr><td>おいしい！</td><td><b>It</b>\'s delicious!</td></tr><tr><td>雨だ</td><td><b>It</b>\'s raining.</td></tr><tr><td>3時だ</td><td><b>It</b>\'s three o\'clock.</td></tr><tr><td>駅まで 5分</td><td><b>It</b> takes five minutes to the station.</td></tr></table>'],
+   ['m','think','天気・時間・きょり・ようすの It は 「なにか」を さす わけじゃ ない。文を つくる ための 席とり なんだ'],
+   ['h','proud','英語の 文は 主語が いないと 立ち上がれへん。まず 主語、これ 鉄則や！'],
+  ],
+  quiz:[
+   {q:'「寒いね」を 英語で',o:["It's cold.","Is cold."],a:0},
+   {q:'ならべかえて 文に しよう',order:["It's",'snowing','outside'],ja:'外は 雪が ふっている'},
+  ]},
+
+ {id:'jh-no-prep-verbs', lv:'jh', cat:'kotsu', t:'前置詞を つけない 動詞', key:['前置詞','他動詞','動詞','まちがい'],
+  tip:'discuss about は ×。discuss・marry・enter・reach は 後ろに すぐ 名詞を 置く 動詞だよ',
+  steps:[
+   ['m','smile','日本語で 「〜について」「〜と」「〜に」と 言う から、つい 前置詞を つけたく なる 動詞が あるよ'],
+   ['m','think','前置詞なしで すぐ 名詞', '<table class="fz-table"><tr><th>⭕</th><th>❌</th><th>日本語</th></tr><tr><td>discuss the plan</td><td>discuss about</td><td>〜について 話し合う</td></tr><tr><td>marry him</td><td>marry with</td><td>〜と 結婚する</td></tr><tr><td>enter the room</td><td>enter into</td><td>〜に 入る</td></tr><tr><td>reach the station</td><td>reach to</td><td>〜に 着く</td></tr><tr><td>contact me</td><td>contact to</td><td>〜に 連絡する</td></tr><tr><td>attend the meeting</td><td>attend to</td><td>〜に 出席する</td></tr></table>'],
+   ['m','think','同じ 意味でも 前置詞が いる 言い方も ある：talk about、get to the station。だから セットで 覚えよう'],
+   ['m','proud','テストの 正誤問題で よく 出るよ。表を 声に 出して 3回 読んで おこう'],
+  ],
+  quiz:[
+   {q:'正しいのは？',o:['We discussed the plan.','We discussed about the plan.'],a:0},
+   {q:'駅に 着いた：We ___ the station.',o:['reached','reached to'],a:0},
+  ]},
+
+ {id:'jh-adj-prep', lv:'jh', cat:'kotsu', t:'形容詞と 前置詞は セット', key:['前置詞','形容詞','熟語','コロケーション'],
+  tip:'interested in・good at・afraid of の ように、形容詞ごとに 決まった 前置詞が あるよ。セットで 覚えよう',
+  steps:[
+   ['m','smile','「〜が 得意」「〜に 興味が ある」。形容詞の 後ろの 前置詞は 決まって いるよ'],
+   ['m','think','よく 出る セット', '<table class="fz-table"><tr><td>interested <b>in</b></td><td>〜に 興味が ある</td></tr><tr><td>good <b>at</b></td><td>〜が 得意</td></tr><tr><td>afraid <b>of</b></td><td>〜が こわい</td></tr><tr><td>proud <b>of</b></td><td>〜を ほこりに 思う</td></tr><tr><td>famous <b>for</b></td><td>〜で 有名</td></tr><tr><td>different <b>from</b></td><td>〜と ちがう</td></tr><tr><td>full <b>of</b></td><td>〜で いっぱい</td></tr></table>'],
+   ['m','think','前置詞の 絵（コアイメージ）と つなげると 覚えやすいよ。interested in は 「その 中に 気持ちが 入っている」'],
+   ['h','happy','おばちゃんは sweets に interested in、料理は good at、ダイエットは afraid of や！'],
+  ],
+  quiz:[
+   {q:'She is good ___ tennis.',o:['at','in','of'],a:0},
+   {q:'I\'m interested ___ music.',o:['in','at','for'],a:0},
+   {q:'Kyoto is famous ___ its temples.',o:['for','of','at'],a:0},
+  ]},
+
+ {id:'jh-go-ing', lv:'jh', cat:'kotsu', t:'go swimming に to は いらない', key:['動名詞','go','ing','まちがい'],
+  tip:'「泳ぎに 行く」は go swimming。go to swimming は ×。場所を 言うなら go swimming in the sea だよ',
+  steps:[
+   ['m','smile','「〜しに 行く」は go ＋ ing で 言えるよ。to は 入らないのが ポイント'],
+   ['m','think','レジャーの ing', '<div class="fz-row"><div class="fz-pic"><span>🏊</span><small>go <b>swimming</b></small></div><div class="fz-pic"><span>🛍️</span><small>go <b>shopping</b></small></div><div class="fz-pic"><span>🎣</span><small>go <b>fishing</b></small></div><div class="fz-pic"><span>🏕️</span><small>go <b>camping</b></small></div><div class="fz-pic"><span>⛷️</span><small>go <b>skiing</b></small></div></div>'],
+   ['m','worry','場所を 足す ときは to じゃなくて in・at：go swimming <b>in</b> the sea、go shopping <b>at</b> the mall'],
+   ['m','proud','go to the sea（海へ 行く）と go swimming in the sea（海へ 泳ぎに 行く）。形の ちがいを 覚えよう'],
+  ],
+  quiz:[
+   {q:'正しいのは？',o:['go swimming in the sea','go to swimming in the sea'],a:0},
+   {q:'買い物に 行った：I went ___.',o:['shopping','to shopping'],a:0},
+  ]},
+
+ {id:'jh-it-to', lv:'jh', cat:'zu', t:'It is 〜 to … の 文', key:['不定詞','形式主語','It'],
+  tip:'To swim is fun. より It is fun to swim. が 自然。長い 主語は 後ろに 回して、前には It を 置くよ',
+  steps:[
+   ['m','smile','英語は 頭が 重い 文が 苦手。長い 主語は 後ろに 回すよ'],
+   ['m','think','It に 席を とって もらう', '<div class="fz-col"><div class="fz-blocks"><span class="b s">To swim in the sea<small>主語が 長い…</small></span><span class="b v">is</span><span class="b o">fun.</span></div><div class="fz-tip">↓ 長い 主語を 後ろへ。前には It</div><div class="fz-blocks"><span class="b s">It</span><span class="b v">is</span><span class="b o">fun</span><span class="b c">to swim in the sea.</span></div></div>'],
+   ['m','think','「だれに とって」は for 人 を to の 前に：It is easy <b>for me</b> to cook.'],
+   ['m','proud','It is important to 〜、It is difficult for 人 to 〜。作文で とても 使えるよ'],
+  ],
+  quiz:[
+   {q:'自然なのは？',o:['It is fun to play games.','It is fun play games.'],a:0},
+   {q:'ならべかえて 文に しよう',order:['It is','hard','for me','to get up early'],ja:'わたしには 早起きが つらい'},
+  ]},
+
+ {id:'jh-so-do-i', lv:'jh', cat:'kotsu', t:'「わたしも」は So do I', key:['会話','So','Neither','助動詞'],
+  tip:'I like cats. → So do I.、I\'m hungry. → So am I.。相手の 文の 動詞に 合わせて So ＋ 動詞 ＋ I だよ',
+  steps:[
+   ['m','smile','「わたしも！」は Me too. でも 通じる。もう一歩 進んだ 言い方が So do I. だよ'],
+   ['m','think','相手の 文の 動詞に 合わせる', '<table class="fz-table"><tr><th>相手</th><th>わたしも</th></tr><tr><td>I like cats.</td><td>So <b>do</b> I.</td></tr><tr><td>I\'m hungry.</td><td>So <b>am</b> I.</td></tr><tr><td>I can swim.</td><td>So <b>can</b> I.</td></tr><tr><td>I went there.</td><td>So <b>did</b> I.</td></tr></table>'],
+   ['m','think','否定の 「わたしも〜ない」は Neither：I don\'t like snakes. → Neither do I.（Me neither. でも OK）'],
+   ['h','happy','おばちゃんが I love cake. 言うたら、So do I！ って 返してな'],
+  ],
+  quiz:[
+   {q:'I\'m tired. → わたしも',o:['So am I.','So do I.'],a:0},
+   {q:'I can\'t swim. → わたしも',o:['Neither can I.','So can I.'],a:0},
+  ]},
+
+ {id:'jh-katakana-stress', lv:'jh', cat:'oto', t:'カタカナ語は 強い 所が ずれる', key:['発音','アクセント','カタカナ','外来語'],
+  tip:'ホテルは hoTEL、ギターは guiTAR。カタカナ語は 英語だと 強い 場所が 後ろに ある ものが 多いよ',
+  steps:[
+   ['m','smile','カタカナ語は 英語と 同じ ことば。でも 強く 言う 場所が ちがって 通じない ことが あるよ'],
+   ['m','think','大きい 字を 強く', '<div class="fz-col"><div class="fz-beat"><span>ho</span><span class="S">TEL</span><small>ホテル → ホ<b>テ</b>ゥ</small></div><div class="fz-beat"><span>gui</span><span class="S">TAR</span><small>ギター → ギ<b>ター</b></small></div><div class="fz-beat"><span>e</span><span class="S">VENT</span><small>イベント → イ<b>ヴェ</b>ント</small></div><div class="fz-beat"><span>vol</span><span>un</span><span class="S">TEER</span><small>ボランティア → ヴォラン<b>ティ</b>ア</small></div><div class="fz-beat"><span class="S">MAN</span><span>a</span><span>ger</span><small>マネージャー → <b>マ</b>ニジャ</small></div></div>'],
+   ['m','think','知っている カタカナ語ほど 油断しがち。新しく 使う ときは 辞書の 強い 場所（ˈ の 印）を 見よう'],
+   ['h','happy','ホテルで 「ホテル」言うて 通じへんかったら、hoTEL！ や'],
+  ],
+  quiz:[
+   {q:'hotel の 強い 所は？',o:['後ろ（TEL）','前（HO）'],a:0},
+   {q:'manager の 強い 所は？',o:['前（MAN）','後ろ（GER）'],a:0},
+  ]},
+
+ {id:'jh-read-numbers', lv:'jh', cat:'kotsu', t:'年号・電話番号・小数・分数の 読み方', key:['数字','年号','分数','小数'],
+  tip:'1998年は nineteen ninety-eight と 2けたずつ。3.14 は three point one four、1/3 は one third だよ',
+  steps:[
+   ['m','smile','数字は 書くと 同じでも、何の 数かで 読み方が かわるよ'],
+   ['m','think','読み方 いろいろ', '<table class="fz-table"><tr><th>数</th><th>読み方</th></tr><tr><td>1998年</td><td>nineteen ninety-eight（2けたずつ）</td></tr><tr><td>2008年</td><td>two thousand (and) eight</td></tr><tr><td>2026年</td><td>twenty twenty-six</td></tr><tr><td>電話 090-12…</td><td>oh nine oh, one two…（1つずつ）</td></tr><tr><td>3.14</td><td>three point one four</td></tr><tr><td>1/2・1/4</td><td>a half・a quarter</td></tr><tr><td>1/3・2/3</td><td>one third・two thirds</td></tr></table>'],
+   ['m','think','分数は 「上は ふつうの 数、下は 序数」。上が 2以上なら 下に s：two third<b>s</b>'],
+   ['m','proud','電話番号の 0 は oh（オウ）と 読む ことが 多いよ。zero でも 通じる'],
+  ],
+  quiz:[
+   {q:'1998年は？',o:['nineteen ninety-eight','one thousand nine hundred ninety-eight（ふつうは 言わない）'],a:0},
+   {q:'2/3 は？',o:['two thirds','two three'],a:0},
+  ]},
+
+ {id:'jh-uncountable-common', lv:'jh', cat:'kotsu', t:'information に s は つかない', key:['数えられない名詞','複数形','まちがい'],
+  tip:'information・advice・homework・furniture・news は 数えられない 名詞。s も a も つけないよ',
+  steps:[
+   ['m','smile','日本語では 数えられそうでも、英語では 数えない 名詞が あるよ。まちがいが 多い ものだけ 覚えよう'],
+   ['m','think','s を つけない よく 出る 名詞', '<table class="fz-table"><tr><th>⭕</th><th>❌</th></tr><tr><td>some information</td><td>informations</td></tr><tr><td>some advice</td><td>an advice</td></tr><tr><td>a lot of homework</td><td>homeworks</td></tr><tr><td>some furniture</td><td>furnitures</td></tr><tr><td>The news <b>is</b> good.</td><td>The news are…</td></tr></table>'],
+   ['m','think','1つ、2つと 言いたい ときは a piece of：a piece of advice、two pieces of furniture'],
+   ['m','proud','「まとめて 1つの かたまり」と 考える 名詞、と 覚えておくと 分かりやすいよ'],
+  ],
+  quiz:[
+   {q:'正しいのは？',o:['I have a lot of homework.','I have a lot of homeworks.'],a:0},
+   {q:'アドバイスを 1つ：a ___ of advice',o:['piece','cup'],a:0},
+  ]},
+
+ {id:'jh-copy-aloud', lv:'jh', cat:'yarikata', t:'音読筆写（言いながら 書く）', key:['音読','書く','勉強法','暗記'],
+  tip:'英文を 声に 出しながら ノートに 書き写すと、目・口・耳・手を ぜんぶ 使うから 文が 体に 入るよ',
+  steps:[
+   ['m','smile','英文を 声に 出しながら 書き写す 方法だよ。目・口・耳・手を いっぺんに 使えるんだ'],
+   ['m','think','やり方', '<ol class="fz-steps"><li>教科書の 1文を 声に 出して 読む</li><li>顔を 上げて、もう一度 言いながら ノートに 書く（見ないで）</li><li>教科書と くらべて 答え合わせ</li><li>まちがえた 所は もう一度 言いながら 書く</li></ol>'],
+   ['m','think','見ないで 書くのが ポイント。ただ 写すだけだと 手が 動くだけで 頭に のこらないよ'],
+   ['m','proud','1日 5文で じゅうぶん。教科書 1ページが 自分の 言葉に なっていくよ'],
+  ],
+  quiz:[
+   {q:'書く ときに 大事なのは？',o:['見ないで 言いながら 書く','見ながら だまって 写す'],a:0},
+   {q:'1日の 量の めやすは？',o:['5文くらい','100文'],a:0},
+  ]},
+
+/* 高校生 */
+ {id:'hs-nonliving-subject', lv:'hs', cat:'zu', t:'もの・ことを 主語に する 英語', key:['無生物主語','名詞構文','英作文'],
+  tip:'This bus takes you to the station.（この バスに 乗れば 駅に 行ける）の ように、英語は もの・ことを 主語に するのが 得意だよ',
+  steps:[
+   ['m','smile','日本語は 人を 主語に しがち。英語は 「もの・こと」を 主語に して すっきり 言う ことが 多いよ'],
+   ['m','think','訳すと きは 「〜で・〜のせいで」に する', '<table class="fz-table"><tr><th>英語</th><th>自然な 日本語</th></tr><tr><td><b>This bus</b> takes you to the station.</td><td>この バスに 乗れば 駅に 行ける</td></tr><tr><td><b>The news</b> made me happy.</td><td>その 知らせで うれしく なった</td></tr><tr><td><b>Heavy rain</b> kept us from going out.</td><td>大雨で 出かけられなかった</td></tr><tr><td><b>What</b> brought you here?</td><td>なぜ ここに 来たの？</td></tr></table>'],
+   ['m','think','よく 使う 動詞：take（連れていく）、make（〜させる）、keep 〜 from（〜させない）、bring（もってくる）'],
+   ['m','proud','作文でも 使って みよう。「この 本を 読んで 夢が できた」→ This book gave me a dream.'],
+  ],
+  quiz:[
+   {q:'The snow kept us from going out. の 意味は？',o:['雪で 出かけられなかった','雪が わたしたちを 外に 出した'],a:0},
+   {q:'ならべかえて 文に しよう',order:['This book','gave','me','a dream'],ja:'この 本を 読んで 夢が できた'},
+  ]},
+
+ {id:'hs-noun-style', lv:'hs', cat:'kotsu', t:'He is a good swimmer. で 「泳ぐのが 上手」', key:['名詞構文','er','表現','英作文'],
+  tip:'He swims well. を He is a good swimmer. と 名詞で 言うのも 英語らしい 言い方。人を 表す -er が 大活躍だよ',
+  steps:[
+   ['m','smile','「泳ぐのが 上手」は He swims well. でも OK。でも 英語は 名詞で 言うのも 大好き'],
+   ['m','think','動詞 ＋ 副詞 → 形容詞 ＋ 名詞', '<table class="fz-table"><tr><th>動詞で</th><th>名詞で</th></tr><tr><td>He swims well.</td><td>He is a <b>good swimmer</b>.</td></tr><tr><td>She runs fast.</td><td>She is a <b>fast runner</b>.</td></tr><tr><td>I get up early.</td><td>I\'m an <b>early riser</b>.</td></tr><tr><td>My mom cooks well.</td><td>My mom is a <b>good cook</b>.</td></tr></table>'],
+   ['m','worry','料理する 人は cooker じゃなくて cook。cooker は 「なべ・調理器具」の ことだよ'],
+   ['m','proud','自己紹介で I\'m a big eater.（よく 食べる）なんて 言うと 会話が もりあがるよ'],
+  ],
+  quiz:[
+   {q:'「母は 料理が 上手」',o:['My mom is a good cook.','My mom is a good cooker.'],a:0},
+   {q:'I\'m an early riser. の 意味は？',o:['早起きだ','早く 上がる'],a:0},
+  ]},
+
+ {id:'hs-contrast-stress', lv:'hs', cat:'oto', t:'強く 言う 語で 意味が かわる', key:['発音','強勢','強調','リスニング'],
+  tip:'I didn\'t take YOUR pen. と YOUR を 強く 言うと 「あなたのじゃ なくて 別の 人の ペン」。強く 言う 語で 言いたい ことが かわるよ',
+  steps:[
+   ['m','smile','英語は 強く 言う 語を かえるだけで、言いたい ことが かわるよ'],
+   ['m','think','同じ 文、ちがう 意味', '<table class="fz-table"><tr><th>強く 言う</th><th>かくれた 意味</th></tr><tr><td><b>I</b> didn\'t take your pen.</td><td>（取ったのは わたしじゃ ない）</td></tr><tr><td>I didn\'t <b>take</b> your pen.</td><td>（借りた だけ）</td></tr><tr><td>I didn\'t take <b>your</b> pen.</td><td>（別の 人の ペンを 取った）</td></tr><tr><td>I didn\'t take your <b>pen</b>.</td><td>（えんぴつを 取った）</td></tr></table>'],
+   ['m','think','聞く ときは 「どこが 強い？」に 耳を すます。そこに 話す 人の 気持ちが あるよ'],
+   ['h','happy','「I didn\'t eat YOUR cake.」…ほな だれの ケーキ 食べたんや？ おばちゃん 気になるわ'],
+  ],
+  quiz:[
+   {q:'I didn\'t take your PEN. の かくれた 意味は？',o:['ペン以外の ものを 取った','取ったのは わたしじゃ ない'],a:0},
+   {q:'話す 人の 気持ちが あるのは？',o:['強く 言った 語','いちばん 長い 語'],a:0},
+  ]},
+
+ {id:'hs-very-alt', lv:'hs', cat:'kotsu', t:'very を 1語で 言いかえる', key:['語彙','形容詞','言いかえ','ライティング'],
+  tip:'very tired は exhausted、very big は huge。強い 1語に 言いかえると 英語が いきいき するよ',
+  steps:[
+   ['m','smile','very ＋ 形容詞 ばかり だと 文が 単調に なるよ。強い 意味の 1語に 言いかえて みよう'],
+   ['m','think','言いかえ 早見表', '<table class="fz-table"><tr><th>very ＋</th><th>1語で</th></tr><tr><td>very tired</td><td><b>exhausted</b></td></tr><tr><td>very hungry</td><td><b>starving</b></td></tr><tr><td>very big</td><td><b>huge</b></td></tr><tr><td>very small</td><td><b>tiny</b></td></tr><tr><td>very cold</td><td><b>freezing</b></td></tr><tr><td>very good</td><td><b>excellent</b> / <b>amazing</b></td></tr><tr><td>very bad</td><td><b>terrible</b> / <b>awful</b></td></tr></table>'],
+   ['m','worry','強い 1語には very を つけないよ。× very exhausted ⭕ really exhausted / absolutely exhausted'],
+   ['m','proud','英検や 作文で 語彙の 点数が 上がる ポイント。1日 1ペアずつ 使って みよう'],
+  ],
+  quiz:[
+   {q:'very hungry を 1語で',o:['starving','tiny','huge'],a:0},
+   {q:'正しいのは？',o:['I was really exhausted.','I was very exhausted.'],a:0},
+  ]},
+
+/* ハイレベル */
+ {id:'adv-ai-practice', lv:'adv', cat:'yarikata', t:'AIを 英語の 練習相手に する', key:['AI','スピーキング','ライティング','添削'],
+  tip:'AIには 「直して」だけで なく 「なぜ まちがいか 説明して」と 頼もう。答えを 書かせるより、自分で 書いて 見て もらうのが 伸びるコツ',
+  steps:[
+   ['m','smile','AIの チャットは いつでも 相手を して くれる 練習相手。使い方しだいで すごく 伸びるよ'],
+   ['m','think','使える たのみ方', '<table class="fz-table"><tr><th>したい こと</th><th>たのみ方の 例</th></tr><tr><td>添削</td><td>Please correct my English and explain why.</td></tr><tr><td>ロールプレイ</td><td>Be a shop clerk. I\'m a customer.</td></tr><tr><td>やさしく</td><td>Please use easy words for a junior high student.</td></tr><tr><td>言いかえ</td><td>Give me three other ways to say this.</td></tr></table>'],
+   ['m','worry','気を つける こと', '<ul class="fz-steps"><li>まず 自分で 書く・話す（AIに 書かせて 終わりに しない）</li><li>AIも まちがえる ことが ある。気に なったら 辞書で 確かめる</li><li>名前・住所・学校など 個人の 情報は 書かない</li></ul>'],
+   ['m','proud','直された 文は 「言えなかった ノート」に 写して、次の 日に わざと 使おう。これで 自分の 英語に なるよ'],
+  ],
+  quiz:[
+   {q:'AIに 添削を 頼む ときに 足すと いいのは？',o:['explain why（理由も）','short（短く）だけ'],a:0},
+   {q:'AIに 書いては いけないのは？',o:['名前や 住所などの 個人情報','練習したい 英文'],a:0},
+  ]},
+);
+
+/* よくある まちがい（ミナ先生が 「〜じゃ なくて 〜」と 教える。game/mina-sense.js の x_oops） */
+const LESSON_OOPS=[
+ ['Is cold.',"It's cold.",'jh-no-skip-subject'],
+ ['discuss about the plan','discuss the plan','jh-no-prep-verbs'],
+ ['marry with him','marry him','jh-no-prep-verbs'],
+ ['reach to the station','reach the station','jh-no-prep-verbs'],
+ ['good in tennis','good at tennis','jh-adj-prep'],
+ ['go to swimming','go swimming','jh-go-ing'],
+ ['informations','information','jh-uncountable-common'],
+ ['homeworks','homework','jh-uncountable-common'],
+ ['a good cooker','a good cook','hs-noun-style'],
+ ['very exhausted','really exhausted','hs-very-alt'],
+ ["I'm boring.（たいくつ）","I'm bored.",'jh-bored-boring'],
+ ['He said me','He told me','hs-say-tell'],
+ ['made me to wait','made me wait','hs-make-let-have'],
+ ['enough tall','tall enough','jh-too-enough'],
+ ['by foot','on foot','jh-by-with'],
+ ['If it will rain tomorrow','If it rains tomorrow','jh-if-present'],
+];
+
 /* 新しく ふえた 授業（ミナ先生が 「ふえたよ」と 教える） */
-const LESSON_NEW=['jh-too-enough','jh-have-to-must','jh-by-with','jh-diphthong','jh-feeling-tone','jh-us-uk','jh-directions','jh-wordbook','hs-perception','hs-used-to','hs-i-wish','hs-dark-l','hs-gesture-culture','hs-email','hs-opinion-prep','adv-speech'];
+const LESSON_NEW=['jh-no-skip-subject','jh-no-prep-verbs','jh-adj-prep','jh-go-ing','jh-it-to','jh-so-do-i','jh-katakana-stress','jh-read-numbers','jh-uncountable-common','jh-copy-aloud','hs-nonliving-subject','hs-noun-style','hs-contrast-stress','hs-very-alt','adv-ai-practice'];
 
 /* 学び方の 授業の 「ひとくち コツ」。ミナ先生が ふだんの おしゃべりで 思い出させて くれる（game/mina-sense.js の x_tip〜） */
 (()=>{const TIPS={
