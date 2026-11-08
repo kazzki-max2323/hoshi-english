@@ -10,9 +10,9 @@
 .mbub #rq{margin:0;text-align:left}
 .msay{margin:0;position:relative;background:#fff6e0;color:#2a2340;text-shadow:none;border-radius:4px 14px 14px 14px;padding:6px 11px;font-size:.84rem;line-height:1.5;box-shadow:0 3px 0 #1b1740}
 .msay.by-h{background:#ffe2d6;border-radius:14px 4px 14px 14px}
-.msay>b{display:block;font-size:.66rem;color:#0f766e;line-height:1.2}
-.msay.by-h>b{color:#c2410c}
-.msay b b,.msay strong{color:#c2410c}
+.msay>b:first-child{display:block;font-size:.66rem;color:#0f766e;line-height:1.2}
+.msay.by-h>b:first-child{color:#c2410c}
+.msay>b:not(:first-child),.msay b b,.msay strong{color:#c2410c}
 .msay.mnew{animation:mpop .35s cubic-bezier(.2,1.6,.4,1)}
 @keyframes mpop{from{transform:scale(.85);opacity:0}}
 .bubble.ab .revt{background:#ffd23f;color:#3a2000}

@@ -28,6 +28,7 @@ button{touch-action:manipulation}
 <link rel="stylesheet" href="game/cards.css">
 <link rel="stylesheet" href="game/mina.css">
 <link rel="stylesheet" href="game/bonus.css">
+<link rel="stylesheet" href="game/motivate.css">
 </head>
 <body>
 <canvas id="stars"></canvas>
@@ -65,17 +66,19 @@ button{touch-action:manipulation}
 <script src="game/catalog.js"></script>
 <script src="game/game.js"></script>
 <script src="game/adventure.js"></script>
-<script src="game/cards-data.js"></script>
-<script src="game/cards.js"></script>
-<script src="game/mina-lines.js"></script>
-<script src="game/mina.js"></script>
+<!-- the lessons come before the cards: each lesson has its own card -->
 <script src="game/lessons/index.js"></script>
 <script src="game/lessons/es.js"></script>
 <script src="game/lessons/jh.js"></script>
 <script src="game/lessons/hs.js"></script>
 <script src="game/lessons/manabi.js"></script>
+<script src="game/cards-data.js"></script>
+<script src="game/cards.js"></script>
+<script src="game/mina-lines.js"></script>
+<script src="game/mina.js"></script>
 <script src="game/lesson.js"></script>
 <script src="game/bonus.js"></script>
+<script src="game/motivate.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});

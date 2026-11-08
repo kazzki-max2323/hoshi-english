@@ -10,7 +10,7 @@ const SERIES=[['sea','🐠','海の生きもの','#1e88c8'],['land','🦁','陸�
  ['plant','🌸','花と植物','#d9468f'],['fruit','🍓','くだもの・やさい','#d8433f'],['food','🍣','ごはん・料理','#e67e22'],['sweet','🍰','おかし・のみもの','#e57fa8'],
  ['ride','🚀','乗りもの','#3f6ad8'],['place','🏰','建物・名所','#8d6e63'],['sky','🌙','空と宇宙・天気','#3949ab'],['play','⚽','スポーツ・遊び','#2e9e4f'],
  ['music','🎸','音楽・アート','#8e44ad'],['item','🔧','道具・くらし','#5f7d8c'],['wear','👑','服・アクセサリー','#c9a227'],['job','🧑‍🚀','仕事','#00897b'],
- ['myth','🐉','ふしぎな仲間','#6a1b9a'],['flag','🎌','世界の国と地域','#c0392b']];
+ ['myth','🐉','ふしぎな仲間','#6a1b9a'],['flag','🎌','世界の国と地域','#c0392b'],['lesson','📖','ミナの授業','#0f766e']];
 const SER=Object.fromEntries(SERIES.map(s=>[s[0],s]));
 /* rarity: name, draw weight (%), shards for a duplicate, shards to trade for one */
 const RAR=[null,{k:'N',n:'ノーマル',w:60,sh:1,cost:15},{k:'R',n:'レア',w:27,sh:3,cost:45},{k:'SR',n:'スーパーレア',w:9.5,sh:10,cost:150},
@@ -18,9 +18,13 @@ const RAR=[null,{k:'N',n:'ノーマル',w:60,sh:1,cost:15},{k:'R',n:'レア',w:2
 const PRICE1=80,PRICE10=720;   // one draw / ten draws (ten draws always include an SR or better)
 
 /* cards in album order: by series, then rarity high→low; a card's number is its place in this order */
-const ALL=CARDS_DATA.map(([e,en,ja,s,r])=>({e,en,ja,s,r})).sort((a,b)=>SERIES.findIndex(x=>x[0]===a.s)-SERIES.findIndex(x=>x[0]===b.s)||b.r-a.r);
+/* 「ミナの授業」: one card for each mini lesson (game/lessons/*.js), made here, so a new lesson brings its own card.
+   It is never in the chest: clearing the lesson always gives it. A lesson may set its own picture with ico:'🦉' */
+const LES_ICO={zu:'🖼️',kotsu:'💡',yarikata:'📝',oto:'👄',hama:'🍬',kagaku:'🧠'},LES_R={es:1,jh:2,hs:3,adv:4},LES_LV={es:'小学生',jh:'中学生',hs:'高校生',adv:'ハイレベル'};
+const LES=(typeof LESSONS!=='undefined'?LESSONS:[]).map(l=>({e:'les:'+l.id,ico:l.ico||LES_ICO[l.cat]||'📖',en:l.t,ja:LES_LV[l.lv]||'',s:'lesson',r:LES_R[l.lv]||1,les:l.id}));
+const ALL=CARDS_DATA.map(([e,en,ja,s,r])=>({e,en,ja,s,r})).concat(LES).sort((a,b)=>SERIES.findIndex(x=>x[0]===a.s)-SERIES.findIndex(x=>x[0]===b.s)||(a.les?a.r-b.r:b.r-a.r));
 ALL.forEach((c,i)=>c.no=i+1);
-const BY_R=[[],[],[],[],[],[]];ALL.forEach(c=>BY_R[c.r].push(c));
+const BY_R=[[],[],[],[],[],[]];ALL.forEach(c=>{if(!c.les)BY_R[c.r].push(c)});
 
 /* saved state: owned counts by emoji (stable even if the album order changes), shards, last free day, "next is new" per rarity */
 const CD=(()=>{try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}').cards;if(s&&s.own)return s}catch(e){}return {own:{},shards:0,free:'',pity:{}}})();
@@ -31,9 +35,9 @@ const freeOk=()=>CD.free!==today();
 
 /* one card face */
 function face(c,opt={}){const S=SER[c.s],R=RAR[c.r],lock=!opt.show&&!has(c);
-  return `<div class="tc r${c.r} ${lock?'lock':''} ${opt.big?'big':''}" style="--sc:${S[3]}" data-e="${esc(c.e)}">
+  return `<div class="tc r${c.r} ${lock?'lock':''} ${opt.big?'big':''} ${c.les?'les':''}" style="--sc:${S[3]}" data-e="${esc(c.e)}">
     <div class="tcin"><div class="tctop"><span class="tcno">No.${String(c.no).padStart(4,'0')}</span><span class="tcr">${R.k}</span></div>
-    <div class="tcart"><span class="tce">${c.e}</span></div>
+    <div class="tcart"><span class="tce">${c.ico||c.e}</span></div>
     <div class="tcname">${lock?'？？？':`<b>${esc(c.en)}</b><small>${esc(c.ja)}</small>`}</div>
     <div class="tcser">${S[1]}</div></div><i class="tcholo"></i></div>`}
 
@@ -67,7 +71,7 @@ function tilt(el){const set=(x,y)=>{el.style.setProperty('--rx',(y-.5)*-18+'deg'
   el.addEventListener('pointerleave',()=>set(.5,.5));
   let t=0;const idle=()=>{if(!el.isConnected)return;if(!el.matches(':hover')){t+=.012;set(.5+Math.sin(t)*.25,.5+Math.cos(t*.8)*.18)}requestAnimationFrame(idle)};idle()}
 
-function view(c){const own=has(c),R=RAR[c.r];
+function view(c){if(c.les)return viewLes(c);const own=has(c),R=RAR[c.r];
   const o=overlay(`<div class="kview">${face(c,{big:1,show:own})}
     <div class="kvinfo">${own?`<b class="rk r${c.r}">${R.k}　${R.n}</b><span>もっている数 ×${CD.own[c.e]}</span>
       ${c.r>=3?`<span class="khint">✨ 絵を タップすると 動くよ</span>`:''}
@@ -85,6 +89,20 @@ function view(c){const own=has(c),R=RAR[c.r];
     if($('ksummon'))$('ksummon').onclick=()=>summon(c)}
   else $('ktrade').onclick=()=>{if(CD.shards<R.cost)return;CD.shards-=R.cost;CD.own[c.e]=1;save();SFX.save();closeOv();open();view(c);H.toast(`✦ <b>${esc(c.ja)}</b> と こうかん！`);checkSeries([c])};
 }
+
+/* a lesson card: no voice or trade; it opens its lesson */
+function viewLes(c){const own=has(c),R=RAR[c.r];
+  const o=overlay(`<div class="kview">${face(c,{big:1,show:own})}
+    <div class="kvinfo"><b class="rk r${c.r}">📖 ミナの授業・${esc(c.ja)}</b>
+      <span>${own?'授業を クリアして もらった カード':`「${esc(c.en)}」を クリアすると かならず もらえるよ`}</span>
+      ${window.LESSON?`<button id="kles" class="kbtn ${own?'':'gold'}">📖 授業を ${own?'もう一度 ':''}ひらく</button>`:''}
+      <button id="kclose" class="kbtn sub">とじる</button></div></div>`,'kv');
+  tilt(o.querySelector('.tc'));o.querySelector('.tc').classList.add('live');
+  $('kclose').onclick=()=>{SFX.pop();closeOv()};
+  const b=$('kles');if(b)b.onclick=()=>{SFX.vopen();closeOv();LESSON.open(c.les,()=>open('lesson'))}}
+/* clearing a lesson gives its card (once). Returns the card when it is new */
+const lesCard=id=>ALL.find(c=>c.les===id);
+function lessonGet(id,quiet){const c=lesCard(id);if(!c||has(c))return null;CD.own[c.e]=1;save();if(!quiet)setTimeout(()=>checkSeries([c]),2500);return c}
 
 /* ---------- SR and up: cards that do something ---------- */
 /* tap the picture: it moves in its own way and little things burst out */
@@ -162,6 +180,6 @@ function checkSeries(newCards){const done=[...new Set(newCards.map(c=>c.s))].fil
   done.forEach((s,i)=>setTimeout(()=>{SFX.fanfare(3);H.toast(`🏆 <b>${SER[s][1]} ${SER[s][2]}</b> コンプリート！`,3600)},800+i*1600))}
 
 /* a free draw given as a reward (Mina's lesson time): n cards, each at least rarity min */
-window.CARDS={open,count:()=>[ownedN(),ALL.length],freeOk,gift:(n=1,min=1)=>draw(n,min)};
+window.CARDS={open,count:()=>[ownedN(),ALL.length],freeOk,gift:(n=1,min=1)=>draw(n,min),face,lessonGet,lesCard,has,lesCount:()=>[LES.filter(has).length,LES.length]};
 if(H.screen==='home')H.home();   // show the free-draw dot on the home button
 })();
