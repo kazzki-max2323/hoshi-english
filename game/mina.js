@@ -49,8 +49,16 @@ function stepUp(){for(const lv of ['es','jh','hs']){const R=MD.r[lv]||[];if(R.le
     const nx=H.LV_ORDER[H.LV_ORDER.indexOf(lv)+1];if(acc>=85&&nx&&!(MD.r[nx]&&MD.r[nx].length>=10))return {lv:LVN[lv],next:LVN[nx],acc,nlv:nx}}}return null}
 function recentAcc(){const all=Object.values(MD.r).flat();if(all.length<15)return null;const r=all.slice(-20);return Math.round(r.reduce((a,b)=>a+b,0)/r.length*100)}
 
+/* the player's level now: the highest level answered right 60% or more (at least 10 answers), else the radios they own */
+function level(){let best=null,low=null;for(const lv of H.LV_ORDER){const R=MD.r[lv]||[];if(R.length<10)continue;const a=R.reduce((x,y)=>x+y,0)/R.length;
+    if(!low)low=lv;if(a>=.6)best=lv}
+  if(best||low)return best||low;const own=H.LV_ORDER.filter(lv=>ST.radios.some(r=>r.lv===lv));return own[own.length-1]||'es'}
+/* words to match lessons against: weak grammar notes and weak words */
+function weakKeys(){const k=[];const g=weakGram();if(g)k.push(g.title);const s=gramForSentences();if(s)k.push(s.title);weakWords().slice(0,5).forEach(w=>k.push(w.en));return k}
+
 /* ---------- lines ---------- */
 const fill=(t,v={})=>t.replace(/\{(\w+)\}/g,(m,k)=>v[k]!=null?esc(String(v[k])):m);
+MINA_LINES.lesson=MINA_LINES.lesson||[['smile','ミニ授業 {t} が おすすめだよ。 わたしの 顔を タップしてね'],['happy','きょうは {t} を いっしょに やってみない？'],['think','{t} を 知ると、 もっと 分かるように なるよ'],['proud','{t}、 2分で できるよ。 コインも もらえるからね']];
 const line=(key,v)=>{const L=MINA_LINES[key]||MINA_LINES.tap;const l=pickL(L);return [l[0],fill(l[1],v)]};
 /* the most useful thing to say now, or a plain line */
 function advice(){const ww=weakWords(),opts=[];
@@ -60,6 +68,7 @@ function advice(){const ww=weakWords(),opts=[];
   const su=stepUp();if(su&&MD.said.step!==today())opts.push(['stepUp',su]);
   const ra=recentAcc();if(ra!=null&&ra<55)opts.push(['slowDown',{}]);
   if(ww.length>=3)opts.push(['review',{n:Math.min(ww.length,10)}]);
+  if(window.LESSON){const l=LESSON.suggest(1)[0];if(l)opts.push(['lesson',{t:'「'+l.t+'」'}])}
   return opts}
 
 /* ---------- face ---------- */
@@ -142,12 +151,16 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     <div class="mstats"><div><b>${D.a}</b><small>きょう 答えた</small></div><div><b>${accToday==null?'-':accToday+'%'}</b><small>きょうの 正解率</small></div><div><b>${D.l}</b><small>きょう おぼえた</small></div><div><b>${MD.best}</b><small>さいこう れんぞく</small></div></div>
     ${su?`<p class="msug">⬆️ ${esc(su.lv)}の 正解率 ${su.acc}%。<b>${esc(su.next)}</b>に ちょうせん してみよう</p>`:''}
     ${wg?`<button id="mgram" class="msug btn">📚 文法ノート「${esc(wg.title)}」を 見る</button>`:''}
+    ${window.LESSON?`<div class="mhead"><b>📖 ミナの ミニ授業</b><small>いまの 力：${LVN[level()]}くらい ・ ✅ ${LESSON.count().join('/')}</small></div>
+    <div class="lslist">${LESSON.suggest(3).map(LESSON.row).join('')}</div>
+    <button id="mall" class="sub">📖 ぜんぶの 授業を 見る</button>`:''}
     <div class="mhead"><b>🔁 苦手な ことば</b><small>${ww.length?'ラジオで ときどき 出すね。2回 つづけて 正解で 卒業':'まだ ないよ'}</small></div>
     <div class="mweak">${ww.map(w=>`<button data-say="${esc(w.en)}" data-lv="${w.lv}"><span class="en">${esc(w.en)}</span><span class="ja">${esc(w.ja||'')}</span><span class="mm">✗${w.m}</span></button>`).join('')||'<p class="note">ラジオで あそぶと、まちがえた ことばが ここに たまるよ</p>'}</div>
   </section>`);
   setTimeout(()=>{const b=H.panel.querySelector('.mbig');if(b)b.classList.add('mnew')},10);
   $('mx').onclick=()=>{SFX.pop();const [e2,t2]=line('bye');H.home();setTimeout(()=>sayRow('m',e2,t2,4000),150)};
   H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.say));
+  if(window.LESSON){LESSON.bindRows(panelOpen);$('mall').onclick=()=>{SFX.vopen();LESSON.list()}}
   const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.vopen();const owned=(ST.gram.owned||[]).includes(GRAMMAR[wg.lv].notes[wg.i].id);owned?H.gramNote(wg.lv,wg.i):H.gramShop(wg.lv)}}
 /* the face lives in the home row; tap = talk */
 H.on('home',()=>{setFace(minaEx);const f=$('minaFace');if(f)f.onclick=()=>{SFX.vopen();panelOpen()};
@@ -157,6 +170,6 @@ setFace('smile');const f0=$('minaFace');if(f0)f0.onclick=()=>{SFX.vopen();panelO
 /* ---------- review words for the radio ---------- */
 function reviewPick(lv){if(Math.random()>.25)return null;const ww=weakWords(lv,'w');return ww.length?pickL(ww.slice(0,8)).en:null}
 
-window.MINA={busy,reviewPick,open:panelOpen,face,weakWords,hamaVisit,
+window.MINA={busy,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,
   _test:{say:()=>{talkAt=talkGap},hama:()=>{hamaAt=hamaGap;MD.hama={d:'',n:0}},hello:()=>{opened=false}}};
 })();

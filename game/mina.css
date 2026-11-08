@@ -39,3 +39,76 @@
 .mweak .ja{grid-row:2;font-size:.72rem;color:var(--mute)}
 .mweak .mm{grid-row:1/3;grid-column:2;align-self:center;font-family:var(--pixel);font-size:.7rem;color:#ff9aa8}
 @media (prefers-reduced-motion:reduce){.mface .eyes,.msay.mnew,.mbig.mnew{animation:none}}
+
+/* ---------- ミニ授業 ---------- */
+.lslist{display:flex;flex-direction:column;gap:6px}
+.lsrow{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;text-align:left;padding:8px 10px!important}
+.lsrow .ci{font-size:1.3rem}
+.lsrow .lt b{display:block;font-size:.86rem;line-height:1.35}
+.lsrow .lt small{font-size:.66rem;color:var(--mute)}
+.lsrow .lp{font-family:var(--pixel);font-size:.72rem;color:#ffe7a8;white-space:nowrap}
+.lsrow.clear{border-color:#55e0b4!important;background:rgba(85,224,180,.1)!important}
+.lsrow.clear .lp{color:#55e0b4}
+.lsnp .lslist{max-height:min(52vh,430px);overflow:auto}
+.lsnp .seg button{padding:5px 2px!important;font-size:.72rem}
+.lsn{gap:10px}
+.lslog{display:flex;flex-direction:column;gap:10px;max-height:min(56vh,470px);overflow:auto;padding:2px;cursor:pointer}
+.lsay{display:flex;align-items:flex-start;gap:8px;animation:mpop .35s cubic-bezier(.2,1.6,.4,1)}
+.lsay.by-h{flex-direction:row-reverse}
+.lface{flex:0 0 auto;width:40px;height:40px;border-radius:50%;overflow:hidden;border:2px solid var(--gold)}
+.lsay.by-h .lface{border-color:#ff7a59}
+.lface svg{display:block;width:100%;height:100%}
+.lbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.lbody>p{margin:0;background:#fff6e0;color:#2a2340;text-shadow:none;border-radius:4px 14px 14px 14px;padding:7px 11px;font-size:.88rem;line-height:1.55}
+.lsay.by-h .lbody>p{background:#ffe2d6;border-radius:14px 4px 14px 14px}
+.lbody>p b{color:#c2410c}
+.lsay.big .lface{width:64px;height:64px}
+.lopts{display:flex;flex-direction:column;gap:8px}
+.lopts button{font-family:"Libre Baskerville",Georgia,serif;font-weight:700;min-height:44px}
+.lopts button.right{background:rgba(85,224,180,.3)!important;border-color:#55e0b4!important;opacity:1!important}
+.lopts button.wrong{background:rgba(226,71,90,.3)!important;border-color:var(--red)!important;opacity:1!important}
+.lans{min-height:46px;border-radius:10px;border:2px dashed rgba(255,255,255,.3);padding:8px 10px;font-family:"Libre Baskerville",Georgia,serif;font-size:1rem;line-height:1.6}
+.lans em{font-family:var(--body,inherit);font-style:normal;font-size:.78rem;color:var(--mute)}
+.lans span{display:inline-block;background:rgba(255,210,63,.18);border-radius:6px;padding:0 6px;margin:2px 0}
+.lans.ok{border-color:#55e0b4;border-style:solid}.lans.ng{border-color:#ff9aa8;border-style:solid}
+.lchips{display:flex;flex-wrap:wrap;gap:6px}
+.lchips button{font-family:"Libre Baskerville",Georgia,serif;padding:6px 10px!important}
+
+/* ---------- 図解キット ---------- */
+.fz{background:#f7f3ff;color:#2a2340;text-shadow:none;border-radius:12px;padding:10px;font-size:.82rem;line-height:1.5;overflow-x:auto}
+.fz b{color:#c2410c}
+.fz small{display:block;font-size:.66rem;color:#5b5577}
+.fz-row{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.fz-pic{flex:1 1 80px;max-width:140px;background:#fff;border-radius:10px;padding:8px 6px;text-align:center;box-shadow:0 1px 3px #0002}
+.fz-pic>span{display:block;font-size:2rem;line-height:1.15}
+.fz-col{display:flex;flex-direction:column;gap:8px}
+.fz-blocks{display:flex;flex-wrap:wrap;gap:4px;align-items:stretch}
+.fz-blocks .b{border-radius:8px;padding:5px 9px;color:#fff;font-family:"Libre Baskerville",Georgia,serif;font-weight:700;text-align:center;background:#7a7f99}
+.fz-blocks .b small{color:#ffffffd9;font-family:inherit;font-weight:400}
+.fz-blocks .s{background:#3f6ad8}.fz-blocks .v{background:#d8433f}.fz-blocks .o{background:#2e9e4f}.fz-blocks .c{background:#8e44ad}
+.fz-blocks .m{background:#7a7f99}.fz-blocks .t{background:#e67e22}.fz-blocks .p{background:#00897b}
+.fz-line{position:relative;height:96px;margin:4px 8px}
+.fz-line::before{content:"";position:absolute;left:0;right:0;top:46px;height:3px;background:#2a2340;border-radius:2px}
+.fz-line::after{content:"";position:absolute;right:-6px;top:41px;border:6px solid transparent;border-left:10px solid #2a2340}
+.fz-line .pt{position:absolute;left:var(--x);top:40px;transform:translateX(-50%);font-style:normal;text-align:center;white-space:nowrap;font-weight:700;font-size:.72rem;padding-top:18px}
+.fz-line .pt::before{content:"";position:absolute;left:50%;top:0;width:14px;height:14px;margin-left:-7px;border-radius:50%;background:#3f6ad8;border:2px solid #fff;box-shadow:0 0 0 1px #2a2340}
+.fz-line .pt.now::before{background:#d8433f}
+.fz-line .span{position:absolute;left:var(--a);width:calc(var(--b) - var(--a));top:6px;height:22px;border-radius:11px;background:rgba(46,158,79,.25);border:2px solid #2e9e4f;font-style:normal;font-size:.68rem;font-weight:700;text-align:center;line-height:18px;white-space:nowrap}
+.fz-split{display:flex;flex-wrap:wrap;gap:2px;justify-content:center}
+.fz-split>span{background:#fff;border:2px solid #8e44ad;border-radius:8px;padding:4px 10px;font-family:"Libre Baskerville",Georgia,serif;font-weight:700;font-size:1rem;text-align:center}
+.fz-split>span:nth-child(2n){border-color:#3f6ad8}
+.fz-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fz-pair>div{background:#fff;border-radius:10px;padding:8px;text-align:center;box-shadow:0 1px 3px #0002}
+.fz-pair>div>b{display:block;font-family:"Libre Baskerville",Georgia,serif;font-size:1.05rem;color:#3f6ad8}
+.fz-pair>div:last-child>b{color:#d8433f}
+.fz-pair i{display:block;font-family:"Libre Baskerville",Georgia,serif;font-size:.78rem;color:#2a2340}
+.fz-sound{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:4px}
+.fz-sound>span{font-family:"Libre Baskerville",Georgia,serif;font-weight:700;font-size:1.05rem;padding:2px 8px;border-radius:8px;background:#fff}
+.fz-sound>span+span{position:relative}
+.fz-sound>b{flex-basis:100%;text-align:center;font-size:1.1rem;color:#d8433f}
+.fz-table{border-collapse:collapse;width:100%;background:#fff;border-radius:8px;overflow:hidden}
+.fz-table th,.fz-table td{border:1px solid #d9d3ee;padding:4px 6px;text-align:center;font-size:.76rem}
+.fz-table th{background:#e9e4fb}
+.fz-tip{background:#fff6c9;border-left:5px solid #ffb347;border-radius:8px;padding:8px 10px;font-weight:700}
+.fz-steps{margin:0;padding-left:1.3em}
+.fz-steps li{margin:2px 0}
