@@ -1,0 +1,55 @@
+/* 授業を うけたくなる しくみ（game/motivate.js）: 浜辺の上の ミナ先生の 吹き出し、ホームの チップ、ごほうびの 箱の 中身、ミナ先生の ページの まとめ */
+/* the bubble over the beach while a radio is on */
+.mpop{position:absolute;left:10px;right:10px;top:10px;z-index:6;display:flex!important;align-items:flex-start;gap:8px;padding:0!important;background:none!important;border:0!important;
+  text-align:left;cursor:pointer;pointer-events:auto;opacity:0;transform:translateY(-14px) scale(.96);transition:opacity .3s,transform .35s cubic-bezier(.2,1.5,.4,1);visibility:hidden}
+.mpop.on{opacity:1;transform:none;visibility:visible}
+.mpop .mpf{flex:0 0 auto;width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid var(--gold);box-shadow:0 2px 6px #0008}
+.mpop.by-h .mpf{border-color:#ff7a59}
+.mpop .mpf svg{display:block;width:100%;height:100%}
+.mpop .mpt{flex:1;min-width:0;background:#fff6e0;color:#2a2340;text-shadow:none;border-radius:4px 14px 14px 14px;padding:6px 11px;font-size:.84rem;line-height:1.5;box-shadow:0 3px 0 #1b1740,0 6px 14px #0007}
+.mpop.by-h .mpt{background:#ffe2d6}
+.mpop .mpt>b:first-child{display:block;font-size:.66rem;color:#0f766e;line-height:1.2}
+.mpop.by-h .mpt>b:first-child{color:#c2410c}
+.mpop .mpt>b:not(:first-child),.mpop .mpt b b{color:#c2410c}
+/* chips on the home screen */
+#mchips{display:flex;flex-direction:column;gap:6px}
+.bchip.qz{background:linear-gradient(90deg,rgba(122,162,255,.25),rgba(85,224,180,.2))!important;border-color:#7aa2ff!important;animation:none}
+.bchip.hc{background:linear-gradient(90deg,rgba(255,122,89,.28),rgba(232,176,74,.2))!important;border-color:#ff7a59!important;animation:none}
+.bchip.cd{animation:bglow 1.6s ease-in-out infinite}
+#mchips .bchip span:first-child,.bchip span:first-child{white-space:nowrap}
+/* the prize box at the end of a lesson */
+.bwin .brow{margin-top:6px;font-size:.88rem;line-height:1.55}
+.bwin .brow:empty{display:none}
+.bwin .brow small{display:block;font-size:.72rem;opacity:.85}
+.brbtn{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.brbtn .bgo{margin:4px 0 0}
+.lcrow{display:flex;align-items:center;gap:10px;text-align:left}
+.lcard{flex:0 0 64px;width:64px}
+.lcard .tc{animation:lcin .7s cubic-bezier(.2,1.5,.4,1) .4s both}
+@keyframes lcin{from{transform:rotateY(180deg) scale(.5);opacity:0}}
+.nkline{display:block}
+.nkbar{display:block;height:7px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden;margin:4px auto 0;max-width:260px}
+.nkbar>i{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,#ff8ab0,#ff4f8b);transition:width .8s}
+.nkup{display:block;margin-top:6px;padding:6px 8px;border-radius:10px;background:rgba(255,79,139,.18);border:1px solid #ff8ab0;animation:bpop .5s cubic-bezier(.2,1.6,.4,1) 1.2s both}
+.stsheet{display:flex;justify-content:center;gap:3px;margin-top:4px}
+.stsheet i{width:22px;height:22px;border-radius:50%;border:1.5px dashed rgba(255,255,255,.35);display:grid;place-items:center;font-style:normal;font-size:.7rem;opacity:.75}
+.stsheet i.gift{border-color:var(--gold)}
+.stsheet i.on{border:1.5px solid var(--gold);background:rgba(255,210,63,.22);opacity:1;font-size:.8rem}
+.stsheet i.new{animation:stamp .55s cubic-bezier(.2,1.6,.4,1) .6s both}
+@keyframes stamp{from{transform:scale(2.6) rotate(-25deg);opacity:0}}
+.stfull{display:block;color:var(--gold)}
+/* lesson cards: a Japanese title instead of an English word */
+.tc.les .tcname b{font-family:inherit;font-size:max(7px,8.6cqw);line-height:1.2}
+/* Mina's page */
+.mvbox{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12)}
+.mvbox .nk{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px;font-size:.88rem}
+.mvbox .nk small{opacity:.8;font-size:.72rem}
+.mvbox .nk .nkbar{flex:0 0 100%;max-width:none}
+.mvbox .stp{font-size:.86rem}
+.mvbox .stp small{opacity:.8;font-size:.68rem}
+.mvbox .stsheet{justify-content:flex-start}
+.mvc{display:flex!important;justify-content:space-between;align-items:center;gap:8px;text-align:left;font-size:.84rem!important;padding:7px 12px!important}
+.mvc b{color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
+.mvc.qz{border-color:#7aa2ff!important}
+.mvc.hc{border-color:#ff7a59!important}
+@media (prefers-reduced-motion:reduce){.mpop,.lcard .tc,.nkup,.stsheet i.new,.bchip.cd{animation:none;transition:none}}

@@ -84,30 +84,45 @@ function face(who,ex){const m=who==='m';
     wow:'<circle cx="27" cy="35" r="2.6"/><circle cx="37" cy="35" r="2.6"/><circle cx="27.8" cy="34.2" r=".8" fill="#fff"/><circle cx="37.8" cy="34.2" r=".8" fill="#fff"/>',
     think:'<circle cx="28" cy="34.5" r="1.8"/><circle cx="38" cy="34.5" r="1.8"/><path d="M24 30.5l5-1M35 29.5l5 1" stroke="#2a2340" stroke-width="1.2"/>',
     proud:'<path d="M24.5 34.5q2.5 2.5 5 0M34.5 34.5q2.5 2.5 5 0" stroke="#2a2340" stroke-width="1.7" fill="none" stroke-linecap="round"/>',
-    worry:'<circle cx="27" cy="35.5" r="1.8"/><circle cx="37" cy="35.5" r="1.8"/><path d="M24 31l5 1.4M40 31l-5 1.4" stroke="#2a2340" stroke-width="1.2"/>'}[ex]||'';
+    worry:'<circle cx="27" cy="35.5" r="1.8"/><circle cx="37" cy="35.5" r="1.8"/><path d="M24 31l5 1.4M40 31l-5 1.4" stroke="#2a2340" stroke-width="1.2"/>',
+    love:'<path d="M27 37.6l-2.6-2.5a1.5 1.5 0 0 1 2.6-1.6 1.5 1.5 0 0 1 2.6 1.6zM37 37.6l-2.6-2.5a1.5 1.5 0 0 1 2.6-1.6 1.5 1.5 0 0 1 2.6 1.6z" fill="#e8436b"/>'}[ex]||'';
   const mouth={smile:'<path d="M28 41q4 3 8 0" stroke="#d0606a" stroke-width="1.7" fill="none" stroke-linecap="round"/>',
     happy:'<path d="M27.5 40q4.5 6 9 0z" fill="#c2304f"/>',wow:'<ellipse cx="32" cy="42" rx="2.4" ry="3" fill="#c2304f"/>',
     think:'<path d="M29 42h5" stroke="#d0606a" stroke-width="1.7" stroke-linecap="round"/>',proud:'<path d="M28 41q5 3 9-1" stroke="#d0606a" stroke-width="1.8" fill="none" stroke-linecap="round"/>',
-    worry:'<path d="M28.5 42.5q3.5-2.5 7 0" stroke="#d0606a" stroke-width="1.7" fill="none" stroke-linecap="round"/>'}[ex]||'';
-  const extra=ex==='proud'?'<path d="M48 18l1.5 3 3 1.5-3 1.5-1.5 3-1.5-3-3-1.5 3-1.5z" fill="#ffd23f"/>':ex==='worry'?'<path d="M45 27q2 4 0 6q-2-2 0-6z" fill="#8fd3ff"/>':ex==='wow'?'<path d="M50 14v6M53 17h-6" stroke="#ffd23f" stroke-width="1.6"/>':'';
+    worry:'<path d="M28.5 42.5q3.5-2.5 7 0" stroke="#d0606a" stroke-width="1.7" fill="none" stroke-linecap="round"/>',
+    love:'<path d="M27.5 40q4.5 6 9 0z" fill="#c2304f"/>'}[ex]||'';
+  const extra=ex==='proud'?'<path d="M48 18l1.5 3 3 1.5-3 1.5-1.5 3-1.5-3-3-1.5 3-1.5z" fill="#ffd23f"/>':ex==='worry'?'<path d="M45 27q2 4 0 6q-2-2 0-6z" fill="#8fd3ff"/>':ex==='wow'?'<path d="M50 14v6M53 17h-6" stroke="#ffd23f" stroke-width="1.6"/>':ex==='love'?'<path d="M50 22l-3.4-3.3a2 2 0 0 1 3.4-2.1 2 2 0 0 1 3.4 2.1z" fill="#ff6b8b"/>':'';
   const hair=m?'<path d="M14 40c0-16 8-26 18-26s18 10 18 26c0 6-3 14-4 18H18c-1-4-4-12-4-18z" fill="#4a2c22"/>':'<g fill="#6b4a8a"><circle cx="20" cy="24" r="7"/><circle cx="28" cy="18" r="7"/><circle cx="37" cy="18" r="7"/><circle cx="45" cy="24" r="7"/><circle cx="17" cy="33" r="6"/><circle cx="47" cy="33" r="6"/></g>';
   const bangs=m?'<path d="M19 32c2-9 8-13 13-13s11 4 13 13c-6-6-20-6-26 0z" fill="#4a2c22"/>':'';
   const glasses=m?'':'<circle cx="27" cy="35" r="4.6" fill="none" stroke="#ff4f8b" stroke-width="1.5"/><circle cx="37" cy="35" r="4.6" fill="none" stroke="#ff4f8b" stroke-width="1.5"/><path d="M31.6 35h.8" stroke="#ff4f8b" stroke-width="1.5"/>';
   const body=m?'<path d="M20 60c2-7 7-10 12-10s10 3 12 10z" fill="#7ad3c4"/>':'<path d="M18 60c2-7 7-10 14-10s12 3 14 10z" fill="#e8b04a"/><g fill="#5a3a12"><circle cx="24" cy="56" r="1.5"/><circle cx="31" cy="54" r="1.3"/><circle cx="38" cy="57" r="1.5"/></g>';
-  return `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="31" fill="${m?'#1f2a5c':'#3a1f2a'}"/>${hair}<circle cx="32" cy="35" r="13" fill="${m?'#ffd9c0':'#ffd2b0'}"/>${bangs}<g class="eyes" fill="#2a2340">${eyes}</g>${glasses}${mouth}<circle cx="24" cy="39.5" r="2.2" fill="#ffb3b3" opacity=".55"/><circle cx="40" cy="39.5" r="2.2" fill="#ffb3b3" opacity=".55"/>${body}${extra}</svg>`}
+  return `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="31" fill="${m?'#1f2a5c':'#3a1f2a'}"/>${hair}<circle cx="32" cy="35" r="13" fill="${m?'#ffd9c0':'#ffd2b0'}"/>${bangs}<g class="eyes" fill="#2a2340">${eyes}</g>${glasses}${mouth}<circle cx="24" cy="39.5" r="2.2" fill="#ffb3b3" opacity="${ex==='love'?.95:.55}"/><circle cx="40" cy="39.5" r="2.2" fill="#ffb3b3" opacity="${ex==='love'?.95:.55}"/>${body}${extra}</svg>`}
 let minaEx='smile';
 function setFace(ex){minaEx=ex||'smile';const f=$('minaFace');if(f)f.innerHTML=face('m',minaEx)}
 
 /* ---------- speaking in the home row ---------- */
 let speakUntil=0,talkOn=false,hideT=0;
 const busy=()=>talkOn||performance.now()<speakUntil;
-function sayRow(who,ex,text,ms=6500){const b=$('minaSay'),rq=$('rq');if(!b)return false;
+function sayRow(who,ex,text,ms=6500,pop){const b=$('minaSay'),rq=$('rq');if(!b)return false;if(pop)popSay(who,ex,text,ms,pop);
   b.hidden=false;if(rq)rq.hidden=true;b.className='msay '+(who==='m'?'by-m':'by-h');
   b.innerHTML=`<b>${who==='m'?'ミナ先生':'ハマ子'}</b>${text}`;b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew');
   if(who==='m')setFace(ex);else{const h=$('hamaFace');if(h)h.innerHTML=face('h',ex)}
   SFX.pop();speakUntil=performance.now()+ms;clearTimeout(hideT);hideT=setTimeout(()=>{if(talkOn)return;b.hidden=true;if(rq)rq.hidden=false;setFace('smile');H.rest(2500)},ms);return true}
 /* lines waiting for a good moment (praise after a streak, etc.) */
 const Q=[];function queue(key,v,ex){Q.push([key,v,ex]);if(Q.length>3)Q.shift()}
+/* announcements (授業タイム, quizzes, Hamako's challenge) also float over the beach while a radio is on,
+   so they are seen even while the radio's bubbles are up. Tap = open Mina's page (or what the caller asks) */
+let popT=0;
+function popSay(who,ex,text,ms,tap){if(!ST.radios||!ST.radios.some(r=>r.on))return;const W=$('window');if(!W)return;
+  let p=$('minaPop');if(!p){p=document.createElement('button');p.id='minaPop';W.appendChild(p)}
+  p.className='mpop '+(who==='m'?'by-m':'by-h');p.innerHTML=`<span class="mpf">${face(who,ex)}</span><span class="mpt"><b>${who==='m'?'ミナ先生':'ハマ子'}</b>${text}</span>`;
+  p.classList.remove('on');void p.offsetWidth;p.classList.add('on');
+  p.onclick=e=>{e.stopPropagation();SFX.vopen();p.classList.remove('on');typeof tap==='function'?tap():panelOpen()};
+  clearTimeout(popT);popT=setTimeout(()=>p.classList.remove('on'),ms)}
+/* say something that matters now, on the home screen, even while a radio is talking (the radio waits a little) */
+const canAnnounce=()=>H.screen==='home'&&!document.hidden&&!busy()&&!H.stage.cheer&&$('minaSay');
+let annAt=-1e9;
+function announce(ex,text,ms=10000,tap){if(!$('minaSay'))return false;annAt=performance.now();H.rest(Math.min(ms,8000));return sayRow('m',ex,text,ms,tap||true)}
 const canTalk=()=>H.screen==='home'&&!document.hidden&&!busy()&&!H.stage.talking&&!H.stage.cheer&&$('minaSay');
 
 /* ---------- Hamako comes by ---------- */
@@ -116,12 +131,12 @@ function hamaPick(){const ww=weakWords(),ra=recentAcc(),ph=(()=>{try{return BEAC
   const r=Math.random();if(r<.3)pool=by('candy');else if(r<.5&&ww.length)pool=by('weak');else if(r<.65&&ra!=null&&ra>=75)pool=by('good');
   else if(r<.75&&ph==='night')pool=by('night');else if(r<.75&&h>=5&&h<11)pool=by('morning');
   if(!pool.length)pool=by('any');return pickL(pool)}
-function hamaVisit(){const t=hamaPick();if(!t)return;const ww=weakWords()[0]||{},ra=recentAcc(),c=3+(Math.random()*6|0);
+function hamaVisit(t0){const t=t0||hamaPick();if(!t)return;const ww=weakWords()[0]||{},ra=recentAcc(),c=3+(Math.random()*6|0);
   const v={w:ww.en,ja:ww.ja,n:streak||day().o,acc:ra||80,c};
   const hf=$('hamaFace');if(!hf)return;hf.innerHTML=face('h','happy');hf.hidden=false;hf.classList.add('in');talkOn=true;
   MD.hama={d:today(),n:(MD.hama.d===today()?MD.hama.n:0)+1};save();
   let i=0;const next=()=>{if(H.screen!=='home'||!$('minaSay')){end();return}
-    if(i>=t.lines.length){end();return}const [who,ex,tx]=t.lines[i++];sayRow(who,ex,fill(tx,v),9000);
+    if(i>=t.lines.length){end();return}const [who,ex,tx]=t.lines[i++];sayRow(who,ex,fill(tx,v),9000,t.pop);
     if(tx.includes('{c}')){const r=hf.getBoundingClientRect();setTimeout(()=>H.coinBurst(r.left+r.width/2,r.top+r.height/2,c),500)}
     setTimeout(next,Math.max(2600,tx.length*95))};
   const end=()=>{talkOn=false;hf.classList.remove('in');setTimeout(()=>{hf.hidden=true},400);const b=$('minaSay'),rq=$('rq');speakUntil=0;
@@ -176,6 +191,6 @@ setFace('smile');const f0=$('minaFace');if(f0)f0.onclick=()=>{SFX.vopen();panelO
 /* ---------- review words for the radio ---------- */
 function reviewPick(lv){if(Math.random()>.25)return null;const ww=weakWords(lv,'w');return ww.length?pickL(ww.slice(0,8)).en:null}
 
-window.MINA={busy,say:sayRow,canTalk,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,
+window.MINA={busy,say:sayRow,canTalk,canAnnounce,announce,sinceAnn:()=>performance.now()-annAt,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,
   _test:{say:()=>{talkAt=talkGap},hama:()=>{hamaAt=hamaGap;MD.hama={d:'',n:0}},hello:()=>{opened=false}}};
 })();

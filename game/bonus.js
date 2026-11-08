@@ -2,7 +2,8 @@
    その間に ミニ授業を 1つ おえると ごほうび（コイン・浜辺の イベント・新しい曲・カード）。1日 3回まで。
    - アナウンスは ホームで ミナ先生が する。のこり時間は ホームと ミナ先生の ページに 出る
    - 時間ぎれ前に はじめた 授業は、おわるのが 少し おくれても OK
-   - イベント・カードは その場で 見なくても、つぎに ホームへ もどったときに もらえる */
+   - イベント・カードは その場で 見なくても、つぎに ホームへ もどったときに もらえる（game/motivate.js の MOTI.pendShow / pendCard）
+   - ラジオが しゃべっていても アナウンスする（ラジオ中は 浜辺の上にも 吹き出しが 出る） */
 (()=>{
 const {S:ST,sfx:SFX,scene:SC}=BEACH;
 const H=HE,esc=H.esc,$=id=>document.getElementById(id);
@@ -47,7 +48,7 @@ function callLine(r){const e=r.k==='event'?evOf(r.id):null,[ex,t]=pickL(CALL[r.k
 
 /* ---------- open a window ---------- */
 function start(r){if(BD.d!==today()){BD.d=today();BD.n=0}BD.n++;BD.r=r||roll();BD.until=Date.now()+WIN;BD.inL=0;BD.warned=0;save();
-  const [ex,tx]=callLine(BD.r);MINA.say('m',ex,tx,11000);SFX.chime();chip()}
+  const [ex,tx]=callLine(BD.r);MINA.announce(ex,tx,11000);SFX.chime();chip()}
 function expire(){BD.r=null;BD.until=0;BD.inL=0;save();chip()}
 
 /* ---------- the countdown on the home screen and on Mina's pages ---------- */
@@ -61,38 +62,32 @@ function banner(){if(!active())return;const p=H.panel.querySelector('.minap,.lsn
   const top=p.querySelector('.qtop');top?top.after(b):p.prepend(b)}
 /* the panel is redrawn often; watch it so the banner comes back, and notice a lesson begun in time */
 new MutationObserver(()=>{if(!active())return;banner();if(H.panel.querySelector('.lsn')&&!BD.inL){BD.inL=BD.until;save()}}).observe(H.panel,{childList:true});
-H.on('home',()=>{chip();givePend()});
+H.on('home',()=>chip());
+/* a prize saved by the older version of this file */
+setTimeout(()=>{const p=BD.pend;if(!p||!window.MOTI)return;BD.pend=null;save();p.k==='card'?MOTI.pendCard(p.min):MOTI.pendShow(p.id)},0);
 
-/* ---------- the prize, at the end of a lesson ---------- */
+/* ---------- the prize, at the end of a lesson (one line in the lesson's prize box) ---------- */
 function claim(){const ok=active()||(BD.r&&BD.inL&&Date.now()<BD.inL+GRACE);if(!ok)return null;
-  const r=BD.r;BD.r=null;BD.until=0;BD.inL=0;let html='',after=()=>{};
-  if(r.k==='coin'){html=`🪙 <b>${r.amt}まい</b> どうぞ！`;
-    after=()=>{const b=H.panel.querySelector('.bwin');const rc=(b||H.panel).getBoundingClientRect();setTimeout(()=>H.coinBurst(rc.left+rc.width/2,rc.top+rc.height/2,r.amt),700)}}
+  const r=BD.r;BD.r=null;BD.until=0;BD.inL=0;let html='',after=()=>{};const M=window.MOTI;
+  if(r.k==='coin'){html=`⏰ 授業タイム： 🪙 <b>${r.amt}まい</b>`;M?M.coins(r.amt):after=()=>setTimeout(()=>H.addCoins(r.amt),700)}
   else if(r.k==='music'){const s=newSongs();if(s.length){const [id,,ico]=pickL(s);ST.music.push(id);
-      html=`${ico} 新しい 曲 「<b>${esc(TRACKS[id].name)}</b>」 を プレゼント！<small>ショップの 🎵おんがく から いつでも ながせるよ</small>`;after=()=>setTimeout(()=>H.playTrack(id),900)}
-    else{html='🪙 <b>50まい</b> どうぞ！';after=()=>setTimeout(()=>H.addCoins(50),700)}}
-  else if(r.k==='event'){let e=evOf(r.id);if(!e||!H.onSale(e))e=pickL(bigEvents())||evOf('dolphins');BD.pend={k:'event',id:e.id};
-    html=`${e.ico} 浜辺で <b>${esc(e.n)}</b> を 見せてあげる！<button id="bgo" class="bgo">🏖️ 見にいく</button>`;after=()=>{$('bgo').onclick=()=>{SFX.chime();H.home()}}}
-  else{BD.pend={k:'card',min:r.min};html=`🃏 <b>${RAR_N[r.min]}以上の カード</b>が 1まい！<button id="bgo" class="bgo">🎁 宝箱を あける</button>`;
-    after=()=>{$('bgo').onclick=()=>givePend()}}
-  save();setTimeout(()=>{SFX.fanfare(2)},500);
-  return {html:`<div class="bwin"><b class="bt">🎁 授業タイムの ごほうび</b><p>${html}</p></div>`,after}}
-
-/* the event plays on the beach when the player comes home; the card chest opens where they are */
-function givePend(){const p=BD.pend;if(!p)return;
-  if(p.k==='card'){if(!window.CARDS||!CARDS.gift)return;BD.pend=null;save();CARDS.gift(1,p.min);return}
-  if(p.k==='event'&&H.screen==='home'){BD.pend=null;save();const e=evOf(p.id);if(!e)return;H.radioWake&&H.radioWake();
-    setTimeout(()=>{H.toast(`${e.ico} <b>${esc(e.n)}</b><small>ミナ先生からの ごほうび</small>`,2600);try{e.k==='show'?SC.show(e.id,e.sec):SC.play(e.id)}catch(x){}
-      if(MINA.canTalk())MINA.say('m','happy',`${e.ico} ${esc(e.n)}、 授業 がんばった ごほうびだよ。 いっしょに 見よう`,7000)},700)}}
+      html=`⏰ 授業タイム： ${ico} 新しい 曲 「<b>${esc(TRACKS[id].name)}</b>」<small>ショップの 🎵おんがく から いつでも ながせるよ</small>`;after=()=>setTimeout(()=>H.playTrack(id),900)}
+    else{html='⏰ 授業タイム： 🪙 <b>50まい</b>';M?M.coins(50):after=()=>setTimeout(()=>H.addCoins(50),700)}}
+  else if(r.k==='event'){let e=evOf(r.id);if(!e||!H.onSale(e))e=pickL(bigEvents())||evOf('dolphins');M&&M.pendShow(e.id);
+    html=`⏰ 授業タイム： 浜辺で ${e.ico} <b>${esc(e.n)}</b>`}
+  else{M&&M.pendCard(r.min);html=`⏰ 授業タイム： 🃏 <b>${RAR_N[r.min]}以上の カード</b>`}
+  M&&M.gain(2);save();setTimeout(()=>{SFX.fanfare(2)},500);
+  return {html,after}}
+LESSON_AFTER.push(l=>claim(l));
 
 /* ---------- when to call ---------- */
 let homeT=0,nextAt=FIRST(),lastT=performance.now();
 setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.hidden)return;
   document.querySelectorAll('.bcount').forEach(el=>el.textContent=mmss(left()));
   if(BD.r&&!active()&&!(BD.inL&&Date.now()<BD.inL+GRACE)){expire();return}
-  if(active()){if(left()<2*60000&&!BD.warned&&MINA.canTalk()){BD.warned=1;save();MINA.say('m','worry',`⏰ 授業タイム、 あと 2分だよ！ ごほうびは ${label(BD.r)}。 わたしの 顔を タップしてね`,9000)}return}
+  if(active()){if(left()<2*60000&&!BD.warned&&MINA.canAnnounce()){BD.warned=1;save();MINA.announce('worry',`⏰ 授業タイム、 あと 2分だよ！ ごほうびは ${label(BD.r)}。 わたしの 顔を タップしてね`,9000)}return}
   if(H.screen==='home')homeT+=dt;
-  if(homeT<nextAt)return;if(BD.d===today()&&BD.n>=MAX_DAY)return;if(!MINA.canTalk())return;
+  if(homeT<nextAt)return;if(BD.d===today()&&BD.n>=MAX_DAY)return;if(!MINA.canAnnounce()||MINA.sinceAnn()<60000)return;
   homeT=0;nextAt=GAP();start()},1000);
 chip();
 
