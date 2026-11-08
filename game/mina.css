@@ -121,3 +121,8 @@
 .fz-beat>span.S{font-size:1.3rem;color:#d8433f}
 .fz-beat.sm{gap:4px}.fz-beat.sm>span{font-size:.7rem}.fz-beat.sm>span.S{font-size:1rem}
 .fz-beat>small{flex-basis:100%;text-align:center}
+/* her line on her page can be tapped: it opens what she is talking about */
+.mline.go{display:block;text-align:left;cursor:pointer;border:0!important;font:inherit;font-size:.9rem!important;background:#fff6e0!important;color:#2a2340!important;text-shadow:none!important;border-radius:14px 14px 14px 4px!important;padding:9px 12px!important;box-shadow:0 3px 0 #1b1740!important}
+.mline.go small{display:block;margin-top:4px;text-align:right;font-size:.74rem;font-weight:800;color:#0f766e}
+.mline.go:active{transform:translateY(2px);box-shadow:0 1px 0 #1b1740!important}
+.mbig{cursor:pointer}

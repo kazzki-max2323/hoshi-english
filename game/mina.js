@@ -68,14 +68,23 @@ MINA_LINES.lesson=MINA_LINES.lesson||[['smile','ミニ授業 {t} が おすす�
 const line=(key,v)=>{const L=MINA_LINES[key]||MINA_LINES.tap;const l=pickL(L);return [l[0],fill(l[1],v)]};
 /* the most useful thing to say now, or a plain line */
 function advice(){const ww=weakWords(),opts=[];
-  if(ww.length)opts.push(['weakWord',{w:ww[0].en,ja:ww[0].ja,n:ww[0].m}]);
-  const wb=weakBook();if(wb)opts.push(['weakBook',{book:'「'+wb.book+'」'}]);
+  if(ww.length)opts.push(['weakWord',{w:ww[0].en,ja:ww[0].ja,n:ww[0].m},ww[0]]);
+  const wb=weakBook();if(wb)opts.push(['weakBook',{book:'「'+wb.book+'」'},wb]);
   const wg=weakGram()||gramForSentences();if(wg)opts.push(['grammar',{g:'「'+(wg.title)+'」'},wg]);
-  const su=stepUp();if(su&&MD.said.step!==today())opts.push(['stepUp',su]);
+  const su=stepUp();if(su&&MD.said.step!==today())opts.push(['stepUp',su,su]);
   const ra=recentAcc();if(ra!=null&&ra<55)opts.push(['slowDown',{}]);
   if(ww.length>=3)opts.push(['review',{n:Math.min(ww.length,10)}]);
-  if(window.LESSON){const l=LESSON.suggest(1)[0];if(l)opts.push(['lesson',{t:'「'+l.t+'」'}])}
+  if(window.LESSON){const l=LESSON.suggest(1)[0];if(l)opts.push(['lesson',{t:'「'+l.t+'」'},l])}
   return opts}
+
+/* tapping what she says takes you there: the lesson, the grammar note, the word book… (null = nothing to open) */
+function goTo(o){if(!o)return null;const [k,,x]=o;
+  if(k==='lesson'&&x&&window.LESSON)return ['📖 授業を ひらく',()=>LESSON.open(x.id,panelOpen)];
+  if(k==='grammar'&&x&&window.GRAMMAR&&GRAMMAR[x.lv])return ['📚 文法ノートを 見る',()=>{const owned=(ST.gram.owned||[]).includes(GRAMMAR[x.lv].notes[x.i].id);owned?H.gramNote(x.lv,x.i):H.gramShop(x.lv)}];
+  if((k==='weakBook'||k==='stepUp')&&x&&H.books)return ['📕 単語帳を ひらく',()=>H.books(k==='stepUp'?x.nlv:x.lv)];
+  if(k==='weakWord'&&x)return ['🔊 きいてみる',()=>H.say(x.lv,x.en)];
+  if(k==='review')return ['🔁 苦手な ことばを 見る',()=>{const w=H.panel.querySelector('.mweak');if(w)w.scrollIntoView({behavior:'smooth',block:'center'})}];
+  return null}
 
 /* ---------- face ---------- */
 function face(who,ex){const m=who==='m';
@@ -164,11 +173,11 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
 
 /* ---------- Mina's page: tap her face ---------- */
 function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advice(),ra=recentAcc(),wg=weakGram()||gramForSentences(),su=stepUp();
-  const first=opts.length?opts[0]:null,[ex,tx]=first?line(first[0],first[1]):line('tap');
+  const first=opts.length?opts[0]:null,[ex,tx]=first?line(first[0],first[1]):line('tap'),go=goTo(first);
   const accToday=D.a?Math.round(D.o/D.a*100):null;
   H.show('mina',`<section class="pnl minap">
     <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b><span></span></div>
-    <div class="mtalk"><span class="mbig">${face('m',ex)}</span><p class="mline">${tx}</p></div>
+    <div class="mtalk"><span class="mbig">${face('m',ex)}</span>${go?`<button class="mline go" id="mgo">${tx}<small>${go[0]} ▶</small></button>`:`<p class="mline">${tx}</p>`}</div>
     <div class="mstats"><div><b>${D.a}</b><small>きょう 答えた</small></div><div><b>${accToday==null?'-':accToday+'%'}</b><small>きょうの 正解率</small></div><div><b>${D.l}</b><small>きょう おぼえた</small></div><div><b>${MD.best}</b><small>さいこう れんぞく</small></div></div>
     ${su?`<p class="msug">⬆️ ${esc(su.lv)}の 正解率 ${su.acc}%。<b>${esc(su.next)}</b>に ちょうせん してみよう</p>`:''}
     ${wg?`<button id="mgram" class="msug btn">📚 文法ノート「${esc(wg.title)}」を 見る</button>`:''}
@@ -179,6 +188,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     <div class="mweak">${ww.map(w=>`<button data-say="${esc(w.en)}" data-lv="${w.lv}"><span class="en">${esc(w.en)}</span><span class="ja">${esc(w.ja||'')}</span><span class="mm">✗${w.m}</span></button>`).join('')||'<p class="note">ラジオで あそぶと、まちがえた ことばが ここに たまるよ</p>'}</div>
   </section>`);
   setTimeout(()=>{const b=H.panel.querySelector('.mbig');if(b)b.classList.add('mnew')},10);
+  if(go){$('mgo').onclick=()=>{SFX.vopen();if(first[0]==='stepUp')MD.said.step=today();go[1]()};H.panel.querySelector('.mbig').onclick=()=>$('mgo').click()}
   $('mx').onclick=()=>{SFX.pop();const [e2,t2]=line('bye');H.home();setTimeout(()=>sayRow('m',e2,t2,4000),150)};
   H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.say));
   if(window.LESSON){LESSON.bindRows(panelOpen);$('mall').onclick=()=>{SFX.vopen();LESSON.list()}}
