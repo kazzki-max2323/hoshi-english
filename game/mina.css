@@ -128,3 +128,8 @@
 .mline.go small{display:block;margin-top:4px;text-align:right;font-size:.74rem;font-weight:800;color:#0f766e}
 .mline.go:active{transform:translateY(2px);box-shadow:0 1px 0 #1b1740!important}
 .mbig{cursor:pointer}
+/* her words on the home row can take you where she talks about (game/mina-sense.js) */
+.msay.go{cursor:pointer}
+.msay .mgo{display:block;margin-top:2px;text-align:right;font-size:.7rem;font-weight:800;color:#0f766e}
+.msay.go:active{transform:translateY(2px);box-shadow:0 1px 0 #1b1740}
+.mmore{display:block;margin:6px 0 2px auto;font-size:.78rem!important;padding:5px 12px!important}

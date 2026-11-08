@@ -187,6 +187,6 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
   if(homeT>=hcAt&&MV.hc.d!==today()){hcAt=homeT+5*60000;if(hcStart())return}},1000);
 nkUnlock();chips();
 
-window.MOTI={pendCard,pendShow,coins,gain:n=>{if(inLesson)inLesson.gain+=n;else nkOut(n)},rec:()=>MV,openCards,chips,
+window.MOTI={nkName:()=>NK_NAME[MV.nk.lv-1],nkNeed,nkMax:NK.length,pendCard,pendShow,coins,gain:n=>{if(inLesson)inLesson.gain+=n;else nkOut(n)},rec:()=>MV,openCards,chips,
   _test:{quiz:()=>{MV.qz.n=0;MV.qz.now=null;return quizStart()},hama:()=>{MV.hc.d='';MINA.rec().hama={d:'',n:0};return hcStart()},nk:p=>nkOut(p),stamps:n=>{MV.st.n=n;save()}}};
 })();

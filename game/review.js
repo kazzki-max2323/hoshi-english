@@ -151,5 +151,5 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
   MINA.announce('think',mn?`📚 ふくしゅうの 時間だよ。 まえに まちがえた 問題が <b>${mn}問</b> あるの。 いっしょに やっつけよう！ わたしの 顔を タップしてね`
     :`📚 そろそろ ふくしゅうの 日の 授業が あるよ。 <b>${n}問</b>だけ、 思い出してみよう！ わたしの 顔を タップしてね`,10000,()=>drill('today',H.home))},1000);
 
-window.REVIEW={list,drill,todayN,missN,_test:{due:id=>{const R=MV();R.qz.rv[id]={n:0,t:Date.now()-864e5*2};save()},call:()=>{callAt=homeT}}};
+window.REVIEW={list,drill,todayN,missN,dueIds,stars,nextDay,dayN,_test:{due:id=>{const R=MV();R.qz.rv[id]={n:0,t:Date.now()-864e5*2};save()},call:()=>{callAt=homeT}}};
 })();
