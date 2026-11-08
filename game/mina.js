@@ -27,6 +27,9 @@ H.on('answer',(c,ok,ms)=>{const k=c.lv+'|'+c.en,e=MD.w[k]=MD.w[k]||{s:0,m:0,k:0,
   streak=ok?streak+1:0;if(streak>MD.best)MD.best=streak;prune();save();
   if(ok&&[5,10,20,30].includes(streak))queue('streak',{n:streak},'happy');
   if(!ok&&e.m===3)queue('weakWord',{w:c.en,ja:c.ja,n:e.m},'think')});
+/* a radio line that went by unanswered: n = times unanswered. Weak like a miss, but not counted in the right/wrong record */
+H.on('skip',c=>{const k=c.lv+'|'+c.en,e=MD.w[k]=MD.w[k]||{s:0,m:0,k:0,t:0,j:c.ja,kind:c.kind};
+  e.n=(e.n||0)+1;e.k=0;e.t=Date.now();e.j=c.ja;e.kind=c.kind;prune();save()});
 /* grammar: mt = last miss, rv = last time the note was opened, k = right in a row since the last miss */
 H.on('gram',(lv,i,n,ok)=>{const e=MD.g[n.id]=MD.g[n.id]||{s:0,m:0,t:0,lv,i,title:n.t};e.s++;e.t=Date.now();
   if(ok)e.k=(e.k||0)+1;else{e.m++;e.k=0;e.mt=e.t;gramMissNow={g:n.t}}save()});
@@ -35,9 +38,10 @@ let gramMissNow=null;
 H.on('learned',()=>{const D=day();D.l++;save();if([10,20,50,100].includes(D.l))queue('learned',{n:D.l},'proud')});
 
 /* ---------- what is weak ---------- */
-/* a word is weak when it was missed and has not been answered right twice in a row since */
-const weakWords=(lv,kind='w')=>Object.entries(MD.w).filter(([k,e])=>e.m>0&&e.k<2&&(!kind||e.kind===kind)&&(!lv||k.startsWith(lv+'|')))
-  .sort((a,b)=>(b[1].m-b[1].k)-(a[1].m-a[1].k)||b[1].t-a[1].t).map(([k,e])=>({lv:k.split('|')[0],en:k.split('|').slice(1).join('|'),ja:e.j,m:e.m,s:e.s}));
+/* a word is weak when it was missed or left unanswered, and has not been answered right twice in a row since */
+const miss=e=>e.m+(e.n||0);
+const weakWords=(lv,kind='w')=>Object.entries(MD.w).filter(([k,e])=>miss(e)>0&&e.k<2&&(!kind||e.kind===kind)&&(!lv||k.startsWith(lv+'|')))
+  .sort((a,b)=>(miss(b[1])-b[1].k)-(miss(a[1])-a[1].k)||b[1].t-a[1].t).map(([k,e])=>({lv:k.split('|')[0],en:k.split('|').slice(1).join('|'),ja:e.j,m:e.m,n:e.n||0,s:e.s}));
 let bookOf=null;
 function weakBook(){if(!bookOf){bookOf={};H.LV_ORDER.forEach(lv=>LEVELS[lv].books.forEach(b=>b.w.forEach(w=>bookOf[lv+'|'+w[0]]=[lv,b.t])))}
   const cnt={};weakWords().forEach(w=>{const b=bookOf[w.lv+'|'+w.en];if(b){const k=b.join('|');cnt[k]=(cnt[k]||0)+1}});
@@ -71,7 +75,7 @@ const line=(key,v)=>{const L=MINA_LINES[key]||MINA_LINES.tap,c=L.filter(l=>!said
   saidRecent.push(l[1]);if(saidRecent.length>12)saidRecent.shift();return [l[0],fill(l[1],v)]};
 /* the most useful thing to say now, or a plain line */
 function advice(){const ww=weakWords(),opts=[];
-  if(ww.length)opts.push(['weakWord',{w:ww[0].en,ja:ww[0].ja,n:ww[0].m},ww[0]]);
+  const wm=ww.find(w=>w.m>0);if(wm)opts.push(['weakWord',{w:wm.en,ja:wm.ja,n:wm.m},wm]);   // her lines say "missed n times", so only for real misses
   const wb=weakBook();if(wb)opts.push(['weakBook',{book:'「'+wb.book+'」'},wb]);
   const wg=weakGram()||gramForSentences();if(wg)opts.push(['grammar',{g:'「'+(wg.title)+'」'},wg]);
   const su=stepUp();if(su&&MD.said.step!==today())opts.push(['stepUp',su,su]);
@@ -187,8 +191,8 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     ${window.LESSON?`<div class="mhead"><b>📖 ミナの ミニ授業</b><small>いまの 力：${LVN[level()]}くらい ・ ✅ ${LESSON.count().join('/')}</small></div>
     <div class="lslist">${LESSON.suggest(3).map(LESSON.row).join('')}</div>
     <button id="mall" class="sub">📖 ぜんぶの 授業を 見る</button>`:''}
-    <div class="mhead"><b>🔁 苦手な ことば</b><small>${ww.length?'ラジオで ときどき 出すね。2回 つづけて 正解で 卒業':'まだ ないよ'}</small></div>
-    <div class="mweak">${ww.map(w=>`<button data-say="${esc(w.en)}" data-lv="${w.lv}"><span class="en">${esc(w.en)}</span><span class="ja">${esc(w.ja||'')}</span><span class="mm">✗${w.m}</span></button>`).join('')||'<p class="note">ラジオで あそぶと、まちがえた ことばが ここに たまるよ</p>'}</div>
+    <div class="mhead"><b>🔁 苦手な ことば</b><small>${ww.length?'まちがえた（✗）・こたえなかった（💤）ことば。ラジオで ときどき 出すね。2回 つづけて 正解で 卒業':'まだ ないよ'}</small></div>
+    <div class="mweak">${ww.map(w=>`<button data-say="${esc(w.en)}" data-lv="${w.lv}"><span class="en">${esc(w.en)}</span><span class="ja">${esc(w.ja||'')}</span><span class="mm">${w.m?'✗'+w.m:''}${w.m&&w.n?' ':''}${w.n?'💤'+w.n:''}</span></button>`).join('')||'<p class="note">ラジオで あそぶと、まちがえた ことばや こたえなかった ことばが ここに たまるよ</p>'}</div>
   </section>`);
   setTimeout(()=>{const b=H.panel.querySelector('.mbig');if(b)b.classList.add('mnew')},10);
   if(go){$('mgo').onclick=()=>{SFX.vopen();if(first[0]==='stepUp')MD.said.step=today();go[1]()};H.panel.querySelector('.mbig').onclick=()=>$('mgo').click()}
@@ -202,7 +206,7 @@ H.on('home',()=>{setFace(minaEx);const f=$('minaFace');if(f)f.onclick=()=>{SFX.v
 setFace('smile');const f0=$('minaFace');if(f0)f0.onclick=()=>{SFX.vopen();panelOpen()};
 
 /* ---------- review words for the radio ---------- */
-function reviewPick(lv){if(Math.random()>.15)return null;const ww=weakWords(lv,'w');return ww.length?pickL(ww.slice(0,8)).en:null}
+function reviewPick(lv){if(Math.random()>.15)return null;const ww=weakWords(lv,null);return ww.length?pickL(ww.slice(0,8)).en:null}
 
 window.MINA={busy,say:sayRow,canTalk,canAnnounce,announce,sinceAnn:()=>performance.now()-annAt,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,
   _test:{say:()=>{talkAt=talkGap},hama:()=>{hamaAt=hamaGap;MD.hama={d:'',n:0}},hello:()=>{opened=false}}};

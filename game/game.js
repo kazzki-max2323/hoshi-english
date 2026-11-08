@@ -327,11 +327,13 @@ function fresh(key,pool){const h=ST.rh[key]=ST.rh[key]||[],W=Math.min(150,pool.l
   const seen=new Set(h),c=pool.filter(o=>!seen.has(o[0])),o=pick(c.length?c:pool);if(W)h.push(o[0]);return o}
 function makeLine(lv){const L=LEVELS[lv],r=Math.random(),sn=seasonNow(),inSn=sn&&!L.nightOnly&&!L.noSeason,sw=inSn&&sn[1].w;
   /* now and then the tutor slips in a word the player keeps missing (復習) */
-  /* (not if the same word came in the last 30 words, so one weak word does not keep coming back) */
-  const rv=window.MINA&&MINA.reviewPick(lv),words=allWords(lv),hw=ST.rh[lv+':w']=ST.rh[lv+':w']||[],rw0=rv&&words.find(w=>w[0]===rv),rw=rw0&&!hw.slice(-30).includes(rw0[0])?rw0:null;
-  const pool=rw?words:r<.45?(sw&&r<.15?sw:words):L.pop&&r<.6?L.pop:inSn&&r<.7?[...sn[1].talk,...L.talk]:L.talk.length?L.talk:words;
+  /* it can be a word or a sentence (missed, or left unanswered). Not if it came in the last 30 of its kind, so one weak line does not keep coming back */
+  const rv=window.MINA&&MINA.reviewPick(lv),words=allWords(lv),talkAll=[...L.talk,...(L.pop||[]),...(inSn?sn[1].talk:[])],
+    rsrc=rv&&[words,sw||[],talkAll].find(a=>a.some(w=>w[0]===rv)),rw0=rsrc&&rsrc.find(w=>w[0]===rv),
+    recent=k=>(ST.rh[lv+':'+k]||[]).slice(-30),rw=rw0&&!['w','sw','pop','talk'].some(k=>recent(k).includes(rw0[0]))?rw0:null;
+  const pool=rw?(rsrc===talkAll?(L.talk.length?talkAll:words):rsrc===sw?sw:words):r<.45?(sw&&r<.15?sw:words):L.pop&&r<.6?L.pop:inSn&&r<.7?[...sn[1].talk,...L.talk]:L.talk.length?L.talk:words;
   const key=lv+':'+(pool===words?'w':pool===sw?'sw':pool===L.pop?'pop':'talk');
-  if(rw)hw.push(rw[0]);const ans=rw||fresh(key,pool),n=L.choices;save();
+  if(rw)(ST.rh[key]=ST.rh[key]||[]).push(rw[0]);const ans=rw||fresh(key,pool),n=L.choices;save();
   const others=shuffle(pool.filter(o=>o!==ans&&o[0]!==ans[0]&&o[1]!==ans[1]&&!overlap(o[1],ans[1]))).slice(0,n-1);
   return {lv,en:ans[0],ja:ans[1],kind:pool===words||pool===sw?'w':'s',review:!!rw,sea:pool===sw&&sn[1],opts:shuffle([ans[1],...others.map(o=>o[1])])}}
 function tick(){
@@ -339,6 +341,7 @@ function tick(){
   if(cur&&cur.src==='folk'&&!cur.done)return;                // a resident is talking
   const on=ST.radios.map((r,i)=>[r,i]).filter(([r])=>r.on&&!asleep(r));if(!on.length)return;
   let pickd=pick(on);if(on.length>1)while(pickd[1]===lastRadio)pickd=pick(on);
+  if(cur&&!cur.done)drift(cur);
   const [r,ri]=pickd;lastRadio=ri;cur=makeLine(r.lv);cur.ri=ri;cur.t0=performance.now();talking=true;
   const btn=layer.querySelector(`[data-i="${ri}"]`);btn&&btn.classList.add('talk');
   SFX.tick();drawLine(r);
@@ -366,7 +369,10 @@ function drawLine(r){const c=cur;clearBubbles();const W=bub.getBoundingClientRec
     const w=b.offsetWidth,h=b.offsetHeight,x=w/2+8+Math.random()*(room.w-w-16);
     addBody({el:b,w,h,x,y:room.floor-h/2,vx:Math.random()*30-15,vy:-40-Math.random()*30,born:performance.now(),room,c});SFX.pop()},350+k*520));
   /* nobody answered: the question drifts away with its bubbles */
-  setTimeout(()=>{if(cur===c&&!c.done)cur=null},350+c.opts.length*520+RISE*1000)}
+  setTimeout(()=>drift(c),350+c.opts.length*520+RISE*1000)}
+/* a radio line that went by without an answer counts as weak (苦手), so it comes back for review.
+   Not when it was cut off: a panel opened, a cheer came in, or the app went to the background */
+function drift(c){if(cur!==c||c.done)return;cur=null;if(c.src!=='folk'&&!document.hidden&&screen==='home')emit('skip',c)}
 /* ---------- bubble physics ----------
    each bubble is a horizontal capsule (a pill: segment of half-length a, radius r) with mass from its area.
    Buoyancy lifts it, air drag slows it, and contacts are solved with impulses (restitution + friction).
