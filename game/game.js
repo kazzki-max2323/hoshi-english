@@ -7,10 +7,10 @@ const START_COINS=150;
 
 /* ---------- save ---------- */
 const GAP0=10;
-try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=oneRadioEach(s.radios||[]);ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;ST.autoSay=s.autoSay!==false;ST.cheer=s.cheer!==false;ST.gram=Object.assign({owned:[],cleared:[]},s.gram||{});
+try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=oneRadioEach(s.radios||[]);ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;ST.flipCoin=s.flipCoin||{d:'',n:0};ST.autoSay=s.autoSay!==false;ST.cheer=s.cheer!==false;ST.gram=Object.assign({owned:[],cleared:[]},s.gram||{});
   if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.music=[];ST.learned={};ST.slow=false;ST.autoSay=true;ST.cheer=true;ST.gram={owned:[],cleared:[]};ST.started=1}
 ST.vol=Object.assign({se:1,wave:1,mus:1,voice:1},ST.vol||{});
-_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');Object.assign(s,{gram:ST.gram,learned:ST.learned,slow:ST.slow,autoSay:ST.autoSay,cheer:ST.cheer,music:ST.music,radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
+_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');Object.assign(s,{gram:ST.gram,learned:ST.learned,slow:ST.slow,flipCoin:ST.flipCoin,autoSay:ST.autoSay,cheer:ST.cheer,music:ST.music,radios:ST.radios,radioGap:ST.radioGap,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
 
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
@@ -127,9 +127,12 @@ function cards(lv,bi,onlyLeft=false){
   function autoSay(){if(!ST.autoSay)return;const t=B.w[i][0];idxP.then(()=>loadAud(IDX[t]||lv)).then(()=>{if(screen==='cards'&&B.w[i]&&B.w[i][0]===t&&fc.isConnected)say(lv,t)})}
   /* the next card in direction d (skipping learned ones in のこりだけ); -1 when there is none */
   const nextIdx=d=>{let n=i+d;while(n>=0&&n<B.w.length&&onlyLeft&&isLearned(lv,bi,B.w[n]))n+=d;return n};
+  /* now and then a card gives a coin as it turns (about 1 in 12 cards, up to 30 coins a day) */
+  function flipCoin(){const d=new Date().toDateString(),F=ST.flipCoin=ST.flipCoin&&ST.flipCoin.d===d?ST.flipCoin:{d,n:0};
+    if(F.n>=30||Math.random()>1/12)return;F.n++;const r=fc.getBoundingClientRect();setTimeout(()=>coinBurst(r.left+r.width*.8,r.top+r.height*.2,1),250)}
   let sliding=false,pend=0;  // a turn asked for while a card is still flying waits for it, so quick taps neither get lost nor replay the same card
   function slide(n,dir,up){if(sliding)return;sliding=true;fc.style.transition='transform .18s ease-in,opacity .18s';fc.style.transform=up?'translateY(-130%) rotate(-4deg)':`translateX(${dir>0?-120:120}%) rotate(${dir>0?-8:8}deg)`;fc.style.opacity='0';SFX.flip();
-    setTimeout(()=>{i=n;draw();autoSay();fc.style.transition='none';fc.style.transform=up?'translateY(40%)':`translateX(${dir>0?120:-120}%)`;void fc.offsetWidth;fc.style.transition='transform .2s ease-out,opacity .2s';fc.style.transform='';fc.style.opacity='1';sliding=false;if(pend){const d=pend;pend=0;go(d)}},180)}
+    setTimeout(()=>{i=n;draw();autoSay();flipCoin();fc.style.transition='none';fc.style.transform=up?'translateY(40%)':`translateX(${dir>0?120:-120}%)`;void fc.offsetWidth;fc.style.transition='transform .2s ease-out,opacity .2s';fc.style.transform='';fc.style.opacity='1';sliding=false;if(pend){const d=pend;pend=0;go(d)}},180)}
   function go(d){if(sliding){pend=d;return}const n=nextIdx(d);
     if(n<0){fc.classList.add('nudge');setTimeout(()=>fc.classList.remove('nudge'),250);return}
     if(n>=B.w.length){done();return}

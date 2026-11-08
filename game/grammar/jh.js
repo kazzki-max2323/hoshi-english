@@ -1,5 +1,5 @@
 /* 文法ノート 中学生 */
-GRAMMAR.jh={name:'中学生',ico:'🎒',price:60,reward:20,notes:[
+GRAMMAR.jh={name:'中学生',ico:'🎒',price:60,reward:180,notes:[
  {id:'jh_be',t:'be動詞（am / is / are）',r:['主語によって使い分ける：I am、you / we / they are、he / she / it is','否定文は be動詞のあとに not（I am not / He isn\'t）','疑問文は be動詞を主語の前に出す（Are you 〜? / Is she 〜?）'],
   ex:[['They are my classmates.','彼らは私のクラスメートだ'],["My father isn't busy today.",'父は今日は忙しくない'],['Is this your bike? Yes, it is.','これはあなたの自転車？ うん、そうだよ']],
   q:[['We ___ in the same class.',['am','is','are'],2,'私たちは同じクラスだ'],['___ your sister a nurse?',['Is','Are','Does'],0,'お姉さんは看護師なの？'],['I ___ not tired.',['am','is','do'],0,'私は疲れていない']]},
