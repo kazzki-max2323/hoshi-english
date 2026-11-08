@@ -184,7 +184,7 @@ function settings(){
   panel.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{ST.slow=b.dataset.sp==='1';save();say('es','hello');settings()});
   $('vtest').onclick=()=>say('es','hello')}
 /* tapping anywhere outside the panel works like its ← button (and that tap does nothing else); screens without ← (mini games, chests) ignore it */
-document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv'))return;
+document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#meteor'))return;
   const x=panel.querySelector('.qtop .x');if(!x)return;
   e.preventDefault();e.stopPropagation();x.click();
   const eat=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',eat,true),400)},true);
@@ -195,6 +195,35 @@ document.addEventListener('pointerdown',e=>{if(e.button>0)return;const t=e.targe
   e.preventDefault();t.click();eatUntil=performance.now()+600},true);
 document.addEventListener('click',e=>{if(e.isTrusted&&performance.now()<eatUntil){eatUntil=0;e.stopPropagation();e.preventDefault()}},true);
 document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys)cardKeys(e)});
+
+/* ---------- beach shows on their own: about every 8 minutes of play, a random show that fits the time of day ----------
+   fireworks (the poker's v306 engine, several programmes) and drones are the most likely at night */
+const BG_GAP=()=>(6+Math.random()*4)*60000,FW_IDS=['fireworks','fw_sea','fw_yanagi','fw_cute','fw_jp','fw_odama'];
+let bgAt=0,bgNext=BG_GAP(),bgLast=performance.now();
+function bgPick(){const night=SC.dbg().dark>.6,pool=[];
+  if(night)pool.push([{k:'show',id:pick(FW_IDS),sec:60,ico:'🎆',n:'花火'},4]);
+  CATALOG.event.filter(it=>onSale(it)&&it.id!=='suika'&&it.id!=='fireworks').forEach(it=>pool.push([it,it.id==='drones'?3:it.k==='show'?1.2:.8]));
+  let r=Math.random()*pool.reduce((a,b)=>a+b[1],0);for(const [it,w] of pool){r-=w;if(r<0)return it}return pool[0]&&pool[0][0]}
+setInterval(()=>{const now=performance.now(),dt=now-bgLast;bgLast=now;if(document.hidden)return;bgAt+=dt;
+  if(bgAt<bgNext||$('ar')||cheerOn)return;bgAt=0;bgNext=BG_GAP();const it=bgPick();if(!it)return;
+  toast(`${it.ico} ${it.n}`,2200);try{it.k==='show'?SC.show(it.id,it.sec):SC.play(it.id)}catch(e){}},2000);
+
+/* ---------- shooting stars at night: tap one to catch coins (now and then a golden one) ---------- */
+let metAt=performance.now()+(1+Math.random()*2)*60000;
+setInterval(()=>{if(document.hidden||$('meteor'))return;const now=performance.now();if(now<metAt)return;
+  let night=false;try{night=SC.dbg().dark>.6}catch(e){}if(!night||$('ar')){metAt=now+30000;return}
+  metAt=now+(2+Math.random()*3)*60000;spawnMeteor(Math.random()<.08)},2000);
+function spawnMeteor(gold){const W=$('window').getBoundingClientRect(),b=document.createElement('button');b.id='meteor';if(gold)b.className='rare';
+  b.setAttribute('aria-label','流れ星');b.innerHTML='<b></b><i></i>'+(gold?'<em></em>':'');document.body.appendChild(b);
+  const ltr=Math.random()<.5,x0=W.left+(ltr?.05+Math.random()*.25:.7+Math.random()*.25)*W.width,y0=W.top+(.06+Math.random()*.12)*W.height,
+    dx=(ltr?1:-1)*(.45+Math.random()*.2)*W.width,dy=(.12+Math.random()*.12)*W.height,dur=2600+Math.random()*900,a=Math.atan2(dy,dx)*180/Math.PI+180,t0=performance.now();
+  b.style.setProperty('--a',a+'deg');let done=false;
+  const fly=()=>{if(done||!b.isConnected)return;const q=(performance.now()-t0)/dur;if(q>=1){b.classList.add('gone');setTimeout(()=>b.remove(),400);return}
+    b.style.transform=`translate(${x0+dx*q}px,${y0+dy*q}px)`;b.style.opacity=q<.1?q*10:q>.8?(1-q)*5:1;requestAnimationFrame(fly)};fly();
+  b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(done)return;done=true;b.classList.add('caught');
+    const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,amt=gold?50:5+(Math.random()*6|0);
+    FX.ring(cx,cy,gold?'#ffd23f':'#cfe3ff');FX.firework(cx,cy);SFX.chime();coinBurst(cx,cy,amt,gold);
+    toast(gold?`🌟 金の 流れ星を つかまえた！ <b>+${amt}</b>`:`🌠 流れ星を つかまえた！ <b>+${amt}</b>`,2200);setTimeout(()=>b.remove(),600)})}
 
 /* when the app goes to the background (another app, the lock screen, another tab) every sound stops, and comes back when it returns */
 function bgSound(){const hide=document.hidden;try{if(ac){if(hide)ac.suspend();else if(ST.sound)ac.resume()}}catch(e){}
@@ -504,7 +533,7 @@ function shop(tab,glv='es'){
 function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,cheerSoon:()=>{cheerAt=CHEER_EVERY},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
+window.HE={onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();
