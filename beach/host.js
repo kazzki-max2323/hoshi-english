@@ -2,13 +2,13 @@
    The scene code itself is lifted unchanged from 星降るポーカー; everything it
    used to ask the poker game for is answered here. */
 var SAVE_KEY='hoshienglish';
-var S=(()=>{const d={coins:0,sound:true,waves:true,vol:{se:1,wave:1,mus:1},gameMin:21*60,gday:0,phase:'idle',deco:{},up:{},town:{},mapN:0,moonOn:false,fireOff:false,arr:null,pts:0,resMet:{},streak:0,f:{}};
-  try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');for(const k of ['coins','sound','waves','vol','gameMin','gday','deco','fireOff'])if(s[k]!=null)d[k]=s[k]}catch(e){}
+var S=(()=>{const d={coins:0,sound:true,waves:true,vol:{se:1,wave:1,mus:1},gameMin:21*60,gday:0,phase:'idle',up:{},town:{},mapN:0,moonOn:false,fireOff:false,arr:null,pts:0,resMet:{},streak:0,f:{}};
+  try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');for(const k of ['coins','sound','waves','vol','gameMin','gday','fireOff'])if(s[k]!=null)d[k]=s[k]}catch(e){}
   return d})();
 var _saveHooks=[];
 /* merges into the saved record, so parts saved by other scripts (game, treasure map) are never dropped */
 var save=function(){try{let s={};try{s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}')}catch(e){}
-  Object.assign(s,{coins:S.coins,sound:S.sound,waves:S.waves,vol:S.vol,gameMin:Math.round(S.gameMin*10)/10,gday:S.gday,deco:S.deco,fireOff:S.fireOff});localStorage.setItem(SAVE_KEY,JSON.stringify(s))}catch(e){}_saveHooks.forEach(f=>{try{f()}catch(e){}})};
+  Object.assign(s,{coins:S.coins,sound:S.sound,waves:S.waves,vol:S.vol,gameMin:Math.round(S.gameMin*10)/10,gday:S.gday,fireOff:S.fireOff});localStorage.setItem(SAVE_KEY,JSON.stringify(s))}catch(e){}_saveHooks.forEach(f=>{try{f()}catch(e){}})};
 /* beach events fire these; the host page can listen via BEACH.on(...) */
 var BEACH_EV={};
 function beachEmit(n,...a){(BEACH_EV[n]||[]).forEach(f=>{try{f(...a)}catch(e){}})}
@@ -25,7 +25,8 @@ var showGet=function(){},getItem=function(){},getCoin=function(n){if(n>0){S.coin
 var showLv=function(){return 0},runDeco=function(){},addTre=function(){},rewardItem=function(){};
 var specSay=function(){},specUp=function(){},specEnd=function(){},spawnBubble=function(){},power=function(){return 1};
 var updStreak=function(){},coinWatch=function(){},musChip=function(){};
-var hasDeco=function(n){return !!(S.deco&&S.deco[n])};
+/* 浜辺の かざりは ゲームから なくした。シーンの絵は のこっているが、何も もっていない あつかいで 出ない */
+var hasDeco=function(){return false};
 var evMul=function(){return 1},visMul=function(){return 1},treB=function(){return 0},festOn=function(){return false};
 var residents=function(){return []},resTitle=function(){return ''},nextGet=function(){},rollTre=function(){return {id:''}};
 var skipping=false;
