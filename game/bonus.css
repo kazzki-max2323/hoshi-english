@@ -1,0 +1,17 @@
+/* ミナ先生の 授業タイム: ホームの のこり時間、ミナ先生の ページの おしらせ、授業の おわりの ごほうび */
+.bchip{display:flex!important;align-items:center;justify-content:space-between;gap:8px;width:100%;box-sizing:border-box;padding:6px 12px!important;font-size:.8rem!important;
+  background:linear-gradient(90deg,rgba(255,210,63,.22),rgba(255,122,89,.22))!important;border:2px solid var(--gold)!important;border-radius:999px!important;color:var(--ink)!important;
+  animation:bglow 1.6s ease-in-out infinite;cursor:pointer}
+.bchip b{font-family:var(--pixel);color:var(--gold);font-size:.95rem}
+.bchip span:last-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@keyframes bglow{50%{box-shadow:0 0 12px rgba(255,210,63,.75)}}
+.bban{margin:0;padding:8px 12px;border-radius:12px;border:2px dashed var(--gold);background:rgba(255,210,63,.12);font-size:.84rem;line-height:1.55;text-align:center}
+.bban b{color:var(--gold)}
+.bwin{border:2px solid var(--gold);border-radius:14px;padding:10px 12px;text-align:center;
+  background:radial-gradient(circle at 50% 0,rgba(255,210,63,.35),rgba(255,122,89,.12) 70%);animation:bpop .5s cubic-bezier(.2,1.6,.4,1) .3s both}
+.bwin .bt{display:block;color:var(--gold);font-size:.8rem;letter-spacing:.05em}
+.bwin p{margin:4px 0 0;font-size:.95rem;line-height:1.6}
+.bwin small{display:block;font-size:.72rem;opacity:.85}
+.bwin .bgo{display:block;margin:8px auto 0}
+@keyframes bpop{from{transform:scale(.6);opacity:0}}
+@media (prefers-reduced-motion:reduce){.bchip,.bwin{animation:none}}

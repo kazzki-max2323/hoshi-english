@@ -136,7 +136,7 @@ function roll(min=1){let x=Math.random()*100,r=5;for(let k=1;k<=5;k++){x-=RAR[k]
 function pick(r){const pool=BY_R[r],fresh=pool.filter(c=>!has(c));
   if(CD.pity[r]&&fresh.length){CD.pity[r]=0;return fresh[Math.random()*fresh.length|0]}
   const c=pool[Math.random()*pool.length|0];if(has(c))CD.pity[r]=1;return c}
-function draw(n){const got=[];for(let i=0;i<n;i++){const r=roll(n===10&&i===n-1&&!got.some(g=>g.c.r>=3)?3:1);const c=pick(r),isNew=!has(c);
+function draw(n,min=1){const got=[];for(let i=0;i<n;i++){const r=roll(Math.max(min,n===10&&i===n-1&&!got.some(g=>g.c.r>=3)?3:1));const c=pick(r),isNew=!has(c);
     if(isNew)CD.own[c.e]=1;else{CD.own[c.e]++;CD.shards+=RAR[r].sh}got.push({c,isNew})}
   save();const best=Math.max(...got.map(g=>g.c.r));
   /* the chest shakes, then glows in the colour of the best card inside */
@@ -161,6 +161,7 @@ function reveal(got){
 function checkSeries(newCards){const done=[...new Set(newCards.map(c=>c.s))].filter(s=>ALL.filter(c=>c.s===s).every(has));
   done.forEach((s,i)=>setTimeout(()=>{SFX.fanfare(3);H.toast(`🏆 <b>${SER[s][1]} ${SER[s][2]}</b> コンプリート！`,3600)},800+i*1600))}
 
-window.CARDS={open,count:()=>[ownedN(),ALL.length],freeOk};
+/* a free draw given as a reward (Mina's lesson time): n cards, each at least rarity min */
+window.CARDS={open,count:()=>[ownedN(),ALL.length],freeOk,gift:(n=1,min=1)=>draw(n,min)};
 if(H.screen==='home')H.home();   // show the free-draw dot on the home button
 })();

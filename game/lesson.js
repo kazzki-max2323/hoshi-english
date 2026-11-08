@@ -71,14 +71,15 @@ function quiz(l,back){let k=0,miss=0;
       $('lreset').onclick=()=>{picked.length=0;H.panel.querySelectorAll('[data-c]').forEach(x=>x.disabled=false);draw()}}
     else H.panel.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const i=+b.dataset.o,ok=i===q.a;H.panel.querySelectorAll('[data-o]').forEach(x=>x.disabled=true);
       H.panel.querySelector(`[data-o="${q.a}"]`).classList.add('right');if(!ok)b.classList.add('wrong');fb(ok,q.o[q.a])})};
-  const finish=()=>{const D=done(),first=!D[l.id];D[l.id]=1;save();const pay=first?PAY[l.lv]:0,nx=suggest(4).filter(x=>x.id!==l.id)[0];
+  const finish=()=>{const D=done(),first=!D[l.id];D[l.id]=1;save();const pay=first?PAY[l.lv]:0,nx=suggest(4).filter(x=>x.id!==l.id)[0],bon=window.BONUS&&BONUS.claim(l);
     H.show('lesson',`<section class="pnl lsn">
       <div class="lsay by-m big"><span class="lface">${MINA.face('m','proud')}</span><div class="lbody"><p>「${esc(l.t)}」 おつかれさま！ ${miss?`${l.quiz.length-miss}/${l.quiz.length} せいかい。 また ふくしゅう しようね`:'ぜんもん せいかい！'}${pay?`<br>ごほうびに 🪙<b>${pay}</b>まい`:''}</p></div></div>
+      ${bon?bon.html:''}
       ${nx?`<p class="note">つぎの おすすめ</p>${row(nx)}`:''}
       <div class="row"><button id="lagain" class="sub">もう一度</button><button id="lback">ミナ先生へ</button></div>
     </section>`);
     SFX.fanfare(1);if(pay){const r=H.panel.getBoundingClientRect();setTimeout(()=>H.coinBurst(r.left+r.width/2,r.top+70,pay),300)}
-    $('lagain').onclick=()=>{SFX.pop();open(l.id,back)};$('lback').onclick=()=>{SFX.pop();MINA.open()};bindRows(back)};
+    $('lagain').onclick=()=>{SFX.pop();open(l.id,back)};$('lback').onclick=()=>{SFX.pop();MINA.open()};bindRows(back);if(bon)bon.after()};
   ask()}
 
 window.LESSON={suggest,list,open,row,bindRows,PAY,count:()=>[LESSONS.filter(l=>done()[l.id]).length,LESSONS.length]};
