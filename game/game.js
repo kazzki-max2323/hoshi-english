@@ -157,7 +157,7 @@ function cards(lv,bi,onlyLeft=false){
   function done(){ST.bookPos[key]=0;save();SFX.fanfare(1);const r=$('deck').getBoundingClientRect();FX.firework(r.left+r.width/2,r.top+r.height/2);
     const nx=typeof bi==='number'&&bi+1<L.books.length,rest=left().length;
     $('deck').innerHTML=`<div class="fin"><b>${rest?`🎉 さいごまで めくったよ！<small>のこり ${rest}ご</small>`:'🌟 ぜんぶ おぼえた！'}</b><div class="row">${rest?'<button id="leftB" class="sub">のこりだけ もういちど</button>':'<button id="again" class="sub">もういちど</button>'}${nx?'<button id="nextB">つぎの たんごちょう ▶</button>':''}</div></div>`;
-    panel.querySelector('.ctl').hidden=true;panel.querySelector('.wb .note').hidden=true;
+    panel.querySelector('.ctl').style.visibility='hidden';panel.querySelector('.wb .note').style.visibility='hidden';
     const a=$('again');if(a)a.onclick=()=>cards(lv,bi);const lb=$('leftB');if(lb)lb.onclick=()=>{ST.bookPos[key]=0;cards(lv,bi,true)};if(nx)$('nextB').onclick=()=>{SFX.flip();cards(lv,bi+1)}}
   /* swipe: sideways turns the page, up marks it learned; a short tap flips it */
   let sx=null,sy=0,dx=0,dy=0;

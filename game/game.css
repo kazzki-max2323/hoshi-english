@@ -45,6 +45,9 @@
 .book .bn{grid-row:1/3;font-family:var(--pixel);font-size:1.1rem;color:var(--gold);min-width:1.6em;text-align:center}
 .book .bt{font-weight:800;font-size:.82rem;line-height:1.3}
 .book .bp{font-size:.68rem;color:var(--mute);font-family:var(--pixel)}
+/* the word-book panel clips the card while it flies off and back, so the flying card never makes the panel scrollable (a scrollbar popping in shifted everything on ▶ / ◀ / ✓) */
+.pnl.wb{overflow:hidden;overflow:clip;flex-shrink:0}
+#cn{min-width:4.6em;text-align:right}
 .deck{position:relative;perspective:900px;height:clamp(170px,30vh,240px);touch-action:pan-y}
 .fc{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .45s;cursor:pointer;touch-action:none;user-select:none}
 .fc .cface{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:12px;box-sizing:border-box;text-align:center}
