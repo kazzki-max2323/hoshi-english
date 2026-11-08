@@ -73,7 +73,7 @@ function flyCoin(x,y,n,quick){const d=document.createElement('div');d.className=
 
 /* ---------- screens ---------- */
 let screen='home';
-function show(name,html){screen=name;panel.innerHTML=html;if(name!=='home')radioQuiet()}
+function show(name,html){screen=name;panel.innerHTML=html;panel.scrollTop=0;if(name!=='home')radioQuiet()}
 
 function home(){const back=screen!=='home';   // coming back from a word book, the shop, settings…
   show('home',`<section class="pnl home">
