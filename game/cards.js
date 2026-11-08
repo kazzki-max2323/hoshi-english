@@ -20,36 +20,47 @@ const PRICE1=80,PRICE10=720;   // one draw / ten draws (ten draws always include
 /* cards in album order: by series, then rarity high→low; a card's number is its place in this order */
 /* 「ミナの授業」: one card for each mini lesson (game/lessons/*.js), made here, so a new lesson brings its own card.
    It is never in the chest: clearing the lesson always gives it. A lesson may set its own picture with ico:'🦉' */
-const LES_ICO={zu:'🖼️',kotsu:'💡',yarikata:'📝',oto:'👄',hama:'🍬',kagaku:'🧠'},LES_R={es:1,jh:2,hs:3,adv:4},LES_LV={es:'小学生',jh:'中学生',hs:'高校生',adv:'ハイレベル'};
-const LES=(typeof LESSONS!=='undefined'?LESSONS:[]).map(l=>({e:'les:'+l.id,ico:l.ico||LES_ICO[l.cat]||'📖',en:l.t,ja:LES_LV[l.lv]||'',s:'lesson',r:LES_R[l.lv]||1,les:l.id}));
+/* each kind of lesson has its own colour and corner mark; the picture comes from game/lessons/icons.js (LESSON_ICO),
+   and a lesson not listed there gets one from its kind's set, picked by its id so it stays the same */
+const LES_KIND={zu:'図解',kotsu:'覚え方',yarikata:'やり方',oto:'音',hama:'ハマ子',kagaku:'学び方'};
+const LES_CAT={zu:['🖼️','#2f6fd6',['📐','🧭','🗺️','📊','🔷','🧱']],kotsu:['💡','#d89a1e',['🗝️','🌟','🍀','🎁','🧠','🪄']],yarikata:['📝','#2e9e6a',['✏️','📒','🏃','🎒','🪴','⏳']],
+ oto:['👄','#d0457a',['🎵','🔔','🎙️','🎺','📻','🎹']],hama:['🍬','#e2683c',['🍭','🍡','🎐','🧁','🐙','🍊']],kagaku:['🧠','#7b4fd0',['🔬','🧪','🧬','🔭','⚗️','🛰️']]};
+const LES_R={es:1,jh:2,hs:3,adv:4},LES_LV={es:'小学生',jh:'中学生',hs:'高校生',adv:'ハイレベル'};
+const hashPick=(id,a)=>a[[...id].reduce((h,ch)=>(h*31+ch.charCodeAt(0))>>>0,7)%a.length];
+const LES=(typeof LESSONS!=='undefined'?LESSONS:[]).map(l=>{const K=LES_CAT[l.cat]||['📖','#0f766e',['📖']];
+  return {e:'les:'+l.id,ico:l.ico||(typeof LESSON_ICO!=='undefined'&&LESSON_ICO[l.id])||hashPick(l.id,K[2]),mark:K[0],col:K[1],kind:LES_KIND[l.cat]||'授業',en:l.t,ja:LES_LV[l.lv]||'',s:'lesson',r:LES_R[l.lv]||1,les:l.id}});
 const ALL=CARDS_DATA.map(([e,en,ja,s,r])=>({e,en,ja,s,r})).concat(LES).sort((a,b)=>SERIES.findIndex(x=>x[0]===a.s)-SERIES.findIndex(x=>x[0]===b.s)||(a.les?a.r-b.r:b.r-a.r));
-ALL.forEach((c,i)=>c.no=i+1);
+/* the chest's album and Mina's lesson album are kept apart: each numbers its own cards */
+const BOOK=ALL.filter(c=>!c.les),TABS=SERIES.filter(s=>s[0]!=='lesson');
+BOOK.forEach((c,i)=>c.no=i+1);LES.forEach((c,i)=>c.no=i+1);
 const BY_R=[[],[],[],[],[],[]];ALL.forEach(c=>{if(!c.les)BY_R[c.r].push(c)});
 
 /* saved state: owned counts by emoji (stable even if the album order changes), shards, last free day, "next is new" per rarity */
 const CD=(()=>{try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}').cards;if(s&&s.own)return s}catch(e){}return {own:{},shards:0,free:'',pity:{}}})();
 _saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');s.cards=CD;localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
-const has=c=>(CD.own[c.e]||0)>0,ownedN=()=>ALL.filter(has).length;
+const has=c=>(CD.own[c.e]||0)>0,ownedN=()=>BOOK.filter(has).length;
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
 const freeOk=()=>CD.free!==today();
 
+/* a lesson card draws its picture on Mina's blackboard, so it never looks like a chest card even with the same emoji */
+const lesBoard=(c,lock)=>`<div class="lboard"><span class="lbk">${esc(c.kind)}</span><span class="tce">${c.ico}</span>${!lock&&window.MINA?`<span class="lbm">${MINA.face('m','smile')}</span>`:''}<i class="lchalk"></i></div>`;
 /* one card face */
 function face(c,opt={}){const S=SER[c.s],R=RAR[c.r],lock=!opt.show&&!has(c);
-  return `<div class="tc r${c.r} ${lock?'lock':''} ${opt.big?'big':''} ${c.les?'les':''}" style="--sc:${S[3]}" data-e="${esc(c.e)}">
+  return `<div class="tc r${c.r} ${lock?'lock':''} ${opt.big?'big':''} ${c.les?'les':''}" style="--sc:${c.col||S[3]}" data-e="${esc(c.e)}">
     <div class="tcin"><div class="tctop"><span class="tcno">No.${String(c.no).padStart(4,'0')}</span><span class="tcr">${R.k}</span></div>
-    <div class="tcart"><span class="tce">${c.ico||c.e}</span></div>
+    <div class="tcart">${c.les?lesBoard(c,lock):`<span class="tce">${c.ico||c.e}</span>`}</div>
     <div class="tcname">${lock?'？？？':`<b>${esc(c.en)}</b><small>${esc(c.ja)}</small>`}</div>
-    <div class="tcser">${S[1]}</div></div><i class="tcholo"></i></div>`}
+    <div class="tcser">${c.mark||S[1]}</div></div><i class="tcholo"></i></div>`}
 
 /* ---------- album ---------- */
 let tab='sea',filt='all';
-function open(t){if(t)tab=t;
-  const list=ALL.filter(c=>tab==='all'||c.s===tab).filter(c=>filt==='all'||(filt==='have'?has(c):!has(c)));
-  const sc=s=>{const a=ALL.filter(c=>s==='all'||c.s===s);return [a.filter(has).length,a.length]};
+function open(t){if(t==='lesson')return openLes();if(t)tab=t;
+  const list=BOOK.filter(c=>tab==='all'||c.s===tab).filter(c=>filt==='all'||(filt==='have'?has(c):!has(c)));
+  const sc=s=>{const a=BOOK.filter(c=>s==='all'||c.s===s);return [a.filter(has).length,a.length]};
   H.show('cards',`<section class="pnl cardsp">
-    <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>🃏 カード図鑑</b><span class="qn">${ownedN()}/${ALL.length}</span></div>
+    <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>🃏 カード図鑑</b><span class="qn">${ownedN()}/${BOOK.length}</span></div>
     <div class="kbar"><button id="kdraw" class="kdraw">🎁 宝箱くじ${freeOk()?' <em>きょうの むりょう！</em>':''}</button><span class="kshard">✦ かけら ${CD.shards}</span></div>
-    <div class="kser">${[['all','🃏','ぜんぶ'],...SERIES].map(s=>{const [h,n]=sc(s[0]);return `<button data-s="${s[0]}" class="${s[0]===tab?'on':''} ${h===n?'done':''}"><span>${s[1]}</span><small>${h}/${n}</small></button>`}).join('')}</div>
+    <div class="kser">${[['all','🃏','ぜんぶ'],...TABS].map(s=>{const [h,n]=sc(s[0]);return `<button data-s="${s[0]}" class="${s[0]===tab?'on':''} ${h===n?'done':''}"><span>${s[1]}</span><small>${h}/${n}</small></button>`}).join('')}</div>
     <div class="khead"><b>${tab==='all'?'🃏 ぜんぶの カード':SER[tab][1]+' '+SER[tab][2]}</b><div class="seg kf">${[['all','ぜんぶ'],['have','もってる'],['not','まだ']].map(([k,n])=>`<button data-f="${k}" class="${filt===k?'on':''}">${n}</button>`).join('')}</div></div>
     <div class="kgrid">${list.map(c=>face(c)).join('')||'<p class="note">ここには まだ ないよ</p>'}</div>
   </section>`);
@@ -60,6 +71,22 @@ function open(t){if(t)tab=t;
   H.panel.querySelectorAll('.kgrid .tc').forEach(el=>el.onclick=()=>{SFX.flip();view(ALL.find(c=>c.e===el.dataset.e))});
   const on=H.panel.querySelector('.kser .on');if(on)on.scrollIntoView({inline:'center',block:'nearest'});
 }
+
+/* ---------- Mina's lesson album: one card per mini lesson, opened from Mina's page ---------- */
+let lesLv='all',lesF='all';
+function openLes(){const LV=[['all','ぜんぶ'],['es','小'],['jh','中'],['hs','高'],['adv','ハイ']],LVL={es:'小学生',jh:'中学生',hs:'高校生',adv:'ハイレベル'},lvOf=c=>(LESSONS.find(l=>l.id===c.les)||{}).lv;
+  const list=LES.filter(c=>lesLv==='all'||lvOf(c)===lesLv).filter(c=>lesF==='all'||(lesF==='have'?has(c):!has(c)));
+  H.show('cards',`<section class="pnl cardsp lesbook">
+    <div class="qtop"><button class="x" id="kx" aria-label="ミナ先生に もどる">←</button><b>📖 ミナ先生の 授業カード</b><span class="qn">${LES.filter(has).length}/${LES.length}</span></div>
+    <p class="note">授業を クリアすると かならず 1まい もらえるよ。カードを タップすると その授業を ひらけるよ</p>
+    <div class="seg">${LV.map(([k,n])=>`<button data-lv="${k}" class="${k===lesLv?'on':''}">${n}</button>`).join('')}</div>
+    <div class="khead"><b>${lesLv==='all'?'📖 ぜんぶの 授業':'📖 '+LVL[lesLv]+'の 授業'}</b><div class="seg kf">${[['all','ぜんぶ'],['have','もってる'],['not','まだ']].map(([k,n])=>`<button data-f="${k}" class="${lesF===k?'on':''}">${n}</button>`).join('')}</div></div>
+    <div class="kgrid">${list.map(c=>face(c)).join('')||'<p class="note">ここには まだ ないよ</p>'}</div>
+  </section>`);
+  $('kx').onclick=()=>{SFX.pop();window.MINA?MINA.open():H.home()};
+  H.panel.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{SFX.pop();lesLv=b.dataset.lv;openLes()});
+  H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{SFX.pop();lesF=b.dataset.f;openLes()});
+  H.panel.querySelectorAll('.kgrid .tc').forEach(el=>el.onclick=()=>{SFX.flip();view(ALL.find(c=>c.e===el.dataset.e))})}
 
 /* ---------- overlay (big card / draw results); it lives outside the panel so the panel stays put ---------- */
 function overlay(html,cls=''){closeOv();const o=document.createElement('div');o.id='cardOv';o.className=cls;o.innerHTML=html;document.body.appendChild(o);
@@ -99,7 +126,7 @@ function viewLes(c){const own=has(c),R=RAR[c.r];
       <button id="kclose" class="kbtn sub">とじる</button></div></div>`,'kv');
   tilt(o.querySelector('.tc'));o.querySelector('.tc').classList.add('live');
   $('kclose').onclick=()=>{SFX.pop();closeOv()};
-  const b=$('kles');if(b)b.onclick=()=>{SFX.vopen();closeOv();LESSON.open(c.les,()=>open('lesson'))}}
+  const b=$('kles');if(b)b.onclick=()=>{SFX.vopen();closeOv();LESSON.open(c.les,openLes)}}
 /* clearing a lesson gives its card (once). Returns the card when it is new */
 const lesCard=id=>ALL.find(c=>c.les===id);
 function lessonGet(id,quiet){const c=lesCard(id);if(!c||has(c))return null;CD.own[c.e]=1;save();if(!quiet)setTimeout(()=>checkSeries([c]),2500);return c}
@@ -180,6 +207,6 @@ function checkSeries(newCards){const done=[...new Set(newCards.map(c=>c.s))].fil
   done.forEach((s,i)=>setTimeout(()=>{SFX.fanfare(3);H.toast(`🏆 <b>${SER[s][1]} ${SER[s][2]}</b> コンプリート！`,3600)},800+i*1600))}
 
 /* a free draw given as a reward (Mina's lesson time): n cards, each at least rarity min */
-window.CARDS={open,count:()=>[ownedN(),ALL.length],freeOk,gift:(n=1,min=1)=>draw(n,min),face,lessonGet,lesCard,has,lesCount:()=>[LES.filter(has).length,LES.length]};
+window.CARDS={open,openLes,count:()=>[ownedN(),BOOK.length],freeOk,gift:(n=1,min=1)=>draw(n,min),face,lessonGet,lesCard,has,lesCount:()=>[LES.filter(has).length,LES.length]};
 if(H.screen==='home')H.home();   // show the free-draw dot on the home button
 })();

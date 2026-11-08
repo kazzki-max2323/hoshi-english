@@ -53,3 +53,15 @@
 .mvc.qz{border-color:#7aa2ff!important}
 .mvc.hc{border-color:#ff7a59!important}
 @media (prefers-reduced-motion:reduce){.mpop,.lcard .tc,.nkup,.stsheet i.new,.bchip.cd{animation:none;transition:none}}
+/* lesson cards: the picture sits on Mina's blackboard (wooden frame in the lesson kind's colour), with her face in the corner */
+.tc.les .tcart{padding:2cqw 0}
+.lboard{position:relative;width:100%;height:100%;box-sizing:border-box;border-radius:3cqw;display:grid;place-items:center;
+  background:radial-gradient(ellipse at 40% 35%,#3f6b55,#24453a 70%,#1b352c);border:2.6cqw solid color-mix(in srgb,var(--sc) 55%,#8a5a2b);
+  box-shadow:inset 0 0 6cqw rgba(0,0,0,.45),0 1.5cqw 2cqw rgba(0,0,0,.35)}
+.lboard .tce{font-size:34cqw;filter:drop-shadow(0 0 2cqw rgba(255,255,255,.35))}
+.lbk{position:absolute;left:4cqw;top:2cqw;font-size:max(6px,7cqw);color:#f4f1e0;opacity:.85;letter-spacing:.05em;font-family:var(--pixel);text-shadow:none}
+.lbm{position:absolute;right:-1cqw;bottom:-1cqw;width:20cqw;height:20cqw;border-radius:50%;overflow:hidden;border:1cqw solid #fff6e0;box-shadow:0 1cqw 2cqw rgba(0,0,0,.4)}
+.lbm svg{display:block;width:100%;height:100%}
+.lchalk{position:absolute;left:12%;right:30%;bottom:9%;height:1.2cqw;border-radius:2cqw;background:rgba(255,255,255,.55);box-shadow:0 0 1cqw rgba(255,255,255,.4)}
+.tc.les.lock .lboard{background:#1d2a26;border-color:#3a3f5c}
+.tc.les.lock .lchalk{opacity:.2}
