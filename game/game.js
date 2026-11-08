@@ -229,6 +229,9 @@ function spawnMeteor(gold){const W=$('window').getBoundingClientRect(),b=documen
     const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,amt=gold?50:5+(Math.random()*6|0);
     FX.ring(cx,cy,gold?'#ffd23f':'#cfe3ff');FX.firework(cx,cy);SFX.chime();coinBurst(cx,cy,amt,gold);
     toast(gold?`🌟 金の 流れ星を つかまえた！ <b>+${amt}</b>`:`🌠 流れ星を つかまえた！ <b>+${amt}</b>`,2200);setTimeout(()=>b.remove(),600)})}
+/* the beach sends its own shooting star too (every 5 minutes at night, and when a treasure chest opens).
+   It was only painted on the effects canvas, which ignores taps, so it looked catchable but did nothing: send a catchable one instead */
+FX.meteor=()=>{let night=false;try{night=SC.dbg().dark>.6}catch(e){}if(night&&!$('meteor'))spawnMeteor(Math.random()<.08)};
 
 /* when the app goes to the background (another app, the lock screen, another tab) every sound stops, and comes back when it returns */
 function bgSound(){const hide=document.hidden;try{if(ac){if(hide)ac.suspend();else if(ST.sound)ac.resume()}}catch(e){}
