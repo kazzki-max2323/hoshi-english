@@ -128,7 +128,7 @@ function list(){const I=ids(),now=dayN(Date.now()),M=miss(),due=dueIds(),mn=miss
 new MutationObserver(()=>{
   const box=H.panel.querySelector('.minap .mvbox');
   if(box&&!box.querySelector('[data-rvo]')){const n=todayN(),b=document.createElement('button');b.className='mvc rv';b.dataset.rvo=1;
-    b.innerHTML=`<span>📚 授業の ふくしゅう</span><b>${n?`きょう ${n}問`:'ばっちり ✨'}</b>`;b.onclick=()=>{SFX.vopen();list()};
+    b.innerHTML=`<span>📚 ${box.classList.contains("mtiles")?"":"授業の "}ふくしゅう</span><b>${n?`きょう ${n}問`:'ばっちり ✨'}</b>`;b.onclick=()=>{SFX.vopen();list()};
     const c=box.querySelector('[data-v="cards"]');c?c.before(b):box.appendChild(b)}
   const lp=H.panel.querySelector('.lsnp:not(.rvl)');
   if(lp&&!lp.querySelector('.rvopen')&&ids().length){const n=todayN(),b=document.createElement('button');b.className='rvopen sub';

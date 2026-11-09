@@ -119,7 +119,7 @@ const R=[
 ['x_slowWord',3,F=>{const a=F.rec.filter(e=>e.slow&&e.k>0&&e.kind!=='s');if(!a.length)return null;const e=pickL(a);return {w:e.en,ja:e.j,_lv:e.lv}},v=>goSay(v._lv,v.w)],
 ['x_graduated',3,F=>{const a=F.rec.filter(e=>(e.m+(e.n||0))>0&&e.k>=2&&e.kind!=='s');if(!a.length)return null;const e=pickL(a);return {w:e.en,ja:e.j,_lv:e.lv}},v=>goSay(v._lv,v.w)],
 ['x_skipWord',3,F=>{const a=F.weak.filter(w=>w.n>=2);if(!a.length)return null;const w=a[0];return {w:w.en,ja:w.ja,n:w.n,_lv:w.lv}},v=>goSay(v._lv,v.w)],
-['x_weakCount',2,F=>F.weak.length>=4?{n:F.weak.length}:null,()=>['🔁 苦手な ことばを 見る',()=>{MINA.open();setTimeout(()=>{const w=H.panel.querySelector('.mweak');if(w)w.scrollIntoView({behavior:'smooth',block:'center'})},200)}]],
+['x_weakCount',2,F=>F.weak.length>=4?{n:F.weak.length}:null,()=>['🔁 苦手な ことばを 見る',()=>{MINA.open();setTimeout(()=>{const w=H.panel.querySelector('.mweak');if(w){const f=w.closest('details');if(f)f.open=true}if(w)w.scrollIntoView({behavior:'smooth',block:'center'})},200)}]],
 ['x_weakNone',1,F=>F.answered>=30&&!F.weak.length?{n:F.answered}:null,null],
 ['x_accHigh',2,F=>{const a=Object.entries(F.acc).filter(([,v])=>v>=80);if(!a.length)return null;const [lv,acc]=pickL(a);return {lvn:LVN[lv]||(LEVELS[lv]&&LEVELS[lv].name)||lv,acc}},null],
 ['x_accMid',2,F=>{const a=Object.entries(F.acc).filter(([,v])=>v>=45&&v<70);if(!a.length)return null;const [lv,acc]=pickL(a);return {lvn:LVN[lv]||(LEVELS[lv]&&LEVELS[lv].name)||lv,acc,_lv:lv}},v=>H.LV_ORDER.includes(v._lv)?goShelf(v._lv):null],
