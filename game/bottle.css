@@ -1,0 +1,13 @@
+/* ボトルメール（game/bottle.js） */
+#bmPop{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(5,8,25,.55);opacity:0;transition:opacity .3s}
+#bmPop.on{opacity:1}
+.bmPaper{width:min(340px,100%);box-sizing:border-box;padding:18px 18px 14px;border-radius:6px;color:#3a2a18;text-shadow:none;
+  background:linear-gradient(170deg,#fbf1d6,#efdcb0);box-shadow:0 10px 30px rgba(0,0,0,.5),inset 0 0 30px rgba(160,110,50,.25);
+  transform:scale(.6) rotate(-6deg);transition:transform .45s cubic-bezier(.3,1.5,.6,1)}
+#bmPop.on .bmPaper{transform:none}
+.bmFrom{display:block;font-size:.72rem;color:#8a6a40;margin-bottom:8px}
+.bmEn{margin:0 0 10px;font-family:"Libre Baskerville",Georgia,serif;font-size:1.08rem;line-height:1.6}
+.bmJa{margin:0 0 10px;font-size:.82rem;line-height:1.6;color:#6a4a28}
+.bmBtns{display:flex;gap:8px;margin-bottom:10px}
+.bmBtns button{flex:1;padding:8px 6px;border-radius:10px;border:1px solid rgba(90,60,30,.3);background:rgba(255,255,255,.5);color:#3a2a18;font:inherit;font-size:.82rem}
+#bmClose{display:block;width:100%;padding:9px;border-radius:10px;border:none;background:#3a2a18;color:#fbf1d6;font:inherit;font-size:.86rem}
