@@ -133,14 +133,14 @@ function funBook(){const items=[],F=facts();SC.forEach(s=>Object.entries(nodesOf
 
 /* ---------- one conversation ---------- */
 let P=null;   // the talk going on: scene, node, counts
-function play(id){const s=sceneOf(id);if(!s)return list();const c=CH[s.c];
-  P={s,c,at:startOf(s),step:0,fun:0,newFun:0,free:0,freeCoins:0,miss:0,asked:0,lines:[],F:facts()};
+function play(id,from){const s=sceneOf(id);if(!s)return list();const c=CH[s.c];
+  P={s,c,from,at:startOf(s),step:0,fun:0,newFun:0,free:0,freeCoins:0,miss:0,asked:0,lines:[],F:facts()};
   H.show('kaiwa',`<section class="pnl lsn kw">
     <div class="qtop"><button class="x" id="kx" aria-label="会話を やめる">←</button><b>${c.ico} ${esc(c.n)}</b><span class="qn" id="kq"></span></div>
     <div class="lslog kwlog" id="klog"></div>
     <div id="kans" class="kans"></div>
   </section>`);
-  $('kx').onclick=()=>{SFX.pop();try{speechSynthesis.cancel()}catch(e){}P=null;list()};
+  $('kx').onclick=()=>{SFX.pop();try{speechSynthesis.cancel()}catch(e){}const f=P&&P.from;P=null;f==='visit'?H.home():list()};
   setTimeout(turn,250)}
 const live=()=>P&&$('klog');
 function scrollLog(){const l=$('klog');if(l)l.scrollTo({top:l.scrollHeight,behavior:'smooth'})}
@@ -221,12 +221,37 @@ function end(N){if(!live())return;const s=P.s,c=P.c,first=!KD.done[s.id];
       ${firstMeet?`<p class="knew">${c.ico} <b>${esc(c.n)}</b>と ともだちに なった！</p>`:''}
       <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
       ${words.length?`<div class="kwords"><small>会話に 出てきた 単語帳の ことば（✓ おぼえた ${wgot}/${words.length}）</small><div>${words.map(w=>`<button data-w="${esc(w.en)}" data-lv="${w.lv}" class="${w.got?'got':''}">${w.got?'✓ ':''}${esc(w.en)}<small>${esc(w.ja)}</small></button>`).join('')}</div></div>`:''}
-      <div class="row"><button id="kagain" class="${good?'sub':''}">🔁 さいしょから</button><button id="kmore" class="${good?'':'sub'}">💬 ほかの 人と 話す</button></div>
+      <div class="row"><button id="kagain" class="${good?'sub':''}">🔁 さいしょから</button><button id="kmore" class="${good?'':'sub'}">${P.from==='visit'?'🏖️ 浜辺に もどる':'💬 ほかの 人と 話す'}</button></div>
     </div>`;
     const r=$('kans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?(SFX.fanfare?SFX.fanfare(1):SFX.chime()):(SFX.tease?SFX.tease():SFX.pop());
     $('kans').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.w));
-    $('kagain').onclick=()=>{SFX.vopen();play(s.id)};$('kmore').onclick=()=>{SFX.vopen();list()};
+    const from=P.from;$('kagain').onclick=()=>{SFX.vopen();play(s.id,from)};$('kmore').onclick=()=>{SFX.vopen();from==='visit'?H.home():list()};
     setTimeout(()=>$('kans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1600)}
 
-window.KAIWA={open:list,play,rec:()=>KD,scenes:SC,chars:CH,funN,funTotal,endsN,endsAll,endsOf,endsGot,met,match,_facts:facts};
+/* ---------- someone comes by: about once in 10 minutes on the home screen, a beach friend walks up and talks to you ----------
+   the long talks (with endings) come more often; talks not done yet, or without a ★ ending yet, too. They wait 2 minutes, then go home */
+let visitAt=0,visitGap=(3+Math.random()*2)*60000,lastV=performance.now(),VIS=null,lastId=null;
+function visitPick(){const i=Math.max(0,LV.indexOf(myLv())),pool=SC.filter(s=>{const j=LV.indexOf(s.lv);return j<=i&&j>=i-1&&s.id!==lastId});const A=pool.length?pool:SC;
+  const star=s=>endsOf(s).some(e=>e[1]&&KD.end[s.id+':'+e[0]]);
+  const w=s=>(s.story?4:1)*(s.lv===LV[i]?2:1)*(!KD.done[s.id]?3:star(s)?.5:1.5);
+  let t=A.reduce((a,s)=>a+w(s),0)*Math.random();for(const s of A){t-=w(s);if(t<=0)return s}return A[0]}
+function visit(){const s=visitPick();if(!s)return;lastId=s.id;const c=CH[s.c],N=nodesOf(s)[startOf(s)];
+  const hi=String(val(N.s||'Hi!',facts())).split(/(?<=[.!?])\s+/).reduce((a,x)=>!a||a.length+x.length<46?(a?a+' ':'')+x:a,'');
+  VIS={id:s.id,until:Date.now()+120000};
+  const b=document.createElement('button');b.id='kvisit';b.className='kvisit';b.setAttribute('aria-label',c.n+'が 話しかけてきた。タップで 話す');
+  b.innerHTML=`<span class="kvi">${c.ico}</span><span class="kvt"><b>${esc(hi)}</b><small>${esc(c.n)}が 話しかけてきた！ タップで 話す</small></span>`;
+  const go=()=>{leave(true);play(s.id,'visit')};
+  b.onclick=e=>{e.stopPropagation();SFX.vopen();go()};document.body.appendChild(b);place();SFX.chime&&SFX.chime();
+  if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()){const [ex,tx]=MINA.line(s.story?'k_visitStory':'k_visit',{c:c.n,ico:c.ico,t:s.t});MINA.say('m',ex,tx,8000,null,['💬 話す',go])}}
+/* sit just above the home panel (its height changes with what Mina says) */
+function place(){const b=$('kvisit');if(!b||b.hidden)return;const top=H.panel.firstElementChild?H.panel.firstElementChild.getBoundingClientRect().top:innerHeight-260;b.style.bottom=Math.max(80,innerHeight-top+16)+'px'}
+function leave(now){const b=$('kvisit');VIS=null;if(!b)return;if(now){b.remove();return}b.classList.add('bye');setTimeout(()=>b.remove(),700)}
+setInterval(()=>{const t=performance.now(),dt=t-lastV;lastV=t;if(document.hidden)return;
+  const home=H.screen==='home';
+  if(VIS){const b=$('kvisit');if(b){b.hidden=!home;place()}if(Date.now()>VIS.until)leave();return}
+  if(!home)return;visitAt+=dt;if(visitAt<visitGap)return;
+  if(window.MINA&&MINA.busy&&MINA.busy())return;   // not while Mina or Hamako is talking
+  visitAt=0;visitGap=(8+Math.random()*4)*60000;visit()},1500);
+
+window.KAIWA={open:list,play,visit,rec:()=>KD,scenes:SC,chars:CH,funN,funTotal,endsN,endsAll,endsOf,endsGot,met,match,_facts:facts};
 })();
