@@ -31,6 +31,7 @@ button{touch-action:manipulation}
 <link rel="stylesheet" href="game/motivate.css">
 <link rel="stylesheet" href="game/review.css">
 <link rel="stylesheet" href="game/kaiwa.css">
+<link rel="stylesheet" href="game/sensei.css">
 </head>
 <body>
 <canvas id="stars"></canvas>
@@ -90,6 +91,9 @@ button{touch-action:manipulation}
 <script src="game/kaiwa-story.js"></script>
 <script src="game/kaiwa.js"></script>
 <script src="game/mina-sense.js"></script>
+<script src="game/sensei-data.js"></script>
+<script src="game/sensei-scenes.js"></script>
+<script src="game/sensei.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});
