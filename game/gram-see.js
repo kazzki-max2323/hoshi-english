@@ -1,6 +1,6 @@
 /* 英文の 中に 文法ノートの 文法を 見つける しくみ（文法の めがね）。
    - GRAM_PAT: 文法ノートの id → その 文法が 出てくる 英文の 形（正規表現）。上ほど くわしい 文法（先に えらぶ）
-   - 読める英文が 増える: 持っている ノートの 文法は、ラジオ・会話の 英文で 光る（タップで ルール）。
+   - 読める英文が 増える: 持っている ノートの 文法は、ラジオ・会話の 英文で 光る（タップで ルール。ラジオでは ミナ先生が とことん授業・ノートへ 案内）。
      見つけた 英文は ノートごとに 5つまで のこり、ノートの 画面に「浜辺で 見つけた この文法」として 出る（ST.gram.seen / ST.gram.rn）
    - まちがえた文から 誘う: ラジオの 文で まちがえたら、その 文の 文法を ミナ先生が 教えて、おためし・ノートへ さそう
    - 会話の 文法の 答え（game/kaiwa-story.js の G(...)）や エンドの 文法一覧も ここを つかう
@@ -106,8 +106,27 @@ function tip(id,anchor){const g=BY[id];if(!g)return;SFX.flip&&SFX.flip();
   anchor.after(d);d.querySelector('button').onclick=e=>{e.stopPropagation();SFX.book();try{speechSynthesis.cancel()}catch(x){}H.gramNote(g.lv,g.i)}}
 /* hook the marks inside an element */
 function bind(el){el.querySelectorAll('[data-gmk]').forEach(m=>m.onclick=e=>{e.stopPropagation();tip(m.dataset.gmk,m.closest('p,.in')||m)})}
-/* the radio line: a short toast (the bubble floats away fast) */
-function toastRule(id){const g=BY[id];if(!g)return;SFX.flip&&SFX.flip();H.toast(`📘 <b>${esc(g.n.t)}</b><small>${esc(g.n.r[0])}</small>`,3600)}
+/* the radio line: tap the shining part → a small card under the line. Mina says what it is, and the way to
+   🔎 とことん授業 (game/deep.js) or the note. Tap outside or wait, and it goes away */
+let popT=0;
+function hidePop(){const p=$('gpop');if(p)p.classList.remove('on');clearTimeout(popT)}
+function toastRule(id,anchor){const g=BY[id],W=$('window');if(!g)return;SFX.flip&&SFX.flip();
+  if(!W||!window.MINA){H.toast(`📘 <b>${esc(g.n.t)}</b><small>${esc(g.n.r[0])}</small>`,3600);return}
+  let p=$('gpop');if(!p){p=document.createElement('div');p.id='gpop';W.appendChild(p)}
+  if(p.classList.contains('on')&&p.dataset.g===id){hidePop();return}
+  const deep=window.DEEP&&DEEP.has(id),first=!(ST.gram.tap|0);ST.gram.tap=(ST.gram.tap|0)+1;save();
+  const [ex,tx]=MINA.line(first?'gs_tapFirst':deep?'gs_tap':'gs_tapNote',{g:'「'+esc(g.n.t)+'」',r:esc(g.n.r[0])});
+  p.dataset.g=id;
+  p.innerHTML=`<span class="mpf">${MINA.face('m',ex)}</span><span class="gpt">${tx}<small>${esc(g.n.r[0])}</small>
+    <span class="gpb">${deep?'<button data-k="dp">🔎 とことん授業</button>':''}<button data-k="nt" class="sub">📚 ノート</button></span></span>`;
+  /* just under the radio's line */
+  const L=anchor&&anchor.closest('.ab.line'),wr=W.getBoundingClientRect();
+  p.style.top=(L?Math.round(L.getBoundingClientRect().bottom-wr.top+6):70)+'px';
+  p.classList.remove('on');void p.offsetWidth;p.classList.add('on');
+  p.querySelectorAll('button').forEach(b=>b.onclick=e=>{e.stopPropagation();hidePop();try{speechSynthesis.cancel()}catch(x){}
+    if(b.dataset.k==='dp'){SFX.step&&SFX.step();DEEP.open(id)}else{SFX.book&&SFX.book();H.gramNote(g.lv,g.i)}});
+  clearTimeout(popT);popT=setTimeout(hidePop,12000)}
+document.addEventListener('pointerdown',e=>{const p=$('gpop');if(p&&p.classList.contains('on')&&!e.target.closest('#gpop,[data-gmk]'))hidePop()},true);
 
 /* ---------- a radio sentence answered wrong: Mina tells which grammar it uses, and invites ---------- */
 let lastAsk=0;const asked={};
@@ -130,6 +149,6 @@ setInterval(()=>{if(!milestone||!window.MINA||!MINA.canTalk())return;const n=mil
 function inLines(lines){const seen=new Set(),out=[];lines.forEach(en=>find(en).forEach(g=>{if(!seen.has(g.id)){seen.add(g.id);out.push(g)}}));
   return out.sort((a,b)=>(owned(b.id)?1:0)-(owned(a.id)?1:0)).slice(0,4)}
 
-window.GRAMSEE={find,lit,mark,record,bind,tip,toastRule,inLines,byId:id=>BY[id],owned,cleared,
+window.GRAMSEE={find,lit,mark,record,bind,tip,toastRule,hidePop,inLines,byId:id=>BY[id],owned,cleared,
   seenOf:id=>ST.gram.seen[id]||[],get read(){return ST.gram.rn}};
 })();
