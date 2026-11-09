@@ -163,6 +163,15 @@ const R=[
   return {g:g.n.t,price:G.price,reward:G.reward,q:g.n.q.length,ex:g.n.ex.length,can:F.coins>=G.price?'いまの コインで かえるよ':'コインを ためて かおう',_g:g}},v=>['🔍 もう一度 おためし',()=>H.gramTry(v._g.lv,v._g.i,back)]],
 ['x_gramTryNew',2,F=>{if((ST.gram.tried||[]).length>2)return null;const lv=lvOf(F)==='adv'?'hs':lvOf(F),a=F.gram.filter(g=>g.lv===lv&&!g.own&&!(ST.gram.tried||[]).includes(g.n.id));if(!a.length)return null;const g=pickL(a);
   return {g:g.n.t,lvn:LVN[lv],_g:g}},v=>['🔍 おためし する',()=>H.gramTry(v._g.lv,v._g.i,back)]],
+/* 英文の 中の 文法（game/gram-see.js）と 会話の 文法の 答え */
+['x_gsRead',2,F=>{const n=(ST.gram.rn|0);return n>=3?{n}:null},()=>['📚 文法を 見る',()=>H.gramList()]],
+['x_gsSeen',3,F=>{if(!window.GRAMSEE)return null;const a=Object.entries(ST.gram.seen||{}).filter(([id,v])=>v.length&&GRAMSEE.byId(id));if(!a.length)return null;const [id,v]=pickL(a),g=GRAMSEE.byId(id);
+  return {g:'「'+g.n.t+'」',en:v[0].length>60?v[0].slice(0,57)+'…':v[0],_g:g}},v=>goGram(v._g.lv,v._g.i)],
+['x_gsLit',2,F=>F.gram.some(g=>g.own)&&(ST.gram.rn|0)<5?{}:null,null],
+['x_gsKaiwaLock',3,F=>{if(!window.KAIWA||!KAIWA.gramOpts||!window.GRAMSEE)return null;const KD=KAIWA.rec(),a=KAIWA.gramOpts().filter(x=>!(ST.gram.owned||[]).includes(x.id)&&KD.done[x.s.id]);
+  if(!a.length)return null;const x=pickL(a),g=GRAMSEE.byId(x.id),c=KAIWA.chars[x.s.c];return g?{c:c?c.n:'',t:x.s.t,g:'「'+g.n.t+'」',_g:g}:null},v=>['🔍 おためし する',()=>H.gramTry(v._g.lv,v._g.i,back)]],
+['x_gsKaiwaOpen',3,F=>{if(!window.KAIWA||!KAIWA.gramOpts||!window.GRAMSEE)return null;const KD=KAIWA.rec(),a=KAIWA.gramOpts().filter(x=>(ST.gram.owned||[]).includes(x.id)&&!KD.end[x.s.id+':eGram']);
+  if(!a.length)return null;const x=pickL(a),g=GRAMSEE.byId(x.id),c=KAIWA.chars[x.s.c];return g?{c:c?c.n:'',t:x.s.t,g:'「'+g.n.t+'」',_s:x.s.id}:null},v=>['💬 話しに 行く',()=>KAIWA.play(v._s)]],
 ['x_gramPeek',2,F=>{const a=F.gram.filter(g=>!g.own&&g.lv===(lvOf(F)==='adv'?'hs':lvOf(F))&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=g.n.ex[0];return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>goGram(v._g.lv,v._g.i)],
 
 /* ===== 文法テスト と 授業の つながり（game/gram-link.js） ===== */
