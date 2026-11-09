@@ -1,5 +1,5 @@
 /* ミナ先生と 英語で 話す（game/sensei.js）。会話の 見た目は 浜辺の 会話（kaiwa.css）を つかう */
-.snbig{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.snbig{display:grid;grid-template-columns:1fr;gap:6px}
 .snbig button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:8px 10px!important}
 .snbig button b{font-size:.86rem}
 .snbig button small{font-size:.64rem;color:var(--mute);line-height:1.35}

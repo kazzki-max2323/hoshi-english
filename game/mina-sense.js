@@ -264,7 +264,6 @@ const R=[
 ['x_snWeak',5,F=>{if(!window.SENSEI)return null;const w=SENSEI.weak().filter(id=>GRAMSEE&&GRAMSEE.byId(id));if(!w.length)return null;const g=GRAMSEE.byId(w[0]);return {g:'「'+g.n.t+'」',_id:w[0]}},v=>['🎯 とっくん する',()=>SENSEI.tokkun([v._id])]],
 ['x_snScene',3,F=>{if(!window.SENSEI)return null;const lv=lvOf(F),a=SENSEI.scenes.filter(s=>s.lv===lv&&!SENSEI.rec().done[s.id]);if(!a.length)return null;const s=pickL(a),g=(s.g||[]).map(id=>window.GRAMSEE&&GRAMSEE.byId(id)).filter(Boolean)[0];return {t:'「'+s.t+'」',g:g?'「'+g.n.t+'」':'いまの レベルの 文法',_id:s.id}},v=>['🗣️ 話しに 行く',()=>SENSEI.play(v._id)]],
 ['x_snEnds',2,F=>{if(!window.SENSEI)return null;const a=SENSEI.scenes.filter(s=>SENSEI.rec().done[s.id]&&SENSEI.endsGot(s)<SENSEI.endsOf(s).length);if(!a.length)return null;const s=pickL(a);return {t:'「'+s.t+'」',got:SENSEI.endsGot(s),tot:SENSEI.endsOf(s).length,_id:s.id}},v=>['🗣️ もう一度 話す',()=>SENSEI.play(v._id)]],
-['x_snSoudan',2,F=>window.SENSEI&&SENSEI.rec().n>=1&&!SENSEI.rec().sou?{}:null,()=>['💡 そうだん する',()=>SENSEI.soudan()]],
 ['x_snGood',2,F=>{if(!window.SENSEI||!window.GRAMSEE)return null;const g=SENSEI.good()[0];return g&&GRAMSEE.byId(g)?{g:'「'+GRAMSEE.byId(g).n.t+'」'}:null},()=>goSensei()],
 ['x_snFree',2,F=>window.SENSEI&&SENSEI.rec().free>=3?{n:SENSEI.rec().free}:null,()=>goSensei()],
 ['x_snPat',1,F=>window.SENSEI?{pat:SENSEI.patText()}:null,()=>goSensei()],
