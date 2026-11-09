@@ -60,3 +60,15 @@
 .kfi .kyou{font-family:"Libre Baskerville",Georgia,serif;font-size:.82rem}
 .kfi .kre{font-size:.74rem;color:#ffe7a8}
 .kfi .kre i{font-style:normal}
+/* the long talks and their endings */
+.krow.kstory{border-color:rgba(255,210,63,.45)!important}
+.kend{margin:0;text-align:center;font-size:1rem;font-weight:800}
+.kend.good{color:#ffd23f}.kend.fun{color:#ff9ac0}
+.kend small{font-size:.66rem;color:#55e0b4;margin-left:4px}
+.kends{display:flex;flex-wrap:wrap;justify-content:center;gap:4px}
+.kends span{font-size:.66rem;padding:2px 7px;border-radius:999px;background:rgba(255,154,192,.15);border:1px solid rgba(255,154,192,.4)}
+.kends span.g{background:rgba(255,210,63,.15);border-color:rgba(255,210,63,.5)}
+.kends span.no{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.15);color:var(--mute)}
+.kends span.now{box-shadow:0 0 0 2px #fff}
+.kendn{margin:0;text-align:center;font-size:.74rem;color:var(--mute)}
+.kendn b{color:#ffe7a8}

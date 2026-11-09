@@ -232,6 +232,8 @@ const R=[
 ['x_advItem',1,F=>{if(!F.adv||!ADV.items)return null;const a=Object.entries(F.adv.items).filter(([,n])=>n>0);if(!a.length)return null;const [k,n]=pickL(a);return {item:ADV.items[k].name,ico:ADV.items[k].ico,n}},()=>['🗺️ 宝の地図を ひらく',()=>ADV.open()]],
 
 /* ===== 浜辺の 会話（game/kaiwa.js） ===== */
+['x_kwStory',3,F=>{if(!window.KAIWA)return null;const lv=lvOf(F),a=KAIWA.scenes.filter(s=>s.story&&!KAIWA.rec().done[s.id]&&LVI(s.lv)<=LVI(lv));if(!a.length)return null;const s=pickL(a);return {t:s.t,c:KAIWA.chars[s.c].n,_id:s.id}},v=>goTalk(v._id)],
+['x_kwEnds',2,F=>{if(!window.KAIWA)return null;const R=KAIWA.rec(),a=KAIWA.scenes.filter(s=>s.story&&R.done[s.id]&&KAIWA.endsGot(s)<KAIWA.endsOf(s).length);if(!a.length)return null;const s=pickL(a);return {t:s.t,got:KAIWA.endsGot(s),tot:KAIWA.endsOf(s).length,n:KAIWA.endsN(),all:KAIWA.endsAll(),_id:s.id}},v=>goTalk(v._id)],
 ['x_kwNone',4,F=>window.KAIWA&&!KAIWA.rec().n?{}:null,()=>goKaiwa()],
 ['x_kwChar',2,F=>{if(!window.KAIWA)return null;const i=LVI(lvOf(F)),a=KAIWA.scenes.filter(s=>LVI(s.lv)<=i+1&&!KAIWA.rec().heart[s.c]);if(!a.length)return null;const s=pickL(a),c=KAIWA.chars[s.c];return {c:c.n,ico:c.ico,t:s.t,_id:s.id}},v=>goTalk(v._id)],
 ['x_kwLv',3,F=>{if(!window.KAIWA||!KAIWA.rec().n)return null;const a=KAIWA.scenes.filter(s=>s.lv===lvOf(F)&&!KAIWA.rec().done[s.id]);if(!a.length)return null;const s=pickL(a);return {t:s.t,c:KAIWA.chars[s.c].n,lvn:LVN[s.lv],_id:s.id}},v=>goTalk(v._id)],
