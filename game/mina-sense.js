@@ -168,6 +168,7 @@ const R=[
 ['x_gsRead',2,F=>{const n=(ST.gram.rn|0);return n>=3?{n}:null},()=>['📚 文法を 見る',()=>H.gramFrom()]],
 ['x_gsSeen',3,F=>{if(!window.GRAMSEE)return null;const a=Object.entries(ST.gram.seen||{}).filter(([id,v])=>v.length&&GRAMSEE.byId(id));if(!a.length)return null;const [id,v]=pickL(a),g=GRAMSEE.byId(id);
   return {g:'「'+g.n.t+'」',en:v[0].length>60?v[0].slice(0,57)+'…':v[0],_g:g}},v=>goGram(v._g.lv,v._g.i)],
+['x_gsTap',3,F=>(ST.gram.rn|0)>=3&&!(ST.gram.tap|0)?{}:null,null],
 ['x_gsLit',2,F=>F.gram.some(g=>g.own)&&(ST.gram.rn|0)<5?{}:null,null],
 ['x_gsKaiwaLock',3,F=>{if(!window.KAIWA||!KAIWA.gramOpts||!window.GRAMSEE)return null;const KD=KAIWA.rec(),a=KAIWA.gramOpts().filter(x=>!(ST.gram.owned||[]).includes(x.id)&&KD.done[x.s.id]);
   if(!a.length)return null;const x=pickL(a),g=GRAMSEE.byId(x.id),c=KAIWA.chars[x.s.c];return g?{c:c?c.n:'',t:x.s.t,g:'「'+g.n.t+'」',_g:g}:null},v=>['🔍 おためし する',()=>H.gramTry(v._g.lv,v._g.i,back)]],

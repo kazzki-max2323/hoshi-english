@@ -73,7 +73,7 @@ function flyCoin(x,y,n,quick){const d=document.createElement('div');d.className=
 
 /* ---------- screens ---------- */
 let screen='home';
-function show(name,html){screen=name;panel.innerHTML=html;panel.scrollTop=0;if(name!=='home')radioQuiet()}
+function show(name,html){screen=name;window.GRAMSEE&&GRAMSEE.hidePop();panel.innerHTML=html;panel.scrollTop=0;if(name!=='home')radioQuiet()}
 
 function home(){const back=screen!=='home';   // coming back from a word book, the shop, settings…
   show('home',`<section class="pnl home">
@@ -223,7 +223,9 @@ document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest
 /* moving things (answer bubbles, residents, mini-game targets) answer the moment a finger touches them.
    A normal click needs the finger to go down and up on the same element, which fails when it drifts away in between. */
 const FAST='.ab.opt,.ab.line,button.folk,#ar .shell,#ar .st,#ar .crab,#ar .tile,#ar [data-d]';let eatUntil=0;
-document.addEventListener('pointerdown',e=>{if(e.button>0)return;const t=e.target.closest(FAST);if(!t)return;
+document.addEventListener('pointerdown',e=>{if(e.button>0)return;let t=e.target.closest(FAST);if(!t)return;
+  /* the shining grammar inside the radio's line is its own button (game/gram-see.js), not "say it again" */
+  const gm=e.target.closest('.ab.line [data-gmk]');if(gm)t=gm;
   e.preventDefault();t.click();eatUntil=performance.now()+600},true);
 document.addEventListener('click',e=>{if(e.isTrusted&&performance.now()<eatUntil){eatUntil=0;e.stopPropagation();e.preventDefault()}},true);
 document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys)cardKeys(e)});
@@ -340,7 +342,7 @@ function makeLine(lv){const L=LEVELS[lv],r=Math.random(),sn=seasonNow(),inSn=sn&
   const others=shuffle(pool.filter(o=>o!==ans&&o[0]!==ans[0]&&o[1]!==ans[1]&&!overlap(o[1],ans[1]))).slice(0,n-1);
   return {lv,en:ans[0],ja:ans[1],kind:pool===words||pool===sw?'w':'s',review:!!rw,sea:pool===sw&&sn[1],opts:shuffle([ans[1],...others.map(o=>o[1])])}}
 function tick(){
-  if(screen!=='home'||talking||cheerOn||cheerDue()||document.hidden||performance.now()<nextAt||(window.MINA&&MINA.busy()))return;
+  if(screen!=='home'||talking||cheerOn||cheerDue()||document.hidden||$('dpov')||performance.now()<nextAt||(window.MINA&&MINA.busy()))return;
   if(cur&&cur.src==='folk'&&!cur.done)return;                // a resident is talking
   const on=ST.radios.map((r,i)=>[r,i]).filter(([r])=>r.on&&!asleep(r));if(!on.length)return;
   let pickd=pick(on);if(on.length>1)while(pickd[1]===lastRadio)pickd=pick(on);
@@ -359,11 +361,11 @@ const RISE=9,FAST_MS=5000;
 function bubbleEl(html,cls){const b=document.createElement('div');b.className='bubble ab '+cls;
   b.innerHTML=`<span class="in" style="--bc:${pick(BC)};--tilt:${(Math.random()*8-4).toFixed(1)}deg">${html}${Math.random()<.35?'<i class="sp a">✦</i><i class="sp b">✦</i>':''}</span>`;bub.appendChild(b);return b}
 function clampX(b,W){const w=b.offsetWidth,l=parseFloat(b.style.left);b.style.left=Math.max(6,Math.min(W.width-6-w,l))+'px'}
-function drawLine(r){const c=cur,GS=window.GRAMSEE;clearBubbles();const W=bub.getBoundingClientRect();
+function drawLine(r){const c=cur,GS=window.GRAMSEE;clearBubbles();GS&&GS.hidePop();const W=bub.getBoundingClientRect();
   /* the radio's English line sits at the top of the sky, in front of everything, so answers never cover it */
   const line=bubbleEl(c.src==='folk'?`${c.ico}<b class="lvt folkt">${esc(c.who)}</b> ${esc(c.en)} <i class="again">🔁</i>`:`📻<b class="lvt lv-${c.lv}">${LEVELS[c.lv].short}</b>${c.review?'<b class="lvt revt">ふくしゅう</b>':''}${c.sea?`<b class="lvt seat">${c.sea.ico} ${esc(c.sea.name)}</b>`:''} ${GS&&c.kind==='s'?GS.mark(c.en):esc(c.en)} <i class="again">🔁</i>`,'line');
   /* grammar you own lights up in the line (game/gram-see.js): tap it for the rule */
-  if(GS&&c.kind==='s'&&c.src!=='folk'){const g=GS.record(c.en);line.querySelectorAll('[data-gmk]').forEach(m=>m.onclick=e=>{e.stopPropagation();GS.toastRule(m.dataset.gmk)})}
+  if(GS&&c.kind==='s'&&c.src!=='folk'){const g=GS.record(c.en);line.querySelectorAll('[data-gmk]').forEach(m=>m.onclick=e=>{e.stopPropagation();GS.toastRule(m.dataset.gmk,m)})}
   line.style.left=(W.width/2-line.offsetWidth/2)+'px';line.style.top='10px';clampX(line,W);
   line.onclick=()=>say(c.lv,c.en);
   /* answers are born on the sand and float up like balloons until they press against the line */
@@ -377,7 +379,7 @@ function drawLine(r){const c=cur,GS=window.GRAMSEE;clearBubbles();const W=bub.ge
   setTimeout(()=>drift(c),350+c.opts.length*520+RISE*1000)}
 /* a radio line that went by without an answer counts as weak (苦手), so it comes back for review.
    Not when it was cut off: a panel opened, a cheer came in, or the app went to the background */
-function drift(c){if(cur!==c||c.done)return;cur=null;if(c.src!=='folk'&&!document.hidden&&screen==='home')emit('skip',c)}
+function drift(c){if(cur!==c||c.done)return;cur=null;if(c.src!=='folk'&&!document.hidden&&screen==='home'&&!$('dpov'))emit('skip',c)}
 /* ---------- bubble physics ----------
    each bubble is a horizontal capsule (a pill: segment of half-length a, radius r) with mass from its area.
    Buoyancy lifts it, air drag slows it, and contacts are solved with impulses (restitution + friction).
