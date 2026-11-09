@@ -128,7 +128,7 @@ const R=[
 ['x_todayZero',2,F=>F.today.a===0&&ST.radios.some(r=>r.on)&&F.answered>0?{}:null,null],
 ['x_best',1,F=>F.best>=5?{n:F.best}:null,null],
 ['x_answered',1,F=>F.answered>=50?{n:F.answered}:null,null],
-['x_sentence',2,F=>{const a=F.rec.filter(e=>e.kind==='s');if(a.length<5)return null;const s=a.reduce((x,e)=>x+e.s,0),m=a.reduce((x,e)=>x+e.m,0);return {n:a.length,acc:Math.round((s-m)/s*100)}},()=>['📚 文法を 見る',()=>H.gramList(lvOf(facts())==='adv'?'hs':lvOf(facts()))]],
+['x_sentence',2,F=>{const a=F.rec.filter(e=>e.kind==='s');if(a.length<5)return null;const s=a.reduce((x,e)=>x+e.s,0),m=a.reduce((x,e)=>x+e.m,0);return {n:a.length,acc:Math.round((s-m)/s*100)}},()=>['📚 文法を 見る',()=>H.gramFrom(lvOf(facts())==='adv'?'hs':lvOf(facts()))]],
 
 /* ===== ラジオ（ショップ） ===== */
 ['x_radioOwn',2,F=>{const a=ST.radios.filter(r=>LEVELS[r.lv]);if(!a.length)return null;const r=pickL(a);return {radio:LEVELS[r.lv].name,on:r.on?'オン':'オフ'}},null],
@@ -154,9 +154,9 @@ const R=[
 
 /* ===== 文法ノート ===== */
 ['x_gramUnread',3,F=>{const a=F.gram.filter(g=>g.own&&!g.clr);if(!a.length)return null;const g=pickL(a);return {g:g.n.t,_g:g}},v=>goGram(v._g.lv,v._g.i)],
-['x_gramCount',1,F=>{const n=F.gram.filter(g=>g.clr).length;return n?{n,tot:F.gram.length}:null},()=>['📚 文法を 見る',()=>H.gramList()]],
+['x_gramCount',1,F=>{const n=F.gram.filter(g=>g.clr).length;return n?{n,tot:F.gram.length}:null},()=>['📚 文法を 見る',()=>H.gramFrom()]],
 ['x_gramBuy',2,F=>{const lv=lvOf(F)==='adv'?'hs':lvOf(F),g=F.gram.find(g=>g.lv===lv&&!g.own);return g&&F.coins>=GRAMMAR[lv].price?{g:g.n.t,price:GRAMMAR[lv].price,lvn:LVN[lv],_g:g}:null},v=>['🛍️ 文法ノートを 見る',()=>H.gramShop(v._g.lv)]],
-['x_gramNone',3,F=>F.gram.some(g=>g.own)?null:{},()=>['📚 文法ノートを 見る',()=>H.gramList('es')]],
+['x_gramNone',3,F=>F.gram.some(g=>g.own)?null:{},()=>['📚 文法ノートを 見る',()=>H.gramFrom('es')]],
 ['x_gramRule',3,F=>{const a=F.gram.filter(g=>g.own&&g.n.r&&g.n.r.length);if(!a.length)return null;const g=pickL(a);return {g:g.n.t,r:pickL(g.n.r),_g:g}},v=>goGram(v._g.lv,v._g.i)],
 ['x_gramEx',3,F=>{const a=F.gram.filter(g=>g.own&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=pickL(g.n.ex);return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>['🔊 きいてみる',()=>H.say('gram',v.en)]],
 /* おためし（game/game.js の gramTry）: 🔒の ノートも ルール1つと テスト1もんを むりょうで */
@@ -165,7 +165,7 @@ const R=[
 ['x_gramTryNew',2,F=>{if((ST.gram.tried||[]).length>2)return null;const lv=lvOf(F)==='adv'?'hs':lvOf(F),a=F.gram.filter(g=>g.lv===lv&&!g.own&&!(ST.gram.tried||[]).includes(g.n.id));if(!a.length)return null;const g=pickL(a);
   return {g:g.n.t,lvn:LVN[lv],_g:g}},v=>['🔍 おためし する',()=>H.gramTry(v._g.lv,v._g.i,back)]],
 /* 英文の 中の 文法（game/gram-see.js）と 会話の 文法の 答え */
-['x_gsRead',2,F=>{const n=(ST.gram.rn|0);return n>=3?{n}:null},()=>['📚 文法を 見る',()=>H.gramList()]],
+['x_gsRead',2,F=>{const n=(ST.gram.rn|0);return n>=3?{n}:null},()=>['📚 文法を 見る',()=>H.gramFrom()]],
 ['x_gsSeen',3,F=>{if(!window.GRAMSEE)return null;const a=Object.entries(ST.gram.seen||{}).filter(([id,v])=>v.length&&GRAMSEE.byId(id));if(!a.length)return null;const [id,v]=pickL(a),g=GRAMSEE.byId(id);
   return {g:'「'+g.n.t+'」',en:v[0].length>60?v[0].slice(0,57)+'…':v[0],_g:g}},v=>goGram(v._g.lv,v._g.i)],
 ['x_gsLit',2,F=>F.gram.some(g=>g.own)&&(ST.gram.rn|0)<5?{}:null,null],
@@ -188,6 +188,8 @@ const R=[
   if(!a.length)return null;const x=pickL(a);return {g:x.g.n.t,t:x.l.t,_id:x.l.id}},v=>goLesson(v._id)],
 
 /* ===== ミニ授業 ===== */
+['x_homeBooks',1,F=>({lvn:LVN[lvOf(F)]}),()=>['📕 単語帳を ひらく',()=>H.books()]],
+['x_homeGram',1,F=>typeof GRAMMAR!=='undefined'?{}:null,()=>['📚 文法ノートを 見る',()=>H.gramFrom(lvOf(facts())==='adv'?'hs':lvOf(facts()),()=>MINA.open())]],
 /* きょうの 授業（ホームの 大きな カード）と 授業の れんぞく日数。授業が いちばんなので 重めに */
 ['x_lesToday',6,F=>{if(!window.LESSON||LESSON.doneToday())return null;const l=LESSON.today();return l?{t:l.t,_id:l.id}:null},v=>goLesson(v._id)],
 ['x_lesStreakKeep',6,F=>{if(!window.LESSON||LESSON.doneToday())return null;const n=LESSON.streak(),l=LESSON.today();return n&&l?{n,n1:n+1,t:l.t,_id:l.id}:null},v=>goLesson(v._id)],

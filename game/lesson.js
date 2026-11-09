@@ -34,17 +34,18 @@ const STK={3:30,7:70,14:140,21:210,30:300};   // coins for days in a row
 const stkPay=n=>STK[n]||(n>30&&n%30===0?300:0);
 /* the big card: tap = the lesson right away */
 function card(where){const l=today();if(!l)return '';const c=CAT[l.cat]||CAT.zu,sk=streak(),dt=doneToday(),B=where==='home'&&window.BONUS&&BONUS.now?BONUS.now():null;
+  /* 🔥 れんぞくは 小さな ラベルに。ホームを 低く たもって 浜辺（たき火）が 見えるように */
+  const fire=sk?`<span class="lcfire">🔥 ${sk}日${dt?'':` → ${sk+1}日`}</span>`:'';
   return `<div class="lcard2${dt?' done':''}${B?' hot':''}" id="lcard">
     ${B?`<p class="lchot">⏰ 授業タイム <b class="bcount">${B.left}</b><span>🎁 ${B.label}</span></p>`:''}
     <button class="lcgo" data-les="${l.id}"><span class="lcico">${c[0]}</span>
-      <span class="lctx"><small>${dt?'✅ クリア！ つぎは':'📖 きょうの 授業'}</small><b>${esc(l.t)}</b></span>
+      <span class="lctx"><small>${dt?'✅ クリア！ つぎは':'📖 きょうの 授業'}${fire}</small><b>${esc(l.t)}</b></span>
       <span class="lcplay">${dt?'もう1つ':'はじめる'} ▶</span></button>
-    ${sk||where==='home'?`<div class="lcfoot">${sk?`<span class="lcfire">🔥 ${sk}日 れんぞく${dt?'':`<small>きょうで ${sk+1}日</small>`}</span>`:'<span></span>'}${where==='home'?'<button class="lcall" id="lcall">ぜんぶの 授業 ▸</button>':''}</div>`:''}
   </div>`}
 function bindCard(back){const c=$('lcard');if(!c)return;c.querySelector('.lcgo').onclick=()=>{SFX.vopen();open(c.querySelector('.lcgo').dataset.les,back)};
   const a=$('lcall');if(a)a.onclick=()=>{SFX.vopen();list()}}
-/* on the home screen it sits right above the word books */
-function onHome(){const v=H.panel.querySelector('.home .lvs');if(!v)return;const o=$('lcard');if(o)o.remove();v.insertAdjacentHTML('beforebegin',card('home'));bindCard(H.home)}
+/* on the home screen it sits right above the buttons (単語帳・ショップ…) */
+function onHome(){const v=H.panel.querySelector('.home .row');if(!v)return;const o=$('lcard');if(o)o.remove();v.insertAdjacentHTML('beforebegin',card('home'));bindCard(H.home)}
 H.on('home',onHome);if(H.screen==='home')setTimeout(onHome,0);
 const refresh=()=>{if(H.screen==='home')onHome()};
 

@@ -124,7 +124,7 @@ H.on('answer',(c,ok)=>{if(c.kind==='s'&&!ok){const G=find(c.en);if(!G.length)ret
   if(ok&&c.kind==='s')record(c.en)});
 /* milestones of sentences read with grammar */
 setInterval(()=>{if(!milestone||!window.MINA||!MINA.canTalk())return;const n=milestone;milestone=0;
-  const [ex,tx]=MINA.line('gs_readN',{n});MINA.say('m',ex,tx,8000,null,['📚 文法を 見る',()=>H.gramList()])},4000);
+  const [ex,tx]=MINA.line('gs_readN',{n});MINA.say('m',ex,tx,8000,null,['📚 文法を 見る',()=>H.gramFrom()])},4000);
 
 /* grammar in a whole talk (the end of a conversation): owned ones and locked ones, up to 4 */
 function inLines(lines){const seen=new Set(),out=[];lines.forEach(en=>find(en).forEach(g=>{if(!seen.has(g.id)){seen.add(g.id);out.push(g)}}));
