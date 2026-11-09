@@ -222,3 +222,11 @@
 #cheerBox .che i{font-style:normal;font-size:.8em}
 #cheerBox .chj{font-weight:800;font-size:1rem;line-height:1.5}
 #cheerBox small{display:block;margin-top:6px;font-size:.72rem;color:var(--mute)}
+/* 持っている 文法ノートの 文法が 英文の 中で 光る（game/gram-see.js） */
+mark.gmk{background:none;color:inherit;border-bottom:2px solid #7fc4ff;box-shadow:inset 0 -.5em 0 rgba(127,196,255,.22);border-radius:2px;cursor:pointer;padding:0 1px}
+.bubble mark.gmk{color:inherit}
+.gtip{margin:4px 0 2px;padding:6px 10px;border-radius:10px;background:rgba(127,196,255,.14);border:1px solid rgba(127,196,255,.6);display:flex;flex-direction:column;gap:3px;text-align:left}
+.gtip b{font-size:.8rem;color:#cfe6ff}
+.gtip small{font-size:.74rem;line-height:1.5}
+.gtip button{align-self:flex-start;padding:3px 10px!important;font-size:.72rem!important}
+.gseen0{font-size:.74rem}

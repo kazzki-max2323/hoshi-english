@@ -323,4 +323,24 @@ KAIWA_SCENES.push(
   eClean:E(0,'ホテルで アルバイト',"I cleaned forty rooms. My English for 'mop' and 'bucket' is now perfect.","40部屋 そうじ したわ。モップと バケツの 英語は もう 完ぺき","🧹"),
 }},
 );
+/* 文法の 答え: その 文法ノートを もっていると えらべる 答え（もっていないと 🔒で 見える）。その先に 📘の エンド。
+   GO(ノートの id, O(...)) で 答えの 列の さいごに 足す（さいごに 足すので おもしろ反応の 番号は ずれない）。文法の 判定は game/gram-see.js */
+const GO=(id,o)=>(o.g=id,o),GE=(id,t,s,j,fx)=>Object.assign(E(1,'📘 '+t,s,j,fx),{gram:id});
+const gramTalk=(sid,node,id,o,end)=>{const S=KAIWA_SCENES.find(x=>x.id===sid);if(!S||!S.nodes[node])return;o[6]='eGram';S.nodes[node].o.push(GO(id,o));S.nodes.eGram=GE(id,...end)};
+gramTalk('st-pochi-ball','e','es_can',O("Say 'Can I have my ball, please?'",1,"Can I have my ball, please, Hana?","ハナさん、ボール かえして もらえますか？","🙏",'',["can","please"]),
+  ['ていねいな おねがい',"Hana smiled. 'Of course! You can have a cookie, too!' ...Can I eat it now? Can I? Can I?","ハナさん にっこり。『もちろん！ クッキーも どうぞ！』 …いま たべて いい？ いい？ いい？","🍪"]);
+gramTalk('st-sora-castle','b','es_dream',O("I want to be a castle builder! Let's make a big castle town!",1,"A castle builder? Cool! I want to be a king!","お城の 大工さん？ かっこいい！ ぼくは 王さまに なりたい！","👑",'',["want to be","builder","town"]),
+  ['すなの 王国',"We made a whole castle town! I'm the king, and you're the royal builder!","お城の 町が できた！ ぼくが 王さまで、きみは 王国の 大工さん！","🏰"]);
+gramTalk('st-emma-festival','e','jh_future',O("Of course! I'm going to wear a yukata. I'll lend you one, too!",1,"Really? You'll lend me a yukata? I'm so excited!","ほんと？ 浴衣を 貸して くれるの？ すごく うれしい！","👘",'',["going to","yukata","lend"]),
+  ['浴衣で おまつり',"We're going to watch the fireworks in yukata! I will never forget tonight!","浴衣で 花火を 見るの！ 今夜の ことは ぜったい わすれない！","🎆"]);
+gramTalk('st-taku-test','e','jh_ger',O("Try singing English songs. Singing is a fun way to learn!",1,"Singing? I love singing! Why didn't I think of that?","歌う？ 歌うの 大すき！ なんで 思いつかなかったんだ？","🎤",'',["singing","song","sing"]),
+  ['歌って 覚える',"I kept singing all night. Now I remember every past tense! ...My mom says I'm too loud, though.","一晩中 歌ってたら、過去形 ぜんぶ 覚えた！ …母さんには うるさいって 言われたけど","🎶"]);
+gramTalk('st-baba-gen','c','hs_modperf',O("He must have fallen asleep at his favorite fishing spot. Let's check the pine tree.",1,"Oh! You might be right. He always naps there after lunch!","あら！ そうかも しれない。お昼の あとは いつも あそこで 昼寝するの！","💡",'',["must have","asleep","pine","spot"]),
+  ['名探偵の 推理',"There he was, snoring under the pine tree, just as you said! You must have known him for years!","言った とおり、松の 木の 下で いびきを かいてた！ 何年も 前から あの人を 知ってるみたいね！","🕵️"]);
+gramTalk('st-zuzu-ship','d','hs_caus',O("We use sunlight. Let me show you: solar panels let the sun power your ship!",1,"Your star makes your machines move?! Show me! Show me!","地球の 星が 機械を うごかすの？！ 見せて 見せて！","☀️",'',["sunlight","solar","let me","sun"]),
+  ['ソーラー宇宙船',"I let the sun charge my ship all afternoon. Now it flies! I will make my whole planet use solar power!","午後ずっと 太陽で 充電させたら 飛んだ！ ぼくの 星 ぜんぶに ソーラーを つかわせるよ！","🛸"]);
+gramTalk('st-leo-dream','b','hs_subj2',O("If I had been in your shoes five years ago, I would have chosen music. And it's still not too late.",1,"You would have chosen music... Yeah. If I gave up now, I'd regret it forever.","音楽を えらんでた、か… そうだな。いま あきらめたら、一生 後悔する","🎸",'',["would have","chosen","music","late"]),
+  ['後悔しない 道',"I turned down the offer. If you hadn't talked to me, I would have quit. My first song will be about this beach.","オファーは ことわった。きみと 話して なかったら、やめてたよ。最初の 曲は この 浜辺の 歌に する","🎵"]);
+gramTalk('st-emma-hotel','b','hs_emph',O("Show him the email and say, 'It was your hotel that confirmed my booking.'",1,"'It was YOUR hotel that confirmed it.' ...Oh, he's reading the email very carefully now.","『予約を 確認したのは そちらの ホテルです』 …あ、メールを すごく 真剣に 読んでる","📧",'',["email","confirmed","it was"]),
+  ['強調構文で 大逆転',"Never have I seen a clerk apologize so fast! They gave me the suite for the normal price!","あんなに 早く あやまる フロントの 人、見たこと ない！ スイートを ふつうの 値段で 泊めて くれるって！","🏨"]);
 })();
