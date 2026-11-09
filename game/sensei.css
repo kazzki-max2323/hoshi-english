@@ -1,5 +1,5 @@
 /* ミナ先生と 英語で 話す（game/sensei.js）。会話の 見た目は 浜辺の 会話（kaiwa.css）を つかう */
-.snbig{display:grid;grid-template-columns:1fr;gap:6px}
+.snbig{display:grid;grid-template-columns:1fr 1fr;gap:6px}
 .snbig button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:8px 10px!important}
 .snbig button b{font-size:.86rem}
 .snbig button small{font-size:.64rem;color:var(--mute);line-height:1.35}
@@ -55,3 +55,32 @@
 /* Mina's page: the button to talk with her */
 .msensei{border-color:#7fc4ff!important;background:linear-gradient(rgba(127,196,255,.28),rgba(127,196,255,.12))!important;font-weight:800}
 .msensei small{display:block;font-size:.64rem;font-weight:500;color:#cfe6ff}
+/* 🔎 とことん授業（game/deep.js）: いまの 画面の 上に かさねる */
+#dpov{position:fixed;inset:0;z-index:60;background:rgba(5,6,20,.55);display:flex;align-items:flex-end;justify-content:center;padding:10px 12px max(8px,env(safe-area-inset-bottom,0px))}
+#dpov .dpp{max-width:560px;max-height:calc(100% - 24px);overflow:hidden;font-family:inherit}
+.dpt{margin:0;text-align:center;font-weight:800;color:#ffe7a8;font-size:.92rem}
+.dplog{height:auto;flex:1 1 auto;min-height:180px;max-height:none;cursor:default}
+.dpm .lface{background:#1f2a5c}
+.dpm .lbody{display:flex;flex-direction:column;gap:6px;min-width:0}
+.dpm .lbody>p{font-size:.84rem;line-height:1.6}
+.dpm .lbody>p b{color:#b4410c}
+.dpy .lbody>p{font-size:.8rem}
+.dpchips{display:flex;flex-wrap:wrap;gap:6px}
+.dpchips button{padding:6px 10px!important;font-size:.78rem!important;text-align:left}
+.dpchips .dpok{border-color:#55e0b4!important;background:rgba(85,224,180,.16)!important}
+.dpask{display:flex;gap:6px}
+.dpask input{flex:1;min-width:0;font:inherit;font-size:.86rem;padding:8px 10px;border-radius:10px;border:2px solid rgba(255,255,255,.25);background:rgba(255,255,255,.92);color:#2a2340}
+.dpask button{flex:0 0 auto}
+.dprules{margin:0;padding:6px 8px 6px 1.4em;background:#fff;border-radius:10px;color:#2a2340;font-size:.76rem;line-height:1.55;text-shadow:none}
+.dpens{display:flex;flex-direction:column;gap:4px}
+.pnl .dpen{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;background:#fff!important;color:#2a2340!important;text-shadow:none;border:2px solid #d9d3ee!important;padding:5px 9px!important}
+.dpen span{font-family:"Libre Baskerville",Georgia,serif;font-weight:700;font-size:.84rem}
+.dpen small{font-size:.68rem;color:#5b5577}
+.dperr{display:flex;flex-direction:column;gap:4px;background:#fff6e5;color:#2a2340;text-shadow:none;border-radius:10px;padding:6px 8px;font-size:.76rem;line-height:1.55}
+.dpsrc{display:block;font-size:.64rem;color:#6b6890;margin-top:2px}
+.dpq{display:block;font-family:"Libre Baskerville",Georgia,serif;font-size:.95rem;margin:4px 0}
+.dpq u{text-decoration:none;background:#ffe7a8;border-radius:6px;padding:0 4px}
+.dpopts button.right{background:#c9f7e3!important;border-color:#2e9e4f!important;color:#14532d!important}
+.dpopts button.wrong{background:#ffe0ea!important;border-color:#e2475a!important;color:#7f1d1d!important}
+.dplist summary{cursor:pointer;font-size:.8rem;color:#cfe6ff;margin-bottom:6px}
+.fz-ar{text-align:center;font-weight:700;color:#8e44ad!important}

@@ -107,6 +107,7 @@ function list(){listLv=listLv||(LV.includes(myLv())?myLv():'es');const [ex,tx]=l
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     <div class="snbig">
       <button id="stok" class="${w.length?'hot':''}"><b>🎯 苦手 とっくん</b><small>${w.length?'「'+esc(gName(w[0]))+'」'+(w.length>1?' ほか '+(w.length-1)+'こ':''):'いまの レベルの 文法 5問'}</small></button>
+      ${window.DEEP?'<button id="sdeep"><b>🔎 とことん授業</b><small>なんで？ どう ちがう？ 知りたい ことを 先生に</small></button>':''}
     </div>
     <div class="seg">${LV.map(k=>`<button data-l="${k}" class="${k===listLv?'on':''}">${LVN[k]}</button>`).join('')}</div>
     <div class="lslist klist">${S.map(row).join('')}</div>
@@ -118,7 +119,7 @@ function list(){listLv=listLv||(LV.includes(myLv())?myLv():'es');const [ex,tx]=l
   H.panel.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{SFX.pop();listLv=b.dataset.l;list()});
   H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{SFX.talk();play(b.dataset.s)});
   $('sgo').onclick=()=>{SFX.talk();const a=S.filter(s=>!SD.done[s.id]);play(pickL(a.length?a:S).id)};
-  $('stok').onclick=()=>{SFX.step();tokkun()};
+  $('stok').onclick=()=>{SFX.step();tokkun()};if($('sdeep'))$('sdeep').onclick=()=>{SFX.step();DEEP.pick()};
   $('skarte').onclick=()=>{SFX.book();karte()};
   $('sja').onchange=e=>{SD.ja=e.target.checked?1:0;save()}}
 const row=s=>{const n=SD.done[s.id]||0,g=endsGot(s),t=endsOf(s).length,star=endsOf(s).some(e=>e[1]&&SD.end[s.id+':'+e[0]]);
@@ -133,11 +134,12 @@ function karte(){const ids=Object.keys(SD.g).filter(id=>gById(id)).sort((a,b)=>(
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     <p class="note">ミナ先生との 会話で 出た 文法。⭕ 1回で 正解・💡 ヒントで 正解・📘 解説を きいた</p>
     <div class="snkarte">${ids.map(id=>{const e=SD.g[id],sc=gScore(id),g=gById(id);
-      return `<div class="snk ${sc!=null&&sc<.65?'weak':sc!=null&&sc>=.85?'good':''}"><b>${sc!=null&&sc<.65?'🔥 ':sc!=null&&sc>=.85?'🌟 ':''}${esc(g.n.t)}</b><span>⭕${e.ok} 💡${e.hint} 📘${e.miss}</span><span class="snbar"><i style="width:${Math.round((sc??0)*100)}%"></i></span><span class="snkb"><button data-tk="${id}" class="sub">🎯 とっくん</button><button data-gn="${id}" class="sub">${owned(id)?'📚 ノート':'🔍 おためし'}</button></span></div>`}).join('')||'<p class="note">ミナ先生と 会話すると、ここに 文法ごとの 記録が たまるよ</p>'}</div>
+      return `<div class="snk ${sc!=null&&sc<.65?'weak':sc!=null&&sc>=.85?'good':''}"><b>${sc!=null&&sc<.65?'🔥 ':sc!=null&&sc>=.85?'🌟 ':''}${esc(g.n.t)}</b><span>⭕${e.ok} 💡${e.hint} 📘${e.miss}</span><span class="snbar"><i style="width:${Math.round((sc??0)*100)}%"></i></span><span class="snkb"><button data-tk="${id}" class="sub">🎯 とっくん</button>${window.DEEP?`<button data-dp="${id}" class="sub">🔎 くわしく</button>`:''}<button data-gn="${id}" class="sub">${owned(id)?'📚 ノート':'🔍 おためし'}</button></span></div>`}).join('')||'<p class="note">ミナ先生と 会話すると、ここに 文法ごとの 記録が たまるよ</p>'}</div>
   </section>`);
   $('sx').onclick=()=>{SFX.pop();list()};
   H.panel.querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{SFX.step();tokkun([b.dataset.tk])});
-  H.panel.querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{SFX.book();openGram(b.dataset.gn,karte)})}
+  H.panel.querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{SFX.book();openGram(b.dataset.gn,karte)});
+  H.panel.querySelectorAll('[data-dp]').forEach(b=>b.onclick=()=>{SFX.step();DEEP.open(b.dataset.dp)})}
 function openGram(id,back){const g=gById(id);if(!g)return;hush();owned(id)?H.gramNote(g.lv,g.i):H.gramTry(g.lv,g.i,back||list)}
 
 /* ---------- one talk ---------- */
@@ -294,7 +296,7 @@ function explain(o,gi,E,gid){const N=P.N,good=N.o[gi>=0?gi:0],g=gid&&gById(gid);
     <span class="snfix"><s>${esc(o.en)}</s><br>⭕ <b class="snen">${esc(good.en)}</b></span>
     <span class="snwhy">${E?E[2]:(o.h||'答えの 意味が 質問と ずれて いたよ')}</span>
     ${rules.length?`<span class="snrule">${rules.map(r=>'・'+esc(r)).join('<br>')}</span>`:''}`,'snexp',
-    [['わかった！ つづける ▶',()=>{const b=d.querySelector('.snbtns');if(b)b.remove();go()}]]);
+    [['わかった！ つづける ▶',()=>{const b=d.querySelector('.snbtns');if(b)b.remove();go()}],...(g&&window.DEEP?[['🔎 もっと くわしく',()=>DEEP.open(gid)]]:[])]);
   const [ex,tx]=ML(g?'sn_explain':'sn_explainMean',{g:g?'「'+g.n.t+'」':''});setTimeout(()=>{if(live())minaJa(ex,tx,'snsmall')},300);
   const go=()=>{if(!live())return;you(good.en,'snfixed');setTimeout(()=>{if(!live())return;mina(good.re||'OK!',good.rj||'',"smile",'k-good');if(good.go){afterTalk(()=>good.go(),300);return}P.at=good.nx||N.nx||'end';afterTalk(turn)},500)}}
 
@@ -332,12 +334,13 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
       <div class="snscore"><span>⭕ 1回で <b>${st.ok}</b></span><span>💡 ヒントで <b>${st.hint}</b></span><span>📘 解説 <b>${st.miss}</b></span><span>✍️ 自分で <b>${st.free}</b></span></div>
       <p class="kpay">🪙 <b>${pay}まい</b>${first?' <small>はじめては 2ばい！</small>':''}${perfect?' <small>ノーミス +5</small>':''}${newEnd?' <small>新しい エンド</small>':''}</p>
       <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
-      ${GL.length?`<div class="kwords kgl sngl"><small>📘 この 会話の 文法（${missG.length?'📘 解説を きいた ものから 復習しよう':'よく できたね'}）</small><div>${GL.map(id=>{const r=st.g[id],L=lesFor(id);return `<span class="sng ${r.miss?'miss':r.hint?'hint':'ok'}"><b>${r.miss?'📘':r.hint?'💡':'⭕'} ${esc(gName(id))}</b><span><button data-gn="${id}" class="sub">${owned(id)?'📚 ノート':'🔍 おためし'}</button>${r.miss||r.hint?`<button data-tk="${id}" class="sub">🎯 とっくん</button>`:''}${L&&(r.miss||r.hint)?`<button data-ls="${L.id}" class="sub">📖 授業</button>`:''}</span></span>`}).join('')}</div></div>`:''}
+      ${GL.length?`<div class="kwords kgl sngl"><small>📘 この 会話の 文法（${missG.length?'📘 解説を きいた ものから 復習しよう':'よく できたね'}）</small><div>${GL.map(id=>{const r=st.g[id],L=lesFor(id);return `<span class="sng ${r.miss?'miss':r.hint?'hint':'ok'}"><b>${r.miss?'📘':r.hint?'💡':'⭕'} ${esc(gName(id))}</b><span><button data-gn="${id}" class="sub">${owned(id)?'📚 ノート':'🔍 おためし'}</button>${r.miss||r.hint?`<button data-tk="${id}" class="sub">🎯 とっくん</button>`:''}${window.DEEP&&(r.miss||r.hint)?`<button data-dp="${id}" class="sub">🔎 くわしく</button>`:''}${L&&(r.miss||r.hint)?`<button data-ls="${L.id}" class="sub">📖 授業</button>`:''}</span></span>`}).join('')}</div></div>`:''}
       <div class="row"><button id="sagain" class="${good?'sub':''}">🔁 ${s.kind?'もう一回':'さいしょから'}</button><button id="smore" class="${good?'':'sub'}">🗣️ ほかの 会話</button></div>
     </div>`;
     const r=$('sans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?SFX.done():(SFX.tease?SFX.tease():SFX.pop());
     $('sans').querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{SFX.book();P=null;openGram(b.dataset.gn,list)});
     $('sans').querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{SFX.step();tokkun([b.dataset.tk])});
+    $('sans').querySelectorAll('[data-dp]').forEach(b=>b.onclick=()=>{SFX.step();DEEP.open(b.dataset.dp)});
     $('sans').querySelectorAll('[data-ls]').forEach(b=>b.onclick=()=>{SFX.lesson();hush();P=null;LESSON.open(b.dataset.ls,list)});
     const from=P.from,again=s.kind==='tok'?()=>tokkun(P.ids):()=>play(s.id,from);
     $('sagain').onclick=()=>{SFX.step();again()};$('smore').onclick=()=>{SFX.back();P=null;list()};
@@ -354,5 +357,5 @@ function tokkun(ids){const lv=LV.includes(myLv())?myLv():'es',lvl=GLV[lv];
   begin(s);P.ids=ids;const [ex,tx]=ML(ids||weakAll().length?'sn_tokStart':'sn_tokLevel',{g:'「'+pool.slice(0,2).map(gName).join('」「')+'」',lvn:LVN[lv]});minaJa(ex,tx)}
 
 
-window.SENSEI={open:list,play,tokkun,karte,rec:()=>SD,scenes:SC,endsN,endsAll,endsOf,endsGot,weak:weakAll,good:goodG,gScore,patterns,patText,check,_ready:()=>P};
+window.SENSEI={open:list,play,tokkun,karte,talk,fill,gram:gramRec,rec:()=>SD,scenes:SC,endsN,endsAll,endsOf,endsGot,weak:weakAll,good:goodG,gScore,patterns,patText,check,_ready:()=>P};
 })();
