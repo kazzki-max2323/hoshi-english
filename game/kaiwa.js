@@ -51,8 +51,11 @@ let enVoice=null;
 function pickVoice(){if(!window.speechSynthesis)return;const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));
   enVoice=vs.find(v=>/en[-_]US/i.test(v.lang)&&/Samantha|Google|Natural/i.test(v.name))||vs.find(v=>/en[-_]US/i.test(v.lang))||vs[0]||null}
 if(window.speechSynthesis){pickVoice();speechSynthesis.addEventListener&&speechSynthesis.addEventListener('voiceschanged',pickVoice)}
+/* Japanese names read the English way sound wrong (Gen = "jen", Mike = "maik"): spelled for the voice only, the text stays as it is */
+const SAYAS={Gen:'Ghen',Tome:'Toh-meh',Mike:'Mee-keh',Kanio:'Kah-nee-oh',Pochi:'Poh-chee',Kamekichi:'Kah-meh-kee-chee',Mina:'Meena',Hana:'Hahna'};
+const sayAs=t=>t.replace(new RegExp('\\b('+Object.keys(SAYAS).join('|')+')\\b','g'),m=>SAYAS[m]);
 function talk(en,c){if(!ST.sound||!window.speechSynthesis)return;
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(en).replace(/\.\.\.\s*/g,' ').replace(/\*[^*]*\*/g,''));u.lang='en-US';if(enVoice)u.voice=enVoice;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(sayAs(String(en)).replace(/\.\.\.\s*/g,' ').replace(/\*[^*]*\*/g,''));u.lang='en-US';if(enVoice)u.voice=enVoice;
     u.pitch=c?c.p:1;u.rate=(ST.slow?.72:.92)*(c?c.r:1);u.volume=Math.min(1,(ST.vol&&ST.vol.voice!=null)?ST.vol.voice:1);
     const id=++talkId;talkOn=true;talkMax=Date.now()+3000+String(en).length*(ST.slow?140:100)/(c?c.r:1);u.onend=u.onerror=()=>{if(id===talkId)talkOn=false};speechSynthesis.speak(u)}catch(e){talkOn=false}}
 /* the next line waits until this one has been read out (or would have been read, when the sound is off) */
