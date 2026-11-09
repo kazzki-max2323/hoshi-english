@@ -4,7 +4,6 @@
    - 自分で 書いた 英語も、よく ある まちがい（SENSEI_CHECK）を 見つけて 教える。いまの レベルの 文法が つかえたら ほめる
    - 会話の とちゅうに いまの レベルの「文法チェック」（SENSEI_DRILL）が まざる。苦手な 文法ほど 出やすい
    - 正しい 答えも 何とおりも あって、答えで 話が 分かれる（エンドが いくつも）。{food} などの ことばは 毎回 かわる
-   - 💡 先生に そうだん：進み具合・苦手・得意・つぎに やる こと・アプリの つかい方を、セーブデータを 読んで 答える
    - 🎯 苦手 とっくん：まちがえた 文法を 5問の ミニ会話で
    - 文法ごとの 記録（ST の sensei.g）は ミナ先生の 苦手 チェック（MINA.rec().g）にも 入る → ホームでも 文法ノートへ さそう
    セリフは game/mina-talk.js の sn_ / x_sn で はじまる 場面 */
@@ -107,7 +106,6 @@ function list(){listLv=listLv||(LV.includes(myLv())?myLv():'es');const [ex,tx]=l
     <div class="qtop"><button class="x" id="sx" aria-label="もどる">←</button><b>🗣️ ミナ先生と 英語で 話す</b><span class="qn">🏁 ${endsN()}/${endsAll()}</span></div>
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     <div class="snbig">
-      <button id="ssou"><b>💡 先生に そうだん</b><small>進み具合・苦手・得意・つぎに やること</small></button>
       <button id="stok" class="${w.length?'hot':''}"><b>🎯 苦手 とっくん</b><small>${w.length?'「'+esc(gName(w[0]))+'」'+(w.length>1?' ほか '+(w.length-1)+'こ':''):'いまの レベルの 文法 5問'}</small></button>
     </div>
     <div class="seg">${LV.map(k=>`<button data-l="${k}" class="${k===listLv?'on':''}">${LVN[k]}</button>`).join('')}</div>
@@ -120,7 +118,7 @@ function list(){listLv=listLv||(LV.includes(myLv())?myLv():'es');const [ex,tx]=l
   H.panel.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{SFX.pop();listLv=b.dataset.l;list()});
   H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{SFX.vopen();play(b.dataset.s)});
   $('sgo').onclick=()=>{SFX.vopen();const a=S.filter(s=>!SD.done[s.id]);play(pickL(a.length?a:S).id)};
-  $('ssou').onclick=()=>{SFX.vopen();soudan()};$('stok').onclick=()=>{SFX.vopen();tokkun()};
+  $('stok').onclick=()=>{SFX.vopen();tokkun()};
   $('skarte').onclick=()=>{SFX.vopen();karte()};
   $('sja').onchange=e=>{SD.ja=e.target.checked?1:0;save()}}
 const row=s=>{const n=SD.done[s.id]||0,g=endsGot(s),t=endsOf(s).length,star=endsOf(s).some(e=>e[1]&&SD.end[s.id+':'+e[0]]);
@@ -169,7 +167,7 @@ function play(id,from){const s=sceneOf(id);if(!s)return list();begin(s,from)}
 
 /* the lines in the log */
 function scrollLog(){const l=$('slog');if(l)l.scrollTo({top:l.scrollHeight,behavior:'smooth'})}
-function mina(en,ja,ex='smile',cls='',btns){if(!live())return;en=String(en);en=en.charAt(0).toUpperCase()+en.slice(1);const d=document.createElement('div'),show=jaOn(P.s.lv)||P.s.kind==='sou';d.className='lsay snm '+cls;
+function mina(en,ja,ex='smile',cls='',btns){if(!live())return;en=String(en);en=en.charAt(0).toUpperCase()+en.slice(1);const d=document.createElement('div'),show=jaOn(P.s.lv);d.className='lsay snm '+cls;
   d.innerHTML=`<span class="lface">${MINA.face('m',ex)}</span><div class="lbody"><p class="ken">${GS()?GS().mark(en):esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p>${ja?`<small class="kja ${show?'on':''}">${esc(ja)}</small>${show?'':'<button class="kjab">訳を 見る</button>'}`:''}${btns?`<span class="snbtns">${btns.map((b,i)=>`<button class="sub" data-bi="${i}">${b[0]}</button>`).join('')}</span>`:''}</div>`;
   $('slog').appendChild(d);P.lines.push(en);if(GS()){GS().record(en);GS().bind(d)}
   d.querySelector('.ksay').onclick=e=>{e.stopPropagation();talk(en)};
@@ -252,7 +250,7 @@ function typed(v,spoken){if(!live())return;const N=P.N,lv=P.s.lv;
     const [re,rj]=fitReply(v,o._r.re,o._r.rj,VV,P.s.slots,N.ctx);o=N.o[i]=Object.assign({},o,{re,rj})}
   if(o.ok){P.st.free++;SD.free++;if(P.st.freeCoins<3){P.st.freeCoins++;setTimeout(()=>{const r=$('slog')&&$('slog').getBoundingClientRect();if(r)H.coinBurst(r.right-40,r.bottom-30,1)},400)}
     /* grammar of the level in what they wrote: praise it */
-    const G=GS()&&P.s.kind!=='sou'?GS().find(v).filter(g=>g.lv===GLV[lv]):[];
+    const G=GS()?GS().find(v).filter(g=>g.lv===GLV[lv]):[];
     /* words the answer does not have (a name, a number…): a plain "nice" so Mina does not talk about what was not said */
     const has=new Set(raw(o.en)),extra=raw(v).filter(w=>!has.has(w)&&!NEUTRAL_OK.has(w));
     return right(i,v,G[0]||null,extra.length>0&&!P.N.drill)}
@@ -265,7 +263,7 @@ const OOPS=[["Hmm, almost!","おしい！"],["Close! One more try.","あと ち�
 /* a right answer: Mina answers, the talk goes on */
 const NEUTRAL_OK=new Set('a an the is am are was were be it i you he she we they my your to of in on at and or so um oh well yes no not do does did very really too please thank thanks ok okay just'.split(' '));
 const NEUTRAL=[["Oh, nice!","へえ、 いいね！"],["I see! Thank you.","なるほど！ ありがとう"],["Great answer!","いい 答え！"],["Oh, really? Cool!","ほんと？ いいね！"]];
-function right(i,typedText,gUsed,neutral){const N=P.N,o=N.o[i],gid=P.s.kind==='sou'?null:nodeG(N),first=P.tries===0;$('sans').innerHTML='';
+function right(i,typedText,gUsed,neutral){const N=P.N,o=N.o[i],gid=nodeG(N),first=P.tries===0;$('sans').innerHTML='';
   you(typedText||o.en,'',!!typedText);
   if(first)P.st.ok++;else P.st.hint++;
   const gr=first||!P.gw;if(gid){gramRec(gid,gr?2:1);const r=P.st.g[gid]=P.st.g[gid]||{ok:0,hint:0,miss:0};gr?r.ok++:r.hint++}
@@ -282,7 +280,7 @@ function right(i,typedText,gUsed,neutral){const N=P.N,o=N.o[i],gid=P.s.kind==='s
 /* a wrong answer: 1st time a hint (try again), 2nd time the explanation (then the talk goes on with the right answer) */
 function wrong(o,gi,oi){const N=P.N;$('sans').innerHTML='';if(oi!=null&&oi>=0)P.tried.add(oi);P.tries++;
   you(o.en,'snx',!!o.typed);SFX.tease?SFX.tease():SFX.pop();
-  const E=o.err&&ERR[o.err],gid=P.s.kind==='sou'?null:E?E[0]:null;if(E)P.gw=1;
+  const E=o.err&&ERR[o.err],gid=E?E[0]:null;if(E)P.gw=1;
   setTimeout(()=>{if(!live())return;
     if(P.tries===1){
       const r=o.err||!o.re?pickL(OOPS):[o.re,o.rj];mina(r[0],r[1],o.err?'think':'wow','k-oops');
@@ -307,14 +305,13 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
   const ek=s.id+':'+key,newEnd=!s.kind&&!SD.end[ek];if(!s.kind)SD.end[ek]=1;
   const perfect=!st.miss&&!st.hint&&(st.ok>=3);
   const pay=(first?PAY[s.lv]*2:Math.max(3,PAY[s.lv]/2|0))+(perfect?5:0)+(newEnd?(good?6:3):0);
-  if(!s.kind)SD.done[s.id]=(SD.done[s.id]||0)+1;SD.n++;SD.last=Date.now();if(s.kind==='tok')SD.tok++;if(s.kind==='sou')SD.sou++;
+  if(!s.kind)SD.done[s.id]=(SD.done[s.id]||0)+1;SD.n++;SD.last=Date.now();if(s.kind==='tok')SD.tok++;
   if(perfect)SD.best=(SD.best||0)+1;save();
   const E=s.kind?[]:endsOf(s),got=s.kind?0:endsGot(s),tot=E.length;
   /* Mina's word on how it went */
   let k='sn_endGood',v={t:title,n:st.ok,h:st.hint,m:st.miss,f:st.free,got,tot};
   const gs=Object.entries(st.g),missG=gs.filter(([,r])=>r.miss).map(([id])=>id),hintG=gs.filter(([,r])=>r.hint&&!r.miss).map(([id])=>id),okG=gs.filter(([,r])=>r.ok&&!r.miss&&!r.hint).map(([id])=>id);
   if(SD.n===1)k='sn_endFirst';
-  else if(s.kind==='sou')k='sn_endSou';
   else if(missG.length){k='sn_endMiss';v.g='「'+gName(missG[0])+'」'}
   else if(perfect){k='sn_endPerfect';v.g=okG[0]?'「'+gName(okG[0])+'」':''}
   else if(hintG.length){k='sn_endHint';v.g='「'+gName(hintG[0])+'」'}
@@ -329,10 +326,10 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
   const lesFor=id=>window.GRAMLINK&&GRAMLINK.lessonsFor?GRAMLINK.lessonsFor(id)[0]:null;
   setTimeout(()=>{if(!live())return;$('sq').textContent=good?'★':'🏁';
     $('sans').innerHTML=`<div class="kres">
-      ${s.kind?`<p class="kend good">${s.kind==='tok'?'🎯 とっくん おわり！':'💡 そうだん おわり'}</p>`:`<p class="kend ${good?'good':'fun'}">${good?'★':'😂'} エンド「${esc(title)}」${newEnd?' <small>NEW!</small>':''}</p>
+      ${s.kind?`<p class="kend good">🎯 とっくん おわり！</p>`:`<p class="kend ${good?'good':'fun'}">${good?'★':'😂'} エンド「${esc(title)}」${newEnd?' <small>NEW!</small>':''}</p>
       <div class="kends">${E.map(e=>SD.end[s.id+':'+e[0]]?`<span class="${e[1]?'g':''} ${e[0]===key?'now':''}">${e[1]?'★':'😂'} ${esc(e[2])}</span>`:`<span class="no">${e[1]?'★':'？'} ？？？</span>`).join('')}</div>
       <p class="kendn">🏁 見つけた エンド ${got}/${tot}${good?'':'　<b>★の エンドは べつの 答えの 先に あるよ</b>'}</p>`}
-      ${s.kind==='sou'?'':`<div class="snscore"><span>⭕ 1回で <b>${st.ok}</b></span><span>💡 ヒントで <b>${st.hint}</b></span><span>📘 解説 <b>${st.miss}</b></span><span>✍️ 自分で <b>${st.free}</b></span></div>`}
+      <div class="snscore"><span>⭕ 1回で <b>${st.ok}</b></span><span>💡 ヒントで <b>${st.hint}</b></span><span>📘 解説 <b>${st.miss}</b></span><span>✍️ 自分で <b>${st.free}</b></span></div>
       <p class="kpay">🪙 <b>${pay}まい</b>${first?' <small>はじめては 2ばい！</small>':''}${perfect?' <small>ノーミス +5</small>':''}${newEnd?' <small>新しい エンド</small>':''}</p>
       <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
       ${GL.length?`<div class="kwords kgl sngl"><small>📘 この 会話の 文法（${missG.length?'📘 解説を きいた ものから 復習しよう':'よく できたね'}）</small><div>${GL.map(id=>{const r=st.g[id],L=lesFor(id);return `<span class="sng ${r.miss?'miss':r.hint?'hint':'ok'}"><b>${r.miss?'📘':r.hint?'💡':'⭕'} ${esc(gName(id))}</b><span><button data-gn="${id}" class="sub">${owned(id)?'📚 ノート':'🔍 おためし'}</button>${r.miss||r.hint?`<button data-tk="${id}" class="sub">🎯 とっくん</button>`:''}${L&&(r.miss||r.hint)?`<button data-ls="${L.id}" class="sub">📖 授業</button>`:''}</span></span>`}).join('')}</div></div>`:''}
@@ -342,7 +339,7 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
     $('sans').querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{SFX.vopen();P=null;openGram(b.dataset.gn,list)});
     $('sans').querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{SFX.vopen();tokkun([b.dataset.tk])});
     $('sans').querySelectorAll('[data-ls]').forEach(b=>b.onclick=()=>{SFX.vopen();hush();P=null;LESSON.open(b.dataset.ls,list)});
-    const from=P.from,again=s.kind==='tok'?()=>tokkun(P.ids):s.kind==='sou'?soudan:()=>play(s.id,from);
+    const from=P.from,again=s.kind==='tok'?()=>tokkun(P.ids):()=>play(s.id,from);
     $('sagain').onclick=()=>{SFX.vopen();again()};$('smore').onclick=()=>{SFX.vopen();P=null;list()};
     setTimeout(()=>$('sans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1500)}
 
@@ -356,60 +353,6 @@ function tokkun(ids){const lv=LV.includes(myLv())?myLv():'es',lvl=GLV[lv];
   const s={id:'tokkun',kind:'tok',lv,t:'苦手 とっくん',ico:'🎯',start:'d0',nodes,g:pool.slice(0,3)};
   begin(s);P.ids=ids;const [ex,tx]=ML(ids||weakAll().length?'sn_tokStart':'sn_tokLevel',{g:'「'+pool.slice(0,2).map(gName).join('」「')+'」',lvn:LVN[lv]});minaJa(ex,tx)}
 
-/* ---------- 💡 先生に そうだん: Mina reads everything and answers ---------- */
-function F(){try{MINA_SENSE._reset();return MINA_SENSE.facts()}catch(e){return null}}
-const back2=()=>{P=null;MINA.open()};
-const TOPIC={
- how:{q:["How am I doing?","How's my English?"],bad:[["How I am doing?",'wh']],run:()=>{const f=F()||{},lv=myLv(),acc=f.acc||{},les=window.LESSON?LESSON.count():[0,0];
-   const ac=Object.entries(acc).map(([k,a])=>LVN[k]+' '+a+'%').join('・');
-   const gc=(ST.gram.cleared||[]).length,go=(ST.gram.owned||[]).length;
-   return {s:`You're doing well! You know ${f.learnedAll|0} words. Your level is about ${({es:'elementary',jh:'junior high',hs:'high school',adv:'advanced'})[lv]}.`,
-     j:`いまの 力は ${LVN[lv]}くらい。 おぼえた 単語は ぜんぶで ${f.learnedAll|0}こ。${ac?' 正解率は '+ac+'。':''} ${f.streak>1?f.streak+'日 れんぞくで 来てくれてるね！':''} 授業は ${les[0]}/${les[1]}、 文法ノートは ${go}さつ もっていて ${gc}さつ クリア。 わたしとの 会話は ${SD.n}回、 ${endsN()}この エンドを 見つけたよ`}}},
- weak:{q:["What am I bad at?","What is my weak point?"],bad:[["What I am bad at?",'wh']],run:()=>{const w=weakAll(),ww=MINA.weakWords().slice(0,3),f=F()||{};
-   const b=[];if(w[0])b.push(['🎯 とっくん',()=>tokkun(w.slice(0,3))],[owned(w[0])?'📚 ノート':'🔍 おためし',()=>openGram(w[0],back2)]);
-   if(ww[0])b.push(['🔁 苦手な ことば',()=>MINA.open()]);
-   if(!w.length&&!ww.length)return {s:"Hmm, I don't see a weak point yet. Let's talk more!",j:'まだ 苦手は 見つかって ないよ。 もっと 会話や ラジオを すると、 わたしが 見つけて 教えるね'};
-   return {s:`Let's work on ${w[0]?'some grammar':'some words'}. You can do it!`,j:`${w[0]?'文法は 「'+gName(w[0])+'」'+(w[1]?'と 「'+gName(w[1])+'」':'')+'で つまずいてるみたい。 ':''}${ww.length?'ことばは '+ww.map(x=>x.en).join('・')+' を まちがえやすいね。 ':''}${w[0]?'ノートで ルールを 見てから とっくん すると、 3回 つづけて 正解で 苦手 卒業だよ':'ラジオで ときどき 出すから、 2回 つづけて 正解で 卒業だよ'}`,btns:b}}},
- good:{q:["What am I good at?","What's my strong point?"],bad:[["What am I good?",0,'「〜が とくい」は good at だよ']],run:()=>{const g=goodG(),f=F()||{},acc=f.acc||{},top=Object.entries(acc).sort((a,b)=>b[1]-a[1])[0],cl=(ST.gram.cleared||[]);
-   const parts=[];if(g[0])parts.push('会話では 「'+gName(g[0])+'」が ばっちり');if(cl.length)parts.push('文法ノートは 「'+gName(cl[cl.length-1])+'」など '+cl.length+'さつ クリア');if(top)parts.push(LVN[top[0]]+'の ラジオは 正解率 '+top[1]+'%');if(f.best>=5)parts.push('さいこう '+f.best+'問 れんぞく 正解');if(SD.free>=3)parts.push('自分で 書いた 英語が '+SD.free+'回 通じた');
-   if(!parts.length)return {s:"You are good at trying! That's the most important thing.",j:'いちばんの とくいは 「やってみる こと」！ これから たくさん 見つけようね'};
-   return {s:"You have many strong points! I'm proud of you.",j:parts.join('。 ')+'。 すごいよ！'}}},
- today:{q:["What should I do today?","What should I study today?"],bad:[["What should I doing today?",'modal']],run:()=>{const o=window.MINA_SENSE?MINA_SENSE.pick():null,w=weakAll(),lv=myLv(),nx=SC.find(s=>s.lv===lv&&!SD.done[s.id]);
-   const b=[];let j='';if(o){const [,tx]=MINA.line(o[0],o[1]);j=tx.replace(/<[^>]+>/g,'');if(o[3])b.push([o[3][0],()=>{P=null;o[3][1]()}])}
-   if(w[0])b.push(['🎯 とっくん',()=>tokkun(w.slice(0,3))]);else if(nx)b.push(['🗣️ 「'+nx.t+'」',()=>play(nx.id)]);
-   return {s:"Here's my idea for today.",j:(j?j+'　':'')+(w[0]?'それと、 「'+gName(w[0])+'」の とっくんも おすすめ。':nx?'わたしとの 会話なら 「'+nx.t+'」が いまの レベルに ぴったり。':''),btns:b}}},
- gram:{q:["Which grammar should I learn next?","What grammar is next for me?"],bad:[["Which grammar should I learning next?",'modal']],run:()=>{const lvl=GLV[myLv()],G=typeof GRAMMAR!=='undefined'&&GRAMMAR[lvl]?GRAMMAR[lvl].notes:[];
-   const n=G.find(x=>owned(x.id)&&!cleared(x.id))||G.find(x=>!owned(x.id));if(!n)return {s:"You have finished all the grammar notes at this level! Amazing!",j:'この レベルの 文法ノートは ぜんぶ クリア！ つぎの レベルにも ちょうせん してみよう'};
-   const sc=SC.find(s=>(s.g||[]).includes(n.id));const b=[[owned(n.id)?'📚 ノートを ひらく':'🔍 おためし',()=>openGram(n.id,back2)]];if(sc)b.push(['🗣️ 会話で つかう',()=>play(sc.id)]);
-   return {s:"How about this one?",j:`つぎは 「${n.t}」が おすすめ。 ${n.r[0]}。 ${owned(n.id)?'ノートは もってるから、 テストを クリア しよう':'まずは おためしで 1問 やってみて'}${sc?'。 会話「'+sc.t+'」でも つかえるよ':''}`,btns:b}}},
- app:{q:["Tell me about this app.","What can I do here?"],bad:[["Tell me about this app?",0,'「教えて」は おねがいの 文。 ? ではなく . で おわるよ']],run:()=>{const A=APPS.filter(a=>a.ok());const a=A[(SD.appI=(SD.appI||0)+1)%A.length];
-   return {s:a.en,j:a.ja,btns:a.go?[[a.b,()=>{P=null;a.go()}]]:null}}},
- coins:{q:["How can I get more coins?","How do I get coins?"],bad:[["How can I get more coin?",'plural']],run:()=>({s:"Here's a secret: talk, learn, and come back every day!",j:pickL(['単語帳で ことばを おぼえる・ラジオの 問題に 答える・文法ノートの テストを クリア（3ばい！）・ミニ授業・わたしとの 会話（はじめては 2ばい、 ノーミスで +5）・新しい エンドを 見つける。 いろんな ところで もらえるよ','いちばん かせげるのは 「はじめての こと」。 新しい 会話・新しい エンド・新しい 授業は ボーナスが つくよ','ハマ子さんが たまに おかしと いっしょに コインを くれるよね。 あと、 浜辺の みんなとの 会話で おもしろ反応を 見つけても もらえるよ'])})},
- tip:{q:["Can you give me a study tip?","Do you have any study tips?"],bad:[["Can you give me a study tips?",'plural']],run:()=>{const L=(typeof LESSONS!=='undefined'?LESSONS:[]).filter(l=>l.tip),l=pickL(L);
-   return l?{s:"Sure! Here's one.",j:l.tip,btns:window.LESSON?[['📖 その 授業',()=>{P=null;LESSON.open(l.id,list)}]]:null}:{s:"Say it out loud. Your mouth remembers, too!",j:'声に 出して 言うと、 口も おぼえるよ'}}},
- mina:{q:["Tell me about yourself, Mina.","Where are you from, Mina?"],bad:[["Where you are from, Mina?",'wh']],run:()=>({s:pickL(["I grew up in a small town by the sea. I love stars, coffee, and you guys!","I'm a teacher who loves the beach. I walk here every morning.","I studied English in Australia for a year. I was so nervous at first!"]),j:pickL(['海の そばの 小さい 町で 育ったの。 星と コーヒーと、 みんなが 大すき','浜辺が 大すきな 先生だよ。 毎朝 ここを 散歩してるの','オーストラリアに 1年 留学してたの。 さいしょは すっごく きんちょう したよ'])})},
-};
-const APPS=[
- {ok:()=>1,en:"The radio asks you questions while music plays.",ja:'📻 ラジオ：音楽を 流しながら、 ふきだしで 英語の 問題が 出るよ。 答えないで 流れた ことばも わたしが おぼえておくね'},
- {ok:()=>1,en:"Word books are for learning new words.",ja:'📕 単語帳：小学生から ハイレベルまで。 カードを めくって おぼえたら ✓。 苦手な ことばは ラジオで また 出るよ',b:'📕 単語帳',go:()=>H.books(myLv())},
- {ok:()=>typeof GRAMMAR!=='undefined',en:"Grammar notes teach you the rules.",ja:'📚 文法ノート：ルール・例文・テスト。 クリアすると コイン3ばい。 もってない ノートも 🔍おためしで 1問 できるよ。 もってる ノートの 文法は 英文の 中で 光るの',b:'📚 文法',go:()=>H.gramList()},
- {ok:()=>!!window.LESSON,en:"My mini lessons take two minutes.",ja:'📖 ミニ授業：2分で できる わたしの 授業。 図解・覚え方の コツ・発音・学び方の 科学 まで あるよ',b:'📖 授業',go:()=>LESSON.list()},
- {ok:()=>!!window.KAIWA,en:"Your beach friends come to talk to you.",ja:'💬 浜辺の 会話：ホームに いると 10分に1回くらい だれかが 話しかけに 来るよ。 わざと へんな 答えを すると おもしろ図鑑に たまるの',b:'💬 会話',go:()=>KAIWA.open()},
- {ok:()=>1,en:"And you can talk with me, like now!",ja:'🗣️ わたしとの 会話：まちがえたら ヒント、 もう一回 まちがえたら 解説。 答えで 話が 分かれるし、 ことばも 毎回 かわるよ。 文法カルテで 苦手と とくいも 見られる'},
- {ok:()=>!!window.CARDS,en:"You can collect cards, too.",ja:'🃏 カード図鑑：いろんな ことで カードが もらえるよ。 カードから 授業にも 行けるの',b:'🃏 カード',go:()=>CARDS.open()},
- {ok:()=>1,en:"The shop has radios, music, and grammar notes.",ja:'🛍️ ショップ：ラジオ・曲・文法ノートが 買えるよ。 コインは 勉強すると たまるからね',b:'🛍️ ショップ',go:()=>H.shop()},
- {ok:()=>!!window.ADV,en:"There's a treasure map, too!",ja:'🗺️ 宝の地図：浜辺の ぼうけん。 進むと いい ことが あるかも'},
- {ok:()=>1,en:"Hamako comes by sometimes. She's funny.",ja:'🍬 ハマ子さん：ときどき 来て おかしと コインを くれる おばちゃん。 語呂あわせが とくい'},
-];
-function soudan(){const lv=LV.includes(myLv())?myLv():'es';
-  const menu=()=>{const ks=Object.keys(TOPIC),pick=shuffle(ks).slice(0,4),bad=Math.random()<.6?TOPIC[pickL(pick)].bad[0]:null;
-    return [...pick.map(k=>({en:pickL(TOPIC[k].q),ok:1,nx:'t_'+k})),...(bad?[{en:bad[0],ok:0,err:bad[1]||null,h:bad[2]||null}]:[]),{en:pickL(["That's all. Thank you, Mina!","Bye, Mina!"]),ok:1,nx:'bye'}]};
-  const nodes={a:{s:()=>pickL(["Hi! What do you want to talk about?","Hello! Ask me anything.","Hi there! How can I help you?"]),j:()=>'なにを 話そうか？ 英語で きいてね（日本語の ヒントも 出すよ）',o:menu},
-    m:{s:()=>pickL(["Anything else?","Any other questions?","What else do you want to know?"]),j:()=>'ほかに ききたい ことは？',o:menu},
-    bye:{end:1,good:1,t:'そうだん',s:"Anytime! I'm always here for you.",j:'いつでも 来てね。 ずっと ここに いるよ'}};
-  Object.keys(TOPIC).forEach(k=>{let cur=null;nodes['t_'+k]={s:()=>(cur=TOPIC[k].run()).s,j:()=>cur.j,get btns(){return cur&&cur.btns},o:()=>[{en:pickL(["Thank you! I have another question.","I see. Can I ask one more?","OK, thanks!"]),ok:1,re:"Of course!",rj:'もちろん！',nx:'m'},{en:"Bye, Mina!",ok:1,nx:'bye'}]}});
-  begin({id:'soudan',kind:'sou',lv,t:'先生に そうだん',ico:'💡',start:'a',nodes});
-  const [ex,tx]=ML('sn_soudan',{lvn:LVN[lv]});minaJa(ex,tx)}
 
-window.SENSEI={open:list,play,tokkun,soudan,karte,rec:()=>SD,scenes:SC,endsN,endsAll,endsOf,endsGot,weak:weakAll,good:goodG,gScore,patterns,patText,check,_ready:()=>P};
+window.SENSEI={open:list,play,tokkun,karte,rec:()=>SD,scenes:SC,endsN,endsAll,endsOf,endsGot,weak:weakAll,good:goodG,gScore,patterns,patText,check,_ready:()=>P};
 })();
