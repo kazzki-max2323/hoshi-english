@@ -169,7 +169,7 @@ function play(id,from){const s=sceneOf(id);if(!s)return list();begin(s,from)}
 
 /* the lines in the log */
 function scrollLog(){const l=$('slog');if(l)l.scrollTo({top:l.scrollHeight,behavior:'smooth'})}
-function mina(en,ja,ex='smile',cls='',btns){if(!live())return;const d=document.createElement('div'),show=jaOn(P.s.lv)||P.s.kind==='sou';d.className='lsay snm '+cls;
+function mina(en,ja,ex='smile',cls='',btns){if(!live())return;en=String(en);en=en.charAt(0).toUpperCase()+en.slice(1);const d=document.createElement('div'),show=jaOn(P.s.lv)||P.s.kind==='sou';d.className='lsay snm '+cls;
   d.innerHTML=`<span class="lface">${MINA.face('m',ex)}</span><div class="lbody"><p class="ken">${GS()?GS().mark(en):esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p>${ja?`<small class="kja ${show?'on':''}">${esc(ja)}</small>${show?'':'<button class="kjab">訳を 見る</button>'}`:''}${btns?`<span class="snbtns">${btns.map((b,i)=>`<button class="sub" data-bi="${i}">${b[0]}</button>`).join('')}</span>`:''}</div>`;
   $('slog').appendChild(d);P.lines.push(en);if(GS()){GS().record(en);GS().bind(d)}
   d.querySelector('.ksay').onclick=e=>{e.stopPropagation();talk(en)};
@@ -185,20 +185,28 @@ function you(en,cls='',typed){if(!live())return;const d=document.createElement('
 function note(html){if(!live())return;const d=document.createElement('p');d.className='knote';d.innerHTML=html;$('slog').appendChild(d);scrollLog()}
 
 /* ---------- a node, made ready: words filled, answers in one shape ---------- */
-const OPT=(o,V,inl)=>({_r:o,en:fill(o.en,V,inl),ok:o.ok,err:o.err||null,re:fill(o.re,V,inl),rj:fill(o.rj,V,inl),nx:o.nx,k:o.k,h:fill(o.h,V,inl),go:o.go});
+/* Mina's reply must talk about what this answer says. A reply word ({job}…) the answer does not have:
+   read it from the answer's own words ("I want to be a teacher" → a teacher), else a plain "nice" */
+const PLAIN=[["Nice answer!","いい 答え！"],["Great! I like that.","いいね！ すてき"],["Oh, I see!","なるほど！"],["Wonderful!","すばらしい！"]];
+function fitReply(enRaw,re,rj,V,inl,ctx){if(re==null)return [null,null];const en=fill(enRaw,V,inl),own=slotsIn(enRaw),V2=Object.assign({},V),t=' '+raw(en).join(' ')+' ';
+  let ok=true;new Set([...slotsIn(re),...slotsIn(rj)]).forEach(k=>{if(own.has(k))return;
+    const e=SLOT[k].find(x=>[x[0],x[2]].some(w=>w&&/^[a-z ]+$/i.test(w)&&t.includes(' '+raw(w).join(' ')+' ')));if(e)V2[k]=e;else if(!(ctx&&ctx.has(k)))ok=false});
+  if(!ok){const p=pickL(PLAIN);return p}return [fill(re,V2,inl),fill(rj,V2,inl)]}
+const OPT=(o,V,inl,ctx)=>{const en=fill(o.en,V,inl),[re,rj]=o.ok?fitReply(o.en,o.re,o.rj,V,inl,ctx):[fill(o.re,V,inl),fill(o.rj,V,inl)];return {_r:o,en,ok:o.ok,err:o.err||null,re,rj,nx:o.nx,k:o.k,h:fill(o.h,V,inl),go:o.go}};
 function ready(N){const s=P.s,inl=s.slots;
   if(N.dr)return drillNode(typeof N.dr==='string'?N.dr:drillPick(),N.nx);
-  const raw=typeof N.o==='function'?N.o():N.o;
-  return {s:fill(typeof N.s==='function'?N.s():Array.isArray(N.s)?pickL(N.s):N.s,P.V,inl),j:fill(typeof N.j==='function'?N.j():N.j,P.V,inl),ask:fill(N.ask,P.V,inl),ex:N.ex,g:N.g,nx:N.nx,btns:N.btns,
-    o:(raw||[]).map(o=>OPT(o,P.V,inl))}}
+  const ro=typeof N.o==='function'?N.o():N.o;
+  const out={s:fill(typeof N.s==='function'?N.s():Array.isArray(N.s)?pickL(N.s):N.s,P.V,inl),j:fill(typeof N.j==='function'?N.j():N.j,P.V,inl),ask:fill(N.ask,P.V,inl),ex:N.ex,g:N.g,nx:N.nx,btns:N.btns};
+  /* the words already said (in the talk so far and in Mina's line) may be in a reply; an answer's own words only in its own reply */
+  out.ctx=new Set(Object.keys(P.V));out.o=(ro||[]).map(o=>OPT(o,P.V,inl,out.ctx));return out}
 /* a grammar check from the drills: this talk's grammar, the weak ones first, then the level's notes the player has */
 function drillPick(){const s=P.s,pool=(s.g||[]).filter(id=>DR[id]),lvl=GLV[s.lv],weak=weakAll().filter(id=>DR[id]&&(id.startsWith(lvl)||pool.includes(id)));
   const ownL=(ST.gram.owned||[]).filter(id=>DR[id]&&id.startsWith(lvl));
   const r=Math.random();if(weak.length&&r<.4)return pickL(weak);if(ownL.length&&r<.6)return pickL(ownL);
   return pickL(pool.length?pool:Object.keys(DR).filter(id=>id.startsWith(lvl)))}
-function drillNode(id,nx){const d=pickL(DR[id]||DR.es_be),V={},good=shuffle(d.good).slice(0,2),bad=shuffle(d.bad).slice(0,2);
-  const re=fill(d.re,V),rj=fill(d.rj,V),s=fill(d.s,V),j=fill(d.j,V);
-  return {s,j,g:id,nx,drill:1,o:[...good.map(en=>({en:fill(en,V),ok:1,re,rj,nx})),...bad.map(b=>({en:fill(b[0],V),ok:0,err:b[1]||null,h:b[2]||null}))]}}
+function drillNode(id,nx){const d=pickL(DR[id]||DR.es_be),V={},gi=shuffle(d.good.map((g,i)=>i)).slice(0,2),bad=shuffle(d.bad).slice(0,2);
+  const s=fill(d.s,V),j=fill(d.j,V),ctx=new Set(Object.keys(V));
+  return {s,j,g:id,nx,drill:1,ctx,V,o:[...gi.map(i=>{const en=d.good[i],r0=d.res?d.res[i]:[d.re,d.rj],[re,rj]=fitReply(en,r0[0],r0[1],V,null,ctx);return {en:fill(en,V),ok:1,re,rj,nx,_r:{en,ok:1,re:r0[0],rj:r0[1],nx}}}),...bad.map(b=>({en:fill(b[0],V),ok:0,err:b[1]||null,h:b[2]||null}))]}}
 
 function turn(){if(!live())return;const raw=P.s.nodes[P.at];if(!raw)return finish({end:1,good:1,t:'おしまい',s:'Good job today!',j:'きょうも よく がんばったね！'});
   if(raw.end)return finish(raw);
@@ -238,9 +246,10 @@ function typed(v,spoken){if(!live())return;const N=P.N,lv=P.s.lv;
     setTimeout(()=>{const g=N.o.filter(o=>o.ok),h=pickL(HUH);mina(h[0],h[1],'think','k-huh');const [ex,tx]=ML('sn_huh',{ex:pickL(g.length?g:N.o).en});minaJa(ex,tx);setTimeout(answers,500)},600);return}
   let o=N.o[i];
   /* they wrote other words for the changing part (soccer for tennis…): Mina answers about their words */
-  if(o.ok&&o._r&&!same(v,o.en)){const t=' '+raw(v).join(' ')+' ';let ch=0;
-    slotsIn(o._r.en).forEach(k=>{const e=SLOT[k].find(x=>[x[0],x[2]].some(w=>w&&/^[a-z ]+$/i.test(w)&&t.includes(' '+raw(w).join(' ')+' ')));if(e&&e!==P.V[k]){P.V[k]=e;ch=1}});
-    if(ch){o=N.o[i]=OPT(o._r,P.V,P.s.slots)}}
+  if(o.ok&&o._r&&!same(v,o.en)){const t=' '+raw(v).join(' ')+' ',VV=N.V||P.V;
+    slotsIn(o._r.en).forEach(k=>{const e=SLOT[k].find(x=>[x[0],x[2]].some(w=>w&&/^[a-z ]+$/i.test(w)&&t.includes(' '+raw(w).join(' ')+' ')));if(e)VV[k]=e});
+    /* the reply is read against what they wrote, not against the answer it looked like */
+    const [re,rj]=fitReply(v,o._r.re,o._r.rj,VV,P.s.slots,N.ctx);o=N.o[i]=Object.assign({},o,{re,rj})}
   if(o.ok){P.st.free++;SD.free++;if(P.st.freeCoins<3){P.st.freeCoins++;setTimeout(()=>{const r=$('slog')&&$('slog').getBoundingClientRect();if(r)H.coinBurst(r.right-40,r.bottom-30,1)},400)}
     /* grammar of the level in what they wrote: praise it */
     const G=GS()&&P.s.kind!=='sou'?GS().find(v).filter(g=>g.lv===GLV[lv]):[];

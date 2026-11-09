@@ -187,7 +187,7 @@ const SENSEI_SLOT={
 
 /* ミナ先生の ひとこと 質問（文法ドリル）。会話の とちゅうに 入る（場面の dr ノード）ほか、「苦手 とっくん」でも つかう。
    D(ミナの 英語, 日本語, [正しい 答え…], [[まちがい, 種類]…], 返事(英), 返事(日))。 {slot} は 毎回 ちがう ことばに なる */
-const SENSEI_DRILL=(()=>{const D=(s,j,good,bad,re,rj)=>({s,j,good,bad,re,rj});return {
+const SENSEI_DRILL=(()=>{const D=(s,j,good,bad,re,rj)=>Array.isArray(re)?{s,j,good,bad,res:re}:{s,j,good,bad,re,rj}; /* re が [[英,日]…] なら 正しい 答えごとの 返事 */return {
  es_be:[
   D("Are you a student?","あなたは 生徒ですか？",["Yes, I am.","Yes, I am a student."],[["Yes, I is.",'beI'],["Yes, you are.",0]],"Me too! I'm a student of the sea.","わたしも！ 海の 生徒なの"),
   D("How are you today?","きょうの 調子は？",["I'm {feel}.","I am {feel}."],[["I are {feel}.",'beI'],["You is {feel}.",'beYou']],"I see. Thank you for telling me.","そっか。 教えてくれて ありがとう"),
@@ -202,7 +202,7 @@ const SENSEI_DRILL=(()=>{const D=(s,j,good,bad,re,rj)=>({s,j,good,bad,re,rj});re
   D("How many {animal_2} do you see? I see {num}!","{animal_j}が 何びき 見える？ わたしは {num_j}！",["I see {num} {animal_2}.","{num} {animal_2}!"],[["I see {num} {animal}.",'plural']],"Same! We have good eyes.","おなじ！ 目が いいね"),
   D("I have {num} {thing_2}. What do you have?","わたし {thing_j}を {num_j}つ もってるよ。 あなたは？",["I have two {thing_2}.","I have one {thing}."],[["I have two {thing}.",'plural']],"Let's put them together!","あわせて ならべよう！")],
  es_can:[
-  D("Can you swim?","およげる？",["Yes, I can.","No, I can't.","Yes, I can swim."],[["Yes, I can swims.",'canTo'],["Yes, I can to swim.",'canTo']],"Great! The sea is waiting for you.","いいね！ 海が まってるよ"),
+  D("Can you swim?","およげる？",["Yes, I can.","No, I can't.","Yes, I can swim."],[["Yes, I can swims.",'canTo'],["Yes, I can to swim.",'canTo']],[["Great! The sea is waiting for you.","いいね！ 海が まってるよ"],["That's OK! I can teach you.","だいじょうぶ！ 先生が 教えるよ"],["Great! The sea is waiting for you.","いいね！ 海が まってるよ"]]),
   D("Tell me one thing you can do.","できる こと 1つ おしえて",["I can cook.","I can sing.","I can run fast."],[["I can to cook.",'canTo'],["I can sings.",'canTo']],"Wow, cool!","わあ、 かっこいい！")],
  es_want:[
   D("What do you want for lunch?","お昼は なにが いい？",["I want {food}.","{food}, please."],[["I wants {food}.",'wantS'],["I want to {food}.",0]],"{food}! Good choice.","{food_j}！ いいね")],
@@ -227,8 +227,8 @@ const SENSEI_DRILL=(()=>{const D=(s,j,good,bad,re,rj)=>({s,j,good,bad,re,rj});re
  jh_be:[
   D("Are Sora and Pochi friends?","ソラと ポチは ともだち？",["Yes, they are.","Yes, they are best friends."],[["Yes, they is.",'be3'],["Yes, he is.",0]],"They are! Always together.","そう！ いつも いっしょ")],
  jh_do:[
-  D("Does Gen like coffee?","ゲンじいは コーヒー すき？",["No, he doesn't.","Yes, he does."],[["No, he don't.",'doNeg'],["No, he isn't.",'doNeg']],"He drinks green tea only!","緑茶しか のまないの！"),
-  D("Do you play video games?","ゲームは する？",["Yes, I do.","No, I don't."],[["Yes, I am.",'doQ2'],["No, I not.",'doNeg']],"Me too, sometimes!","わたしも ときどき！")],
+  D("Does Gen like coffee?","ゲンじいは コーヒー すき？",["No, he doesn't.","Yes, he does."],[["No, he don't.",'doNeg'],["No, he isn't.",'doNeg']],[["Right! He drinks green tea only.","正解！ 緑茶しか のまないの"],["Ha ha, no! He drinks green tea only. But good English!","あはは、 じつは 緑茶 だけ。 でも 英語は バッチリ！"]]),
+  D("Do you play video games?","ゲームは する？",["Yes, I do.","No, I don't."],[["Yes, I am.",'doQ2'],["No, I not.",'doNeg']],[["Me too, sometimes!","わたしも ときどき！"],["I see. Reading is fun, too!","そっか。 本も たのしいよね"]])],
  jh_3s:[
   D("What does {who_n} do on weekends?","{who_j}は 週末 なにを する？",["{who} {vr_3}.","{who} {vi_3}."],[["{who} {vr}.",'s3'],["{who} {vi}.",'s3']],"Sounds like a nice weekend.","すてきな 週末だね"),
   D("Does your friend like {sport}?","友だちは {sport_j}が すき？",["Yes, she likes {sport}.","No, she doesn't like {sport}."],[["Yes, she like {sport}.",'s3'],["No, she doesn't likes {sport}.",'s3do']],"I see!","なるほど！"),
@@ -236,7 +236,7 @@ const SENSEI_DRILL=(()=>{const D=(s,j,good,bad,re,rj)=>({s,j,good,bad,re,rj});re
  jh_plural:[
   D("How many children are there on the beach?","浜辺に 子どもは 何人？",["There are three children.","Three children."],[["There are three childs.",'pluralX']],"Yes, they're building a castle.","うん、 お城を 作ってるね")],
  jh_pron:[
-  D("Is this your towel?","これ あなたの タオル？",["Yes, it's mine.","No, it's not mine."],[["Yes, it's me.",'pron'],["Yes, it's my.",'pron']],"Here you are!","はい どうぞ！")],
+  D("Is this your towel?","これ あなたの タオル？",["Yes, it's mine.","No, it's not mine."],[["Yes, it's me.",'pron'],["Yes, it's my.",'pron']],[["Here you are!","はい どうぞ！"],["Hmm, then whose is it? Maybe Sora's.","じゃあ だれのだろう？ ソラのかな"]])],
  jh_imp:[
   D("The waves are big today. What do you say to Sora?","きょうは 波が 大きい。 ソラに なんて 言う？",["Be careful!","Don't swim far!"],[["You careful!",'imp'],["Don't swims far!",'imp']],"Good. Safety first!","いいね。 安全 第一！")],
  jh_prog:[
@@ -286,7 +286,7 @@ const SENSEI_DRILL=(()=>{const D=(s,j,good,bad,re,rj)=>({s,j,good,bad,re,rj});re
   D("How was the movie?","映画 どうだった？",["It was boring.","It was exciting!"],[["I was boring.",'part']],"Ha ha, I see!","あはは、 なるほど！"),
   D("How do you feel after the test?","テストの あと、 気分は？",["I'm tired.","I'm excited!"],[["I'm tiring.",'part']],"You did your best!","がんばったね！")],
  jh_indq:[
-  D("Do you know where Pochi is?","ポチが どこに いるか 知ってる？",["I don't know where he is.","I know where he is!"],[["I don't know where is he.",'indq']],"Let's look for him.","さがしに いこう"),
+  D("Do you know where Pochi is?","ポチが どこに いるか 知ってる？",["I don't know where he is.","I know where he is!"],[["I don't know where is he.",'indq']],[["Let's look for him.","さがしに いこう"],["Really? Show me!","ほんと？ 教えて！"]]),
   D("Do you know what time it is?","いま 何時か わかる？",["I don't know what time it is.","Sorry, I don't know."],[["I don't know what time is it.",'indq']],"Let me check.","見てみるね")],
  jh_subj:[
   D("If you were a bird, where would you go?","もし 鳥だったら どこに 行く？",["If I were a bird, I would fly to Hawaii.","I would fly over the sea."],[["If I am a bird, I would fly to Hawaii.",'subj'],["If I were a bird, I will fly to Hawaii.",'subj']],"Take me with you!","わたしも つれてって！"),
@@ -323,7 +323,7 @@ const SENSEI_DRILL=(()=>{const D=(s,j,good,bad,re,rj)=>({s,j,good,bad,re,rj});re
  hs_seq:[
   D("Did you know Hana was a surfer?","ハナさんが サーファーだって 知ってた？",["No, I didn't know she was a surfer.","I thought she was a cook!"],[["No, I didn't know she is a surfer.",'seq']],"Surprise!","びっくりでしょ！")],
  hs_emph:[
-  D("Who broke the window? Sora?","窓を わったの だれ？ ソラ？",["No, it was Pochi that broke it.","It was the wind that broke it."],[["No, it is Pochi who broke it yesterday.",0]],"Pochi?! Oh no!","ポチ？！ あらら！")],
+  D("Who broke the window? Sora?","窓を わったの だれ？ ソラ？",["No, it was Pochi that broke it.","It was the wind that broke it."],[["No, it is Pochi who broke it yesterday.",0]],[["Pochi?! Oh no!","ポチ？！ あらら！"],["The wind! What a storm last night.","風かあ！ ゆうべは すごい あらしだった"]])],
  hs_neg:[
   D("Are all fish good to eat?","魚って ぜんぶ 食べられる？",["Not all fish are good to eat.","No, not all of them."],[["All fish are not good to eat.",'neg']],"Right, be careful with blowfish!","そう、 フグには 気をつけてね！")],
  hs_caus:[
