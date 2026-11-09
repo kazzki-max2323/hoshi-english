@@ -204,6 +204,12 @@
 .gopts button{font-family:"Libre Baskerville",Georgia,serif;font-size:1rem;font-weight:700;min-height:46px}
 .gopts button.right{background:rgba(85,224,180,.3)!important;border-color:#55e0b4!important;opacity:1!important}
 .gopts button.wrong{background:rgba(226,71,90,.3)!important;border-color:var(--red)!important;opacity:1!important;animation:shk .3s}
+.gtry .gtt{margin:2px 0 0;font-weight:800;font-size:.95rem;color:#ffe7a8;text-align:center}
+.gsent.sm{font-size:.98rem}
+.gsent.sm b{color:#55e0b4}
+.gtrybox{width:100%;box-sizing:border-box;margin:4px 0;padding:8px 12px;border-radius:12px;background:rgba(255,210,63,.1);border:1px dashed rgba(255,210,63,.6);text-align:left;font-size:.82rem}
+.gtrybox ul{margin:4px 0 0;padding-left:1.1em;line-height:1.7}
+.gtrybox li b{color:var(--gold)}
 .ritem.set{background:linear-gradient(90deg,rgba(255,179,71,.2),rgba(255,92,138,.12));box-shadow:inset 0 0 0 1px rgba(255,179,71,.5)}
 .shop .tabs button{font-size:.66rem}
 

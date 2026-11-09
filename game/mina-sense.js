@@ -22,7 +22,7 @@ const goCards=s=>['🃏 カード図鑑を 見る',()=>CARDS.open(s)];
 const goKaiwa=()=>['💬 会話を ひらく',()=>KAIWA.open()];
 const goTalk=id=>['💬 話しに 行く',()=>KAIWA.play(id)];
 const LVI=lv=>['es','jh','hs','adv'].indexOf(lv);
-const goGram=(lv,i)=>['📚 文法ノートを 見る',()=>{const n=GRAMMAR[lv].notes[i];(ST.gram.owned||[]).includes(n.id)?H.gramNote(lv,i):H.gramShop(lv)}];
+const goGram=(lv,i)=>['📚 文法ノートを 見る',()=>{const n=GRAMMAR[lv].notes[i];(ST.gram.owned||[]).includes(n.id)?H.gramNote(lv,i):H.gramTry?H.gramTry(lv,i,back):H.gramShop(lv)}];
 
 /* ---------- what is true now (read again every 10 s at most) ---------- */
 let FC=null,FT=-1e9;
@@ -155,9 +155,14 @@ const R=[
 ['x_gramUnread',3,F=>{const a=F.gram.filter(g=>g.own&&!g.clr);if(!a.length)return null;const g=pickL(a);return {g:g.n.t,_g:g}},v=>goGram(v._g.lv,v._g.i)],
 ['x_gramCount',1,F=>{const n=F.gram.filter(g=>g.clr).length;return n?{n,tot:F.gram.length}:null},()=>['📚 文法を 見る',()=>H.gramList()]],
 ['x_gramBuy',2,F=>{const lv=lvOf(F)==='adv'?'hs':lvOf(F),g=F.gram.find(g=>g.lv===lv&&!g.own);return g&&F.coins>=GRAMMAR[lv].price?{g:g.n.t,price:GRAMMAR[lv].price,lvn:LVN[lv],_g:g}:null},v=>['🛍️ 文法ノートを 見る',()=>H.gramShop(v._g.lv)]],
-['x_gramNone',3,F=>F.gram.some(g=>g.own)?null:{},()=>['🛍️ 文法ノートを 見る',()=>H.gramShop('es')]],
+['x_gramNone',3,F=>F.gram.some(g=>g.own)?null:{},()=>['📚 文法ノートを 見る',()=>H.gramList('es')]],
 ['x_gramRule',3,F=>{const a=F.gram.filter(g=>g.own&&g.n.r&&g.n.r.length);if(!a.length)return null;const g=pickL(a);return {g:g.n.t,r:pickL(g.n.r),_g:g}},v=>goGram(v._g.lv,v._g.i)],
 ['x_gramEx',3,F=>{const a=F.gram.filter(g=>g.own&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=pickL(g.n.ex);return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>['🔊 きいてみる',()=>H.say('gram',v.en)]],
+/* おためし（game/game.js の gramTry）: 🔒の ノートも ルール1つと テスト1もんを むりょうで */
+['x_gramTryLeft',3,F=>{const T=ST.gram.tried||[],a=F.gram.filter(g=>!g.own&&T.includes(g.n.id));if(!a.length)return null;const g=pickL(a),G=GRAMMAR[g.lv];
+  return {g:g.n.t,price:G.price,reward:G.reward,q:g.n.q.length,ex:g.n.ex.length,can:F.coins>=G.price?'いまの コインで かえるよ':'コインを ためて かおう',_g:g}},v=>['🔍 もう一度 おためし',()=>H.gramTry(v._g.lv,v._g.i,back)]],
+['x_gramTryNew',2,F=>{if((ST.gram.tried||[]).length>2)return null;const lv=lvOf(F)==='adv'?'hs':lvOf(F),a=F.gram.filter(g=>g.lv===lv&&!g.own&&!(ST.gram.tried||[]).includes(g.n.id));if(!a.length)return null;const g=pickL(a);
+  return {g:g.n.t,lvn:LVN[lv],_g:g}},v=>['🔍 おためし する',()=>H.gramTry(v._g.lv,v._g.i,back)]],
 ['x_gramPeek',2,F=>{const a=F.gram.filter(g=>!g.own&&g.lv===(lvOf(F)==='adv'?'hs':lvOf(F))&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=g.n.ex[0];return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>goGram(v._g.lv,v._g.i)],
 
 /* ===== 文法テスト と 授業の つながり（game/gram-link.js） ===== */

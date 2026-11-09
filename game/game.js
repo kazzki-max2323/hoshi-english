@@ -474,12 +474,12 @@ function gramList(lv='es'){
     <div class="qtop"><button class="x" id="gx" aria-label="もどる">←</button><b>📚 文法ノート</b><span class="qn">✓ ${clr}/${G.notes.length}</span></div>
     <div class="seg">${GLV.map(k=>`<button data-gl="${k}" class="${lv===k?'on':''}">${GRAMMAR[k].ico} ${GRAMMAR[k].name}</button>`).join('')}</div>
     <div class="rlist glist">${G.notes.map((n,i)=>{const o=gOwned(n.id),c=gCleared(n.id);
-      return `<button class="gnote ${o?'':'locked'} ${c?'clear':''}" data-gn="${i}"><span class="gi">${c?'✅':o?'📘':'🔒'}</span><span class="gt">${i+1}. ${esc(n.t)}</span><small>${c?'クリア':o?'よめるよ':'ショップで かえるよ'}</small></button>`}).join('')}</div>
+      return `<button class="gnote ${o?'':'locked'} ${c?'clear':''}" data-gn="${i}"><span class="gi">${c?'✅':o?'📘':'🔒'}</span><span class="gt">${i+1}. ${esc(n.t)}</span><small>${c?'クリア':o?'よめるよ':'🔍 おためし できるよ'}</small></button>`}).join('')}</div>
     ${own<G.notes.length?`<div class="row"><button id="gshop" class="sub">🛍️ ショップで 文法ノートを かう</button></div>`:''}
   </section>`);
   $('gx').onclick=()=>{SFX.pop();home()};
   panel.querySelectorAll('[data-gl]').forEach(b=>b.onclick=()=>{SFX.pop();gramList(b.dataset.gl)});
-  panel.querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{const n=G.notes[+b.dataset.gn];if(!gOwned(n.id)){SFX.tie();toast(`🔒 ショップで「${n.t}」を かうと よめるよ`);return}SFX.flip();gramNote(lv,+b.dataset.gn)});
+  panel.querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{const n=G.notes[+b.dataset.gn];if(!gOwned(n.id)){SFX.flip();gramTry(lv,+b.dataset.gn);return}SFX.flip();gramNote(lv,+b.dataset.gn)});
   const gs=$('gshop');if(gs)gs.onclick=()=>{SFX.vopen();shop('gram',lv)}}
 function gramNote(lv,i){const G=GRAMMAR[lv],n=G.notes[i];loadAud('gram');emit('gramView',lv,i,n);
   show('gram',`<section class="pnl gram gview">
@@ -519,6 +519,43 @@ function gramQuiz(lv,i){const G=GRAMMAR[lv],n=G.notes[i];let k=0,miss=0;
     const gr=$('gr');if(gr)gr.onclick=()=>gramQuiz(lv,i);$('gb').onclick=()=>gramNote(lv,i)};
   ask()}
 
+/* おためし: 買う前に ルール1つと テスト1もんを むりょうで。のこり（ルール・れいぶん・テスト・クリアの コイン）は ノートで、と さそう
+   ST.gram.tried = おためし した ノートの id（ミナ先生が 「のこりも やってみる？」と さそう。game/mina-sense.js の x_gramTryLeft） */
+function gramTry(lv,i,back){const G=GRAMMAR[lv],n=G.notes[i],q=n.q[0],[before,after]=q[0].split('___');back=back||(()=>gramList(lv));
+  if(gOwned(n.id)){gramNote(lv,i);return}
+  show('gram',`<section class="pnl gram quizg gtry">
+    <div class="qtop"><button class="x" id="gx" aria-label="もどる">←</button><b>🔍 おためし</b><span class="qn">${G.ico} むりょう</span></div>
+    <p class="gtt">📕 ${esc(n.t)}</p>
+    <ul class="grules"><li>${esc(n.r[0])}</li></ul>
+    <p class="gsent">${esc(before)}<span class="blank" id="bl">？</span>${esc(after)}</p>
+    <p class="note">${esc(q[3])}</p>
+    <div class="gopts">${q[1].map((o,j)=>`<button data-go="${j}">${esc(o)}</button>`).join('')}</div>
+  </section>`);
+  $('gx').onclick=()=>{SFX.pop();back()};
+  panel.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const j=+b.dataset.go,ok=j===q[2];panel.querySelectorAll('[data-go]').forEach(x=>x.disabled=true);
+    panel.querySelector(`[data-go="${q[2]}"]`).classList.add('right');$('bl').textContent=q[1][q[2]];$('bl').classList.add(ok?'ok':'ng');
+    if(ok)SFX.coin();else{b.classList.add('wrong');SFX.tie()}
+    if(!ST.gram.tried)ST.gram.tried=[];if(!ST.gram.tried.includes(n.id)){ST.gram.tried.push(n.id);save()}
+    emit('gramTry',lv,i,n,ok);setTimeout(()=>tryEnd(ok),ok?900:1700)});
+  const tryEnd=ok=>{const short=G.price-ST.coins,M=window.MINA;
+    const v={g:'「'+esc(n.t)+'」',price:G.price,reward:G.reward,left:n.r.length-1,q:n.q.length};
+    let mh='';try{if(M){const [ex,tx]=M.line(ok?'gramTryOk':'gramTryNg',v);mh=`<div class="lsay by-m glink"><span class="lface">${M.face('m',ex)}</span><div class="lbody"><p>${tx}</p></div></div>`}}catch(e){}
+    show('gram',`<section class="pnl gram chest gtry">
+      <div class="box">${ok?'⭕':'💦'}</div><b class="ct">${ok?'せいかい！':'おしい！'}</b>
+      <p class="gsent sm">${esc(before)}<b>${esc(q[1][q[2]])}</b>${esc(after)}</p>
+      ${mh}
+      <div class="gtrybox"><b>📕 ノートを かうと</b><ul>
+        ${n.r.length>1?`<li>📌 ルール あと ${n.r.length-1}こ</li>`:''}
+        <li>💬 れいぶん ${n.ex.length}つ（🔊 きける）</li>
+        <li>✏️ テスト ${n.q.length}もん → ノーミスで <b>🪙${G.reward}</b>（かった ねだんの ${Math.round(G.reward/G.price)}ばい）</li></ul></div>
+      <div class="row"><button id="gbuy" ${short>0?'disabled':''}>📘 かう ${coin(G.price)}</button><button id="gb" class="sub">もどる</button></div>
+      ${short>0?`<p class="note">あと 🪙${short} で かえるよ</p>`:''}
+    </section>`);
+    $('gb').onclick=()=>{SFX.pop();back()};
+    $('gbuy').onclick=()=>{if(gOwned(n.id)||ST.coins<G.price)return;ST.coins-=G.price;ST.gram.owned.push(n.id);save();head();SFX.save();
+      toast(`📘 <b>${esc(n.t)}</b><small>ホームの 📚 文法から いつでも よめるよ</small>`);emit('gramBuy',lv,i,n,'try');gramNote(lv,i)}};
+}
+
 /* ---------- shop ---------- */
 const nowPh=()=>phaseOf(GH())[1];
 const onSale=it=>!it.t||it.t.includes(nowPh());
@@ -549,7 +586,7 @@ function shop(tab,glv='es'){
   if(tab==='gram'){const G=GRAMMAR[glv],left=G.notes.filter(n=>!gOwned(n.id)),setP=Math.floor(left.length*G.price*.8/10)*10;
     body=`<div class="seg">${GLV.map(k=>`<button data-sg="${k}" class="${glv===k?'on':''}">${GRAMMAR[k].ico} ${GRAMMAR[k].name}</button>`).join('')}</div>`
       +(left.length>1?`<div class="ritem set"><span class="ri">📦</span><span class="rn"><b>${G.name}の 文法ノート まとめて ${left.length}さつ</b><small>2わり びき（ばらばらだと 🪙${(left.length*G.price).toLocaleString()}）</small></span><span class="rbtn"><button class="buy" data-gset="${glv}" ${ST.coins<setP?'disabled':''}>かう ${coin(setP)}</button></span></div>`:'')
-      +G.notes.map((n,i)=>{const o=gOwned(n.id);return row(o?'📘':'📕',`${i+1}. ${esc(n.t)}`,o?'✨ もっているよ（ホームの 📚 文法から よめる）':`ルール・れいぶん・れんしゅう3もん`,o?`<button class="play" data-gopen="${i}">ひらく</button>`:`<button class="buy" data-gb="${n.id}" ${ST.coins<G.price?'disabled':''}>かう ${coin(G.price)}</button>`,o?'has':'')}).join('')}
+      +G.notes.map((n,i)=>{const o=gOwned(n.id);return row(o?'📘':'📕',`${i+1}. ${esc(n.t)}`,o?'✨ もっているよ（ホームの 📚 文法から よめる）':`ルール・れいぶん・れんしゅう3もん`,o?`<button class="play" data-gopen="${i}">ひらく</button>`:`<button class="buy" data-gb="${n.id}" ${ST.coins<G.price?'disabled':''}>かう ${coin(G.price)}</button><button class="sub" data-gtry="${i}">🔍 おためし</button>`,o?'has':'')}).join('')}
   show('shop',`<section class="pnl shop">
     <div class="qtop"><button class="x" id="sx" aria-label="ショップを とじる">←</button><b>🛍️ ショップ</b><span></span></div>
     <div class="seg tabs">${TABS.map(([k,i,n])=>`<button data-t="${k}" class="${tab===k?'on':''}"><span>${i}</span>${n}</button>`).join('')}</div>
@@ -576,6 +613,7 @@ function shop(tab,glv='es'){
     ST.gram.owned.push(n.id);save();SFX.save();toast(`📘 <b>${n.t}</b><small>ホームの 📚 文法から よめるよ</small>`);shop('gram',glv)});
   panel.querySelectorAll('[data-gset]').forEach(b=>b.onclick=()=>{const G=GRAMMAR[glv],left=G.notes.filter(n=>!gOwned(n.id)),setP=Math.floor(left.length*G.price*.8/10)*10;if(!spend(setP,b))return;
     left.forEach(n=>ST.gram.owned.push(n.id));save();SFX.fanfare(1);toast(`📦 <b>${G.name}の 文法ノート ${left.length}さつ</b> を かった！`);shop('gram',glv)});
+  panel.querySelectorAll('[data-gtry]').forEach(b=>b.onclick=()=>{SFX.flip();gramTry(glv,+b.dataset.gtry,()=>shop('gram',glv))});
   panel.querySelectorAll('[data-gopen]').forEach(b=>b.onclick=()=>{SFX.flip();gramNote(glv,+b.dataset.gopen)});
   /* events: buy, close the shop and watch it happen on the beach */
   panel.querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>{const it=CATALOG.event.find(e=>e.id===b.dataset.ev);if(!onSale(it)||!spend(it.p,b))return;
@@ -585,7 +623,7 @@ function shop(tab,glv='es'){
 function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={books,book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
+window.HE={books,book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramTry,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();
