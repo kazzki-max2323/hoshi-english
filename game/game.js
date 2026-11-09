@@ -263,9 +263,17 @@ function spawnMeteor(gold){const W=$('window').getBoundingClientRect(),b=documen
 FX.meteor=()=>{let night=false;try{night=SC.dbg().dark>.6}catch(e){}if(night&&!$('meteor'))spawnMeteor(Math.random()<.08)};
 
 /* when the app goes to the background (another app, the lock screen, another tab) every sound stops, and comes back when it returns */
+/* 隠れているあいだは だれも 音を 起こせない：浜辺の 音（波・雨・音楽・住人）は タイマーで 動きつづけていて、
+   音を 鳴らすたびに AudioContext を resume していたので、止めても すぐ また 鳴りだしていた。読み上げ（speechSynthesis）も 同じ */
+{const off=()=>document.hidden;
+ [window.AudioContext,window.webkitAudioContext].forEach(C=>{const P=C&&C.prototype;if(!P||!P.resume||P.resume._bg)return;const r=P.resume;
+   P.resume=function(){if(off()){try{this.state==='running'&&this.suspend()}catch(e){}return Promise.resolve()}return r.apply(this,arguments)};P.resume._bg=1});
+ if(window.speechSynthesis&&speechSynthesis.speak){const sp=speechSynthesis.speak.bind(speechSynthesis);
+   speechSynthesis.speak=u=>{if(off()){try{u&&u.onend&&setTimeout(()=>u.onend(),0)}catch(e){}return}return sp(u)}}}
 function bgSound(){const hide=document.hidden;try{if(ac){if(hide)ac.suspend();else if(ST.sound)ac.resume()}}catch(e){}
   if(hide){try{speechSynthesis.cancel()}catch(e){}}}
-document.addEventListener('visibilitychange',bgSound);addEventListener('pagehide',()=>{try{ac&&ac.suspend()}catch(e){}});
+document.addEventListener('visibilitychange',bgSound);addEventListener('pagehide',()=>{try{ac&&ac.suspend()}catch(e){}try{speechSynthesis.cancel()}catch(e){}});
+addEventListener('pageshow',()=>{if(!document.hidden)bgSound()});
 
 /* ---------- cheer: a few warm words in the sky after every 5 minutes of play (paused while the app is hidden or a mini game runs) ----------
    It takes turns with the other things on the beach: it waits until no radio or resident is talking, no fresh question is waiting
