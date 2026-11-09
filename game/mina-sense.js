@@ -19,6 +19,9 @@ const goShop=tab=>['🛍️ ショップを 見る',()=>H.shop(tab)];
 const goLesson=id=>['📖 授業を ひらく',()=>LESSON.open(id,back)];
 const goSay=(lv,en)=>['🔊 きいてみる',()=>H.say(lv,en)];
 const goCards=s=>['🃏 カード図鑑を 見る',()=>CARDS.open(s)];
+const goKaiwa=()=>['💬 会話を ひらく',()=>KAIWA.open()];
+const goTalk=id=>['💬 話しに 行く',()=>KAIWA.play(id)];
+const LVI=lv=>['es','jh','hs','adv'].indexOf(lv);
 const goGram=(lv,i)=>['📚 文法ノートを 見る',()=>{const n=GRAMMAR[lv].notes[i];(ST.gram.owned||[]).includes(n.id)?H.gramNote(lv,i):H.gramShop(lv)}];
 
 /* ---------- what is true now (read again every 10 s at most) ---------- */
@@ -227,6 +230,18 @@ const R=[
 ['x_advMap',2,F=>{if(!F.adv||!F.adv.done.length)return null;const m=ADV.maps[F.adv.map];return m?{map:m.name,n:F.adv.done.length}:null},()=>['🗺️ 宝の地図を ひらく',()=>ADV.open()]],
 ['x_advTitle',1,F=>F.adv&&F.adv.titles.length?{title:pickL(F.adv.titles)}:null,null],
 ['x_advItem',1,F=>{if(!F.adv||!ADV.items)return null;const a=Object.entries(F.adv.items).filter(([,n])=>n>0);if(!a.length)return null;const [k,n]=pickL(a);return {item:ADV.items[k].name,ico:ADV.items[k].ico,n}},()=>['🗺️ 宝の地図を ひらく',()=>ADV.open()]],
+
+/* ===== 浜辺の 会話（game/kaiwa.js） ===== */
+['x_kwNone',4,F=>window.KAIWA&&!KAIWA.rec().n?{}:null,()=>goKaiwa()],
+['x_kwChar',2,F=>{if(!window.KAIWA)return null;const i=LVI(lvOf(F)),a=KAIWA.scenes.filter(s=>LVI(s.lv)<=i+1&&!KAIWA.rec().heart[s.c]);if(!a.length)return null;const s=pickL(a),c=KAIWA.chars[s.c];return {c:c.n,ico:c.ico,t:s.t,_id:s.id}},v=>goTalk(v._id)],
+['x_kwLv',3,F=>{if(!window.KAIWA||!KAIWA.rec().n)return null;const a=KAIWA.scenes.filter(s=>s.lv===lvOf(F)&&!KAIWA.rec().done[s.id]);if(!a.length)return null;const s=pickL(a);return {t:s.t,c:KAIWA.chars[s.c].n,lvn:LVN[s.lv],_id:s.id}},v=>goTalk(v._id)],
+['x_kwNext',2,F=>{if(!window.KAIWA)return null;const lv=lvOf(F),a=KAIWA.scenes.filter(s=>s.lv===lv),nx=H.LV_ORDER[H.LV_ORDER.indexOf(lv)+1];if(!a.length||!nx||!a.every(s=>KAIWA.rec().done[s.id]))return null;const b=KAIWA.scenes.find(s=>s.lv===nx&&!KAIWA.rec().done[s.id]);return b?{lvn:LVN[lv],_id:b.id}:null},v=>goTalk(v._id)],
+['x_kwFun',2,F=>{if(!window.KAIWA||!KAIWA.funN())return null;const k=Object.keys(KAIWA.rec().fun),s=KAIWA.scenes.find(x=>x.id===k[k.length-1].split(':')[0]);return {n:KAIWA.funN(),tot:KAIWA.funTotal(),c:s?KAIWA.chars[s.c].n:'みんな'}},()=>goKaiwa()],
+['x_kwFriend',2,F=>{if(!window.KAIWA)return null;const h=KAIWA.rec().heart,top=Object.keys(h).sort((a,b)=>h[b]-h[a])[0];if(!top||h[top]<2)return null;const s=pickL(KAIWA.scenes.filter(x=>x.c===top));return {c:KAIWA.chars[top].n,n:h[top],_id:s.id}},v=>goTalk(v._id)],
+['x_kwFree',2,F=>window.KAIWA&&KAIWA.rec().n>=2&&KAIWA.rec().free<3?{}:null,()=>goKaiwa()],
+['x_kwAsk',1,F=>window.KAIWA&&KAIWA.rec().n>=1?{_id:'es-gen-time'}:null,v=>goTalk(v._id)],
+['x_kwBack',3,F=>{if(!window.KAIWA)return null;const R=KAIWA.rec();if(!R.n||!R.last)return null;const d=Math.floor((Date.now()-R.last)/864e5);if(d<3)return null;const h=R.heart,top=Object.keys(h).sort((a,b)=>h[b]-h[a])[0];return {d,c:top?KAIWA.chars[top].n:'ソラ'}},()=>goKaiwa()],
+['x_kwTime',1,F=>window.KAIWA&&LVI(lvOf(F))<=1?{h:F.h,_id:'es-gen-time'}:null,v=>goTalk(v._id)],
 
 /* ===== 日にち・時間 ===== */
 ['x_streak',3,F=>F.streak>=2?{n:F.streak}:null,null],
