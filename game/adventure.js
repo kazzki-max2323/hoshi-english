@@ -62,7 +62,7 @@ function open(){
 }
 /* a rare event from the treasure chest can be called any time (keeping its time of day) */
 function callRare(id){const R=RARE_EV[id];if(R.t&&!R.t.includes(phaseOf(GH())[1])){H.toast(`${R.ico} ${R.n}は 夜だけ よべるよ`);return}
-  SFX.chime();H.home();H.toast(`${R.ico} <b>${R.n}</b>`,2200);setTimeout(()=>{try{SC.show(id,R.sec)}catch(e){}},500)}
+  SFX.map();H.home();H.toast(`${R.ico} <b>${R.n}</b>`,2200);setTimeout(()=>{try{SC.show(id,R.sec)}catch(e){}},500)}
 
 /* walking onto a node: games cost coins, shops and ? are free, the goal opens the chest */
 function step(k){const n=map().nodes[k],t=n[2];
@@ -85,7 +85,7 @@ function confirmGame(k,t){const G=GAMES[t],c=cost();
   </section>`);
   $('ax').onclick=$('no').onclick=()=>{SFX.pop();open()};
   $('go').onclick=()=>{if(ST.coins<c)return;ST.coins-=c;save();H.head();SFX.deal();
-    play(t,ok=>{if(ok){arrive(k);H.toast(`🎉 <b>クリア！</b><small>🪙${c*2} ゲット</small>`);SFX.fanfare(1);setTimeout(()=>{const r=$('panel').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+40,c*2)},300);open()}
+    play(t,ok=>{if(ok){arrive(k);H.toast(`🎉 <b>クリア！</b><small>🪙${c*2} ゲット</small>`);SFX.done();setTimeout(()=>{const r=$('panel').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+40,c*2)},300);open()}
       else if(AD.items.compass){AD.items.compass--;save();H.toast('🧭 コンパスの おかげで もどらずに すんだ！');open()}
       else{const was=AD.node;back();H.toast(was===AD.node?'😢 しっぱい… もう一度 ちょうせんしよう':'😢 しっぱい… 1マス もどった');open()}})}}
 
@@ -97,10 +97,10 @@ function advShop(){
     <div class="row"><button id="ok">地図に もどる</button></div>
   </section>`);
   $('ax').onclick=$('ok').onclick=()=>{SFX.pop();open()};
-  $p().querySelectorAll('[data-it]').forEach(b=>b.onclick=()=>{const it=ITEMS[b.dataset.it];if(ST.coins<it.p)return;ST.coins-=it.p;AD.items[b.dataset.it]++;save();H.head();SFX.save();advShop()})}
+  $p().querySelectorAll('[data-it]').forEach(b=>b.onclick=()=>{const it=ITEMS[b.dataset.it];if(ST.coins<it.p)return;ST.coins-=it.p;AD.items[b.dataset.it]++;save();H.head();SFX.buy();advShop()})}
 function mystery(){const r=Math.random(),c=cost();let msg;
   if(r<.45){const n=c*3;H.addCoins(n);msg=`🪙 コインが ${n}まい おちていた！`;SFX.coin()}
-  else if(r<.85){const k=pick(Object.keys(ITEMS));AD.items[k]++;save();msg=`${ITEMS[k].ico} ${ITEMS[k].name}を ひろった！`;SFX.chime()}
+  else if(r<.85){const k=pick(Object.keys(ITEMS));AD.items[k]++;save();msg=`${ITEMS[k].ico} ${ITEMS[k].name}を ひろった！`;SFX.pickup()}
   else{const k=pick(['dolphins','whale','turtle','mermaid','rainbow']);msg='🌊 浜辺で なにか おきた…！';setTimeout(()=>{try{SC.play(k)}catch(e){}},400);SFX.whoosh()}
   H.toast(`❓ <b>ひみつの マス</b><small>${msg}</small>`,3000);open()}
 
@@ -119,7 +119,7 @@ function treasure(){const M=map(),R=M.reward,first=AD.map<MAPS.length,got=[];
     <div class="row"><button id="nx">つぎの 地図へ ▶</button><button id="hm" class="sub">浜辺に もどる</button></div>
   </section>`);
   const r=$('panel').getBoundingClientRect();for(let i=0;i<4;i++)setTimeout(()=>FX.firework(r.left+r.width*(.2+Math.random()*.6),r.top+20+Math.random()*60),i*350);
-  $('nx').onclick=()=>{SFX.vopen();open()};$('hm').onclick=()=>{SFX.pop();H.home()}}
+  $('nx').onclick=()=>{SFX.map();open()};$('hm').onclick=()=>{SFX.back();H.home()}}
 
 /* ---------- mini games ---------- */
 /* shared frame: a timer bar, ✓ / ✗ counters and the item buttons; finish(true|false) ends it */
@@ -133,11 +133,11 @@ function frame(t,{need,miss,time},body){const G=GAMES[t];
   const g={ok:0,ng:0,need,miss,left:time,total:time,over:false,onHint:null};
   const draw=()=>{$('gs').innerHTML=`⭕ ${g.ok}/${need}　❌ ${g.ng}/${miss}`;$('tb').style.width=Math.max(0,g.left/g.total*100)+'%';$('tb').classList.toggle('low',g.left<8)};
   let last=performance.now();const tick=()=>{if(g.over)return;const now=performance.now();g.left-=(now-last)/1000;last=now;draw();if(g.left<=0){g.end(false);return}requestAnimationFrame(tick)};
-  g.hit=()=>{g.ok++;SFX.coin();draw();if(g.ok>=need)g.end(true)};
-  g.miss_=()=>{g.ng++;SFX.tie();draw();if(g.ng>=miss)g.end(false)};
+  g.hit=()=>{g.ok++;SFX.correct();draw();if(g.ok>=need)g.end(true)};
+  g.miss_=()=>{g.ng++;SFX.wrong();draw();if(g.ng>=miss)g.end(false)};
   g.end=ok=>{if(g.over)return;g.over=true;g.onEnd&&g.onEnd();setTimeout(()=>g.done(ok),ok?700:900)};
-  $('useG').onclick=()=>{if(!AD.items.glass||g.over)return;AD.items.glass--;save();g.left+=10;g.total=Math.max(g.total,g.left);$('useG').innerHTML=`⏳ +10びょう ×${AD.items.glass}`;$('useG').disabled=!AD.items.glass;SFX.chime()};
-  $('useH').onclick=()=>{if(!AD.items.hint||g.over||!g.onHint)return;AD.items.hint--;save();g.onHint();$('useH').innerHTML=`💡 ヒント ×${AD.items.hint}`;$('useH').disabled=!AD.items.hint;SFX.chime()};
+  $('useG').onclick=()=>{if(!AD.items.glass||g.over)return;AD.items.glass--;save();g.left+=10;g.total=Math.max(g.total,g.left);$('useG').innerHTML=`⏳ +10びょう ×${AD.items.glass}`;$('useG').disabled=!AD.items.glass;SFX.pickup()};
+  $('useH').onclick=()=>{if(!AD.items.hint||g.over||!g.onHint)return;AD.items.hint--;save();g.onHint();$('useH').innerHTML=`💡 ヒント ×${AD.items.hint}`;$('useH').disabled=!AD.items.hint;SFX.pickup()};
   $('quit').onclick=()=>g.end(false);
   draw();requestAnimationFrame(tick);return g}
 function play(t,done){H.loadAud(AD.lv);const g=({shell:shellGame,dj:djGame,star:starGame,suika:suikaGame,crab:crabGame})[t]();g.done=done}
@@ -184,7 +184,7 @@ function starGame(){const lv=AD.lv,maxL=lv==='es'||lv==='jh'?7:9,kids=lv==='es';
     const Wd=sk.clientWidth,Hd=sk.clientHeight,pts=[];
     letters.forEach(ch=>{let x,y,t=0;do{x=24+Math.random()*(Wd-48);y=22+Math.random()*(Hd-44);t++}while(t<60&&pts.some(p=>Math.hypot(p[0]-x,p[1]-y)<44));pts.push([x,y]);
       const b=document.createElement('button');b.className='st';b.textContent=ch;b.style.left=x+'px';b.style.top=y+'px';b.dataset.c=ch;sk.appendChild(b);
-      b.onclick=()=>{if(g.over||b.classList.contains('lit'))return;if(ch===word[pos]){b.classList.add('lit');SFX.hold();
+      b.onclick=()=>{if(g.over||b.classList.contains('lit'))return;if(ch===word[pos]){b.classList.add('lit');SFX.tap();
           if(lastXY)$('sl').insertAdjacentHTML('beforeend',`<line x1="${lastXY[0]}" y1="${lastXY[1]}" x2="${x}" y2="${y}"/>`);lastXY=[x,y];pos++;
           $('sj').querySelector('b').textContent=word.slice(0,pos)+'＿'.repeat(word.length-pos);
           if(pos>=word.length){H.say(lv,W[0]);g.hit();if(!g.over)setTimeout(next,900)}}

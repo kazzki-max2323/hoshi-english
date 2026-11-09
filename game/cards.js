@@ -65,7 +65,7 @@ function open(t){if(t==='lesson')return openLes();if(t)tab=t;
     <div class="kgrid">${list.map(c=>face(c)).join('')||'<p class="note">ここには まだ ないよ</p>'}</div>
   </section>`);
   $('kx').onclick=()=>{SFX.pop();H.home()};
-  $('kdraw').onclick=()=>{SFX.vopen();drawMenu()};
+  $('kdraw').onclick=()=>{SFX.card();drawMenu()};
   H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{SFX.pop();tab=b.dataset.s;open()});
   H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{SFX.pop();filt=b.dataset.f;open()});
   H.panel.querySelectorAll('.kgrid .tc').forEach(el=>el.onclick=()=>{SFX.flip();view(ALL.find(c=>c.e===el.dataset.e))});
@@ -114,7 +114,7 @@ function view(c){if(c.les)return viewLes(c);const own=has(c),R=RAR[c.r];
     if(c.r>=3){const art=o.querySelector('.tcart');art.style.cursor='pointer';art.onclick=e=>{e.stopPropagation();move(c,o)}}
     if($('kspecial'))$('kspecial').onclick=()=>special(c);
     if($('ksummon'))$('ksummon').onclick=()=>summon(c)}
-  else $('ktrade').onclick=()=>{if(CD.shards<R.cost)return;CD.shards-=R.cost;CD.own[c.e]=1;save();SFX.save();closeOv();open();view(c);H.toast(`✦ <b>${esc(c.ja)}</b> と こうかん！`);checkSeries([c])};
+  else $('ktrade').onclick=()=>{if(CD.shards<R.cost)return;CD.shards-=R.cost;CD.own[c.e]=1;save();SFX.buy();closeOv();open();view(c);H.toast(`✦ <b>${esc(c.ja)}</b> と こうかん！`);checkSeries([c])};
 }
 
 /* a lesson card: no voice or trade; it opens its lesson */
@@ -126,7 +126,7 @@ function viewLes(c){const own=has(c),R=RAR[c.r];
       <button id="kclose" class="kbtn sub">とじる</button></div></div>`,'kv');
   tilt(o.querySelector('.tc'));o.querySelector('.tc').classList.add('live');
   $('kclose').onclick=()=>{SFX.pop();closeOv()};
-  const b=$('kles');if(b)b.onclick=()=>{SFX.vopen();closeOv();LESSON.open(c.les,openLes)}}
+  const b=$('kles');if(b)b.onclick=()=>{SFX.lesson();closeOv();LESSON.open(c.les,openLes)}}
 /* clearing a lesson gives its card (once). Returns the card when it is new */
 const lesCard=id=>ALL.find(c=>c.les===id);
 function lessonGet(id,quiet){const c=lesCard(id);if(!c||has(c))return null;CD.own[c.e]=1;save();if(!quiet)setTimeout(()=>checkSeries([c]),2500);return c}
@@ -160,7 +160,7 @@ const summonOf=c=>{const id=SUMMON[c.e];return id&&CATALOG.event.find(x=>x.id===
 const summonOk=c=>(CD.summon||{})[c.e]!==today();
 function summon(c){const it=summonOf(c);if(!it||!summonOk(c))return;
   if(!H.onSale(it)){H.toast(`${it.ico} <b>${it.n}</b> は ${H.timeBadge(it.t)}<small>その時間に また よんでね</small>`,3000);return}
-  CD.summon=CD.summon||{};CD.summon[c.e]=today();save();closeOv();SFX.chime();H.home();H.radioWake&&H.radioWake();H.toast(`${c.e} <b>${esc(c.ja)}</b> が ${it.ico} ${it.n} を よんだ！`,2600);
+  CD.summon=CD.summon||{};CD.summon[c.e]=today();save();closeOv();SFX.whoosh();H.home();H.radioWake&&H.radioWake();H.toast(`${c.e} <b>${esc(c.ja)}</b> が ${it.ico} ${it.n} を よんだ！`,2600);
   setTimeout(()=>{try{it.k==='show'?SC.show(it.id,it.sec):SC.play(it.id)}catch(e){}},600)}
 
 /* ---------- draw ---------- */
@@ -187,7 +187,7 @@ function draw(n,min=1){const got=[];for(let i=0;i<n;i++){const r=roll(Math.max(m
   /* the chest shakes, then glows in the colour of the best card inside */
   const o=overlay(`<div class="kopen b${best}"><div class="kchest shake">🎁</div><p>${n===10?'10まい':'1まい'}</p></div>`,'kv');
   SFX.deal&&SFX.deal();
-  setTimeout(()=>{if(!o.isConnected)return;if(best>=4){SFX.fanfare(best-2)}else SFX.chime();o.querySelector('.kopen').classList.add('burst')},900);
+  setTimeout(()=>{if(!o.isConnected)return;if(best>=4){SFX.fanfare(best-2)}else SFX.done();o.querySelector('.kopen').classList.add('burst')},900);
   setTimeout(()=>{if(o.isConnected)reveal(got)},1600)}
 function reveal(got){
   const o=overlay(`<div class="kres ${got.length>1?'ten':'one'}">${got.map((g,i)=>`<div class="kslot" data-i="${i}"><div class="kback b${g.c.r}">✦</div>${face(g.c,{show:1,big:got.length===1})}${g.isNew?'<em class="knew">NEW!</em>':`<em class="kdup">✦+${RAR[g.c.r].sh}</em>`}</div>`).join('')}</div>

@@ -116,9 +116,9 @@ function list(){listLv=listLv||myLv();const [ex,tx]=minaLine(),S=SC.filter(s=>s.
   </section>`);
   $('kx').onclick=()=>{SFX.pop();H.home()};
   H.panel.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{SFX.pop();listLv=b.dataset.l;list()});
-  H.panel.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{SFX.vopen();play(b.dataset.k)});
-  $('kgo').onclick=()=>{SFX.vopen();const a=S.filter(s=>!KD.done[s.id]);play(pickL(a.length?a:S).id)};
-  $('kfun').onclick=()=>{SFX.vopen();funBook()};
+  H.panel.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{SFX.talk();play(b.dataset.k)});
+  $('kgo').onclick=()=>{SFX.talk();const a=S.filter(s=>!KD.done[s.id]);play(pickL(a.length?a:S).id)};
+  $('kfun').onclick=()=>{SFX.book();funBook()};
   $('kja').onchange=e=>{KD.ja=e.target.checked?1:0;save()}}
 const row=s=>{const c=CH[s.c],n=KD.done[s.id]||0,g=endsGot(s),t=endsOf(s).length,star=endsOf(s).some(e=>e[1]&&KD.end[s.id+':'+e[0]]);
   return `<button class="lsrow krow ${n?'clear':''} ${s.story?'kstory':''}" data-k="${s.id}"><span class="ci">${c.ico}</span><span class="lt"><b>${s.story?'📖 ':''}${esc(s.t)}</b><small>${s.story?'ながい 会話・エンド '+t+'こ・':''}${esc(c.n)}・${esc(c.d)}</small></span><span class="lp">${n?`${star?'★':'🏁'}${g}/${t}`:'🪙'+PAY[s.lv]*2}</span></button>`};
@@ -169,7 +169,7 @@ function answers(hint){if(!live())return;const N=P.N,order=P.order&&P.order.leng
     <div class="lopts kopts">${order.map(i=>`<button data-o="${i}" class="${P.opts[i].g?'kgram':''}">${P.opts[i].g?'📘 ':''}${esc(P.opts[i][0])}</button>`).join('')}${(P.lock||[]).map(o=>{const g=GS()&&GS().byId(o.g);return g?`<button class="klock" data-lk="${o.g}">🔒 <small>📘「${esc(g.n.t)}」の ノートで えらべる 答え</small></button>`:''}).join('')}</div>
     <div class="kfree"><input id="kin" type="text" placeholder="${N.ask?'質問を 書いてもOK':'英語を 書いてもOK'}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">${mic?'<button id="kmic" class="sub" aria-label="声で 言う">🎤</button>':''}<button id="ksend" aria-label="送る">▶</button></div>`;
   $('kans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>pick(+b.dataset.o));
-  $('kans').querySelectorAll('[data-lk]').forEach(b=>b.onclick=()=>{const g=GS().byId(b.dataset.lk);SFX.tie&&SFX.tie();H.toast(`🔒 📘 <b>${esc(g.n.t)}</b><small>この 文法ノートを もっていると えらべるよ。会話の おわりに おためし できる</small>`,3200)});
+  $('kans').querySelectorAll('[data-lk]').forEach(b=>b.onclick=()=>{const g=GS().byId(b.dataset.lk);SFX.wrong();H.toast(`🔒 📘 <b>${esc(g.n.t)}</b><small>この 文法ノートを もっていると えらべるよ。会話の おわりに おためし できる</small>`,3200)});
   const inp=$('kin'),send=()=>{const v=inp.value.trim();if(!v)return;typed(v)};
   $('ksend').onclick=send;inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
   const mb=$('kmic');if(mb)mb.onclick=()=>listen(mic,inp,mb)}
@@ -233,11 +233,11 @@ function end(N){if(!live())return;const s=P.s,c=P.c,first=!KD.done[s.id];
       ${words.length?`<div class="kwords"><small>会話に 出てきた 単語帳の ことば（✓ おぼえた ${wgot}/${words.length}）</small><div>${words.map(w=>`<button data-w="${esc(w.en)}" data-lv="${w.lv}" class="${w.got?'got':''}">${w.got?'✓ ':''}${esc(w.en)}<small>${esc(w.ja)}</small></button>`).join('')}</div></div>`:''}
       <div class="row"><button id="kagain" class="${good?'sub':''}">🔁 さいしょから</button><button id="kmore" class="${good?'':'sub'}">${P.from==='visit'?'🏖️ 浜辺に もどる':'💬 ほかの 人と 話す'}</button></div>
     </div>`;
-    const r=$('kans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?(SFX.fanfare?SFX.fanfare(1):SFX.chime()):(SFX.tease?SFX.tease():SFX.pop());
+    const r=$('kans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?SFX.done():(SFX.tease?SFX.tease():SFX.pop());
     $('kans').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.w));
-    $('kans').querySelectorAll('[data-kg]').forEach(b=>b.onclick=()=>{const g=GS().byId(b.dataset.kg),back=()=>{const f=P&&P.from;P=null;f==='visit'?H.home():list()};SFX.vopen();try{speechSynthesis.cancel()}catch(e){}
+    $('kans').querySelectorAll('[data-kg]').forEach(b=>b.onclick=()=>{const g=GS().byId(b.dataset.kg),back=()=>{const f=P&&P.from;P=null;f==='visit'?H.home():list()};SFX.book();try{speechSynthesis.cancel()}catch(e){}
       gOwn(g.id)?H.gramNote(g.lv,g.i):H.gramTry(g.lv,g.i,back)});
-    const from=P.from;$('kagain').onclick=()=>{SFX.vopen();play(s.id,from)};$('kmore').onclick=()=>{SFX.vopen();from==='visit'?H.home():list()};
+    const from=P.from;$('kagain').onclick=()=>{SFX.step();play(s.id,from)};$('kmore').onclick=()=>{SFX.back();from==='visit'?H.home():list()};
     setTimeout(()=>$('kans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1600)}
 
 /* ---------- someone comes by: about once in 10 minutes on the home screen, a beach friend walks up and talks to you ----------
@@ -253,7 +253,7 @@ function visit(){const s=visitPick();if(!s)return;lastId=s.id;const c=CH[s.c],N=
   const b=document.createElement('button');b.id='kvisit';b.className='kvisit';b.setAttribute('aria-label',c.n+'が 話しかけてきた。タップで 話す');
   b.innerHTML=`<span class="kvi">${c.ico}</span><span class="kvt"><b>${esc(hi)}</b><small>${esc(c.n)}が 話しかけてきた！ タップで 話す</small></span>`;
   const go=()=>{leave(true);play(s.id,'visit')};
-  b.onclick=e=>{e.stopPropagation();SFX.vopen();go()};document.body.appendChild(b);place();SFX.chime&&SFX.chime();
+  b.onclick=e=>{e.stopPropagation();SFX.talk();go()};document.body.appendChild(b);place();SFX.knock();
   if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()){const [ex,tx]=MINA.line(s.story?'k_visitStory':'k_visit',{c:c.n,ico:c.ico,t:s.t});MINA.say('m',ex,tx,8000,null,['💬 話す',go])}}
 /* sit just above the home panel (its height changes with what Mina says) */
 function place(){const b=$('kvisit');if(!b||b.hidden)return;const top=H.panel.firstElementChild?H.panel.firstElementChild.getBoundingClientRect().top:innerHeight-260;b.style.bottom=Math.max(80,innerHeight-top+16)+'px'}

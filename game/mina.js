@@ -125,7 +125,7 @@ function sayRow(who,ex,text,ms=6500,pop,go){const b=$('minaSay'),rq=$('rq');if(!
   b.hidden=false;if(rq)rq.hidden=true;b.className='msay '+(who==='m'?'by-m':'by-h')+(go?' go':'');
   b.innerHTML=`<b>${who==='m'?'ミナ先生':'ハマ子'}</b>${text}${go?`<small class="mgo">${go[0]} ▶</small>`:''}`;
   /* tap her words = go where she talks about (the word book, the lesson, the shop…) */
-  b.onclick=go?e=>{e.stopPropagation();SFX.vopen();b.hidden=true;if(rq)rq.hidden=false;go[1]()}:null;b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew');
+  b.onclick=go?e=>{e.stopPropagation();SFX.step();b.hidden=true;if(rq)rq.hidden=false;go[1]()}:null;b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew');
   if(who==='m')setFace(ex);else{const h=$('hamaFace');if(h)h.innerHTML=face('h',ex)}
   SFX.pop();speakUntil=performance.now()+ms;clearTimeout(hideT);hideT=setTimeout(()=>{if(talkOn)return;b.hidden=true;if(rq)rq.hidden=false;setFace('smile');H.rest(2500)},ms);return true}
 /* lines waiting for a good moment (praise after a streak, etc.) */
@@ -137,7 +137,7 @@ function popSay(who,ex,text,ms,tap){if(!ST.radios||!ST.radios.some(r=>r.on))retu
   let p=$('minaPop');if(!p){p=document.createElement('button');p.id='minaPop';W.appendChild(p)}
   p.className='mpop '+(who==='m'?'by-m':'by-h');p.innerHTML=`<span class="mpf">${face(who,ex)}</span><span class="mpt"><b>${who==='m'?'ミナ先生':'ハマ子'}</b>${text}</span>`;
   p.classList.remove('on');void p.offsetWidth;p.classList.add('on');
-  p.onclick=e=>{e.stopPropagation();SFX.vopen();p.classList.remove('on');typeof tap==='function'?tap():panelOpen()};
+  p.onclick=e=>{e.stopPropagation();SFX.talk();p.classList.remove('on');typeof tap==='function'?tap():panelOpen()};
   clearTimeout(popT);popT=setTimeout(()=>p.classList.remove('on'),ms)}
 /* say something that matters now, on the home screen, even while a radio is talking (the radio waits a little) */
 const canAnnounce=()=>H.screen==='home'&&!document.hidden&&!busy()&&!H.stage.cheer&&$('minaSay');
@@ -195,7 +195,7 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
 /* what she says at the top of her page: her face, the line, and where tapping it goes */
 function talkBox(o){const [ex,tx]=o?line(o[0],o[1]):line('tap'),go=goTo(o);
   return {go,html:`<span class="mbig">${face('m',ex)}</span>${go?`<button class="mline go" id="mgo">${tx}<small>${go[0]} ▶</small></button>`:`<p class="mline">${tx}</p>`}`}}
-function bindTalk(o,t){if(!t.go)return;$('mgo').onclick=()=>{SFX.vopen();if(o[0]==='stepUp')MD.said.step=today();t.go[1]()};H.panel.querySelector('.mbig').onclick=()=>$('mgo').click()}
+function bindTalk(o,t){if(!t.go)return;$('mgo').onclick=()=>{SFX.step();if(o[0]==='stepUp')MD.said.step=today();t.go[1]()};H.panel.querySelector('.mbig').onclick=()=>$('mgo').click()}
 function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advice(),ra=recentAcc(),wg=weakGram()||gramForSentences(),su=stepUp();
   /* half the time the most useful advice, else something about what she sees now */
   const first=opts.length&&Math.random()<.5?opts[0]:(sense()||opts[0]||null),T0=talkBox(first);
@@ -226,15 +226,15 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   $('mx').onclick=()=>{SFX.pop();const [e2,t2]=line('bye');H.home();setTimeout(()=>sayRow('m',e2,t2,4000),150)};
   H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.say));
   H.panel.querySelectorAll('.mfold').forEach(f=>f.ontoggle=()=>{if(f.open)SFX.pop()});
-  if(window.LESSON){LESSON.bindCard(panelOpen);$('mall').onclick=()=>{SFX.vopen();LESSON.list()}}
-  const gl=$('mgl');if(gl)gl.onclick=()=>{SFX.vopen();const lv=level();H.gramFrom(lv==='adv'?'hs':lv,panelOpen)};
-  const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.vopen();window.SENSEI?SENSEI.open():null};
-  const mk=$('mkaiwa');if(mk)mk.onclick=()=>{SFX.vopen();KAIWA.open()};
-  const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.vopen();const owned=(ST.gram.owned||[]).includes(GRAMMAR[wg.lv].notes[wg.i].id);owned?H.gramNote(wg.lv,wg.i):H.gramShop(wg.lv)}}
+  if(window.LESSON){LESSON.bindCard(panelOpen);$('mall').onclick=()=>{SFX.lesson();LESSON.list()}}
+  const gl=$('mgl');if(gl)gl.onclick=()=>{SFX.book();const lv=level();H.gramFrom(lv==='adv'?'hs':lv,panelOpen)};
+  const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.talk();window.SENSEI?SENSEI.open():null};
+  const mk=$('mkaiwa');if(mk)mk.onclick=()=>{SFX.talk();KAIWA.open()};
+  const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.book();const owned=(ST.gram.owned||[]).includes(GRAMMAR[wg.lv].notes[wg.i].id);owned?H.gramNote(wg.lv,wg.i):H.gramShop(wg.lv)}}
 /* the face lives in the home row; tap = talk */
-H.on('home',()=>{setFace(minaEx);const f=$('minaFace');if(f)f.onclick=()=>{SFX.vopen();panelOpen()};
+H.on('home',()=>{setFace(minaEx);const f=$('minaFace');if(f)f.onclick=()=>{SFX.talk();panelOpen()};
   if(talkOn){const hf=$('hamaFace');if(hf){hf.hidden=false;hf.innerHTML=face('h','smile')}}});
-setFace('smile');const f0=$('minaFace');if(f0)f0.onclick=()=>{SFX.vopen();panelOpen()};
+setFace('smile');const f0=$('minaFace');if(f0)f0.onclick=()=>{SFX.talk();panelOpen()};
 
 /* ---------- review words for the radio ---------- */
 function reviewPick(lv){if(Math.random()>.15)return null;const ww=weakWords(lv,null);return ww.length?pickL(ww.slice(0,8)).en:null}
