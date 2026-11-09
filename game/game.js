@@ -78,21 +78,20 @@ function show(name,html){screen=name;panel.innerHTML=html;panel.scrollTop=0;if(n
 function home(){const back=screen!=='home';   // coming back from a word book, the shop, settings…
   show('home',`<section class="pnl home">
     <div class="mrow"><button id="minaFace" class="mface" aria-label="ミナ先生と 話す"></button><div class="mbub"><p id="minaSay" hidden></p><p id="rq" class="note"></p></div><span id="hamaFace" class="mface hama" hidden></span></div>
-    <div class="lvs">${LV_ORDER.map(k=>{const L=LEVELS[k];return `<button class="lv lv-${k}" data-lv="${k}"><span class="li">${L.ico}</span><b>${L.name}</b><small>${L.books.length}さつ</small></button>`}).join('')}</div>
     <div class="row">
+      <button id="bookOpen" class="sub"><span>📕</span>単語帳</button>
       <button id="shopOpen" class="sub"><span>🛍️</span>ショップ</button>
       <button id="cardOpen" class="sub"><span>🃏</span>カード${window.CARDS&&CARDS.freeOk()?'<i class="dot"></i>':''}</button>
       <button id="mini" class="sub"><span>🗺️</span>宝の地図</button>
-      <button id="gramOpen" class="sub"><span>📚</span>文法</button>
     </div>
     ${MUS.on&&MUS.id?`<div class="np"><span>🎵 ${esc(TRACKS[MUS.id].name)}</span><button id="npStop" class="sub">■ とめる</button></div>`:''}
     ${ST.radios.length?`<label class="gap"><span>📻 つぶやき</span><input id="gapR" type="range" min="3" max="30" step="1" value="${ST.radioGap}"><output id="gapV">${ST.radioGap}秒ごと</output></label>`:''}
   </section>`);
-  panel.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{SFX.vopen();books(b.dataset.lv)});
+  /* 単語帳は 1つの ボタン。ひらくと 小学生〜ハイレベルを 上の タブで えらぶ（さいごに 見た レベルから） */
+  $('bookOpen').onclick=()=>{SFX.vopen();books()};
   $('shopOpen').onclick=()=>{SFX.vopen();shop('radio')};
   $('mini').onclick=()=>{SFX.vopen();window.ADV&&ADV.open()};
   $('cardOpen').onclick=()=>{SFX.vopen();window.CARDS&&CARDS.open()};
-  $('gramOpen').onclick=()=>{SFX.vopen();gramList()};
   const ns=$('npStop');if(ns)ns.onclick=()=>{stopMusic(true);SFX.pop();home()};
   const g=$('gapR');if(g)g.oninput=()=>{ST.radioGap=+g.value;$('gapV').textContent=g.value+'秒ごと';save();if(nextAt>performance.now()+ST.radioGap*1000)nextAt=performance.now()+ST.radioGap*1000};
   rqIdle();emit('home',back);if(back)nextAt=Math.max(nextAt,performance.now()+RADIO_REST);else radioWake();
@@ -103,18 +102,22 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
 function getBook(lv,bi){if(bi==='season'){const sn=seasonNow();return sn&&{t:`${sn[1].name}の たんごちょう`,ico:sn[1].ico,w:sn[1].w}}return LEVELS[lv].books[bi]}
 const lkey=(lv,bi,w)=>(bi==='season'?'season':lv)+':'+w[0];
 const isLearned=(lv,bi,w)=>!!ST.learned[lkey(lv,bi,w)];
+let bookLv=null;
 function books(lv){
+  lv=lv||bookLv||(window.MINA?MINA.level():'es');if(!LEVELS[lv])lv='es';bookLv=lv;
   const L=LEVELS[lv],sn=seasonNow();
   const tile=(bi,num)=>{const b=getBook(lv,bi),p=ST.bookPos[lv+':'+bi]||0,n=b.w.filter(w=>isLearned(lv,bi,w)).length;
     return `<button class="book ${bi==='season'?'season':''} ${n===b.w.length?'mastered':''}" data-i="${bi}"><span class="bn">${num}</span><span class="bt">${esc(b.t)}</span><span class="bp">${n?`✓ ${n}/${b.w.length}`:p?`${p+1} / ${b.w.length}`:`${b.w.length}ご`}</span><i class="lbar" style="width:${n/b.w.length*100}%"></i></button>`};
   const all=L.books.flatMap((b,i)=>b.w.map(w=>[i,w])),got=all.filter(([i,w])=>isLearned(lv,i,w)).length;
   show('books',`<section class="pnl books">
     <div class="qtop"><button class="x" id="bx" aria-label="もどる">←</button><b>${L.ico} ${L.name}の たんごちょう</b><span class="qn">✓ ${got}/${all.length}</span></div>
+    <div class="seg lvseg">${LV_ORDER.map(k=>`<button data-bl="${k}" class="lv-${k} ${k===lv?'on':''}">${LEVELS[k].ico} ${LEVELS[k].name}</button>`).join('')}</div>
     <div class="shelf">${sn?tile('season',sn[1].ico):''}${L.books.map((b,i)=>tile(i,i+1)).join('')}</div>
     ${sn?`<p class="note">${sn[1].ico} いまだけ「${sn[1].name}の たんごちょう」が あるよ</p>`:''}
   </section>`);
   $('bx').onclick=()=>{SFX.pop();home()};
   panel.querySelectorAll('.book').forEach(b=>b.onclick=()=>{SFX.flip();const v=b.dataset.i;cards(lv,v==='season'?v:+v)});
+  panel.querySelectorAll('[data-bl]').forEach(b=>b.onclick=()=>{SFX.pop();books(b.dataset.bl)});
 }
 
 function cards(lv,bi,onlyLeft=false){
@@ -470,7 +473,8 @@ setInterval(()=>{const now=performance.now();
 /* ---------- grammar notes (game/grammar/*.js): bought in the shop, read and practised here ---------- */
 const GLV=['es','jh','hs'];
 const gOwned=id=>ST.gram.owned.includes(id),gCleared=id=>ST.gram.cleared.includes(id);
-function gramList(lv='es'){
+let gBack=null;   // where ← goes: home, or Mina's page when opened there
+function gramList(lv='es',back){if(back!==undefined)gBack=back;
   const G=GRAMMAR[lv],own=G.notes.filter(n=>gOwned(n.id)).length,clr=G.notes.filter(n=>gCleared(n.id)).length;
   show('gram',`<section class="pnl gram">
     <div class="qtop"><button class="x" id="gx" aria-label="もどる">←</button><b>📚 文法ノート</b><span class="qn">✓ ${clr}/${G.notes.length}</span></div>
@@ -479,7 +483,7 @@ function gramList(lv='es'){
       return `<button class="gnote ${o?'':'locked'} ${c?'clear':''}" data-gn="${i}"><span class="gi">${c?'✅':o?'📘':'🔒'}</span><span class="gt">${i+1}. ${esc(n.t)}</span><small>${c?'クリア':o?'よめるよ':'🔍 おためし できるよ'}</small></button>`}).join('')}</div>
     ${own<G.notes.length?`<div class="row"><button id="gshop" class="sub">🛍️ ショップで 文法ノートを かう</button></div>`:''}
   </section>`);
-  $('gx').onclick=()=>{SFX.pop();home()};
+  $('gx').onclick=()=>{SFX.pop();(gBack||home)()};
   panel.querySelectorAll('[data-gl]').forEach(b=>b.onclick=()=>{SFX.pop();gramList(b.dataset.gl)});
   panel.querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{const n=G.notes[+b.dataset.gn];if(!gOwned(n.id)){SFX.flip();gramTry(lv,+b.dataset.gn);return}SFX.flip();gramNote(lv,+b.dataset.gn)});
   const gs=$('gshop');if(gs)gs.onclick=()=>{SFX.vopen();shop('gram',lv)}}
@@ -627,7 +631,7 @@ function shop(tab,glv='es'){
 function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={books,book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramTry,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
+window.HE={books,gramFrom:(lv,back)=>gramList(lv,back||null),book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramTry,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();

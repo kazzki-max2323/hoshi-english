@@ -205,7 +205,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     <div class="mtalk" id="mtalk">${T0.html}</div>
     ${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}
     ${window.LESSON?`${LESSON.card('mina')}
-    <div class="mtiles"><button id="mall" class="mvc mt-all"><span>📖 ぜんぶの 授業</span><b>${LESSON.count().join('/')}</b></button></div>`:''}
+    <div class="mtiles"><button id="mall" class="mvc mt-all"><span>📖 ぜんぶの 授業</span><b>${LESSON.count().join('/')}</b></button>${typeof GRAMMAR!=='undefined'?`<button id="mgl" class="mvc mt-gram"><span>📚 文法ノート</span><b>${(ST.gram.cleared||[]).length}/${['es','jh','hs'].reduce((a,k)=>a+(GRAMMAR[k]?GRAMMAR[k].notes.length:0),0)}</b></button>`:''}</div>`:''}
     <button id="msensei" class="msensei">🗣️ ミナ先生と 英語で 話す</button>
     ${window.KAIWA?`<button id="mkaiwa" class="sub">💬 浜辺の 会話</button>`:''}
     <details class="mfold mrec"><summary>📊 きろく・ごほうび<small>${D.a?`きょう ${D.a}問`:''}</small></summary><div class="mfbody">
@@ -227,6 +227,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.say));
   H.panel.querySelectorAll('.mfold').forEach(f=>f.ontoggle=()=>{if(f.open)SFX.pop()});
   if(window.LESSON){LESSON.bindCard(panelOpen);$('mall').onclick=()=>{SFX.vopen();LESSON.list()}}
+  const gl=$('mgl');if(gl)gl.onclick=()=>{SFX.vopen();const lv=level();H.gramFrom(lv==='adv'?'hs':lv,panelOpen)};
   const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.vopen();window.SENSEI?SENSEI.open():null};
   const mk=$('mkaiwa');if(mk)mk.onclick=()=>{SFX.vopen();KAIWA.open()};
   const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.vopen();const owned=(ST.gram.owned||[]).includes(GRAMMAR[wg.lv].notes[wg.i].id);owned?H.gramNote(wg.lv,wg.i):H.gramShop(wg.lv)}}
