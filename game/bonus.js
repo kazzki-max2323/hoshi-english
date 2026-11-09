@@ -48,8 +48,8 @@ function callLine(r){const e=r.k==='event'?evOf(r.id):null,[ex,t]=pickL(CALL[r.k
 
 /* ---------- open a window ---------- */
 function start(r){if(BD.d!==today()){BD.d=today();BD.n=0}BD.n++;BD.r=r||roll();BD.until=Date.now()+WIN;BD.inL=0;BD.warned=0;save();
-  const [ex,tx]=callLine(BD.r);MINA.announce(ex,tx,11000);SFX.chime();chip()}
-function expire(){BD.r=null;BD.until=0;BD.inL=0;save();chip()}
+  const [ex,tx]=callLine(BD.r);MINA.announce(ex,tx,11000);SFX.chime();chip();window.LESSON&&LESSON.refresh()}
+function expire(){BD.r=null;BD.until=0;BD.inL=0;save();chip();window.LESSON&&LESSON.refresh()}
 
 /* ---------- the countdown on the home screen and on Mina's pages ---------- */
 /* a pop badge over the beach, on every screen, while the window is open: tap = Mina's page (her lessons are there) */
@@ -100,6 +100,6 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
   homeT=0;nextAt=GAP();start()},1000);
 chip();
 
-window.BONUS={claim,active,_test:{start:k=>{const r=roll();if(k==='coin')Object.assign(r,{k,amt:50});else if(k==='event')Object.assign(r,{k,id:(bigEvents()[0]||evOf('dolphins')).id});else if(k)Object.assign(r,{k,min:2});BD.n=0;start(r)},
+window.BONUS={claim,active,now:()=>active()?{label:label(BD.r),left:mmss(left())}:null,_test:{start:k=>{const r=roll();if(k==='coin')Object.assign(r,{k,amt:50});else if(k==='event')Object.assign(r,{k,id:(bigEvents()[0]||evOf('dolphins')).id});else if(k)Object.assign(r,{k,min:2});BD.n=0;start(r)},
   end:()=>{BD.until=Date.now()+1000},soon:()=>{homeT=nextAt}}};
 })();

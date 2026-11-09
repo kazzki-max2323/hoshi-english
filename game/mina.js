@@ -168,6 +168,9 @@ let opened=false,talkAt=0,talkGap=(3+Math.random()*2)*60000,hamaAt=0,hamaGap=(12
 function hello(){const gap=MD.last?Math.floor((Date.now()-MD.last)/864e5):0;MD.last=Date.now();save();
   const h=new Date().getHours(),opts=advice();
   if(gap>=3)return line('openBack',{days:gap});
+  /* ミニ授業が いちばん: きょう まだなら、 半分くらいは きょうの 授業に さそう */
+  if(window.LESSON&&!LESSON.doneToday()&&Math.random()<.5){const l=LESSON.today();if(l){const sk=LESSON.streak();
+    return [...line(sk?'lesHelloStreak':'lesHello',{t:'「'+l.t+'」',n:sk,n1:sk+1}),['📖 授業を ひらく',()=>LESSON.open(l.id,H.home)]]}}
   const r=Math.random();
   if(opts.length&&r<.35){const o=pickL(opts);if(o[0]==='stepUp')MD.said.step=today();return [...line(o[0],o[1]),goTo(o)]}
   const sn=r<.75&&sense();if(sn)return [...line(sn[0],sn[1]),goTo(sn)];
@@ -201,10 +204,9 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b><span></span></div>
     <div class="mtalk" id="mtalk">${T0.html}</div>
     ${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}
-    <button id="msensei" class="msensei">🗣️ ミナ先生と 英語で 話す</button>
-    ${window.LESSON?`<div class="mhead"><b>📖 きょうの 授業</b></div>
-    <div class="lslist">${LESSON.suggest(1).map(LESSON.row).join('')}</div>
+    ${window.LESSON?`${LESSON.card('mina')}
     <div class="mtiles"><button id="mall" class="mvc mt-all"><span>📖 ぜんぶの 授業</span><b>${LESSON.count().join('/')}</b></button></div>`:''}
+    <button id="msensei" class="msensei">🗣️ ミナ先生と 英語で 話す</button>
     ${window.KAIWA?`<button id="mkaiwa" class="sub">💬 浜辺の 会話</button>`:''}
     <details class="mfold mrec"><summary>📊 きろく・ごほうび<small>${D.a?`きょう ${D.a}問`:''}</small></summary><div class="mfbody">
     <div class="mstats"><div><b>${D.a}</b><small>きょう 答えた</small></div><div><b>${accToday==null?'-':accToday+'%'}</b><small>正解率</small></div><div><b>${D.l}</b><small>おぼえた</small></div><div><b>${MD.best}</b><small>れんぞく</small></div></div>
@@ -224,7 +226,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   $('mx').onclick=()=>{SFX.pop();const [e2,t2]=line('bye');H.home();setTimeout(()=>sayRow('m',e2,t2,4000),150)};
   H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.say));
   H.panel.querySelectorAll('.mfold').forEach(f=>f.ontoggle=()=>{if(f.open)SFX.pop()});
-  if(window.LESSON){LESSON.bindRows(panelOpen);$('mall').onclick=()=>{SFX.vopen();LESSON.list()}}
+  if(window.LESSON){LESSON.bindCard(panelOpen);$('mall').onclick=()=>{SFX.vopen();LESSON.list()}}
   const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.vopen();window.SENSEI?SENSEI.open():null};
   const mk=$('mkaiwa');if(mk)mk.onclick=()=>{SFX.vopen();KAIWA.open()};
   const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.vopen();const owned=(ST.gram.owned||[]).includes(GRAMMAR[wg.lv].notes[wg.i].id);owned?H.gramNote(wg.lv,wg.i):H.gramShop(wg.lv)}}

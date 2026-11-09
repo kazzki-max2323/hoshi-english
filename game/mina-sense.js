@@ -188,6 +188,12 @@ const R=[
   if(!a.length)return null;const x=pickL(a);return {g:x.g.n.t,t:x.l.t,_id:x.l.id}},v=>goLesson(v._id)],
 
 /* ===== ミニ授業 ===== */
+/* きょうの 授業（ホームの 大きな カード）と 授業の れんぞく日数。授業が いちばんなので 重めに */
+['x_lesToday',6,F=>{if(!window.LESSON||LESSON.doneToday())return null;const l=LESSON.today();return l?{t:l.t,_id:l.id}:null},v=>goLesson(v._id)],
+['x_lesStreakKeep',6,F=>{if(!window.LESSON||LESSON.doneToday())return null;const n=LESSON.streak(),l=LESSON.today();return n&&l?{n,n1:n+1,t:l.t,_id:l.id}:null},v=>goLesson(v._id)],
+['x_lesStreakDone',3,F=>{if(!window.LESSON||!LESSON.doneToday())return null;const n=LESSON.streak();return n>=2?{n,n1:n+1}:null},null],
+['x_lesMore',2,F=>{if(!window.LESSON||!LESSON.doneToday())return null;const l=LESSON.today();return l?{t:l.t,_id:l.id}:null},v=>goLesson(v._id)],
+['x_lesStreakLost',3,F=>{if(!window.LESSON||LESSON.streak())return null;const s=MINA.rec().ls,l=LESSON.today();return s&&s.best>=2&&l?{n:s.best,t:l.t,_id:l.id}:null},v=>goLesson(v._id)],
 ['x_lesCount',1,F=>F.lesN?{n:F.lesN,tot:F.lesAll.length}:null,()=>['📖 授業を 見る',()=>LESSON.list()]],
 ['x_lesLevel',2,F=>{const lv=lvOf(F),a=F.lesAll.filter(l=>l.lv===lv),n=a.filter(l=>F.les[l.id]).length;if(!a.length||n===a.length)return null;const nx=pickL(a.filter(l=>!F.les[l.id]));
   return {n,tot:a.length,lvn:LVN[lv],t:nx.t,_id:nx.id}},v=>goLesson(v._id)],
