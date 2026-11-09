@@ -53,7 +53,13 @@ function pickVoice(){if(!window.speechSynthesis)return;const vs=speechSynthesis.
 if(window.speechSynthesis){pickVoice();speechSynthesis.addEventListener&&speechSynthesis.addEventListener('voiceschanged',pickVoice)}
 function talk(en,c){if(!ST.sound||!window.speechSynthesis)return;
   try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(en).replace(/\.\.\.\s*/g,' ').replace(/\*[^*]*\*/g,''));u.lang='en-US';if(enVoice)u.voice=enVoice;
-    u.pitch=c?c.p:1;u.rate=(ST.slow?.72:.92)*(c?c.r:1);u.volume=Math.min(1,(ST.vol&&ST.vol.voice!=null)?ST.vol.voice:1);speechSynthesis.speak(u)}catch(e){}}
+    u.pitch=c?c.p:1;u.rate=(ST.slow?.72:.92)*(c?c.r:1);u.volume=Math.min(1,(ST.vol&&ST.vol.voice!=null)?ST.vol.voice:1);
+    const id=++talkId;talkOn=true;talkMax=Date.now()+3000+String(en).length*(ST.slow?140:100)/(c?c.r:1);u.onend=u.onerror=()=>{if(id===talkId)talkOn=false};speechSynthesis.speak(u)}catch(e){talkOn=false}}
+/* the next line waits until this one has been read out (or would have been read, when the sound is off) */
+let talkOn=false,talkId=0,talkMax=0;
+function afterTalk(fn,gap=700,minMs=1200){const t0=Date.now();
+  const wait=()=>{if(!live())return;const busy=ST.sound&&window.speechSynthesis&&(talkOn||speechSynthesis.speaking||speechSynthesis.pending)&&Date.now()<talkMax;
+    if(busy||Date.now()-t0<minMs){setTimeout(wait,150);return}setTimeout(fn,gap)};setTimeout(wait,150)}
 
 /* ---------- counts ---------- */
 let FT=0;const funTotal=()=>FT||(FT=SC.reduce((a,s)=>a+s.turns.reduce((b,t)=>b+val(t.o,facts()).filter(o=>!o[1]).length,0),0));
@@ -162,7 +168,7 @@ function pick(i,typedText,near){if(!live())return;const T=P.s.turns[P.ti],o=P.op
     /* written words close to an answer but not the same: a plain "I see" so the reply does not talk about what was not said */
     const g=near&&!T.ask?pickL(P.c.ok||[["Oh, I see! Thank you.","へえ、なるほど！ ありがとう"]]):[o[2],o[3]];
     them(g[0],g[1],o[4]||'😊','k-good');SFX.heart?SFX.heart():SFX.chime();next()},650)}
-function next(){P.ti++;P.order=null;setTimeout(turn,1500)}
+function next(){P.ti++;P.order=null;afterTalk(turn)}
 const OOPS=['😂 おもしろい 反応！ ほかの 答えでも 話してみよう','🤣 ウケた！ じゃあ こんどは ちがう 答えで','😆 へんな 答えも 大かんげい。もう一度 どうぞ','😝 相手、こまってるね。ほかの 答えも ためしてみて'];
 /* a funny answer: counted for the book (new ones give 2 coins) */
 function funny(i){P.fun++;SFX.tease&&SFX.tease();const k=P.s.id+':'+P.ti+':'+i;
