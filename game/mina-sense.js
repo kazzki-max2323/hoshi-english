@@ -21,6 +21,7 @@ const goSay=(lv,en)=>['🔊 きいてみる',()=>H.say(lv,en)];
 const goCards=s=>['🃏 カード図鑑を 見る',()=>CARDS.open(s)];
 const goKaiwa=()=>['💬 会話を ひらく',()=>KAIWA.open()];
 const goTalk=id=>['💬 話しに 行く',()=>KAIWA.play(id)];
+const goSensei=()=>['🗣️ 先生と 話す',()=>SENSEI.open()];
 const LVI=lv=>['es','jh','hs','adv'].indexOf(lv);
 const goGram=(lv,i)=>['📚 文法ノートを 見る',()=>{const n=GRAMMAR[lv].notes[i];(ST.gram.owned||[]).includes(n.id)?H.gramNote(lv,i):H.gramTry?H.gramTry(lv,i,back):H.gramShop(lv)}];
 
@@ -258,6 +259,18 @@ const R=[
 ['x_kwAsk',1,F=>window.KAIWA&&KAIWA.rec().n>=1?{_id:'es-gen-time'}:null,v=>goTalk(v._id)],
 ['x_kwBack',3,F=>{if(!window.KAIWA)return null;const R=KAIWA.rec();if(!R.n||!R.last)return null;const d=Math.floor((Date.now()-R.last)/864e5);if(d<3)return null;const h=R.heart,top=Object.keys(h).sort((a,b)=>h[b]-h[a])[0];return {d,c:top?KAIWA.chars[top].n:'ソラ'}},()=>goKaiwa()],
 ['x_kwTime',1,F=>window.KAIWA&&LVI(lvOf(F))<=1?{h:F.h,_id:'es-gen-time'}:null,v=>goTalk(v._id)],
+/* ===== ミナ先生と 英語で 話す（game/sensei.js） ===== */
+['x_snNone',4,F=>window.SENSEI&&!SENSEI.rec().n?{}:null,()=>goSensei()],
+['x_snWeak',5,F=>{if(!window.SENSEI)return null;const w=SENSEI.weak().filter(id=>GRAMSEE&&GRAMSEE.byId(id));if(!w.length)return null;const g=GRAMSEE.byId(w[0]);return {g:'「'+g.n.t+'」',_id:w[0]}},v=>['🎯 とっくん する',()=>SENSEI.tokkun([v._id])]],
+['x_snScene',3,F=>{if(!window.SENSEI)return null;const lv=lvOf(F),a=SENSEI.scenes.filter(s=>s.lv===lv&&!SENSEI.rec().done[s.id]);if(!a.length)return null;const s=pickL(a),g=(s.g||[]).map(id=>window.GRAMSEE&&GRAMSEE.byId(id)).filter(Boolean)[0];return {t:'「'+s.t+'」',g:g?'「'+g.n.t+'」':'いまの レベルの 文法',_id:s.id}},v=>['🗣️ 話しに 行く',()=>SENSEI.play(v._id)]],
+['x_snEnds',2,F=>{if(!window.SENSEI)return null;const a=SENSEI.scenes.filter(s=>SENSEI.rec().done[s.id]&&SENSEI.endsGot(s)<SENSEI.endsOf(s).length);if(!a.length)return null;const s=pickL(a);return {t:'「'+s.t+'」',got:SENSEI.endsGot(s),tot:SENSEI.endsOf(s).length,_id:s.id}},v=>['🗣️ もう一度 話す',()=>SENSEI.play(v._id)]],
+['x_snSoudan',2,F=>window.SENSEI&&SENSEI.rec().n>=1&&!SENSEI.rec().sou?{}:null,()=>['💡 そうだん する',()=>SENSEI.soudan()]],
+['x_snGood',2,F=>{if(!window.SENSEI||!window.GRAMSEE)return null;const g=SENSEI.good()[0];return g&&GRAMSEE.byId(g)?{g:'「'+GRAMSEE.byId(g).n.t+'」'}:null},()=>goSensei()],
+['x_snFree',2,F=>window.SENSEI&&SENSEI.rec().free>=3?{n:SENSEI.rec().free}:null,()=>goSensei()],
+['x_snPat',1,F=>window.SENSEI?{pat:SENSEI.patText()}:null,()=>goSensei()],
+['x_snBack',3,F=>{if(!window.SENSEI)return null;const R=SENSEI.rec();if(!R.n||!R.last)return null;const d=Math.floor((Date.now()-R.last)/864e5);return d>=3?{d}:null},()=>goSensei()],
+['x_snKarte',1,F=>{if(!window.SENSEI)return null;const n=Object.keys(SENSEI.rec().g||{}).length;return n>=3?{n}:null},()=>['📋 カルテを 見る',()=>SENSEI.karte()]],
+['x_snLvUp',3,F=>{if(!window.SENSEI)return null;const lv=lvOf(F),nx=nextLv(lv),a=SENSEI.scenes.filter(s=>s.lv===lv);if(!nx||!a.length||!a.every(s=>SENSEI.rec().done[s.id]))return null;const b=SENSEI.scenes.find(s=>s.lv===nx&&!SENSEI.rec().done[s.id]);return b?{lvn:LVN[lv],next:LVN[nx],_id:b.id}:null},v=>['🗣️ 話しに 行く',()=>SENSEI.play(v._id)]],
 
 /* ===== 日にち・時間 ===== */
 ['x_streak',3,F=>F.streak>=2?{n:F.streak}:null,null],

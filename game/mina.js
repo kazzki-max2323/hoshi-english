@@ -201,6 +201,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b><span></span></div>
     <div class="mtalk" id="mtalk">${T0.html}</div>
     ${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}
+    <button id="msensei" class="msensei">🗣️ ミナ先生と 英語で 話す<small>${window.SENSEI?`（エンド ${SENSEI.endsN()}/${SENSEI.endsAll()}・そうだん・とっくん）`:''}</small></button>
     <div class="mstats"><div><b>${D.a}</b><small>きょう 答えた</small></div><div><b>${accToday==null?'-':accToday+'%'}</b><small>きょうの 正解率</small></div><div><b>${D.l}</b><small>きょう おぼえた</small></div><div><b>${MD.best}</b><small>さいこう れんぞく</small></div></div>
     ${su?`<p class="msug">⬆️ ${esc(su.lv)}の 正解率 ${su.acc}%。<b>${esc(su.next)}</b>に ちょうせん してみよう</p>`:''}
     ${wg?`<button id="mgram" class="msug btn">📚 文法ノート「${esc(wg.title)}」を 見る</button>`:''}
@@ -218,6 +219,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   $('mx').onclick=()=>{SFX.pop();const [e2,t2]=line('bye');H.home();setTimeout(()=>sayRow('m',e2,t2,4000),150)};
   H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.say));
   if(window.LESSON){LESSON.bindRows(panelOpen);$('mall').onclick=()=>{SFX.vopen();LESSON.list()}}
+  const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.vopen();window.SENSEI?SENSEI.open():null};
   const mk=$('mkaiwa');if(mk)mk.onclick=()=>{SFX.vopen();KAIWA.open()};
   const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.vopen();const owned=(ST.gram.owned||[]).includes(GRAMMAR[wg.lv].notes[wg.i].id);owned?H.gramNote(wg.lv,wg.i):H.gramShop(wg.lv)}}
 /* the face lives in the home row; tap = talk */

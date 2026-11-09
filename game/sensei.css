@@ -1,0 +1,57 @@
+/* ミナ先生と 英語で 話す（game/sensei.js）。会話の 見た目は 浜辺の 会話（kaiwa.css）を つかう */
+.snbig{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.snbig button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:8px 10px!important}
+.snbig button b{font-size:.86rem}
+.snbig button small{font-size:.64rem;color:var(--mute);line-height:1.35}
+.snbig button.hot{border-color:#ff8a5c!important;background:rgba(255,138,92,.16)!important}
+.sntags{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
+.sntags i{font-style:normal;font-size:.58rem;padding:1px 6px;border-radius:999px;border:1px solid rgba(127,196,255,.35);color:#cfe6ff;background:rgba(127,196,255,.08)}
+.sntags i.own{border-color:#7fc4ff;background:rgba(127,196,255,.2)}
+.sntags i.weak{border-color:#ff8a5c;background:rgba(255,138,92,.2);color:#ffd6c4}
+.sntags i.good{border-color:#55e0b4;background:rgba(85,224,180,.18);color:#c9fff0}
+.snpat{margin:0;text-align:center;font-size:.68rem;color:var(--mute)}
+.snpat b{color:#ffe7a8}
+/* the talk */
+.snw .snlog{height:min(44vh,380px)}
+.snm .lface{background:#1f2a5c}
+.snjp .lbody>p{background:#fffbe9;font-size:.8rem;border:1px dashed #e7c66a}
+.snjp.snsmall .lbody>p{font-size:.74rem;background:#f4f7ff;border-color:#b9c7f0}
+.snjp.snask .lbody>p{background:#e9fff6;border:2px solid #55e0b4;font-weight:800}
+.snjp.snhint .lbody>p{background:#fff1c9;border:2px solid #ffb02e}
+.snjp.snexp .lbody>p{background:#eef6ff;border:2px solid #7fc4ff;display:flex;flex-direction:column;gap:6px}
+.snjp.snexp b{color:#1d4ed8}
+.snfix{display:block;background:#fff;border-radius:8px;padding:5px 8px;font-size:.82rem;line-height:1.5}
+.snfix s{color:#c2304f;font-family:"Libre Baskerville",Georgia,serif;text-decoration-thickness:2px}
+.snfix .snen{color:#0f8a5f!important;font-family:"Libre Baskerville",Georgia,serif}
+.snwhy{display:block;font-size:.78rem;line-height:1.55}
+.snrule{display:block;font-size:.7rem;color:#475569;line-height:1.5;border-top:1px dotted #b9c7f0;padding-top:4px}
+.snbtns{display:flex;flex-wrap:wrap;gap:6px}
+.snbtns button{padding:4px 10px!important;font-size:.76rem!important}
+.kyou-b.snx .lbody>p{background:#ffe0ea!important;text-decoration:underline wavy #e2475a;text-underline-offset:4px}
+.kyou-b.snfixed .lbody>p{background:#d7f7e6!important;border:2px solid #55e0b4}
+.snjin{display:inline-block;color:#ffe7a8}
+/* the end */
+.snscore{display:flex;flex-wrap:wrap;justify-content:center;gap:4px 12px;font-size:.78rem}
+.snscore b{color:#ffe7a8}
+.sngl>div{flex-direction:column;align-items:stretch}
+.sng{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px;padding:5px 8px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15)}
+.sng b{font-size:.76rem}
+.sng.miss{border-color:rgba(127,196,255,.6);background:rgba(127,196,255,.12)}
+.sng.hint{border-color:rgba(255,176,46,.6);background:rgba(255,176,46,.1)}
+.sng.ok{border-color:rgba(85,224,180,.5);background:rgba(85,224,180,.08)}
+.sng span{display:flex;gap:4px}
+.sng button{padding:2px 8px!important;font-size:.68rem!important;font-family:inherit!important}
+/* 文法カルテ */
+.snkarte{display:flex;flex-direction:column;gap:6px;max-height:min(52vh,440px);overflow:auto}
+.snk{display:grid;grid-template-columns:1fr auto;gap:3px 8px;align-items:center;padding:7px 9px;border-radius:10px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15)}
+.snk b{font-size:.8rem}
+.snk>span:nth-child(2){font-size:.7rem;color:#ffe7a8;white-space:nowrap}
+.snk.weak{border-color:rgba(255,138,92,.6)}
+.snk.good{border-color:rgba(85,224,180,.6)}
+.snbar{grid-column:1/-1;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden}
+.snbar i{display:block;height:100%;background:linear-gradient(90deg,#ff8a5c,#ffd23f,#55e0b4)}
+.snkb{grid-column:1/-1;display:flex;gap:6px;justify-content:flex-end}
+.snkb button{padding:2px 9px!important;font-size:.7rem!important}
+/* Mina's page: the button to talk with her */
+.msensei{border-color:#7fc4ff!important;background:linear-gradient(rgba(127,196,255,.28),rgba(127,196,255,.12))!important;font-weight:800}
+.msensei small{display:block;font-size:.64rem;font-weight:500;color:#cfe6ff}
