@@ -440,7 +440,7 @@ function coinBurst(x,y,amt,quick){const tg=document.querySelector('.coin i').get
     const a=Math.random()*Math.PI*2,sp=36+Math.random()*46,mx=x+Math.cos(a)*sp,my=y+Math.sin(a)*sp-24;
     const an=d.animate([{transform:`translate(${x}px,${y}px) scale(.3)`,opacity:1},{transform:`translate(${mx}px,${my}px) scale(1.15)`,opacity:1,offset:.32},{transform:`translate(${tx}px,${ty}px) scale(.6)`,opacity:.9}],
       {duration:760+k*70,easing:'cubic-bezier(.45,0,.55,1)',fill:'forwards'});
-    an.onfinish=()=>{d.remove();if(share)addCoins(share);if(k%3===0||k===n-1)SFX.coinIn()}}}
+    an.onfinish=()=>{d.remove();if(share)addCoins(share);SFX.coin()}}}
 
 /* ---------- beach residents ----------
    one walks in now and then (the owl only at night);
