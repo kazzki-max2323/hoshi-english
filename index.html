@@ -95,6 +95,8 @@ button{touch-action:manipulation}
 <script src="game/sensei-data.js"></script>
 <script src="game/sensei-scenes.js"></script>
 <script src="game/sensei.js"></script>
+<script src="game/deep-data.js"></script>
+<script src="game/deep.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});
