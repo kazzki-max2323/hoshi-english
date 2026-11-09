@@ -136,3 +136,20 @@
 /* 文法テスト ⇄ 授業（game/gram-link.js） */
 .lsay.glink{text-align:left;margin:8px 0 4px;width:100%}
 .glinks{display:grid;gap:6px;margin:4px 0 8px;width:100%}
+
+/* Mina's page, kept simple: today's lesson + three tiles, the rest folded */
+.msensei small:empty{display:none}
+.mtiles{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:0!important;background:none!important;border:0!important}
+.mtiles .mvc{flex-direction:column;justify-content:center!important;align-items:center!important;text-align:center!important;gap:2px!important;padding:8px 4px!important;font-size:.76rem!important;min-width:0}
+.mtiles .mvc b{max-width:100%;font-size:.8rem}
+.mtiles .mvc.rv{order:1}.mtiles .mt-all{order:2}.mtiles [data-v="cards"]{order:3}
+.mtiles .mvc.qz,.mtiles .mvc.hc{order:4;grid-column:1/-1;flex-direction:row;justify-content:space-between!important;text-align:left!important;padding:7px 12px!important}
+.mfold{border-radius:12px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1)}
+.mfold summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:.86rem;font-weight:800}
+.mfold summary::-webkit-details-marker{display:none}
+.mfold summary small{margin-left:auto;font-weight:400;font-size:.72rem;color:var(--mute)}
+.mfold summary::after{content:'▾';color:var(--mute);transition:transform .2s}
+.mfold[open] summary::after{transform:rotate(180deg)}
+.mfbody{display:flex;flex-direction:column;gap:8px;padding:0 10px 10px}
+.mfbody .note{margin:0;font-size:.72rem}
+.mvmeter{display:flex;flex-direction:column;gap:8px}

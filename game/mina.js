@@ -92,7 +92,7 @@ function goTo(o){if(!o)return null;const [k,,x]=o;if(o[3])return o[3];
   if(k==='grammar'&&x&&(typeof GRAMMAR!=='undefined')&&GRAMMAR[x.lv])return ['📚 文法ノートを 見る',()=>{const owned=(ST.gram.owned||[]).includes(GRAMMAR[x.lv].notes[x.i].id);owned?H.gramNote(x.lv,x.i):H.gramTry(x.lv,x.i,panelOpen)}];
   if((k==='weakBook'||k==='stepUp')&&x&&H.books)return ['📕 単語帳を ひらく',()=>H.books(k==='stepUp'?x.nlv:x.lv)];
   if(k==='weakWord'&&x)return ['🔊 きいてみる',()=>H.say(x.lv,x.en)];
-  if(k==='review')return ['🔁 苦手な ことばを 見る',()=>{const sc=()=>{const w=H.panel.querySelector('.mweak');if(w)w.scrollIntoView({behavior:'smooth',block:'center'})};if(H.screen==='mina')sc();else{panelOpen();setTimeout(sc,200)}}];
+  if(k==='review')return ['🔁 苦手な ことばを 見る',()=>{const sc=()=>{const w=H.panel.querySelector('.mweak');if(w){const f=w.closest('details');if(f)f.open=true}if(w)w.scrollIntoView({behavior:'smooth',block:'center'})};if(H.screen==='mina')sc();else{panelOpen();setTimeout(sc,200)}}];
   return null}
 
 /* ---------- face ---------- */
@@ -201,16 +201,21 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b><span></span></div>
     <div class="mtalk" id="mtalk">${T0.html}</div>
     ${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}
-    <button id="msensei" class="msensei">🗣️ ミナ先生と 英語で 話す<small>${window.SENSEI?`（エンド ${SENSEI.endsN()}/${SENSEI.endsAll()}・そうだん・とっくん）`:''}</small></button>
-    <div class="mstats"><div><b>${D.a}</b><small>きょう 答えた</small></div><div><b>${accToday==null?'-':accToday+'%'}</b><small>きょうの 正解率</small></div><div><b>${D.l}</b><small>きょう おぼえた</small></div><div><b>${MD.best}</b><small>さいこう れんぞく</small></div></div>
+    <button id="msensei" class="msensei">🗣️ ミナ先生と 英語で 話す</button>
+    ${window.LESSON?`<div class="mhead"><b>📖 きょうの 授業</b></div>
+    <div class="lslist">${LESSON.suggest(1).map(LESSON.row).join('')}</div>
+    <div class="mtiles"><button id="mall" class="mvc mt-all"><span>📖 ぜんぶの 授業</span><b>${LESSON.count().join('/')}</b></button></div>`:''}
+    ${window.KAIWA?`<button id="mkaiwa" class="sub">💬 浜辺の 会話</button>`:''}
+    <details class="mfold mrec"><summary>📊 きろく・ごほうび<small>${D.a?`きょう ${D.a}問`:''}</small></summary><div class="mfbody">
+    <div class="mstats"><div><b>${D.a}</b><small>きょう 答えた</small></div><div><b>${accToday==null?'-':accToday+'%'}</b><small>正解率</small></div><div><b>${D.l}</b><small>おぼえた</small></div><div><b>${MD.best}</b><small>れんぞく</small></div></div>
     ${su?`<p class="msug">⬆️ ${esc(su.lv)}の 正解率 ${su.acc}%。<b>${esc(su.next)}</b>に ちょうせん してみよう</p>`:''}
     ${wg?`<button id="mgram" class="msug btn">📚 文法ノート「${esc(wg.title)}」を 見る</button>`:''}
-    ${window.LESSON?`<div class="mhead"><b>📖 ミナの ミニ授業</b><small>いまの 力：${LVN[level()]}くらい ・ ✅ ${LESSON.count().join('/')}</small></div>
-    <div class="lslist">${LESSON.suggest(3).map(LESSON.row).join('')}</div>
-    <button id="mall" class="sub">📖 ぜんぶの 授業を 見る</button>`:''}
-    ${window.KAIWA?`<button id="mkaiwa" class="sub">💬 浜辺の 会話（エンド ${KAIWA.endsN()}/${KAIWA.endsAll()}・おもしろ図鑑）</button>`:''}
-    <div class="mhead"><b>🔁 苦手な ことば</b><small>${ww.length?'まちがえた（✗）・こたえなかった（💤）ことば。ラジオで ときどき 出すね。2回 つづけて 正解で 卒業':'まだ ないよ'}</small></div>
+    ${window.LESSON?`<p class="note">いまの 力：${LVN[level()]}くらい</p>`:''}
+    </div></details>
+    <details class="mfold mwkf"><summary>🔁 苦手な ことば<small>${ww.length?ww.length+'こ':'なし'}</small></summary><div class="mfbody">
+    <p class="note">${ww.length?'まちがえた（✗）・こたえなかった（💤）ことば。ラジオで ときどき 出すね。2回 つづけて 正解で 卒業':''}</p>
     <div class="mweak">${ww.map(w=>`<button data-say="${esc(w.en)}" data-lv="${w.lv}"><span class="en">${esc(w.en)}</span><span class="ja">${esc(w.ja||'')}</span><span class="mm">${w.m?'✗'+w.m:''}${w.m&&w.n?' ':''}${w.n?'💤'+w.n:''}</span></button>`).join('')||'<p class="note">ラジオで あそぶと、まちがえた ことばや こたえなかった ことばが ここに たまるよ</p>'}</div>
+    </div></details>
   </section>`);
   setTimeout(()=>{const b=H.panel.querySelector('.mbig');if(b)b.classList.add('mnew')},10);
   bindTalk(first,T0);
@@ -218,6 +223,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     const b=H.panel.querySelector('.mbig');if(b){b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew')}}
   $('mx').onclick=()=>{SFX.pop();const [e2,t2]=line('bye');H.home();setTimeout(()=>sayRow('m',e2,t2,4000),150)};
   H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.say));
+  H.panel.querySelectorAll('.mfold').forEach(f=>f.ontoggle=()=>{if(f.open)SFX.pop()});
   if(window.LESSON){LESSON.bindRows(panelOpen);$('mall').onclick=()=>{SFX.vopen();LESSON.list()}}
   const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.vopen();window.SENSEI?SENSEI.open():null};
   const mk=$('mkaiwa');if(mk)mk.onclick=()=>{SFX.vopen();KAIWA.open()};

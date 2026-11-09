@@ -42,12 +42,12 @@
 .tc.les .tcname b{font-family:inherit;font-size:max(7px,8.6cqw);line-height:1.2}
 /* Mina's page */
 .mvbox{display:flex;flex-direction:column;gap:8px;padding:10px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12)}
-.mvbox .nk{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px;font-size:.88rem}
-.mvbox .nk small{opacity:.8;font-size:.72rem}
-.mvbox .nk .nkbar{flex:0 0 100%;max-width:none}
-.mvbox .stp{font-size:.86rem}
-.mvbox .stp small{opacity:.8;font-size:.68rem}
-.mvbox .stsheet{justify-content:flex-start}
+:is(.mvbox,.mvmeter) .nk{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:4px;font-size:.88rem}
+:is(.mvbox,.mvmeter) .nk small{opacity:.8;font-size:.72rem}
+:is(.mvbox,.mvmeter) .nk .nkbar{flex:0 0 100%;max-width:none}
+:is(.mvbox,.mvmeter) .stp{font-size:.86rem}
+:is(.mvbox,.mvmeter) .stp small{opacity:.8;font-size:.68rem}
+:is(.mvbox,.mvmeter) .stsheet{justify-content:flex-start}
 .mvc{display:flex!important;justify-content:space-between;align-items:center;gap:8px;text-align:left;font-size:.84rem!important;padding:7px 12px!important}
 .mvc b{color:var(--gold);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60%}
 .mvc.qz{border-color:#7aa2ff!important}

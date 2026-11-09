@@ -164,13 +164,18 @@ function chips(){const old=$('mchips');if(H.screen!=='home'){return}const row=H.
   c.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{SFX.vopen();const m=b.dataset.m;if(m[0]==='x')ex[+m.slice(1)].go();else if(m==='qz')quizOpen();else if(m==='hc')LESSON.open(MV.hc.id,H.home);else openCards()})}
 function minaBox(){const p=H.panel.querySelector('.minap');if(!p||p.querySelector('.mvbox'))return;const n=MV.st.n,k=n?(n-1)%10+1:0,[a,b]=window.CARDS&&CARDS.lesCount?CARDS.lesCount():[0,0];
   const z=MV.qz.now&&lesOf(MV.qz.now.id),hc=hcOn()&&lesOf(MV.hc.id),need=nkNeed();
-  const d=document.createElement('div');d.className='mvbox';
-  d.innerHTML=`<div class="nk"><span>❤️ なかよし <b>Lv${MV.nk.lv}</b>「${NK_NAME[MV.nk.lv-1]}」</span><small>${need>0?`つぎの レベルまで ${need}`:'さいこうの なかよし！'}</small><i class="nkbar"><i style="width:${nkBar()}%"></i></i></div>
-    <div class="stp"><span>📮 授業スタンプ <b>${k}/10</b>　<small>5こ 🪙50・10こ 🃏宝箱くじ・20こごと 🏖️ショー</small></span>${sheet(n,false)}</div>
-    <button class="mvc" data-v="cards"><span>📖 授業カード</span><b>${a}/${b}</b></button>
+  /* Mina's page stays simple: the buttons go with the lessons, the meters into the folded 「きろく・ごほうび」 */
+  const tiles=p.querySelector('.mtiles'),rec=p.querySelector('.mrec .mfbody');
+  const d=tiles||document.createElement('div');d.classList.add('mvbox');
+  const meters=`<div class="nk"><span>❤️ なかよし <b>Lv${MV.nk.lv}</b>「${NK_NAME[MV.nk.lv-1]}」</span><small>${need>0?`つぎの レベルまで ${need}`:'さいこうの なかよし！'}</small><i class="nkbar"><i style="width:${nkBar()}%"></i></i></div>
+    <div class="stp"><span>📮 授業スタンプ <b>${k}/10</b>　<small>5こ 🪙50・10こ 🃏宝箱くじ・20こごと 🏖️ショー</small></span>${sheet(n,false)}</div>`;
+  const btns=`<button class="mvc" data-v="cards"><span>🃏 授業カード</span><b>${a}/${b}</b></button>
     ${z?`<button class="mvc qz" data-v="qz"><span>❓ 思い出しクイズ</span><b>${esc(z.t)}</b></button>`:''}
     ${hc?`<button class="mvc hc" data-v="hc"><span>🍬 ハマ子の 挑戦状</span><b>${esc(hc.t)}</b></button>`:''}`;
-  const t=p.querySelector('.mstats')||p.querySelector('.mtalk');t?t.after(d):p.appendChild(d);
+  if(rec){const m=document.createElement('div');m.className='mvmeter';m.innerHTML=meters;rec.prepend(m);
+    const sm=p.querySelector('.mrec summary small');if(sm)sm.textContent=`❤️Lv${MV.nk.lv}・📮${k}/10`}
+  if(tiles)d.insertAdjacentHTML('beforeend',btns);
+  else{d.innerHTML=(rec?'':meters)+btns;const t=p.querySelector('.mstats')||p.querySelector('.mtalk');t?t.after(d):p.appendChild(d)}
   d.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{SFX.vopen();const v=b.dataset.v;if(v==='cards')CARDS.open('lesson');else if(v==='qz')quizOpen();else LESSON.open(MV.hc.id)})}
 new MutationObserver(()=>minaBox()).observe(H.panel,{childList:true});
 H.on('home',()=>{chips();if(MV.pc.length&&!$('cardOv'))setTimeout(()=>{if(H.screen==='home')openCards()},1200)});
