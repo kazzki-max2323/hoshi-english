@@ -169,7 +169,7 @@ function play(id,from){const s=sceneOf(id);if(!s)return list();begin(s,from)}
 
 /* the lines in the log */
 function scrollLog(){const l=$('slog');if(l)l.scrollTo({top:l.scrollHeight,behavior:'smooth'})}
-function mina(en,ja,ex='smile',cls='',btns){if(!live())return;const d=document.createElement('div'),show=jaOn(P.s.lv);d.className='lsay snm '+cls;
+function mina(en,ja,ex='smile',cls='',btns){if(!live())return;const d=document.createElement('div'),show=jaOn(P.s.lv)||P.s.kind==='sou';d.className='lsay snm '+cls;
   d.innerHTML=`<span class="lface">${MINA.face('m',ex)}</span><div class="lbody"><p class="ken">${GS()?GS().mark(en):esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p>${ja?`<small class="kja ${show?'on':''}">${esc(ja)}</small>${show?'':'<button class="kjab">訳を 見る</button>'}`:''}${btns?`<span class="snbtns">${btns.map((b,i)=>`<button class="sub" data-bi="${i}">${b[0]}</button>`).join('')}</span>`:''}</div>`;
   $('slog').appendChild(d);P.lines.push(en);if(GS()){GS().record(en);GS().bind(d)}
   d.querySelector('.ksay').onclick=e=>{e.stopPropagation();talk(en)};
@@ -202,7 +202,7 @@ function drillNode(id,nx){const d=pickL(DR[id]||DR.es_be),V={},good=shuffle(d.go
 
 function turn(){if(!live())return;const raw=P.s.nodes[P.at];if(!raw)return finish({end:1,good:1,t:'おしまい',s:'Good job today!',j:'きょうも よく がんばったね！'});
   if(raw.end)return finish(raw);
-  const N=ready(raw);P.N=N;P.tries=0;P.tried=new Set();P.step++;P.order=null;
+  const N=ready(raw);P.N=N;P.tries=0;P.gw=0;P.tried=new Set();P.step++;P.order=null;
   $('sq').textContent=`💬 ${P.step}`;
   if(N.drill){P.drills++;const [ex,tx]=ML('sn_drill',{g:'「'+gName(N.g)+'」'});note(`📘 <b>文法チェック</b>：${esc(gName(N.g))}`);
     if(Math.random()<.45)minaJa(ex,tx,'snsmall')}
@@ -259,13 +259,13 @@ const NEUTRAL=[["Oh, nice!","へえ、 いいね！"],["I see! Thank you.","な�
 function right(i,typedText,gUsed,neutral){const N=P.N,o=N.o[i],gid=P.s.kind==='sou'?null:nodeG(N),first=P.tries===0;$('sans').innerHTML='';
   you(typedText||o.en,'',!!typedText);
   if(first)P.st.ok++;else P.st.hint++;
-  if(gid){gramRec(gid,first?2:1);const r=P.st.g[gid]=P.st.g[gid]||{ok:0,hint:0,miss:0};first?r.ok++:r.hint++}
+  const gr=first||!P.gw;if(gid){gramRec(gid,gr?2:1);const r=P.st.g[gid]=P.st.g[gid]||{ok:0,hint:0,miss:0};gr?r.ok++:r.hint++}
   setTimeout(()=>{if(!live())return;
-    const rp=neutral?pickL(NEUTRAL):o.re?[o.re,o.rj||'']:pickL(N.drill?[["Great!","いいね！"],["Perfect!","カンペキ！"]]:[["I see!","なるほど！"]]);
-    mina(rp[0],rp[1],first?'happy':'proud','k-good');SFX.heart?SFX.heart():SFX.chime();
+    const rp=neutral?pickL(NEUTRAL):o.re?[o.re,o.rj||'']:N.drill?pickL([["Great!","いいね！"],["Perfect!","カンペキ！"]]):null;
+    if(rp)mina(rp[0],rp[1],first?'happy':'proud','k-good');SFX.heart?SFX.heart():SFX.chime();
     /* a short word from the teacher now and then */
     if(gUsed&&gById(gUsed.id)){const [ex,tx]=ML('sn_free',{g:'「'+gUsed.n.t+'」'});setTimeout(()=>minaJa(ex,tx,'snsmall'),400)}
-    else if(!first&&gid){const [ex,tx]=ML('sn_okHint',{g:'「'+gName(gid)+'」'});setTimeout(()=>minaJa(ex,tx,'snsmall'),400)}
+    else if(!gr&&gid){const [ex,tx]=ML('sn_okHint',{g:'「'+gName(gid)+'」'});setTimeout(()=>minaJa(ex,tx,'snsmall'),400)}
     else if(first&&N.drill&&Math.random()<.5){const [ex,tx]=ML('sn_ok',{g:'「'+gName(gid)+'」'});setTimeout(()=>minaJa(ex,tx,'snsmall'),400)}
     if(o.go){afterTalk(()=>o.go(),300);return}
     P.at=o.nx||N.nx||'end';afterTalk(turn)},600)}
@@ -273,7 +273,7 @@ function right(i,typedText,gUsed,neutral){const N=P.N,o=N.o[i],gid=P.s.kind==='s
 /* a wrong answer: 1st time a hint (try again), 2nd time the explanation (then the talk goes on with the right answer) */
 function wrong(o,gi,oi){const N=P.N;$('sans').innerHTML='';if(oi!=null&&oi>=0)P.tried.add(oi);P.tries++;
   you(o.en,'snx',!!o.typed);SFX.tease?SFX.tease():SFX.pop();
-  const E=o.err&&ERR[o.err],gid=P.s.kind==='sou'?null:E?E[0]:nodeG(N);
+  const E=o.err&&ERR[o.err],gid=P.s.kind==='sou'?null:E?E[0]:null;if(E)P.gw=1;
   setTimeout(()=>{if(!live())return;
     if(P.tries===1){
       const r=o.err||!o.re?pickL(OOPS):[o.re,o.rj];mina(r[0],r[1],o.err?'think':'wow','k-oops');
@@ -283,7 +283,7 @@ function wrong(o,gi,oi){const N=P.N;$('sans').innerHTML='';if(oi!=null&&oi>=0)P.
 function explain(o,gi,E,gid){const N=P.N,good=N.o[gi>=0?gi:0],g=gid&&gById(gid);P.st.miss++;
   if(gid){gramRec(gid,0);const r=P.st.g[gid]=P.st.g[gid]||{ok:0,hint:0,miss:0};r.miss++}
   const rules=g?g.n.r.slice(0,2):[];
-  const d=minaJa('smile',`📘 <b>${g?esc(g.n.t):'ここが ポイント'}</b>
+  const d=minaJa('smile',`<b>${g?'📘 '+esc(g.n.t):'💡 ここが ポイント'}</b>
     <span class="snfix"><s>${esc(o.en)}</s><br>⭕ <b class="snen">${esc(good.en)}</b></span>
     <span class="snwhy">${E?E[2]:(o.h||'答えの 意味が 質問と ずれて いたよ')}</span>
     ${rules.length?`<span class="snrule">${rules.map(r=>'・'+esc(r)).join('<br>')}</span>`:''}`,'snexp',
