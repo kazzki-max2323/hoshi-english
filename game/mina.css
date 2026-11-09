@@ -153,3 +153,29 @@
 .mfbody{display:flex;flex-direction:column;gap:8px;padding:0 10px 10px}
 .mfbody .note{margin:0;font-size:.72rem}
 .mvmeter{display:flex;flex-direction:column;gap:8px}
+
+/* ---------- きょうの 授業: いちばん 目立つ 大きな カード（ホームと ミナ先生の ページ） ---------- */
+.lcard2{position:relative;display:flex;flex-direction:column;gap:6px;border-radius:14px;padding:8px;
+  background:linear-gradient(135deg,rgba(255,210,63,.26),rgba(255,122,89,.18) 55%,rgba(122,162,255,.18));border:2px solid #ffd23f;
+  box-shadow:0 0 0 1px #0004,0 0 16px rgba(255,210,63,.35);animation:lcglow 3.2s ease-in-out infinite}
+@keyframes lcglow{50%{box-shadow:0 0 0 1px #0004,0 0 26px rgba(255,210,63,.6)}}
+.lcard2 .lcgo{display:grid!important;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;text-align:left;
+  background:rgba(15,18,48,.55)!important;border:0!important;padding:10px!important}
+.lcard2 .lcico{display:grid;place-items:center;width:46px;height:46px;border-radius:12px;background:#fff6e0;font-size:1.6rem;box-shadow:0 3px 0 #1b1740}
+.lcard2 .lctx{min-width:0}
+.lcard2 .lctx small{display:block;font-size:.68rem;font-weight:800;color:#ffe7a8;letter-spacing:.04em}
+.lcard2 .lctx b{display:block;font-size:1.02rem;line-height:1.35;color:#fff}
+.lcard2 .lcplay{white-space:nowrap;font-weight:800;font-size:.82rem;color:#3a2000;background:linear-gradient(#ffe27a,#ffb04a);border-radius:999px;padding:7px 10px;box-shadow:0 3px 0 #a8600f}
+.lcard2 .lcfoot{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:0 2px}
+.lcard2 .lcfire{font-size:.78rem;font-weight:800;color:#ffb27a}
+.lcard2 .lcfire small{margin-left:6px;font-size:.66rem;font-weight:500;color:#ffe7a8}
+.lcard2 .lcall{padding:3px 10px!important;font-size:.72rem!important;font-weight:800;border-width:1px!important;background:rgba(255,255,255,.08)!important}
+.lcard2 .lchot{margin:0;display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:.74rem;font-weight:800;color:#3a2000;background:#ffd23f;border-radius:8px;padding:4px 9px}
+.lcard2 .lchot b{font-family:var(--pixel);font-weight:400}
+.lcard2 .lchot span{margin-left:auto}
+.lcard2.done{border-color:#55e0b4;background:linear-gradient(135deg,rgba(85,224,180,.22),rgba(122,162,255,.16));animation:none;box-shadow:0 0 12px rgba(85,224,180,.3)}
+.lcard2.done .lctx small{color:#9ff0d4}
+.lcard2.done .lcplay{background:linear-gradient(#9ff0d4,#55e0b4);color:#0b3a2c;box-shadow:0 3px 0 #1f8a68}
+.home .lcard2{margin-top:2px}
+.lstk b{color:#ffb27a}.lstk small{display:block;font-size:.72rem;color:var(--mute)}
+@media (prefers-reduced-motion:reduce){.lcard2{animation:none}}

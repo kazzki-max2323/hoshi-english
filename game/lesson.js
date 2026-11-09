@@ -18,6 +18,36 @@ function suggest(n=3){const est=LV.indexOf(MINA.level()),weak=MINA.weakKeys(),D=
     if((l.key||[]).some(k=>weak.some(w=>w&&(w.includes(k)||k.includes(w)))))s+=5;if(D[l.id])s-=6;return s};
   return LESSONS.slice().sort((a,b)=>sc(b)-sc(a)).slice(0,n)}
 
+/* ---------- きょうの 授業: 1日 1つ。ホームと ミナ先生の ページで 同じ 授業を 大きく 見せる ---------- */
+const dk=d=>{d=d||new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
+const yest=()=>{const d=new Date();d.setDate(d.getDate()-1);return dk(d)};
+const lesOf=id=>LESSONS.find(l=>l.id===id);
+/* the pick stays for the day; once it is cleared, the next one comes (lt.c = it was already cleared when picked) */
+function today(){const m=MINA.rec(),D=done(),t=dk(),lt=m.lt;
+  if(lt&&lt.d===t&&lesOf(lt.id)&&(!D[lt.id]||lt.c))return lesOf(lt.id);
+  const s=suggest(8),l=s.find(x=>!D[x.id])||s[0];if(!l)return null;m.lt={d:t,id:l.id,c:D[l.id]?1:0};save();return l}
+/* lesson days in a row: ls = {d: the last day with a lesson, n: days in a row, best} */
+const doneToday=()=>(MINA.rec().ls||{}).d===dk();
+function streak(){const s=MINA.rec().ls;return s&&(s.d===dk()||s.d===yest())?s.n:0}
+function mark(){const m=MINA.rec(),s=m.ls||{d:'',n:0,best:0},t=dk();if(s.d===t)return 0;const n=s.d===yest()?s.n+1:1;m.ls={d:t,n,best:Math.max(n,s.best||0)};save();return n}
+const STK={3:30,7:70,14:140,21:210,30:300};   // coins for days in a row
+const stkPay=n=>STK[n]||(n>30&&n%30===0?300:0);
+/* the big card: tap = the lesson right away */
+function card(where){const l=today();if(!l)return '';const c=CAT[l.cat]||CAT.zu,sk=streak(),dt=doneToday(),B=where==='home'&&window.BONUS&&BONUS.now?BONUS.now():null;
+  return `<div class="lcard2${dt?' done':''}${B?' hot':''}" id="lcard">
+    ${B?`<p class="lchot">⏰ 授業タイム <b class="bcount">${B.left}</b><span>🎁 ${B.label}</span></p>`:''}
+    <button class="lcgo" data-les="${l.id}"><span class="lcico">${c[0]}</span>
+      <span class="lctx"><small>${dt?'✅ クリア！ つぎは':'📖 きょうの 授業'}</small><b>${esc(l.t)}</b></span>
+      <span class="lcplay">${dt?'もう1つ':'はじめる'} ▶</span></button>
+    ${sk||where==='home'?`<div class="lcfoot">${sk?`<span class="lcfire">🔥 ${sk}日 れんぞく${dt?'':`<small>きょうで ${sk+1}日</small>`}</span>`:'<span></span>'}${where==='home'?'<button class="lcall" id="lcall">ぜんぶの 授業 ▸</button>':''}</div>`:''}
+  </div>`}
+function bindCard(back){const c=$('lcard');if(!c)return;c.querySelector('.lcgo').onclick=()=>{SFX.vopen();open(c.querySelector('.lcgo').dataset.les,back)};
+  const a=$('lcall');if(a)a.onclick=()=>{SFX.vopen();list()}}
+/* on the home screen it sits right above the word books */
+function onHome(){const v=H.panel.querySelector('.home .lvs');if(!v)return;const o=$('lcard');if(o)o.remove();v.insertAdjacentHTML('beforebegin',card('home'));bindCard(H.home)}
+H.on('home',onHome);if(H.screen==='home')setTimeout(onHome,0);
+const refresh=()=>{if(H.screen==='home')onHome()};
+
 /* ---------- the list of all lessons ---------- */
 let listLv=null;
 function list(){listLv=listLv||MINA.level();const D=done(),L=LESSONS.filter(l=>l.lv===listLv);
@@ -71,22 +101,26 @@ function quiz(l,back){let k=0,miss=0;
       $('lreset').onclick=()=>{picked.length=0;H.panel.querySelectorAll('[data-c]').forEach(x=>x.disabled=false);draw()}}
     else H.panel.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const i=+b.dataset.o,ok=i===q.a;H.panel.querySelectorAll('[data-o]').forEach(x=>x.disabled=true);
       H.panel.querySelector(`[data-o="${q.a}"]`).classList.add('right');if(!ok)b.classList.add('wrong');fb(ok,q.o[q.a])})};
-  const finish=()=>{const D=done(),first=!D[l.id];D[l.id]=1;save();const pay=first?PAY[l.lv]:0,nx=suggest(4).filter(x=>x.id!==l.id)[0];
+  const finish=()=>{const D=done(),first=!D[l.id];D[l.id]=1;save();const sk=mark(),pay=first?PAY[l.lv]:0,nx=suggest(4).filter(x=>x.id!==l.id)[0];
     /* extra prizes from game/bonus.js and game/motivate.js: each gives {html, after} or nothing */
-    const info={first,miss,n:l.quiz.length,pay},ext=LESSON_AFTER.map(f=>{try{return f(l,info)}catch(e){console.error(e);return null}}).filter(Boolean);
+    const info={first,miss,n:l.quiz.length,pay,sk},ext=LESSON_AFTER.map(f=>{try{return f(l,info)}catch(e){console.error(e);return null}}).filter(Boolean);
     /* この授業の 文法を 文法テストで ためす（game/gram-link.js） */
     let gk=null;try{gk=window.GRAMLINK&&GRAMLINK.afterLesson(l)}catch(e){console.error(e)}
     H.show('lesson',`<section class="pnl lsn">
       <div class="lsay by-m big"><span class="lface">${MINA.face('m','proud')}</span><div class="lbody"><p>「${esc(l.t)}」 おつかれさま！ ${miss?`${l.quiz.length-miss}/${l.quiz.length} せいかい。 また ふくしゅう しようね`:'ぜんもん せいかい！'}${pay?`<br>ごほうびに 🪙<b>${pay}</b>まい`:''}</p></div></div>
       ${gk?gk.html:''}
       ${ext.length?`<div class="bwin"><b class="bt">🎁 ごほうび</b>${ext.map(x=>`<div class="brow">${x.html}</div>`).join('')}</div>`:''}
-      ${nx?`<p class="note">つぎの おすすめ</p>${row(nx)}`:''}
-      <div class="row"><button id="lagain" class="sub">もう一度</button><button id="lback">ミナ先生へ</button></div>
+      ${nx?`<p class="note">つぎの 授業も やってみる？</p>${row(nx)}`:''}
+      <div class="row"><button id="lagain" class="sub">もう一度</button><button id="lback">${back===H.home?'ホームへ':'ミナ先生へ'}</button></div>
     </section>`);
     SFX.fanfare(1);if(pay){const r=H.panel.getBoundingClientRect();setTimeout(()=>H.coinBurst(r.left+r.width/2,r.top+70,pay),300)}
-    $('lagain').onclick=()=>{SFX.pop();open(l.id,back)};$('lback').onclick=()=>{SFX.pop();MINA.open()};bindRows(back);if(gk)gk.bind();ext.forEach(x=>{try{x.after&&x.after()}catch(e){console.error(e)}})};
+    $('lagain').onclick=()=>{SFX.pop();open(l.id,back)};$('lback').onclick=()=>{SFX.pop();back===H.home?H.home():MINA.open()};bindRows(back);if(gk)gk.bind();ext.forEach(x=>{try{x.after&&x.after()}catch(e){console.error(e)}})};
   ask()}
 
 window.LESSON_AFTER=window.LESSON_AFTER||[];
-window.LESSON={suggest,list,open,row,bindRows,PAY,count:()=>[LESSONS.filter(l=>done()[l.id]).length,LESSONS.length]};
+/* the first lesson of the day: days in a row, and coins on 3・7・14・21・30 days */
+LESSON_AFTER.push((l,info)=>{const n=info.sk;if(!n)return null;const c=stkPay(n),[,tx]=MINA.line(c?'les_streakGift':n>=2?'les_streak':'les_streak1',{n,n1:n+1,c});
+  if(c){window.MOTI?MOTI.coins(c):setTimeout(()=>H.addCoins(c),700)}
+  return {html:`<span class="lstk">🔥 授業 <b>${n}日</b> れんぞく${c?`　🪙<b>${c}</b>まい`:''}<small>${tx}</small></span>`}});
+window.LESSON={suggest,list,open,row,bindRows,PAY,today,card,bindCard,refresh,streak,doneToday,count:()=>[LESSONS.filter(l=>done()[l.id]).length,LESSONS.length]};
 })();
