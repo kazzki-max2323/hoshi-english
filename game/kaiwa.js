@@ -1,6 +1,7 @@
 /* 浜辺の 会話: 浜辺の キャラ（ゲンじい・ソラ・ポチ・旅行者の エマ…）と 英語で おしゃべり。
    - 相手の 話に 答える（えらぶ / 自分で 書く / 声で 言う）。こっちから 質問する 番も ある
-   - まちがえても 相手が 困ったり 笑ったり するだけ。その 反応は「おもしろ反応 図鑑」に たまって コインも もらえる
+   - まちがえても 相手が 困ったり 笑ったり して、そのまま 話が すすむ（やり直しは さいしょから）。その 反応は「おもしろ反応 図鑑」に たまって コインも もらえる
+   - ながい 会話（game/kaiwa-story.js）は 答えで 話が 分かれ、エンドが いくつも ある。★の エンドを めざして 何度も 話す
    - レベルは ミナ先生の 見る「いまの 力」（MINA.level）。小学生は 日本語訳が いつも 出る
    - 自分で 書いた 英語は、えらぶ 答えの どれに いちばん 近いかを ことばの 重なりで 判定する（外部の AIは つかわない）
    - 声は 端末の 読み上げ（キャラごとに 高さと 速さを かえる）
@@ -16,6 +17,7 @@ const sceneOf=id=>SC.find(s=>s.id===id);
 
 /* ---------- the record ---------- */
 const KD=(()=>{try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}').kaiwa;if(s&&s.done)return s}catch(e){}return {done:{},heart:{},fun:{},free:0,ask:0,n:0,last:0,ja:0}})();
+KD.end=KD.end||{};   // endings found: 'scene:ending'
 _saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');s.kaiwa=KD;localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
 
 /* ---------- now (for the time and greeting scenes) ---------- */
@@ -64,8 +66,20 @@ function afterTalk(fn,gap=700,minMs=1200){const t0=Date.now();
   const wait=()=>{if(!live())return;const busy=ST.sound&&window.speechSynthesis&&(talkOn||speechSynthesis.speaking||speechSynthesis.pending)&&Date.now()<talkMax;
     if(busy||Date.now()-t0<minMs){setTimeout(wait,150);return}setTimeout(fn,gap)};setTimeout(wait,150)}
 
+/* ---------- every talk as nodes ----------
+   ながい 会話（game/kaiwa-story.js）は ノードを もつ。みじかい 会話（turns）は 1本道の ノード '0','1',… と さいごの 'end' に する。
+   どの 答えを えらんでも 話は すすむ（まちがえても やり直さない）。エンドは 答えしだい */
+const NODES={};
+function nodesOf(s){if(s.nodes)return s.nodes;if(NODES[s.id])return NODES[s.id];const n={};
+  s.turns.forEach((t,i)=>n[i]=Object.assign({},t,{nx:i+1<s.turns.length?String(i+1):'end'}));n.end={end:1,auto:1};return NODES[s.id]=n}
+const startOf=s=>s.start||'0';
+/* the endings of a talk: [key, good, title] */
+const endsOf=s=>s.nodes?Object.entries(s.nodes).filter(([,n])=>n.end).map(([k,n])=>[k,!!n.good,n.t]):[['ok',true,'ばっちり 会話'],['fun',false,'ちょっと へんな 会話']];
+const endsGot=s=>endsOf(s).filter(e=>KD.end[s.id+':'+e[0]]).length;
+const endsAll=()=>SC.reduce((a,s)=>a+endsOf(s).length,0),endsN=()=>Object.keys(KD.end).length;
+
 /* ---------- counts ---------- */
-let FT=0;const funTotal=()=>FT||(FT=SC.reduce((a,s)=>a+s.turns.reduce((b,t)=>b+val(t.o,facts()).filter(o=>!o[1]).length,0),0));
+let FT=0;const funTotal=()=>FT||(FT=SC.reduce((a,s)=>a+Object.values(nodesOf(s)).filter(n=>n.o).reduce((b,n)=>b+val(n.o,facts()).filter(o=>!o[1]).length,0),0));
 const funN=()=>Object.keys(KD.fun).length;
 const met=()=>Object.keys(KD.heart).filter(k=>KD.heart[k]>0);
 const myLv=()=>{try{return MINA.level()}catch(e){return 'es'}};
@@ -79,17 +93,19 @@ function bookWords(lines){const M=wordMap(),seen={},out=[];
   return out}
 
 /* ---------- Mina's line at the top of the list ---------- */
-function minaLine(){const lv=myLv(),todo=SC.filter(s=>s.lv===lv&&!KD.done[s.id]);let k,v={};
+function minaLine(){const lv=myLv(),todo=SC.filter(s=>s.lv===lv&&!KD.done[s.id]),story=todo.find(s=>s.story);let k,v={};
   if(!KD.n)k='k_intro';else if(KD.n<3&&Math.random()<.5)k='k_tips';
-  else if(todo.length&&Math.random()<.5){k='k_list';v={t:'「'+todo[0].t+'」',c:CH[todo[0].c].n}}
+  else if(story&&Math.random()<.5){k='k_story';v={t:'「'+story.t+'」',c:CH[story.c].n}}
+  else if(todo.length&&Math.random()<.4){k='k_list';v={t:'「'+todo[0].t+'」',c:CH[todo[0].c].n}}
+  else if(endsN()&&Math.random()<.5){k='k_endsList';v={n:endsN(),tot:endsAll()}}
   else if(funN()&&Math.random()<.5){k='k_funList';v={n:funN(),tot:funTotal()}}else k='k_tips';
   return MINA.line(k,Object.assign({lvn:LVN[lv]},v))}
 
-/* ---------- the list ---------- */
+/* ---------- the list: the long talks first ---------- */
 let listLv=null;
-function list(){listLv=listLv||myLv();const [ex,tx]=minaLine(),S=SC.filter(s=>s.lv===listLv);
+function list(){listLv=listLv||myLv();const [ex,tx]=minaLine(),S=SC.filter(s=>s.lv===listLv).sort((a,b)=>(b.story?1:0)-(a.story?1:0));
   H.show('kaiwa',`<section class="pnl kwp">
-    <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>💬 浜辺の 会話</b><span class="qn">😂 ${funN()}/${funTotal()}</span></div>
+    <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>💬 浜辺の 会話</b><span class="qn">🏁 ${endsN()}/${endsAll()}　😂 ${funN()}/${funTotal()}</span></div>
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     <div class="seg">${LV.map(k=>`<button data-l="${k}" class="${k===listLv?'on':''}">${LVN[k]}</button>`).join('')}</div>
     <div class="lslist klist">${S.map(row).join('')}</div>
@@ -102,11 +118,11 @@ function list(){listLv=listLv||myLv();const [ex,tx]=minaLine(),S=SC.filter(s=>s.
   $('kgo').onclick=()=>{SFX.vopen();const a=S.filter(s=>!KD.done[s.id]);play(pickL(a.length?a:S).id)};
   $('kfun').onclick=()=>{SFX.vopen();funBook()};
   $('kja').onchange=e=>{KD.ja=e.target.checked?1:0;save()}}
-const row=s=>{const c=CH[s.c],n=KD.done[s.id]||0;
-  return `<button class="lsrow krow ${n?'clear':''}" data-k="${s.id}"><span class="ci">${c.ico}</span><span class="lt"><b>${esc(s.t)}</b><small>${esc(c.n)}・${esc(c.d)}</small></span><span class="lp">${n?'💬'+n+'回':'🪙'+PAY[s.lv]*2}</span></button>`};
+const row=s=>{const c=CH[s.c],n=KD.done[s.id]||0,g=endsGot(s),t=endsOf(s).length,star=endsOf(s).some(e=>e[1]&&KD.end[s.id+':'+e[0]]);
+  return `<button class="lsrow krow ${n?'clear':''} ${s.story?'kstory':''}" data-k="${s.id}"><span class="ci">${c.ico}</span><span class="lt"><b>${s.story?'📖 ':''}${esc(s.t)}</b><small>${s.story?'ながい 会話・エンド '+t+'こ・':''}${esc(c.n)}・${esc(c.d)}</small></span><span class="lp">${n?`${star?'★':'🏁'}${g}/${t}`:'🪙'+PAY[s.lv]*2}</span></button>`};
 
 /* ---------- the funny-reaction book ---------- */
-function funBook(){const items=[];SC.forEach(s=>s.turns.forEach((t,ti)=>{const F=facts(),o=val(t.o,F);o.forEach((x,oi)=>{const k=s.id+':'+ti+':'+oi;if(KD.fun[k])items.push([s,x])})}));
+function funBook(){const items=[],F=facts();SC.forEach(s=>Object.entries(nodesOf(s)).forEach(([nk,n])=>{if(!n.o)return;val(n.o,F).forEach((x,oi)=>{if(KD.fun[s.id+':'+nk+':'+oi])items.push([s,x])})}));
   const [ex,tx]=MINA.line(items.length?'k_funBook':'k_funNone',{n:items.length,tot:funTotal()});
   H.show('kaiwa',`<section class="pnl kwp">
     <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>😂 おもしろ反応 図鑑</b><span class="qn">${items.length}/${funTotal()}</span></div>
@@ -116,9 +132,9 @@ function funBook(){const items=[];SC.forEach(s=>s.turns.forEach((t,ti)=>{const F
   $('kx').onclick=()=>{SFX.pop();list()}}
 
 /* ---------- one conversation ---------- */
-let P=null;   // the talk going on: scene, turn, counts
+let P=null;   // the talk going on: scene, node, counts
 function play(id){const s=sceneOf(id);if(!s)return list();const c=CH[s.c];
-  P={s,c,ti:0,fun:0,newFun:0,free:0,freeCoins:0,miss:0,asked:0,lines:[],tried:{},F:facts()};
+  P={s,c,at:startOf(s),step:0,fun:0,newFun:0,free:0,freeCoins:0,miss:0,asked:0,lines:[],F:facts()};
   H.show('kaiwa',`<section class="pnl lsn kw">
     <div class="qtop"><button class="x" id="kx" aria-label="会話を やめる">←</button><b>${c.ico} ${esc(c.n)}</b><span class="qn" id="kq"></span></div>
     <div class="lslog kwlog" id="klog"></div>
@@ -138,17 +154,17 @@ function you(en,typed){if(!live())return;const d=document.createElement('div');d
   d.innerHTML=`<span class="lface kf you">⭐</span><div class="lbody"><p>${esc(en)}${typed?'<small class="kty">✍️</small>':''}</p></div>`;$('klog').appendChild(d);P.lines.push(en);scrollLog()}
 function note(html){if(!live())return;const d=document.createElement('p');d.className='knote';d.innerHTML=html;$('klog').appendChild(d);scrollLog()}
 
-function turn(){if(!live())return;const T=P.s.turns[P.ti];if(!T)return end();
-  $('kq').textContent=`${P.ti+1}/${P.s.turns.length}`;
-  P.opts=val(T.o,P.F);P.tried={};
-  if(T.ask){note(`❓ こんどは あなたの 番！ <b>${esc(T.ask)}</b>`);answers()}
-  else{them(val(T.s,P.F),val(T.j,P.F));setTimeout(answers,350)}}
+function turn(){if(!live())return;const N=nodesOf(P.s)[P.at];if(!N)return;if(N.end)return end(N);
+  P.step++;P.N=N;P.opts=val(N.o,P.F);P.order=null;
+  $('kq').textContent=P.s.story?`💬 ${P.step}`:`${P.step}/${P.s.turns.length}`;
+  if(N.ask){note(`❓ こんどは あなたの 番！ <b>${esc(N.ask)}</b>`);answers()}
+  else{them(val(N.s,P.F),val(N.j,P.F));setTimeout(answers,350)}}
 /* the choices, and a box to write (or say) your own */
-function answers(hint){if(!live())return;const T=P.s.turns[P.ti],order=P.order&&P.order.length===P.opts.length?P.order:H.shuffle(P.opts.map((o,i)=>i));P.order=order;
+function answers(hint){if(!live())return;const N=P.N,order=P.order&&P.order.length===P.opts.length?P.order:H.shuffle(P.opts.map((o,i)=>i));P.order=order;
   const mic=window.SpeechRecognition||window.webkitSpeechRecognition;
   $('kans').innerHTML=`${hint?`<p class="khint">💡 たとえば：<b>${esc(hint)}</b></p>`:''}
-    <div class="lopts kopts">${order.map(i=>{const o=P.opts[i],t=P.tried[i];return `<button data-o="${i}" ${t?'disabled class="tried"':''}>${esc(o[0])}${t?' <i>'+(o[4]||'😂')+'</i>':''}</button>`}).join('')}</div>
-    <div class="kfree"><input id="kin" type="text" placeholder="${T.ask?'質問を 書いてもOK':'英語を 書いてもOK'}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">${mic?'<button id="kmic" class="sub" aria-label="声で 言う">🎤</button>':''}<button id="ksend" aria-label="送る">▶</button></div>`;
+    <div class="lopts kopts">${order.map(i=>`<button data-o="${i}">${esc(P.opts[i][0])}</button>`).join('')}</div>
+    <div class="kfree"><input id="kin" type="text" placeholder="${N.ask?'質問を 書いてもOK':'英語を 書いてもOK'}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">${mic?'<button id="kmic" class="sub" aria-label="声で 言う">🎤</button>':''}<button id="ksend" aria-label="送る">▶</button></div>`;
   $('kans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>pick(+b.dataset.o));
   const inp=$('kin'),send=()=>{const v=inp.value.trim();if(!v)return;typed(v)};
   $('ksend').onclick=send;inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
@@ -162,43 +178,55 @@ function typed(v){if(!live())return;const [i,sc]=match(v,P.opts);
     setTimeout(()=>{const h=pickL(P.c.huh);them(h[0],h[1],'❓','k-huh');SFX.tease&&SFX.tease();
       const good=P.opts.filter(o=>o[1]);setTimeout(()=>answers((pickL(good.length?good:P.opts))[0]),500)},600);return}
   pick(i,v,sc<2)}
-function pick(i,typedText,near){if(!live())return;const T=P.s.turns[P.ti],o=P.opts[i];$('kans').innerHTML='';
+/* any answer moves the talk on: a funny one takes it somewhere funny */
+function pick(i,typedText,near){if(!live())return;const N=P.N,o=P.opts[i];$('kans').innerHTML='';
   you(typedText||o[0],!!typedText);
   if(typedText&&o[1]){P.free++;KD.free++;if(P.freeCoins<3){P.freeCoins++;setTimeout(()=>{const r=$('klog')&&$('klog').getBoundingClientRect();if(r)H.coinBurst(r.right-40,r.bottom-30,1)},400)}}
-  if(T.ask)P.asked++;
+  if(N.ask)P.asked++;
   setTimeout(()=>{if(!live())return;
-    if(!o[1]){funny(i);them(o[2],o[3],o[4]||'😅','k-oops');if(T.ask){next();return}P.tried[i]=1;setTimeout(()=>{note(pickL(OOPS));answers()},700);return}
-    /* written words close to an answer but not the same: a plain "I see" so the reply does not talk about what was not said */
-    const g=near&&!T.ask?pickL(P.c.ok||[["Oh, I see! Thank you.","へえ、なるほど！ ありがとう"]]):[o[2],o[3]];
-    them(g[0],g[1],o[4]||'😊','k-good');SFX.heart?SFX.heart():SFX.chime();next()},650)}
-function next(){P.ti++;P.order=null;afterTalk(turn)}
-const OOPS=['😂 おもしろい 反応！ ほかの 答えでも 話してみよう','🤣 ウケた！ じゃあ こんどは ちがう 答えで','😆 へんな 答えも 大かんげい。もう一度 どうぞ','😝 相手、こまってるね。ほかの 答えも ためしてみて'];
+    if(!o[1]){funny(i);them(o[2],o[3],o[4]||'😅','k-oops')}
+    else{/* written words close to an answer but not the same: a plain "I see" so the reply does not talk about what was not said */
+      const g=near&&!N.ask&&!P.s.story?pickL(P.c.ok||[["Oh, I see! Thank you.","へえ、なるほど！ ありがとう"]]):[o[2],o[3]];
+      them(g[0],g[1],o[4]||'😊','k-good');SFX.heart?SFX.heart():SFX.chime()}
+    P.at=o[6]||N.nx||'end';afterTalk(turn)},650)}
 /* a funny answer: counted for the book (new ones give 2 coins) */
-function funny(i){P.fun++;SFX.tease&&SFX.tease();const k=P.s.id+':'+P.ti+':'+i;
+function funny(i){P.fun++;SFX.tease&&SFX.tease();const k=P.s.id+':'+P.at+':'+i;
   if(!KD.fun[k]){KD.fun[k]=1;P.newFun++;save();setTimeout(()=>{H.toast(`😂 おもしろ反応 はっけん！<small>図鑑 ${funN()}/${funTotal()}　+2まい</small>`,2600);const r=$('klog')&&$('klog').getBoundingClientRect();if(r)H.coinBurst(r.left+60,r.top+40,2)},900)}}
 
-/* ---------- the end: goodbye, coins, Mina's word ---------- */
-function end(){if(!live())return;const s=P.s,c=P.c,first=!KD.done[s.id],pay=first?PAY[s.lv]*2:Math.max(2,PAY[s.lv]/2|0);
-  them(s.bye[0],s.bye[1],'👋','k-good');
+/* ---------- the end: the last line, which ending, coins, Mina's word ---------- */
+function end(N){if(!live())return;const s=P.s,c=P.c,first=!KD.done[s.id];
+  let key,good,title,ln;
+  if(N.auto){good=!P.fun;key=good?'ok':'fun';title=good?'ばっちり 会話':'ちょっと へんな 会話';ln=[s.bye[0],s.bye[1],good?'👋':'😅']}
+  else{key=P.at;good=!!N.good;title=N.t;ln=[N.s,N.j,N.fx||(good?'🌟':'😂')]}
+  them(ln[0],ln[1],ln[2],good?'k-good':'k-oops');
+  const ek=s.id+':'+key,newEnd=!KD.end[ek];KD.end[ek]=1;
+  const bonus=newEnd&&s.story?(good?6:3):0,pay=(first?PAY[s.lv]*2:Math.max(2,PAY[s.lv]/2|0))+bonus;
   KD.done[s.id]=(KD.done[s.id]||0)+1;const firstMeet=!KD.heart[s.c];KD.heart[s.c]=(KD.heart[s.c]||0)+1;KD.n++;KD.ask=(KD.ask||0)+P.asked;KD.last=Date.now();save();
+  const E=endsOf(s),got=endsGot(s),tot=E.length,starGot=E.some(e=>e[1]&&KD.end[s.id+':'+e[0]]);
   /* what Mina says about it */
-  let k='k_endGood',v={c:c.n,n:P.fun,free:P.free,h:KD.heart[s.c]};
-  if(KD.n===1)k='k_endFirst';else if(P.free>=2)k='k_endFree';else if(P.fun>=2)k='k_endFunny';else if(P.miss>=2)k='k_endHuh';else if(!P.fun&&!P.miss)k='k_endClean';
+  let k='k_endGood',v={c:c.n,n:P.fun,free:P.free,h:KD.heart[s.c],t:title,got,tot};
+  if(KD.n===1)k='k_endFirst';
+  else if(got===tot)k='k_endAll';
+  else if(s.story)k=good?'k_endTrue':'k_endBad';
+  else if(P.free>=2)k='k_endFree';else if(P.fun>=2)k='k_endFunny';else if(P.miss>=2)k='k_endHuh';else if(!P.fun&&!P.miss)k='k_endClean';
   if(KD.heart[s.c]===3||KD.heart[s.c]===5||KD.heart[s.c]===10)k='k_endFriend';
-  const [ex,tx]=MINA.line(k,v),words=bookWords(P.lines).slice(0,10),got=words.filter(w=>w.got).length;
-  setTimeout(()=>{if(!live())return;$('kq').textContent='🎉';
+  const [ex,tx]=MINA.line(k,v),words=bookWords(P.lines).slice(0,10),wgot=words.filter(w=>w.got).length;
+  setTimeout(()=>{if(!live())return;$('kq').textContent=good?'★':'🏁';
     $('kans').innerHTML=`<div class="kres">
-      <p class="kpay">🪙 <b>${pay}まい</b>${first?' <small>はじめての 会話は 2ばい！</small>':''}</p>
+      <p class="kend ${good?'good':'fun'}">${good?'★':'😂'} エンド「${esc(title)}」${newEnd?' <small>NEW!</small>':''}</p>
+      <div class="kends">${E.map(e=>KD.end[s.id+':'+e[0]]?`<span class="${e[1]?'g':''} ${e[0]===key?'now':''}">${e[1]?'★':'😂'} ${esc(e[2])}</span>`:`<span class="no">${e[1]?'★':'？'} ？？？</span>`).join('')}</div>
+      <p class="kendn">🏁 見つけた エンド ${got}/${tot}${good?'':starGot?'　ほかの 道も ためしてみて':'　<b>★の エンドは べつの 道の 先に あるよ</b>'}</p>
+      <p class="kpay">🪙 <b>${pay}まい</b>${first?' <small>はじめての 会話は 2ばい！</small>':''}${bonus?` <small>新しい エンド +${bonus}</small>`:''}</p>
       <div class="kstat"><span>😂 おもしろ反応 <b>${P.fun}</b>${P.newFun?` <small>（新しく ${P.newFun}）</small>`:''}</span><span>✍️ 自分で 言えた <b>${P.free}</b></span><span>${c.ico} なかよし <b>${'♥'.repeat(Math.min(5,KD.heart[s.c]))}</b>${KD.heart[s.c]>5?'+':''}</span></div>
       ${firstMeet?`<p class="knew">${c.ico} <b>${esc(c.n)}</b>と ともだちに なった！</p>`:''}
       <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
-      ${words.length?`<div class="kwords"><small>会話に 出てきた 単語帳の ことば（✓ おぼえた ${got}/${words.length}）</small><div>${words.map(w=>`<button data-w="${esc(w.en)}" data-lv="${w.lv}" class="${w.got?'got':''}">${w.got?'✓ ':''}${esc(w.en)}<small>${esc(w.ja)}</small></button>`).join('')}</div></div>`:''}
-      <div class="row"><button id="kagain" class="sub">🔁 もう一度</button><button id="kmore">💬 ほかの 人と 話す</button></div>
+      ${words.length?`<div class="kwords"><small>会話に 出てきた 単語帳の ことば（✓ おぼえた ${wgot}/${words.length}）</small><div>${words.map(w=>`<button data-w="${esc(w.en)}" data-lv="${w.lv}" class="${w.got?'got':''}">${w.got?'✓ ':''}${esc(w.en)}<small>${esc(w.ja)}</small></button>`).join('')}</div></div>`:''}
+      <div class="row"><button id="kagain" class="${good?'sub':''}">🔁 さいしょから</button><button id="kmore" class="${good?'':'sub'}">💬 ほかの 人と 話す</button></div>
     </div>`;
-    const r=$('kans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);SFX.fanfare?SFX.fanfare(1):SFX.chime();
+    const r=$('kans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?(SFX.fanfare?SFX.fanfare(1):SFX.chime()):(SFX.tease?SFX.tease():SFX.pop());
     $('kans').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.w));
     $('kagain').onclick=()=>{SFX.vopen();play(s.id)};$('kmore').onclick=()=>{SFX.vopen();list()};
     setTimeout(()=>$('kans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1600)}
 
-window.KAIWA={open:list,play,rec:()=>KD,scenes:SC,chars:CH,funN,funTotal,met,match,_facts:facts};
+window.KAIWA={open:list,play,rec:()=>KD,scenes:SC,chars:CH,funN,funTotal,endsN,endsAll,endsOf,endsGot,met,match,_facts:facts};
 })();
