@@ -103,7 +103,7 @@ function tip(id,anchor){const g=BY[id];if(!g)return;SFX.flip&&SFX.flip();
   const old=document.querySelector('.gtip');if(old){const same=old.dataset.g===id&&old.previousElementSibling===anchor;old.remove();if(same)return}
   const d=document.createElement('div');d.className='gtip';d.dataset.g=id;
   d.innerHTML=`<b>📘 ${esc(g.n.t)}</b><small>${esc(g.n.r[0])}</small><button class="sub">📚 ノートを ひらく</button>`;
-  anchor.after(d);d.querySelector('button').onclick=e=>{e.stopPropagation();SFX.vopen&&SFX.vopen();try{speechSynthesis.cancel()}catch(x){}H.gramNote(g.lv,g.i)}}
+  anchor.after(d);d.querySelector('button').onclick=e=>{e.stopPropagation();SFX.book();try{speechSynthesis.cancel()}catch(x){}H.gramNote(g.lv,g.i)}}
 /* hook the marks inside an element */
 function bind(el){el.querySelectorAll('[data-gmk]').forEach(m=>m.onclick=e=>{e.stopPropagation();tip(m.dataset.gmk,m.closest('p,.in')||m)})}
 /* the radio line: a short toast (the bubble floats away fast) */

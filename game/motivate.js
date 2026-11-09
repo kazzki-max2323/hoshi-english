@@ -134,7 +134,7 @@ function quizOpen(){const z=MV.qz.now;if(!z)return;const l=lesOf(z.id),q=l&&l.qu
     $('zfb').innerHTML=`<div class="lsay by-m"><span class="lface">${MINA.face('m',ok?'love':'worry')}</span><div class="lbody"><p>${ok?`せいかい！ ちゃんと おぼえてたね。 🪙<b>15</b>まい ＆ ❤️ なかよし +3<br><small>つぎは ${nx}日後に また 出すね</small>`:`おしい！ こたえは <b>${esc(q.o[q.a])}</b>。 あした もう一度 出すね`}</p></div></div>
       <div class="row">${ok?'':`<button id="zles" class="sub">📖 授業を みなおす</button>`}<button id="zok">ホームへ</button></div>`;
     if(ok){const rc=b.getBoundingClientRect();H.coinBurst(rc.left+rc.width/2,rc.top+rc.height/2,15);setTimeout(()=>nkOut(3),1200)}
-    $('zok').onclick=()=>{SFX.pop();H.home()};const zl=$('zles');if(zl)zl.onclick=()=>{SFX.vopen();LESSON.open(l.id,H.home)}})}
+    $('zok').onclick=()=>{SFX.pop();H.home()};const zl=$('zles');if(zl)zl.onclick=()=>{SFX.lesson();LESSON.open(l.id,H.home)}})}
 
 /* ---------- the lesson's prize box: card, challenge, stamp, なかよし, then buttons for what waits ---------- */
 LESSON_AFTER.unshift(()=>{inLesson={coins:0,gain:0};return null});   // before 授業タイム (game/bonus.js), so its coins and points join in
@@ -147,7 +147,7 @@ LESSON_AFTER.push((l,info)=>{if(info.first&&!MV.qz.ct[l.id]){MV.qz.ct[l.id]=Date
     return {html:nkHtml(g,ups)}},
   ()=>{const L=inLesson;inLesson=null;const pc=MV.pc.length,ps=MV.ps.filter(p=>!p.night).length;
     const after=()=>{if(L.coins){const b=H.panel.querySelector('.bwin');const r=(b||H.panel).getBoundingClientRect();setTimeout(()=>H.coinBurst(r.left+r.width/2,r.top+30,L.coins),800)}
-      const mc=$('mcard');if(mc)mc.onclick=()=>{SFX.vopen();mc.remove();openCards()};const ms=$('mshow');if(ms)ms.onclick=()=>{SFX.chime();H.home()};chips()};
+      const mc=$('mcard');if(mc)mc.onclick=()=>{SFX.card();mc.remove();openCards()};const ms=$('mshow');if(ms)ms.onclick=()=>{SFX.step();H.home()};chips()};
     if(!pc&&!ps)return L.coins?{html:'',after}:null;
     return {html:`<span class="brbtn">${pc?`<button id="mcard" class="bgo">🎁 宝箱を あける${pc>1?` ×${pc}`:''}</button>`:''}${ps?`<button id="mshow" class="bgo">🏖️ 浜辺へ 見にいく</button>`:''}</span>`,after}});
 
@@ -161,7 +161,7 @@ function chips(){const old=$('mchips');if(H.screen!=='home'){return}const row=H.
     +ex.map((x,i)=>`<button class="bchip ${x.cls||''}" data-m="x${i}"><span>${x.a}</span><span>${x.b}</span></button>`).join('');
   if(!html){if(old)old.remove();return}
   const c=old||document.createElement('div');c.id='mchips';c.innerHTML=html;if(!old){const bc=$('bchip');(bc||row).after(c)}
-  c.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{SFX.vopen();const m=b.dataset.m;if(m[0]==='x')ex[+m.slice(1)].go();else if(m==='qz')quizOpen();else if(m==='hc')LESSON.open(MV.hc.id,H.home);else openCards()})}
+  c.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{SFX.step();const m=b.dataset.m;if(m[0]==='x')ex[+m.slice(1)].go();else if(m==='qz')quizOpen();else if(m==='hc')LESSON.open(MV.hc.id,H.home);else openCards()})}
 function minaBox(){const p=H.panel.querySelector('.minap');if(!p||p.querySelector('.mvbox'))return;const n=MV.st.n,k=n?(n-1)%10+1:0,[a,b]=window.CARDS&&CARDS.lesCount?CARDS.lesCount():[0,0];
   const z=MV.qz.now&&lesOf(MV.qz.now.id),hc=hcOn()&&lesOf(MV.hc.id),need=nkNeed();
   /* Mina's page stays simple: the buttons go with the lessons, the meters into the folded 「きろく・ごほうび」 */
@@ -176,7 +176,7 @@ function minaBox(){const p=H.panel.querySelector('.minap');if(!p||p.querySelecto
     const sm=p.querySelector('.mrec summary small');if(sm)sm.textContent=`❤️Lv${MV.nk.lv}・📮${k}/10`}
   if(tiles)d.insertAdjacentHTML('beforeend',btns);
   else{d.innerHTML=(rec?'':meters)+btns;const t=p.querySelector('.mstats')||p.querySelector('.mtalk');t?t.after(d):p.appendChild(d)}
-  d.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{SFX.vopen();const v=b.dataset.v;if(v==='cards')CARDS.open('lesson');else if(v==='qz')quizOpen();else LESSON.open(MV.hc.id)})}
+  d.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{SFX.step();const v=b.dataset.v;if(v==='cards')CARDS.open('lesson');else if(v==='qz')quizOpen();else LESSON.open(MV.hc.id)})}
 new MutationObserver(()=>minaBox()).observe(H.panel,{childList:true});
 H.on('home',()=>{chips();if(MV.pc.length&&!$('cardOv'))setTimeout(()=>{if(H.screen==='home')openCards()},1200)});
 

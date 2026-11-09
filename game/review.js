@@ -67,7 +67,7 @@ function drill(mode,back){back=back||list;const Q=build(mode);if(!Q.length){H.to
       :`<div class="lopts">${order.map(i=>`<button data-o="${i}">${esc(q.o[i])}</button>`).join('')}</div>`}
       <div id="rfb"></div></section>`);
     $('rx').onclick=()=>{SFX.pop();back()};
-    const fb=(ok,ans)=>{note(l,qi,ok);if(ok)okN++;res[l.id]=(res[l.id]!==false)&&ok;SFX[ok?'coin':'tie']();
+    const fb=(ok,ans)=>{note(l,qi,ok);if(ok)okN++;res[l.id]=(res[l.id]!==false)&&ok;SFX[ok?'correct':'wrong']();
       const left=(miss()[l.id]||{})[qi];
       $('rfb').innerHTML=`<div class="lsay by-m"><span class="lface">${MINA.face('m',ok?'happy':'worry')}</span><div class="lbody"><p>${ok
           ?(wasMiss?(left?'せいかい！ もう 1回 正解したら まちがいノート から きえるよ':'せいかい！ にがてを 1つ やっつけたね ✨'):MINA.pick(['せいかい！ ちゃんと おぼえてるね','そう！ ばっちり','その とおり！']))
@@ -76,7 +76,7 @@ function drill(mode,back){back=back||list;const Q=build(mode);if(!Q.length){H.to
         <div class="row">${ok?'':`<button id="rles" class="sub">📖 授業を みなおす</button>`}<button id="rgo">${k+1<Q.length?'つぎ ▶':'おわり 🎉'}</button></div>`;
       $('rfb').scrollIntoView({block:'nearest',behavior:'smooth'});
       $('rgo').onclick=()=>{SFX.pop();k++;k<Q.length?ask():finish()};
-      const rl=$('rles');if(rl)rl.onclick=()=>{SFX.vopen();LESSON.open(l.id,()=>{k++;k<Q.length?ask():finish()})}};
+      const rl=$('rles');if(rl)rl.onclick=()=>{SFX.lesson();LESSON.open(l.id,()=>{k++;k<Q.length?ask():finish()})}};
     if(q.order){const picked=[],ans=$('lans');
       const draw=()=>{ans.innerHTML=picked.map(i=>`<span>${esc(q.order[i])}</span>`).join(' ')||'<em>ことばを じゅんばんに タップ</em>'};draw();
       H.panel.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{if(b.disabled)return;b.disabled=true;picked.push(+b.dataset.c);draw();SFX.pop();
@@ -97,10 +97,10 @@ function drill(mode,back){back=back||list;const Q=build(mode);if(!Q.length){H.to
       ${mn?`<p class="note">❗ まちがいノート のこり ${mn}問</p>`:''}
       <div class="row">${mn?`<button id="rmiss" class="sub">❗ まちがいだけ もう一度</button>`:''}<button id="rlist">📚 ふくしゅう リスト</button></div>
     </section>`);
-    SFX.fanfare(all?2:1);
+    all?SFX.fanfare(2):SFX.done();
     if(coin){const r=H.panel.getBoundingClientRect();setTimeout(()=>H.coinBurst(r.left+r.width/2,r.top+70,coin),300)}
     if(paid)setTimeout(()=>MOTI.gain(all?4:2),1200);
-    $('rlist').onclick=()=>{SFX.pop();list()};const rm=$('rmiss');if(rm)rm.onclick=()=>{SFX.vopen();drill('miss',back)};
+    $('rlist').onclick=()=>{SFX.pop();list()};const rm=$('rmiss');if(rm)rm.onclick=()=>{SFX.lesson();drill('miss',back)};
     chips()};
   ask()}
 
@@ -120,19 +120,19 @@ function list(){const I=ids(),now=dayN(Date.now()),M=miss(),due=dueIds(),mn=miss
       return `<button class="lsrow rvrow ${d?'due':''}" data-rv="${id}"><span class="ci">${(typeof LESSON_ICO!=='undefined'&&LESSON_ICO[id])||'📖'}</span><span class="lt"><b>${esc(l.t)}</b><small><i class="rvst">${'★'.repeat(s)}${'☆'.repeat(5-s)}</i> つぎは ${when(id)}</small></span><span class="lp">${m?`<em class="rvm">❗${m}</em>`:''}${d?'<em class="rvd">ふくしゅう</em>':''}</span></button>`}).join('')}</div>
   </section>`);
   $('rx').onclick=()=>{SFX.pop();MINA.open()};
-  const g=$('rgo');if(g)g.onclick=()=>{SFX.vopen();drill(n?'today':'more',list)};
-  const m=$('rmiss');if(m)m.onclick=()=>{SFX.vopen();drill('miss',list)};
-  H.panel.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{SFX.vopen();LESSON.open(b.dataset.rv,list)})}
+  const g=$('rgo');if(g)g.onclick=()=>{SFX.lesson();drill(n?'today':'more',list)};
+  const m=$('rmiss');if(m)m.onclick=()=>{SFX.lesson();drill('miss',list)};
+  H.panel.querySelectorAll('[data-rv]').forEach(b=>b.onclick=()=>{SFX.lesson();LESSON.open(b.dataset.rv,list)})}
 
 /* ---------- the doors: Mina's page, the lesson list, the end of a lesson, the home chip ---------- */
 new MutationObserver(()=>{
   const box=H.panel.querySelector('.minap .mvbox');
   if(box&&!box.querySelector('[data-rvo]')){const n=todayN(),b=document.createElement('button');b.className='mvc rv';b.dataset.rvo=1;
-    b.innerHTML=`<span>📚 ${box.classList.contains("mtiles")?"":"授業の "}ふくしゅう</span><b>${n?`きょう ${n}問`:'ばっちり ✨'}</b>`;b.onclick=()=>{SFX.vopen();list()};
+    b.innerHTML=`<span>📚 ${box.classList.contains("mtiles")?"":"授業の "}ふくしゅう</span><b>${n?`きょう ${n}問`:'ばっちり ✨'}</b>`;b.onclick=()=>{SFX.lesson();list()};
     const c=box.querySelector('[data-v="cards"]');c?c.before(b):box.appendChild(b)}
   const lp=H.panel.querySelector('.lsnp:not(.rvl)');
   if(lp&&!lp.querySelector('.rvopen')&&ids().length){const n=todayN(),b=document.createElement('button');b.className='rvopen sub';
-    b.innerHTML=`📚 授業の ふくしゅう ${n?`<b>きょう ${n}問</b>`:'（ばっちり ✨）'}`;b.onclick=()=>{SFX.vopen();list()};const s=lp.querySelector('.seg');s?s.before(b):lp.appendChild(b)}
+    b.innerHTML=`📚 授業の ふくしゅう ${n?`<b>きょう ${n}問</b>`:'（ばっちり ✨）'}`;b.onclick=()=>{SFX.lesson();list()};const s=lp.querySelector('.seg');s?s.before(b):lp.appendChild(b)}
 }).observe(H.panel,{childList:true});
 /* the lesson's prize box: say where the missed questions went */
 LESSON_AFTER.push((l,info)=>{if(!info.miss)return null;const m=Object.keys(miss()[l.id]||{}).length;if(!m)return null;

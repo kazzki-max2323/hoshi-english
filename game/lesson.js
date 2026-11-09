@@ -42,8 +42,8 @@ function card(where){const l=today();if(!l)return '';const c=CAT[l.cat]||CAT.zu,
       <span class="lctx"><small>${dt?'✅ クリア！ つぎは':'📖 きょうの 授業'}${fire}</small><b>${esc(l.t)}</b></span>
       <span class="lcplay">${dt?'もう1つ':'はじめる'} ▶</span></button>
   </div>`}
-function bindCard(back){const c=$('lcard');if(!c)return;c.querySelector('.lcgo').onclick=()=>{SFX.vopen();open(c.querySelector('.lcgo').dataset.les,back)};
-  const a=$('lcall');if(a)a.onclick=()=>{SFX.vopen();list()}}
+function bindCard(back){const c=$('lcard');if(!c)return;c.querySelector('.lcgo').onclick=()=>{SFX.lesson();open(c.querySelector('.lcgo').dataset.les,back)};
+  const a=$('lcall');if(a)a.onclick=()=>{SFX.lesson();list()}}
 /* on the home screen it sits right above the buttons (単語帳・ショップ…) */
 function onHome(){const v=H.panel.querySelector('.home .row');if(!v)return;const o=$('lcard');if(o)o.remove();v.insertAdjacentHTML('beforebegin',card('home'));bindCard(H.home)}
 H.on('home',onHome);if(H.screen==='home')setTimeout(onHome,0);
@@ -61,7 +61,7 @@ function list(){listLv=listLv||MINA.level();const D=done(),L=LESSONS.filter(l=>l
   H.panel.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{SFX.pop();listLv=b.dataset.l;list()});
   bindRows(list)}
 const row=l=>{const D=done(),c=CAT[l.cat]||CAT.zu;return `<button class="lsrow ${D[l.id]?'clear':''}" data-les="${l.id}"><span class="ci">${D[l.id]?'✅':c[0]}</span><span class="lt"><b>${esc(l.t)}</b><small>${c[1]}・${LVN[l.lv]}</small></span><span class="lp">${D[l.id]?'クリア':'🪙'+PAY[l.lv]}</span></button>`};
-function bindRows(back){H.panel.querySelectorAll('[data-les]').forEach(b=>b.onclick=()=>{SFX.vopen();open(b.dataset.les,back)})}
+function bindRows(back){H.panel.querySelectorAll('[data-les]').forEach(b=>b.onclick=()=>{SFX.lesson();open(b.dataset.les,back)})}
 
 /* ---------- one lesson: the talk, then a little practice ---------- */
 function open(id,back){const l=LESSONS.find(x=>x.id===id);if(!l)return;back=back||MINA.open;let k=0;
@@ -90,7 +90,7 @@ function quiz(l,back){let k=0,miss=0;
       <div id="lfb"></div>
     </section>`);
     $('lx').onclick=()=>{SFX.pop();back()};
-    const fb=(ok,ans)=>{if(!ok)miss++;SFX[ok?'coin':'tie']();(window.LESSON_ANS||[]).forEach(f=>{try{f(l,k,ok,'lesson')}catch(e){console.error(e)}});
+    const fb=(ok,ans)=>{if(!ok)miss++;SFX[ok?'correct':'wrong']();(window.LESSON_ANS||[]).forEach(f=>{try{f(l,k,ok,'lesson')}catch(e){console.error(e)}});
       $('lfb').innerHTML=`<div class="lsay by-m"><span class="lface">${MINA.face('m',ok?'happy':'worry')}</span><div class="lbody"><p>${ok?MINA.pick(['せいかい！ ばっちり','そう！ よく できたね','すごい、 その とおり']):'おしい！ こたえは <b>'+esc(ans)+'</b> だよ'}</p></div></div>
         <div class="row"><button id="lgo">${k+1<l.quiz.length?'つぎの もんだい ▶':'おわり 🎉'}</button></div>`;
       $('lgo').onclick=()=>{k++;k<l.quiz.length?ask():finish()}};
@@ -114,7 +114,7 @@ function quiz(l,back){let k=0,miss=0;
       ${nx?`<p class="note">つぎの 授業も やってみる？</p>${row(nx)}`:''}
       <div class="row"><button id="lagain" class="sub">もう一度</button><button id="lback">${back===H.home?'ホームへ':'ミナ先生へ'}</button></div>
     </section>`);
-    SFX.fanfare(1);if(pay){const r=H.panel.getBoundingClientRect();setTimeout(()=>H.coinBurst(r.left+r.width/2,r.top+70,pay),300)}
+    SFX.done();if(pay){const r=H.panel.getBoundingClientRect();setTimeout(()=>H.coinBurst(r.left+r.width/2,r.top+70,pay),300)}
     $('lagain').onclick=()=>{SFX.pop();open(l.id,back)};$('lback').onclick=()=>{SFX.pop();back===H.home?H.home():MINA.open()};bindRows(back);if(gk)gk.bind();ext.forEach(x=>{try{x.after&&x.after()}catch(e){console.error(e)}})};
   ask()}
 

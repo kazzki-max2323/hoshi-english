@@ -88,10 +88,10 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
     ${ST.radios.length?`<label class="gap"><span>📻 つぶやき</span><input id="gapR" type="range" min="3" max="30" step="1" value="${ST.radioGap}"><output id="gapV">${ST.radioGap}秒ごと</output></label>`:''}
   </section>`);
   /* 単語帳は 1つの ボタン。ひらくと 小学生〜ハイレベルを 上の タブで えらぶ（さいごに 見た レベルから） */
-  $('bookOpen').onclick=()=>{SFX.vopen();books()};
-  $('shopOpen').onclick=()=>{SFX.vopen();shop('radio')};
-  $('mini').onclick=()=>{SFX.vopen();window.ADV&&ADV.open()};
-  $('cardOpen').onclick=()=>{SFX.vopen();window.CARDS&&CARDS.open()};
+  $('bookOpen').onclick=()=>{SFX.book();books()};
+  $('shopOpen').onclick=()=>{SFX.shop();shop('radio')};
+  $('mini').onclick=()=>{SFX.map();window.ADV&&ADV.open()};
+  $('cardOpen').onclick=()=>{SFX.card();window.CARDS&&CARDS.open()};
   const ns=$('npStop');if(ns)ns.onclick=()=>{stopMusic(true);SFX.pop();home()};
   const g=$('gapR');if(g)g.oninput=()=>{ST.radioGap=+g.value;$('gapV').textContent=g.value+'秒ごと';save();if(nextAt>performance.now()+ST.radioGap*1000)nextAt=performance.now()+ST.radioGap*1000};
   rqIdle();emit('home',back);if(back)nextAt=Math.max(nextAt,performance.now()+RADIO_REST);else radioWake();
@@ -115,7 +115,7 @@ function books(lv){
     <div class="shelf">${sn?tile('season',sn[1].ico):''}${L.books.map((b,i)=>tile(i,i+1)).join('')}</div>
     ${sn?`<p class="note">${sn[1].ico} いまだけ「${sn[1].name}の たんごちょう」が あるよ</p>`:''}
   </section>`);
-  $('bx').onclick=()=>{SFX.pop();home()};
+  $('bx').onclick=()=>{SFX.back();home()};
   panel.querySelectorAll('.book').forEach(b=>b.onclick=()=>{SFX.flip();const v=b.dataset.i;cards(lv,v==='season'?v:+v)});
   panel.querySelectorAll('[data-bl]').forEach(b=>b.onclick=()=>{SFX.pop();books(b.dataset.bl)});
 }
@@ -157,7 +157,7 @@ function cards(lv,bi,onlyLeft=false){
     ST.learned[k]=1;save();learnSnd();emit('learned',lv,bi,w);const r=fc.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,'#55e0b4');
     if(onlyLeft&&!left().length){draw();done();return}
     const n=nextIdx(1);if(n>=B.w.length){draw();done();return}slide(n,1,true)}
-  function done(){ST.bookPos[key]=0;save();SFX.fanfare(1);const r=$('deck').getBoundingClientRect();FX.firework(r.left+r.width/2,r.top+r.height/2);
+  function done(){ST.bookPos[key]=0;save();SFX.done();const r=$('deck').getBoundingClientRect();FX.firework(r.left+r.width/2,r.top+r.height/2);
     const nx=typeof bi==='number'&&bi+1<L.books.length,rest=left().length;
     $('deck').innerHTML=`<div class="fin"><b>${rest?`🎉 さいごまで めくったよ！<small>のこり ${rest}ご</small>`:'🌟 ぜんぶ おぼえた！'}</b><div class="row">${rest?'<button id="leftB" class="sub">のこりだけ もういちど</button>':'<button id="again" class="sub">もういちど</button>'}${nx?'<button id="nextB">つぎの たんごちょう ▶</button>':''}</div></div>`;
     panel.querySelector('.ctl').style.visibility='hidden';panel.querySelector('.wb .note').style.visibility='hidden';
@@ -175,7 +175,7 @@ function cards(lv,bi,onlyLeft=false){
   $('cs').onclick=e=>{e.stopPropagation();say(lv,B.w[i][0])};
   panel.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const o=b.dataset.o==='1';if(o&&!left().length){toast('🌟 この たんごちょうは ぜんぶ おぼえたよ');return}SFX.pop();cards(lv,bi,o)});
   loadAud(bi==='season'?'season':lv);
-  $('cx').onclick=()=>{SFX.pop();books(lv)};
+  $('cx').onclick=()=>{SFX.back();books(lv)};
   cardKeys=e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1);if(e.key==='ArrowUp')mark()};
   draw();autoSay();
 }
@@ -193,10 +193,10 @@ function settings(){
     <div class="reset" id="rst"><button id="rs0" class="sub">🗑️ 全て リセット</button></div>
     <p class="note">枠の 外を タップすると とじるよ</p>
   </section>`);
-  $('gx').onclick=()=>{SFX.pop();home()};
+  $('gx').onclick=()=>{SFX.back();home()};
   resetSteps();
   S_.forEach(([k])=>{const r=$('v_'+k);r.oninput=()=>{ST.vol[k]=r.value/100;$('o_'+k).textContent=r.value+'%';try{applyVol()}catch(e){}if(voiceOut)voiceOut.gain.value=1.5*ST.vol.voice;save()};
-    r.onchange=()=>{if(k==='se')SFX.coin();if(k==='voice')say('es','hello')}});
+    r.onchange=()=>{if(k==='se')SFX.correct();if(k==='voice')say('es','hello')}});
   panel.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{ST.cheer=b.dataset.ch==='1';save();SFX.pop();settings()});
   panel.querySelectorAll('[data-as]').forEach(b=>b.onclick=()=>{ST.autoSay=b.dataset.as==='1';save();SFX.pop();settings()});
   panel.querySelectorAll('[data-sp]').forEach(b=>b.onclick=()=>{ST.slow=b.dataset.sp==='1';save();say('es','hello');settings()});
@@ -278,7 +278,7 @@ function cheerNext(){let b=ST.cheerBag.filter(i=>i<CHEER.length);
   const i=b.pop();ST.cheerBag=b;ST.cheerLast=i;save();return CHEER[i]}
 function cheerShow(){const [en,ja,who]=cheerNext();
   cheerEl.innerHTML=`${en?`<p class="che">${esc(en)} <i>🔊</i></p>`:''}<p class="chj">${esc(ja)}</p>${who?`<small>— ${esc(who)}</small>`:''}`;
-  cheerOn=true;if(cur&&!cur.done)radioQuiet();cheerEl.hidden=false;cheerEl.classList.remove('on','bye');void cheerEl.offsetWidth;cheerEl.classList.add('on');SFX.chime();
+  cheerOn=true;if(cur&&!cur.done)radioQuiet();cheerEl.hidden=false;cheerEl.classList.remove('on','bye');void cheerEl.offsetWidth;cheerEl.classList.add('on');SFX.hey();
   cheerEl.onclick=()=>{if(en){say('cheer',en);clearTimeout(cheerEl._t);cheerEl._t=setTimeout(cheerHide,8000)}else cheerHide()};
   clearTimeout(cheerEl._t);cheerEl._t=setTimeout(cheerHide,en?12000:9000)}
 function cheerHide(){if(cheerEl.hidden)return;cheerOn=false;const t=performance.now()+CHEER_REST;nextAt=Math.max(nextAt,t);folkNext=Math.max(folkNext,t);cheerEl.classList.add('bye');setTimeout(()=>{cheerEl.hidden=true;cheerEl.classList.remove('on','bye')},400)}
@@ -428,8 +428,8 @@ function answer(c,i,b){if(c!==cur||c.done)return;c.done=1;const ok=c.opts[i]===c
   const rc=b.getBoundingClientRect(),cx=rc.left+rc.width/2,cy=rc.top+rc.height/2;
   /* a quick answer (within FAST_MS of the line starting) earns the level's fast reward */
   const quick=L&&L.fast&&performance.now()-c.t0<=FAST_MS,amt=c.reward||(quick?L.fast:L.reward);
-  if(ok){coinBurst(cx,cy,amt,quick);FX.ring(cx,cy,'#ffd23f');FX.firework(cx,cy-10);SFX.chime()}
-  else{b.classList.add('wrong');SFX.tie()}
+  if(ok){coinBurst(cx,cy,amt,quick);FX.ring(cx,cy,'#ffd23f');FX.firework(cx,cy-10);SFX.correct()}
+  else{b.classList.add('wrong');SFX.wrong()}
   if(c.src==='folk')folkDone(ok);
   setTimeout(()=>{if(cur===c){cur=null;clearBubbles()}},ok?1500:2400)}
 /* coins burst out of the bubble and fly into the coin counter, ringing as each one lands */
@@ -440,7 +440,7 @@ function coinBurst(x,y,amt,quick){const tg=document.querySelector('.coin i').get
     const a=Math.random()*Math.PI*2,sp=36+Math.random()*46,mx=x+Math.cos(a)*sp,my=y+Math.sin(a)*sp-24;
     const an=d.animate([{transform:`translate(${x}px,${y}px) scale(.3)`,opacity:1},{transform:`translate(${mx}px,${my}px) scale(1.15)`,opacity:1,offset:.32},{transform:`translate(${tx}px,${ty}px) scale(.6)`,opacity:.9}],
       {duration:760+k*70,easing:'cubic-bezier(.45,0,.55,1)',fill:'forwards'});
-    an.onfinish=()=>{d.remove();if(share)addCoins(share);SFX.coin()}}}
+    an.onfinish=()=>{d.remove();if(share)addCoins(share);if(k%3===0||k===n-1)SFX.coinIn()}}}
 
 /* ---------- beach residents ----------
    one walks in now and then (the owl only at night);
@@ -483,10 +483,10 @@ function gramList(lv='es',back){if(back!==undefined)gBack=back;
       return `<button class="gnote ${o?'':'locked'} ${c?'clear':''}" data-gn="${i}"><span class="gi">${c?'✅':o?'📘':'🔒'}</span><span class="gt">${i+1}. ${esc(n.t)}</span><small>${c?'クリア':o?'よめるよ':'🔍 おためし できるよ'}</small></button>`}).join('')}</div>
     ${own<G.notes.length?`<div class="row"><button id="gshop" class="sub">🛍️ ショップで 文法ノートを かう</button></div>`:''}
   </section>`);
-  $('gx').onclick=()=>{SFX.pop();(gBack||home)()};
+  $('gx').onclick=()=>{SFX.back();(gBack||home)()};
   panel.querySelectorAll('[data-gl]').forEach(b=>b.onclick=()=>{SFX.pop();gramList(b.dataset.gl)});
   panel.querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{const n=G.notes[+b.dataset.gn];if(!gOwned(n.id)){SFX.flip();gramTry(lv,+b.dataset.gn);return}SFX.flip();gramNote(lv,+b.dataset.gn)});
-  const gs=$('gshop');if(gs)gs.onclick=()=>{SFX.vopen();shop('gram',lv)}}
+  const gs=$('gshop');if(gs)gs.onclick=()=>{SFX.shop();shop('gram',lv)}}
 function gramNote(lv,i){const G=GRAMMAR[lv],n=G.notes[i],seen=window.GRAMSEE?GRAMSEE.seenOf(n.id):[];loadAud('gram');emit('gramView',lv,i,n);
   show('gram',`<section class="pnl gram gview">
     <div class="qtop"><button class="x" id="gx" aria-label="ノートの 一覧に もどる">←</button><b>${esc(n.t)}</b><span class="qn">${G.ico}</span></div>
@@ -497,7 +497,7 @@ function gramNote(lv,i){const G=GRAMMAR[lv],n=G.notes[i],seen=window.GRAMSEE?GRA
     </div>
     <div class="row"><button id="gq">✏️ れんしゅう ${gCleared(n.id)?'（クリアずみ）':`（クリアで 🪙${G.reward}）`}</button></div>
   </section>`);
-  $('gx').onclick=()=>{SFX.pop();gramList(lv)};
+  $('gx').onclick=()=>{SFX.back();gramList(lv)};
   panel.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>say('gram',n.ex[+b.dataset.ex][0]));
   panel.querySelectorAll('[data-se]').forEach(b=>b.onclick=()=>say('gram',seen[+b.dataset.se]));
   $('gq').onclick=()=>{SFX.deal();gramQuiz(lv,i)}}
@@ -509,10 +509,10 @@ function gramQuiz(lv,i){const G=GRAMMAR[lv],n=G.notes[i];let k=0,miss=0;
       <p class="note">${esc(q[3])}</p>
       <div class="gopts">${q[1].map((o,j)=>`<button data-go="${j}">${esc(o)}</button>`).join('')}</div>
     </section>`);
-    $('gx').onclick=()=>{SFX.pop();gramNote(lv,i)};
+    $('gx').onclick=()=>{SFX.back();gramNote(lv,i)};
     panel.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const j=+b.dataset.go,ok=j===q[2];panel.querySelectorAll('[data-go]').forEach(x=>x.disabled=true);
       const right=panel.querySelector(`[data-go="${q[2]}"]`);right.classList.add('right');$('bl').textContent=q[1][q[2]];$('bl').classList.add(ok?'ok':'ng');
-      emit('gram',lv,i,n,ok);if(ok)SFX.coin();else{miss++;b.classList.add('wrong');SFX.tie()}
+      emit('gram',lv,i,n,ok);if(ok)SFX.correct();else{miss++;b.classList.add('wrong');SFX.wrong()}
       setTimeout(()=>{k++;k<n.q.length?ask():finish()},ok?800:1600)})};
   const finish=()=>{const first=!miss&&!gCleared(n.id);if(!miss&&!gCleared(n.id)){ST.gram.cleared.push(n.id);save()}
     /* ミナ先生が この文法の 授業を すすめる（game/gram-link.js） */
@@ -523,7 +523,7 @@ function gramQuiz(lv,i){const G=GRAMMAR[lv],n=G.notes[i];let k=0,miss=0;
       ${lk?lk.html:''}
       <div class="row">${miss?'<button id="gr">もう一度</button>':''}<button id="gb" class="sub">ノートに もどる</button></div>
     </section>`);if(lk)lk.bind();
-    if(!miss){SFX.fanfare(1);if(first){const r=panel.getBoundingClientRect();coinBurst(r.left+r.width/2,r.top+60,G.reward)}}
+    if(!miss){SFX.done();if(first){const r=panel.getBoundingClientRect();coinBurst(r.left+r.width/2,r.top+60,G.reward)}}
     const gr=$('gr');if(gr)gr.onclick=()=>gramQuiz(lv,i);$('gb').onclick=()=>gramNote(lv,i)};
   ask()}
 
@@ -539,10 +539,10 @@ function gramTry(lv,i,back){const G=GRAMMAR[lv],n=G.notes[i],q=n.q[0],[before,af
     <p class="note">${esc(q[3])}</p>
     <div class="gopts">${q[1].map((o,j)=>`<button data-go="${j}">${esc(o)}</button>`).join('')}</div>
   </section>`);
-  $('gx').onclick=()=>{SFX.pop();back()};
+  $('gx').onclick=()=>{SFX.back();back()};
   panel.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const j=+b.dataset.go,ok=j===q[2];panel.querySelectorAll('[data-go]').forEach(x=>x.disabled=true);
     panel.querySelector(`[data-go="${q[2]}"]`).classList.add('right');$('bl').textContent=q[1][q[2]];$('bl').classList.add(ok?'ok':'ng');
-    if(ok)SFX.coin();else{b.classList.add('wrong');SFX.tie()}
+    if(ok)SFX.correct();else{b.classList.add('wrong');SFX.wrong()}
     if(!ST.gram.tried)ST.gram.tried=[];if(!ST.gram.tried.includes(n.id)){ST.gram.tried.push(n.id);save()}
     emit('gramTry',lv,i,n,ok);setTimeout(()=>tryEnd(ok),ok?900:1700)});
   const tryEnd=ok=>{const short=G.price-ST.coins,M=window.MINA;
@@ -560,7 +560,7 @@ function gramTry(lv,i,back){const G=GRAMMAR[lv],n=G.notes[i],q=n.q[0],[before,af
       ${short>0?`<p class="note">あと 🪙${short} で かえるよ</p>`:''}
     </section>`);
     $('gb').onclick=()=>{SFX.pop();back()};
-    $('gbuy').onclick=()=>{if(gOwned(n.id)||ST.coins<G.price)return;ST.coins-=G.price;ST.gram.owned.push(n.id);save();head();SFX.save();
+    $('gbuy').onclick=()=>{if(gOwned(n.id)||ST.coins<G.price)return;ST.coins-=G.price;ST.gram.owned.push(n.id);save();head();SFX.buy();
       toast(`📘 <b>${esc(n.t)}</b><small>ホームの 📚 文法から いつでも よめるよ</small>`);emit('gramBuy',lv,i,n,'try');gramNote(lv,i)}};
 }
 
@@ -601,31 +601,31 @@ function shop(tab,glv='es'){
     <div class="rlist" id="slist">${body}</div>
   </section>`);
   const sl=$('slist');if(shop.last===tab+glv)sl.scrollTop=shopScroll;shop.last=tab+glv;sl.onscroll=()=>{shopScroll=sl.scrollTop};
-  $('sx').onclick=()=>{SFX.pop();home()};
+  $('sx').onclick=()=>{SFX.back();home()};
   panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{SFX.pop();shopScroll=0;shop(b.dataset.t)});
   const spend=(c,b)=>{if(ST.coins<c)return false;ST.coins-=c;save();head();const r=b.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,'#ffd23f');return true};
   /* radios */
   panel.querySelectorAll('[data-k].buy').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];if(ST.radios.some(r=>r.lv===k)||!spend(L.price,b))return;
-    const [x,y]=freeSpot();ST.radios.push({lv:k,on:true,x,y});save();drawRadios();SFX.save();toast(`📻 <b>${L.name}ラジオ</b> を 浜辺に おいた！`);shop('radio')});
+    const [x,y]=freeSpot();ST.radios.push({lv:k,on:true,x,y});save();drawRadios();SFX.buy();toast(`📻 <b>${L.name}ラジオ</b> を 浜辺に おいた！`);shop('radio')});
   panel.querySelectorAll('[data-k].sell').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];let idx=-1;ST.radios.forEach((r,i)=>{if(r.lv===k)idx=i});if(idx<0)return;
     ST.radios.splice(idx,1);if(L.price)addCoins(L.price/2|0);save();drawRadios();SFX.coin();toast(`📻 ${L.name}ラジオを ${L.price?'うった':'てばなした'}`);shop('radio')});
   /* music */
   panel.querySelectorAll('[data-bm]').forEach(b=>b.onclick=()=>{const id=b.dataset.bm,it=CATALOG.music.find(m=>m[0]===id);if(ST.music.includes(id)||!spend(it[1],b))return;
-    ST.music.push(id);save();SFX.save();playTrack(id);shop('music')});
+    ST.music.push(id);save();SFX.buy();playTrack(id);shop('music')});
   panel.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>{const id=b.dataset.pl;if(MUS.on&&MUS.id===id){stopMusic(true)}else playTrack(id);setTimeout(()=>shop('music'),60)});
   panel.querySelectorAll('[data-sm]').forEach(b=>b.onclick=()=>{const id=b.dataset.sm,it=CATALOG.music.find(m=>m[0]===id);
     if(MUS.on&&MUS.id===id)stopMusic(true);ST.music=ST.music.filter(m=>m!==id);addCoins(it[1]/2|0);save();SFX.coin();toast(`🎵 ${TRACKS[id].name}を うった`);shop('music')});
   /* grammar notes */
   panel.querySelectorAll('[data-sg]').forEach(b=>b.onclick=()=>{SFX.pop();shopScroll=0;shop('gram',b.dataset.sg)});
   panel.querySelectorAll('[data-gb]').forEach(b=>b.onclick=()=>{const G=GRAMMAR[glv],n=G.notes.find(x=>x.id===b.dataset.gb);if(gOwned(n.id)||!spend(G.price,b))return;
-    ST.gram.owned.push(n.id);save();SFX.save();toast(`📘 <b>${n.t}</b><small>ホームの 📚 文法から よめるよ</small>`);shop('gram',glv)});
+    ST.gram.owned.push(n.id);save();SFX.buy();toast(`📘 <b>${n.t}</b><small>ホームの 📚 文法から よめるよ</small>`);shop('gram',glv)});
   panel.querySelectorAll('[data-gset]').forEach(b=>b.onclick=()=>{const G=GRAMMAR[glv],left=G.notes.filter(n=>!gOwned(n.id)),setP=Math.floor(left.length*G.price*.8/10)*10;if(!spend(setP,b))return;
-    left.forEach(n=>ST.gram.owned.push(n.id));save();SFX.fanfare(1);toast(`📦 <b>${G.name}の 文法ノート ${left.length}さつ</b> を かった！`);shop('gram',glv)});
+    left.forEach(n=>ST.gram.owned.push(n.id));save();SFX.done();toast(`📦 <b>${G.name}の 文法ノート ${left.length}さつ</b> を かった！`);shop('gram',glv)});
   panel.querySelectorAll('[data-gtry]').forEach(b=>b.onclick=()=>{SFX.flip();gramTry(glv,+b.dataset.gtry,()=>shop('gram',glv))});
   panel.querySelectorAll('[data-gopen]').forEach(b=>b.onclick=()=>{SFX.flip();gramNote(glv,+b.dataset.gopen)});
   /* events: buy, close the shop and watch it happen on the beach */
   panel.querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>{const it=CATALOG.event.find(e=>e.id===b.dataset.ev);if(!onSale(it)||!spend(it.p,b))return;
-    SFX.chime();home();radioWake();   // the radio keeps going while the event plays
+    SFX.buy();home();radioWake();   // the radio keeps going while the event plays
     toast(`${it.ico} <b>${it.n}</b>`,2200);setTimeout(()=>{try{it.k==='show'?SC.show(it.id,it.sec):SC.play(it.id)}catch(e){}},500)});
 }
 function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}

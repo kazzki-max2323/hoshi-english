@@ -116,10 +116,10 @@ function list(){listLv=listLv||(LV.includes(myLv())?myLv():'es');const [ex,tx]=l
   </section>`);
   $('sx').onclick=()=>{SFX.pop();MINA.open()};
   H.panel.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{SFX.pop();listLv=b.dataset.l;list()});
-  H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{SFX.vopen();play(b.dataset.s)});
-  $('sgo').onclick=()=>{SFX.vopen();const a=S.filter(s=>!SD.done[s.id]);play(pickL(a.length?a:S).id)};
-  $('stok').onclick=()=>{SFX.vopen();tokkun()};
-  $('skarte').onclick=()=>{SFX.vopen();karte()};
+  H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{SFX.talk();play(b.dataset.s)});
+  $('sgo').onclick=()=>{SFX.talk();const a=S.filter(s=>!SD.done[s.id]);play(pickL(a.length?a:S).id)};
+  $('stok').onclick=()=>{SFX.step();tokkun()};
+  $('skarte').onclick=()=>{SFX.book();karte()};
   $('sja').onchange=e=>{SD.ja=e.target.checked?1:0;save()}}
 const row=s=>{const n=SD.done[s.id]||0,g=endsGot(s),t=endsOf(s).length,star=endsOf(s).some(e=>e[1]&&SD.end[s.id+':'+e[0]]);
   const tags=(s.g||[]).map(id=>{const sc=gScore(id);return `<i class="${owned(id)?'own':''} ${sc!=null&&sc<.65?'weak':sc!=null&&sc>=.85?'good':''}">${esc(gName(id).replace(/（.*?）/g,''))}</i>`}).join('');
@@ -136,8 +136,8 @@ function karte(){const ids=Object.keys(SD.g).filter(id=>gById(id)).sort((a,b)=>(
       return `<div class="snk ${sc!=null&&sc<.65?'weak':sc!=null&&sc>=.85?'good':''}"><b>${sc!=null&&sc<.65?'🔥 ':sc!=null&&sc>=.85?'🌟 ':''}${esc(g.n.t)}</b><span>⭕${e.ok} 💡${e.hint} 📘${e.miss}</span><span class="snbar"><i style="width:${Math.round((sc??0)*100)}%"></i></span><span class="snkb"><button data-tk="${id}" class="sub">🎯 とっくん</button><button data-gn="${id}" class="sub">${owned(id)?'📚 ノート':'🔍 おためし'}</button></span></div>`}).join('')||'<p class="note">ミナ先生と 会話すると、ここに 文法ごとの 記録が たまるよ</p>'}</div>
   </section>`);
   $('sx').onclick=()=>{SFX.pop();list()};
-  H.panel.querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{SFX.vopen();tokkun([b.dataset.tk])});
-  H.panel.querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{SFX.vopen();openGram(b.dataset.gn,karte)})}
+  H.panel.querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{SFX.step();tokkun([b.dataset.tk])});
+  H.panel.querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{SFX.book();openGram(b.dataset.gn,karte)})}
 function openGram(id,back){const g=gById(id);if(!g)return;hush();owned(id)?H.gramNote(g.lv,g.i):H.gramTry(g.lv,g.i,back||list)}
 
 /* ---------- one talk ---------- */
@@ -172,12 +172,12 @@ function mina(en,ja,ex='smile',cls='',btns){if(!live())return;en=String(en);en=e
   $('slog').appendChild(d);P.lines.push(en);if(GS()){GS().record(en);GS().bind(d)}
   d.querySelector('.ksay').onclick=e=>{e.stopPropagation();talk(en)};
   const jb=d.querySelector('.kjab');if(jb)jb.onclick=()=>{SFX.pop();jb.remove();d.querySelector('.kja').classList.add('on');scrollLog()};
-  if(btns)d.querySelectorAll('[data-bi]').forEach(b=>b.onclick=()=>{SFX.vopen();hush();btns[+b.dataset.bi][1]()});
+  if(btns)d.querySelectorAll('[data-bi]').forEach(b=>b.onclick=()=>{SFX.step();hush();btns[+b.dataset.bi][1]()});
   talk(en);scrollLog()}
 /* Mina in Japanese (a teacher's word, not part of the talk) */
 function minaJa(ex,html,cls='',btns){if(!live())return;const d=document.createElement('div');d.className='lsay snm snjp '+cls;
   d.innerHTML=`<span class="lface">${MINA.face('m',ex)}</span><div class="lbody"><p>${html}</p>${btns?`<span class="snbtns">${btns.map((b,i)=>`<button class="sub" data-bi="${i}">${b[0]}</button>`).join('')}</span>`:''}</div>`;
-  $('slog').appendChild(d);if(btns)d.querySelectorAll('[data-bi]').forEach(b=>b.onclick=()=>{SFX.vopen();hush();btns[+b.dataset.bi][1]()});scrollLog();return d}
+  $('slog').appendChild(d);if(btns)d.querySelectorAll('[data-bi]').forEach(b=>b.onclick=()=>{SFX.step();hush();btns[+b.dataset.bi][1]()});scrollLog();return d}
 function you(en,cls='',typed){if(!live())return;const d=document.createElement('div');d.className='lsay by-h kyou-b '+cls;
   d.innerHTML=`<span class="lface kf you">⭐</span><div class="lbody"><p>${esc(en)}${typed?'<small class="kty">✍️</small>':''}</p></div>`;$('slog').appendChild(d);P.lines.push(en);scrollLog()}
 function note(html){if(!live())return;const d=document.createElement('p');d.className='knote';d.innerHTML=html;$('slog').appendChild(d);scrollLog()}
@@ -335,12 +335,12 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
       ${GL.length?`<div class="kwords kgl sngl"><small>📘 この 会話の 文法（${missG.length?'📘 解説を きいた ものから 復習しよう':'よく できたね'}）</small><div>${GL.map(id=>{const r=st.g[id],L=lesFor(id);return `<span class="sng ${r.miss?'miss':r.hint?'hint':'ok'}"><b>${r.miss?'📘':r.hint?'💡':'⭕'} ${esc(gName(id))}</b><span><button data-gn="${id}" class="sub">${owned(id)?'📚 ノート':'🔍 おためし'}</button>${r.miss||r.hint?`<button data-tk="${id}" class="sub">🎯 とっくん</button>`:''}${L&&(r.miss||r.hint)?`<button data-ls="${L.id}" class="sub">📖 授業</button>`:''}</span></span>`}).join('')}</div></div>`:''}
       <div class="row"><button id="sagain" class="${good?'sub':''}">🔁 ${s.kind?'もう一回':'さいしょから'}</button><button id="smore" class="${good?'':'sub'}">🗣️ ほかの 会話</button></div>
     </div>`;
-    const r=$('sans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?(SFX.fanfare?SFX.fanfare(1):SFX.chime()):(SFX.tease?SFX.tease():SFX.pop());
-    $('sans').querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{SFX.vopen();P=null;openGram(b.dataset.gn,list)});
-    $('sans').querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{SFX.vopen();tokkun([b.dataset.tk])});
-    $('sans').querySelectorAll('[data-ls]').forEach(b=>b.onclick=()=>{SFX.vopen();hush();P=null;LESSON.open(b.dataset.ls,list)});
+    const r=$('sans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?SFX.done():(SFX.tease?SFX.tease():SFX.pop());
+    $('sans').querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{SFX.book();P=null;openGram(b.dataset.gn,list)});
+    $('sans').querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{SFX.step();tokkun([b.dataset.tk])});
+    $('sans').querySelectorAll('[data-ls]').forEach(b=>b.onclick=()=>{SFX.lesson();hush();P=null;LESSON.open(b.dataset.ls,list)});
     const from=P.from,again=s.kind==='tok'?()=>tokkun(P.ids):()=>play(s.id,from);
-    $('sagain').onclick=()=>{SFX.vopen();again()};$('smore').onclick=()=>{SFX.vopen();P=null;list()};
+    $('sagain').onclick=()=>{SFX.step();again()};$('smore').onclick=()=>{SFX.back();P=null;list()};
     setTimeout(()=>$('sans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1500)}
 
 /* ---------- 🎯 苦手 とっくん: 5 grammar checks in a row ---------- */

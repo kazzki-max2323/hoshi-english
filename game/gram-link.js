@@ -90,7 +90,7 @@ function notesFor(lesId){const l=has()&&lesById(lesId);if(!l)return [];
 
 /* tap: the test if the note is yours, the shop if not */
 function tryTest(g){if(owned(g.n.id)){SFX.deal();H.gramQuiz(g.lv,g.i)}
-  else{SFX.vopen();H.gramShop(g.lv);H.toast(`📚 「${g.n.t}」の ノートを かうと テストで ためせるよ`)}}
+  else{SFX.shop();H.gramShop(g.lv);H.toast(`📚 「${g.n.t}」の ノートを かうと テストで ためせるよ`)}}
 
 const say=(ex,tx)=>`<div class="lsay by-m glink"><span class="lface">${MINA.face('m',ex)}</span><div class="lbody"><p>${tx}</p></div></div>`;
 

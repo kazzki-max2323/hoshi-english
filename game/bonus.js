@@ -48,7 +48,7 @@ function callLine(r){const e=r.k==='event'?evOf(r.id):null,[ex,t]=pickL(CALL[r.k
 
 /* ---------- open a window ---------- */
 function start(r){if(BD.d!==today()){BD.d=today();BD.n=0}BD.n++;BD.r=r||roll();BD.until=Date.now()+WIN;BD.inL=0;BD.warned=0;save();
-  const [ex,tx]=callLine(BD.r);MINA.announce(ex,tx,11000);SFX.chime();chip();window.LESSON&&LESSON.refresh()}
+  const [ex,tx]=callLine(BD.r);MINA.announce(ex,tx,11000);SFX.hey();chip();window.LESSON&&LESSON.refresh()}
 function expire(){BD.r=null;BD.until=0;BD.inL=0;save();chip();window.LESSON&&LESSON.refresh()}
 
 /* ---------- the countdown on the home screen and on Mina's pages ---------- */
@@ -56,7 +56,7 @@ function expire(){BD.r=null;BD.until=0;BD.inL=0;save();chip();window.LESSON&&LES
 function chip(){const old=$('bbadge');if(!active()){if(old)old.remove();return}
   const hurry=left()<2*60000,ico=BD.r.k==='coin'?'🪙':BD.r.k==='event'?((evOf(BD.r.id)||{}).ico||'🎆'):BD.r.k==='music'?'🎵':'🃏';
   let c=old;if(!c){c=document.createElement('button');c.id='bbadge';c.setAttribute('aria-label','授業タイム。ミナ先生の ページを ひらく');
-    c.onclick=e=>{e.stopPropagation();SFX.vopen();MINA.open()};document.body.appendChild(c)}
+    c.onclick=e=>{e.stopPropagation();SFX.talk();MINA.open()};document.body.appendChild(c)}
   const key=BD.r.k+(BD.r.id||'')+(BD.r.amt||'')+(BD.r.min||'');
   if(c.dataset.k!==key){c.dataset.k=key;
     c.innerHTML=`<span class="bbg">🎁</span><span class="bbm">${ico}</span><span class="bbt"><b>授業タイム！</b><small>授業を 1つ おえると</small></span><span class="bbr"><i>${ico}</i><small>${BD.r.k==='coin'?BD.r.amt+'まい':BD.r.k==='event'?esc((evOf(BD.r.id)||{n:'イベント'}).n):BD.r.k==='music'?'新しい 曲':RAR_N[BD.r.min]+'以上の カード'}</small></span><span class="bbc">⏰<b class="bcount">${mmss(left())}</b></span><i class="bbs s1">✦</i><i class="bbs s2">✧</i><i class="bbs s3">✦</i>`}
