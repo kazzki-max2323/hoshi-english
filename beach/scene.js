@@ -318,7 +318,7 @@ window._lastInput=performance.now();
 (()=>{let on=false;try{on=localStorage.getItem('hoshiEco')==='1'}catch(e){}window._eco=on;const c=$('ecoMode');if(c){c.checked=on;c.onchange=()=>{window._eco=c.checked;try{localStorage.setItem('hoshiEco',c.checked?'1':'0')}catch(e){}try{dispatchEvent(new Event('resize'))}catch(e){}}}})();
 function tapFx(x,y,html,cls,ms){const d=document.createElement('div');d.className='tapFx '+(cls||'');d.style.left=x+'px';d.style.top=y+'px';d.innerHTML=html||'';document.body.appendChild(d);setTimeout(()=>d.remove(),ms||1400);return d}
 function tsnd(f){if(!S.sound)return;try{f()}catch(e){}}
-const bg=(t,x,y)=>!t.closest||!t.closest('button,.card,.win,#msg,.bar,.foot,header,input,.chip,#volSheet,#bubbles .bubble,#toast,#getPop,#fukuOpen,#zkPop,#bagPop,#chestPop,#wishPop,#jpPop,#resetDlg,#synFx,#meteor,#status,#tprop,#coinTags,#pop,a,label,select,#diaryPop,.shellBtn');
+const bg=(t,x,y)=>!t.closest||!t.closest('button,.card,.win,#msg,.bar,.foot,header,input,.chip,#volSheet,#bubbles .bubble,#toast,#getPop,#fukuOpen,#zkPop,#bagPop,#chestPop,#wishPop,#jpPop,#resetDlg,#synFx,#meteor,#status,#tprop,#coinTags,#pop,a,label,select,#diaryPop,.shellBtn,#bmPop');
 {const _tf=tapFx;tapFx=function(x,y,html,cls,ms){const d=_tf(x,y,html,cls,ms);if(cls==='shell'){d.classList.add('shellBtn');d.style.pointerEvents='auto';d.style.animation='tfShell 3s ease-out forwards';setTimeout(()=>d.remove(),3000);
    d.addEventListener('pointerdown',ev=>{ev.stopImmediatePropagation();ev.preventDefault();d.remove();tapFx(x,y-20,'👂','pop',1500);tsnd(()=>{noise(2.8,{v:.05,type:'bandpass',f:500,f2:1200,q:.5,attack:.8});[523,659,784,659].forEach((f,i)=>tone(f,.8,'sine',.008,1+i*.5))});say('shellEar',{delay:400})},true)}return d}}
 {let last=0;const SPEC=['🐱','🐶','🦀','🐧','🦝','🐰','🦭','🐢','🦊','🐦','🐻','🦦'];
@@ -348,6 +348,8 @@ addEventListener('pointerdown',e=>{const S5=window._senko;if(!S5||Date.now()-S5.
 {let lastDay=-1;setInterval(()=>{try{const d=SCENE.dbg(),day=Math.floor((S.gameMin||0)/1440)+(S.gameDay||0);const h=d.gh;if(h<17.8||h>17.97)return;const key=Math.floor(Date.now()/3600000);if(lastDay===key)return;lastDay=key;
   if(Math.random()<.4){SCENE.show('gflash',2.6);tsnd(()=>{tone(1568,.6,'sine',.02);tone(2093,.8,'sine',.015,.15)});setTimeout(()=>{evToast('💚 グリーンフラッシュ！ 夕日が 一瞬 緑に…');say('gflash',{n:2,delay:200,gap:900})},600);diaryNote('ev','gflash')}}catch(e){}},1000)}
 {let st=0;setInterval(()=>{const t=window._tide;if(t==null)return;const n=t<-.4?-1:t>.6?1:0;if(n!==st&&n!==0&&Math.random()<.7){say(n<0?'tideLow':'tideHigh',{delay:0})}if(n!==0)st=n},4000)}
+addEventListener('pointerdown',e=>{const B=window._bottle;if(!B||B.open||Date.now()-B.t>500||!bg(e.target))return;const py=e.clientY+scrollY;if(Math.hypot(e.clientX-B.x,py-B.y)>44)return;e.stopImmediatePropagation();e.preventDefault();
+  B.open=1;tapFx(e.clientX,e.clientY-14,'💌','pop',1100);tsnd(()=>{tone(880,.12,'sine',.02);tone(660,.2,'triangle',.015,.1)});try{window.bottleOpen&&bottleOpen()}catch(err){}},true);
 addEventListener('pointerdown',e=>{const P=window._tidePts;if(!P||!P.length||!bg(e.target))return;const py=e.clientY+scrollY;const hit=P.find(([x,y,w])=>Math.abs(e.clientX-x)<w*1.2&&Math.abs(py-y)<w*.8);if(!hit)return;e.stopImmediatePropagation();
   tapFx(e.clientX,e.clientY-10,['🦀','🐟','🐚','⭐'][Math.random()*4|0],'pop',1100);tsnd(()=>{tone(1047,.1,'sine',.02);tone(1397,.14,'sine',.02,.08)});if(Math.random()<.6)say('tidePool',{delay:150})},true);
 {let shown=0;setInterval(()=>{try{const m=new Date().getMonth()+1;if(!(m===12||m<=2)||document.hidden)return;if(Date.now()-shown<40*60000)return;if(Math.random()<.04){shown=Date.now();SCENE.show('snowday',180);evToast('❄️ 浜辺に 雪が 降ってきた…');say('snowDay',{n:2,delay:1500,gap:1400});diaryNote('ev','snowday')}}catch(e){}},60000)}
@@ -1075,16 +1077,20 @@ const SCENE=(()=>{
     x.strokeStyle='rgba(220,220,240,.3)';x.beginPath();x.moveTo(24*s,-22*s);x.quadraticCurveTo(30*s,-8*s,30*s,4*s);x.stroke();
     x.strokeStyle='#0d0b10';x.beginPath();x.moveTo(-16*s,-4*s);x.lineTo(-16*s,-18*s);x.lineTo(-11*s,-18*s);x.stroke();
     x.globalCompositeOperation='lighter';glow(-11*s,-14*s,22*s*(.9+.1*Math.sin(et*6)),'rgba(255,190,90,.5)');glow(-11*s,-14*s,3*s,'rgba(255,240,200,1)');x.globalCompositeOperation='source-over';x.restore();x.globalAlpha=1}},
-  bottle:{msg:'ボトルメールが ながれついた！',dur:24,layer:'beach',draw(p,st,et){
-    const bx0=WL+WW*.56,s=k;let bx,by,ang,inWater=true;
-    if(p<.62){const q=p/.62;bx=bx0+Math.sin(q*4)*8*k;by=lerp(seaY(.25),waveY(bx0)-2*k,ease(q))+Math.sin(et*2.2)*2*k;ang=Math.sin(et*1.6)*.5+.3}
-    else{inWater=false;const q=clamp((p-.62)/.08);bx=bx0+8*k*q;by=lerp(waveY(bx0)-2*k,shore+14*k,ease(q));ang=lerp(.3,1.35,q)}
-    x.globalAlpha=clamp((1-p)/.1)*clamp(p/.05);x.save();x.translate(bx,by);x.rotate(ang);x.scale(s,s);
+  bottle:{msg:'ボトルメールが ながれついた！ タップして ひらいてみよう',dur:46,layer:'beach',draw(p,st,et){
+    const bx0=WL+WW*.56,s=k*1.25;let bx,by,ang,inWater=true;
+    if(p<.34){const q=p/.34;bx=bx0+Math.sin(q*4)*8*k;by=lerp(seaY(.25),waveY(bx0)-2*k,ease(q))+Math.sin(et*2.2)*2*k;ang=Math.sin(et*1.6)*.5+.3}
+    else{inWater=false;const q=clamp((p-.34)/.05);bx=bx0+8*k*q;by=lerp(waveY(bx0)-2*k,shore+14*k,ease(q));ang=lerp(.3,1.35,q)}
+    /* tap it (game/bottle.js): window._bottle is where it is now; once opened it fades away */
+    if(!st.hi){st.hi=1;try{window.bottleArrive&&bottleArrive()}catch(e){}}
+    const B=window._bottle&&window._bottle.st===st?window._bottle:(window._bottle={st,open:0});B.x=bx;B.y=by;B.t=Date.now();B.p=p;
+    if(B.open&&!st.ot)st.ot=et;const oa=st.ot?clamp(1-(et-st.ot)/1.2):1;if(st.ot&&oa<=0){window._bottle=null;return}
+    x.globalAlpha=clamp((1-p)/.1)*clamp(p/.05)*oa;x.save();x.translate(bx,by);x.rotate(ang);x.scale(s,s);
     if(inWater){x.save();x.rotate(-ang);x.strokeStyle='rgba(210,225,255,.3)';x.lineWidth=1;x.beginPath();x.ellipse(0,3,10,2,0,0,7);x.stroke();x.restore()}
     const g=x.createLinearGradient(-4,0,4,0);g.addColorStop(0,'rgba(60,140,90,.75)');g.addColorStop(.4,'rgba(150,230,170,.6)');g.addColorStop(1,'rgba(40,100,70,.8)');x.fillStyle=g;
     x.beginPath();x.roundRect(-4.5,-6,9,16,3);x.fill();x.fillRect(-2,-11,4,6);x.fillStyle='#a0703f';x.fillRect(-2.2,-13,4.4,3);
     x.fillStyle='rgba(245,230,200,.9)';x.fillRect(-2,-3,4,10);x.fillStyle='#b33';x.fillRect(-2,1,4,1.2);
-    x.restore();if(!inWater){x.globalCompositeOperation='lighter';x.globalAlpha*=.5+.5*Math.sin(et*2);glow(bx-2*k,by-4*k,8*k,'rgba(255,255,230,.8)');x.globalCompositeOperation='source-over'}x.globalAlpha=1}},
+    x.restore();if(!st.ot){x.globalCompositeOperation='lighter';x.globalAlpha*=.5+.5*Math.sin(et*(inWater?3:2));glow(bx-2*k,by-4*k,(inWater?10:14)*k,'rgba(255,255,230,.8)');x.globalCompositeOperation='source-over'}x.globalAlpha=1;if(p>.97)window._bottle=null}},
   rocket:{msg:'とおくで ロケットが うちあがった！',dur:22,layer:'sky',draw(p,st,et){
     st.sm??=[];const sx=WL+WW*.2,sy=hz-6*k,q=clamp((p-.05)/.8),rx=sx+q*q*140*k,ry=lerp(sy,WT-80*k,Math.pow(q,1.5)),ang=Math.atan2(2*q*140*k,-(1.5*Math.pow(q,.5)*(sy-WT+80*k))||-1);
     if(p<.12){x.globalCompositeOperation='lighter';glow(sx,sy,60*k*(p/.12),'rgba(255,170,90,.35)');x.globalCompositeOperation='source-over'}
