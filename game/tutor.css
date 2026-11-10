@@ -40,3 +40,6 @@
 .tugot b{color:#ffe7a8}
 .tual{margin-top:4px}
 .tu>p,.tu>.kmina,.tu>.lsay,.tu>.row,.tu>.qtop,.tu>.tubig{flex-shrink:0}
+.tulb{display:block;width:100%;padding:10px!important;font-size:.9rem;background:rgba(255,210,63,.14)!important;border-color:#ffd23f!important}
+.tulb small{font-size:.7rem;color:#ffe7a8;margin-left:4px}
+.tuletter .bmEn{padding-right:52px;font-family:"Libre Baskerville",Georgia,serif;line-height:1.7}
