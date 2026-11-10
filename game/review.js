@@ -137,9 +137,7 @@ new MutationObserver(()=>{
 /* the lesson's prize box: say where the missed questions went */
 LESSON_AFTER.push((l,info)=>{if(!info.miss)return null;const m=Object.keys(miss()[l.id]||{}).length;if(!m)return null;
   return {html:`<span>📚 まちがえた ${m}問は 「まちがいノート」に 入れたよ。 ふくしゅうで また 出すね</span>`}});
-/* a chip on the home screen when something is waiting (shown with the other chips of game/motivate.js) */
-(window.MOTI_CHIPS=window.MOTI_CHIPS||[]).push(()=>{const n=todayN(),R=MV();if(!n||R.rd.d===today()&&R.rd.n)return null;
-  return {cls:'rv',a:'📚 授業の ふくしゅう',b:`${n}問${missN()?`（❗${missN()}）`:''}`,go:()=>drill('today',H.home)}});
+/* (no chip on the home screen: the review lives on Mina's page — the user asked to keep the home clean) */
 const chips=()=>{if(H.screen==='home'&&window.MOTI&&MOTI.chips)MOTI.chips()};
 
 /* now and then Mina calls for it: once a day, when there is enough to review */
