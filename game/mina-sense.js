@@ -239,7 +239,7 @@ const R=[
 ['x_cardNone',3,F=>F.cards.length?null:{},()=>goCards()],
 ['x_cardDup',1,F=>{const a=F.cards.filter(c=>CARDS.n(c)>=3);if(!a.length)return null;const c=pickL(a);return {en:c.en,ico:c.e,n:CARDS.n(c)}},()=>goCards()],
 ['x_cardShards',1,F=>{const s=window.CARDS&&CARDS.shards?CARDS.shards():0;return s>=15?{n:s}:null},()=>goCards()],
-['x_lesCards',2,F=>{if(!window.CARDS||!CARDS.lesCount)return null;const [n,t]=CARDS.lesCount();return n?{n,tot:t}:null},()=>['🃏 授業カードを 見る',()=>CARDS.openLes()]],
+['x_lesCards',2,F=>{if(!window.CARDS||!CARDS.lesCount)return null;const [n,t]=CARDS.lesCount();return n?{n,tot:t}:null},()=>['📖 授業カードを 見る',()=>CARDS.openLes()]],
 ['x_cardTeach',2,F=>{const a=F.cards.filter(c=>/^[a-z ]+$/i.test(c.en));if(!a.length)return null;const c=pickL(a);return {en:c.en,ja:c.ja,ico:c.e,first:c.en[0].toUpperCase(),len:c.en.replace(/ /g,'').length,_s:c.s}},v=>goCards(v._s)],
 
 /* ===== コイン ===== */
@@ -272,6 +272,9 @@ const R=[
 ['x_snNone',4,F=>window.SENSEI&&!SENSEI.rec().n?{}:null,()=>goSensei()],
 ['x_snWeak',5,F=>{if(!window.SENSEI)return null;const w=SENSEI.weak().filter(id=>GRAMSEE&&GRAMSEE.byId(id));if(!w.length)return null;const g=GRAMSEE.byId(w[0]);return {g:'「'+g.n.t+'」',_id:w[0]}},v=>['🎯 とっくん する',()=>SENSEI.tokkun([v._id])]],
 ['x_dpWeak',3,F=>{if(!window.SENSEI||!window.DEEP)return null;const R=DEEP.rec(),w=SENSEI.weak().filter(id=>GRAMSEE&&GRAMSEE.byId(id)&&!(R[id]&&Date.now()-R[id].t<3*864e5));if(!w.length)return null;const g=GRAMSEE.byId(w[0]);return {g:'「'+g.n.t+'」',_id:w[0]}},v=>['🔎 とことん きく',()=>DEEP.open(v._id)]],
+['x_menuTok',3,F=>{if(!window.SENSEI||!window.GRAMSEE)return null;const w=SENSEI.weak().filter(id=>GRAMSEE.byId(id));return w.length?{n:w.length,g:'「'+GRAMSEE.byId(w[0]).n.t+'」'}:null},()=>['🎯 とっくん する',()=>SENSEI.tokkun(null,0,'mina')]],
+['x_menuTokNone',1,F=>window.SENSEI&&!SENSEI.weak().length?{}:null,()=>['🎯 5問 ちょうせん',()=>SENSEI.tokkun(null,0,'mina')]],
+['x_menuDeep',2,F=>window.DEEP?{}:null,()=>['🔎 とことん授業',()=>DEEP.pick()]],
 ['x_dpCurious',1,F=>window.SENSEI&&window.DEEP&&SENSEI.rec().n>=2&&!Object.keys(DEEP.rec()).length?{}:null,()=>['🔎 とことん授業',()=>DEEP.pick()]],
 ['x_dpCheck',3,F=>{if(!window.DEEP||!window.GRAMSEE)return null;const R=DEEP.rec(),a=Object.keys(R).filter(id=>R[id].cn&&R[id].best<3&&GRAMSEE.byId(id)&&Date.now()-(R[id].ct||0)>864e5);if(!a.length)return null;const id=pickL(a),g=GRAMSEE.byId(id);return {g:'「'+g.n.t+'」',b:R[id].best,_id:id}},v=>['✏️ たしかめる',()=>DEEP.open(v._id,{chk:1})]],
 ['x_dpMaster',1,F=>{if(!window.DEEP)return null;const R=DEEP.rec(),n=Object.keys(R).filter(id=>R[id].best>=3).length;return n?{n}:null},()=>['🔎 とことん授業',()=>DEEP.pick()]],
