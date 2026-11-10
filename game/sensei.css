@@ -84,3 +84,20 @@
 .dpopts button.wrong{background:#ffe0ea!important;border-color:#e2475a!important;color:#7f1d1d!important}
 .dplist summary{cursor:pointer;font-size:.8rem;color:#cfe6ff;margin-bottom:6px}
 .fz-ar{text-align:center;font-weight:700;color:#8e44ad!important}
+/* ✏️ とことん授業の たしかめ 5問 */
+.dpcol{flex-direction:column;align-items:stretch}
+.dpcol button{text-align:left;font-family:"Libre Baskerville",Georgia,serif!important;font-size:.8rem!important;padding:6px 10px!important}
+.dphint{background:#fff3c4;color:#5b3a00;text-shadow:none;border-radius:10px;padding:6px 9px;font-size:.76rem;line-height:1.55;border:2px dashed #f0b429}
+.dphint small{display:block;color:#7a5b16;font-size:.68rem;margin-top:2px}
+.dpwhy{background:#eef3ff;color:#2a2340;text-shadow:none;border-radius:10px;padding:6px 9px;font-size:.76rem;line-height:1.55}
+.dpres{margin:4px 0 2px;padding:10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,231,168,.35)}
+.dpstar{margin:0;text-align:center;font-size:1.5rem;letter-spacing:4px;color:#ffd23f;line-height:1.1}
+.dpstar i{font-style:normal;color:rgba(255,255,255,.22)}
+.dpstar small{display:block;font-size:.66rem;letter-spacing:0;color:#cfe6ff}
+.dpbest{color:#ffd23f;font-size:.72rem;letter-spacing:1px}
+.dpbest i{font-style:normal;color:rgba(255,255,255,.25)}
+.dpmiss summary{cursor:pointer;font-size:.76rem;color:#cfe6ff;margin-bottom:4px}
+.dpres .row{display:flex;gap:8px}
+.dpres .row button{flex:1}
+.dpnext{justify-content:center}
+.dpres{box-sizing:border-box;width:100%;max-width:none}
