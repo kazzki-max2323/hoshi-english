@@ -1,0 +1,86 @@
+/* ながれぎ雑貨店（game/zakka.js） */
+/* the hut on the beach: small, the colours of the sand, a warm window at night */
+#zkHut{position:absolute;z-index:1;pointer-events:auto;padding:0;margin:0;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  filter:brightness(calc(1 - var(--dk,0)*.5)) saturate(calc(1 - var(--dk,0)*.35));transition:filter 2s,opacity .4s;opacity:.92}
+#zkHut svg{display:block;width:100%;height:auto;overflow:visible}
+#zkHut .zkWin{transition:fill 2s;fill:color-mix(in srgb,#ffcf7a calc(var(--dk,0)*100%),#2b2a3a)}
+#zkHut .zkLamp{opacity:var(--dk,0);transition:opacity 2s;animation:zkflick 3.2s ease-in-out infinite}
+#zkHut.off{pointer-events:none}
+#zkHut:active{transform:translateY(1px)}
+@keyframes zkflick{50%{opacity:calc(var(--dk,0)*.8)}}
+@media (prefers-reduced-motion:reduce){#zkHut .zkLamp{animation:none}}
+/* the shop */
+.zkhi .lbody>p{background:#f6ead2}
+.zkshelf{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;padding:8px;border-radius:12px;
+  background:linear-gradient(#5a4330,#4a3626);box-shadow:inset 0 -6px 0 rgba(0,0,0,.18),inset 0 2px 0 rgba(255,255,255,.08);max-height:min(46vh,400px);overflow:auto}
+.zkshelf .zkit{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px!important;background:rgba(255,246,224,.08)!important;border-color:rgba(255,231,168,.25)!important;min-width:0}
+.zkit .zi{font-size:1.3rem;line-height:1.1}
+.zkit .zn{font-size:.6rem;line-height:1.2;text-align:center;min-height:2.4em;display:flex;align-items:center}
+.zkit .zp{font-size:.62rem;color:#ffe7a8;font-family:var(--pixel)}
+.zkit.own{border-color:rgba(85,224,180,.5)!important}.zkit.own .zp{color:#55e0b4;font-family:inherit}
+.zkit.out{opacity:.5}.zkit.out .zp{font-family:inherit;color:var(--mute)}
+.zkrow button{flex:1;padding:8px 4px!important;font-size:.82rem}
+.zkrow button small{display:inline-block;margin-left:4px;padding:0 6px;border-radius:999px;background:var(--gold,#ffd23f);color:#3a2000;font-size:.66rem;text-shadow:none}
+.zkrec{display:flex;flex-direction:column;gap:4px;padding:2px 12px 10px;font-size:.78rem}
+.zkrec b{color:#ffe7a8}
+/* the talk */
+.zkpip .lbody>p{background:#d9f7c8!important;font-style:italic}
+.zkpip .kf{background:#1f4a2c!important}
+.zkopts button small{display:block;font-size:.68rem;opacity:.8;margin-top:2px}
+.zkres{margin:0;text-align:center;font-size:.86rem;line-height:1.5}
+.zkres b{color:#ffe7a8}.zkres small{color:#55e0b4}
+.zkmore{flex-wrap:wrap;justify-content:center}
+.zkmore button{flex:1 1 40%}
+.zkph button{font-family:"Libre Baskerville",Georgia,serif!important;position:relative}
+.zkph button.new{border-color:#ffd23f!important;background:rgba(255,210,63,.12)!important}
+.zkph button i{position:absolute;top:-7px;right:-4px;font-style:normal;font-family:var(--body,inherit);font-size:.52rem;background:#ff5c8a;color:#fff;border-radius:6px;padding:0 4px}
+.zknote{margin:4px 0 0;font-size:.68rem;color:var(--mute)}
+/* もちもの */
+.zkbag{display:flex;flex-direction:column;gap:6px;max-height:min(52vh,440px);overflow:auto}
+.zkbi .rn b{font-size:.84rem}
+.zkfl{display:flex;flex-direction:column;align-items:flex-start;gap:2px;text-align:left;padding:7px 10px!important;border-radius:10px;background:rgba(255,255,255,.05)}
+.zkfl b{font-family:"Libre Baskerville",Georgia,serif;font-size:.86rem}
+.zkfl small{font-size:.7rem;color:#ffe7a8}
+.zkfl small i{font-style:normal;color:var(--mute)}
+.zkfl.no{opacity:.5;border:1px dashed rgba(255,255,255,.2)}
+.zkfl.no small{color:var(--mute)}
+/* 📖 the book */
+.zkpage{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:6px;color:#3a2a18;text-shadow:none;max-height:min(46vh,400px);overflow:auto;
+  background:linear-gradient(170deg,#fbf1d6,#efdcb0);box-shadow:inset 0 0 30px rgba(160,110,50,.25)}
+.zkl{padding:4px 6px;border-radius:6px;cursor:pointer;transition:background .2s}
+.zkl p{margin:0;font-family:"Libre Baskerville",Georgia,serif;font-size:.98rem;line-height:1.6}
+.zkl small{display:none;font-size:.76rem;color:#7a5a30;line-height:1.5}
+.zkl.ja small{display:block}
+.zkl.now{background:rgba(255,200,90,.35)}
+/* 📮 postcards / 🥠 fortunes */
+.zkcard,.zkfort{position:relative;padding:16px 16px 12px;border-radius:6px;color:#3a2a18;text-shadow:none;background:linear-gradient(170deg,#fbf1d6,#efdcb0);
+  box-shadow:0 6px 18px rgba(0,0,0,.4),inset 0 0 30px rgba(160,110,50,.25);animation:zkin .5s cubic-bezier(.3,1.5,.6,1)}
+.zkcard .zcp{position:absolute;right:10px;top:8px;font-size:2rem;padding:2px 6px;border:2px dashed #b08a50;border-radius:4px;transform:rotate(6deg)}
+.zkcard .bmEn{padding-right:60px}
+.zkfort{display:flex;gap:10px;align-items:flex-start}
+.zfc{font-size:2.4rem;animation:zkcrack .6s ease-out}
+.zfs{flex:1;min-width:0}
+@keyframes zkin{from{transform:scale(.7) rotate(-4deg);opacity:0}}
+@keyframes zkcrack{0%{transform:scale(1.4) rotate(-20deg)}40%{transform:scale(.8) rotate(10deg)}}
+.zkalb{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.zkalb button{display:flex;flex-direction:column;align-items:center;padding:8px 2px!important}
+.zkalb button span{font-size:1.5rem}
+.zkalb button small{font-size:.6rem}
+.zkalb button.no{opacity:.4}
+/* 🎁 */
+.zkwr{margin:0;text-align:center;font-size:.8rem;color:#ffe7a8}
+.zkcf{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.6rem}
+/* 🎯 the quiz */
+.zkqq{text-align:center;display:flex;flex-direction:column;gap:4px}
+.zkqq p{margin:0;font-size:1.1rem;font-weight:800;color:#ffe7a8}
+.zkqq small{font-size:.72rem;color:var(--mute)}
+.zkopts button.ok{border-color:#55e0b4!important;background:rgba(85,224,180,.2)!important}
+.zkok{margin:0;text-align:center;color:#55e0b4;font-size:.9rem}
+.zkok b{font-family:"Libre Baskerville",Georgia,serif;color:#fff}
+.zkex{margin:0;font-size:.84rem;line-height:1.6}
+.zkex b{font-family:"Libre Baskerville",Georgia,serif;color:#ffe7a8}
+.zkex small{color:var(--mute)}
+.zkphf .zkph{padding:0 10px 10px}
+.zknew{font-style:normal;font-size:.62rem;background:#ff5c8a;color:#fff;border-radius:6px;padding:0 5px}
+.zk>p,.zk>.kmina,.zk>.lsay,.zk>.zkwr,.zk>.row,.zk>.qtop{flex-shrink:0}
+.zkheart{margin:0;text-align:center;font-size:.85rem;color:#55e0b4}
