@@ -65,15 +65,47 @@ buy:{t:'買いもの',start:'a',nodes:{
  look2:{s:"Anyway... just call me if you need help.",j:"とにかく… こまったら 呼んでね。",o:[
   O(c=>`OK. How much is this ${W(c)}?`,'howMuch',null,null,'price'),
   O("Thank you. Bye!",'thanksBye',"Bye! Come again!","またね！ また 来てね！",'eLook')]},
- price:{s:c=>`This ${W(c)} is ${P(c)} coins.`+(c.it.colors?` It comes in ${list(c.it.colors.map(x=>x[0]))}.`:''),
+ price:{go:c=>c.it.lux&&!c.luxSeen?'lux':'price0'},
+ price0:{s:c=>`This ${W(c)} is ${P(c)} coins.`+(c.it.colors?` It comes in ${list(c.it.colors.map(x=>x[0]))}.`:''),
    j:c=>`この ${c.it.n}は ${P(c)}まいよ。`+(c.it.colors?` 色は ${listJ(c.it.colors.map(x=>x[1]))}が あるの。`:''),o:[
   O("I'll take it.",'takeIt',"Great choice!","いい えらび方ね！",'pre'),
   O("Do you have it in another color?",'otherColor',null,null,'color',{if:c=>c.it.colors&&!c.color}),
   O("Do you have a bigger one?",'whatSize',"We have a few sizes.","サイズは いくつか あるわよ。",'size',{if:c=>c.it.sizes&&!c.size}),
-  O("Can you give me a discount?",'discount',null,null,'disc',{if:c=>!c.disc}),
-  O("It's a little expensive.",'expensive',null,null,'exp',{if:c=>!c.disc&&!c.bonus}),
+  O("Is that your best price?",'bestPrice',null,null,'luxBest',{if:c=>c.it.lux&&!c.disc}),
+  O("Is it worth it?",'worthIt',c=>c.it.worth[0],c=>c.it.worth[1],'price0',{if:c=>c.it.lux&&!c.worth,act:c=>{c.worth=1}}),
+  O("Can I pay in installments?",'installments',"Installments? Sorry, dear. This is a tiny beach shop. Full payment only.","分割？ ごめんね、 ここは 小さな 浜辺の お店なの。 一括ばらいだけよ。",'price0',{if:c=>c.it.lux&&!c.inst,act:c=>{c.inst=1}}),
+  O("Can you give me a discount?",'discount',null,null,'disc',{if:c=>!c.disc&&!c.it.lux}),
+  O("It's a little expensive.",'expensive',null,null,'exp',{if:c=>!c.disc&&!c.bonus&&!c.it.lux}),
   O("That's too expensive! Are you crazy?",null,"Crazy?! ...My prices are fair, you know.","どうかしてる？！ …うちの 値段は ちゃんと してるのよ。",'rude',{ok:0,j:"高すぎ！ どうかしてるの？",pip:"Rude! Rude!",fx:'😠',if:c=>!c.disc}),
   O("Hmm, I'll think about it.",'think',"Of course. Come back anytime.","もちろん。 いつでも 来てね。",'eThink')]},
+ lux:{s:c=>`Ah, the ${W(c)}? That one is in the glass case. It's one of a kind. Let me get the key... There.`,j:c=>`あら、 ${c.it.n}？ それは ガラスケースの 中の 一点ものよ。 鍵を とってくるわね… はい。`,enter:c=>{c.luxSeen=1},o:[
+  O("Can I take a closer look?",'closerLook',null,null,'luxLook'),
+  O("How much is it?",'howMuch',null,null,'price0'),
+  O("Can I lick it?",null,"Lick it?! Absolutely not! Ha ha.","なめる？！ ぜったい だめ！ あはは。",'lux2',{ok:0,j:"なめても いい？",pip:"No licking! No licking!",fx:'👅'})]},
+ lux2:{s:"So... would you like to take a look? Gently, please.",j:"それで… 見てみる？ そーっとね。",o:[
+  O("Yes. Can I take a closer look?",'closerLook',null,null,'luxLook'),
+  O("How much is it?",'howMuch',null,null,'price0')]},
+ luxLook:{s:c=>`Here. Be careful. ${c.it.lux0[0]}`,j:c=>`はい。 気を つけてね。 ${c.it.lux0[1]}`,o:[
+  O("Wow. Is it real?",'genuine',c=>c.it.k==='book'||c.it.k==='map'?"Yes, it's the real thing. I would never sell a copy.":"Yes, it's genuine. It comes with a certificate.",c=>c.it.k==='book'||c.it.k==='map'?"ええ、 本物よ。 にせものは ぜったい 売らないわ。":"ええ、 本物よ。 証明書も つくわ。",'luxQ',{j:"わあ。 本物ですか？",act:c=>{c.q1=1}}),
+  O("Does it come with a warranty?",'warranty',"Yes. If anything goes wrong within a year, bring it back to me.","ええ。 1年いないに なにか あったら、 もってきてね。",'luxQ',{act:c=>{c.q2=1}}),
+  O("How much is it?",'howMuch',null,null,'price0'),
+  O("Oops! I dropped it!",null,"WHAT?! ...Oh, you're joking. Don't do that to an old lady!","なんですって？！ …あら、 じょうだんね。 年よりを おどかさないで！",'luxQ',{ok:0,j:"あっ！ おとしちゃった！",pip:"Oh no! Oh no!",fx:'😱'})]},
+ luxQ:{s:"Any other questions?",j:"ほかに 聞きたい ことは ある？",o:[
+  O("Is it real?",'genuine',"Yes, it's the real thing.","ええ、 本物よ。",'luxQ',{if:c=>!c.q1,act:c=>{c.q1=1}}),
+  O("Does it come with a warranty?",'warranty',"Yes, for one year.","ええ、 1年間ね。",'luxQ',{if:c=>!c.q2,act:c=>{c.q2=1}}),
+  O("Is it worth it?",'worthIt',c=>c.it.worth[0],c=>c.it.worth[1],'luxQ',{if:c=>!c.worth,act:c=>{c.worth=1}}),
+  O("No. How much is it?",'howMuch',null,null,'price0',{j:"いいえ。 いくらですか？"})]},
+ luxBest:{s:c=>`For a piece like this... Well, I can do 5% off. That's ${P(c)} coins.`,j:c=>`この 品物だと… そうね、 5%（5分）びきなら できるわ。 ${P(c)}まいよ。`,enter:c=>{c.disc=.05},o:[
+  O("Thank you. I'll take it.",'takeIt',"Thank you!","ありがとう！",'pre',{j:"ありがとう。 買います。"}),
+  O("How about 10% off? I'm a regular customer.",'regular',null,null,'luxReg',{j:"1わり びきは どう？ 常連なんです。",if:()=>Z.visits()>=3}),
+  O("Only 5%? Make it 90% off!",null,"Ninety percent?! Then you can run the shop, and I'll go on vacation!","9わり びき？！ じゃあ あなたが お店を やって、 わたしは 旅行に 行くわ！",'luxBest2',{ok:0,j:"5%だけ？ 9わり びきに して！",pip:"Vacation! Vacation!",fx:'🏖️'}),
+  O("Let me sleep on it.",'think',"Of course. Big things need big thinking.","もちろん。 大きな 買いものは よく 考えないとね。",'eThink',{j:"ひと晩 考えさせて ください。"})]},
+ luxBest2:{s:c=>`So, 5% off. ${P(c)} coins. OK?`,j:c=>`それで、 5%びき。 ${P(c)}まい。 いい？`,o:[
+  O("OK. I'll take it.",'takeIt',"Thank you!","ありがとう！",'pre',{j:"はい。 買います。"}),
+  O("Let me sleep on it.",'think',"Of course.","もちろん。",'eThink',{j:"ひと晩 考えさせて ください。"})]},
+ luxReg:{s:c=>`A regular... You DO come here a lot. All right, 10% off. ${P(c)} coins. And that's really my final price!`,j:c=>`常連… たしかに よく 来てくれるわね。 いいわ、 1わり びき。 ${P(c)}まい。 これが ほんとに 最後の 値段よ！`,enter:c=>{c.disc=.1},o:[
+  O("Deal! I'll treat myself.",'splurge',"You deserve it!","あなたなら それだけの ことは してるわ！",'pre',{j:"きまり！ 自分への ごほうびに します。"}),
+  O("Let me sleep on it.",'think',"Of course.","もちろん。",'eThink',{j:"ひと晩 考えさせて ください。"})]},
  rude:{s:c=>`Anyway... it's ${P(c)} coins.`,j:c=>`とにかく… ${P(c)}まいよ。`,o:[
   O("Sorry. It's a little expensive for me.",'expensive',null,null,'exp',{j:"ごめんなさい。 ぼくには ちょっと 高いです。"}),
   O("Sorry! I'll take it.",'takeIt',"Thank you. Apology accepted.","ありがとう。 ゆるして あげる。",'pre',{j:"ごめんなさい！ 買います。"}),
@@ -146,7 +178,7 @@ buy:{t:'買いもの',start:'a',nodes:{
   O("I don't need a bag. Thanks.",'noBag',"Thank you for saving paper!","紙の せつやく、 ありがとう！",'fin'),
   O("Yes. Can I have a bag?",'bag',"Sure. Here you go.","ええ。 はい、 どうぞ。",'fin'),
   O("Can I have a really big box?",null,c=>`A big box for one little ${W(c)}? ...Well, OK!`,c=>`小さな ${c.it.n} 1つに 大きな 箱？ …まあ、 いいわ！`,'fin',{ok:0,j:"すごく 大きな 箱を もらえる？",fx:'📦',act:c=>{c.box=1}})]},
- fin:{go:c=>c.box?'eBox':c.disc>=.2?'eHaggle':c.disc?'eDeal':c.bonus?'eBonus':c.wrap?'eGift':'eBuy'},
+ fin:{go:c=>c.box?'eBox':c.it.lux?(c.disc?'eLuxDeal':'eLux'):c.disc>=.2?'eHaggle':c.disc?'eDeal':c.bonus?'eBonus':c.wrap?'eGift':'eBuy'},
  nomoney:{s:c=>`That's ${P(c)} coins... Oh dear, you only have ${Z.coins()} coins.`,j:c=>`${P(c)}まいね… あら、 ${Z.coins()}まいしか ないみたい。`,o:[
   O("Could you put it aside for me?",'putAside',null,null,'eHold'),
   O("Can you give me a discount?",'discount',"Hmm... Just for you, 20% off.","うーん… あなただけ 特別に 2わり びき。",'payq',{if:c=>!c.disc,act:c=>{c.disc=.2}}),
@@ -157,6 +189,8 @@ buy:{t:'買いもの',start:'a',nodes:{
  eHaggle:E(1,'ねぎり 名人',c=>`20% off! You're the best haggler on this beach.`,"2わり びき！ あなた、 この 浜辺 いちばんの ねぎり 名人ね。",'🏆','buy'),
  eBonus:E(1,'おまけ つき',c=>`And here's your free ${Z.bonusW()}. Enjoy!`,c=>`それと、 おまけの ${Z.bonusJ()}。 たのしんでね！`,'🎁','buy'),
  eGift:E(1,'プレゼント用に つつんだ',c=>`All wrapped up! I hope ${c.it.to==='mina'?'Mina':TO[c.it.to][0].split('.')[0]} loves it.`,c=>`きれいに つつめたわ！ ${TO[c.it.to][1]}が 気に入って くれると いいわね。`,'🎀','buy'),
+ eLux:E(1,'一生ものの 買いもの',c=>`Here's your ${W(c)}, with its certificate. Take good care of it. It has a new story now: yours.`,c=>`はい、 ${c.it.n}。 証明書も いっしょにね。 大切に してね。 これからは あなたの 物語が はじまるの。`,'💎','buy'),
+ eLuxDeal:E(1,'常連さんの ねびき',c=>`For my favorite customer. Don't tell Pip how much you paid!`,"いちばんの お客さんだから とくべつよ。 いくら はらったか ピップには ないしょね！",'🗝️','buy'),
  eBox:E(0,'大きな 箱で お持ち帰り',"Can you carry it? ...You look like a moving box with legs!","持てる？ …足の はえた ひっこしの 箱みたいよ！",'📦','buy'),
  eLook:E(1,'見るだけ でも OK',"Thanks for coming. The shelf will be here tomorrow, too.","来てくれて ありがとう。 たなは あしたも ここに あるわ。",'👀'),
  eThink:E(1,'ていねいに ことわった',"Take your time. Good things wait for you.","ゆっくり 考えてね。 いい ものは 待っててくれるわ。",'🤔'),
@@ -303,6 +337,42 @@ ret:{t:'返品・交換',start:'a',nodes:{
  eBuyBack:E(1,'買いとって もらった',c=>`Here are ${Z.half(c.it)} coins. Next time, keep the receipt!`,c=>`はい、 ${Z.half(c.it)}まい。 こんどは レシートを とっておいてね！`,'🪙','buyback'),
  eExch:E(1,'交換 できた',c=>`Here's "${c.to2.title}". I hope you like this one!`,c=>`はい、 「${c.to2.n.replace(/^絵本/,'')}」。 こっちは 気に入ると いいな！`,'🔄','exch'),
  eKeep:E(1,'やっぱり もっておく',"Maybe you'll love it someday.","いつか 好きに なるかもね。",'🤲'),
+}},
+
+/* ======================================================= 🗺️ 月の 市場の 話（地図を 買うと 聞ける。ノラさんの 秘密） */
+moon:{t:'月の 市場の ひみつ',start:'a',nodes:{
+ a:{s:"So, you bought the map. Then you deserve the story. Sit down. Pip, be quiet for once.",j:"地図を 買ったのね。 じゃあ お話を 聞く しかくが あるわ。 すわって。 ピップ、 たまには しずかに してね。",pip:"Quiet! Quiet!",o:[
+  O("When did you first go there?",null,"Forty years ago. I was young, lost, and very, very hungry.","40年前。 わかくて、 迷子で、 とっても とっても おなかが すいてたの。",'b',{j:"はじめて 行ったのは いつ？"}),
+  O("Is the Moon Market real?",'genuine',"As real as you and me. Well... maybe a little less.","あなたや わたしと 同じくらい 本物よ。 まあ… もうちょっと あやふや かもね。",'b',{j:"月の 市場って 本当に あるの？"}),
+  O("Can I go there tonight?",null,"Tonight? Ha ha! Patience. First, listen.","今夜？ あはは！ あせらないで。 まずは 聞いて。",'b',{j:"今夜 行ける？"})]},
+ b:{s:"It was a night with a full moon. The sea was as still as glass. And then I saw lanterns on the beach where there had been nothing.",j:"満月の 夜だった。 海は ガラスみたいに 静かで。 そしたら、 なにも なかった 浜辺に ちょうちんが ならんでいたの。",o:[
+  O("Weren't you scared?",null,"A little. But I was more curious than scared.","ちょっとね。 でも こわさより 知りたい 気持ちの ほうが 大きかった。",'c',{j:"こわく なかった？"}),
+  O("What did they sell?",null,"Everything. Songs in jars, a key to yesterday, shoes that walk on water...","なんでも。 びんに 入った 歌、 きのうへの 鍵、 水の 上を 歩ける くつ…",'c2',{j:"なにを 売ってたの？"}),
+  O("Were the sellers aliens?",null,"Aliens? No... but they had very long shadows and no faces at all.","宇宙人？ ちがうわ… でも、 とても 長い かげが あって、 顔が なかったの。",'c',{ok:0,j:"売り手は 宇宙人だった？",fx:'👽'})]},
+ c:{s:"A seller with a long shadow said, 'Everything here costs one memory.' I had no money anyway, so I said yes.",j:"長い かげの 売り手が 言ったの。 『ここの ものは どれも 思い出 1つ』。 どうせ お金も なかったから、 いいわって 言った。",o:[
+  O("What did you buy?",null,null,null,'d',{j:"なにを 買ったの？"}),
+  O("Which memory did you give?",null,null,null,'d',{j:"どの 思い出を あげたの？"})]},
+ c2:{s:"And everything cost one memory. Not money. One memory each. I had no money anyway.",j:"そして どれも お代は 思い出 1つ。 お金じゃ ないの。 どうせ お金も なかったし。",o:[
+  O("What did you buy?",null,null,null,'d',{j:"なにを 買ったの？"}),
+  O("I'd buy the shoes!",null,"Ha ha! Everyone says that. But think about what memory you'd lose.","あはは！ みんな そう言うわ。 でも、 どの 思い出を なくすか 考えてみて。",'d',{j:"ぼくなら くつを 買う！"})]},
+ d:{s:"I bought a small green egg. And for it, I gave the memory of my tenth birthday.",j:"わたしは 小さな 緑の たまごを 買ったの。 その かわりに、 10さいの 誕生日の 思い出を あげた。",o:[
+  O("A green egg? ...Wait. Pip?!",null,"Ha ha! You're sharp. The egg hatched the next morning.","あはは！ するどいわね。 その たまご、 つぎの 朝 かえったの。",'e',{j:"緑の たまご？ …まって。 ピップ？！"}),
+  O("Do you regret it?",'',"Sometimes I wonder what that birthday was like. But no, I don't regret it.","その 誕生日が どんなだったか、 ときどき 気になるわ。 でも、 後悔は してない。",'e2',{j:"後悔してる？"}),
+  O("Was the egg delicious?",null,"DELICIOUS?! ...Pip, cover your ears.","おいしかったか ですって？！ …ピップ、 耳を ふさいで。",'e',{ok:0,j:"たまご、 おいしかった？",pip:"Not food! Not food!",fx:'🍳'})]},
+ e:{s:"Yes. Pip came out of that egg. He's been talking ever since. He's my best friend.",j:"そう。 ピップは あの たまごから 生まれたの。 それから ずっと しゃべりっぱなし。 わたしの 親友よ。",pip:"Best friend! Best friend!",o:[
+  O("That's a wonderful story.",null,"Thank you. I've never told anyone before.","ありがとう。 だれにも 話したこと なかったの。",'f',{j:"すてきな 話だね。"}),
+  O("Do you regret it?",null,"Never. One birthday for a lifetime friend? Easy choice.","ぜんぜん。 誕生日 1つで 一生の 友だち？ かんたんな えらびだわ。",'f',{j:"後悔してる？"})]},
+ e2:{s:"Because the egg hatched, and out came... Pip. He's been talking ever since.",j:"だって たまごが かえって 出てきたのが… ピップ。 それから ずっと しゃべりっぱなし。",pip:"Hello! Hello!",o:[
+  O("No way! Pip came from the Moon Market?",null,"Yes. That's why he never gets old.","そうよ。 だから 年を とらないの。",'f',{j:"うそ！ ピップは 月の 市場から 来たの？"})]},
+ f:{s:"Now it's your turn. If you went to the Moon Market, which memory would you give?",j:"こんどは あなたの 番。 もし 月の 市場に 行ったら、 どの 思い出を あげる？",o:[
+  O("Nothing. My memories are all important.",null,"That's a wise answer. Maybe the wisest.","かしこい 答えね。 いちばん かしこい かも。",'eWise',{j:"なにも。 思い出は ぜんぶ 大切だから。"}),
+  O("The memory of my worst test score!",null,"Ha ha! Smart. Bad memories are cheap, though. The sellers might say no.","あはは！ かしこい。 でも いやな 思い出は 安いのよ。 ことわられる かもね。",'eTest',{j:"いちばん わるかった テストの 思い出！"}),
+  O("I'd give it to buy an English brain!",null,"An English brain? You don't need the market for that. You're already building one, here.","英語の 脳？ それなら 市場は いらないわ。 あなたは もう ここで つくってるもの。",'eBrain',{j:"英語の 脳を 買うために あげる！"}),
+  O("I'd trade it for another Pip!",null,"Two Pips?! The beach would never be quiet again!","ピップが 2羽？！ 浜辺が 二度と 静かに ならないわ！",'ePip',{ok:0,j:"もう 1羽 ピップが ほしい！",pip:"Two Pips! Two Pips!",fx:'🦜'})]},
+ eWise:E(1,'思い出は 売らない',"Keep them all. And keep coming here. That will be a good memory, too.","ぜんぶ 大切に ね。 そして ここにも 来つづけて。 それも いい 思い出に なるわ。",'🌕'),
+ eTest:E(1,'わるい 思い出を 売りたい',"Then study hard, so your next test score becomes a memory you'd never sell.","じゃあ がんばって、 つぎの テストを 売りたく ない 思い出に してね。",'📝'),
+ eBrain:E(1,'英語の 脳は 自分で つくる',"Every word you learn is a little lantern. Soon your head will look like the Moon Market itself.","おぼえた ことば 1つ 1つが 小さな ちょうちん。 すぐに あなたの 頭は 月の 市場 そのものに なるわ。",'🏮'),
+ ePip:E(0,'ピップが 2羽',"(Pip is very excited. Nora is holding her head.)","（ピップは 大よろこび。 ノラさんは 頭を かかえている）",'🦜'),
 }},
 };
 };
