@@ -72,7 +72,8 @@ function inn(){let b=$('pnInn');const w=$('window');if(!w)return;
   if(!b){b=document.createElement('button');b.id='pnInn';b.setAttribute('aria-label','岬の ペンション');b.innerHTML=INN;w.appendChild(b);
     b.onclick=e=>{e.stopPropagation();if(H.screen!=='home')return;FX.creak();open()}}
   let d;try{d=SCENE.dbg()}catch(e){return}
-  const k=d.k,q=.58,px=d.W*.37*q,hy=d.hz-(62*(1-q)*(1-q*.35)+8)*k,wd=Math.round(24*k);
+  /* 岬の 上に のせる。岬は 画面の 左はしから W*.37 まで。浜辺の 窓（#window）の 中に 見える ところを えらぶ（PCの 広い 画面でも 見切れないように） */
+  const k=d.k,hl=d.W*.37,px=Math.max(d.WL+14*k,Math.min(d.WL+d.WW*.12,hl*.8)),q=Math.min(1,px/hl),hy=d.hz-(62*(1-q)*(1-q*.35)+8)*k*(q>.92?Math.max(0,(1-q)/.08):1),wd=Math.round(24*k);
   b.style.width=wd+'px';b.style.left=Math.round(px-d.WL-wd/2)+'px';b.style.top=Math.round(hy-d.WT-wd*30/40+3*k)+'px';
   const dk=Math.max(0,Math.min(1,d.dark||0));b.style.setProperty('--dk',dk.toFixed(2));
   b.classList.toggle('off',H.screen!=='home')}
