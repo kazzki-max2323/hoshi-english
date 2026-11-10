@@ -32,7 +32,7 @@ const paid=id=>ZD.paid[id]||item(id).p;
 const sellable=()=>IT.filter(i=>(i.k==='book'||i.k==='note')&&ZD.own[i.id]);
 
 /* the tools the talks use (game/zakka-talk.js) */
-const Z={item,coins:()=>ST.coins,held:()=>ZD.hold,own:id=>!!ZD.own[id],pcDone,bottles,half,paid,sellable,returnable:sellable,
+const Z={item,coins:()=>ST.coins,tgs:()=>{try{return window.TUTOR?TUTOR.sellable():[]}catch(e){return []}},held:()=>ZD.hold,own:id=>!!ZD.own[id],pcDone,bottles,half,paid,sellable,returnable:sellable,
   price:c=>Math.max(1,Math.round(c.it.p*(1-(c.disc||0)))),
   part:()=>{const h=new Date().getHours();return h>=5&&h<12?'morning':h>=12&&h<18?'afternoon':'evening'},
   partJ:()=>{const h=new Date().getHours();return h>=5&&h<12?'おはよう':h>=12&&h<18?'こんにちは':'こんばんは'},
@@ -92,6 +92,7 @@ function greet(){
     ["Tap anything on the shelf. Then let's talk in English!","たなの ものを タップしてね。 そしたら 英語で 話しましょう！"]];
   if(ZD.hold&&item(ZD.hold))g.push([`I'm still keeping the ${item(ZD.hold).w} for you.`,`${item(ZD.hold).n}、 まだ とっておいてるわよ。`]);
   if(ZD.gift.length)g.push(["Did you give your present yet? I'm sure they'll love it.","プレゼント、 もう わたした？ きっと よろこぶわ。"]);
+  if(Z.tgs().length)g.push(["Did Riku give you something nice? I'd love to see it.","リクから なにか すてきな もの もらった？ 見てみたいわ。"]);
   if(bottles()>0)g.push(["If you find empty bottles, bring them to me. I buy them!","からの びんが あったら もってきてね。 買いとるわよ！"]);
   if(new Date().getHours()>=21||new Date().getHours()<5)g.push(["It's late! I'm almost closing, but come in.","おそい 時間ね！ もうすぐ 閉店だけど、 どうぞ。"]);
   return pickL(g)}
@@ -210,6 +211,7 @@ function deal(N){const c=P.c,it=c.it,R={};
     if(ZD.hold===it.id)ZD.hold=null;break}
   case 'hold':ZD.hold=it.id;break;
   case 'sellBottles':{const n=bottles(),got=n*(c.per||2);ZD.bsold=(ZD.bsold||0)+n;R.got=got;R.sold=`🍾 からの びん ${n}本`;break}
+  case 'sellTg':{R.got=c.sellP||it.p;R.sold=it.ico+' '+it.n;try{TUTOR.take(it.tg)}catch(e){}break}
   case 'sell':{R.got=c.sellP||half(it);R.sold=it.ico+' '+it.n;forget(it.id);break}
   case 'refund':{R.got=paid(it.id);R.sold=it.ico+' '+it.n;R.ret=1;forget(it.id);break}
   case 'buyback':{R.got=half(it);R.sold=it.ico+' '+it.n;R.ret=1;forget(it.id);break}
@@ -240,6 +242,7 @@ function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!
   else if(R.it)k=c.disc>=.2?'zk_endHaggle':c.disc?'zk_endDeal':R.it.k==='gift'?'zk_endGift':R.it.k==='book'?'zk_endBook':'zk_endBuy';
   else if(R.got&&R.ret)k='zk_endReturn';else if(R.got)k='zk_endSell';else if(R.ex)k='zk_endReturn';
   else if(N.act==='hold')k='zk_endHold';else if(!good)k='zk_endFun';
+  if(N.act==='sellTg'){k='tu_sold';v.g=c.it.n}
   if(P.newPh.length&&Math.random()<.5){k='zk_endPhrase';v.p=PH[P.newPh[0]][0];v.pj=PH[P.newPh[0]][1]}
   if(P.typed>=2)k='zk_endTyped';
   const phs=P.usedPh.map(id=>`<button data-ph="${id}" class="${P.newPh.includes(id)?'new':''}">${P.newPh.includes(id)?'<i>NEW</i>':''}${esc(PH[id][0])}<small>${esc(PH[id][1])}</small></button>`).join('');
@@ -271,6 +274,7 @@ function bag(){hush();const B=ownBooks(),G=ZD.gift,fs=ZD.fort.length;
     ZD.pc.length?row('📮','世界の 絵はがき',`${ZD.pc.length}/${PCS.length}まい`,`<button data-al="1">見る</button>`):'',
     ZD.fortN||fs?row('🥠','英語おみくじ',`まだ わっていない ${ZD.fortN}こ・出た ことば ${new Set(ZD.fort).size}/${FTS.length}`,ZD.fortN?`<button data-ft="1">わる</button>`:`<button data-fl="1" class="sub">見る</button>`):'',
     ...G.map((g,i)=>{const it=item(g.id);return row(it.ico,esc(it.n)+(g.w?' 🎀':''),`${it.to==='mina'?'ミナ先生':(KAIWA.chars[it.to]||{}).n||''}に わたせるよ`,`<button data-gv="${i}">わたす</button>`)}),
+    Z.tgs().length?row('👦','リクからの お礼',Z.tgs().map(t=>t.ico).join(' ')+'・ノラさんが 買いとって くれる',`<button data-tg="1">売る</button>`):'',
     ZD.own.note?row('📒','買いもの フレーズ手帳',`言えた フレーズ ${phN()}/${PHK.length}`,`<button data-nt="1">ひらく</button>`):''].filter(Boolean);
   H.show('zakka',`<section class="pnl zk">
     <div class="qtop"><button class="x" id="zkx" aria-label="もどる">←</button><b>🎒 もちもの</b><span class="qn"></span></div>
@@ -283,6 +287,7 @@ function bag(){hush();const B=ownBooks(),G=ZD.gift,fs=ZD.fort.length;
   H.panel.querySelectorAll('[data-ft]').forEach(b=>b.onclick=()=>fortune(bag));
   H.panel.querySelectorAll('[data-fl]').forEach(b=>b.onclick=()=>{SFX.book();fortList(bag)});
   H.panel.querySelectorAll('[data-gv]').forEach(b=>b.onclick=()=>give(+b.dataset.gv,bag));
+  H.panel.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{SFX.talk();play('sell')});
   H.panel.querySelectorAll('[data-nt]').forEach(b=>b.onclick=()=>{SFX.book();notebook(bag)})}
 
 /* ---------- 📖 a picture book: line by line, 🔊 and Japanese on a tap ---------- */
