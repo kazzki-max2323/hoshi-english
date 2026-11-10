@@ -4,7 +4,6 @@
       ハマ子さんとの おしゃべりが ふえる。Lv10 で ミナ先生が 夜空に 花火を あげてくれる
    3. 思い出しクイズ: 前に クリアした 授業から 1問（1日・3日・7日・14日・30日 あけて 出す）。ホームで ミナ先生が 声を かける
    4. ハマ子の 挑戦状: 1日 1回 ハマ子さんが「この授業 ぜんもん 正解なら コイン 2ばい＋レアカード」
-   5. 授業カード: 授業を クリアすると その授業の カードが かならず もらえる（ミナ先生の 授業カード図鑑。宝箱の 図鑑とは べつ。授業が ふえると カードも ふえる）
    アナウンスは ラジオが しゃべっていても 出る（ラジオ中は 浜辺の上にも 吹き出し）。
    ごほうびの カードや ショーは、その場で 見なくても つぎに ホームへ もどると もらえる */
 (()=>{
@@ -92,12 +91,6 @@ function sheet(n,fresh){const k=n?(n-1)%10+1:0,full=n&&k===10&&fresh;
   return `<span class="stsheet">${Array.from({length:10},(_,i)=>{const on=i<k||(!fresh&&k===10),nw=fresh&&i===k-1;
     return `<i class="${on?'on':''} ${nw?'new':''} ${i===4||i===9?'gift':''}">${on?'⭐':i===4?'🪙':i===9?'🃏':''}</i>`}).join('')}</span>${full?'<small class="stfull">カード いっぱい！ つぎの カードへ</small>':''}`}
 
-/* ---------- 5. lesson cards ---------- */
-function cardRow(l){if(!window.CARDS||!CARDS.lessonGet)return null;const c=CARDS.lessonGet(l.id);if(!c)return null;const [a,b]=CARDS.lesCount();
-  return `<span class="lcrow"><span class="lcard">${CARDS.face(c,{show:1})}</span><span>📖 授業カード <b>「${esc(l.t)}」</b> ゲット！<small>ミナ先生の 授業カード ${a}/${b}（🃏 カード図鑑から 見られるよ）</small></span></span>`}
-/* lessons cleared before cards came: their cards arrive now */
-setTimeout(()=>{if(!window.CARDS||!CARDS.lessonGet)return;const got=Object.keys(cleared()).filter(id=>lesOf(id)&&CARDS.lessonGet(id,true));
-  if(got.length)H.toast(`📖 これまでの 授業カード <b>${got.length}まい</b> が とどいたよ<small>🃏 カード図鑑の 📖 授業カード から 見られるよ</small>`,4200)},2500);
 
 /* ---------- 4. Hamako's challenge ---------- */
 const hcOn=()=>MV.hc.d===today()&&!MV.hc.done&&!!lesOf(MV.hc.id);
@@ -138,7 +131,7 @@ function quizOpen(){const z=MV.qz.now;if(!z)return;const l=lesOf(z.id),q=l&&l.qu
 
 /* ---------- the lesson's prize box: card, challenge, stamp, なかよし, then buttons for what waits ---------- */
 LESSON_AFTER.unshift(()=>{inLesson={coins:0,gain:0};return null});   // before 授業タイム (game/bonus.js), so its coins and points join in
-LESSON_AFTER.push((l,info)=>{if(info.first&&!MV.qz.ct[l.id]){MV.qz.ct[l.id]=Date.now();save()}const c=cardRow(l);return c?{html:c}:null},
+LESSON_AFTER.push((l,info)=>{if(info.first&&!MV.qz.ct[l.id]){MV.qz.ct[l.id]=Date.now();save()}return null},
   (l,info)=>{const h=hcRow(l,info);return h?{html:h}:null},
   (l)=>{const h=stampRow(l);return h?{html:h}:null},
   (l,info)=>{const g=(info.first?10:5)+(info.miss?0:3)+inLesson.gain;inLesson.gain=0;const ups=nkAdd(g);
@@ -162,22 +155,20 @@ function chips(){const old=$('mchips');if(H.screen!=='home'){return}const row=H.
   if(!html){if(old)old.remove();return}
   const c=old||document.createElement('div');c.id='mchips';c.innerHTML=html;if(!old){const bc=$('bchip');(bc||row).after(c)}
   c.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{SFX.step();const m=b.dataset.m;if(m[0]==='x')ex[+m.slice(1)].go();else if(m==='qz')quizOpen();else if(m==='hc')LESSON.open(MV.hc.id,H.home);else openCards()})}
-function minaBox(){const p=H.panel.querySelector('.minap');if(!p||p.querySelector('.mvbox'))return;const n=MV.st.n,k=n?(n-1)%10+1:0,[a,b]=window.CARDS&&CARDS.lesCount?CARDS.lesCount():[0,0];
+function minaBox(){const p=H.panel.querySelector('.minap');if(!p||p.querySelector('.mvbox'))return;const n=MV.st.n,k=n?(n-1)%10+1:0;
   const z=MV.qz.now&&lesOf(MV.qz.now.id),hc=hcOn()&&lesOf(MV.hc.id),need=nkNeed();
   /* Mina's page stays simple: the buttons go with the lessons, the meters into the folded 「きろく・ごほうび」 */
   const tiles=p.querySelector('.mtiles'),rec=p.querySelector('.mrec .mfbody');
   const d=tiles||document.createElement('div');d.classList.add('mvbox');
   const meters=`<div class="nk"><span>❤️ なかよし <b>Lv${MV.nk.lv}</b>「${NK_NAME[MV.nk.lv-1]}」</span><small>${need>0?`つぎの レベルまで ${need}`:'さいこうの なかよし！'}</small><i class="nkbar"><i style="width:${nkBar()}%"></i></i></div>
     <div class="stp"><span>📮 授業スタンプ <b>${k}/10</b>　<small>5こ 🪙50・10こ 🃏宝箱くじ・20こごと 🏖️ショー</small></span>${sheet(n,false)}</div>`;
-  /* 授業カードの タイルは なし（ユーザーの 希望）。授業カードは カード図鑑から 見られる */
-  const btns=`${tiles?'':`<button class="mvc" data-v="cards"><span>🃏 授業カード</span><b>${a}/${b}</b></button>`}
-    ${z?`<button class="mvc qz" data-v="qz"><span>❓ 思い出しクイズ</span><b>${esc(z.t)}</b></button>`:''}
+  const btns=`    ${z?`<button class="mvc qz" data-v="qz"><span>❓ 思い出しクイズ</span><b>${esc(z.t)}</b></button>`:''}
     ${hc?`<button class="mvc hc" data-v="hc"><span>🍬 ハマ子の 挑戦状</span><b>${esc(hc.t)}</b></button>`:''}`;
   if(rec){const m=document.createElement('div');m.className='mvmeter';m.innerHTML=meters;rec.prepend(m);
     const sm=p.querySelector('.mrec summary small');if(sm)sm.textContent=`❤️Lv${MV.nk.lv}・📮${k}/10`}
   if(tiles)d.insertAdjacentHTML('beforeend',btns);
   else{d.innerHTML=(rec?'':meters)+btns;const t=p.querySelector('.mstats')||p.querySelector('.mtalk');t?t.after(d):p.appendChild(d)}
-  d.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{SFX.step();const v=b.dataset.v;if(v==='cards')CARDS.open('lesson');else if(v==='qz')quizOpen();else LESSON.open(MV.hc.id)})}
+  d.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{SFX.step();const v=b.dataset.v;if(v==='qz')quizOpen();else LESSON.open(MV.hc.id)})}
 new MutationObserver(()=>minaBox()).observe(H.panel,{childList:true});
 H.on('home',()=>{chips();if(MV.pc.length&&!$('cardOv'))setTimeout(()=>{if(H.screen==='home')openCards()},1200)});
 

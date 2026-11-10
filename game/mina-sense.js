@@ -239,7 +239,6 @@ const R=[
 ['x_cardNone',3,F=>F.cards.length?null:{},()=>goCards()],
 ['x_cardDup',1,F=>{const a=F.cards.filter(c=>CARDS.n(c)>=3);if(!a.length)return null;const c=pickL(a);return {en:c.en,ico:c.e,n:CARDS.n(c)}},()=>goCards()],
 ['x_cardShards',1,F=>{const s=window.CARDS&&CARDS.shards?CARDS.shards():0;return s>=15?{n:s}:null},()=>goCards()],
-['x_lesCards',2,F=>{if(!window.CARDS||!CARDS.lesCount)return null;const [n,t]=CARDS.lesCount();return n?{n,tot:t}:null},()=>['📖 授業カードを 見る',()=>CARDS.openLes()]],
 ['x_cardTeach',2,F=>{const a=F.cards.filter(c=>/^[a-z ]+$/i.test(c.en));if(!a.length)return null;const c=pickL(a);return {en:c.en,ja:c.ja,ico:c.e,first:c.en[0].toUpperCase(),len:c.en.replace(/ /g,'').length,_s:c.s}},v=>goCards(v._s)],
 
 /* ===== コイン ===== */

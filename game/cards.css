@@ -142,4 +142,3 @@
 @keyframes krain{to{transform:translateY(calc(100vh + 160px)) rotate(var(--rot))}}
 .kgrid .tc{content-visibility:auto;contain-intrinsic-size:auto 110px}
 @media (prefers-reduced-motion:reduce){#krain span,.kbit{animation-duration:.01s!important}}
-.kbar .kles2{margin-left:auto;padding:4px 8px;font-size:.7rem;line-height:1.2;white-space:nowrap;flex:none}
