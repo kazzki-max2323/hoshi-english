@@ -152,7 +152,7 @@ function begin(s,from){
     <div class="lslog kwlog snlog" id="slog"></div>
     <div id="sans" class="kans"></div>
   </section>`);
-  $('sx').onclick=()=>{SFX.pop();hush();const f=P&&P.from;P=null;f==='home'?H.home():list()};
+  $('sx').onclick=()=>{SFX.pop();hush();const f=P&&P.from;P=null;f==='home'?H.home():f==='mina'?MINA.open():list()};
   /* what Mina says first: about this talk's grammar and how it went before */
   const ids=s.g||[],w=ids.find(id=>weakAll().includes(id)),nw=ids.find(id=>!owned(id)),cl=ids.find(id=>cleared(id));
   let k='sn_intro',v={t:'「'+s.t+'」',g:ids.length?'「'+gName(ids[0])+'」':''};
@@ -350,19 +350,19 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
     $('sans').querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{SFX.step();tokkun([b.dataset.tk])});
     $('sans').querySelectorAll('[data-dp]').forEach(b=>b.onclick=()=>{SFX.step();DEEP.open(b.dataset.dp)});
     $('sans').querySelectorAll('[data-ls]').forEach(b=>b.onclick=()=>{SFX.lesson();hush();P=null;LESSON.open(b.dataset.ls,list)});
-    const from=P.from,again=s.kind==='tok'?()=>tokkun(P.ids,1):()=>play(s.id,from);
+    const from=P.from,again=s.kind==='tok'?()=>tokkun(P.ids,1,from):()=>play(s.id,from);
     $('sagain').onclick=()=>{SFX.step();again()};$('smore').onclick=()=>{SFX.back();P=null;list()};
     setTimeout(()=>$('sans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1500)}
 
 /* ---------- 🎯 苦手 とっくん: 5 grammar checks in a row ---------- */
-function tokkun(ids,again){const lv=LV.includes(myLv())?myLv():'es',lvl=GLV[lv];
+function tokkun(ids,again,from){const lv=LV.includes(myLv())?myLv():'es',lvl=GLV[lv];
   let pool=(ids||weakAll()).filter(id=>DR[id]);
   if(!pool.length)pool=Object.keys(DR).filter(id=>id.startsWith(lvl)&&(owned(id)||Math.random()<.5));
   if(!pool.length)pool=Object.keys(DR).filter(id=>id.startsWith(lvl));
   pool=shuffle(pool);const nodes={},n=5;for(let i=0;i<n;i++)nodes['d'+i]={dr:pool[i%pool.length],nx:i<n-1?'d'+(i+1):'e'};
   nodes.e={end:1,good:1,t:'とっくん',s:"That's all! You worked hard.",j:'おしまい！ よく がんばったね'};
   const s={id:'tokkun',kind:'tok',lv,t:'苦手 とっくん',ico:'🎯',start:'d0',nodes,g:pool.slice(0,3)};
-  begin(s);P.ids=ids;const [ex,tx]=ML(again?'sn_tokAgain':ids||weakAll().length?'sn_tokStart':'sn_tokLevel',{g:'「'+pool.slice(0,2).map(gName).join('」「')+'」',lvn:LVN[lv]});minaJa(ex,tx)}
+  begin(s,from);P.ids=ids;const [ex,tx]=ML(again?'sn_tokAgain':ids||weakAll().length?'sn_tokStart':'sn_tokLevel',{g:'「'+pool.slice(0,2).map(gName).join('」「')+'」',lvn:LVN[lv]});minaJa(ex,tx)}
 
 
 window.SENSEI={open:list,play,tokkun,karte,talk,fill,gram:gramRec,rec:()=>SD,scenes:SC,endsN,endsAll,endsOf,endsGot,weak:weakAll,good:goodG,gScore,patterns,patText,check,_ready:()=>P};

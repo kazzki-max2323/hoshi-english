@@ -180,9 +180,12 @@
 .lstk b{color:#ffb27a}.lstk small{display:block;font-size:.72rem;color:var(--mute)}
 @media (prefers-reduced-motion:reduce){.lcard2{animation:none}}
 
-/* ミナ先生の ページの タイル: ふくしゅう・ぜんぶの 授業・授業カード・文法ノート を 2×2 で */
+/* ミナ先生の ページの タイル: ふくしゅう・ぜんぶの 授業 / 苦手 とっくん・とことん授業 を 2×2、文法ノートは 下に 1行 */
 .mtiles{grid-template-columns:repeat(2,minmax(0,1fr))!important}
-.mtiles .mt-gram{order:3}.mtiles [data-v="cards"]{order:3}
+.mtiles .mt-tok{order:3}.mtiles .mt-deep{order:3}
+.mtiles .mt-gram{order:4;grid-column:1/-1;flex-direction:row;justify-content:space-between!important;text-align:left!important;padding:7px 12px!important}
+.mtiles .mvc.qz,.mtiles .mvc.hc{order:5}
+.mtiles .mt-tok.hot{border-color:#ff9e6b!important}
 /* 単語帳の レベル タブ */
 .lvseg button.on{border-color:var(--c)!important;background:color-mix(in srgb,var(--c) 30%,transparent)!important}
 .lvseg button{font-size:.74rem!important;padding:6px 2px!important}

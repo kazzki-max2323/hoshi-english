@@ -196,6 +196,11 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
 function talkBox(o){const [ex,tx]=o?line(o[0],o[1]):line('tap'),go=goTo(o);
   return {go,html:`<span class="mbig">${face('m',ex)}</span>${go?`<button class="mline go" id="mgo">${tx}<small>${go[0]} ▶</small></button>`:`<p class="mline">${tx}</p>`}`}}
 function bindTalk(o,t){if(!t.go)return;$('mgo').onclick=()=>{SFX.step();if(o[0]==='stepUp')MD.said.step=today();t.go[1]()};H.panel.querySelector('.mbig').onclick=()=>$('mgo').click()}
+/* 授業メニューの 🎯 苦手 とっくん と 🔎 とことん授業（中身は 先生と 話す 画面と 同じ。ここからも すぐ 行ける） */
+function menuTiles(){let h='';
+  if(window.SENSEI){const w=SENSEI.weak().length;h+=`<button id="mtok" class="mvc mt-tok${w?' hot':''}"><span>🎯 苦手 とっくん</span><b>${w?`🔥 苦手 ${w}こ`:'5問 ちょうせん'}</b></button>`}
+  if(window.DEEP){const R=DEEP.rec(),n=Object.keys(R).filter(id=>R[id].best>=3).length;h+=`<button id="mdeep" class="mvc mt-deep"><span>🔎 とことん授業</span><b>${n?`★3 ${n}こ`:'なんで？を 深く'}</b></button>`}
+  return h}
 function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advice(),ra=recentAcc(),wg=weakGram()||gramForSentences(),su=stepUp();
   /* half the time the most useful advice, else something about what she sees now */
   const first=opts.length&&Math.random()<.5?opts[0]:(sense()||opts[0]||null),T0=talkBox(first);
@@ -205,7 +210,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     <div class="mtalk" id="mtalk">${T0.html}</div>
     ${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}
     ${window.LESSON?`${LESSON.card('mina')}
-    <div class="mtiles"><button id="mall" class="mvc mt-all"><span>📖 ぜんぶの 授業</span><b>${LESSON.count().join('/')}</b></button>${typeof GRAMMAR!=='undefined'?`<button id="mgl" class="mvc mt-gram"><span>📚 文法ノート</span><b>${(ST.gram.cleared||[]).length}/${['es','jh','hs'].reduce((a,k)=>a+(GRAMMAR[k]?GRAMMAR[k].notes.length:0),0)}</b></button>`:''}</div>`:''}
+    <div class="mtiles"><button id="mall" class="mvc mt-all"><span>📖 ぜんぶの 授業</span><b>${LESSON.count().join('/')}</b></button>${typeof GRAMMAR!=='undefined'?`<button id="mgl" class="mvc mt-gram"><span>📚 文法ノート</span><b>${(ST.gram.cleared||[]).length}/${['es','jh','hs'].reduce((a,k)=>a+(GRAMMAR[k]?GRAMMAR[k].notes.length:0),0)}</b></button>`:''}${menuTiles()}</div>`:''}
     <button id="msensei" class="msensei">🗣️ ミナ先生と 英語で 話す</button>
     ${window.KAIWA?`<button id="mkaiwa" class="sub">💬 浜辺の 会話</button>`:''}
     <details class="mfold mrec"><summary>📊 きろく・ごほうび<small>${D.a?`きょう ${D.a}問`:''}</small></summary><div class="mfbody">
@@ -228,6 +233,8 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   H.panel.querySelectorAll('.mfold').forEach(f=>f.ontoggle=()=>{if(f.open)SFX.pop()});
   if(window.LESSON){LESSON.bindCard(panelOpen);$('mall').onclick=()=>{SFX.lesson();LESSON.list()}}
   const gl=$('mgl');if(gl)gl.onclick=()=>{SFX.book();const lv=level();H.gramFrom(lv==='adv'?'hs':lv,panelOpen)};
+  const mt=$('mtok');if(mt)mt.onclick=()=>{SFX.step();SENSEI.tokkun(null,0,'mina')};
+  const md=$('mdeep');if(md)md.onclick=()=>{SFX.step();DEEP.pick()};
   const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.talk();window.SENSEI?SENSEI.open():null};
   const mk=$('mkaiwa');if(mk)mk.onclick=()=>{SFX.talk();KAIWA.open()};
   const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.book();const owned=(ST.gram.owned||[]).includes(GRAMMAR[wg.lv].notes[wg.i].id);owned?H.gramNote(wg.lv,wg.i):H.gramShop(wg.lv)}}

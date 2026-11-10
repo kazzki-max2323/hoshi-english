@@ -54,18 +54,18 @@ function face(c,opt={}){const S=SER[c.s],R=RAR[c.r],lock=!opt.show&&!has(c);
 
 /* ---------- album ---------- */
 let tab='sea',filt='all';
-function open(t){if(t==='lesson')return openLes();if(t)tab=t;
+function open(t){if(t==='lesson'){lesBack=0;return openLes()}if(t)tab=t;
   const list=BOOK.filter(c=>tab==='all'||c.s===tab).filter(c=>filt==='all'||(filt==='have'?has(c):!has(c)));
   const sc=s=>{const a=BOOK.filter(c=>s==='all'||c.s===s);return [a.filter(has).length,a.length]};
   H.show('cards',`<section class="pnl cardsp">
     <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>🃏 カード図鑑</b><span class="qn">${ownedN()}/${BOOK.length}</span></div>
-    <div class="kbar"><button id="kdraw" class="kdraw">🎁 宝箱くじ${freeOk()?' <em>きょうの むりょう！</em>':''}</button><span class="kshard">✦ かけら ${CD.shards}</span></div>
+    <div class="kbar"><button id="kdraw" class="kdraw">🎁 宝箱くじ${freeOk()?' <em>きょうの むりょう！</em>':''}</button><span class="kshard">✦ かけら ${CD.shards}</span><button id="kles2" class="sub kles2">📖 授業<br>カード</button></div>
     <div class="kser">${[['all','🃏','ぜんぶ'],...TABS].map(s=>{const [h,n]=sc(s[0]);return `<button data-s="${s[0]}" class="${s[0]===tab?'on':''} ${h===n?'done':''}"><span>${s[1]}</span><small>${h}/${n}</small></button>`}).join('')}</div>
     <div class="khead"><b>${tab==='all'?'🃏 ぜんぶの カード':SER[tab][1]+' '+SER[tab][2]}</b><div class="seg kf">${[['all','ぜんぶ'],['have','もってる'],['not','まだ']].map(([k,n])=>`<button data-f="${k}" class="${filt===k?'on':''}">${n}</button>`).join('')}</div></div>
     <div class="kgrid">${list.map(c=>face(c)).join('')||'<p class="note">ここには まだ ないよ</p>'}</div>
   </section>`);
   $('kx').onclick=()=>{SFX.pop();H.home()};
-  $('kdraw').onclick=()=>{SFX.card();drawMenu()};
+  $('kdraw').onclick=()=>{SFX.card();drawMenu()};$('kles2').onclick=()=>{SFX.book();lesBack=1;openLes()};
   H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{SFX.pop();tab=b.dataset.s;open()});
   H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{SFX.pop();filt=b.dataset.f;open()});
   H.panel.querySelectorAll('.kgrid .tc').forEach(el=>el.onclick=()=>{SFX.flip();view(ALL.find(c=>c.e===el.dataset.e))});
@@ -73,7 +73,7 @@ function open(t){if(t==='lesson')return openLes();if(t)tab=t;
 }
 
 /* ---------- Mina's lesson album: one card per mini lesson, opened from Mina's page ---------- */
-let lesLv='all',lesF='all';
+let lesLv='all',lesF='all',lesBack=0;/* lesBack: 図鑑から 来たら 図鑑へ もどる */
 function openLes(){const LV=[['all','ぜんぶ'],['es','小'],['jh','中'],['hs','高'],['adv','ハイ']],LVL={es:'小学生',jh:'中学生',hs:'高校生',adv:'ハイレベル'},lvOf=c=>(LESSONS.find(l=>l.id===c.les)||{}).lv;
   const list=LES.filter(c=>lesLv==='all'||lvOf(c)===lesLv).filter(c=>lesF==='all'||(lesF==='have'?has(c):!has(c)));
   H.show('cards',`<section class="pnl cardsp lesbook">
@@ -83,7 +83,7 @@ function openLes(){const LV=[['all','ぜんぶ'],['es','小'],['jh','中'],['hs'
     <div class="khead"><b>${lesLv==='all'?'📖 ぜんぶの 授業':'📖 '+LVL[lesLv]+'の 授業'}</b><div class="seg kf">${[['all','ぜんぶ'],['have','もってる'],['not','まだ']].map(([k,n])=>`<button data-f="${k}" class="${lesF===k?'on':''}">${n}</button>`).join('')}</div></div>
     <div class="kgrid">${list.map(c=>face(c)).join('')||'<p class="note">ここには まだ ないよ</p>'}</div>
   </section>`);
-  $('kx').onclick=()=>{SFX.pop();window.MINA?MINA.open():H.home()};
+  $('kx').onclick=()=>{SFX.pop();lesBack?(lesBack=0,open()):window.MINA?MINA.open():H.home()};
   H.panel.querySelectorAll('[data-lv]').forEach(b=>b.onclick=()=>{SFX.pop();lesLv=b.dataset.lv;openLes()});
   H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{SFX.pop();lesF=b.dataset.f;openLes()});
   H.panel.querySelectorAll('.kgrid .tc').forEach(el=>el.onclick=()=>{SFX.flip();view(ALL.find(c=>c.e===el.dataset.e))})}
@@ -207,6 +207,6 @@ function checkSeries(newCards){const done=[...new Set(newCards.map(c=>c.s))].fil
   done.forEach((s,i)=>setTimeout(()=>{SFX.fanfare(3);H.toast(`🏆 <b>${SER[s][1]} ${SER[s][2]}</b> コンプリート！`,3600)},800+i*1600))}
 
 /* a free draw given as a reward (Mina's lesson time): n cards, each at least rarity min */
-window.CARDS={open,openLes,count:()=>[ownedN(),BOOK.length],freeOk,gift:(n=1,min=1)=>draw(n,min),face,lessonGet,lesCard,has,lesCount:()=>[LES.filter(has).length,LES.length],book:BOOK,les:LES,series:TABS,rar:RAR,shards:()=>CD.shards,n:c=>CD.own[c.e]||0};
+window.CARDS={open,openLes:()=>{lesBack=0;openLes()},count:()=>[ownedN(),BOOK.length],freeOk,gift:(n=1,min=1)=>draw(n,min),face,lessonGet,lesCard,has,lesCount:()=>[LES.filter(has).length,LES.length],book:BOOK,les:LES,series:TABS,rar:RAR,shards:()=>CD.shards,n:c=>CD.own[c.e]||0};
 if(H.screen==='home')H.home();   // show the free-draw dot on the home button
 })();

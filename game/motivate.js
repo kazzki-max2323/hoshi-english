@@ -94,10 +94,10 @@ function sheet(n,fresh){const k=n?(n-1)%10+1:0,full=n&&k===10&&fresh;
 
 /* ---------- 5. lesson cards ---------- */
 function cardRow(l){if(!window.CARDS||!CARDS.lessonGet)return null;const c=CARDS.lessonGet(l.id);if(!c)return null;const [a,b]=CARDS.lesCount();
-  return `<span class="lcrow"><span class="lcard">${CARDS.face(c,{show:1})}</span><span>📖 授業カード <b>「${esc(l.t)}」</b> ゲット！<small>ミナ先生の 授業カード ${a}/${b}（ミナ先生の ページから 見られるよ）</small></span></span>`}
+  return `<span class="lcrow"><span class="lcard">${CARDS.face(c,{show:1})}</span><span>📖 授業カード <b>「${esc(l.t)}」</b> ゲット！<small>ミナ先生の 授業カード ${a}/${b}（🃏 カード図鑑から 見られるよ）</small></span></span>`}
 /* lessons cleared before cards came: their cards arrive now */
 setTimeout(()=>{if(!window.CARDS||!CARDS.lessonGet)return;const got=Object.keys(cleared()).filter(id=>lesOf(id)&&CARDS.lessonGet(id,true));
-  if(got.length)H.toast(`📖 これまでの 授業カード <b>${got.length}まい</b> が とどいたよ<small>ミナ先生の ページの 📖 授業カード から 見られるよ</small>`,4200)},2500);
+  if(got.length)H.toast(`📖 これまでの 授業カード <b>${got.length}まい</b> が とどいたよ<small>🃏 カード図鑑の 📖 授業カード から 見られるよ</small>`,4200)},2500);
 
 /* ---------- 4. Hamako's challenge ---------- */
 const hcOn=()=>MV.hc.d===today()&&!MV.hc.done&&!!lesOf(MV.hc.id);
@@ -169,7 +169,8 @@ function minaBox(){const p=H.panel.querySelector('.minap');if(!p||p.querySelecto
   const d=tiles||document.createElement('div');d.classList.add('mvbox');
   const meters=`<div class="nk"><span>❤️ なかよし <b>Lv${MV.nk.lv}</b>「${NK_NAME[MV.nk.lv-1]}」</span><small>${need>0?`つぎの レベルまで ${need}`:'さいこうの なかよし！'}</small><i class="nkbar"><i style="width:${nkBar()}%"></i></i></div>
     <div class="stp"><span>📮 授業スタンプ <b>${k}/10</b>　<small>5こ 🪙50・10こ 🃏宝箱くじ・20こごと 🏖️ショー</small></span>${sheet(n,false)}</div>`;
-  const btns=`<button class="mvc" data-v="cards"><span>🃏 授業カード</span><b>${a}/${b}</b></button>
+  /* 授業カードの タイルは なし（ユーザーの 希望）。授業カードは カード図鑑から 見られる */
+  const btns=`${tiles?'':`<button class="mvc" data-v="cards"><span>🃏 授業カード</span><b>${a}/${b}</b></button>`}
     ${z?`<button class="mvc qz" data-v="qz"><span>❓ 思い出しクイズ</span><b>${esc(z.t)}</b></button>`:''}
     ${hc?`<button class="mvc hc" data-v="hc"><span>🍬 ハマ子の 挑戦状</span><b>${esc(hc.t)}</b></button>`:''}`;
   if(rec){const m=document.createElement('div');m.className='mvmeter';m.innerHTML=meters;rec.prepend(m);
