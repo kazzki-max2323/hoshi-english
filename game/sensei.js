@@ -4,7 +4,7 @@
    - 自分で 書いた 英語も、よく ある まちがい（SENSEI_CHECK）を 見つけて 教える。いまの レベルの 文法が つかえたら ほめる
    - 会話の とちゅうに いまの レベルの「文法チェック」（SENSEI_DRILL）が まざる。苦手な 文法ほど 出やすい
    - 正しい 答えも 何とおりも あって、答えで 話が 分かれる（エンドが いくつも）。{food} などの ことばは 毎回 かわる
-   - 🎯 苦手 とっくん：まちがえた 文法を 5問の ミニ会話で
+   - 🎯 苦手 とっくん：まちがえた 文法を 5問の ミニ会話で（入口は ミナ先生の ページの 授業メニュー・会話の 結果・カルテ）
    - 文法ごとの 記録（ST の sensei.g）は ミナ先生の 苦手 チェック（MINA.rec().g）にも 入る → ホームでも 文法ノートへ さそう
    セリフは game/mina-talk.js の sn_ / x_sn で はじまる 場面 */
 (()=>{
@@ -105,10 +105,6 @@ function list(){listLv=listLv||(LV.includes(myLv())?myLv():'es');const [ex,tx]=l
   H.show('sensei',`<section class="pnl kwp snp">
     <div class="qtop"><button class="x" id="sx" aria-label="もどる">←</button><b>🗣️ ミナ先生と 英語で 話す</b><span class="qn">🏁 ${endsN()}/${endsAll()}</span></div>
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
-    <div class="snbig">
-      <button id="stok" class="${w.length?'hot':''}"><b>🎯 苦手 とっくん</b><small>${w.length?'「'+esc(gName(w[0]))+'」'+(w.length>1?' ほか '+(w.length-1)+'こ':''):'いまの レベルの 文法 5問'}</small></button>
-      ${window.DEEP?'<button id="sdeep"><b>🔎 とことん授業</b><small>なんで？ どう ちがう？ 知りたい ことを 先生に</small></button>':''}
-    </div>
     <div class="seg">${LV.map(k=>`<button data-l="${k}" class="${k===listLv?'on':''}">${LVN[k]}</button>`).join('')}</div>
     <div class="lslist klist">${S.map(row).join('')}</div>
     <div class="row"><button id="sgo">🎲 おまかせ</button><button id="skarte" class="sub">📋 文法カルテ</button></div>
@@ -119,7 +115,6 @@ function list(){listLv=listLv||(LV.includes(myLv())?myLv():'es');const [ex,tx]=l
   H.panel.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{SFX.pop();listLv=b.dataset.l;list()});
   H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{SFX.talk();play(b.dataset.s)});
   $('sgo').onclick=()=>{SFX.talk();const a=S.filter(s=>!SD.done[s.id]);play(pickL(a.length?a:S).id)};
-  $('stok').onclick=()=>{SFX.step();tokkun()};if($('sdeep'))$('sdeep').onclick=()=>{SFX.step();DEEP.pick()};
   $('skarte').onclick=()=>{SFX.book();karte()};
   $('sja').onchange=e=>{SD.ja=e.target.checked?1:0;save()}}
 const row=s=>{const n=SD.done[s.id]||0,g=endsGot(s),t=endsOf(s).length,star=endsOf(s).some(e=>e[1]&&SD.end[s.id+':'+e[0]]);
