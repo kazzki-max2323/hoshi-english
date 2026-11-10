@@ -127,7 +127,7 @@ const SENSEI_CHECK=[
  ['perf',/\b(have|has|'ve)\s+(never\s+|ever\s+|already\s+|just\s+)?(went|ate|saw|came|took|wrote|did|swam|ran|spoke|broke|drank|go|eat|see|take|write|swim)\b/i,'jh'],
  ['perfTime',/(?<!\b(must|should|may|might|could|would|can't|cannot)\s)\b(have|has)\s+(\w+ed|been|seen|gone|eaten|done|taken|made|met|had)\b[^.?!]*\b(yesterday|ago|last (night|week|year|month|sunday|summer))\b/i,'jh'],
  ['art',/\ba\s+(apple|egg|orange|umbrella|hour|island|old|idea|ice|elephant|octopus|interesting|easy|eagle|english|onion|ant|answer|artist)\b/i,'jh'],
- ['prep',/\b(in|at)\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b|\bon\s+(january|february|march|april|may|june|july|august|september|october|november|december|summer|winter|spring)\b|\b(in|on)\s+(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s*o'clock/i,'jh'],
+ ['prep',/\b(in|at)\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b|\bon\s+(january|february|march|april|may|june|july|august|september|october|november|december|summer|winter|spring)\b(?!\s+(\d|the\b|first\b|second\b|third\b|\w+th\b))|\b(in|on)\s+(\d{1,2}|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve)\s*o'clock/i,'jh'],
  ['rel',/\b(man|woman|boy|girl|person|people|teacher|friend|lady|guy)\s+which\b|\b(dog|cat|book|shell|shop|boat|thing|song|movie|cake)\s+who\b/i,'jh'],
  ['part',/\bI(\s+am|'m|\s+was|\s+felt|\s+feel)\s+(very\s+|so\s+|really\s+)?(boring|exciting|interesting|surprising|tiring)\b/i,'jh'],
  ['indq',/\b(know|tell me|wonder)\s+what\s+time\s+is\s+it\b|\b(know|tell me|wonder|remember|understand)\s+(where|what|when|who|why|how)\s+(is|are|was|were|do|does|did|can)\s+(it|he|she|they|you|the\s+\w+)\b/i,'jh'],

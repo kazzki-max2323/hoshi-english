@@ -204,9 +204,17 @@ function drillPick(){const s=P.s,pool=(s.g||[]).filter(id=>DR[id]),lvl=GLV[s.lv]
   const ownL=(ST.gram.owned||[]).filter(id=>DR[id]&&id.startsWith(lvl));
   const r=Math.random();if(weak.length&&r<.4)return pickL(weak);if(ownL.length&&r<.6)return pickL(ownL);
   return pickL(pool.length?pool:Object.keys(DR).filter(id=>id.startsWith(lvl)))}
-function drillNode(id,nx){const d=pickL(DR[id]||DR.es_be),V={},gi=shuffle(d.good.map((g,i)=>i)).slice(0,2),bad=shuffle(d.bad).slice(0,2);
-  const s=fill(d.s,V),j=fill(d.j,V),ctx=new Set(Object.keys(V));
-  return {s,j,g:id,nx,drill:1,ctx,V,o:[...gi.map(i=>{const en=d.good[i],r0=d.res?d.res[i]:[d.re,d.rj],[re,rj]=fitReply(en,r0[0],r0[1],V,null,ctx);return {en:fill(en,V),ok:1,re,rj,nx,_r:{en,ok:1,re:r0[0],rj:r0[1],nx}}}),...bad.map(b=>({en:fill(b[0],V),ok:0,err:b[1]||null,h:b[2]||null}))]}}
+/* which drill of a grammar: one not asked yet, so the same question does not come back until all were asked (kept in the save) */
+function drillOf(id){const k=DR[id]?id:'es_be',L=DR[k],all=L.map((d,i)=>i),ds=SD.ds=SD.ds||{};
+  let seen=(ds[k]||[]).filter(i=>i<L.length),left=all.filter(i=>!seen.includes(i));
+  /* all asked: start again, but not with the last few (no repeat inside one 5-question とっくん) */
+  if(!left.length){seen=seen.slice(-Math.min(4,L.length-1));left=all.filter(i=>!seen.includes(i))}
+  const i=pickL(left);seen.push(i);ds[k]=seen;return L[i]}
+/* a sentence that starts with a changing word ({num} cats!) starts with a capital letter */
+const cap=t=>t&&t.charAt(0).toUpperCase()+t.slice(1);
+function drillNode(id,nx){const d=drillOf(id),V={},gi=shuffle(d.good.map((g,i)=>i)).slice(0,2),bad=shuffle(d.bad).slice(0,2);
+  const s=cap(fill(d.s,V)),j=fill(d.j,V),ctx=new Set(Object.keys(V));
+  return {s,j,g:id,nx,drill:1,ctx,V,o:[...gi.map(i=>{const en=d.good[i],r0=d.res?d.res[i]:[d.re,d.rj],[re,rj]=fitReply(en,r0[0],r0[1],V,null,ctx);return {en:cap(fill(en,V)),ok:1,re:cap(re),rj,nx,_r:{en,ok:1,re:r0[0],rj:r0[1],nx}}}),...bad.map(b=>({en:cap(fill(b[0],V)),ok:0,err:b[1]||null,h:b[2]||null}))]}}
 
 function turn(){if(!live())return;const raw=P.s.nodes[P.at];if(!raw)return finish({end:1,good:1,t:'おしまい',s:'Good job today!',j:'きょうも よく がんばったね！'});
   if(raw.end)return finish(raw);
@@ -249,7 +257,7 @@ function typed(v,spoken){if(!live())return;const N=P.N,lv=P.s.lv;
   if(o.ok&&o._r&&!same(v,o.en)){const t=' '+raw(v).join(' ')+' ',VV=N.V||P.V;
     slotsIn(o._r.en).forEach(k=>{const e=SLOT[k].find(x=>[x[0],x[2]].some(w=>w&&/^[a-z ]+$/i.test(w)&&t.includes(' '+raw(w).join(' ')+' ')));if(e)VV[k]=e});
     /* the reply is read against what they wrote, not against the answer it looked like */
-    const [re,rj]=fitReply(v,o._r.re,o._r.rj,VV,P.s.slots,N.ctx);o=N.o[i]=Object.assign({},o,{re,rj})}
+    const [re,rj]=fitReply(v,o._r.re,o._r.rj,VV,P.s.slots,N.ctx);o=N.o[i]=Object.assign({},o,{re:cap(re),rj})}
   if(o.ok){P.st.free++;SD.free++;if(P.st.freeCoins<3){P.st.freeCoins++;setTimeout(()=>{const r=$('slog')&&$('slog').getBoundingClientRect();if(r)H.coinBurst(r.right-40,r.bottom-30,1)},400)}
     /* grammar of the level in what they wrote: praise it */
     const G=GS()?GS().find(v).filter(g=>g.lv===GLV[lv]):[];
@@ -342,19 +350,19 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
     $('sans').querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{SFX.step();tokkun([b.dataset.tk])});
     $('sans').querySelectorAll('[data-dp]').forEach(b=>b.onclick=()=>{SFX.step();DEEP.open(b.dataset.dp)});
     $('sans').querySelectorAll('[data-ls]').forEach(b=>b.onclick=()=>{SFX.lesson();hush();P=null;LESSON.open(b.dataset.ls,list)});
-    const from=P.from,again=s.kind==='tok'?()=>tokkun(P.ids):()=>play(s.id,from);
+    const from=P.from,again=s.kind==='tok'?()=>tokkun(P.ids,1):()=>play(s.id,from);
     $('sagain').onclick=()=>{SFX.step();again()};$('smore').onclick=()=>{SFX.back();P=null;list()};
     setTimeout(()=>$('sans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1500)}
 
 /* ---------- 🎯 苦手 とっくん: 5 grammar checks in a row ---------- */
-function tokkun(ids){const lv=LV.includes(myLv())?myLv():'es',lvl=GLV[lv];
+function tokkun(ids,again){const lv=LV.includes(myLv())?myLv():'es',lvl=GLV[lv];
   let pool=(ids||weakAll()).filter(id=>DR[id]);
   if(!pool.length)pool=Object.keys(DR).filter(id=>id.startsWith(lvl)&&(owned(id)||Math.random()<.5));
   if(!pool.length)pool=Object.keys(DR).filter(id=>id.startsWith(lvl));
   pool=shuffle(pool);const nodes={},n=5;for(let i=0;i<n;i++)nodes['d'+i]={dr:pool[i%pool.length],nx:i<n-1?'d'+(i+1):'e'};
   nodes.e={end:1,good:1,t:'とっくん',s:"That's all! You worked hard.",j:'おしまい！ よく がんばったね'};
   const s={id:'tokkun',kind:'tok',lv,t:'苦手 とっくん',ico:'🎯',start:'d0',nodes,g:pool.slice(0,3)};
-  begin(s);P.ids=ids;const [ex,tx]=ML(ids||weakAll().length?'sn_tokStart':'sn_tokLevel',{g:'「'+pool.slice(0,2).map(gName).join('」「')+'」',lvn:LVN[lv]});minaJa(ex,tx)}
+  begin(s);P.ids=ids;const [ex,tx]=ML(again?'sn_tokAgain':ids||weakAll().length?'sn_tokStart':'sn_tokLevel',{g:'「'+pool.slice(0,2).map(gName).join('」「')+'」',lvn:LVN[lv]});minaJa(ex,tx)}
 
 
 window.SENSEI={open:list,play,tokkun,karte,talk,fill,gram:gramRec,rec:()=>SD,scenes:SC,endsN,endsAll,endsOf,endsGot,weak:weakAll,good:goodG,gScore,patterns,patText,check,_ready:()=>P};
