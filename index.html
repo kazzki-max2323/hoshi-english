@@ -35,6 +35,7 @@ button{touch-action:manipulation}
 <link rel="stylesheet" href="game/bottle.css">
 <link rel="stylesheet" href="game/zakka.css">
 <link rel="stylesheet" href="game/pension.css">
+<link rel="stylesheet" href="game/tutor.css">
 </head>
 <body>
 <canvas id="stars"></canvas>
@@ -108,6 +109,8 @@ button{touch-action:manipulation}
 <script src="game/zakka.js"></script>
 <script src="game/pension-story.js"></script>
 <script src="game/pension.js"></script>
+<script src="game/tutor-data.js"></script>
+<script src="game/tutor.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});

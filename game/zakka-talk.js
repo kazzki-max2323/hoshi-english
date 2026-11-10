@@ -231,6 +231,7 @@ sell:{t:'売りに 来た',start:'a',nodes:{
  what:{s:"Sure. What would you like to sell?",j:"いいわよ。 なにを 売りたいの？",o:c=>[
   O("I have some empty bottles.",null,null,null,'bot',{j:"からの びんが あります。",if:()=>Z.bottles()>0}),
   ...Z.sellable().slice(0,3).map(it=>O(`I'd like to sell this ${it.title?'book':it.w}.`,'sell',null,null,'bk',{j:`この ${it.n}を 売りたいです。`,act:c=>{c.it=it}})),
+  ...Z.tgs().slice(0,2).map(it=>O(`I'd like to sell this ${it.w}.`,'sell',null,null,'tg',{j:`この ${it.n}を 売りたいです。`,act:c=>{c.it=it}})),
   O("Actually, never mind.",null,"No problem!","いいのよ！",'eNo',{j:"やっぱり やめます。"})]},
  bot:{s:"Empty bottles! I love old bottles. I put flowers in them. How many do you have?",j:"からの びん！ 古い びんって 大好き。 花を さすの。 何本 あるの？",o:[
   O(c=>`I have ${Z.bottles()}.`,null,null,null,'botOffer',{j:c=>`${Z.bottles()}本 あります。`}),
@@ -247,6 +248,25 @@ sell:{t:'売りに 来た',start:'a',nodes:{
   O("Could you pay a little more?",'more',null,null,'botMore')]},
  botMore:{s:c=>`Hmm... They ARE pretty. OK, 3 coins each. That's ${Z.bottles()*3} coins.`,j:c=>`うーん… たしかに きれいね。 いいわ、 1本 3まい。 ${Z.bottles()*3}まいよ。`,enter:c=>{c.per=3},o:[
   O("It's a deal!",'deal',null,null,'eBot')]},
+ /* リク（家庭教師の バイト game/tutor.js）から もらった お礼の 品 */
+ tg:{s:c=>`${c.it.a[0]} I can give you ${c.it.p} coins.`,j:c=>`${c.it.a[1]} ${c.it.p}まいで 買えるわ。`,enter:c=>{c.sellP=c.it.p},o:[
+  O("That sounds fair.",'fair',null,null,'eTg'),
+  O("Could you pay a little more?",'more',null,null,'tgMore'),
+  O("A boy named Riku made it for me.",null,"Riku? He comes here to buy crayons! He's a sweet boy. Then I'll pay a little more.","リク？ よく クレヨンを 買いに 来る 子よ！ やさしい 子ね。 じゃあ 少し 多めに はらうわ。",'tgRiku',{j:"リクって 男の子が 作って くれたんです。",if:c=>!c.riku}),
+  O("It's a treasure from the sea king!",null,"The sea king? Ha ha! Then the price is the same. Kings don't haggle.","海の 王さま？ あはは！ それでも 値段は 同じよ。 王さまは ねぎらないの。",'tg2',{ok:0,j:"海の 王さまの 宝物です！",pip:"King! King!",fx:'👑',if:c=>!c.king,act:c=>{c.king=1}}),
+  O("I'll keep it, then.",'keepIt',null,null,'eKeep')]},
+ tg2:{s:c=>`So, ${c.sellP} coins. How about it?`,j:c=>`それで、 ${c.sellP}まい。 どう？`,o:[
+  O("That sounds fair.",'fair',null,null,'eTg'),
+  O("Could you pay a little more?",'more',null,null,'tgMore'),
+  O("I'll keep it, then.",'keepIt',null,null,'eKeep')]},
+ tgRiku:{s:c=>`OK, ${c.sellP} coins. I'll put it in the window so he can see it.`,j:c=>`いいわ、 ${c.sellP}まい。 あの 子に 見えるように まどに かざるわね。`,enter:c=>{c.riku=1;c.sellP=c.it.p+2},o:[
+  O("Thank you!",null,null,null,'eTgRiku',{j:"ありがとう！"}),
+  O("I'll keep it, then.",'keepIt',null,null,'eKeep')]},
+ tgMore:{s:c=>`Hmm... it IS made with love. OK, ${Math.round(c.it.p*1.2)} coins.`,j:c=>`うーん… 心を こめて 作って あるものね。 いいわ、 ${Math.round(c.it.p*1.2)}まい。`,enter:c=>{c.sellP=Math.round(c.it.p*1.2)},o:[
+  O("It's a deal!",'deal',null,null,'eTg'),
+  O("I'll keep it, then.",'keepIt',null,null,'eKeep')]},
+ eTg:E(1,'お礼の 品を 売った',c=>`Here are your ${c.sellP} coins. Someone will love it.`,c=>`はい、 ${c.sellP}まい。 きっと だれかが 気に入るわ。`,'🎁','sellTg'),
+ eTgRiku:E(1,'リクの まどかざり',c=>`Here are your ${c.sellP} coins. Riku will be so happy to see it here!`,c=>`はい、 ${c.sellP}まい。 ここに かざって あったら リク、 きっと よろこぶわ！`,'🖼️','sellTg'),
  bk:{s:c=>`Let me see... It's in good condition. I can give you ${Z.half(c.it)} coins.`,j:c=>`見せて… きれいね。 ${Z.half(c.it)}まいで 買えるわ。`,enter:c=>{c.sellP=Z.half(c.it)},o:[
   O("That sounds fair.",'fair',null,null,'eBk'),
   O("Could you pay a little more?",'more',null,null,'bkMore'),

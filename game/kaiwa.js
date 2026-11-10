@@ -130,6 +130,7 @@ function funBook(){const items=[],F=facts();SC.forEach(s=>Object.entries(nodesOf
     <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>😂 おもしろ反応 図鑑</b><span class="qn">${items.length}/${funTotal()}</span></div>
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     <div class="kfunl">${items.map(([s,x])=>`<div class="kfi"><span class="ki">${CH[s.c].ico}</span><div><p class="kyou">「${esc(x[0])}」</p><p class="kre">${esc(x[3])} <i>${x[4]||''}</i></p></div></div>`).join('')||'<p class="note">会話で わざと へんな 答えを えらぶと、ここに たまるよ</p>'}</div>
+    ${window.TUTOR&&TUTOR.funList().length?`<p class="tusys">👦 リクの へんな英文（家庭教師の バイト）</p><div class="kfunl">${TUTOR.funList().map(f=>`<div class="kfi"><span class="ki">👦</span><div><p class="kyou">「${esc(f.en)}」</p><p class="kre">⭕ ${esc(f.ok)}</p></div></div>`).join('')}</div>`:''}
   </section>`);
   $('kx').onclick=()=>{SFX.pop();list()}}
 
