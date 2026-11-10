@@ -1,0 +1,106 @@
+/* 嵐の ペンション（game/pension.js） */
+/* the inn on the headland: a dark little house; at night the windows glow and sometimes go out */
+#pnInn{position:absolute;z-index:1;pointer-events:auto;padding:6px;margin:-6px;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;box-sizing:content-box;opacity:.95}
+#pnInn svg{display:block;width:100%;height:auto;overflow:visible}
+#pnInn rect[class^="pnW"]{transition:fill 2s;fill:color-mix(in srgb,#ffcf7a calc(var(--dk,0)*100%),#2a2838)}
+#pnInn .pnW1{animation:pnBlink 23s steps(1) infinite}
+#pnInn .pnW3{animation:pnBlink 31s steps(1) infinite 7s}
+#pnInn.off{pointer-events:none}
+@keyframes pnBlink{0%,91%{opacity:1}92%,95%{opacity:.15}96%{opacity:1}}
+@media (prefers-reduced-motion:reduce){#pnInn rect{animation:none!important}}
+
+/* the novel */
+.pnl.pn{background:rgba(6,6,14,.94);gap:8px}
+.pnclue{padding:4px 10px!important;font-size:.8rem}
+.pnclue.pop{animation:pnPop .6s}
+@keyframes pnPop{40%{transform:scale(1.25);border-color:#ffd23f}}
+.pnStage{position:relative;width:100%;aspect-ratio:16/9;max-height:34vh;border-radius:8px;overflow:hidden;background:#05050c;box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);cursor:pointer;flex-shrink:0}
+.pnBg{position:absolute;inset:0;width:100%;height:100%;transition:filter .8s}
+.pnStage.fade .pnBg{animation:pnFade .5s}
+@keyframes pnFade{from{opacity:0}}
+.pnRain{position:absolute;inset:-20% 0 0;pointer-events:none;opacity:0;transition:opacity 1s;
+  background:repeating-linear-gradient(105deg,transparent 0 9px,rgba(180,205,255,.22) 9px 10px,transparent 10px 23px);background-size:100% 60px;animation:pnRain .45s linear infinite}
+.pnStage.out .pnRain{opacity:1}
+@keyframes pnRain{to{background-position:-14px 60px}}
+.pnWinRain{animation:pnWin .6s linear infinite}
+@keyframes pnWin{from{transform:translateY(-16px)}to{transform:translateY(0)}}
+.pnDark{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity .4s;background:radial-gradient(circle at 50% 70%,rgba(0,0,0,.55),rgba(0,0,0,.94) 70%)}
+.pnStage.dark .pnDark{opacity:1}
+.pnStage.dark .pnBg{filter:brightness(.45) saturate(.4)}
+.pnFlash{position:absolute;inset:0;pointer-events:none;background:#e8f0ff;opacity:0}
+.pnFlash.on{animation:pnFlash 1.1s ease-out}
+@keyframes pnFlash{0%{opacity:0}6%{opacity:calc(var(--fa,1)*.85)}12%{opacity:.05}20%{opacity:calc(var(--fa,1)*.6)}100%{opacity:0}}
+.pnStage.gone .pnPearl{display:none}
+.pnFire{animation:pnFire .5s ease-in-out infinite alternate;transform-origin:54px 136px}
+@keyframes pnFire{to{transform:scaleY(1.1) scaleX(.95)}}
+.pnCandle,.pnCandleGlow,.pnLit{animation:pnFlick 2.4s ease-in-out infinite}
+@keyframes pnFlick{50%{opacity:.6}}
+.pnLit2{animation:pnBlink 9s steps(1) infinite}
+.pnDress{animation:pnDress 6s ease-in-out infinite}
+@keyframes pnDress{50%{opacity:.75}}
+@media (prefers-reduced-motion:reduce){.pnRain,.pnWinRain,.pnFire,.pnCandle,.pnCandleGlow,.pnLit,.pnLit2,.pnDress{animation:none}}
+/* the person who speaks */
+.pnChar{position:absolute;left:50%;bottom:-6%;transform:translate(-50%,12px);opacity:0;transition:opacity .35s,transform .35s;pointer-events:none}
+.pnChar span{display:block;font-size:min(22vw,92px);line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.7))}
+.pnChar.on{opacity:1;transform:translate(-50%,0)}
+.pnStage.dark .pnChar span{filter:brightness(.55) drop-shadow(0 4px 10px rgba(0,0,0,.7))}
+.pnTitle{cursor:default}
+.pnLogo{position:absolute;left:0;right:0;top:16%;display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;pointer-events:none}
+.pnLogo small{font-family:Georgia,serif;font-size:.6rem;letter-spacing:.25em;color:#c9d4ff}
+.pnLogo b{font-family:"Libre Baskerville",Georgia,serif;font-size:1.7rem;font-style:italic;color:#f4ecd8;text-shadow:0 2px 12px #000,0 0 22px rgba(160,180,255,.45)}
+.pnLogo span{font-size:.8rem;color:#ffe7a8;text-shadow:0 1px 6px #000}
+/* the words */
+.pnBox{position:relative;min-height:86px;padding:10px 14px 18px;border-radius:8px;background:linear-gradient(rgba(14,14,30,.96),rgba(8,8,18,.96));border:1px solid rgba(201,212,255,.25);cursor:pointer;flex-shrink:0}
+.pnName{display:block;font-size:.76rem;color:#ffe7a8;margin-bottom:3px;min-height:1px}
+.pnTxt{margin:0;font-size:.92rem;line-height:1.7;color:#eef0ff;white-space:pre-line}
+.pnTxt.en{font-family:"Libre Baskerville",Georgia,serif;font-size:.98rem}
+.pnBox.you .pnName{color:#ff9a7a}
+.pnBox.you .pnTxt{color:#ffd9c8}
+.pnBox.nar .pnTxt{color:#d8dcf0}
+.pnJaW{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin-top:4px}
+.pnJa{display:none;font-size:.76rem;color:#b9c2e8;line-height:1.5;flex:1}
+.pnJa.on{display:block}
+.pnBtns{display:flex;gap:6px;margin-left:auto}
+.pnBtns button{padding:2px 9px!important;font-size:.72rem;border-radius:8px}
+.pnNext{position:absolute;right:12px;bottom:4px;font-style:normal;font-size:.7rem;color:#ffe7a8;opacity:0}
+.pnNext.on{opacity:1;animation:pnNext .9s ease-in-out infinite}
+@keyframes pnNext{50%{transform:translateY(3px)}}
+.pnEnd{display:block;text-align:center;font-size:1rem;color:#ffe7a8}
+.pnEnd.fun{color:#ffd1e0}
+.pnEnd small{font-size:.7rem;color:#ff5c8a}
+.pnBox.endb{cursor:default;min-height:0;padding-bottom:12px}
+/* the answers */
+.pnOpts{display:flex;flex-direction:column;gap:6px}
+.pnOpts:empty{display:none}
+.pnOpts .pnEn{text-align:left;font-family:"Libre Baskerville",Georgia,serif;font-size:.86rem;line-height:1.45;padding:8px 12px!important;background:rgba(201,212,255,.07)!important;border-color:rgba(201,212,255,.28)!important}
+.pnOpts .pnEn small{display:block;font-family:var(--body,inherit);font-size:.7rem;opacity:.75;margin-top:2px}
+.pnOpts .pnPr i{display:block;font-style:normal;font-family:var(--body,inherit);font-size:.7rem;color:#ffe7a8;margin-bottom:2px}
+.pnAct{text-align:left;font-size:.84rem;padding:8px 12px!important}
+.pnAct.seen{opacity:.6}
+.pnAct.seen small{color:#55e0b4}
+.pnAct.go{border-color:#ffd23f!important;background:rgba(255,210,63,.13)!important;color:#ffe7a8}
+/* 📜 reading */
+.pnDoc{position:relative;padding:12px 44px 12px 14px;border-radius:4px;color:#2a2018;text-shadow:none;background:linear-gradient(170deg,#f6ecd2,#e6d2a8);box-shadow:0 4px 14px rgba(0,0,0,.5),inset 0 0 24px rgba(140,100,40,.25);animation:pnDoc .4s cubic-bezier(.3,1.4,.6,1)}
+@keyframes pnDoc{from{transform:rotate(-3deg) scale(.9);opacity:0}}
+.pnDocEn{margin:0;font-family:"Libre Baskerville",Georgia,serif;font-size:.95rem;line-height:1.6;white-space:pre-line}
+.pnDocJa{margin:6px 0 0;font-size:.76rem;color:#6a4a20;white-space:pre-line;border-top:1px dashed #b08a50;padding-top:6px}
+.pnDoc .pnSay{position:absolute;right:6px;top:6px;padding:3px 8px!important;color:#2a2018;border-color:#b08a50!important;background:rgba(255,255,255,.4)!important;text-shadow:none}
+.pnQ{margin:2px 0 0;font-size:.86rem;color:#ffe7a8}
+.pnAns{display:flex;flex-direction:column;gap:6px}
+.pnAns button{text-align:left;font-size:.86rem;padding:8px 12px!important}
+.pnAns button.no{text-decoration:line-through;opacity:.45}
+.pnAns button.ok{border-color:#55e0b4!important;background:rgba(85,224,180,.15)!important}
+.pnHint{margin:0;font-size:.8rem;color:#ffe7a8;line-height:1.5}
+.pnHint small{color:var(--mute)}
+.pnOk{margin:0;text-align:center;color:#55e0b4;font-size:.9rem}
+/* 🔍 clues */
+.pnNote{position:absolute;inset:0;z-index:5;background:rgba(0,0,0,.55);display:flex;align-items:flex-start;justify-content:center;padding:52px 10px 10px;border-radius:12px}
+.pnNoteIn{width:100%;max-height:100%;overflow:auto;background:#141428;border:2px solid var(--gold,#ffd23f);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.pnCl{display:flex;gap:10px;align-items:flex-start;padding:6px 8px;border-radius:8px;background:rgba(255,255,255,.05)}
+.pnCl>span{font-size:1.4rem;line-height:1.2}
+.pnCl b{display:block;font-size:.84rem;color:#ffe7a8}
+.pnCl small{display:block;font-size:.74rem;line-height:1.5}
+.pnClEn{margin-top:4px;padding:4px 8px!important;font-family:"Libre Baskerville",Georgia,serif;font-size:.74rem!important;text-align:left}
+.pn{position:relative}
+.pnMenu button{flex:1}
+.pnMenu button small{display:block;font-size:.66rem;opacity:.8}
