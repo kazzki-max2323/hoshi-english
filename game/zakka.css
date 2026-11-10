@@ -84,3 +84,15 @@
 .zknew{font-style:normal;font-size:.62rem;background:#ff5c8a;color:#fff;border-radius:6px;padding:0 5px}
 .zk>p,.zk>.kmina,.zk>.lsay,.zk>.zkwr,.zk>.row,.zk>.qtop{flex-shrink:0}
 .zkheart{margin:0;text-align:center;font-size:.85rem;color:#55e0b4}
+/* 🔒 the glass case */
+.zkcase{border-radius:12px;padding:6px 8px 8px;background:linear-gradient(160deg,rgba(190,225,255,.16),rgba(255,255,255,.04) 45%,rgba(190,225,255,.1));border:1px solid rgba(200,230,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
+.zkcase>small{display:block;font-size:.66rem;color:#cfe6ff;margin-bottom:4px}
+.zkcase>div{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.zkcase .zkit{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px!important;min-width:0;background:rgba(255,255,255,.06)!important;border-color:rgba(200,230,255,.3)!important}
+.zkcase .zkit .zp{color:#ffd23f}
+/* 🔮 */
+.zkorb{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;padding:12px;border-radius:14px;background:radial-gradient(circle at 50% 30%,rgba(190,150,255,.35),rgba(40,20,80,.4) 70%)}
+.zkorb>span{font-size:2.6rem}
+.zkorb.fresh>span{animation:zkcrack .8s ease-out}
+.zkorb .bmEn{margin:0;color:#fff;font-size:1.15rem}
+.zkorb small{color:#ffe7a8;font-size:.82rem}
