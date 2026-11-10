@@ -313,10 +313,16 @@ const bub=document.createElement('div');bub.id='abubs';$('window').appendChild(b
 /* where the campfire sits, as fractions of the beach window, so radios keep clear of it */
 function fireSpot(){try{const d=SC.dbg(),[fx,fy]=d.fire;return [(fx-d.WL)/d.WW,(fy-d.WT)/d.WH]}catch(e){return [.42,.8]}}
 function clearOfFire(x,y){const [fx,fy]=fireSpot();return Math.abs(x-fx)>.17||Math.abs(y-fy)>.12}
-function freeSpot(skip){const others=ST.radios.filter(r=>r!==skip);
-  for(let t=0;t<80;t++){const x=.07+Math.random()*.86,y=.66+Math.random()*.1;if(clearOfFire(x,y)&&others.every(o=>Math.abs(o.x-x)>.1||Math.abs(o.y-y)>.06))return [x,y]}
-  return [Math.random()<.5?.1:.9,.7]}
-function placeRadios(){ST.radios.forEach(r=>{if(r.y==null||r.y>.78||!clearOfFire(r.x,r.y)){[r.x,r.y]=freeSpot(r)}})}
+/* the things that stand on the sand (Riku's parasol, the zakka hut), as boxes [x,y,half-w,half-h] in fractions of the beach window */
+function sandSpots(){try{const d=SC.dbg(),k=d.k,F=(px,py,w,h)=>[px/d.WW,py/d.WH,w/2/d.WW,h/2/d.WH];
+  const tw=46*k,hw=44*k;return [F(d.WW*.24,d.shore-d.WT+62*k-tw/2,tw,tw),F(d.WW*.9,d.shore-d.WT+34*k-hw*52/120,hw,hw*52/60)]}
+  catch(e){return [[.24,.69,.065,.045],[.9,.65,.06,.035]]}}
+function clearOfSpots(x,y){return sandSpots().every(([sx,sy,hw,hh])=>Math.abs(x-sx)>hw+.06||Math.abs(y-sy)>hh+.05)}
+const okSpot=(x,y)=>clearOfFire(x,y)&&clearOfSpots(x,y);
+function freeSpot(skip){const others=ST.radios.filter(r=>r!==skip&&r.x!=null&&r.y!=null);
+  for(let t=0;t<120;t++){const x=.07+Math.random()*.86,y=.66+Math.random()*.1;if(okSpot(x,y)&&others.every(o=>Math.abs(o.x-x)>.1||Math.abs(o.y-y)>.06))return [x,y]}
+  return [Math.random()<.5?.08:.62,.7]}
+function placeRadios(){ST.radios.forEach(r=>{if(r.y==null||r.y>.78||!okSpot(r.x,r.y)){[r.x,r.y]=freeSpot(r)}})}
 const isNight=()=>phaseOf(GH())[1]==='night';
 const asleep=r=>LEVELS[r.lv].nightOnly&&!isNight();
 function drawRadios(){layer.innerHTML=ST.radios.map((r,i)=>`<button class="radio ${r.on?'on':''} ${asleep(r)?'sleep':''}" data-i="${i}" style="left:${r.x*100}%;top:${r.y*100}%" aria-label="${LEVELS[r.lv].name}ラジオ ${r.on?'オン':'オフ'}"><span class="rb">📻</span><b class="lv-${r.lv}">${LEVELS[r.lv].short}</b>${asleep(r)?'<i class="zz">💤</i>':''}</button>`).join('');
