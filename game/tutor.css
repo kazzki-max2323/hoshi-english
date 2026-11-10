@@ -1,0 +1,42 @@
+/* 家庭教師の バイト（game/tutor.js） */
+/* the parasol on the beach: small, darker at night, a "?" bobs when Riku has questions */
+#tuSpot{position:absolute;z-index:1;pointer-events:auto;padding:0;margin:0;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  filter:brightness(calc(1 - var(--dk,0)*.45)) saturate(calc(1 - var(--dk,0)*.3));transition:filter 2s,opacity .4s;opacity:.94}
+#tuSpot svg{display:block;width:100%;height:auto;overflow:visible}
+#tuSpot .tuQ{opacity:0;transition:opacity .6s;transform-origin:11px 30px}
+#tuSpot.ask .tuQ{opacity:1;animation:tubob 2.4s ease-in-out infinite}
+#tuSpot.off{pointer-events:none}
+#tuSpot:active{transform:translateY(1px)}
+@keyframes tubob{50%{transform:translateY(-2px) rotate(-6deg)}}
+@media (prefers-reduced-motion:reduce){#tuSpot.ask .tuQ{animation:none}}
+/* Riku's bubbles */
+.tukid .kf{background:#ffe9b8!important}
+.tukid .lbody>p{background:#fff4d6}
+.tusay{position:relative;padding-right:34px!important}
+.tuen .lbody>p{font-family:"Libre Baskerville",Georgia,serif;font-size:1rem}
+.tukid.k-oops .lbody>p{background:#ffe0e6}
+.tuwh{opacity:.95}
+.tuwh .lbody{border:1px dashed rgba(255,231,168,.5);border-radius:12px;padding:6px 10px;background:rgba(255,255,255,.06)}
+.tuwh .lbody small{display:block;font-size:.66rem;color:var(--mute)}
+.tuwh .lbody p{margin:2px 0 0;font-size:.84rem;color:#ffe7a8!important;background:none!important;padding:0!important;box-shadow:none!important}
+.tusys{margin:2px auto;text-align:center;font-size:.72rem;color:var(--mute);line-height:1.5}
+.tuteach button{font-family:"M PLUS Rounded 1c",sans-serif!important;text-align:left!important;font-size:.84rem;line-height:1.5}
+.tufix button{font-family:"Libre Baskerville",Georgia,serif!important}
+/* the top */
+.tubig{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px!important}
+.tubig b{font-size:1.02rem}
+.tubig small{font-size:.7rem;opacity:.85}
+.tur button{flex:1;padding:8px 2px!important;font-size:.78rem}
+.tur button small{display:inline-block;margin-left:3px;padding:0 6px;border-radius:999px;background:var(--gold,#ffd23f);color:#3a2000;font-size:.64rem;text-shadow:none}
+/* what you taught */
+.tutl{display:flex;flex-direction:column;gap:6px;padding:0 10px 10px}
+.tutr{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:10px;background:rgba(255,255,255,.05)}
+.tutr>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;align-items:flex-start}
+.tutr b{font-size:.84rem}
+.tutr small{font-size:.72rem;color:#ffe7a8;line-height:1.45}
+.tutr>button{flex:none;padding:6px 9px!important}
+.tuex{padding:2px 8px!important;font-family:"Libre Baskerville",Georgia,serif!important;font-size:.76rem!important;text-align:left;background:rgba(255,255,255,.06)!important;border-radius:8px}
+.tuex.ok{color:#55e0b4}
+.tugot b{color:#ffe7a8}
+.tual{margin-top:4px}
+.tu>p,.tu>.kmina,.tu>.lsay,.tu>.row,.tu>.qtop,.tu>.tubig{flex-shrink:0}
