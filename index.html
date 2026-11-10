@@ -33,6 +33,7 @@ button{touch-action:manipulation}
 <link rel="stylesheet" href="game/kaiwa.css">
 <link rel="stylesheet" href="game/sensei.css">
 <link rel="stylesheet" href="game/bottle.css">
+<link rel="stylesheet" href="game/zakka.css">
 </head>
 <body>
 <canvas id="stars"></canvas>
@@ -101,6 +102,9 @@ button{touch-action:manipulation}
 <script src="game/deep-more.js"></script>
 <script src="game/deep.js"></script>
 <script src="game/bottle.js"></script>
+<script src="game/zakka-data.js"></script>
+<script src="game/zakka-talk.js"></script>
+<script src="game/zakka.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});
