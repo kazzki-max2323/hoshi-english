@@ -13,7 +13,7 @@ const {S:ST,sfx:SFX}=BEACH;
 const H=HE,esc=H.esc,$=id=>document.getElementById(id);
 const DD=typeof DEEP_DATA!=='undefined'?DEEP_DATA:{},ERR=typeof SENSEI_ERR!=='undefined'?SENSEI_ERR:{},DR=typeof SENSEI_DRILL!=='undefined'?SENSEI_DRILL:{};
 const GS=()=>window.GRAMSEE,gById=id=>GS()&&GS().byId(id);
-const owned=id=>(ST.gram.owned||[]).includes(id);
+const owned=id=>true /* 文法ノートは ぜんぶ ひらいている */;
 const LVI={es:'🐣 小学生',jh:'🎒 中学生',hs:'📐 高校生'};
 const pickL=a=>a[Math.random()*a.length|0];
 const shuffle=a=>H.shuffle?H.shuffle(a.slice()):a.slice().sort(()=>Math.random()-.5);
@@ -184,7 +184,7 @@ function result(){const c=C,T=c.T,st=T.st,N=T.qs.length,r=rec()[c.id];
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     ${T.miss.length?`<details class="dpmiss"><summary>📘 解説を きいた 問題 ${T.miss.length}</summary><div class="dpens">${T.miss.map(q=>enRow({en:q.full,ja:q.kind==='fill'?q.ja:''})).join('')}</div></details>`:''}
     <div class="row">${perfect?'':'<button data-e="back">🔎 もう少し くわしく</button>'}<button data-e="again" class="${perfect?'':'sub'}">🔁 もう一回 5問</button></div>
-    <div class="snbtns dpnext"><button class="sub" data-e="tk">🎯 とっくん</button><button class="sub" data-e="gn">${owned(c.id)?'📚 ノート':'🔍 ノート'}</button>${c.les?'<button class="sub" data-e="ls">📖 授業</button>':''}<button class="sub" data-e="x">✖ とじる</button></div>`;
+    <div class="snbtns dpnext"><button class="sub" data-e="tk">🎯 とっくん</button><button class="sub" data-e="gn">📚 ノート</button>${c.les?'<button class="sub" data-e="ls">📖 授業</button>':''}<button class="sub" data-e="x">✖ とじる</button></div>`;
   $('dplog').appendChild(d);d.querySelectorAll('[data-say]').forEach(b=>b.onclick=e=>{e.stopPropagation();snd('pop');talk(b.dataset.say)});scroll();
   new3?snd('fanfare'):snd('done');
   setTimeout(()=>{try{const b=d.getBoundingClientRect();H.coinBurst(b.left+b.width/2,Math.min(b.top+40,innerHeight-60),pay)}catch(e){}},400);
@@ -195,7 +195,7 @@ function result(){const c=C,T=c.T,st=T.st,N=T.qs.length,r=rec()[c.id];
       const [e2,t2]=ML('dp_cReview',{g:c.g});mina(t2,e2);chips();return}
     close();
     if(e==='tk'){snd('step');S()&&S().tokkun([id])}
-    else if(e==='gn'){snd('book');const g=gById(id);owned(id)?H.gramNote(g.lv,g.i):H.gramTry(g.lv,g.i,()=>MINA.open())}
+    else if(e==='gn'){snd('book');const g=gById(id);H.gramNote(g.lv,g.i)}
     else if(e==='ls'){snd('lesson');LESSON.open(c.les.id,()=>{MINA.open()})}
     else snd('back')})}
 

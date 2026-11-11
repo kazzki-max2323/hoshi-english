@@ -23,7 +23,7 @@ const goKaiwa=()=>['💬 会話を ひらく',()=>KAIWA.open()];
 const goTalk=id=>['💬 話しに 行く',()=>KAIWA.play(id)];
 const goSensei=()=>['🗣️ 先生と 話す',()=>SENSEI.open()];
 const LVI=lv=>['es','jh','hs','adv'].indexOf(lv);
-const goGram=(lv,i)=>['📚 文法ノートを 見る',()=>{const n=GRAMMAR[lv].notes[i];(ST.gram.owned||[]).includes(n.id)?H.gramNote(lv,i):H.gramTry?H.gramTry(lv,i,back):H.gramShop(lv)}];
+const goGram=(lv,i)=>['📚 文法ノートを 見る',()=>H.gramNote(lv,i)];
 
 /* ---------- what is true now (read again every 10 s at most) ---------- */
 let FC=null,FT=-1e9;
@@ -57,7 +57,7 @@ function facts(){if(FC&&performance.now()-FT<10000)return FC;FT=performance.now(
   F.lesN=F.lesAll.filter(l=>F.les[l.id]).length;
   F.moti=window.MOTI?MOTI.rec():null;
   /* grammar */
-  F.gram=[];if((typeof GRAMMAR!=='undefined'))['es','jh','hs'].forEach(lv=>GRAMMAR[lv]&&GRAMMAR[lv].notes.forEach((n,i)=>F.gram.push({lv,i,n,own:(ST.gram.owned||[]).includes(n.id),clr:(ST.gram.cleared||[]).includes(n.id)})));
+  F.gram=[];if((typeof GRAMMAR!=='undefined'))['es','jh','hs'].forEach(lv=>GRAMMAR[lv]&&GRAMMAR[lv].notes.forEach((n,i)=>F.gram.push({lv,i,n,own:true,clr:(ST.gram.cleared||[]).includes(n.id)})));
   /* cards */
   F.cards=window.CARDS&&CARDS.book?CARDS.book.filter(c=>CARDS.has(c)):[];
   F.cardsTot=window.CARDS&&CARDS.book?CARDS.book.length:0;
@@ -155,34 +155,26 @@ const R=[
 /* ===== 文法ノート ===== */
 ['x_gramUnread',3,F=>{const a=F.gram.filter(g=>g.own&&!g.clr);if(!a.length)return null;const g=pickL(a);return {g:g.n.t,_g:g}},v=>goGram(v._g.lv,v._g.i)],
 ['x_gramCount',1,F=>{const n=F.gram.filter(g=>g.clr).length;return n?{n,tot:F.gram.length}:null},()=>['📚 文法を 見る',()=>H.gramFrom()]],
-['x_gramBuy',2,F=>{const lv=lvOf(F)==='adv'?'hs':lvOf(F),g=F.gram.find(g=>g.lv===lv&&!g.own);return g&&F.coins>=GRAMMAR[lv].price?{g:g.n.t,price:GRAMMAR[lv].price,lvn:LVN[lv],_g:g}:null},v=>['🛍️ 文法ノートを 見る',()=>H.gramShop(v._g.lv)]],
-['x_gramNone',3,F=>F.gram.some(g=>g.own)?null:{},()=>['📚 文法ノートを 見る',()=>H.gramFrom('es')]],
+['x_gramNext',2,F=>{const lv=lvOf(F)==='adv'?'hs':lvOf(F),a=F.gram.filter(g=>g.lv===lv&&!g.clr);if(!a.length)return null;const g=a[0];return {g:g.n.t,lvn:LVN[lv],reward:GRAMMAR[lv].reward,_g:g}},v=>goGram(v._g.lv,v._g.i)],
+/* 文法ノートは 2026-11 から ぜんぶ むりょうで ひらいた（ショップ・おためしは なし）。まだ 1さつも クリアしていない 人に 知らせる */
+['x_gramFree',3,F=>F.gram.some(g=>g.clr)?null:{_lv:lvOf(F)==='adv'?'hs':lvOf(F)},v=>['📚 文法ノートを 見る',()=>H.gramFrom(v._lv)]],
 ['x_gramRule',3,F=>{const a=F.gram.filter(g=>g.own&&g.n.r&&g.n.r.length);if(!a.length)return null;const g=pickL(a);return {g:g.n.t,r:pickL(g.n.r),_g:g}},v=>goGram(v._g.lv,v._g.i)],
 ['x_gramEx',3,F=>{const a=F.gram.filter(g=>g.own&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=pickL(g.n.ex);return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>['🔊 きいてみる',()=>H.say('gram',v.en)]],
-/* おためし（game/game.js の gramTry）: 🔒の ノートも ルール1つと テスト1もんを むりょうで */
-['x_gramTryLeft',3,F=>{const T=ST.gram.tried||[],a=F.gram.filter(g=>!g.own&&T.includes(g.n.id));if(!a.length)return null;const g=pickL(a),G=GRAMMAR[g.lv];
-  return {g:g.n.t,price:G.price,reward:G.reward,q:g.n.q.length,ex:g.n.ex.length,can:F.coins>=G.price?'いまの コインで かえるよ':'コインを ためて かおう',_g:g}},v=>['🔍 もう一度 おためし',()=>H.gramTry(v._g.lv,v._g.i,back)]],
-['x_gramTryNew',2,F=>{if((ST.gram.tried||[]).length>2)return null;const lv=lvOf(F)==='adv'?'hs':lvOf(F),a=F.gram.filter(g=>g.lv===lv&&!g.own&&!(ST.gram.tried||[]).includes(g.n.id));if(!a.length)return null;const g=pickL(a);
-  return {g:g.n.t,lvn:LVN[lv],_g:g}},v=>['🔍 おためし する',()=>H.gramTry(v._g.lv,v._g.i,back)]],
 /* 英文の 中の 文法（game/gram-see.js）と 会話の 文法の 答え */
 ['x_gsRead',2,F=>{const n=(ST.gram.rn|0);return n>=3?{n}:null},()=>['📚 文法を 見る',()=>H.gramFrom()]],
 ['x_gsSeen',3,F=>{if(!window.GRAMSEE)return null;const a=Object.entries(ST.gram.seen||{}).filter(([id,v])=>v.length&&GRAMSEE.byId(id));if(!a.length)return null;const [id,v]=pickL(a),g=GRAMSEE.byId(id);
   return {g:'「'+g.n.t+'」',en:v[0].length>60?v[0].slice(0,57)+'…':v[0],_g:g}},v=>goGram(v._g.lv,v._g.i)],
 ['x_gsTap',3,F=>(ST.gram.rn|0)>=3&&!(ST.gram.tap|0)?{}:null,null],
 ['x_gsLit',2,F=>F.gram.some(g=>g.own)&&(ST.gram.rn|0)<5?{}:null,null],
-['x_gsKaiwaLock',3,F=>{if(!window.KAIWA||!KAIWA.gramOpts||!window.GRAMSEE)return null;const KD=KAIWA.rec(),a=KAIWA.gramOpts().filter(x=>!(ST.gram.owned||[]).includes(x.id)&&KD.done[x.s.id]);
-  if(!a.length)return null;const x=pickL(a),g=GRAMSEE.byId(x.id),c=KAIWA.chars[x.s.c];return g?{c:c?c.n:'',t:x.s.t,g:'「'+g.n.t+'」',_g:g}:null},v=>['🔍 おためし する',()=>H.gramTry(v._g.lv,v._g.i,back)]],
-['x_gsKaiwaOpen',3,F=>{if(!window.KAIWA||!KAIWA.gramOpts||!window.GRAMSEE)return null;const KD=KAIWA.rec(),a=KAIWA.gramOpts().filter(x=>(ST.gram.owned||[]).includes(x.id)&&!KD.end[x.s.id+':eGram']);
+['x_gsKaiwaOpen',3,F=>{if(!window.KAIWA||!KAIWA.gramOpts||!window.GRAMSEE)return null;const KD=KAIWA.rec(),a=KAIWA.gramOpts().filter(x=>KD.done[x.s.id]&&!KD.end[x.s.id+':eGram']);
   if(!a.length)return null;const x=pickL(a),g=GRAMSEE.byId(x.id),c=KAIWA.chars[x.s.c];return g?{c:c?c.n:'',t:x.s.t,g:'「'+g.n.t+'」',_s:x.s.id}:null},v=>['💬 話しに 行く',()=>KAIWA.play(v._s)]],
-['x_gramPeek',2,F=>{const a=F.gram.filter(g=>!g.own&&g.lv===(lvOf(F)==='adv'?'hs':lvOf(F))&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=g.n.ex[0];return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>goGram(v._g.lv,v._g.i)],
+['x_gramPeek',2,F=>{const a=F.gram.filter(g=>!g.clr&&g.lv===(lvOf(F)==='adv'?'hs':lvOf(F))&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=g.n.ex[0];return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>goGram(v._g.lv,v._g.i)],
 
 /* ===== 文法テスト と 授業の つながり（game/gram-link.js） ===== */
 ['x_gramLes',4,F=>{if(!window.GRAMLINK)return null;const G=MINA.rec().g||{};const a=Object.entries(G).filter(([,e])=>e.m>0&&(e.k||0)<3).map(([id,e])=>({id,e,L:GRAMLINK.lessonsFor(id).filter(l=>!F.les[l.id])})).filter(x=>x.L.length);
   if(!a.length)return null;const x=pickL(a);return {g:x.e.title,t:x.L[0].t,_id:x.L[0].id}},v=>goLesson(v._id)],
-['x_lesGram',3,F=>{if(!window.GRAMLINK)return null;const a=F.lesAll.filter(l=>F.les[l.id]).map(l=>({l,g:GRAMLINK.notesFor(l.id).find(g=>(ST.gram.owned||[]).includes(g.n.id)&&!(ST.gram.cleared||[]).includes(g.n.id))})).filter(x=>x.g);
+['x_lesGram',3,F=>{if(!window.GRAMLINK)return null;const a=F.lesAll.filter(l=>F.les[l.id]).map(l=>({l,g:GRAMLINK.notesFor(l.id).find(g=>!(ST.gram.cleared||[]).includes(g.n.id))})).filter(x=>x.g);
   if(!a.length)return null;const x=pickL(a);return {t:x.l.t,g:x.g.n.t,_g:x.g}},v=>['✏️ 文法テストで ためす',()=>GRAMLINK.tryTest(v._g)]],
-['x_lesGramShop',2,F=>{if(!window.GRAMLINK)return null;const a=F.lesAll.filter(l=>F.les[l.id]).map(l=>({l,g:GRAMLINK.notesFor(l.id).find(g=>!(ST.gram.owned||[]).includes(g.n.id))})).filter(x=>x.g&&F.coins>=GRAMMAR[x.g.lv].price);
-  if(!a.length)return null;const x=pickL(a);return {t:x.l.t,g:x.g.n.t,price:GRAMMAR[x.g.lv].price,_g:x.g}},v=>['🛍️ 文法ノートを 見る',()=>H.gramShop(v._g.lv)]],
 ['x_gramLesBoth',2,F=>{if(!window.GRAMLINK)return null;const a=F.gram.filter(g=>g.clr).map(g=>({g,l:GRAMLINK.lessonsFor(g.n.id).find(l=>F.les[l.id])})).filter(x=>x.l);
   if(!a.length)return null;const x=pickL(a);return {g:x.g.n.t,t:x.l.t,n:a.length,_g:x.g}},v=>goGram(v._g.lv,v._g.i)],
 ['x_gramLesPeek',2,F=>{if(!window.GRAMLINK)return null;const a=F.gram.filter(g=>g.own&&!g.clr&&!(MINA.rec().g||{})[g.n.id]).map(g=>({g,l:GRAMLINK.lessonsFor(g.n.id).find(l=>!F.les[l.id])})).filter(x=>x.l);

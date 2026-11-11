@@ -1,8 +1,8 @@
 /* 英文の 中に 文法ノートの 文法を 見つける しくみ（文法の めがね）。
    - GRAM_PAT: 文法ノートの id → その 文法が 出てくる 英文の 形（正規表現）。上ほど くわしい 文法（先に えらぶ）
-   - 読める英文が 増える: 持っている ノートの 文法は、ラジオ・会話の 英文で 光る（タップで ルール。ラジオでは ミナ先生が とことん授業・ノートへ 案内）。
+   - 読める英文が 増える: 文法ノートの 文法は（ぜんぶ ひらいている）、ラジオ・会話の 英文で 光る（タップで ルール。ラジオでは ミナ先生が とことん授業・ノートへ 案内）。
      見つけた 英文は ノートごとに 5つまで のこり、ノートの 画面に「浜辺で 見つけた この文法」として 出る（ST.gram.seen / ST.gram.rn）
-   - まちがえた文から 誘う: ラジオの 文で まちがえたら、その 文の 文法を ミナ先生が 教えて、おためし・ノートへ さそう
+   - まちがえた文から 誘う: ラジオの 文で まちがえたら、その 文の 文法を ミナ先生が 教えて、ノートへ さそう
    - 会話の 文法の 答え（game/kaiwa-story.js の G(...)）や エンドの 文法一覧も ここを つかう
    文法ノートを 足したら ここの GRAM_PAT にも 足す。セリフは game/mina-talk.js の gs_ / x_gs で はじまる 場面 */
 const GRAM_PAT=[
@@ -79,7 +79,7 @@ const pickL=a=>a[Math.random()*a.length|0];
 if(typeof GRAMMAR==='undefined')return;
 /* note id → {lv,i,n} */
 const BY={};GLV.forEach(lv=>(GRAMMAR[lv]?GRAMMAR[lv].notes:[]).forEach((n,i)=>BY[n.id]={lv,i,n}));
-const owned=id=>(ST.gram.owned||[]).includes(id),cleared=id=>(ST.gram.cleared||[]).includes(id);
+const owned=id=>true /* 文法ノートは ぜんぶ ひらいている */,cleared=id=>(ST.gram.cleared||[]).includes(id);
 ST.gram.seen=ST.gram.seen||{};ST.gram.rn=ST.gram.rn||0;
 
 /* every grammar in a sentence: [{id,lv,i,n,at,len}] (most advanced first) */
@@ -131,14 +131,14 @@ document.addEventListener('pointerdown',e=>{const p=$('gpop');if(p&&p.classList.
 /* ---------- a radio sentence answered wrong: Mina tells which grammar it uses, and invites ---------- */
 let lastAsk=0;const asked={};
 H.on('answer',(c,ok)=>{if(c.kind==='s'&&!ok){const G=find(c.en);if(!G.length)return;
-  /* the grammar to talk about: not owned yet (try it) first, then owned but not cleared, then any */
-  const g=G.find(x=>!owned(x.id))||G.find(x=>!cleared(x.id))||G[0];
+  /* the grammar to talk about: not cleared yet first, then any */
+  const g=G.find(x=>!cleared(x.id))||G[0];
   if(Date.now()-lastAsk<150000||(asked[g.id]&&Date.now()-asked[g.id]<900000))return;
   lastAsk=Date.now();asked[g.id]=lastAsk;
   setTimeout(()=>{if(!window.MINA||!MINA.canTalk())return;
-    const k=!owned(g.id)?'gs_missTry':cleared(g.id)?'gs_missClear':'gs_missOwn';
+    const k=cleared(g.id)?'gs_missClear':'gs_missOwn';
     const [ex,tx]=MINA.line(k,{g:'「'+esc(g.n.t)+'」',en:esc(c.en),r:esc(g.n.r[0])});
-    MINA.say('m',ex,tx,11000,null,owned(g.id)?['📚 ノートを ひらく',()=>H.gramNote(g.lv,g.i)]:['🔍 おためし する',()=>H.gramTry(g.lv,g.i,()=>H.home())])},2800)}
+    MINA.say('m',ex,tx,11000,null,['📚 ノートを ひらく',()=>H.gramNote(g.lv,g.i)])},2800)}
   /* a right answer with owned grammar: it counts as a sentence you could read */
   if(ok&&c.kind==='s')record(c.en)});
 /* milestones of sentences read with grammar */

@@ -88,8 +88,4 @@
 @media (prefers-reduced-motion:reduce){.kvisit,.kvisit .kvi{animation:none}}
 /* 文法の 答え・文法の 一覧（game/gram-see.js） */
 .kopts button.kgram{border-color:#7fc4ff!important;background:rgba(127,196,255,.16)!important}
-.kopts button.klock{opacity:.75;border-style:dashed!important;font-size:.8rem}
-.kopts button.klock small{font-size:.72rem}
 .kgl button{font-family:inherit!important;font-size:.74rem!important}
-.klk{margin:6px 0 0;font-size:.72rem;color:#cfe6ff;line-height:1.5}
-.klk button{padding:2px 8px!important;font-size:.7rem!important;margin-left:4px}
