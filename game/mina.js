@@ -162,7 +162,6 @@ const POSE={
  book:holdTwo('<g transform="rotate(-5 32 58)"><rect x="23.5" y="51.5" width="17" height="13.5" rx="1.4" fill="#3a4f9a"/><rect x="24.6" y="52.4" width="14.8" height="11.7" rx=".8" fill="none" stroke="#ffd23f" stroke-width=".6"/><path d="M32 51.5v13.5" stroke="#2a3a78" stroke-width="1"/><path d="M36.3 55.6l.7 1.4 1.5.2-1.1 1 .3 1.5-1.4-.7-1.4.7.3-1.5-1.1-1 1.5-.2z" fill="#ffd23f"/><text x="27.9" y="60.2" font-size="4.2" font-family="Georgia" font-weight="700" fill="#fff" text-anchor="middle">A</text></g>'),
  stick:'<path d="M48 55L58.5 31" stroke="#a8743e" stroke-width="1.3" stroke-linecap="round"/><path d="M58.8 26.5l1.1 2.3 2.5.3-1.8 1.7.5 2.5-2.3-1.2-2.3 1.2.5-2.5-1.8-1.7 2.5-.3z" fill="#ffd23f" stroke="#fff3c4" stroke-width=".4"/>'+slv(RS,[54,61],[48,58])+hnd('fist',48,57.2,-25,1.05),
  oops:slv(RS,[56,51],[49,40])+hnd('open',48.6,39.2,-22,1.1),
- banzai:slv(LS,[9,46],[12,34])+slv(RS,[55,46],[52,34])+hnd('open',12,33.2,-12,1.1)+hnd('open',52,33.2,12,1.1,1)+twinkle(6,24)+twinkle(56,22),
  clap:slv(LS,[13,62],[28.5,56])+slv(RS,[51,62],[35.5,56])+hnd('open',29.6,55,35,1)+hnd('open',34.4,55,-35,1,1)+'<path d="M24.5 49l-1.6-1.6M32 46.5v-2.2M39.5 49l1.6-1.6" stroke="#ffd23f" stroke-width=".9" stroke-linecap="round"/>',
  pray:slv(LS,[14,63],[29,58])+slv(RS,[50,63],[35,58])+hnd('open',31,56.6,14,1)+hnd('open',33,56.6,-14,1,1),
  listen:slv(RS,[56,52],[51.5,42])+hnd('open',51,41,-62,1.05,1)+'<path d="M58 35q2 3 0 6M60.5 33.5q2.8 4.5 0 9" stroke="#bfe9ff" stroke-width=".9" fill="none" stroke-linecap="round"/>',
@@ -173,18 +172,27 @@ const POSE={
  pencil:'<g transform="rotate(28 50 46)"><rect x="48.6" y="34" width="3" height="15" fill="#ffd23f"/><rect x="48.6" y="34" width="3" height="2.4" fill="#ff8fa3"/><path d="M48.6 49h3l-1.5 3.4z" fill="#f6dcb4"/><path d="M49.5 51.3h1.2l-.6 1.1z" fill="#2a2340"/></g>'+slv(RS,[54,61],[47.5,57.5])+hnd('fist',47.4,56.6,-20,1.05),
  letter:holdTwo('<g transform="rotate(-4 32 58)"><rect x="23" y="52" width="18" height="12" rx="1" fill="#fff6e0" stroke="#e8d6b8" stroke-width=".6"/><path d="M23 52.4l9 6 9-6" stroke="#e8c88a" stroke-width=".8" fill="none"/><path d="M32 60.6l-1.8-1.7a1 1 0 0 1 1.8-1.2 1 1 0 0 1 1.8 1.2z" fill="#ff6b8b"/></g>'),
  cross:slv(LS,[14,62],[38,52])+slv(RS,[50,62],[26,52])+hnd('fist',38.6,51.4,40,1)+hnd('fist',25.4,51.4,-40,1,1),
- maru:slv(LS,[9,44],[14,27],[27,18.5])+slv(RS,[55,44],[50,27],[37,18.5])+hnd('open',29.6,18,62,1)+hnd('open',34.4,18,-62,1,1),
+ /* 3の グッ と おなじ「胸の 前に 手」の なかま */
+ thumb2:slv(LS,[11.5,62],[18,58])+slv(RS,[52.5,62],[46,58])+hnd('thumb',18.4,57.2,8,1.1,1)+hnd('thumb',45.6,57.2,-8,1.1)+twinkle(9,40),
+ chest:slv(RS,[52.5,62],[39,59])+hnd('open',37.6,58,-62,1.05),
+ there:slv(RS,[52.5,62],[46.5,58])+hnd('point',47.6,56.8,62,1.05)+'<path d="M55 46.5h4.5m-1.8-1.8 1.8 1.8-1.8 1.8" stroke="#ffd23f" stroke-width="1" fill="none" stroke-linecap="round" stroke-linejoin="round"/>',
+ hi:slv(RS,[52.5,62],[47,57.5])+hnd('open',47,56.7,10,1.05)+'<path d="M52.5 47q1.2 1.8 0 3.6M54.6 46q1.7 2.8 0 5.6" stroke="#fff" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".75"/>',
+ peace2:slv(RS,[52.5,62],[46.5,58])+hnd('peace',46.4,57.2,-6,1.05),
+ mug:slv(LS,[13,63],[25.5,63.5])+slv(RS,[51,63],[38.5,63.5])+'<g transform="translate(0 3)"><rect x="26.5" y="52" width="11" height="10.5" rx="2" fill="#ff8fa3"/><path d="M37.5 54.5h1.6a2.4 2.4 0 0 1 0 4.8h-1.6" stroke="#ff8fa3" stroke-width="1.4" fill="none"/><path d="M26.5 54.4h11" stroke="#fff" stroke-width=".8" opacity=".6"/><path d="M30 50q-1-1.6 0-3.2q1-1.6 0-3.2M34 50q-1-1.6 0-3.2q1-1.6 0-3.2" stroke="#fff" stroke-width=".8" fill="none" stroke-linecap="round" opacity=".6"/></g>'+hnd('fist',26.6,62.5,-70,.95)+hnd('fist',37.4,62.5,70,.95,1),
+ star:slv(RS,[54,61],[49,57])+'<path d="M48.6 42.4l1.6 3.3 3.6.5-2.6 2.5.6 3.6-3.2-1.7-3.2 1.7.6-3.6-2.6-2.5 3.6-.5z" fill="#ffd23f" stroke="#fff3c4" stroke-width=".6" stroke-linejoin="round"/>'+hnd('fist',48.8,56.2,-4,1.1)+'<circle cx="54.5" cy="43" r=".8" fill="#fff"/><circle cx="43.5" cy="45" r=".6" fill="#fff"/>',
+ card:slv(RS,[52.5,62],[46,58])+'<g transform="rotate(8 46 50)"><rect x="40.5" y="44" width="12" height="8.6" rx="1" fill="#fff" stroke="#d6dfec" stroke-width=".6"/><text x="46.5" y="50.2" font-size="3.8" font-family="Georgia" font-weight="700" fill="#3a4f9a" text-anchor="middle">ABC</text></g>'+hnd('fist',45.6,57.2,-8,1.1),
+ mic:slv(RS,[52.5,62],[46,58.6])+'<path d="M45.6 57l-1-5.6" stroke="#555a78" stroke-width="1.6" stroke-linecap="round"/><circle cx="44.4" cy="50.4" r="2.6" fill="#c8cee0"/><path d="M42.4 49.6h4M42.7 51.2h3.4" stroke="#8a90a8" stroke-width=".5"/>'+hnd('fist',45.6,57.8,-8,1.05)+'<path d="M40 47l-1.4-1M39.4 50h-1.8" stroke="#ffd23f" stroke-width=".8" stroke-linecap="round"/>',
 };
 /* 表情ごとの「よく する ポーズ」（'' は ポーズなし） */
-const POSE_EX={smile:['','','','book','point','stick','wave','pencil'],happy:['','peace','guts','clap','wave','thumb','banzai'],
-  wow:['','banzai','cheeks','clap'],think:['','chin','chin','look','pencil'],proud:['','thumb','maru','peace','guts'],
-  worry:['','oops','pray','cross'],love:['','cheeks','heart','heart']};
+const POSE_EX={smile:['','','','book','point','stick','wave','pencil','hi','card','star','there'],happy:['','peace','peace2','guts','clap','wave','hi','thumb','thumb2'],
+  wow:['','cheeks','clap','star'],think:['','chin','chin','look','pencil','card'],proud:['','thumb','thumb2','chest','peace2','guts'],
+  worry:['','oops','pray','cross'],love:['','cheeks','heart','heart','mug']};
 /* セリフの ことばで えらぶ（上から 順に 見る） */
 const POSE_TX=[[/コイン|🪙|まい ゲット|ごほうび/,['coin']],[/手紙|ボトル|📮|💌|メール/,['letter']],[/ないしょ|ひみつ|こっそり|しーっ/,['shh']],
-  [/まちが|おしい|ミス|うっかり/,['oops']],[/ちがう|ブッブー|ざんねん/,['cross']],[/せいかい|正解|ぜんもん|ばっちり|やったね|できたね|クリア/,['maru','clap','thumb','peace']],
-  [/がんば|ファイト|いっしょに/,['guts']],[/おねがい|お願い|たのむ|ゆるして/,['pray']],[/聞いて|きいて|聞こえ|ラジオ|🎧|📻|🔊|発音/,['listen']],
-  [/書いて|かいて|書き|書く|ノート|メモ/,['pencil']],[/授業|📖|文法|ふくしゅう|勉強/,['book','stick']],[/こんにちは|こんばんは|おはよう|おかえり|やあ|ひさしぶり|また ね|またね|おやすみ/,['wave']],
-  [/どこ|さがし|探|見つけ|宝/,['look']],[/ポイント|コツ|だいじ|大事|おぼえて|ヒント/,['point']],[/だいすき|大好き|うれしい|❤️/,['heart','cheeks']],[/すごい|えらい|さすが/,['clap','thumb']]];
+  [/まちが|おしい|ミス|うっかり/,['oops']],[/ちがう|ブッブー|ざんねん/,['cross']],[/せいかい|正解|ぜんもん|ばっちり|やったね|できたね|クリア/,['clap','thumb','thumb2','peace2']],[/いいね|グッ|ナイス|その ちょうし|そのちょうし/,['thumb','thumb2']],[/まかせて|だいじょうぶ|大丈夫/,['chest']],
+  [/がんば|ファイト|いっしょに/,['guts']],[/おねがい|お願い|たのむ|ゆるして/,['pray']],[/発音|声に 出|声に出|言ってみ|いってみ/,['mic']],[/聞いて|きいて|聞こえ|ラジオ|🎧|📻|🔊/,['listen']],[/ココア|あったか|ひとやすみ|ひと休み|おつかれ|のんびり/,['mug']],[/星|スター|✨|⭐/,['star']],[/単語|カード/,['card']],[/あっち|こっち|行こう|行って みて|行ってみて|右はし|左/,['there']],
+  [/書いて|かいて|書き|書く|ノート|メモ/,['pencil']],[/授業|📖|文法|ふくしゅう|勉強/,['book','stick']],[/こんにちは|こんばんは|おはよう|おかえり|やあ|ひさしぶり|また ね|またね|おやすみ/,['wave','hi']],
+  [/どこ|さがし|探|見つけ|宝/,['look']],[/ポイント|コツ|だいじ|大事|おぼえて|ヒント/,['point']],[/だいすき|大好き|うれしい|❤️/,['heart','cheeks']],[/すごい|えらい|さすが/,['clap','thumb','thumb2']]];
 const pickP=a=>a[Math.random()*a.length|0];
 function poseFor(ex,text){const t=String(text||'').replace(/<[^>]+>/g,'');
   if(t&&Math.random()<.85)for(const [re,ps] of POSE_TX)if(re.test(t))return pickP(ps);
