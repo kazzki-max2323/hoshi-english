@@ -181,7 +181,7 @@ function result(){const c=C,T=c.T,st=T.st,N=T.qs.length,r=rec()[c.id];
     <p class="dpstar">${starH(stars)}<small>わかった度</small></p>
     <div class="snscore"><span>⭕ 1回で <b>${st.ok}</b></span><span>💡 ヒントで <b>${st.hint}</b></span><span>📘 解説 <b>${st.miss}</b></span></div>
     <p class="kpay">🪙 <b>${pay}まい</b>${firstChk?' <small>はじめての たしかめ</small>':''}${perfect?' <small>ノーミス +5</small>':''}${new3?' <small>★3 はじめて +5</small>':''}</p>
-    <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
+    <div class="kmina"><span class="lface">${MINA.face('m',ex,MINA.poseFor(ex,tx))}</span><p>${tx}</p></div>
     ${T.miss.length?`<details class="dpmiss"><summary>📘 解説を きいた 問題 ${T.miss.length}</summary><div class="dpens">${T.miss.map(q=>enRow({en:q.full,ja:q.kind==='fill'?q.ja:''})).join('')}</div></details>`:''}
     <div class="row">${perfect?'':'<button data-e="back">🔎 もう少し くわしく</button>'}<button data-e="again" class="${perfect?'':'sub'}">🔁 もう一回 5問</button></div>
     <div class="snbtns dpnext"><button class="sub" data-e="tk">🎯 とっくん</button><button class="sub" data-e="gn">📚 ノート</button>${c.les?'<button class="sub" data-e="ls">📖 授業</button>':''}<button class="sub" data-e="x">✖ とじる</button></div>`;
@@ -274,7 +274,7 @@ function pick(){hush();C=null;const w=(S()?S().weak():[]).filter(gById).slice(0,
   const mine=(GRAMMAR[lv]||GRAMMAR.es).notes;const [ex,tx]=ML(w[0]?'dp_pickWeak':'dp_pick',{g:w[0]?'「'+gById(w[0]).n.t+'」':''});
   shell().innerHTML=`<section class="pnl dpp" role="dialog" aria-label="とことん授業">
     <div class="qtop"><button class="x" id="dpx" aria-label="とじる">✕</button><b>🔎 とことん授業</b><span class="qn"></span></div>
-    <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
+    <div class="kmina"><span class="lface">${MINA.face('m',ex,MINA.poseFor(ex,tx))}</span><p>${tx}</p></div>
     <form class="dpask" id="dpask"><input id="dpin" type="text" autocomplete="off" placeholder="れい：have と has の ちがいは？"><button>きく</button></form>
     <div id="dpfound"></div>
     ${w.length?`<p class="note">🔥 苦手な 文法から</p><div class="dpchips">${w.map(id=>`<button data-g="${id}">${esc(gById(id).n.t)}</button>`).join('')}</div>`:''}
@@ -285,7 +285,7 @@ function pick(){hush();C=null;const w=(S()?S().weak():[]).filter(gById).slice(0,
   $('dpask').onsubmit=e=>{e.preventDefault();const v=$('dpin').value.trim();if(!v)return;const f=find(v,null).filter(x=>x[0]>=.2).slice(0,3);snd('pop');
     if(f[0]&&f[0][0]>=.5&&(!f[1]||f[0][0]-f[1][0]>.12)){open(f[0][1],{q:f[0][2]});return}
     const [e2,t2]=ML(f.length?'dp_found':'dp_unknown',{g:''});
-    $('dpfound').innerHTML=`<div class="kmina"><span class="lface">${MINA.face('m',e2)}</span><p>${t2}</p></div>${f.length?`<div class="dpchips">${f.map(x=>`<button data-g="${x[1]}" ${x[2]?`data-q="${x[2]}"`:''}>${esc(x[2]?DD[x[1]].qa[+x[2].slice(1)][0]:gById(x[1]).n.t)}</button>`).join('')}</div>`:''}`;bind()}}
+    $('dpfound').innerHTML=`<div class="kmina"><span class="lface">${MINA.face('m',e2,MINA.poseFor(e2,t2))}</span><p>${t2}</p></div>${f.length?`<div class="dpchips">${f.map(x=>`<button data-g="${x[1]}" ${x[2]?`data-q="${x[2]}"`:''}>${esc(x[2]?DD[x[1]].qa[+x[2].slice(1)][0]:gById(x[1]).n.t)}</button>`).join('')}</div>`:''}`;bind()}}
 
 /* ---------- 文法ノートの ページに 「とことん」ボタン ---------- */
 H.on('gramView',(lv,i,n)=>setTimeout(()=>{const row=H.panel.querySelector('.gview .row');if(!row||row.querySelector('#gdp'))return;

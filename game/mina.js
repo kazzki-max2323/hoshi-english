@@ -126,14 +126,70 @@ function minaFace(ex,pose){const Y=45.2,red='#d0606a',dark='#b4294a',open=`<path
     wow:'<path d="M52 10v7M55.5 13.5h-7" stroke="#ffd23f" stroke-width="1.6" stroke-linecap="round"/><path d="M9 16v4M11 18h-4" stroke="#ffd23f" stroke-width="1.2" stroke-linecap="round"/>',
     love:'<path d="M52 21l-3.6-3.5a2.2 2.2 0 0 1 3.6-2.4 2.2 2.2 0 0 1 3.6 2.4z" fill="#ff6b8b"/><path d="M11 15l-2-2a1.2 1.2 0 0 1 2-1.3 1.2 1.2 0 0 1 2 1.3z" fill="#ff6b8b"/>',
     think:'<circle cx="50" cy="20" r="1.4" fill="#fff" opacity=".7"/><circle cx="53.5" cy="15" r="2.2" fill="#fff" opacity=".7"/>'}[ex]||'';
-  return `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="31" fill="#1f2a5c"/>`+
+  return `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="31" fill="#1f2a5c"/><g transform="translate(32 31) scale(.86) translate(-32 -31)">`+
    `<path d="M11 44c-1-18 8-28 21-28s22 10 21 28c0 6 2 9 1 13-2 3-6 4-8 2 2-3 0-6-1-9l-2-12H21l-2 12c-1 3-3 6-1 9-2 2-6 1-8-2-1-4 1-7 1-13z" fill="${MH}"/>`+
    `<circle cx="32" cy="16" r="6.3" fill="${MH}"/><path d="M28.5 12.5q3-2 6.5-.3" stroke="${MH2}" stroke-width="1" fill="none" stroke-linecap="round"/>`+
-   `<path d="M20 59c2-6 6-8.5 12-8.5s10 2.5 12 8.5v5H20z" fill="#fff"/><path d="M26.5 51.5q5.5 6 11 0l-2 4q-3.5 2-7 0z" fill="#7ad3c4"/><circle cx="32" cy="56" r="1.6" fill="#7ad3c4"/>`+
+   `<path d="M18 76V62c0-7.4 6.4-11.6 14-11.6s14 4.2 14 11.6v14z" fill="#fff"/><path d="M26.5 51.5q5.5 6 11 0l-2 4q-3.5 2-7 0z" fill="#7ad3c4"/><circle cx="32" cy="56" r="1.6" fill="#7ad3c4"/>`+
    `<ellipse cx="17" cy="38.5" rx="2.4" ry="3" fill="${MSK}"/><ellipse cx="47" cy="38.5" rx="2.4" ry="3" fill="${MSK}"/><ellipse cx="32" cy="37" rx="15" ry="14" fill="${MSK}"/>`+
    `<path d="M17 38c0-11 6-17 15-17s15 6 15 17c-1.5-4-4-7-6-8 0 3-1.5 5-3 6 .5-2 0-4-1-5.5-3 3-7 4.5-12 4.5 1-1.2 1.5-2.5 1.6-3.8-4 2-6.6 3.8-9.6 6.8z" fill="${MH}"/>`+
    `<path d="M21.6 27.4q2.6-3.2 6.4-4.6M36.4 22.8q2.4.6 4.2 2" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".38"/>`+
-   `<g class="eyes" style="transform-origin:32px 37.4px">${minaEyes(ex)}</g>${cheek}${mouth}${extra}${pose||''}</svg>`}
+   `<g class="eyes" style="transform-origin:32px 37.4px">${minaEyes(ex)}</g>${cheek}${mouth}${extra}${minaPose(ex,pose)}</g></svg>`}
+/* ---------- ミナ先生の ポーズ（手・うで）。表情とは べつに 重ねる ----------
+   face('m',ex,pose): pose = ポーズの キー / '' = ポーズなし / 省略 = 表情に あわせて ランダム。
+   セリフが あるときは poseFor(ex,セリフ) で セリフに あう ポーズを えらぶ（コイン→コインを持つ、授業→本 など） */
+const PSK='#ffe0cc',PSH='#f3c2aa';
+const PHD={
+ open:`<path d="M-3.1 .6V-4.6a3.1 3.1 0 0 1 6.2 0V.6z" fill="${PSK}"/><ellipse cx="-3.4" cy="-1.6" rx="1.2" ry="2.1" transform="rotate(-28 -3.4 -1.6)" fill="${PSK}"/><path d="M-1 -7.4v1.8M1 -7.4v1.8" stroke="${PSH}" stroke-width=".55" stroke-linecap="round"/>`,
+ fist:`<rect x="-3.2" y="-5.4" width="6.4" height="6" rx="2.8" fill="${PSK}"/><path d="M-1.1-5.2v1.4M1.1-5.2v1.4" stroke="${PSH}" stroke-width=".55" stroke-linecap="round"/>`,
+ thumb:`<rect x="-1.15" y="-9.6" width="2.3" height="5.4" rx="1.15" fill="${PSK}"/><rect x="-3.2" y="-5.4" width="6.4" height="6" rx="2.8" fill="${PSK}"/><path d="M-3.1-3.2h2.4M-3.1-1.2h2.4" stroke="${PSH}" stroke-width=".55" stroke-linecap="round"/>`,
+ peace:`<rect x="-2.5" y="-10" width="2.1" height="6" rx="1.05" fill="${PSK}" transform="rotate(-10 -1.5 -4.5)"/><rect x=".4" y="-10" width="2.1" height="6" rx="1.05" fill="${PSK}" transform="rotate(10 1.5 -4.5)"/><rect x="-3.2" y="-5.2" width="6.4" height="5.8" rx="2.8" fill="${PSK}"/><path d="M-.6-3.4q1.4 1 2.6 0" stroke="${PSH}" stroke-width=".55" fill="none" stroke-linecap="round"/>`,
+ point:`<rect x="-2.6" y="-10.4" width="2.2" height="6.4" rx="1.1" fill="${PSK}"/><rect x="-3.2" y="-5.4" width="6.4" height="6" rx="2.8" fill="${PSK}"/><path d="M.2-5v1.3M1.8-4.8v1.2" stroke="${PSH}" stroke-width=".55" stroke-linecap="round"/>`};
+const hnd=(k,x,y,r=0,s=1,flip)=>`<g transform="translate(${x} ${y}) rotate(${r}) scale(${flip?-s:s} ${s})">${PHD[k]}</g>`;
+/* そで: かた → ひじ → 手首。手首に ミントの そで口 */
+const slv=(...pts)=>{const d='M'+pts.map(p=>p.join(' ')).join('L'),w=pts[pts.length-1];
+  return `<path d="${d}" stroke="#d6dfec" stroke-width="7.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" stroke="#fff" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/><circle cx="${w[0]}" cy="${w[1]}" r="2.8" fill="#7ad3c4"/>`};
+const RS=[43.5,56.5],LS=[20.5,56.5];
+const twinkle=(x,y)=>`<path d="M${x} ${y}l.8 1.6 1.6.8-1.6.8-.8 1.6-.8-1.6-1.6-.8 1.6-.8z" fill="#ffd23f"/>`;
+const holdTwo=thing=>slv(LS,[13,62],[23,62])+slv(RS,[51,62],[41,62])+thing+hnd('fist',24.2,61.5,-70,1)+hnd('fist',39.8,60.5,70,1,1);
+const POSE={
+ wave:slv(RS,[55,58],[53.5,47])+hnd('open',53.5,46.2,10,1.1)+'<path d="M58 34q1.6 2.4 0 4.8M60.5 33q2.2 3.4 0 6.8" stroke="#fff" stroke-width=".9" fill="none" stroke-linecap="round" opacity=".75"/>',
+ peace:slv(RS,[54.5,59],[51,49.5])+hnd('peace',51,48.7,6,1.1),
+ thumb:slv(RS,[52.5,62],[46,58])+hnd('thumb',45.6,57.2,-8,1.1),
+ point:slv(RS,[54.5,59],[51,49.5])+hnd('point',51,48.7,4,1.1)+twinkle(55,35),
+ cheeks:slv(LS,[10.5,58],[17,51])+slv(RS,[53.5,58],[47,51])+hnd('open',17.4,50.4,18,1)+hnd('open',46.6,50.4,-18,1,1),
+ chin:slv(RS,[52,63],[42,58.5])+hnd('point',41.6,58,-34,1),
+ guts:slv(LS,[11,61],[17,55.5])+slv(RS,[53,61],[47,55.5])+hnd('fist',17,54.8,-8,1.1)+hnd('fist',47,54.8,8,1.1,1),
+ book:holdTwo('<g transform="rotate(-5 32 58)"><rect x="23.5" y="51.5" width="17" height="13.5" rx="1.4" fill="#3a4f9a"/><rect x="24.6" y="52.4" width="14.8" height="11.7" rx=".8" fill="none" stroke="#ffd23f" stroke-width=".6"/><path d="M32 51.5v13.5" stroke="#2a3a78" stroke-width="1"/><path d="M36.3 55.6l.7 1.4 1.5.2-1.1 1 .3 1.5-1.4-.7-1.4.7.3-1.5-1.1-1 1.5-.2z" fill="#ffd23f"/><text x="27.9" y="60.2" font-size="4.2" font-family="Georgia" font-weight="700" fill="#fff" text-anchor="middle">A</text></g>'),
+ stick:'<path d="M48 55L58.5 31" stroke="#a8743e" stroke-width="1.3" stroke-linecap="round"/><path d="M58.8 26.5l1.1 2.3 2.5.3-1.8 1.7.5 2.5-2.3-1.2-2.3 1.2.5-2.5-1.8-1.7 2.5-.3z" fill="#ffd23f" stroke="#fff3c4" stroke-width=".4"/>'+slv(RS,[54,61],[48,58])+hnd('fist',48,57.2,-25,1.05),
+ oops:slv(RS,[56,51],[49,40])+hnd('open',48.6,39.2,-22,1.1),
+ banzai:slv(LS,[9,46],[12,34])+slv(RS,[55,46],[52,34])+hnd('open',12,33.2,-12,1.1)+hnd('open',52,33.2,12,1.1,1)+twinkle(6,24)+twinkle(56,22),
+ clap:slv(LS,[13,62],[28.5,56])+slv(RS,[51,62],[35.5,56])+hnd('open',29.6,55,35,1)+hnd('open',34.4,55,-35,1,1)+'<path d="M24.5 49l-1.6-1.6M32 46.5v-2.2M39.5 49l1.6-1.6" stroke="#ffd23f" stroke-width=".9" stroke-linecap="round"/>',
+ pray:slv(LS,[14,63],[29,58])+slv(RS,[50,63],[35,58])+hnd('open',31,56.6,14,1)+hnd('open',33,56.6,-14,1,1),
+ listen:slv(RS,[56,52],[51.5,42])+hnd('open',51,41,-62,1.05,1)+'<path d="M58 35q2 3 0 6M60.5 33.5q2.8 4.5 0 9" stroke="#bfe9ff" stroke-width=".9" fill="none" stroke-linecap="round"/>',
+ look:slv(RS,[57,42],[50,27])+hnd('open',48.5,26,-95,1,1),
+ shh:slv(RS,[53,62],[36.5,53])+hnd('point',35.4,51.6,-12,1),
+ heart:holdTwo('<path d="M32 66.5l-7.2-7a4.4 4.4 0 0 1 7.2-5 4.4 4.4 0 0 1 7.2 5z" fill="#ff6b8b" stroke="#ffc2cf" stroke-width=".7"/><circle cx="28.6" cy="57.4" r="1" fill="#fff" opacity=".8"/>'),
+ coin:slv(RS,[54.5,59],[51,49.5])+'<circle cx="51.4" cy="42.6" r="4.6" fill="#ffd23f" stroke="#e8a817" stroke-width=".8"/><circle cx="51.4" cy="42.6" r="3.2" fill="none" stroke="#fff3c4" stroke-width=".5"/><path d="M51.4 40.4l.6 1.3 1.4.2-1 1 .2 1.4-1.2-.7-1.2.7.2-1.4-1-1 1.4-.2z" fill="#fff3c4"/>'+hnd('fist',51,48.7,4,1.1)+twinkle(57,34),
+ pencil:'<g transform="rotate(28 50 46)"><rect x="48.6" y="34" width="3" height="15" fill="#ffd23f"/><rect x="48.6" y="34" width="3" height="2.4" fill="#ff8fa3"/><path d="M48.6 49h3l-1.5 3.4z" fill="#f6dcb4"/><path d="M49.5 51.3h1.2l-.6 1.1z" fill="#2a2340"/></g>'+slv(RS,[54,61],[47.5,57.5])+hnd('fist',47.4,56.6,-20,1.05),
+ letter:holdTwo('<g transform="rotate(-4 32 58)"><rect x="23" y="52" width="18" height="12" rx="1" fill="#fff6e0" stroke="#e8d6b8" stroke-width=".6"/><path d="M23 52.4l9 6 9-6" stroke="#e8c88a" stroke-width=".8" fill="none"/><path d="M32 60.6l-1.8-1.7a1 1 0 0 1 1.8-1.2 1 1 0 0 1 1.8 1.2z" fill="#ff6b8b"/></g>'),
+ cross:slv(LS,[14,62],[38,52])+slv(RS,[50,62],[26,52])+hnd('fist',38.6,51.4,40,1)+hnd('fist',25.4,51.4,-40,1,1),
+ maru:slv(LS,[9,44],[14,27],[27,18.5])+slv(RS,[55,44],[50,27],[37,18.5])+hnd('open',29.6,18,62,1)+hnd('open',34.4,18,-62,1,1),
+};
+/* 表情ごとの「よく する ポーズ」（'' は ポーズなし） */
+const POSE_EX={smile:['','','','book','point','stick','wave','pencil'],happy:['','peace','guts','clap','wave','thumb','banzai'],
+  wow:['','banzai','cheeks','clap'],think:['','chin','chin','look','pencil'],proud:['','thumb','maru','peace','guts'],
+  worry:['','oops','pray','cross'],love:['','cheeks','heart','heart']};
+/* セリフの ことばで えらぶ（上から 順に 見る） */
+const POSE_TX=[[/コイン|🪙|まい ゲット|ごほうび/,['coin']],[/手紙|ボトル|📮|💌|メール/,['letter']],[/ないしょ|ひみつ|こっそり|しーっ/,['shh']],
+  [/まちが|おしい|ミス|うっかり/,['oops']],[/ちがう|ブッブー|ざんねん/,['cross']],[/せいかい|正解|ぜんもん|ばっちり|やったね|できたね|クリア/,['maru','clap','thumb','peace']],
+  [/がんば|ファイト|いっしょに/,['guts']],[/おねがい|お願い|たのむ|ゆるして/,['pray']],[/聞いて|きいて|聞こえ|ラジオ|🎧|📻|🔊|発音/,['listen']],
+  [/書いて|かいて|書き|書く|ノート|メモ/,['pencil']],[/授業|📖|文法|ふくしゅう|勉強/,['book','stick']],[/こんにちは|こんばんは|おはよう|おかえり|やあ|ひさしぶり|また ね|またね|おやすみ/,['wave']],
+  [/どこ|さがし|探|見つけ|宝/,['look']],[/ポイント|コツ|だいじ|大事|おぼえて|ヒント/,['point']],[/だいすき|大好き|うれしい|❤️/,['heart','cheeks']],[/すごい|えらい|さすが/,['clap','thumb']]];
+const pickP=a=>a[Math.random()*a.length|0];
+function poseFor(ex,text){const t=String(text||'').replace(/<[^>]+>/g,'');
+  if(t&&Math.random()<.85)for(const [re,ps] of POSE_TX)if(re.test(t))return pickP(ps);
+  return pickP(POSE_EX[ex]||POSE_EX.smile)}
+function minaPose(ex,pose){if(pose===undefined)pose=poseFor(ex);return POSE[pose]||''}
 function face(who,ex,pose){return who==='m'?minaFace(ex,pose):hamaFace(ex)}
 /* ハマ子の顔（ミナ先生は minaFace） */
 function hamaFace(ex){const m=false;
@@ -156,7 +212,8 @@ function hamaFace(ex){const m=false;
   const body=m?'<path d="M20 60c2-7 7-10 12-10s10 3 12 10z" fill="#7ad3c4"/>':'<path d="M18 60c2-7 7-10 14-10s12 3 14 10z" fill="#e8b04a"/><g fill="#5a3a12"><circle cx="24" cy="56" r="1.5"/><circle cx="31" cy="54" r="1.3"/><circle cx="38" cy="57" r="1.5"/></g>';
   return `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="31" fill="${m?'#1f2a5c':'#3a1f2a'}"/>${hair}<circle cx="32" cy="35" r="13" fill="${m?'#ffd9c0':'#ffd2b0'}"/>${bangs}<g class="eyes" fill="#2a2340">${eyes}</g>${glasses}${mouth}<circle cx="24" cy="39.5" r="2.2" fill="#ffb3b3" opacity="${ex==='love'?.95:.55}"/><circle cx="40" cy="39.5" r="2.2" fill="#ffb3b3" opacity="${ex==='love'?.95:.55}"/>${body}${extra}</svg>`}
 let minaEx='smile';
-function setFace(ex){minaEx=ex||'smile';const f=$('minaFace');if(f)f.innerHTML=face('m',minaEx)}
+let minaPoseNow='';
+function setFace(ex,text){minaEx=ex||'smile';minaPoseNow=text===undefined?'':poseFor(minaEx,text);const f=$('minaFace');if(f)f.innerHTML=face('m',minaEx,minaPoseNow)}
 
 /* ---------- speaking in the home row ---------- */
 let speakUntil=0,talkOn=false,hideT=0;
@@ -166,7 +223,7 @@ function sayRow(who,ex,text,ms=6500,pop,go){const b=$('minaSay'),rq=$('rq');if(!
   b.innerHTML=`<b>${who==='m'?'ミナ先生':'ハマ子'}</b>${text}${go?`<small class="mgo">${go[0]} ▶</small>`:''}`;
   /* tap her words = go where she talks about (the word book, the lesson, the shop…) */
   b.onclick=go?e=>{e.stopPropagation();SFX.step();b.hidden=true;if(rq)rq.hidden=false;go[1]()}:null;b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew');
-  if(who==='m')setFace(ex);else{const h=$('hamaFace');if(h)h.innerHTML=face('h',ex)}
+  if(who==='m')setFace(ex,text);else{const h=$('hamaFace');if(h)h.innerHTML=face('h',ex)}
   SFX.pop();speakUntil=performance.now()+ms;clearTimeout(hideT);hideT=setTimeout(()=>{if(talkOn)return;b.hidden=true;if(rq)rq.hidden=false;setFace('smile');H.rest(2500)},ms);return true}
 /* lines waiting for a good moment (praise after a streak, etc.) */
 const Q=[];function queue(key,v,ex){Q.push([key,v,ex]);if(Q.length>3)Q.shift()}
@@ -175,7 +232,7 @@ const Q=[];function queue(key,v,ex){Q.push([key,v,ex]);if(Q.length>3)Q.shift()}
 let popT=0;
 function popSay(who,ex,text,ms,tap){if(!ST.radios||!ST.radios.some(r=>r.on))return;const W=$('window');if(!W)return;
   let p=$('minaPop');if(!p){p=document.createElement('button');p.id='minaPop';W.appendChild(p)}
-  p.className='mpop '+(who==='m'?'by-m':'by-h');p.innerHTML=`<span class="mpf">${face(who,ex)}</span><span class="mpt"><b>${who==='m'?'ミナ先生':'ハマ子'}</b>${text}</span>`;
+  p.className='mpop '+(who==='m'?'by-m':'by-h');p.innerHTML=`<span class="mpf">${who==='m'?face('m',ex,poseFor(ex,text)):face(who,ex)}</span><span class="mpt"><b>${who==='m'?'ミナ先生':'ハマ子'}</b>${text}</span>`;
   p.classList.remove('on');void p.offsetWidth;p.classList.add('on');
   p.onclick=e=>{e.stopPropagation();SFX.talk();p.classList.remove('on');typeof tap==='function'?tap():panelOpen()};
   clearTimeout(popT);popT=setTimeout(()=>p.classList.remove('on'),ms)}
@@ -234,7 +291,7 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
 /* ---------- Mina's page: tap her face ---------- */
 /* what she says at the top of her page: her face, the line, and where tapping it goes */
 function talkBox(o){const [ex,tx]=o?line(o[0],o[1]):line('tap'),go=goTo(o);
-  return {go,html:`<span class="mbig">${face('m',ex)}</span>${go?`<button class="mline go" id="mgo">${tx}<small>${go[0]} ▶</small></button>`:`<p class="mline">${tx}</p>`}`}}
+  return {go,html:`<span class="mbig">${face('m',ex,poseFor(ex,tx))}</span>${go?`<button class="mline go" id="mgo">${tx}<small>${go[0]} ▶</small></button>`:`<p class="mline">${tx}</p>`}`}}
 function bindTalk(o,t){if(!t.go)return;$('mgo').onclick=()=>{SFX.step();if(o[0]==='stepUp')MD.said.step=today();t.go[1]()};H.panel.querySelector('.mbig').onclick=()=>$('mgo').click()}
 /* 授業メニューの 🎯 苦手 とっくん と 🔎 とことん授業（中身は 先生と 話す 画面と 同じ。ここからも すぐ 行ける） */
 function menuTiles(){let h='';
@@ -279,13 +336,13 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   const mk=$('mkaiwa');if(mk)mk.onclick=()=>{SFX.talk();KAIWA.open()};
   const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.book();H.gramNote(wg.lv,wg.i)}}
 /* the face lives in the home row; tap = talk */
-H.on('home',()=>{setFace(minaEx);const f=$('minaFace');if(f)f.onclick=()=>{SFX.talk();panelOpen()};
+H.on('home',()=>{const f1=$('minaFace');if(f1)f1.innerHTML=face('m',minaEx,minaPoseNow);const f=$('minaFace');if(f)f.onclick=()=>{SFX.talk();panelOpen()};
   if(talkOn){const hf=$('hamaFace');if(hf){hf.hidden=false;hf.innerHTML=face('h','smile')}}});
 setFace('smile');const f0=$('minaFace');if(f0)f0.onclick=()=>{SFX.talk();panelOpen()};
 
 /* ---------- review words for the radio ---------- */
 function reviewPick(lv){if(Math.random()>.15)return null;const ww=weakWords(lv,null);return ww.length?pickL(ww.slice(0,8)).en:null}
 
-window.MINA={busy,say:sayRow,canTalk,canAnnounce,announce,sinceAnn:()=>performance.now()-annAt,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,line,
+window.MINA={poseFor,busy,say:sayRow,canTalk,canAnnounce,announce,sinceAnn:()=>performance.now()-annAt,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,line,
   _test:{say:()=>{talkAt=talkGap},hama:()=>{hamaAt=hamaGap;MD.hama={d:'',n:0}},hello:()=>{opened=false}}};
 })();

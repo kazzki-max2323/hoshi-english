@@ -73,7 +73,7 @@ function open(id,back){const l=LESSONS.find(x=>x.id===id);if(!l)return;back=back
   const log=$('llog');
   const step=()=>{if(k>=l.steps.length){quiz(l,back);return}const [who,ex,tx,fig]=l.steps[k++];
     const d=document.createElement('div');d.className='lsay by-'+who;
-    d.innerHTML=`<span class="lface">${MINA.face(who,ex)}</span><div class="lbody"><p>${tx}</p>${fig?`<div class="fz">${fig}</div>`:''}</div>`;
+    d.innerHTML=`<span class="lface">${MINA.face(who,ex,MINA.poseFor(ex,tx))}</span><div class="lbody"><p>${tx}</p>${fig?`<div class="fz">${fig}</div>`:''}</div>`;
     log.appendChild(d);SFX.pop();log.scrollTo({top:log.scrollHeight,behavior:'smooth'});
     $('lnext').textContent=k>=l.steps.length?'れんしゅう ✏️':'つぎへ ▶'};
   $('lnext').onclick=step;log.onclick=step;step()}
