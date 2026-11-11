@@ -1,5 +1,5 @@
 /* 夜だけの 星空ラジオ と、浜辺の住人 */
-LEVELS.star={name:'星空',short:'★',ico:'🌙',price:150,reward:6,choices:4,nightOnly:true,
+LEVELS.star={name:'星空',short:'★',ico:'🌙',price:600,reward:6,choices:4,nightOnly:true,
  books:[{t:'星と宇宙',w:[['planet','惑星','🪐'],['galaxy','銀河','🌌'],['comet','すい星','☄️'],['shooting star','流れ星','🌠'],['constellation','星座','✨'],['telescope','望遠鏡','🔭'],['astronaut','宇宙飛行士','🧑‍🚀'],['rocket','ロケット','🚀'],['orbit','軌道','🛰️'],['the Milky Way','天の川','🌌'],['full moon','満月','🌕'],['crescent moon','三日月','🌙'],['satellite','人工衛星','🛰️'],['universe','宇宙','🌠'],['the North Star','北極星','⭐'],['Saturn','土星','🪐'],['Mars','火星','🔴'],['Jupiter','木星','🟠'],['gravity','重力','🍎'],['eclipse','（日食・月食の）食','🌑']]}],
  talk:[['The Milky Way is so bright tonight.','今夜は 天の川が とても 明るい'],['Can you find the North Star?','北極星を 見つけられる？'],['Make a wish on a shooting star.','流れ星に ねがいを かけよう'],["Saturn's rings are made of ice.",'土星の 輪は 氷で できている'],
   ['The moon goes around the Earth.','月は 地球の まわりを 回っている'],['Astronauts float in space.','宇宙飛行士は 宇宙で ふわふわ うく'],['Orion is easy to see in winter.','オリオン座は 冬に 見つけやすい'],['Light from that star took years to reach us.','あの星の 光は 何年も かけて 届いた'],

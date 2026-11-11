@@ -19,7 +19,7 @@ const left=()=>Math.max(0,BD.until-Date.now()),active=()=>!!BD.r&&left()>0;
 const mmss=ms=>{const s=Math.ceil(ms/1000);return (s/60|0)+':'+String(s%60).padStart(2,'0')};
 
 /* ---------- what the prize is ---------- */
-const bigEvents=()=>CATALOG.event.filter(e=>!e.rare&&e.p>=40&&H.onSale(e));
+const bigEvents=()=>CATALOG.event.filter(e=>!e.rare&&e.p>=200&&H.onSale(e));
 const newSongs=()=>CATALOG.music.filter(([id,,,,rare])=>!rare&&typeof TRACKS!=='undefined'&&TRACKS[id]&&!ST.music.includes(id));
 function roll(){const pool=[['coin',3],['card',2.5]];if(bigEvents().length)pool.push(['event',2.5]);if(newSongs().length)pool.push(['music',2]);
   let x=Math.random()*pool.reduce((a,b)=>a+b[1],0),k='coin';for(const [n,w] of pool){x-=w;if(x<0){k=n;break}}
@@ -80,7 +80,7 @@ function claim(){const ok=active()||(BD.r&&BD.inL&&Date.now()<BD.inL+GRACE);if(!
   const r=BD.r;BD.r=null;BD.until=0;BD.inL=0;let html='',after=()=>{};const M=window.MOTI;
   if(r.k==='coin'){html=`⏰ 授業タイム： 🪙 <b>${r.amt}まい</b>`;M?M.coins(r.amt):after=()=>setTimeout(()=>H.addCoins(r.amt),700)}
   else if(r.k==='music'){const s=newSongs();if(s.length){const [id,,ico]=pickL(s);ST.music.push(id);
-      html=`⏰ 授業タイム： ${ico} 新しい 曲 「<b>${esc(TRACKS[id].name)}</b>」<small>ショップの 🎵おんがく から いつでも ながせるよ</small>`;after=()=>setTimeout(()=>H.playTrack(id),900)}
+      html=`⏰ 授業タイム： ${ico} 新しい 曲 「<b>${esc(TRACKS[id].name)}</b>」<small>雑貨屋の 🎵 レコード から いつでも ながせるよ</small>`;after=()=>setTimeout(()=>H.playTrack(id),900)}
     else{html='⏰ 授業タイム： 🪙 <b>50まい</b>';M?M.coins(50):after=()=>setTimeout(()=>H.addCoins(50),700)}}
   else if(r.k==='event'){let e=evOf(r.id);if(!e||!H.onSale(e))e=pickL(bigEvents())||evOf('dolphins');M&&M.pendShow(e.id);
     html=`⏰ 授業タイム： 浜辺で ${e.ico} <b>${esc(e.n)}</b>`}

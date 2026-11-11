@@ -1,5 +1,5 @@
 /* ミナ先生の「いまの ようす」を 読む しくみ（状況判断エンジン）
-   セーブデータ ぜんぶ（単語帳・ラジオの 答え・苦手・文法ノート・ミニ授業・ふくしゅう・スタンプ・なかよし度・カード・ショップ・宝の地図・コイン・日にち）を 読んで、
+   セーブデータ ぜんぶ（単語帳・ラジオの 答え・苦手・文法ノート・ミニ授業・ふくしゅう・スタンプ・なかよし度・カード・雑貨屋・宝の地図・コイン・日にち）を 読んで、
    いま 言える ことを さがす。ルール 1つ = 1つの 場面（キー）。場面に あう セリフは game/mina-talk.js の MINA_TALK に ある
    - 1つの ルール: [キー, 重み, F=>うめる値 または null, 値=>[ボタンの 文字, タップで うごく 関数] または null]
    - うめる値の { } は セリフの {w} {book} など。「_」で はじまる 値は セリフでは つかわない（移動先の ため）
@@ -15,7 +15,9 @@ const has=(o,k)=>o&&Object.prototype.hasOwnProperty.call(o,k);
 const back=()=>MINA.open();
 const goBook=(lv,bi,left)=>['📕 単語帳を ひらく',()=>H.book(lv,bi,left)];
 const goShelf=lv=>['📕 単語帳を 見る',()=>H.books(lv)];
-const goShop=tab=>['🛍️ ショップを 見る',()=>H.shop(tab)];
+/* むかしの ショップは 浜辺の 右はしの 雑貨屋（game/zakka.js）に ひっこした */
+const goShop=tab=>['🏚️ 雑貨屋へ 行く',()=>window.ZAKKA?ZAKKA.open(tab):H.home()];
+const shelf=k=>{try{return window.ZAKKA?ZAKKA.lineup()[k]:[]}catch(e){return []}};
 const goLesson=id=>['📖 授業を ひらく',()=>LESSON.open(id,back)];
 const goSay=(lv,en)=>['🔊 きいてみる',()=>H.say(lv,en)];
 const goCards=s=>['🃏 カード図鑑を 見る',()=>CARDS.open(s)];
@@ -130,7 +132,7 @@ const R=[
 ['x_answered',1,F=>F.answered>=50?{n:F.answered}:null,null],
 ['x_sentence',2,F=>{const a=F.rec.filter(e=>e.kind==='s');if(a.length<5)return null;const s=a.reduce((x,e)=>x+e.s,0),m=a.reduce((x,e)=>x+e.m,0);return {n:a.length,acc:Math.round((s-m)/s*100)}},()=>['📚 文法を 見る',()=>H.gramFrom(lvOf(facts())==='adv'?'hs':lvOf(facts()))]],
 
-/* ===== ラジオ（ショップ） ===== */
+/* ===== ラジオ（雑貨屋の たなに いつも ある） ===== */
 ['x_radioOwn',2,F=>{const a=ST.radios.filter(r=>LEVELS[r.lv]);if(!a.length)return null;const r=pickL(a);return {radio:LEVELS[r.lv].name,on:r.on?'オン':'オフ'}},null],
 ['x_radioNone',4,F=>ST.radios.length?null:{},()=>goShop('radio')],
 ['x_radioOff',2,F=>{const a=ST.radios.filter(r=>!r.on&&LEVELS[r.lv]);return a.length?{radio:LEVELS[pickL(a).lv].name}:null},null],
@@ -140,17 +142,17 @@ const R=[
 ['x_starOwn',2,F=>ST.radios.some(r=>r.lv==='star')&&F.sky==='night'?{}:null,null],
 ['x_starBuy',2,F=>LEVELS.star&&!ST.radios.some(r=>r.lv==='star')&&F.coins>=LEVELS.star.price?{price:LEVELS.star.price}:null,()=>goShop('radio')],
 
-/* ===== 音楽（ショップ） ===== */
+/* ===== 音楽（雑貨屋の レコード。日替わり・時間帯で 入れかわるので、いま たなに ある 曲だけ すすめる） ===== */
 ['x_songOwn',2,F=>{const a=ST.music.filter(id=>typeof TRACKS!=='undefined'&&TRACKS[id]);if(!a.length)return null;const id=pickL(a);return {song:trackName(id),_id:id}},v=>['🎵 ながす',()=>{H.playTrack(v._id);H.home()}]],
 ['x_songPlaying',3,F=>{const id=H.playing;return id?{song:trackName(id)}:null},null],
-['x_songNone',2,F=>{if(ST.music.length)return null;const c=music().sort((a,b)=>a[1]-b[1])[0];return c&&F.coins>=c[1]?{song:trackName(c[0]),price:c[1],d:c[3]}:null},()=>goShop('music')],
-['x_songNext',2,F=>{const a=music().filter(([id,p,,,rare])=>!rare&&!ST.music.includes(id)&&p<=F.coins);if(!a.length)return null;const c=pickL(a);return {song:trackName(c[0]),price:c[1],d:c[3]}},()=>goShop('music')],
+['x_songNone',2,F=>{if(ST.music.length)return null;const it=shelf('music').filter(it=>it.p<=F.coins)[0];if(!it)return null;const c=music().find(m=>m[0]===it.id);return {song:trackName(it.id),price:it.p,d:c?c[3]:''}},()=>goShop('music')],
+['x_songNext',2,F=>{const ids=shelf('music').map(it=>it.id),a=music().filter(([id,p])=>ids.includes(id)&&p<=F.coins);if(!a.length)return null;const c=pickL(a);return {song:trackName(c[0]),price:c[1],d:c[3]}},()=>goShop('music')],
 ['x_songMany',1,F=>ST.music.length>=5?{n:ST.music.length,tot:music().length}:null,()=>goShop('music')],
 ['x_songTimeOwn',2,F=>{const id=pickL(TIME_SONG[F.part].filter(id=>ST.music.includes(id)&&typeof TRACKS!=='undefined'&&TRACKS[id]));return id?{song:trackName(id),_id:id}:null},v=>['🎵 ながす',()=>{H.playTrack(v._id);H.home()}]],
-['x_songTimeShop',1,F=>{const id=pickL(TIME_SONG[F.part].filter(id=>!ST.music.includes(id)&&typeof TRACKS!=='undefined'&&TRACKS[id]));return id?{song:trackName(id)}:null},()=>goShop('music')],
+['x_songTimeShop',1,F=>{const ids=shelf('music').map(it=>it.id),id=pickL(TIME_SONG[F.part].filter(id=>ids.includes(id)&&typeof TRACKS!=='undefined'&&TRACKS[id]));return id?{song:trackName(id)}:null},()=>goShop('music')],
 ['x_songRare',1,F=>ST.music.includes('orch')?{song:trackName('orch')}:null,v=>['🎵 ながす',()=>{H.playTrack('orch');H.home()}]],
 
-['x_eventShop',1,F=>{const a=CATALOG.event.filter(e=>!e.rare&&H.onSale(e)&&e.p<=F.coins);if(!a.length)return null;const e=pickL(a);return {ico:e.ico,ev:e.n,price:e.p,d:e.d}},()=>goShop('event')],
+['x_eventShop',1,F=>{const ids=shelf('event').map(it=>it.id),a=CATALOG.event.filter(e=>ids.includes(e.id)&&e.p<=F.coins);if(!a.length)return null;const e=pickL(a);return {ico:e.ico,ev:e.n,price:e.p,d:e.d}},()=>goShop('event')],
 
 /* ===== 文法ノート ===== */
 ['x_gramUnread',3,F=>{const a=F.gram.filter(g=>g.own&&!g.clr);if(!a.length)return null;const g=pickL(a);return {g:g.n.t,_g:g}},v=>goGram(v._g.lv,v._g.i)],

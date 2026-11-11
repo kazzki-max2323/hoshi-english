@@ -43,7 +43,7 @@ function card(where){const l=today();if(!l)return '';const c=CAT[l.cat]||CAT.zu,
   </div>`}
 function bindCard(back){const c=$('lcard');if(!c)return;c.querySelector('.lcgo').onclick=()=>{SFX.lesson();open(c.querySelector('.lcgo').dataset.les,back)};
   const a=$('lcall');if(a)a.onclick=()=>{SFX.lesson();list()}}
-/* on the home screen it sits right above the buttons (単語帳・ショップ…) */
+/* on the home screen it sits right above the buttons (単語帳・カード…) */
 function onHome(){const v=H.panel.querySelector('.home .row');if(!v)return;const o=$('lcard');if(o)o.remove();v.insertAdjacentHTML('beforebegin',card('home'));bindCard(H.home)}
 H.on('home',onHome);if(H.screen==='home')setTimeout(onHome,0);
 const refresh=()=>{if(H.screen==='home')onHome()};
