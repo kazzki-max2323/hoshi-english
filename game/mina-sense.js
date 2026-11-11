@@ -115,6 +115,8 @@ const R=[
 ['x_weakQuiz',3,F=>{const w=pickL(F.weak.slice(0,6));return w&&w.ja?{w:w.en,ja:w.ja,_lv:w.lv}:null},v=>goSay(v._lv,v.w)],
 ['x_gramQuiz',3,F=>{const a=F.gram.filter(g=>g.own&&g.n.q&&g.n.q.length);if(!a.length)return null;const g=pickL(a),q=pickL(g.n.q);return {g:g.n.t,q:q[0],o:q[1].join(' / '),a:q[1][q[2]],ja:q[3]||'',_g:g}},v=>goGram(v._g.lv,v._g.i)],
 ['x_lesQuiz',3,F=>{const a=F.lesAll.filter(l=>F.les[l.id]&&l.quiz&&l.quiz.some(q=>q.o));if(!a.length)return null;const l=pickL(a),q=pickL(l.quiz.filter(q=>q.o));return {t:l.t,q:q.q,a:q.o[q.a],_id:l.id}},v=>goLesson(v._id)],
+/* 2026-11 ミナ先生の 見た目が かわった（ハーフアップ・ポーズ）。2週間だけ 話す */
+['x_newLook',3,F=>F.now<new Date(2026,10,26)?{}:null,null],
 ['x_firstDays',3,F=>F.days30<=2&&F.answered<20?{}:null,null],
 
 /* ===== ラジオの 答え ===== */

@@ -108,7 +108,7 @@ let listLv=null;
 function list(){listLv=listLv||myLv();const [ex,tx]=minaLine(),S=SC.filter(s=>s.lv===listLv).sort((a,b)=>(b.story?1:0)-(a.story?1:0));
   H.show('kaiwa',`<section class="pnl kwp">
     <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>💬 浜辺の 会話</b><span class="qn">🏁 ${endsN()}/${endsAll()}　😂 ${funN()}/${funTotal()}</span></div>
-    <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
+    <div class="kmina"><span class="lface">${MINA.face('m',ex,MINA.poseFor(ex,tx))}</span><p>${tx}</p></div>
     <div class="seg">${LV.map(k=>`<button data-l="${k}" class="${k===listLv?'on':''}">${LVN[k]}</button>`).join('')}</div>
     <div class="lslist klist">${S.map(row).join('')}</div>
     <div class="row"><button id="kgo">🎲 おまかせで 話す</button><button id="kfun" class="sub">😂 おもしろ図鑑</button></div>
@@ -128,7 +128,7 @@ function funBook(){const items=[],F=facts();SC.forEach(s=>Object.entries(nodesOf
   const [ex,tx]=MINA.line(items.length?'k_funBook':'k_funNone',{n:items.length,tot:funTotal()});
   H.show('kaiwa',`<section class="pnl kwp">
     <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>😂 おもしろ反応 図鑑</b><span class="qn">${items.length}/${funTotal()}</span></div>
-    <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
+    <div class="kmina"><span class="lface">${MINA.face('m',ex,MINA.poseFor(ex,tx))}</span><p>${tx}</p></div>
     <div class="kfunl">${items.map(([s,x])=>`<div class="kfi"><span class="ki">${CH[s.c].ico}</span><div><p class="kyou">「${esc(x[0])}」</p><p class="kre">${esc(x[3])} <i>${x[4]||''}</i></p></div></div>`).join('')||'<p class="note">会話で わざと へんな 答えを えらぶと、ここに たまるよ</p>'}</div>
     ${window.TUTOR&&TUTOR.funList().length?`<p class="tusys">👦 リクの へんな英文（家庭教師の バイト）</p><div class="kfunl">${TUTOR.funList().map(f=>`<div class="kfi"><span class="ki">👦</span><div><p class="kyou">「${esc(f.en)}」</p><p class="kre">⭕ ${esc(f.ok)}</p></div></div>`).join('')}</div>`:''}
   </section>`);
@@ -227,7 +227,7 @@ function end(N){if(!live())return;const s=P.s,c=P.c,first=!KD.done[s.id];
       <p class="kpay">🪙 <b>${pay}まい</b>${first?' <small>はじめての 会話は 2ばい！</small>':''}${bonus?` <small>新しい エンド +${bonus}</small>`:''}</p>
       <div class="kstat"><span>😂 おもしろ反応 <b>${P.fun}</b>${P.newFun?` <small>（新しく ${P.newFun}）</small>`:''}</span><span>✍️ 自分で 言えた <b>${P.free}</b></span><span>${c.ico} なかよし <b>${'♥'.repeat(Math.min(5,KD.heart[s.c]))}</b>${KD.heart[s.c]>5?'+':''}</span></div>
       ${firstMeet?`<p class="knew">${c.ico} <b>${esc(c.n)}</b>と ともだちに なった！</p>`:''}
-      <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
+      <div class="kmina"><span class="lface">${MINA.face('m',ex,MINA.poseFor(ex,tx))}</span><p>${tx}</p></div>
       ${GL.length||LK.length?`<div class="kwords kgl"><small>📘 この 会話に 出てきた 文法</small><div>${GL.map(g=>`<button data-kg="${g.id}" class="got">📘 ${esc(g.n.t)}<small>ノートを ひらく</small></button>`).join('')}</div></div>`:''}
       ${words.length?`<div class="kwords"><small>会話に 出てきた 単語帳の ことば（✓ おぼえた ${wgot}/${words.length}）</small><div>${words.map(w=>`<button data-w="${esc(w.en)}" data-lv="${w.lv}" class="${w.got?'got':''}">${w.got?'✓ ':''}${esc(w.en)}<small>${esc(w.ja)}</small></button>`).join('')}</div></div>`:''}
       <div class="row"><button id="kagain" class="${good?'sub':''}">🔁 さいしょから</button><button id="kmore" class="${good?'':'sub'}">${P.from==='visit'?'🏖️ 浜辺に もどる':'💬 ほかの 人と 話す'}</button></div>

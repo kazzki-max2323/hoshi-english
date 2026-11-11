@@ -91,7 +91,7 @@ function notesFor(lesId){const l=has()&&lesById(lesId);if(!l)return [];
 /* tap: the test (every note is open) */
 function tryTest(g){SFX.deal();H.gramQuiz(g.lv,g.i)}
 
-const say=(ex,tx)=>`<div class="lsay by-m glink"><span class="lface">${MINA.face('m',ex)}</span><div class="lbody"><p>${tx}</p></div></div>`;
+const say=(ex,tx)=>`<div class="lsay by-m glink"><span class="lface">${MINA.face('m',ex,MINA.poseFor(ex,tx))}</span><div class="lbody"><p>${tx}</p></div></div>`;
 
 /* end of a grammar test: with misses ミナ先生 points to the lesson (all right: only if the lesson is not cleared yet). back = where the lesson's ← goes */
 function afterTest(lv,i,miss,back){const n=GRAMMAR[lv].notes[i],L=lessonsFor(n.id).slice(0,2);if(!L.length||(!miss&&lesDone(L[0].id)))return null;
