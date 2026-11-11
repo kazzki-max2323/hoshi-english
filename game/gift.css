@@ -1,0 +1,15 @@
+/* 🎁 プレゼント（game/gift.js） */
+.gf .gfitems{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.gf .gfitems button,.gf .gfwho button{position:relative;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 6px!important;min-height:84px;line-height:1.25}
+.gf .gfitems button .ri{font-size:1.7rem}
+.gf .gfitems button b,.gf .gfwho button b{font-size:.78rem}
+.gf .gfitems button small{font-size:.68rem;color:var(--mute)}
+.gf .gfwho{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.gf .gff{width:46px;height:46px;display:flex;align-items:center;justify-content:center}
+.gf .gff svg{width:46px;height:46px}
+.gf .gfi{font-size:1.9rem;line-height:1}
+.gf .lface .gfi{font-size:1.5rem}
+.gf .gfk{position:absolute;top:4px;right:5px;font-style:normal;font-size:.95rem}
+.gf .kopts .zlv{display:inline-block;font-style:normal;font-size:.6rem;font-weight:700;line-height:1;padding:2px 4px;border-radius:5px;color:#fff;text-shadow:none;vertical-align:2px}
+.gf .gfnr .ri.gff{width:40px;height:40px}
+.gf .gfnr .ri.gff svg{width:40px;height:40px}

@@ -82,6 +82,7 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
       <button id="bookOpen" class="sub"><span>📕</span>単語帳</button>
       <button id="cardOpen" class="sub"><span>🃏</span>カード${window.CARDS&&CARDS.freeOk()?'<i class="dot"></i>':''}</button>
       <button id="mini" class="sub"><span>🗺️</span>宝の地図</button>
+      <button id="bagOpen" class="sub"><span>🎒</span>もちもの</button>
     </div>
     ${MUS.on&&MUS.id?`<div class="np"><span>🎵 ${esc(TRACKS[MUS.id].name)}</span><button id="npStop" class="sub">■ とめる</button></div>`:''}
     ${ST.radios.length?`<label class="gap"><span>📻 つぶやき</span><input id="gapR" type="range" min="3" max="30" step="1" value="${ST.radioGap}"><output id="gapV">${ST.radioGap}秒ごと</output></label>`:''}
@@ -90,6 +91,7 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
   $('bookOpen').onclick=()=>{SFX.book();books()};
   $('mini').onclick=()=>{SFX.map();window.ADV&&ADV.open()};
   $('cardOpen').onclick=()=>{SFX.card();window.CARDS&&CARDS.open()};
+  $('bagOpen').onclick=()=>{SFX.open();window.ZAKKA&&ZAKKA.bag(home)};
   const ns=$('npStop');if(ns)ns.onclick=()=>{stopMusic(true);SFX.pop();home()};
   const g=$('gapR');if(g)g.oninput=()=>{ST.radioGap=+g.value;$('gapV').textContent=g.value+'秒ごと';save();if(nextAt>performance.now()+ST.radioGap*1000)nextAt=performance.now()+ST.radioGap*1000};
   rqIdle();emit('home',back);if(back)nextAt=Math.max(nextAt,performance.now()+RADIO_REST);else radioWake();
