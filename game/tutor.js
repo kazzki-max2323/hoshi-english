@@ -297,12 +297,13 @@ function gifts(back){const G=TG.filter(g=>TD.gifts[g[0]]>0);
     ${minaBox(G.length?'tu_gifts':'tu_giftsNone',{})}
     <div class="zkbag">${G.map(g=>`<div class="ritem zkbi"><span class="ri">${g[1]}</span><span class="rn"><b>${esc(g[2])}</b><small>${TD.gifts[g[0]]}こ・雑貨店で 🪙${g[4]}くらい</small></span></div>`).join('')||'<p class="note">バイトの おわりに リクが くれるよ</p>'}</div>
     <div class="zkalb tual">${TG.map(g=>TD.got[g[0]]?`<button disabled><span>${g[1]}</span><small>${esc(g[2])}</small></button>`:`<button class="no" disabled><span>？</span><small>？？？</small></button>`).join('')}</div>
-    ${G.length&&window.ZAKKA?'<div class="row"><button id="tusell">🏚️ 雑貨店で 売る</button></div>':''}
+    ${G.length&&(window.ZAKKA||window.GIFT)?`<div class="row">${window.GIFT?'<button id="tugive">🎁 だれかに あげる</button>':''}${window.ZAKKA?'<button id="tusell" class="sub">🏚️ 雑貨店で 売る</button>':''}</div>`:''}
     ${(TD.letters||[]).length?`<details class="mfold" open><summary>✉️ リクからの 手紙 ${TD.letters.length}</summary><div class="tutl">${TD.letters.map(n=>`<button class="tuex" data-let="${n}">✉️ ${n}回目の 手紙</button>`).join('')}</div></details>`:''}
   </section>`);
   $('tux').onclick=()=>{SFX.back();back()};
   H.panel.querySelectorAll('[data-let]').forEach(b=>b.onclick=()=>{SFX.book();readLetter(+b.dataset.let,()=>gifts(back))});
-  const s=$('tusell');if(s)s.onclick=()=>{SFX.shop();ZAKKA.play('sell')}}
+  const s=$('tusell');if(s)s.onclick=()=>{SFX.shop();ZAKKA.play('sell')};
+  const gv=$('tugive');if(gv)gv.onclick=()=>{SFX.open();GIFT.pick({back:()=>gifts(back)})}}
 
 /* ✉️ a letter from Riku */
 function readLetter(n,back){const l=(K.letters||[]).find(x=>x[0]===n);if(!l)return back();
@@ -337,7 +338,7 @@ Object.assign(MINA_LINES,{
  tu_noteNone:[['smile','リクくんに 教えた ことが ここに たまるよ']],
  tu_fun:[['happy','へんな 英文 {n}こ！ ⭕の 文と くらべて 読むと、 どこが ちがうか よく わかるよ'],['happy','どれも まちがい だけど、 ちょっと かわいいよね']],
  tu_funNone:[['smile','わざと ちがう 教え方を えらぶと、 リクくんが へんな 英文を 言うよ。 ためして みて']],
- tu_gifts:[['smile','リクくんの 手作り、 かわいいね。 ながれぎ雑貨店の ノラさんが 買いとって くれるよ'],['happy','売る ときは 英語で。 「I\'d like to sell this.」 だよ']],
+ tu_gifts:[['smile','リクくんの 手作り、 かわいいね。 ながれぎ雑貨店の ノラさんが 買いとって くれるよ'],['happy','リクくんの お礼、 だれかに プレゼント しても いいんだよ。 好きな 人が いるかも'],['happy','売る ときは 英語で。 「I\'d like to sell this.」 だよ']],
  tu_giftsNone:[['smile','バイトの おわりに リクくんが お礼を くれるよ']],
  tu_sold:[['happy','リクくんの {g}、 ノラさんが 大事に かざって くれるって'],['smile','売る 英語も ばっちり！ リクくんも よろこぶね']],
  tu_end_check:[['proud','リクくんの 宿題、 ちゃんと 直せたね。 人の まちがいに 気づけるのは、 自分が わかってる しょうこ'],['happy','宿題チェック、 先生みたい だったよ。 自分の 英語も 同じ 目で 見なおしてみてね']],

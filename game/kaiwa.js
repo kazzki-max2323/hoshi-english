@@ -230,12 +230,14 @@ function end(N){if(!live())return;const s=P.s,c=P.c,first=!KD.done[s.id];
       <div class="kmina"><span class="lface">${MINA.face('m',ex,MINA.poseFor(ex,tx))}</span><p>${tx}</p></div>
       ${GL.length||LK.length?`<div class="kwords kgl"><small>📘 この 会話に 出てきた 文法</small><div>${GL.map(g=>`<button data-kg="${g.id}" class="got">📘 ${esc(g.n.t)}<small>ノートを ひらく</small></button>`).join('')}</div></div>`:''}
       ${words.length?`<div class="kwords"><small>会話に 出てきた 単語帳の ことば（✓ おぼえた ${wgot}/${words.length}）</small><div>${words.map(w=>`<button data-w="${esc(w.en)}" data-lv="${w.lv}" class="${w.got?'got':''}">${w.got?'✓ ':''}${esc(w.en)}<small>${esc(w.ja)}</small></button>`).join('')}</div></div>`:''}
+      ${window.GIFT&&GIFT.has()&&GIFT.people().includes(s.c)?`<div class="row"><button id="kgift" class="sub">🎁 ${esc(c.n)}に プレゼント</button></div>`:''}
       <div class="row"><button id="kagain" class="${good?'sub':''}">🔁 さいしょから</button><button id="kmore" class="${good?'':'sub'}">${P.from==='visit'?'🏖️ 浜辺に もどる':'💬 ほかの 人と 話す'}</button></div>
     </div>`;
     const r=$('kans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?SFX.done():(SFX.tease?SFX.tease():SFX.pop());
     $('kans').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.w));
     $('kans').querySelectorAll('[data-kg]').forEach(b=>b.onclick=()=>{const g=GS().byId(b.dataset.kg),back=()=>{const f=P&&P.from;P=null;f==='visit'?H.home():list()};SFX.book();try{speechSynthesis.cancel()}catch(e){}
       H.gramNote(g.lv,g.i)});
+    const kg=$('kgift');if(kg)kg.onclick=()=>{const f=P.from;SFX.open();try{speechSynthesis.cancel()}catch(e){}P=null;GIFT.pick({to:s.c,back:f==='visit'?H.home:list})};
     const from=P.from;$('kagain').onclick=()=>{SFX.step();play(s.id,from)};$('kmore').onclick=()=>{SFX.back();from==='visit'?H.home():list()};
     setTimeout(()=>$('kans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1600)}
 
