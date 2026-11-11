@@ -138,7 +138,7 @@ function funBook(){const items=[],F=facts();SC.forEach(s=>Object.entries(nodesOf
 let P=null;   // the talk going on: scene, node, counts
 function play(id,from){const s=sceneOf(id);if(!s)return list();const c=CH[s.c];
   P={s,c,from,at:startOf(s),step:0,lock:[],lockSeen:new Set(),fun:0,newFun:0,free:0,freeCoins:0,miss:0,asked:0,lines:[],F:facts()};
-  H.show('kaiwa',`<section class="pnl lsn kw">
+  H.show('kaiwa',`<section class="pnl lsn kw" data-stay>
     <div class="qtop"><button class="x" id="kx" aria-label="会話を やめる">←</button><b>${c.ico} ${esc(c.n)}</b><span class="qn" id="kq"></span></div>
     <div class="lslog kwlog" id="klog"></div>
     <div id="kans" class="kans"></div>

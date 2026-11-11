@@ -132,7 +132,7 @@ let P=null;
 const live=()=>P&&$('tulog');
 function play(){const qs=pick3();
   P={qs,i:0,firstOk:0,fix:0,newFun:[],funs:[],taught:[],tries:{},paid:paidLeft()>0};
-  H.show('tutor',`<section class="pnl lsn kw tu">
+  H.show('tutor',`<section class="pnl lsn kw tu" data-stay>
     <div class="qtop"><button class="x" id="tux" aria-label="やめる">←</button><b>👦 リクに 教える</b><span class="qn" id="tuq"></span></div>
     <div class="lslog kwlog" id="tulog"></div>
     <div id="tuans" class="kans"></div>

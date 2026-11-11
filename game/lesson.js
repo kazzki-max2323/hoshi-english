@@ -111,7 +111,7 @@ function quiz(l,back){let k=0,miss=0;
       ${gk?gk.html:''}
       ${ext.length?`<div class="bwin"><b class="bt">🎁 ごほうび</b>${ext.map(x=>`<div class="brow">${x.html}</div>`).join('')}</div>`:''}
       ${nx?`<p class="note">つぎの 授業も やってみる？</p>${row(nx)}`:''}
-      <div class="row"><button id="lagain" class="sub">もう一度</button><button id="lback">${back===H.home?'ホームへ':'ミナ先生へ'}</button></div>
+      <div class="row"><button id="lagain" class="sub">もう一度</button><button id="lback" data-back>${back===H.home?'ホームへ':'ミナ先生へ'}</button></div>
     </section>`);
     SFX.done();if(pay){const r=H.panel.getBoundingClientRect();setTimeout(()=>H.coinBurst(r.left+r.width/2,r.top+70,pay),300)}
     $('lagain').onclick=()=>{SFX.pop();open(l.id,back)};$('lback').onclick=()=>{SFX.pop();back===H.home?H.home():MINA.open()};bindRows(back);if(gk)gk.bind();ext.forEach(x=>{try{x.after&&x.after()}catch(e){console.error(e)}})};

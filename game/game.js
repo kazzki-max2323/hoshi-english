@@ -213,9 +213,12 @@ function wipeAll(){
   try{Storage.prototype.setItem=function(){}}catch(e){}   // nothing may write the old save back before the reload
   try{localStorage.removeItem(SAVE_KEY);localStorage.removeItem('hoshiEco')}catch(e){}
   location.reload()}
-/* tapping anywhere outside the panel works like its ← button (and that tap does nothing else); screens without ← (mini games, chests) ignore it */
-document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#meteor,#bbadge,#minaPop,#dpov'))return;
-  const x=panel.querySelector('.qtop .x');if(!x)return;
+/* tapping anywhere outside the panel works like its ← button (and that tap does nothing else).
+   Result screens without ← mark their "back" button with data-back. Mini games have neither, so they ignore it.
+   A running long talk / the novel (data-stay) ignores it too, so a stray tap can't end it; once its ending shows (.kend/.kends) it closes like the rest */
+document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#meteor,#bbadge,#minaPop,#dpov,#bmPop'))return;
+  if(panel.querySelector('[data-stay]')&&!panel.querySelector('.kend,.kends'))return;
+  const x=panel.querySelector('.qtop .x')||panel.querySelector('[data-back]');if(!x)return;
   e.preventDefault();e.stopPropagation();x.click();
   const eat=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',eat,true),400)},true);
 /* moving things (answer bubbles, residents, mini-game targets) answer the moment a finger touches them.
@@ -534,7 +537,7 @@ function gramQuiz(lv,i){const G=GRAMMAR[lv],n=G.notes[i];let k=0,miss=0;
       <div class="box">${miss?'📝':'💯'}</div><b class="ct">${miss?`${n.q.length-miss}/${n.q.length} せいかい`:'ぜんもん せいかい！'}</b>
       <p class="note">${miss?'ルールを 見なおして もう一度 ちょうせんしよう':first?`「${esc(n.t)}」を クリア！`:'クリアずみの ノートだよ'}</p>
       ${lk?lk.html:''}
-      <div class="row">${miss?'<button id="gr">もう一度</button>':''}<button id="gb" class="sub">ノートに もどる</button></div>
+      <div class="row">${miss?'<button id="gr">もう一度</button>':''}<button id="gb" class="sub" data-back>ノートに もどる</button></div>
     </section>`);if(lk)lk.bind();
     if(!miss){SFX.done();if(first){const r=panel.getBoundingClientRect();coinBurst(r.left+r.width/2,r.top+60,G.reward)}}
     const gr=$('gr');if(gr)gr.onclick=()=>gramQuiz(lv,i);$('gb').onclick=()=>gramNote(lv,i)};
