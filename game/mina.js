@@ -96,7 +96,47 @@ function goTo(o){if(!o)return null;const [k,,x]=o;if(o[3])return o[3];
   return null}
 
 /* ---------- face ---------- */
-function face(who,ex){const m=who==='m';
+/* ミナ先生: ハーフアップのおだんご・きらきら目（2026-11 デザイン C6-1）。表情 ex と、あとから足すポーズ pose */
+const MK='#2a2340',MH='#6b3a2a',MH2='#8e5640',MSK='#ffe0cc';
+function minaEyes(ex){const L=26,R=38,Y=37.4,s=1.08;
+  const lash=(x,d)=>`<path d="M${x+d*3.3*s} ${Y-2.2*s}l${d*1.5} -.9M${x+d*3.5*s} ${Y-.6*s}l${d*1.5} -.1" stroke="${MK}" stroke-width="1" stroke-linecap="round"/>`;
+  const one=(x,d,big,dx=0,dy=0)=>{const rx=(big?3.4:3)*s,ry=(big?4.3:3.8)*s;
+    return `<ellipse cx="${x}" cy="${Y}" rx="${rx}" ry="${ry}" fill="${MK}"/><ellipse cx="${x+dx*.5}" cy="${Y+.9+dy*.5}" rx="${rx*.74}" ry="${ry*.62}" fill="#3f8fe6"/><ellipse cx="${x+dx*.5}" cy="${Y+2+dy*.5}" rx="${rx*.5}" ry="${ry*.3}" fill="#9fe0ff" opacity=".55"/>`+
+    `<path d="M${x+1.2+dx} ${Y-3.3+dy}l.6 1.3 1.3.4-1.3.4-.6 1.3-.6-1.3-1.3-.4 1.3-.4z" fill="#fff"/><circle cx="${x-1.3+dx}" cy="${Y+2+dy}" r=".65" fill="#fff"/>`+
+    `<path d="M${x-rx-.7} ${Y-ry*.5}q${rx+.7} ${-ry*.85} ${2*rx+1.4} 0" stroke="${MK}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`+lash(x,d)};
+  const arc=(x,d,up)=>`<path d="M${x-3.4} ${Y+(up?1:-.6)}q3.4 ${up?-4.6:3.9} 6.8 0" stroke="${MK}" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M${x+d*3.4} ${Y+(up?1:-.6)}l${d*1.6} ${up?.2:-1.2}" stroke="${MK}" stroke-width="1.1" stroke-linecap="round"/>`;
+  const heart=x=>`<path d="M${x} ${Y+3.8}l-3.6-3.5a2.2 2.2 0 0 1 3.6-2.5 2.2 2.2 0 0 1 3.6 2.5z" fill="#e8436b"/><circle cx="${x-1.5}" cy="${Y-.9}" r=".7" fill="#fff"/>`;
+  const brow=w=>w?`<path d="M${L-3.5} ${Y-6.8}l5 1.6M${R+3.5} ${Y-6.8}l-5 1.6" stroke="${MK}" stroke-width="1.3" stroke-linecap="round"/>`:`<path d="M${R-3} ${Y-7.2}q3-1.8 5.5-.2" stroke="${MK}" stroke-width="1.3" fill="none" stroke-linecap="round"/>`;
+  if(ex==='happy')return arc(L,-1,1)+arc(R,1,1);
+  if(ex==='proud')return arc(L,-1,0)+arc(R,1,0);
+  if(ex==='love')return heart(L)+heart(R);
+  if(ex==='wow')return one(L,-1,1)+one(R,1,1);
+  if(ex==='think')return one(L,-1,0,.9,-1.1)+one(R,1,0,.9,-1.1)+brow(0);
+  if(ex==='worry'||ex==='sad')return one(L,-1,0)+one(R,1,0)+brow(1);
+  return one(L,-1,0)+one(R,1,0)}
+function minaFace(ex,pose){const Y=45.2,red='#d0606a',dark='#b4294a',open=`<path d="M28.3 ${Y-1.2}q3.7 6 7.4 0z" fill="${dark}"/><path d="M30 ${Y+1.4}q2-1.4 4 0q-2 1.6-4 0z" fill="#ff8fa3"/>`;
+  const mouth={happy:open,love:open,wow:`<ellipse cx="32" cy="${Y+.4}" rx="1.9" ry="2.4" fill="${dark}"/>`,
+    think:`<path d="M30 ${Y}q1.5-1 3 0t3 0" stroke="${red}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`,
+    proud:`<path d="M28.6 ${Y-.6}q1.7 2 3.4 0q1.7 2 3.4 0" stroke="${red}" stroke-width="1.5" fill="none" stroke-linecap="round"/>`,
+    worry:`<path d="M29.5 ${Y+.8}q2.5-2 5 0" stroke="${red}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`}[ex]||`<path d="M29.3 ${Y-.5}q2.7 2.4 5.4 0" stroke="${red}" stroke-width="1.6" fill="none" stroke-linecap="round"/>`;
+  const glow=ex==='love'||ex==='happy',op=glow?.9:.6;
+  const cheek=`<ellipse cx="22.5" cy="42.5" rx="2.8" ry="1.7" fill="#ff9fb0" opacity="${op}"/><ellipse cx="41.5" cy="42.5" rx="2.8" ry="1.7" fill="#ff9fb0" opacity="${op}"/>`+(glow?'<path d="M20.5 42.5l1-1.4M23 42.6l1-1.4M40 42.6l1-1.4M42.5 42.5l1-1.4" stroke="#fff" stroke-width=".6" opacity=".7"/>':'');
+  const extra={proud:'<path d="M51 13l1.5 3 3 1.5-3 1.5-1.5 3-1.5-3-3-1.5 3-1.5z" fill="#ffd23f"/><circle cx="56" cy="24" r="1" fill="#ffd23f"/>',
+    worry:'<path d="M49 26q2.2 4.4 0 6.4q-2.2-2 0-6.4z" fill="#8fd3ff"/>',
+    wow:'<path d="M52 10v7M55.5 13.5h-7" stroke="#ffd23f" stroke-width="1.6" stroke-linecap="round"/><path d="M9 16v4M11 18h-4" stroke="#ffd23f" stroke-width="1.2" stroke-linecap="round"/>',
+    love:'<path d="M52 21l-3.6-3.5a2.2 2.2 0 0 1 3.6-2.4 2.2 2.2 0 0 1 3.6 2.4z" fill="#ff6b8b"/><path d="M11 15l-2-2a1.2 1.2 0 0 1 2-1.3 1.2 1.2 0 0 1 2 1.3z" fill="#ff6b8b"/>',
+    think:'<circle cx="50" cy="20" r="1.4" fill="#fff" opacity=".7"/><circle cx="53.5" cy="15" r="2.2" fill="#fff" opacity=".7"/>'}[ex]||'';
+  return `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="31" fill="#1f2a5c"/>`+
+   `<path d="M11 44c-1-18 8-28 21-28s22 10 21 28c0 6 2 9 1 13-2 3-6 4-8 2 2-3 0-6-1-9l-2-12H21l-2 12c-1 3-3 6-1 9-2 2-6 1-8-2-1-4 1-7 1-13z" fill="${MH}"/>`+
+   `<circle cx="32" cy="16" r="6.3" fill="${MH}"/><path d="M28.5 12.5q3-2 6.5-.3" stroke="${MH2}" stroke-width="1" fill="none" stroke-linecap="round"/>`+
+   `<path d="M20 59c2-6 6-8.5 12-8.5s10 2.5 12 8.5v5H20z" fill="#fff"/><path d="M26.5 51.5q5.5 6 11 0l-2 4q-3.5 2-7 0z" fill="#7ad3c4"/><circle cx="32" cy="56" r="1.6" fill="#7ad3c4"/>`+
+   `<ellipse cx="17" cy="38.5" rx="2.4" ry="3" fill="${MSK}"/><ellipse cx="47" cy="38.5" rx="2.4" ry="3" fill="${MSK}"/><ellipse cx="32" cy="37" rx="15" ry="14" fill="${MSK}"/>`+
+   `<path d="M17 38c0-11 6-17 15-17s15 6 15 17c-1.5-4-4-7-6-8 0 3-1.5 5-3 6 .5-2 0-4-1-5.5-3 3-7 4.5-12 4.5 1-1.2 1.5-2.5 1.6-3.8-4 2-6.6 3.8-9.6 6.8z" fill="${MH}"/>`+
+   `<path d="M21.6 27.4q2.6-3.2 6.4-4.6M36.4 22.8q2.4.6 4.2 2" stroke="#fff" stroke-width="1.7" fill="none" stroke-linecap="round" opacity=".38"/>`+
+   `<g class="eyes" style="transform-origin:32px 37.4px">${minaEyes(ex)}</g>${cheek}${mouth}${extra}${pose||''}</svg>`}
+function face(who,ex,pose){return who==='m'?minaFace(ex,pose):hamaFace(ex)}
+/* ハマ子の顔（ミナ先生は minaFace） */
+function hamaFace(ex){const m=false;
   const eyes={smile:'<circle cx="27" cy="35" r="1.9"/><circle cx="37" cy="35" r="1.9"/>',
     happy:'<path d="M24.5 35.5q2.5-3 5 0M34.5 35.5q2.5-3 5 0" stroke="#2a2340" stroke-width="1.7" fill="none" stroke-linecap="round"/>',
     wow:'<circle cx="27" cy="35" r="2.6"/><circle cx="37" cy="35" r="2.6"/><circle cx="27.8" cy="34.2" r=".8" fill="#fff"/><circle cx="37.8" cy="34.2" r=".8" fill="#fff"/>',
