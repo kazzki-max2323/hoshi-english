@@ -323,7 +323,7 @@ KAIWA_SCENES.push(
   eClean:E(0,'ホテルで アルバイト',"I cleaned forty rooms. My English for 'mop' and 'bucket' is now perfect.","40部屋 そうじ したわ。モップと バケツの 英語は もう 完ぺき","🧹"),
 }},
 );
-/* 文法の 答え: その 文法ノートを もっていると えらべる 答え（もっていないと 🔒で 見える）。その先に 📘の エンド。
+/* 文法の 答え: 文法を つかう 答え（文法ノートは ぜんぶ ひらいているので いつでも えらべる）。その先に 📘の エンド。
    GO(ノートの id, O(...)) で 答えの 列の さいごに 足す（さいごに 足すので おもしろ反応の 番号は ずれない）。文法の 判定は game/gram-see.js */
 const GO=(id,o)=>(o.g=id,o),GE=(id,t,s,j,fx)=>Object.assign(E(1,'📘 '+t,s,j,fx),{gram:id});
 const gramTalk=(sid,node,id,o,end)=>{const S=KAIWA_SCENES.find(x=>x.id===sid);if(!S||!S.nodes[node])return;o[6]='eGram';S.nodes[node].o.push(GO(id,o));S.nodes.eGram=GE(id,...end)};

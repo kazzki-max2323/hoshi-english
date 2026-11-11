@@ -75,7 +75,7 @@ const GLV=['es','jh','hs'];
 const has=()=>typeof GRAMMAR!=='undefined'&&typeof LESSONS!=='undefined';
 const lesById=id=>LESSONS.find(l=>l.id===id);
 const lesDone=id=>!!((MINA.rec().les||{})[id]);
-const owned=id=>(ST.gram.owned||[]).includes(id),cleared=id=>(ST.gram.cleared||[]).includes(id);
+const owned=id=>true /* 文法ノートは ぜんぶ ひらいている */,cleared=id=>(ST.gram.cleared||[]).includes(id);
 /* every grammar note: {lv,i,n} */
 const notes=()=>has()?GLV.flatMap(lv=>(GRAMMAR[lv]?GRAMMAR[lv].notes:[]).map((n,i)=>({lv,i,n}))):[];
 const noteById=id=>notes().find(g=>g.n.id===id);
@@ -88,9 +88,8 @@ function notesFor(lesId){const l=has()&&lesById(lesId);if(!l)return [];
   const a=notes().filter(g=>(GRAM_LES[g.n.id]||[]).includes(lesId)),lv=l.lv==='adv'?'hs':l.lv;
   return a.filter(g=>g.lv===lv).concat(a.filter(g=>g.lv!==lv))}
 
-/* tap: the test if the note is yours, the shop if not */
-function tryTest(g){if(owned(g.n.id)){SFX.deal();H.gramQuiz(g.lv,g.i)}
-  else{SFX.shop();H.gramShop(g.lv);H.toast(`📚 「${g.n.t}」の ノートを かうと テストで ためせるよ`)}}
+/* tap: the test (every note is open) */
+function tryTest(g){SFX.deal();H.gramQuiz(g.lv,g.i)}
 
 const say=(ex,tx)=>`<div class="lsay by-m glink"><span class="lface">${MINA.face('m',ex)}</span><div class="lbody"><p>${tx}</p></div></div>`;
 
@@ -101,9 +100,9 @@ function afterTest(lv,i,miss,back){const n=GRAMMAR[lv].notes[i],L=lessonsFor(n.i
     bind:()=>LESSON.bindRows(back)}}
 
 /* end of a lesson: try its grammar in the test */
-function afterLesson(l){const G=notesFor(l.id);if(!G.length)return null;const g=G.find(x=>!cleared(x.n.id))||G[0],own=owned(g.n.id);
-  const [ex,tx]=MINA.line(cleared(g.n.id)?'lesGramAgain':own?'lesGram':'lesGramShop',{g:'「'+esc(g.n.t)+'」',t:'「'+esc(l.t)+'」'});
-  return {html:say(ex,tx)+`<div class="row"><button id="lgram">${own?'✏️ この文法を テストで ためす':'🛍️ この文法の ノートを 見る'}</button></div>`,
+function afterLesson(l){const G=notesFor(l.id);if(!G.length)return null;const g=G.find(x=>!cleared(x.n.id))||G[0];
+  const [ex,tx]=MINA.line(cleared(g.n.id)?'lesGramAgain':'lesGram',{g:'「'+esc(g.n.t)+'」',t:'「'+esc(l.t)+'」'});
+  return {html:say(ex,tx)+`<div class="row"><button id="lgram">✏️ この文法を テストで ためす</button></div>`,
     bind:()=>{const b=document.getElementById('lgram');if(b)b.onclick=()=>tryTest(g)}}}
 
 window.GRAMLINK={lessonsFor,notesFor,noteById,afterTest,afterLesson,tryTest,map:GRAM_LES};

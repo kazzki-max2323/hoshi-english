@@ -20,7 +20,7 @@ const sceneOf=id=>SC.find(s=>s.id===id);
 const GS=()=>window.GRAMSEE;
 const gById=id=>GS()&&GS().byId(id);
 const gName=id=>{const g=gById(id);return g?g.n.t:id};
-const owned=id=>(ST.gram.owned||[]).includes(id),cleared=id=>(ST.gram.cleared||[]).includes(id);
+const owned=id=>true /* 文法ノートは ぜんぶ ひらいている */,cleared=id=>(ST.gram.cleared||[]).includes(id);
 const ML=(k,v)=>MINA.line(k,v);
 
 /* ---------- the record ---------- */
@@ -129,13 +129,13 @@ function karte(){const ids=Object.keys(SD.g).filter(id=>gById(id)).sort((a,b)=>(
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     <p class="note">ミナ先生との 会話で 出た 文法。⭕ 1回で 正解・💡 ヒントで 正解・📘 解説を きいた</p>
     <div class="snkarte">${ids.map(id=>{const e=SD.g[id],sc=gScore(id),g=gById(id);
-      return `<div class="snk ${sc!=null&&sc<.65?'weak':sc!=null&&sc>=.85?'good':''}"><b>${sc!=null&&sc<.65?'🔥 ':sc!=null&&sc>=.85?'🌟 ':''}${esc(g.n.t)}</b><span>⭕${e.ok} 💡${e.hint} 📘${e.miss}</span><span class="snbar"><i style="width:${Math.round((sc??0)*100)}%"></i></span><span class="snkb"><button data-tk="${id}" class="sub">🎯 とっくん</button>${window.DEEP?`<button data-dp="${id}" class="sub">🔎 くわしく</button>`:''}<button data-gn="${id}" class="sub">${owned(id)?'📚 ノート':'🔍 おためし'}</button></span></div>`}).join('')||'<p class="note">ミナ先生と 会話すると、ここに 文法ごとの 記録が たまるよ</p>'}</div>
+      return `<div class="snk ${sc!=null&&sc<.65?'weak':sc!=null&&sc>=.85?'good':''}"><b>${sc!=null&&sc<.65?'🔥 ':sc!=null&&sc>=.85?'🌟 ':''}${esc(g.n.t)}</b><span>⭕${e.ok} 💡${e.hint} 📘${e.miss}</span><span class="snbar"><i style="width:${Math.round((sc??0)*100)}%"></i></span><span class="snkb"><button data-tk="${id}" class="sub">🎯 とっくん</button>${window.DEEP?`<button data-dp="${id}" class="sub">🔎 くわしく</button>`:''}<button data-gn="${id}" class="sub">📚 ノート</button></span></div>`}).join('')||'<p class="note">ミナ先生と 会話すると、ここに 文法ごとの 記録が たまるよ</p>'}</div>
   </section>`);
   $('sx').onclick=()=>{SFX.pop();list()};
   H.panel.querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{SFX.step();tokkun([b.dataset.tk])});
   H.panel.querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{SFX.book();openGram(b.dataset.gn,karte)});
   H.panel.querySelectorAll('[data-dp]').forEach(b=>b.onclick=()=>{SFX.step();DEEP.open(b.dataset.dp)})}
-function openGram(id,back){const g=gById(id);if(!g)return;hush();owned(id)?H.gramNote(g.lv,g.i):H.gramTry(g.lv,g.i,back||list)}
+function openGram(id,back){const g=gById(id);if(!g)return;hush();H.gramNote(g.lv,g.i)}
 
 /* ---------- one talk ---------- */
 let P=null;
@@ -149,7 +149,7 @@ function begin(s,from){
   </section>`);
   $('sx').onclick=()=>{SFX.pop();hush();const f=P&&P.from;P=null;f==='home'?H.home():f==='mina'?MINA.open():list()};
   /* what Mina says first: about this talk's grammar and how it went before */
-  const ids=s.g||[],w=ids.find(id=>weakAll().includes(id)),nw=ids.find(id=>!owned(id)),cl=ids.find(id=>cleared(id));
+  const ids=s.g||[],w=ids.find(id=>weakAll().includes(id)),nw=ids.find(id=>!cleared(id)&&!(SD.g||{})[id]),cl=ids.find(id=>cleared(id));
   let k='sn_intro',v={t:'「'+s.t+'」',g:ids.length?'「'+gName(ids[0])+'」':''};
   if(s.intro){note(`<span class="snjin">${s.intro}</span>`)}
   if(s.kind)k=null;
@@ -196,7 +196,7 @@ function ready(N){const s=P.s,inl=s.slots;
   out.ctx=new Set(Object.keys(P.V));out.o=(ro||[]).map(o=>OPT(o,P.V,inl,out.ctx));return out}
 /* a grammar check from the drills: this talk's grammar, the weak ones first, then the level's notes the player has */
 function drillPick(){const s=P.s,pool=(s.g||[]).filter(id=>DR[id]),lvl=GLV[s.lv],weak=weakAll().filter(id=>DR[id]&&(id.startsWith(lvl)||pool.includes(id)));
-  const ownL=(ST.gram.owned||[]).filter(id=>DR[id]&&id.startsWith(lvl));
+  const ownL=Object.keys(DR).filter(id=>id.startsWith(lvl));
   const r=Math.random();if(weak.length&&r<.4)return pickL(weak);if(ownL.length&&r<.6)return pickL(ownL);
   return pickL(pool.length?pool:Object.keys(DR).filter(id=>id.startsWith(lvl)))}
 /* which drill of a grammar: one not asked yet, so the same question does not come back until all were asked (kept in the save) */
@@ -337,7 +337,7 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
       <div class="snscore"><span>⭕ 1回で <b>${st.ok}</b></span><span>💡 ヒントで <b>${st.hint}</b></span><span>📘 解説 <b>${st.miss}</b></span><span>✍️ 自分で <b>${st.free}</b></span></div>
       <p class="kpay">🪙 <b>${pay}まい</b>${first?' <small>はじめては 2ばい！</small>':''}${perfect?' <small>ノーミス +5</small>':''}${newEnd?' <small>新しい エンド</small>':''}</p>
       <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
-      ${GL.length?`<div class="kwords kgl sngl"><small>📘 この 会話の 文法（${missG.length?'📘 解説を きいた ものから 復習しよう':'よく できたね'}）</small><div>${GL.map(id=>{const r=st.g[id],L=lesFor(id);return `<span class="sng ${r.miss?'miss':r.hint?'hint':'ok'}"><b>${r.miss?'📘':r.hint?'💡':'⭕'} ${esc(gName(id))}</b><span><button data-gn="${id}" class="sub">${owned(id)?'📚 ノート':'🔍 おためし'}</button>${r.miss||r.hint?`<button data-tk="${id}" class="sub">🎯 とっくん</button>`:''}${window.DEEP&&(r.miss||r.hint)?`<button data-dp="${id}" class="sub">🔎 くわしく</button>`:''}${L&&(r.miss||r.hint)?`<button data-ls="${L.id}" class="sub">📖 授業</button>`:''}</span></span>`}).join('')}</div></div>`:''}
+      ${GL.length?`<div class="kwords kgl sngl"><small>📘 この 会話の 文法（${missG.length?'📘 解説を きいた ものから 復習しよう':'よく できたね'}）</small><div>${GL.map(id=>{const r=st.g[id],L=lesFor(id);return `<span class="sng ${r.miss?'miss':r.hint?'hint':'ok'}"><b>${r.miss?'📘':r.hint?'💡':'⭕'} ${esc(gName(id))}</b><span><button data-gn="${id}" class="sub">📚 ノート</button>${r.miss||r.hint?`<button data-tk="${id}" class="sub">🎯 とっくん</button>`:''}${window.DEEP&&(r.miss||r.hint)?`<button data-dp="${id}" class="sub">🔎 くわしく</button>`:''}${L&&(r.miss||r.hint)?`<button data-ls="${L.id}" class="sub">📖 授業</button>`:''}</span></span>`}).join('')}</div></div>`:''}
       <div class="row"><button id="sagain" class="${good?'sub':''}">🔁 ${s.kind?'もう一回':'さいしょから'}</button><button id="smore" class="${good?'':'sub'}">🗣️ ほかの 会話</button></div>
     </div>`;
     const r=$('sans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?SFX.done():(SFX.tease?SFX.tease():SFX.pop());

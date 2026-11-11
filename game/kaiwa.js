@@ -14,8 +14,8 @@ const PAY={es:6,jh:8,hs:10,adv:12};   // coins for a conversation (double the fi
 const pickL=a=>a[Math.random()*a.length|0];
 const CH=KAIWA_CHARS,SC=KAIWA_SCENES;
 const sceneOf=id=>SC.find(s=>s.id===id);
-/* grammar (game/gram-see.js): owned grammar lights up in the lines; a 文法の 答え needs its note */
-const GS=()=>window.GRAMSEE,gOwn=id=>(ST.gram.owned||[]).includes(id);
+/* grammar (game/gram-see.js): grammar lights up in the lines; every 文法の 答え is open (the notes are all free now) */
+const GS=()=>window.GRAMSEE,gOwn=id=>true /* 文法ノートは ぜんぶ ひらいている */;
 
 /* ---------- the record ---------- */
 const KD=(()=>{try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}').kaiwa;if(s&&s.done)return s}catch(e){}return {done:{},heart:{},fun:{},free:0,ask:0,n:0,last:0,ja:0}})();
@@ -167,10 +167,9 @@ function turn(){if(!live())return;const N=nodesOf(P.s)[P.at];if(!N)return;if(N.e
 function answers(hint){if(!live())return;const N=P.N,order=P.order&&P.order.length===P.opts.length?P.order:H.shuffle(P.opts.map((o,i)=>i));P.order=order;
   const mic=window.SpeechRecognition||window.webkitSpeechRecognition;
   $('kans').innerHTML=`${hint?`<p class="khint">💡 たとえば：<b>${esc(hint)}</b></p>`:''}
-    <div class="lopts kopts">${order.map(i=>`<button data-o="${i}" class="${P.opts[i].g?'kgram':''}">${P.opts[i].g?'📘 ':''}${esc(P.opts[i][0])}</button>`).join('')}${(P.lock||[]).map(o=>{const g=GS()&&GS().byId(o.g);return g?`<button class="klock" data-lk="${o.g}">🔒 <small>📘「${esc(g.n.t)}」の ノートで えらべる 答え</small></button>`:''}).join('')}</div>
+    <div class="lopts kopts">${order.map(i=>`<button data-o="${i}" class="${P.opts[i].g?'kgram':''}">${P.opts[i].g?'📘 ':''}${esc(P.opts[i][0])}</button>`).join('')}</div>
     <div class="kfree"><input id="kin" type="text" placeholder="${N.ask?'質問を 書いてもOK':'英語を 書いてもOK'}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">${mic?'<button id="kmic" class="sub" aria-label="声で 言う">🎤</button>':''}<button id="ksend" aria-label="送る">▶</button></div>`;
   $('kans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>pick(+b.dataset.o));
-  $('kans').querySelectorAll('[data-lk]').forEach(b=>b.onclick=()=>{const g=GS().byId(b.dataset.lk);SFX.wrong();H.toast(`🔒 📘 <b>${esc(g.n.t)}</b><small>この 文法ノートを もっていると えらべるよ。会話の おわりに おためし できる</small>`,3200)});
   const inp=$('kin'),send=()=>{const v=inp.value.trim();if(!v)return;typed(v)};
   $('ksend').onclick=send;inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
   const mb=$('kmic');if(mb)mb.onclick=()=>listen(mic,inp,mb)}
@@ -218,7 +217,6 @@ function end(N){if(!live())return;const s=P.s,c=P.c,first=!KD.done[s.id];
   /* grammar: an ending opened by a grammar answer, or a grammar answer you could not pick */
   const LK=[...P.lockSeen].map(id=>GS()&&GS().byId(id)).filter(Boolean);
   if(N.gram){k='k_endGram';v.g='「'+(GS()&&GS().byId(N.gram)?GS().byId(N.gram).n.t:'')+'」'}
-  else if(LK.length&&Math.random()<.6){k='k_gramLock';v.g='「'+LK[0].n.t+'」'}
   const GL=GS()?GS().inLines(P.lines):[];
   const [ex,tx]=MINA.line(k,v),words=bookWords(P.lines).slice(0,10),wgot=words.filter(w=>w.got).length;
   setTimeout(()=>{if(!live())return;$('kq').textContent=good?'★':'🏁';
@@ -230,14 +228,14 @@ function end(N){if(!live())return;const s=P.s,c=P.c,first=!KD.done[s.id];
       <div class="kstat"><span>😂 おもしろ反応 <b>${P.fun}</b>${P.newFun?` <small>（新しく ${P.newFun}）</small>`:''}</span><span>✍️ 自分で 言えた <b>${P.free}</b></span><span>${c.ico} なかよし <b>${'♥'.repeat(Math.min(5,KD.heart[s.c]))}</b>${KD.heart[s.c]>5?'+':''}</span></div>
       ${firstMeet?`<p class="knew">${c.ico} <b>${esc(c.n)}</b>と ともだちに なった！</p>`:''}
       <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
-      ${GL.length||LK.length?`<div class="kwords kgl"><small>📘 この 会話に 出てきた 文法</small><div>${GL.map(g=>{const o=gOwn(g.id);return `<button data-kg="${g.id}" class="${o?'got':''}">${o?'📘':'🔒'} ${esc(g.n.t)}<small>${o?'ノートを ひらく':'🔍 おためし'}</small></button>`}).join('')}</div>${LK.length?`<p class="klk">🔒 ${LK.map(g=>'📘「'+esc(g.n.t)+'」').join('・')}の ノートが あれば、べつの 答えで 新しい エンドへ 行けたよ <button data-kg="${LK[0].id}" class="sub">🔍 おためし</button></p>`:''}</div>`:''}
+      ${GL.length||LK.length?`<div class="kwords kgl"><small>📘 この 会話に 出てきた 文法</small><div>${GL.map(g=>`<button data-kg="${g.id}" class="got">📘 ${esc(g.n.t)}<small>ノートを ひらく</small></button>`).join('')}</div></div>`:''}
       ${words.length?`<div class="kwords"><small>会話に 出てきた 単語帳の ことば（✓ おぼえた ${wgot}/${words.length}）</small><div>${words.map(w=>`<button data-w="${esc(w.en)}" data-lv="${w.lv}" class="${w.got?'got':''}">${w.got?'✓ ':''}${esc(w.en)}<small>${esc(w.ja)}</small></button>`).join('')}</div></div>`:''}
       <div class="row"><button id="kagain" class="${good?'sub':''}">🔁 さいしょから</button><button id="kmore" class="${good?'':'sub'}">${P.from==='visit'?'🏖️ 浜辺に もどる':'💬 ほかの 人と 話す'}</button></div>
     </div>`;
     const r=$('kans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?SFX.done():(SFX.tease?SFX.tease():SFX.pop());
     $('kans').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.w));
     $('kans').querySelectorAll('[data-kg]').forEach(b=>b.onclick=()=>{const g=GS().byId(b.dataset.kg),back=()=>{const f=P&&P.from;P=null;f==='visit'?H.home():list()};SFX.book();try{speechSynthesis.cancel()}catch(e){}
-      gOwn(g.id)?H.gramNote(g.lv,g.i):H.gramTry(g.lv,g.i,back)});
+      H.gramNote(g.lv,g.i)});
     const from=P.from;$('kagain').onclick=()=>{SFX.step();play(s.id,from)};$('kmore').onclick=()=>{SFX.back();from==='visit'?H.home():list()};
     setTimeout(()=>$('kans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1600)}
 

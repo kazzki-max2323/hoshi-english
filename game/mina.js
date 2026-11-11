@@ -89,7 +89,7 @@ const sense=()=>window.MINA_SENSE?MINA_SENSE.pick():null;
 /* tapping what she says takes you there: the lesson, the grammar note, the word book… (null = nothing to open) */
 function goTo(o){if(!o)return null;const [k,,x]=o;if(o[3])return o[3];
   if(k==='lesson'&&x&&window.LESSON)return ['📖 授業を ひらく',()=>LESSON.open(x.id,panelOpen)];
-  if(k==='grammar'&&x&&(typeof GRAMMAR!=='undefined')&&GRAMMAR[x.lv])return ['📚 文法ノートを 見る',()=>{const owned=(ST.gram.owned||[]).includes(GRAMMAR[x.lv].notes[x.i].id);owned?H.gramNote(x.lv,x.i):H.gramTry(x.lv,x.i,panelOpen)}];
+  if(k==='grammar'&&x&&(typeof GRAMMAR!=='undefined')&&GRAMMAR[x.lv])return ['📚 文法ノートを 見る',()=>H.gramNote(x.lv,x.i)];
   if((k==='weakBook'||k==='stepUp')&&x&&H.books)return ['📕 単語帳を ひらく',()=>H.books(k==='stepUp'?x.nlv:x.lv)];
   if(k==='weakWord'&&x)return ['🔊 きいてみる',()=>H.say(x.lv,x.en)];
   if(k==='review')return ['🔁 苦手な ことばを 見る',()=>{const sc=()=>{const w=H.panel.querySelector('.mweak');if(w){const f=w.closest('details');if(f)f.open=true}if(w)w.scrollIntoView({behavior:'smooth',block:'center'})};if(H.screen==='mina')sc();else{panelOpen();setTimeout(sc,200)}}];
@@ -237,7 +237,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   const md=$('mdeep');if(md)md.onclick=()=>{SFX.step();DEEP.pick()};
   const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.talk();window.SENSEI?SENSEI.open():null};
   const mk=$('mkaiwa');if(mk)mk.onclick=()=>{SFX.talk();KAIWA.open()};
-  const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.book();const owned=(ST.gram.owned||[]).includes(GRAMMAR[wg.lv].notes[wg.i].id);owned?H.gramNote(wg.lv,wg.i):H.gramShop(wg.lv)}}
+  const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.book();H.gramNote(wg.lv,wg.i)}}
 /* the face lives in the home row; tap = talk */
 H.on('home',()=>{setFace(minaEx);const f=$('minaFace');if(f)f.onclick=()=>{SFX.talk();panelOpen()};
   if(talkOn){const hf=$('hamaFace');if(hf){hf.hidden=false;hf.innerHTML=face('h','smile')}}});

@@ -1,5 +1,5 @@
 /* 文法ノート 高校生 */
-GRAMMAR.hs={name:'高校生',ico:'📐',price:100,reward:300,notes:[
+GRAMMAR.hs={name:'高校生',ico:'📐',reward:30,notes:[
  {id:'hs_5',t:'5文型',r:['SV（主語＋動詞）：Birds sing.','SVC（C は補語。S ＝ C の関係）：She became a doctor.','SVO（O は目的語）：I like music.','SVOO（人に物を）：He gave me a book.','SVOC（O ＝ C の関係）：The song made me sad.'],
   ex:[['The leaves turned red.','葉が赤くなった（SVC）'],['She found the book interesting.','彼女はその本がおもしろいとわかった（SVOC）'],['He told us an exciting story.','彼は私たちにわくわくする話をしてくれた（SVOO）']],
   q:[['The news made her ___.',['happy','happily','happiness'],0,'その知らせで彼女は幸せな気持ちになった'],['This soup tastes ___.',['good','well','goodly'],0,'このスープはおいしい'],['They elected him ___.',['captain','to captain','captain of'],0,'彼らは彼をキャプテンに選んだ']]},
