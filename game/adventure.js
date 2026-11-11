@@ -116,7 +116,7 @@ function treasure(){const M=map(),R=M.reward,first=AD.map<MAPS.length,got=[];
   H.show('adv',`<section class="pnl adv chest">
     <div class="box">💎</div><b class="ct">${M.name}の 宝箱を あけた！</b>
     <ul class="got">${got.map(g=>`<li>${g}</li>`).join('')}</ul>
-    <div class="row"><button id="nx">つぎの 地図へ ▶</button><button id="hm" class="sub">浜辺に もどる</button></div>
+    <div class="row"><button id="nx">つぎの 地図へ ▶</button><button id="hm" class="sub" data-back>浜辺に もどる</button></div>
   </section>`);
   const r=$('panel').getBoundingClientRect();for(let i=0;i<4;i++)setTimeout(()=>FX.firework(r.left+r.width*(.2+Math.random()*.6),r.top+20+Math.random()*60),i*350);
   $('nx').onclick=()=>{SFX.map();open()};$('hm').onclick=()=>{SFX.back();H.home()}}

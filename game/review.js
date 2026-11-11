@@ -95,7 +95,7 @@ function drill(mode,back){back=back||list;const Q=build(mode);if(!Q.length){H.to
         ${coin?`<br>🪙<b>${coin}</b>まい${all?`（ぜんもん 正解 ボーナス +${PERFECT}）`:''}`:paid?'':'<br><small>きょうの ごほうびは おわり。 でも ふくしゅうは なんかいでも OK！</small>'}</p></div></div>
       <div class="rvsum">${Object.entries(res).map(([id,ok])=>{const l=lesOf(id);return `<span class="${ok?'ok':'ng'}">${ok?'⭕':'❌'} ${esc(l.t)} <small>${'★'.repeat(stars(id))}${'☆'.repeat(5-stars(id))}・つぎは ${when(id)}</small></span>`}).join('')}</div>
       ${mn?`<p class="note">❗ まちがいノート のこり ${mn}問</p>`:''}
-      <div class="row">${mn?`<button id="rmiss" class="sub">❗ まちがいだけ もう一度</button>`:''}<button id="rlist">📚 ふくしゅう リスト</button></div>
+      <div class="row">${mn?`<button id="rmiss" class="sub">❗ まちがいだけ もう一度</button>`:''}<button id="rlist" data-back>📚 ふくしゅう リスト</button></div>
     </section>`);
     all?SFX.fanfare(2):SFX.done();
     if(coin){const r=H.panel.getBoundingClientRect();setTimeout(()=>H.coinBurst(r.left+r.width/2,r.top+70,coin),300)}

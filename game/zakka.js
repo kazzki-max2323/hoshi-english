@@ -200,7 +200,7 @@ let P=null;
 const live=()=>P&&$('zklog');
 function play(sid,init){const s=SC[sid];if(!s)return shop();
   P={sid,s,at:s.start,step:0,c:Object.assign({seed:Math.random()*1e6|0},init||{}),fun:0,newPh:[],usedPh:[],typed:0};
-  H.show('zakka',`<section class="pnl lsn kw zk">
+  H.show('zakka',`<section class="pnl lsn kw zk" data-stay>
     <div class="qtop"><button class="x" id="zkx" aria-label="会話を やめる">←</button><b>${NORA.ico} ノラさんの お店</b><span class="qn" id="zkq"></span></div>
     <div class="lslog kwlog" id="zklog"></div>
     <div id="zkans" class="kans"></div>

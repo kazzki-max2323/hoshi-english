@@ -73,6 +73,7 @@ window.bottleOpen=()=>{const i=pickLetter(),L=LETTERS[i];let p=$('bmPop');if(p)p
   const close=()=>{try{speechSynthesis.cancel()}catch(x){}try{SFX.pop()}catch(x){}p.classList.remove('on');setTimeout(()=>p.remove(),300);
     const n=BD.r.length;setTimeout(()=>{if(n===LETTERS.length&&!BD.all){BD.all=1;save();mina('bottleAll',{n})}else if(n>1&&n%5===0)mina('bottleCount',{n});else mina('bottleRead',{w:L[3],ja:L[4]})},500)};
   $('bmClose').onclick=e=>{e.stopPropagation();close()};
+  p.addEventListener('click',e=>{if(e.target===p){e.stopPropagation();close()}});   // the dark around the letter closes it too
   p.onclick=e=>{if(e.target===p)close()}};
 
 window.BOTTLE={letters:LETTERS,rec:()=>BD,open:()=>window.bottleOpen()};

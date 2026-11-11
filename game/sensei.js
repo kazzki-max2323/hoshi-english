@@ -142,7 +142,7 @@ let P=null;
 const live=()=>P&&$('slog');
 function begin(s,from){
   P={s,from,at:s.start||'a',V:{},step:0,tries:0,st:{ok:0,hint:0,miss:0,free:0,freeCoins:0,g:{}},lines:[],drills:0};
-  H.show('sensei',`<section class="pnl lsn kw snw">
+  H.show('sensei',`<section class="pnl lsn kw snw" data-stay>
     <div class="qtop"><button class="x" id="sx" aria-label="会話を やめる">←</button><b>${s.ico||'🗣️'} ${esc(s.t)}</b><span class="qn" id="sq"></span></div>
     <div class="lslog kwlog snlog" id="slog"></div>
     <div id="sans" class="kans"></div>

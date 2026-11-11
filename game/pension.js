@@ -129,7 +129,7 @@ const OUT={path:1,door:1};
 let S=null,G=null;   // S: the story state  G: what is on the screen now
 const live=()=>G&&$('pnBox');
 function frame(){
-  H.show('pension',`<section class="pnl pn">
+  H.show('pension',`<section class="pnl pn" data-stay>
     <div class="qtop"><button class="x" id="pnx" aria-label="もどる">←</button><b>🌩️ 嵐の ペンション</b><button id="pnc" class="sub pnclue" aria-label="てがかり">🔍 <span id="pncn">${S.clues.length}</span></button></div>
     <div class="pnStage" id="pnStage"><svg class="pnBg" viewBox="0 0 320 180" preserveAspectRatio="xMidYMid slice"><defs>${RAINP}</defs><g id="pnBgG"></g></svg><div class="pnRain"></div><div class="pnDark"></div><div class="pnChar" id="pnChar"></div><div class="pnFlash"></div></div>
     <div class="pnBox" id="pnBox"><b class="pnName" id="pnName"></b><p class="pnTxt" id="pnTxt"></p><div class="pnJaW" id="pnJaW"></div><i class="pnNext" id="pnNext">▼</i></div>
