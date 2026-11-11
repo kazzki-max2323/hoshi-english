@@ -80,7 +80,6 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
     <div class="mrow"><button id="minaFace" class="mface" aria-label="ミナ先生と 話す"></button><div class="mbub"><p id="minaSay" hidden></p><p id="rq" class="note"></p></div><span id="hamaFace" class="mface hama" hidden></span></div>
     <div class="row">
       <button id="bookOpen" class="sub"><span>📕</span>単語帳</button>
-      <button id="shopOpen" class="sub"><span>🛍️</span>ショップ</button>
       <button id="cardOpen" class="sub"><span>🃏</span>カード${window.CARDS&&CARDS.freeOk()?'<i class="dot"></i>':''}</button>
       <button id="mini" class="sub"><span>🗺️</span>宝の地図</button>
     </div>
@@ -89,7 +88,6 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
   </section>`);
   /* 単語帳は 1つの ボタン。ひらくと 小学生〜ハイレベルを 上の タブで えらぶ（さいごに 見た レベルから） */
   $('bookOpen').onclick=()=>{SFX.book();books()};
-  $('shopOpen').onclick=()=>{SFX.shop();shop('radio')};
   $('mini').onclick=()=>{SFX.map();window.ADV&&ADV.open()};
   $('cardOpen').onclick=()=>{SFX.card();window.CARDS&&CARDS.open()};
   const ns=$('npStop');if(ns)ns.onclick=()=>{stopMusic(true);SFX.pop();home()};
@@ -334,7 +332,7 @@ function radioQuiet(){talking=false;cur=null;stopClip();clearBubbles();layer.que
 const RADIO_REST=10000;  // after closing a panel, the radios wait this long before talking again
 function radioWake(){nextAt=Math.min(nextAt||Infinity,performance.now()+1500)}
 function rqIdle(){const el=$('rq');if(!el)return;const on=ST.radios.filter(r=>r.on).length;
-  el.textContent=!ST.radios.length?'📻 ショップで 小学生ラジオを もらおう（むりょう）。浜辺で 英語を つぶやくよ':on?'📻 ラジオの こたえが 浜辺に うかぶよ。タップして コインを もらおう':'📻 ラジオが ぜんぶ オフだよ。浜辺の ラジオを タップすると オンになるよ'}
+  el.textContent=!ST.radios.length?'📻 浜辺の 右はしの 雑貨屋で 小学生ラジオを もらおう（むりょう）。浜辺で 英語を つぶやくよ':on?'📻 ラジオの こたえが 浜辺に うかぶよ。タップして コインを もらおう':'📻 ラジオが ぜんぶ オフだよ。浜辺の ラジオを タップすると オンになるよ'}
 /* distractors must not share a meaning with the answer (e.g. 提案 / 提案する) */
 const overlap=(a,b)=>{a=a.replace(/[〜（）・、。？！ ]/g,'');b=b.replace(/[〜（）・、。？！ ]/g,'');for(let i=0;i<a.length-1;i++)if(b.includes(a.slice(i,i+2)))return true;return false};
 /* a radio line: a word, a sentence, a character / trend line, or (in season) a seasonal line */
@@ -550,58 +548,20 @@ const nowPh=()=>phaseOf(GH())[1];
 const onSale=it=>!it.t||it.t.includes(nowPh());
 /* "🌙 夜専用" etc. for events that only happen at some times of day */
 function timeBadge(t){const k=t.join(',');return ({'night':'🌙 夜専用','sunset,night':'🌙 夕暮れ・夜専用','sunset,night,dawn':'🌙 夕暮れ〜夜明け専用','dawn,morning':'🌅 朝専用','noon':'☀️ 昼専用','morning,noon,evening':'☀️ 昼間専用','noon,evening':'☀️ 昼〜夕方専用','sunset':'🌇 夕暮れ専用','morning,noon,evening,sunset':'☀️ 朝〜夕暮れ専用','noon,evening,sunset,night':'🎪 昼〜夜専用'})[k]||t.map(x=>PH_LABEL[x]).join('・')+'専用'}
-/* real minutes until the first of these times of day begins (one game day = three real hours) */
-function minutesUntil(t){const h=GH();let best=24;for(const x of t){const st=PHASES.find(p=>p[1]===x)[0];best=Math.min(best,(st-h+24)%24)}return Math.max(1,Math.ceil(best*60*10800/1440/60))}
-function row(ico,name,desc,btns,cls=''){return `<div class="ritem ${cls}"><span class="ri">${ico}</span><span class="rn"><b>${name}</b><small>${desc}</small></span><span class="rbtn">${btns}</span></div>`}
-const coin=n=>n?'🪙'+n.toLocaleString():'むりょう';
-let shopScroll=0;
-function shop(tab,glv='es'){
-  const TABS=[['radio','📻','ラジオ'],['music','🎵','おんがく'],['event','🎆','イベント']];
-  if(tab==='gram'){gramList(glv);return}   // 文法は ショップで うらない（ぜんぶ むりょうで ひらいている）
-  let body='';
-  if(tab==='radio')body=[...LV_ORDER,'star'].map(k=>{const L=LEVELS[k],n=ST.radios.filter(r=>r.lv===k).length;
-    return row(`📻<b class="lv-${k}">${L.short}</b>`,`${L.name}ラジオ${L.nightOnly?' <em class="tb">🌙 夜だけ しゃべる</em>':''}`,`${L.desc?L.desc+'・':L.nightOnly?'星と 宇宙の 英語・':''}${L.choices}たく・せいかい +${L.reward}${L.fast?`（${FAST_MS/1000}びょう いないなら +${L.fast}）`:''}　もっている ${n}だい`,
-      `<button class="buy" data-k="${k}" ${n||ST.coins<L.price?'disabled':''}>${n?'✅ もっている':L.price?'かう '+coin(L.price):'もらう（むりょう）'}</button><button class="sell sub" data-k="${k}" ${n?'':'disabled'}>${L.price?'うる +'+(L.price/2|0):'てばなす'}</button>`)}).join('')
-    +'<p class="note">ラジオは 1しゅるい 1台まで（小学生ラジオは むりょう）</p>';
-  if(tab==='music')body=CATALOG.music.filter(([id])=>TRACKS[id]).map(([id,c,ico,d,rare])=>{const has=ST.music.includes(id),pl=MUS.on&&MUS.id===id;
-    const name=esc(TRACKS[id].name)+(rare?' <em class="tb rare">🗝️ レア</em>':'');
-    if(rare&&!has)return row(ico,name,'宝の地図の 宝箱から 見つかる','<button class="buy" disabled>🗺️ 宝の地図</button>','off');
-    return row(ico,name,pl?'🎵 いま ながれているよ':d,has?`<button class="play ${pl?'on':''}" data-pl="${id}">${pl?'■ とめる':'▶ ながす'}</button>${rare?'':`<button class="sell sub" data-sm="${id}">うる +${c/2|0}</button>`}`:`<button class="buy" data-bm="${id}" ${ST.coins<c?'disabled':''}>かう ${coin(c)}</button>`,has?'has':'')}).join('')
-    +'<p class="note">いちど かえば いつでも ながせるよ。ラジオが しゃべる時は 小さくなる</p>';
-  if(tab==='event'){const ph=nowPh(),ev=CATALOG.event.filter(e=>!e.rare).sort((a,b)=>a.p-b.p),now=ev.filter(onSale),later=ev.filter(it=>!onSale(it));
-    const evRow=(it,ok)=>row(it.ico,it.n+(it.t?` <em class="tb">${timeBadge(it.t)}</em>`:''),ok?it.d:`あと やく${minutesUntil(it.t)}ぷんで かえるよ`,
-      ok?`<button class="buy" data-ev="${it.id}" ${ST.coins<it.p?'disabled':''}>かう ${coin(it.p)}</button>`:`<button class="buy" disabled>いまは かえない</button>`,ok?'':'off');
-    body=`<p class="note">いまは ${PH_LABEL[ph]}。かうと 浜辺で すぐ はじまるよ</p>`+now.map(it=>evRow(it,true)).join('')
-      +(later.length?`<p class="sub-h">⏳ いまは かえない イベント</p>`+later.map(it=>evRow(it,false)).join(''):'')}
-  show('shop',`<section class="pnl shop">
-    <div class="qtop"><button class="x" id="sx" aria-label="ショップを とじる">←</button><b>🛍️ ショップ</b><span></span></div>
-    <div class="seg tabs">${TABS.map(([k,i,n])=>`<button data-t="${k}" class="${tab===k?'on':''}"><span>${i}</span>${n}</button>`).join('')}</div>
-    <div class="rlist" id="slist">${body}</div>
-  </section>`);
-  const sl=$('slist');if(shop.last===tab+glv)sl.scrollTop=shopScroll;shop.last=tab+glv;sl.onscroll=()=>{shopScroll=sl.scrollTop};
-  $('sx').onclick=()=>{SFX.back();home()};
-  panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{SFX.pop();shopScroll=0;shop(b.dataset.t)});
-  const spend=(c,b)=>{if(ST.coins<c)return false;ST.coins-=c;save();head();const r=b.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,'#ffd23f');return true};
-  /* radios */
-  panel.querySelectorAll('[data-k].buy').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];if(ST.radios.some(r=>r.lv===k)||!spend(L.price,b))return;
-    const [x,y]=freeSpot();ST.radios.push({lv:k,on:true,x,y});save();drawRadios();SFX.buy();toast(`📻 <b>${L.name}ラジオ</b> を 浜辺に おいた！`);shop('radio')});
-  panel.querySelectorAll('[data-k].sell').forEach(b=>b.onclick=()=>{const k=b.dataset.k,L=LEVELS[k];let idx=-1;ST.radios.forEach((r,i)=>{if(r.lv===k)idx=i});if(idx<0)return;
-    ST.radios.splice(idx,1);if(L.price)addCoins(L.price/2|0);save();drawRadios();SFX.coin();toast(`📻 ${L.name}ラジオを ${L.price?'うった':'てばなした'}`);shop('radio')});
-  /* music */
-  panel.querySelectorAll('[data-bm]').forEach(b=>b.onclick=()=>{const id=b.dataset.bm,it=CATALOG.music.find(m=>m[0]===id);if(ST.music.includes(id)||!spend(it[1],b))return;
-    ST.music.push(id);save();SFX.buy();playTrack(id);shop('music')});
-  panel.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>{const id=b.dataset.pl;if(MUS.on&&MUS.id===id){stopMusic(true)}else playTrack(id);setTimeout(()=>shop('music'),60)});
-  panel.querySelectorAll('[data-sm]').forEach(b=>b.onclick=()=>{const id=b.dataset.sm,it=CATALOG.music.find(m=>m[0]===id);
-    if(MUS.on&&MUS.id===id)stopMusic(true);ST.music=ST.music.filter(m=>m!==id);addCoins(it[1]/2|0);save();SFX.coin();toast(`🎵 ${TRACKS[id].name}を うった`);shop('music')});
-  /* events: buy, close the shop and watch it happen on the beach */
-  panel.querySelectorAll('[data-ev]').forEach(b=>b.onclick=()=>{const it=CATALOG.event.find(e=>e.id===b.dataset.ev);if(!onSale(it)||!spend(it.p,b))return;
-    SFX.buy();home();radioWake();   // the radio keeps going while the event plays
-    toast(`${it.ico} <b>${it.n}</b>`,2200);setTimeout(()=>{try{it.k==='show'?SC.show(it.id,it.sec):SC.play(it.id)}catch(e){}},500)});
-}
+/* ---------- the shop: moved into ながれぎ雑貨店 (game/zakka.js). What the shop used to do on the beach happens here ---------- */
+const goods={
+  buy(it){if(it.kind==='radio'){if(ST.radios.some(r=>r.lv===it.id))return;const [x,y]=freeSpot();ST.radios.push({lv:it.id,on:true,x,y});save();drawRadios()}
+    else if(it.kind==='music'){if(!ST.music.includes(it.id))ST.music.push(it.id);save();playTrack(it.id)}},
+  sell(it){if(it.kind==='radio'){let idx=-1;ST.radios.forEach((r,i)=>{if(r.lv===it.id)idx=i});if(idx>=0)ST.radios.splice(idx,1);save();drawRadios()}
+    else if(it.kind==='music'){if(MUS.on&&MUS.id===it.id)stopMusic(true);ST.music=ST.music.filter(m=>m!==it.id);save()}},
+  /* an event plays on the beach (the radio keeps going while it plays) */
+  event(it){radioWake();toast(`${it.ico} <b>${it.n}</b>`,2200);setTimeout(()=>{try{it.k==='show'?SC.show(it.id,it.sec):SC.play(it.id)}catch(e){}},500)}};
+/* old callers (H.shop / H.gramShop) open the shop on the beach now */
+function shop(tab,glv='es'){if(tab==='gram'){gramList(glv);return}if(window.ZAKKA)ZAKKA.open(tab)}
 function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={books,gramFrom:(lv,back)=>gramList(lv,back||null),book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramTry,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
+window.HE={goods,stopMusic:()=>stopMusic(true),books,gramFrom:(lv,back)=>gramList(lv,back||null),book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramTry,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();

@@ -1,5 +1,5 @@
 /* 高校生: 大学入試レベル（1冊20語） [英語, 日本語] */
-LEVELS.hs={name:'高校生',short:'高',ico:'📐',price:800,reward:12,choices:4,
+LEVELS.hs={name:'高校生',short:'高',ico:'📐',price:1500,reward:12,choices:4,
 books:[
  {t:'動詞 ①',w:[['abandon','見捨てる'],['accept','受け入れる'],['achieve','達成する'],['acquire','習得する'],['adapt','適応する'],['admit','認める'],['affect','影響を与える'],['analyze','分析する'],['appreciate','正しく評価する・感謝する'],['approach','近づく'],['assume','仮定する'],['attract','引きつける'],['avoid','避ける'],['claim','主張する'],['combine','結びつける'],['compare','比べる'],['complain','不平を言う'],['concentrate','集中する'],['consider','よく考える'],['contribute','貢献する']]},
  {t:'動詞 ②',w:[['convince','納得させる'],['create','創造する'],['criticize','批判する'],['deny','否定する'],['depend','頼る'],['deserve','値する'],['determine','決定する'],['emphasize','強調する'],['encourage','励ます'],['establish','設立する'],['estimate','見積もる'],['evaluate','評価する'],['examine','調べる'],['exist','存在する'],['expand','拡大する'],['expect','予期する'],['focus','焦点を合わせる'],['identify','特定する'],['ignore','無視する'],['indicate','示す']]},

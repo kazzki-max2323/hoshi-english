@@ -1,5 +1,5 @@
 /* 中学生: 教科書レベル（1冊20語） [英語, 日本語] */
-LEVELS.jh={name:'中学生',short:'中',ico:'🎒',price:300,reward:8,choices:4,
+LEVELS.jh={name:'中学生',short:'中',ico:'🎒',price:500,reward:8,choices:4,
 books:[
  {t:'動詞 ①',w:[['begin','始まる'],['believe','信じる'],['borrow','借りる'],['bring','持ってくる'],['build','建てる'],['call','電話する・呼ぶ'],['change','変える'],['choose','選ぶ'],['decide','決める'],['die','死ぬ'],['explain','説明する'],['fall','落ちる'],['feel','感じる'],['find','見つける'],['finish','終える'],['follow','ついていく'],['grow','育つ'],['happen','起こる'],['hope','望む'],['hurry','急ぐ']]},
  {t:'動詞 ②',w:[['invite','招待する'],['keep','保つ'],['lend','貸す'],['leave','出発する・去る'],['lose','なくす・負ける'],['meet','会う'],['miss','恋しく思う・逃す'],['move','動かす・引っ越す'],['need','必要とする'],['plan','計画する'],['practice','練習する'],['protect','守る'],['receive','受け取る'],['return','戻る'],['save','救う・たくわえる'],['send','送る'],['show','見せる'],['spend','過ごす・費やす'],['travel','旅行する'],['worry','心配する']]},

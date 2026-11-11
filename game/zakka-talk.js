@@ -266,6 +266,8 @@ sell:{t:'売りに 来た',start:'a',nodes:{
   O("I have some empty bottles.",null,null,null,'bot',{j:"からの びんが あります。",if:()=>Z.bottles()>0}),
   ...Z.sellable().slice(0,3).map(it=>O(`I'd like to sell this ${it.title?'book':it.w}.`,'sell',null,null,'bk',{j:`この ${it.n}を 売りたいです。`,act:c=>{c.it=it}})),
   ...Z.tgs().slice(0,2).map(it=>O(`I'd like to sell this ${it.w}.`,'sell',null,null,'tg',{j:`この ${it.n}を 売りたいです。`,act:c=>{c.it=it}})),
+  /* ラジオ・レコード（game/zakka-goods-talk.js の gOwn へ） */
+  ...Z.ownGoods(c.seed).slice(0,2).map(it=>O(it.kind==='music'?`I'd like to sell my record, "${it.en}".`:`I'd like to sell my ${it.en}.`,'sell',null,null,'@gOwn:offer',{j:`${it.n}を 売りたいです。`,act:c=>{c.it=it}})),
   O("Actually, never mind.",null,"No problem!","いいのよ！",'eNo',{j:"やっぱり やめます。"})]},
  bot:{s:"Empty bottles! I love old bottles. I put flowers in them. How many do you have?",j:"からの びん！ 古い びんって 大好き。 花を さすの。 何本 あるの？",o:[
   O(c=>`I have ${Z.bottles()}.`,null,null,null,'botOffer',{j:c=>`${Z.bottles()}本 あります。`}),

@@ -96,3 +96,18 @@
 .zkorb.fresh>span{animation:zkcrack .8s ease-out}
 .zkorb .bmEn{margin:0;color:#fff;font-size:1.15rem}
 .zkorb small{color:#ffe7a8;font-size:.82rem}
+/* 📻🎵🎆 the tabs and the goods (the old shop): 小・中・高 marks */
+.zktabs{margin:2px 0 6px}
+.zktabs button{padding:5px 2px!important;font-size:.72rem}
+.zktabs button span{display:block;font-size:1rem;line-height:1.1}
+.zkgs{grid-template-columns:repeat(3,minmax(0,1fr))}
+.zkgs.zkgs-music{grid-template-columns:repeat(2,minmax(0,1fr))}
+.zkit.zkg{position:relative}
+.zkit .zlv{position:absolute;top:3px;left:3px;font-style:normal;font-size:.6rem;font-weight:700;line-height:1;padding:2px 4px;border-radius:5px;color:#fff;text-shadow:none}
+.zlv-es{background:#f0a020}.zlv-jh{background:#2bb673}.zlv-hs{background:#4a7cf0}
+.zkrot{margin:6px 0 0;text-align:center;font-size:.7rem}
+.zkjuke{margin-top:6px}
+.zkjuke .zkbag{max-height:min(34vh,300px)}
+.zkjuke .rbtn{display:flex;gap:4px}
+.zkjuke .rbtn button{padding:5px 8px!important;font-size:.72rem}
+.zkjuke .ritem.has .rn small{color:#55e0b4}

@@ -27,7 +27,7 @@ function pendShow(id,night){MV.ps.push({id,night:night?1:0});save()}
 function openCards(){if(!MV.pc.length||!window.CARDS||$('cardOv'))return;chain=true;const m=MV.pc.shift();save();CARDS.gift(1,m)}
 const isNight=()=>{try{return SC.dbg().dark>.6}catch(e){return false}};
 const evOf=id=>CATALOG.event.find(e=>e.id===id);
-const bigEvents=()=>CATALOG.event.filter(e=>!e.rare&&e.p>=40&&H.onSale(e));
+const bigEvents=()=>CATALOG.event.filter(e=>!e.rare&&e.p>=200&&H.onSale(e));
 const newSongs=()=>CATALOG.music.filter(([id,,,,rare])=>!rare&&typeof TRACKS!=='undefined'&&TRACKS[id]&&!ST.music.includes(id));
 function playShow(){if(H.screen!=='home'||performance.now()<showAt||H.stage.cheer)return;const i=MV.ps.findIndex(p=>!p.night||isNight());if(i<0)return;
   const p=MV.ps.splice(i,1)[0];save();let e=evOf(p.id);if(!e)return;if(!p.night&&!H.onSale(e))e=pickL(bigEvents())||evOf('dolphins');

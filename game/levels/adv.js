@@ -1,5 +1,5 @@
 /* ハイレベル: 英検準1級・TOEIC 800点くらい（1冊20語） [英語, 日本語] */
-LEVELS.adv={name:'ハイレベル',short:'H',ico:'🎓',price:2000,reward:20,choices:5,
+LEVELS.adv={name:'ハイレベル',short:'H',ico:'🎓',price:3000,reward:20,choices:5,
 books:[
  {t:'動詞 ①',w:[['alleviate','和らげる'],['augment','増大させる'],['bolster','強化する'],['circumvent','回避する'],['compile','編集する'],['comply','従う'],['convene','招集する'],['curtail','削減する'],['deteriorate','悪化する'],['diminish','減少する'],['disrupt','混乱させる'],['elicit','引き出す'],['embark','乗り出す'],['endorse','支持する'],['exacerbate','さらに悪化させる'],['facilitate','容易にする'],['fluctuate','変動する'],['forfeit','没収される・失う'],['hamper','邪魔する'],['impede','妨げる']]},
  {t:'動詞 ②',w:[['implement','実行する'],['incur','（損害を）負う'],['infringe','侵害する'],['instigate','扇動する'],['jeopardize','危うくする'],['mitigate','緩和する'],['navigate','うまく進む'],['nullify','無効にする'],['obstruct','妨害する'],['offset','相殺する'],['outweigh','上回る'],['procure','調達する'],['refrain','控える'],['reimburse','払い戻す'],['relinquish','放棄する'],['retain','保持する'],['revoke','取り消す'],['scrutinize','綿密に調べる'],['stipulate','規定する'],['undermine','徐々に弱める']]},
