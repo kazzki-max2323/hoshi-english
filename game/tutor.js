@@ -47,26 +47,9 @@ function tagOf(q,st){st=st||studied();
   if((q.g&&st.W.has(q.g))||q.les.some(l=>st.WL.has(l)))return 'weak';
   if((q.g&&st.S.has(q.g))||q.les.some(l=>st.L.has(l)))return 'did';
   return ''}
-const KIND={why:'🤔 なんで？',word:'🗣️ 英語で なんて いう？',check:'✏️ 宿題チェック',sound:'👄 発音',mean:'🔤 ことばの いみ'};
+const KIND={why:'🤔 なんで？',word:'🗣️ 英語で なんて いう？',check:'✏️ 宿題チェック',sound:'👄 発音'};
 const TAG={weak:'❗ まちがいノートの ところ',did:'📖 ならった ところ'};
-/* ---------- a word question: Riku asks what a word means, and the player teaches it by picking the meaning.
-   The word comes from the weak / not-yet-settled words (ミナ先生の 苦手の 記録). No such word → null, and the visit stays as it was.
-   Teaching is picking only — nothing is spoken aloud. ---------- */
-function wordQuestion(){let ww=[];try{ww=MINA.weakWords(null,'w')}catch(e){}
-  if(!ww.length)return null;
-  for(const w of shuffle(ww.slice(0,8))){const pool=H.allWords(w.lv),hit=pool.find(x=>x[0]===w.en);if(!hit)continue;
-    const ja=hit[1],em=hit[2]||'';
-    const others=shuffle(pool.filter(x=>x[1]!==ja&&!x[1].includes(ja)&&!ja.includes(x[1]))).slice(0,3);
-    if(others.length<2)continue;
-    return {q:{id:'wd:'+w.lv+':'+w.en,lv:w.lv,k:'mean',les:[],t:'単語',pt:`${w.en} ＝ ${ja}`,
-      q:`せんせい、 「${w.en}」って どういう いみ？`,
-      o:shuffle([[ja,1],...others.map(x=>[x[1],0])]),
-      ok:[`わかった！ 「${ja}」だね！`,w.en],
-      help:em?`うーん… ${em} の こと だったような…`:'うーん… まえに 見た こと ある きがする…',
-      mina:em?`${em} の ことだよ。 にほんごでは 「${ja}」`:`にほんごでは 「${ja}」だよ`},tag:'weak'}}
-  return null}
-/* three questions: one from the weak spots, then the studied ones, then the ones at your level. Asked ones wait until all have come round.
-   One of the three is a word question when there is a weak word to teach (see above) */
+/* three questions: one from the weak spots, then the studied ones, then the ones at your level. Asked ones wait until all have come round */
 function pick3(){const st=studied(),me=LV.indexOf(myLv());
   let pool=TQ.filter(q=>LV.indexOf(q.lv)<=Math.max(0,me)||tagOf(q,st));
   if(pool.length<NQ)pool=TQ.slice();
@@ -77,9 +60,7 @@ function pick3(){const st=studied(),me=LV.indexOf(myLv());
   const out=[];const add=q=>{if(q&&out.length<NQ&&!out.includes(q))out.push(q)};
   add(W[0]);D.forEach(add);W.slice(1).forEach(add);O.forEach(add);
   out.forEach(q=>TD.seen.push(q.id));save();
-  const list=out.map(q=>({q,tag:tagOf(q,st)}));
-  const wq=wordQuestion();if(wq){if(list.length>=NQ)list[list.length-1]=wq;else list.push(wq)}
-  return shuffle(list)}
+  return shuffle(out).map(q=>({q,tag:tagOf(q,st)}))}
 
 /* ---------- voice: Riku high and bright (only the English is read) ---------- */
 let enVoice=null;
