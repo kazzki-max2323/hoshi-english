@@ -23,7 +23,7 @@ const DAY_MAX=5;
 /* ---------- the record ---------- */
 const LV=(()=>{try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}').love;if(s&&s.ph)return s}catch(e){}
   return {st:0,h:0,day:'',n:0,ph:{},fight:null,rd:'',ev:0,deep:0,fights:0,made:0,talks:{},hist:[]}})();
-LV.talks=LV.talks||{};LV.hist=LV.hist||[];LV.ends=LV.ends||{};LV.sea=LV.sea||{};
+LV.talks=LV.talks||{};LV.hist=LV.hist||[];LV.ends=LV.ends||{};LV.sea=LV.sea||{};LV.sec=LV.sec||{};LV.diary=LV.diary||[];LV.lt=LV.lt||[];
 _saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');s.love=LV;localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
 
 /* ---------- what is true today ---------- */
@@ -52,7 +52,7 @@ const ready=()=>LV.st<3&&heartFull()&&conds().every(c=>c.ok);
 /* what today's button does */
 /* やきもち: ほかの 人に プレゼントを あげると、 つぎの ふたりの 時間に すねる（気になる 人 から） */
 function othersGiven(){try{const g=GIFT.rec().gave;return Object.keys(g).filter(k=>k!=='mina').reduce((a,k)=>a+g[k],0)}catch(e){return 0}}
-function checkJeal(){const og=othersGiven();if(LV.og==null){LV.og=og;return}if(og>LV.og){if(LV.st>=1&&!LV.fight)LV.jeal=1;LV.og=og;save()}}
+function checkJeal(){const og=othersGiven();if(LV.og==null){LV.og=og;return}if(og>LV.og){if(LV.st>=1&&!LV.fight){LV.jeal=1;LV.jc=(LV.jc||0)+1}LV.og=og;save()}}
 /* 季節の イベント（その 時期に 1回）と、 ときどきの ランダムイベント */
 function seasonDue(){const d=new Date(),m=d.getMonth()+1,dd=d.getDate(),y=d.getFullYear();
   return LOVE_SEASON.find(S=>S.when[0]===m&&dd>=S.when[1]&&dd<=S.when[2]&&LV.st>=S.min&&!LV.sea[S.id+y])||null}
@@ -79,7 +79,8 @@ const face=(ex,tx,pose)=>MINA.face('m',ex,pose!==undefined?pose:MINA.poseFor(ex,
 /* ================================================================ the top: 💗 ミナ先生との 時間 */
 let backTo=null;
 function open(back){hush();if(back)backTo=back;const B=backTo||(()=>MINA.open());roll();
-  const S=STG[LV.st],M=mood(),t=todo(),F=LV.fight&&LOVE_FIGHTS[LV.fight.i];
+  const pm=promCheck(),S=STG[LV.st],M=mood(),t=todo(),F=LV.fight&&LOVE_FIGHTS[LV.fight.i];
+  const promNote=pm?`<p class="lvhint">${pm}</p>`:LV.prom?`<p class="lvmood">🤙 約束：${esc(LOVE_PROMISES.find(x=>x[0]===LV.prom.k)[3])}</p>`:'';
   /* what she says first */
   let k,v={},ex=M[2],pose=M[3];
   if(t==='fight'){k='lv_fight';v={why:F.why};ex='worry';pose='cross'}
@@ -93,16 +94,17 @@ function open(back){hush();if(back)backTo=back;const B=backTo||(()=>MINA.open())
   H.show('love',`<section class="pnl lvp">
     <div class="qtop"><button class="x" id="lvx" aria-label="もどる">←</button><b>💗 ミナ先生との 時間</b><span class="qn">${S.ico}</span></div>
     <div class="mtalk"><span class="mbig lvbig">${face(ex,tx,pose)}</span><p class="mline">${tx}</p></div>
-    <p class="lvmood">きょうの ミナ先生：<b>${t==='fight'?'😤 ちょっと すねてる':esc(M[1])}</b></p>
+    ${promNote}
+    <p class="lvmood">${title()?`🏅 ${esc(title())}　`:''}きょうの ミナ先生：<b>${t==='fight'?'😤 ちょっと すねてる':esc(M[1])}</b></p>
     <button id="lvgo" class="msensei lvgo ${t}" ${t==='done'?'disabled':''}>${btn}</button>
     <div class="row">${LV.st>=2&&t==='day'?'<button id="lvdate" class="sub">🌅 デートに さそう</button>':''}<button id="lvph" class="sub">📔 恋の フレーズ帳<small>${phN()}</small></button></div>
+    <div class="row"><button id="lvalb" class="sub">📸 アルバム${newSecret()?'<i class="dot lvdot"></i>':''}</button>${LV.st>=3?'<button id="lvradio" class="sub">📻 曲を リクエスト</button>':''}</div>
     <details class="mfold"><summary>${S.ico} ふたりの ようす<small>${esc(S.n)}</small></summary><div class="mfbody lvbody">
       <div class="lvladder">${STG.map((s,i)=>`<span class="${i<LV.st?'past':i===LV.st?'now':''}">${i<=LV.st?s.ico:'？'}<small>${i<=LV.st?esc(s.n):'？？？'}</small></span>`).join('')}</div>
       ${need?`<p class="lvhrow"><span>💗</span><span class="lvbar"><i style="width:${Math.round(hp*100)}%"></i></span><b>${Math.min(LV.h,need)}/${need}</b></p>`:''}
       ${cs.length?`<div class="lvconds"><small>つぎの 段階へ（英語の 力）</small>${cs.map(c=>`<span class="${c.ok?'ok':''}">${c.ok?'✅':'⬜'} ${c.t} <b>${Math.min(c.have,c.need)}/${c.need}</b></span>`).join('')}${heartFull()&&!cs.every(c=>c.ok)?'<p class="note">ハートは いっぱい！ あとは 英語の 力だよ</p>':''}</div>`:LV.st>=3?'<p class="note">💍 この 先の 物語は もうすぐ…</p>':''}
       <p class="note">ふたりの 時間 ${LV.n}日 ・ 仲直り ${LV.deep}回</p>
     </div></details>
-    ${memN()?`<details class="mfold"><summary>📸 ふたりの 思い出<small>${memN()}/${memAll()}</small></summary><div class="mfbody lvbody">${memories()}</div></details>`:''}
     <details class="mfold"><summary>🔮 きょうの 機嫌うらない<small>${esc(M[1])}</small></summary><div class="mfbody lvbody">${fortune()}</div></details>
   </section>`);
   setTimeout(()=>{const b=H.panel.querySelector('.mbig');if(b)b.classList.add('mnew')},10);
@@ -110,7 +112,8 @@ function open(back){hush();if(back)backTo=back;const B=backTo||(()=>MINA.open())
   $('lvph').onclick=()=>{sf('book');phrases()};
   H.panel.querySelectorAll('.mfold').forEach(f=>f.ontoggle=()=>{if(f.open)sf('pop')});
   $('lvgo').onclick=()=>{if(t==='done')return;sf('talk');t==='fight'?fight():t==='event'?event():dayStart()};
-  const db=$('lvdate');if(db)db.onclick=()=>{sf('step');datePick()}}
+  const db=$('lvdate');if(db)db.onclick=()=>{sf('step');datePick()};
+  $('lvalb').onclick=()=>{sf('book');album()};const rb=$('lvradio');if(rb)rb.onclick=()=>{sf('step');radio()}}
 /* きょうの 時間の はじまり: やきもち → 季節の イベント → ときどき ランダムイベント → ふつうの 会話 */
 function dayStart(){if(LV.jeal)return story(LOVE_JEALOUS,'jeal');const se=seasonDue();if(se)return story(se,'season');const r=randToday();if(r)return story(r,'rand');pickTopic()}
 /* 📸 思い出（デート・イベントの エンド） */
@@ -122,7 +125,7 @@ function memories(){return MEM().filter(S=>['good','ok','fun'].some(k=>LV.ends[S
 function datePick(){stage('デートに さそう','🌅');P={kind:'pick',newPh:[]};const [ex,tx]=ML('lv_datePick',{});minaJa(ex,tx);
   mina("A date? ...Where do you want to go?","デート？ …どこに 行きたい？",'love');
   $('lvans').innerHTML=`<div class="lvtopics lvdates">${LOVE_DATES.map((S,i)=>{const g=['good','ok','fun'].filter(k=>LV.ends[S.id+':'+k]).length;return `<button data-d="${i}"><span>${S.ico}</span>${esc(S.t)}<small>${g?'⭐'.repeat(g):''}</small></button>`}).join('')}</div>`;
-  $('lvans').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{sf('step');story(LOVE_DATES[+b.dataset.d],'date')})}
+  $('lvans').querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{if(P.kind!=='pick')return;sf('step');story(LOVE_DATES[+b.dataset.d],'date')})}
 /* 🔮 the day's fortune: her mood, a lucky topic, a word */
 function fortune(){const M=mood(),r=seeded(dk()+'|luck'),lt=M[4][r()*M[4].length|0],bt=M[5][0],L=MINA_LINES.lv_luck||[['smile','']];
   const luck=['大吉','中吉','小吉','吉'][r()*4|0],w=L[r()*L.length|0][1];
@@ -141,7 +144,7 @@ function stage(title,ico){H.show('love',`<section class="pnl lsn kw snw lvw" dat
   $('lvx').onclick=()=>{sf('back');hush();P=null;open()}}
 function scrollLog(){const l=$('lvlog');if(l)l.scrollTo({top:l.scrollHeight,behavior:'smooth'})}
 function mina(en,ja,ex='smile',cls='',who){if(!live())return;const d=document.createElement('div'),on=jaOn();d.className='lsay snm kth '+cls+(who?' lvwho-'+who:'');P.last=en;
-  const fc=who==='h'?MINA.face('h',ex):who==='n'?'<span class="lvnora">👩‍🦳</span>':face(ex,'');
+  const fc=who==='h'?MINA.face('h',ex):who==='n'?'<span class="lvnora">👩‍🦳</span>':who==='r'?'<span class="lvnora">🧳</span>':face(ex,'');
   d.innerHTML=`<span class="lface">${fc}</span><div class="lbody"><p class="ken">${esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p>${ja?`<small class="kja ${on?'on':''}">${esc(ja)}</small>${on?'':'<button class="kjab">訳を 見る</button>'}`:''}</div>`;
   $('lvlog').appendChild(d);
   d.querySelector('.ksay').onclick=e=>{e.stopPropagation();speak(en)};
@@ -170,7 +173,7 @@ function pickTopic(){const L=topicsToday();stage('ミナ先生との 時間','�
   const [ex,tx]=ML('lv_topic',{});minaJa(ex,tx);
   mina(pickL([["What shall we talk about today?","きょうは なんの 話を しようか？"],["What do you want to talk about?","なんの 話が したい？"],["Any topic is fine. What do you feel like?","どんな 話でも いいよ。 なにが いい？"]])[0],'',mood()[2]);
   $('lvans').innerHTML=`<div class="lvtopics">${L.map(t=>`<button data-t="${t}"><span>${TOP[t][0]}</span>${TOP[t][1]}</button>`).join('')}</div>`;
-  $('lvans').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{sf('step');day(b.dataset.t)})}
+  $('lvans').querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{if(P.kind!=='pick')return;$('lvans').innerHTML='';sf('step');day(b.dataset.t)})}
 function day(topic){const st=Math.min(LV.st,3),turns=(LOVE_TALKS[st][topic]||LOVE_TALKS[st].star);
   P={kind:'day',topic,turns,i:0,tries:0,score:[],newPh:[],last:'',tried:new Set()};
   you(`${TOP[topic][0]} ${TOP[topic][1]}の 話が したいな`);
@@ -218,7 +221,8 @@ function dayEnd(){if(!live())return;$('lvans').innerHTML='';$('lvq').textContent
   let gain=Math.min(DAY_MAX,base+fit);const star=Math.random()<.12;if(star)gain++;
   const before=LV.h;LV.h=need?Math.min(need,LV.h+gain):LV.h+gain;const got=LV.h-before;
   LV.day=dk();LV.n++;LV.talks[Math.min(LV.st,3)+':'+P.topic]=(LV.talks[Math.min(LV.st,3)+':'+P.topic]||0)+1;const an=anniv();save();
-  const perfect=P.score.every(x=>x===2),nowReady=ready();
+  const perfect=P.score.every(x=>x===2),nowReady=ready();if(perfect)LV.perf=(LV.perf||0)+1;if(star)LV.stars=(LV.stars||0)+1;
+  diary('day',{t:P.topic,fit,perfect});const promAsk=!LV.prom&&Math.random()<.4?LOVE_PROMISES[Math.random()*LOVE_PROMISES.length|0]:null;if(promAsk)promSet(promAsk[0]);save();
   let k=perfect?'lv_endPerfect':s>=3?'lv_endGood':'lv_endLow';if(fit===2&&Math.random()<.5)k='lv_endFit';if(LV.n===1)k='lv_endFirst';if(nowReady)k='lv_endReady';
   const [ex,tx]=ML(k,{n:LV.n,t:TOP[P.topic][1]});
   const bye=pickL(LV.st>=3?[["See you tomorrow. I'll miss you.","また あした。 さびしく なるな。"],["Sweet dreams. Think of me, okay?","いい ゆめを。 わたしの こと 考えてね？"]]:LV.st>=1?[["That was fun. Same time tomorrow?","楽しかった。 あしたも この 時間に？"],["Thanks for today. I enjoyed it.","きょうは ありがとう。 楽しかった。"]]:[["Good job today! See you tomorrow.","きょうも よく がんばったね！ また あした。"],["Nice talking with you. Bye!","話せて よかった。 またね！"]]);
@@ -226,6 +230,7 @@ function dayEnd(){if(!live())return;$('lvans').innerHTML='';$('lvq').textContent
   afterTalk(()=>{if(!live())return;
     if(star){note('🌠 流れ星が 流れた… <b>ハート +1</b>');try{H.meteorSoon(true)}catch(e){}}
     if(an)note(`🎉 ふたりの 時間 ${an}日め！ <b>記念日 ハート +2</b>`);
+    if(promAsk){mina(promAsk[1],promAsk[2],'love');note(`🤙 約束：<b>${esc(promAsk[3])}</b>`)}
     $('lvans').innerHTML=`<div class="kres">
       <p class="kend good">💗 ハート +${got}${got<gain?' <small>いっぱい！</small>':''}</p>
       ${need?`<p class="lvhrow"><span>💗</span><span class="lvbar"><i style="width:${Math.round(Math.min(1,LV.h/need)*100)}%"></i></span><b>${LV.h}/${need}</b></p>`:''}
@@ -256,7 +261,7 @@ function storyEnd(){if(!live())return;if(P.S.ends)return softEnd();const S=P.S,o
   LV.day=dk();if(P.kind==='event'){if(ok){LV.st++;LV.h=0;LV.ev=0;LV.hist.push({k:'st',st:LV.st,d:dk()})}else LV.ev++}
   else{LV.fights++;if(ok){LV.fight=null;LV.deep++;const need=STG[LV.st].need;LV.h=need?Math.min(need,LV.h+6):LV.h+6;LV.hist.push({k:'deep',d:dk()})}
     else{LV.fight.tries++;LV.h=Math.max(0,LV.h-5)}}
-  LV.n++;save();
+  LV.n++;diary(P.kind,{ok});save();
   const L=ok?S.ok:S.ng;mina(L[0],L[1],ok?(L[2]||'love'):(L[2]||'worry'),ok?'k-good':'');
   afterTalk(()=>{if(!live())return;let head,sub,k;
     if(P.kind==='event'){const N=STG[LV.st];
@@ -277,7 +282,7 @@ function softEnd(){const S=P.S,kind=P.kind,k=P.pts>=S.need?'good':P.pts>=S.need/
   const lastWho=(S.nodes.b||S.nodes.a).who;
   LV.ends[ek]=1;let gain=HEARTS[kind][['good','ok','fun'].indexOf(k)]+(P.rain&&k!=='fun'?1:0);const need=STG[LV.st].need,before=LV.h;LV.h=need?Math.min(need,LV.h+gain):LV.h+gain;gain=LV.h-before;
   if(kind==='season')LV.sea[S.id+new Date().getFullYear()]=1;if(kind==='jeal')LV.jeal=0;
-  LV.day=dk();LV.n++;const an=anniv();save();
+  LV.day=dk();LV.n++;const an=anniv();diary(kind,{S,k});save();
   mina(E[1],E[2],k==='good'?'love':k==='ok'?'happy':'wow',k==='good'?'k-good':'',lastWho);
   afterTalk(()=>{if(!live())return;
     if(an)note(`🎉 ふたりの 時間 ${an}日め！ <b>記念日 ハート +2</b>`);
@@ -433,6 +438,108 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_lvAnniv',1,()=>LV.n>=7?{n:LV.n}:null,null],
  ['x_lvGiftLove',2,()=>{try{const L=ZAKKA.items.filter(i=>i.love&&LV.st>=i.love);return L.length?{n:pickL(L).n}:null}catch(e){return null}},()=>['🏚️ 雑貨屋へ 行く',()=>ZAKKA.open()]]);
 
-window.LOVE={open,btn,bind,greet,phrases,todo,mood,ready,conds,gift,rec:()=>LV,
+/* ================================================================ 第3弾: 日記・約束・アルバム・図鑑・称号・ひみつ・ラブレター・リクエスト */
+const who3=()=>['my student','a certain student','my special person','my love'][Math.min(LV.st,3)];
+const TOPEN={star:'the stars',book:'books',food:'food',sea:'the sea',music:'music',dream:'our dreams'};
+/* 📓 先生の 日記（こちらの 行動が 英語で 出てくる） */
+function diary(kind,o){const w=who3();let e;
+  if(kind==='day')e=[`Today I talked with ${w} about ${TOPEN[o.t]}. ${o.fit===2?"It was exactly what I wanted to talk about. How did they know?":o.fit===0?"I wasn't really in the mood, but they tried so hard.":"It was a nice, quiet talk."}${o.perfect?" Their English was perfect today!":""}`,
+    `きょうは ${['生徒','ある 生徒','とくべつな 人','大好きな 人'][Math.min(LV.st,3)]}と ${TOP[o.t][1]}の 話を した。 ${o.fit===2?'ちょうど 話したかった 話題。 なんで わかったんだろう？':o.fit===0?'あんまり 気分じゃ なかったけど、 がんばって くれた。':'しずかで いい 時間だった。'}${o.perfect?' きょうの 英語は カンペキ！':''}`];
+  else if(kind==='event')e=o.ok?[`Something changed today. I can't stop smiling.`,'きょう、 なにかが かわった。 にやけるのが とまらない。']:[`I wasn't ready today. I hope ${w} asks again.`,'きょうは まだ 心の じゅんびが できてなかった。 また 聞いて くれると いいな。'];
+  else if(kind==='fight')e=o.ok?[`We made up today. I feel closer to ${w} than before.`,'きょう 仲直り した。 前より 近くに 感じる。']:[`We had a fight. I said too much. Tomorrow I'll try again.`,'けんかしちゃった。 言いすぎた かも。 あした また 話そう。'];
+  else if(o&&o.S)e=[`${o.k==='good'?'Best day ever':o.k==='ok'?'A fun day':'A funny day'}: "${o.S.ends[o.k][1]}"`,`${o.k==='good'?'さいこうの 日':o.k==='ok'?'楽しい 日':'わらった 日'}：${o.S.t}。「${o.S.ends[o.k][2]}」`];
+  if(!e)return;LV.diary.push({d:dk(),en:e[0],ja:e[1]});if(LV.diary.length>60)LV.diary.shift()}
+/* 🤙 約束（やぶっても ハートは 下がらない。 先生が ちょっと さびしがる だけ） */
+const dayNum=d=>{d=d||new Date();return Math.floor(new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime()/864e5)};
+function promSet(k){LV.prom={k,dn:dayNum(),les:lesDone(),w:Object.keys(ST.learned||{}).length}}
+function promCheck(){const p=LV.prom;if(!p)return '';const gap=dayNum()-p.dn;if(gap<1)return '';
+  const met=p.k==='come'?gap===1:p.k==='lesson'?lesDone()>p.les:Object.keys(ST.learned||{}).length>=p.w+5;
+  if(met){LV.prom=null;LV.pk=(LV.pk||0)+1;const need=STG[LV.st].need;LV.h=need?Math.min(need,LV.h+1):LV.h+1;save();sf('step');return '🤙 約束を まもって くれたね！ <b>ハート +1</b>　「Thank you for keeping your promise.」'}
+  if(gap>=2||p.k==='come'){LV.prom=null;LV.pb=(LV.pb||0)+1;save();return '🥺 約束… ちょっと さびしかったな。 でも だいじょうぶ、 また 約束しようね（ハートは そのまま）'}
+  return ''}
+/* 🏅 称号 */
+const titles=()=>LOVE_TITLES.filter(x=>x[1](LV));
+const title=()=>{const t=titles();return t.length?t[t.length-1][0]:''};
+/* 🔒 先生の ひみつ */
+const secOpen=x=>LV.st>x.st||(LV.st===x.st&&(!x.n||LV.n>=x.n));
+const newSecret=()=>LOVE_SECRETS.some(x=>secOpen(x)&&!LV.sec[x.t]);
+/* 📸 アルバム */
+const HISTN={st:h=>`${STG[h.st].ico} 「${STG[h.st].n}」に なった`,deep:()=>'💞 けんかの あと 仲直り',ann:h=>`🎉 ふたりの 時間 ${h.n}日め`};
+function album(){hush();const [ex,tx]=ML('lv_album',{});const fs=LOVE_FACES.filter(f=>f[5](LV)).length,ts=titles().length;
+  H.show('love',`<section class="pnl lvp">
+    <div class="qtop"><button class="x" id="lvx" aria-label="もどる">←</button><b>📸 アルバム</b><span class="qn">💗</span></div>
+    <div class="kmina"><span class="lface">${face(ex,tx)}</span><p>${tx}</p></div>
+    <div class="lvbook">
+    <details class="mfold"><summary>🔒 先生の ひみつ<small>${Object.keys(LV.sec).length}/${LOVE_SECRETS.length}${newSecret()?' 🆕':''}</small></summary><div class="mfbody lvphl">${LOVE_SECRETS.map((x,i)=>secOpen(x)?`<button data-sec="${i}"><span class="en">🔓 ${esc(x.t)}${LV.sec[x.t]?'':' 🆕'}</span></button>`:`<p class="note">🔒 ？？？（${STG[x.st].n}${x.n?`・ふたりの 時間 ${x.n}日`:''}）</p>`).join('')}</div></details>
+    <details class="mfold"><summary>🖼️ 恋の 表情図鑑<small>${fs}/${LOVE_FACES.length}</small></summary><div class="mfbody"><div class="lvfaces">${LOVE_FACES.map(f=>f[5](LV)?`<span><i>${face(f[1],'',f[2])}</i><small>${esc(f[3])}</small></span>`:`<span class="no"><i>？</i><small>${esc(f[4])}</small></span>`).join('')}</div></div></details>
+    <details class="mfold"><summary>🏅 ふたりの 称号<small>${ts}/${LOVE_TITLES.length}</small></summary><div class="mfbody lvbody">${LOVE_TITLES.map(x=>x[1](LV)?`<p class="lvtt">🏅 <b>${esc(x[0])}</b></p>`:`<p class="lvtt no">？？？ <small>${esc(x[2])}</small></p>`).join('')}</div></details>
+    <details class="mfold"><summary>📸 ふたりの 思い出<small>${memN()}/${memAll()}</small></summary><div class="mfbody lvbody">${memories()||'<p class="note">デートや イベントの エンドが ここに のこるよ</p>'}${LV.hist.length?'<hr class="lvhr">'+LV.hist.slice().reverse().map(h=>`<p class="lvtt"><small>${esc(h.d)}</small> ${HISTN[h.k]?HISTN[h.k](h):''}</p>`).join(''):''}</div></details>
+    <details class="mfold"><summary>📓 先生の 日記（こっそり）<small>${LV.diary.length}</small></summary><div class="mfbody lvphl">${LV.diary.slice().reverse().slice(0,20).map(e=>`<button data-say="${esc(e.en)}"><span class="ja">${esc(e.d)}</span><span class="en">${esc(e.en)}</span><span class="ja">${esc(e.ja)}</span></button>`).join('')||'<p class="note">まだ 白い ページ…</p>'}</div></details>
+    </div>
+  </section>`);
+  $('lvx').onclick=()=>{sf('back');open()};
+  H.panel.querySelectorAll('.mfold').forEach(f=>f.ontoggle=()=>{if(f.open)sf('pop')});
+  H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>{sf('tap');speak(b.dataset.say)});
+  H.panel.querySelectorAll('[data-sec]').forEach(b=>b.onclick=()=>{sf('book');secret(+b.dataset.sec)})}
+function secret(i){const x=LOVE_SECRETS[i];LV.sec[x.t]=1;save();const [ex,tx]=ML('lv_secret',{t:x.t});
+  H.show('love',`<section class="pnl lvp">
+    <div class="qtop"><button class="x" id="lvx" aria-label="もどる">←</button><b>🔓 ${esc(x.t)}</b><span class="qn"></span></div>
+    <div class="mtalk"><span class="mbig lvbig">${face('love','','shh')}</span><p class="mline lvsec">${esc(x.en)}<button class="ksay" id="lvss" aria-label="きく">🔊</button></p></div>
+    <p class="lvsecja" hidden>${esc(x.ja)}</p>
+    <div class="row"><button id="lvsj" class="sub">日本語を 見る</button><button id="lvok" data-back>もどる</button></div>
+    <div class="kmina"><span class="lface">${face(ex,tx)}</span><p>${tx}</p></div>
+  </section>`);speak(x.en);
+  $('lvss').onclick=()=>speak(x.en);$('lvsj').onclick=()=>{sf('tap');H.panel.querySelector('.lvsecja').hidden=false;$('lvsj').remove()};
+  $('lvx').onclick=$('lvok').onclick=()=>{sf('back');hush();album()}}
+/* 💌 ボトルメールの ラブレター（game/bottle.js から。 気になる 人 から、 3日に 1回くらい） */
+function letterDue(){if(LV.st<1||LV.ltd===dk())return false;const L=LOVE_LETTERS[Math.min(LV.st,3)];if(!L)return false;
+  const left=L.filter((x,i)=>!LV.lt.includes(Math.min(LV.st,3)+':'+i));return left.length&&seeded(dk()+'|letter')()<.35}
+function letter(){const st=Math.min(LV.st,3),L=LOVE_LETTERS[st],i=L.findIndex((x,i)=>!LV.lt.includes(st+':'+i));if(i<0)return;const x=L[i];
+  LV.ltd=dk();save();let p=$('bmPop');if(p)p.remove();sf('book');
+  p=document.createElement('div');p.id='bmPop';
+  p.innerHTML=`<div class="bmPaper lvlet"><small class="bmFrom">💌 ミナ先生 より</small>
+    <p class="bmEn">${esc(x.en).replace(/\n/g,'<br>')}</p><p class="bmJa" hidden>${esc(x.ja).replace(/\n/g,'<br>')}</p>
+    <div class="bmBtns"><button id="bmSay" class="sub">🔊 きく</button><button id="bmJaB" class="sub">日本語を 見る</button></div>
+    <p class="lvrq">✍️ 返事を 書こう</p><div class="lopts kopts lvre">${shuffle(x.re.map((r,k)=>({r,k}))).map(o=>`<button data-r="${o.k}">${esc(o.r[0])}<small class="lvj">${esc(o.r[1])}</small></button>`).join('')}</div></div>`;
+  document.body.appendChild(p);requestAnimationFrame(()=>p.classList.add('on'));
+  p.addEventListener('pointerdown',e=>e.stopPropagation());
+  $('bmSay').onclick=e=>{e.stopPropagation();speak(x.en.replace(/\n/g,' '))};
+  $('bmJaB').onclick=e=>{e.stopPropagation();sf('pop');p.querySelector('.bmJa').hidden=false;p.querySelectorAll('.lvj').forEach(s=>s.classList.add('on'));e.target.remove()};
+  p.querySelectorAll('[data-r]').forEach(b=>b.onclick=e=>{e.stopPropagation();const r=x.re[+b.dataset.r];LV.lt.push(st+':'+i);LV.lr=(LV.lr||0)+1;
+    if(r[2]===2)addPh(r[0],r[1],'feel');const need=STG[LV.st].need,add=[0,1,2][r[2]];LV.h=need?Math.min(need,LV.h+add):LV.h+add;save();
+    sf(r[2]===2?'heart':'pop');const [ex,tx]=ML(r[2]===2?'lv_letterGood':r[2]===1?'lv_letterOk':'lv_letterFun',{});
+    p.querySelector('.lvre').outerHTML=`<p class="lvrq">📮 「${esc(r[0])}」と 書いて、 びんを 海へ…${add?` 💗 ハート +${add}`:''}</p><div class="kmina"><span class="lface">${face(ex,tx)}</span><p>${tx}</p></div><button id="bmClose">とじる</button>`;
+    $('bmClose').onclick=e2=>{e2.stopPropagation();p.classList.remove('on');setTimeout(()=>p.remove(),300)}})}
+/* 📻 曲を リクエスト（恋人から）: 持っている レコードを 先生が ラジオで かけて くれる */
+function radio(){stage('曲を リクエスト','📻');P={kind:'pick',newPh:[]};const own=(ST.music||[]).filter(id=>typeof TRACKS!=='undefined'&&TRACKS[id]);
+  const [ex,tx]=ML(own.length?'lv_radio':'lv_radioNone',{});minaJa(ex,tx);
+  mina("Do you have a song you want to hear? I'll play it on the radio, just for you.","聞きたい 曲 ある？ あなただけの ために ラジオで かけるね。",'love');
+  $('lvans').innerHTML=own.length?`<div class="lopts kopts">${own.slice(0,8).map(id=>`<button data-tr="${esc(id)}">🎵 ${esc(TRACKS[id].name)}</button>`).join('')}</div>`:`<div class="row"><button id="lvsing">🎤 先生に 歌って もらう</button></div>`;
+  $('lvans').querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{const id=b.dataset.tr;$('lvans').innerHTML='';you(`Can you play "${TRACKS[id].name}"?`);
+    setTimeout(()=>{mina(pickL(["This one goes out to my favorite person.","Here's a song for the one I love.","For you, and only you."]),'',"love",'k-good');
+      afterTalk(()=>{try{H.playTrack(id)}catch(e){}$('lvans').innerHTML='<div class="row"><button id="lvok" data-back>もどる</button></div>';$('lvok').onclick=()=>{sf('back');P=null;open()}},300,600)},500)});
+  const sg=$('lvsing');if(sg)sg.onclick=()=>{$('lvans').innerHTML='';mina("La la la... ♪ Don't laugh! ...That was for you.","ら ら ら… ♪ わらわないで！ …あなたの ための 歌だよ。",'love','k-good');
+    afterTalk(()=>{$('lvans').innerHTML='<div class="row"><button id="lvok" data-back>もどる</button></div>';$('lvok').onclick=()=>{sf('back');P=null;open()}},300,600)}}
+Object.assign(MINA_LINES,{
+ lv_album:[['love','ふたりの 思い出、 こんなに たまったね'],['smile','ひみつや 日記も ここに あるよ。 …日記は ちょっと はずかしいけど']],
+ lv_secret:[['love','「{t}」… あなたにだけ 話すね'],['love','ほかの 人には ないしょだよ。 しーっ']],
+ lv_letterGood:[['love','返事、 ちゃんと とどいたよ。 …何回も 読んじゃった'],['love','その 英語の 返事、 宝物に するね']],
+ lv_letterOk:[['happy','返事 ありがとう。 ふふ、 あなたらしい'],['smile','手紙の 返事って、 ドキドキするね']],
+ lv_letterFun:[['worry','…もう！ ロマンチックな 手紙だったのに！'],['think','手紙の 返事は、 気持ちに こたえる ことばが いいよ']],
+ lv_radio:[['love','リクエスト、 なんでも どうぞ'],['happy','ふたりの 曲、 えらんでね']],
+ lv_radioNone:[['smile','レコードは 雑貨店で 買えるよ。 きょうは… わたしが 歌っちゃおうかな'],['happy','曲が ないなら、 わたしの 歌で がまんしてね']],
+ x_lvLetter:[['love','海を 見てて。 …びんが ながれて くるかもよ'],['love','ボトルメール、 最近 ひろった？ …べつに なんでも ないけど']],
+ x_lvPromise:[['smile','約束、 おぼえてる？ 「{p}」だよ'],['love','約束 まもって くれたら… うれしいな']],
+ x_lvSecret:[['love','📸 アルバムに、 わたしの ひみつが ひとつ 増えたよ'],['love','ねえ… ちょっと だけ、 わたしの むかしの 話、 聞いて くれる？']],
+ x_lvTitle:[['proud','ふたりの 称号は 「{t}」！ すてきでしょ'],['happy','称号「{t}」、 アルバムで 見られるよ']],
+ x_lvRadio:[['love','ねえ、 ふたりの 曲、 リクエスト して くれない？'],['love','ラジオで あなたの ための 曲、 かけたいな']]});
+if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
+ ['x_lvLetter',2,()=>letterDue()?{}:null,null],
+ ['x_lvPromise',3,()=>LV.prom?{p:LOVE_PROMISES.find(x=>x[0]===LV.prom.k)[3]}:null,null],
+ ['x_lvSecret',3,()=>newSecret()?{}:null,()=>['📸 アルバムへ',()=>{open(H.home);album()}]],
+ ['x_lvTitle',1,()=>title()?{t:title()}:null,null],
+ ['x_lvRadio',1,()=>LV.st>=3?{}:null,()=>['📻 リクエスト',()=>{open(H.home);radio()}]]);
+
+window.LOVE={open,btn,bind,greet,phrases,todo,mood,ready,conds,gift,letterDue,letter,album,rec:()=>LV,
   _test:{set:o=>{Object.assign(LV,o);save()},reset:()=>{LV.day='';LV.rd='';save()},fight:i=>{LV.fight={i:i||0,d:dk(),tries:0};LV.day='';save()},story:(S,k)=>story(S,k)}};
 })();
