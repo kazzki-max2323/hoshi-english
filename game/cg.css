@@ -1,7 +1,13 @@
 /* ことばカード（game/cg.js・game/cg-battle.js・game/cg-more.js） */
-#cgHut{position:absolute;z-index:1;pointer-events:auto;padding:0;margin:0;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;filter:drop-shadow(0 2px 2px #0007)}
+#cgHut{position:absolute;z-index:1;pointer-events:auto;padding:0;margin:0;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#cgHut .cgBody{display:block;filter:drop-shadow(0 2px 2px #0007) brightness(calc(1 - var(--dk,0)*.45)) saturate(calc(1 - var(--dk,0)*.3));transition:filter 2s}
+/* night: the window and the roof bulbs glow softly, like the zakka hut and Riku's lantern */
+#cgHut .cgGlow{position:absolute;inset:0;pointer-events:none;opacity:calc(var(--dk,0)*.85);transition:opacity 2s}
+#cgHut .cgLg circle{animation:cgtw 4s ease-in-out infinite}#cgHut .cgLg circle:nth-child(2n){animation-delay:-2s}
+@keyframes cgtw{50%{opacity:.6}}
+@media (prefers-reduced-motion:reduce){#cgHut .cgLg circle{animation:none}}
 #cgHut svg{display:block;width:100%;height:auto;overflow:visible}
-#cgHut svg rect[fill^="var(--win"]{--win:color-mix(in srgb,#ffcf7a calc(var(--dk,0)*100%),#3d4a6b);transition:fill 2s}
+#cgHut svg rect[fill^="var(--win"]{--win:color-mix(in srgb,#ffcf7a calc(var(--dk,0)*70%),#3d4a6b);transition:fill 2s}
 #cgHut .cgL circle{opacity:calc(.3 + var(--dk,0)*.7)}
 #cgHut.off{pointer-events:none}
 #cgHut:active{transform:translateY(1px)}
