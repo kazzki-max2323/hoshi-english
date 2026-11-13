@@ -987,7 +987,7 @@ const CG_ATTR_RULE=[['ani',/どうぶつ|いきもの|動物|植物|生物/],['f
  ['act',/動詞|うごき|動く|話す・伝える|生活の動作|変わる|句動詞|変化|make/],
  ['look',/形容詞|ようす|副詞/],
  ['learn',/./]];
-/* レベル: コスト（しおの 力）・パワー・色・パックの 値段 */
+/* レベル: コスト（ことだまの 力）・パワー・色・パックの 値段 */
 const CG_LV={es:{k:'小',n:'小学生',c:1,p:2,col:'#4cbf78',pack:60,one:30,sh:1,tr:10},jh:{k:'中',n:'中学生',c:2,p:4,col:'#3f86e0',pack:100,one:50,sh:2,tr:20},
  hs:{k:'高',n:'高校生',c:3,p:6,col:'#9a62e0',pack:150,one:80,sh:3,tr:35},adv:{k:'H',n:'ハイレベル',c:4,p:9,col:'#e0a91a',pack:220,one:120,sh:5,tr:60}};
 /* 語源パーツの 意味 */
@@ -1014,7 +1014,7 @@ const CG_FOES=[
  {id:'kanio',n:'カニオ',ico:'🦀',d:'数が 好き。 ことば デッキ',lv:['es','jh'],at:['word','look'],p:.66,hp:32,need:1,pt:2,coin:40,
   sp:{n:'よこばさみ',d:'3の ダメージを 2回',k:'pinch',v:3},hi:["Snip snip! Count your cards carefully!","チョキチョキ！ カードは よく 数えてね！"],win:["Snip... You counted better than me.","チョキ… きみの ほうが 数えるの うまいね。"],lose:["Snip! One, two, I win!","チョキ！ いち、 に、 ぼくの かち！"],spl:["Side pinch! Snip, snip!","よこばさみ！ チョキチョキ！"]},
  {id:'hana',n:'ハナさん',ico:'🍧',d:'かき氷屋さん。 あまい デッキ',lv:['es','jh'],at:['food','heart'],p:.68,hp:32,need:1,pt:2,coin:40,
-  sp:{n:'かき氷ブリザード',d:'つぎの ターン、 あなたの しおが 2 へる',k:'freeze',v:2},hi:["Hello! Let's have a sweet game!","こんにちは！ あまーい 勝負に しましょ！"],win:["Wow, you melted my ice!","わあ、 わたしの 氷が とけちゃった！"],lose:["Ha ha! Sweet victory!","あはは！ あまい 勝利！"],spl:["Shaved ice blizzard!","かき氷ブリザード！"]},
+  sp:{n:'かき氷ブリザード',d:'つぎの ターン、 あなたの ことだまが 2 へる',k:'freeze',v:2},hi:["Hello! Let's have a sweet game!","こんにちは！ あまーい 勝負に しましょ！"],win:["Wow, you melted my ice!","わあ、 わたしの 氷が とけちゃった！"],lose:["Ha ha! Sweet victory!","あはは！ あまい 勝利！"],spl:["Shaved ice blizzard!","かき氷ブリザード！"]},
  {id:'taku',n:'タク',ico:'⚽',d:'中学生。 うごき デッキ',lv:['jh'],at:['act','life'],p:.72,hp:36,need:2,pt:2,coin:50,
   sp:{n:'ハットトリック',d:'つぎの コンボが 3ばい',k:'combo3'},hi:["Ready? I'm not going to lose!","じゅんび いい？ 負けないからな！"],win:["Man... Good game! Let's play again.","くそー… いい 試合だった！ またやろう。"],lose:["Goal! I win this one!","ゴール！ この 試合は おれの かち！"],spl:["Hat trick! Three in a row!","ハットトリック！ 3れんぞく！"]},
  {id:'emma',n:'エマ',ico:'🧳',d:'カナダからの 旅行者。 くらし デッキ',lv:['jh'],at:['life','word'],p:.74,hp:36,need:2,pt:2,coin:50,
