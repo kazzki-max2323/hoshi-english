@@ -99,9 +99,9 @@ function render(msg){if(!B)return;const F=B.F,me=B.me,ai=B.ai,sel=B.sel.map(u=>m
   H.show('cgb',`<section class="pnl cgbt" data-stay>
     <div class="qtop"><button class="x" id="bx" aria-label="やめる">←</button><b>⚔️ ${esc(F.n)} <small class="blv">Lv${B.lv+1}</small></b><span class="qn">ターン ${B.turn}</span></div>
     <div class="bside ai ${B.rage?'rage':''}"><span class="bfi">${F.ico}</span><span class="bben">${ai.bench.map(()=>'🂠').join('')}<small>${alive('ai')}まい</small></span>${B.rage?'<em class="brg">🔥 本気</em>':''}</div>
-    <div class="brow ai">${ai.field.map(x=>unitHtml(x,{tgt:sel.length&&!B.busy,anti:sel.length===1&&anti(sel[0],x),enter:ent.includes(x.u)})).join('')}</div>
+    <div class="bfrow ai">${ai.field.map(x=>unitHtml(x,{tgt:sel.length&&!B.busy,anti:sel.length===1&&anti(sel[0],x),enter:ent.includes(x.u)})).join('')}</div>
     <div class="bfield" id="bfield"><span>${msg||''}</span></div>
-    <div class="brow me">${me.field.map(x=>unitHtml(x,{sel:B.sel.includes(x.u),enter:ent.includes(x.u)})).join('')}</div>
+    <div class="bfrow me">${me.field.map(x=>unitHtml(x,{sel:B.sel.includes(x.u),enter:ent.includes(x.u)})).join('')}</div>
     <div class="bside me"><span class="bfi">🫵</span><span class="bben">${me.bench.map(()=>'🂠').join('')}<small>${alive('me')}まい</small></span></div>
     <div class="bsel" id="bsel">${selInfo(sel)}</div>
   </section>`);

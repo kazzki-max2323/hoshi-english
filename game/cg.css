@@ -301,7 +301,7 @@
 .cgmap{text-align:center;background:rgba(243,194,122,.15);border:1.5px solid #f3c27a;border-radius:12px;padding:8px}
 .cgmap p{margin:0 0 6px}
 /* ---- field battle ---- */
-.brow{display:grid;grid-template-columns:repeat(3,minmax(0,88px));justify-content:center;gap:10px;padding:2px 6px;min-height:40px}
+.bfrow{display:grid;grid-template-columns:repeat(3,minmax(0,88px));justify-content:center;gap:10px;padding:2px 6px;min-height:40px}
 .bu{position:relative;cursor:pointer;transition:transform .15s}
 .bu .cgc{width:100%}
 .bu .cgc .cgn small{display:none}
