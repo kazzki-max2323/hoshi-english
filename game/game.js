@@ -11,11 +11,11 @@ const START_COINS=150;
 const hooks={},emit=(n,...a)=>(hooks[n]||[]).forEach(f=>{try{f(...a)}catch(e){}});
 
 /* ---------- save ---------- */
-const GAP0=10;
-try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=oneRadioEach(s.radios||[]);ST.radioGap=s.gapV>=2?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;ST.flipCoin=s.flipCoin||{d:'',n:0};ST.autoSay=s.autoSay!==false;ST.cheer=s.cheer!==false;ST.gram=Object.assign({owned:[],cleared:[]},s.gram||{});ST.rh=s.rh||{};ST.cheerBag=s.cheerBag||[];ST.cheerLast=s.cheerLast??-1;decoRefund(s.deco);
+const GAP0=15;
+try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');ST.radios=oneRadioEach(s.radios||[]);ST.radioGap=s.gapV>=3?s.radioGap:GAP0;ST.bookPos=s.bookPos||{};ST.music=s.music||[];ST.learned=s.learned||{};ST.slow=!!s.slow;ST.flipCoin=s.flipCoin||{d:'',n:0};ST.autoSay=s.autoSay!==false;ST.cheer=s.cheer!==false;ST.gram=Object.assign({owned:[],cleared:[]},s.gram||{});ST.rh=s.rh||{};ST.cheerBag=s.cheerBag||[];ST.cheerLast=s.cheerLast??-1;decoRefund(s.deco);
   if(!s.started)ST.coins=Math.max(ST.coins,START_COINS);ST.started=1}catch(e){ST.radios=[];ST.radioGap=GAP0;ST.bookPos={};ST.music=[];ST.learned={};ST.slow=false;ST.autoSay=true;ST.cheer=true;ST.gram={owned:[],cleared:[]};ST.rh={};ST.cheerBag=[];ST.cheerLast=-1;ST.started=1}
 ST.vol=Object.assign({se:1,wave:1,mus:1,voice:1},ST.vol||{});
-_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');delete s.deco;delete s.rareBack;Object.assign(s,{gram:ST.gram,learned:ST.learned,slow:ST.slow,flipCoin:ST.flipCoin,autoSay:ST.autoSay,cheer:ST.cheer,music:ST.music,radios:ST.radios,radioGap:ST.radioGap,rh:ST.rh,cheerBag:ST.cheerBag,cheerLast:ST.cheerLast,gapV:2,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
+_saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');delete s.deco;delete s.rareBack;Object.assign(s,{gram:ST.gram,learned:ST.learned,slow:ST.slow,flipCoin:ST.flipCoin,autoSay:ST.autoSay,cheer:ST.cheer,music:ST.music,radios:ST.radios,radioGap:ST.radioGap,rh:ST.rh,cheerBag:ST.cheerBag,cheerLast:ST.cheerLast,gapV:3,bookPos:ST.bookPos,started:1});localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
 
 /* the beach decorations were taken out of the game: whatever was on the beach is sold back for half its price, like selling it in the shop */
 function decoRefund(deco){const names=Object.keys(deco||{});if(!names.length)return;
