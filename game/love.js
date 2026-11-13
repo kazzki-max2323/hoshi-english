@@ -330,6 +330,9 @@ function anniv(){const n=LV.n;if(![7,30,50,100,200,365].includes(n)||LV.ann===n)
 function gift(t,it){if(LV.gd===dk())return '';LV.gd=dk();const love=it&&/z:g_(choco|bouquet|pendant)/.test(it.key||'');
   const add=Math.max(0,[0,1,2,3][t]+(love?2:0)+(it&&it.lux?2:0)),need=STG[LV.st].need,before=LV.h;LV.h=need?Math.min(need,LV.h+add):LV.h+add;save();
   return LV.h>before?`💗 ハート +${LV.h-before}`:''}
+/* 🃏 カード対戦で ミナ先生に 勝ったとき（game/cg-more.js）: ハートが 1 上がる（1日 1回。 下がる ことは ない） */
+function cardWin(){if(LV.cw===dk())return '';LV.cw=dk();const need=STG[LV.st].need,before=LV.h;LV.h=need?Math.min(need,LV.h+1):LV.h+1;save();
+  return LV.h>before?'💗 ハート +1':''}
 function event(){isProp()?story(LOVE_PROPOSE,'propose'):story(LOVE_EVENTS[LV.st],'event')}
 function fight(){if(!LV.fight)return open();story(LOVE_FIGHTS[LV.fight.i],'fight')}
 
@@ -610,6 +613,6 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_lvPropWait',2,()=>isProp()&&ringOk()&&LV.pf&&propWait()?{}:null,null],
  ['x_lvFamily',2,()=>LV.kid?{}:null,()=>['💗 ふたりの 時間へ',()=>open(H.home)]]);
 
-window.LOVE={open,btn,bind,greet,phrases,todo,mood,ready,conds,gift,letterDue,letter,album,rec:()=>LV,
+window.LOVE={open,btn,bind,greet,phrases,todo,mood,ready,conds,gift,cardWin,letterDue,letter,album,rec:()=>LV,
   _test:{set:o=>{Object.assign(LV,o);save()},reset:()=>{LV.day='';LV.rd='';save()},fight:i=>{LV.fight={i:i||0,d:dk(),tries:0};LV.day='';save()},story:(S,k)=>story(S,k)}};
 })();

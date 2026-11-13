@@ -40,8 +40,8 @@ function face(c,opt={}){const S=SER[c.s],R=RAR[c.r],lock=!opt.show&&!has(c);
     <div class="tcser">${c.mark||S[1]}</div></div><i class="tcholo"></i></div>`}
 
 /* ---------- album ---------- */
-let tab='sea',filt='all';
-function open(t){if(t&&SER[t]&&t!=='lesson')tab=t;
+let tab='sea',filt='all',kBack=null;
+function open(t,back){if(back!==undefined)kBack=typeof back==='function'?back:null;if(t&&SER[t]&&t!=='lesson')tab=t;
   const list=BOOK.filter(c=>tab==='all'||c.s===tab).filter(c=>filt==='all'||(filt==='have'?has(c):!has(c)));
   const sc=s=>{const a=BOOK.filter(c=>s==='all'||c.s===s);return [a.filter(has).length,a.length]};
   H.show('cards',`<section class="pnl cardsp">
@@ -51,7 +51,7 @@ function open(t){if(t&&SER[t]&&t!=='lesson')tab=t;
     <div class="khead"><b>${tab==='all'?'🃏 ぜんぶの カード':SER[tab][1]+' '+SER[tab][2]}</b><div class="seg kf">${[['all','ぜんぶ'],['have','もってる'],['not','まだ']].map(([k,n])=>`<button data-f="${k}" class="${filt===k?'on':''}">${n}</button>`).join('')}</div></div>
     <div class="kgrid">${list.map(c=>face(c)).join('')||'<p class="note">ここには まだ ないよ</p>'}</div>
   </section>`);
-  $('kx').onclick=()=>{SFX.pop();H.home()};
+  $('kx').onclick=()=>{SFX.pop();const b=kBack;kBack=null;b?b():H.home()};
   $('kdraw').onclick=()=>{SFX.card();drawMenu()};
   H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{SFX.pop();tab=b.dataset.s;open()});
   H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{SFX.pop();filt=b.dataset.f;open()});

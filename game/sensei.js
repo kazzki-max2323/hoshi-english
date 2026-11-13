@@ -312,6 +312,7 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
   const pay=(first?PAY[s.lv]*2:Math.max(3,PAY[s.lv]/2|0))+(perfect?5:0)+(newEnd?(good?6:3):0);
   if(!s.kind)SD.done[s.id]=(SD.done[s.id]||0)+1;SD.n++;SD.last=Date.now();if(s.kind==='tok')SD.tok++;
   if(perfect)SD.best=(SD.best||0)+1;save();
+  if(s.kind==='tok')try{window.CGM&&CGM.reward('tok')}catch(e){}   // a reward card (game/cg-more.js)
   const E=s.kind?[]:endsOf(s),got=s.kind?0:endsGot(s),tot=E.length;
   /* Mina's word on how it went */
   let k='sn_endGood',v={t:title,n:st.ok,h:st.hint,m:st.miss,f:st.free,got,tot};

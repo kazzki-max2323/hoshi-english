@@ -80,7 +80,6 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
     <div class="mrow"><button id="minaFace" class="mface" aria-label="ミナ先生と 話す"></button><div class="mbub"><p id="minaSay" hidden></p><p id="rq" class="note"></p></div><span id="hamaFace" class="mface hama" hidden></span></div>
     <div class="row">
       <button id="bookOpen" class="sub"><span>📕</span>単語帳</button>
-      <button id="cardOpen" class="sub"><span>🃏</span>カード${window.CARDS&&CARDS.freeOk()?'<i class="dot"></i>':''}</button>
       <button id="mini" class="sub"><span>🗺️</span>宝の地図</button>
       <button id="bagOpen" class="sub"><span>🎒</span>もちもの</button>
     </div>
@@ -90,7 +89,6 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
   /* 単語帳は 1つの ボタン。ひらくと 小学生〜ハイレベルを 上の タブで えらぶ（さいごに 見た レベルから） */
   $('bookOpen').onclick=()=>{SFX.book();books()};
   $('mini').onclick=()=>{SFX.map();window.ADV&&ADV.open()};
-  $('cardOpen').onclick=()=>{SFX.card();window.CARDS&&CARDS.open()};
   $('bagOpen').onclick=()=>{SFX.open();window.ZAKKA&&ZAKKA.bag(home)};
   const ns=$('npStop');if(ns)ns.onclick=()=>{stopMusic(true);SFX.pop();home()};
   const g=$('gapR');if(g)g.oninput=()=>{ST.radioGap=+g.value;$('gapV').textContent=g.value+'秒ごと';save();if(nextAt>performance.now()+ST.radioGap*1000)nextAt=performance.now()+ST.radioGap*1000};
