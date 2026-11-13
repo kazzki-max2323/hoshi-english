@@ -60,6 +60,8 @@ window.bottleArrive=()=>{setTimeout(()=>{const m=M();if(m&&m.canAnnounce&&m.canA
 /* the bottle was tapped (called by the scene) */
 window.bottleOpen=()=>{/* 💌 ミナ先生からの ラブレターが まざる ことも（game/love.js） */
   try{if(window.LOVE&&LOVE.letterDue()){LOVE.letter();return}}catch(e){}
+  /* 🗺️ 宝の地図が 入っている ことも（game/adventure.js） */
+  try{if(window.ADV&&ADV.bottleMap())return}catch(e){}
   const i=pickLetter(),L=LETTERS[i];let p=$('bmPop');if(p)p.remove();
   if(!BD.r.includes(i))BD.r.push(i);BD.n=(BD.n||0)+1;save();try{SFX.book()}catch(e){}
   p=document.createElement('div');p.id='bmPop';

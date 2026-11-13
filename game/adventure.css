@@ -94,3 +94,10 @@
 .crab .cr{font-size:1.4rem}
 .crab.got{background:rgba(143,240,200,.95)!important;border-color:#55e0b4!important;animation:popb .4s}
 @keyframes scuttle{from{transform:translateX(-6px) rotate(-2deg)}to{transform:translateX(6px) rotate(2deg)}}
+.admapfind{text-align:center}
+.admapfind .amf{font-size:3.4rem;animation:amf 1.2s cubic-bezier(.2,1.5,.5,1) both}
+@keyframes amf{from{transform:rotate(-30deg) scale(.2);opacity:0}}
+.admapfind b{display:block;font-size:1.05rem;margin:4px 0}
+.admapfind p{margin:4px 0 10px;font-size:.88rem}
+.admapfind button{display:block;width:100%;margin-top:6px;font:inherit;font-weight:800;padding:10px;border-radius:10px;border:2px solid #b07a3a;background:#f3c27a;color:#3a2a18;cursor:pointer}
+.admapfind button.sub{font-weight:500;background:transparent}

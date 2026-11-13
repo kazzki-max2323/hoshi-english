@@ -162,7 +162,7 @@ function bindLine(root){root.querySelectorAll('[data-say]').forEach(b=>b.onclick
 const endsAll=()=>Object.values(SC).reduce((a,s)=>a+Object.values(s.nodes).filter(n=>n.end).length,0);
 const endsN=()=>Object.keys(ZD.end).length;
 const phN=()=>Object.keys(ZD.ph).filter(k=>PH[k]).length;
-const bagN=()=>ownBooks().length+ZD.pc.length+ZD.fortN+ZD.gift.length+(ZD.own.note?1:0)+(ZD.own.crystal?1:0)+(ZD.own.moonmap?1:0)+(ZD.own.g_ring?1:0);
+const bagN=()=>ownBooks().length+ZD.pc.length+ZD.fortN+ZD.gift.length+(ZD.own.note?1:0)+(ZD.own.crystal?1:0)+(ZD.own.moonmap?1:0)+(ZD.own.g_ring?1:0)+(window.ADV&&ADV.has()?1:0);
 
 function open(tab){if(!ZD.v){ZD.v=1;save();if(tab)tabNow=tab;return play('hello')}
   ZD.v++;save();shop(tab)}
@@ -374,6 +374,7 @@ function bag(bk){hush();const back=typeof bk==='function'?bk:shop,me=()=>bag(bac
     ...G.map((g,i)=>{const it=item(g.id);return row(it.ico,esc(it.n)+(g.w?' 🎀':''),'プレゼント・だれにでも あげられるよ',`<button data-gv="${i}">あげる</button>`)}),
     ZD.own.crystal?row('🔮','水晶玉',`出た 言いまわし ${idiomSeen().length}/${ZAKKA_IDIOMS.length}`,`<button data-cr="1">${idiomToday()?'見る':'のぞく'}</button>`):'',
     ZD.own.g_ring?row('💍','星の 指輪','プロポーズの ための 指輪',window.LOVE?`<button data-rg="1">💗 ミナ先生へ</button>`:''):'',
+    window.ADV&&ADV.has()?row('🗺️','宝の地図',`「${esc(ADV.name())}」・ 宝箱が ねむっている`,`<button data-adv="1">宝探しに 行く</button>`):'',
     ZD.own.moonmap?row('🗺️','月の 市場への 地図','ノラさんの ひみつの お話',`<button data-mm="1">聞く</button>`):'',
     Z.tgs().length?row('👦','リクからの お礼',Z.tgs().map(t=>t.ico).join(' ')+'・あげても 売っても いいよ',`${window.GIFT?'<button data-tgv="1">あげる</button>':''}<button data-tg="1" class="sub">売る</button>`):'',
     ZD.own.note?row('📒','買いもの フレーズ手帳',`言えた フレーズ ${phN()}/${PHK.length}`,`<button data-nt="1">ひらく</button>`):''].filter(Boolean);
@@ -392,6 +393,7 @@ function bag(bk){hush();const back=typeof bk==='function'?bk:shop,me=()=>bag(bac
   H.panel.querySelectorAll('[data-fl]').forEach(b=>b.onclick=()=>{SFX.book();fortList(me)});
   H.panel.querySelectorAll('[data-gv]').forEach(b=>b.onclick=()=>{SFX.step();window.GIFT?GIFT.who('z'+b.dataset.gv,me):give(+b.dataset.gv,me)});
   H.panel.querySelectorAll('[data-cr]').forEach(b=>b.onclick=()=>crystal(me));
+  H.panel.querySelectorAll('[data-adv]').forEach(b=>b.onclick=()=>{SFX.map();ADV.open()});
   H.panel.querySelectorAll('[data-mm]').forEach(b=>b.onclick=()=>{SFX.talk();play('moon')});
   H.panel.querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>{SFX.talk();LOVE.open(me)});
   H.panel.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{SFX.talk();play('sell')});

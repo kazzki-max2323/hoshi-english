@@ -32,10 +32,26 @@ const A0={map:0,node:'S',trail:[],done:[],lv:'es',items:{compass:0,glass:0,hint:
 let AD;try{AD=Object.assign({},A0,JSON.parse(localStorage.getItem(SAVE_KEY)||'{}').adv||{})}catch(e){AD={...A0}}
 AD.items=Object.assign({compass:0,glass:0,hint:0},AD.items);
 _saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');s.adv=AD;localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
+/* 宝の地図は 手に入れて はじめて 行ける（びんの 手紙・カード対戦の 勝ちで 見つかる）。 AD.got = もらった 地図の 数、 AD.map = 宝箱まで 行った 数 */
+if(AD.got==null)AD.got=AD.map+(AD.node!=='S'||AD.trail.length?1:0);
+const has=()=>AD.map<AD.got;
+const mapAt=i=>MAPS[i%MAPS.length];
+/* a new map: from where (bottle / card). returns the map's name */
+function give(){AD.got++;save();return mapAt(AD.got-1).name}
+/* the bottle sometimes holds a map: always the first time, then 1 in 4 (only while you have none to use) */
+function bottleMap(){if(has())return false;if(AD.got>0&&Math.random()>.25)return false;const name=give();
+  let p=document.getElementById('bmPop');if(p)p.remove();p=document.createElement('div');p.id='bmPop';
+  p.innerHTML=`<div class="bmPaper admapfind"><div class="amf">🗺️</div><b>びんの 中に 古い 宝の地図が 入っていた！</b><p>「${esc(name)}」の 地図。 宝箱が どこかに ねむっている…</p>
+    <button id="amGo">🗺️ 宝探しに 行く</button><button id="amLater" class="sub">あとで（🎒 もちものに しまう）</button></div>`;
+  document.body.appendChild(p);requestAnimationFrame(()=>p.classList.add('on'));SFX.map();
+  p.addEventListener('pointerdown',e=>e.stopPropagation());
+  const close=go=>{p.classList.remove('on');setTimeout(()=>p.remove(),300);if(go)open();else H.toast('🎒 宝の地図を もちものに しまったよ',2400)};
+  document.getElementById('amGo').onclick=e=>{e.stopPropagation();close(true)};document.getElementById('amLater').onclick=e=>{e.stopPropagation();SFX.pop();close(false)};
+  return true}
 const map=()=>MAPS[AD.map%MAPS.length],cost=()=>COST[AD.lv]*(1+Math.floor(AD.map/MAPS.length));
 
 /* ---------- the map screen ---------- */
-function open(){
+function open(){if(!has()){H.toast('🗺️ 宝の地図が ないよ<small>びんの 手紙や カード対戦で 見つかるかも</small>',3200);return}
   const M=map(),N=M.nodes,cur=N[AD.node],next=cur[3];
   const edges=Object.entries(N).flatMap(([k,n])=>n[3].map(t=>[k,t]));
   const svg=`<svg class="amap" viewBox="0 0 100 140" role="img" aria-label="${M.name}の 地図">
@@ -116,10 +132,10 @@ function treasure(){const M=map(),R=M.reward,first=AD.map<MAPS.length,got=[];
   H.show('adv',`<section class="pnl adv chest">
     <div class="box">💎</div><b class="ct">${M.name}の 宝箱を あけた！</b>
     <ul class="got">${got.map(g=>`<li>${g}</li>`).join('')}</ul>
-    <div class="row"><button id="nx">つぎの 地図へ ▶</button><button id="hm" class="sub" data-back>浜辺に もどる</button></div>
+    ${has()?`<div class="row"><button id="nx">つぎの 地図へ ▶</button><button id="hm" class="sub" data-back>浜辺に もどる</button></div>`:`<p class="note">つぎの 宝の地図は びんの 手紙や カード対戦で 見つかるかも</p><div class="row"><button id="hm" data-back>浜辺に もどる</button></div>`}
   </section>`);
   const r=$('panel').getBoundingClientRect();for(let i=0;i<4;i++)setTimeout(()=>FX.firework(r.left+r.width*(.2+Math.random()*.6),r.top+20+Math.random()*60),i*350);
-  $('nx').onclick=()=>{SFX.map();open()};$('hm').onclick=()=>{SFX.back();H.home()}}
+  if($('nx'))$('nx').onclick=()=>{SFX.map();open()};$('hm').onclick=()=>{SFX.back();H.home()}}
 
 /* ---------- mini games ---------- */
 /* shared frame: a timer bar, ✓ / ✗ counters and the item buttons; finish(true|false) ends it */
@@ -234,5 +250,5 @@ function crabGame(){const lv=AD.lv,kids=lv==='es',pool=shuffle(H.allWords(lv).fi
   g.onHint=()=>{const b=cb.querySelector(`.crab[data-i="${pool.indexOf(target)}"]`);b&&b.classList.add('glow')};
   round();return g}
 
-window.ADV={open,rec:()=>AD,maps:MAPS,items:ITEMS};
+window.ADV={open,has,give,bottleMap,name:()=>map().name,rec:()=>AD,maps:MAPS,items:ITEMS};
 })();
