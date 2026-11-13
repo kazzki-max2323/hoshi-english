@@ -357,3 +357,6 @@
 .dkgrid .cgc{transition:transform .12s}.dkgrid .cgc:active{transform:scale(.93)}
 .cgb .cgpw{white-space:nowrap}
 .fxcut b{font-size:clamp(1.3rem,8vw,2rem)!important;padding:0 8px}
+.bu.cd .cgc{filter:saturate(.35) brightness(.6)}
+.bucd{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);z-index:2;background:rgba(10,14,40,.85);border:2px solid #9fe8ff;border-radius:99px;padding:2px 9px;font-size:.85rem;white-space:nowrap;pointer-events:none;box-shadow:0 0 10px #6ad8ff88}
+.bucd b{font-family:var(--pixel);color:#bff3ff;margin-left:2px}
