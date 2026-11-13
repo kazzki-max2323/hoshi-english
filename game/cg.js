@@ -4,7 +4,7 @@
    - ★: 問題に 正解すると 育つ。 ★5で きらきら版。 苦手（まちがいが 多い・まちがいノートの 単語）と わすれかけ（しばらく 見ていない）の しるし
    - ショップ: パック（レベル・テーマ・パーツ・文）、 きょうの 1まい売り、 ねらいうち注文（1日1まい）、 ダブりの かけら・合成・交換、 デッキ、 図鑑、 コンボ図鑑
    - 店長の ナギと 英語で 買うと おまけが つく
-   対戦は game/cg-battle.js、 大会・道場・診断・ほかの 機能との 連動・ミナ先生の セリフは game/cg-more.js。 データは game/cg-data.js */
+   対戦（ことば島めぐり）は game/cg-board.js、 大会・道場・診断・ほかの 機能との 連動・ミナ先生の セリフは game/cg-more.js。 データは game/cg-data.js */
 (()=>{
 const {S:ST,sfx:SFX}=BEACH;
 const H=HE,esc=H.esc,$=id=>document.getElementById(id);
@@ -145,7 +145,7 @@ function face(id,opt={}){const I=typeof id==='string'?info(id):id;if(!I)return '
   const lock=opt.lock,pw=opt.pw!=null?opt.pw:power(I.id),nm=opt.nm||(I.k==='w'?head(I.en)===I.en.toLowerCase()?I.en:I.en.split(',')[0]:I.en);
   return `<div class="cgc ${I.k} ${lock?'lock':''} ${opt.big?'big':''} ${opt.mini?'mini':''} ${!lock&&kira(I.id)&&st?'kira':''} ${opt.sel?'sel':''} ${opt.cls||''}" data-id="${esc(I.id)}" style="--ac:${colOf(I)};--lc:${lvCol(I)};background-image:${lock?'none':pat(I)},linear-gradient(160deg,color-mix(in srgb,var(--ac) 45%,#fff) ,var(--ac) 62%,color-mix(in srgb,var(--ac) 60%,#000))">
     <div class="cgt"><span class="cgcost">${I.cost}</span><span class="cglv">${lvTag(I)}</span></div>
-    <div class="cgart"><span class="cgm">${m}</span>${s?`<span class="cgs">${s}</span>`:''}${!lock&&!opt.noTr&&(I.k==='w'||I.k==='t')?`<span class="cgtr">${traitIco(trait(I))}</span>`:''}</div>
+    <div class="cgart"><span class="cgm">${m}</span>${s?`<span class="cgs">${s}</span>`:''}</div>
     <div class="cgn"><b>${lock?'？？？':esc(nm)}</b>${opt.ja&&!lock?`<small>${esc(I.ja)}</small>`:''}</div>
     <div class="cgb"><span>${attrIco(I)}</span>${I.k==='p'?'':(I.k==='w'||I.k==='t')&&!lock&&!opt.noStat?(()=>{const S=opt.st||cstat(I,opt.star);return `<span class="cgpw">⚔${S.a} 🛡${S.d}${opt.mini?'':` ❤${S.h}`}</span>`})():`<span class="cgpw">⚔${pw}</span>`}${st&&!opt.mini?`<span class="cgst">${'★'.repeat(st)}</span>`:''}</div>
     ${!lock&&opt.marks!==false&&I.k==='w'&&weak(I.id)?'<i class="cgmk wk" title="苦手">😣</i>':''}${!lock&&opt.marks!==false&&I.k!=='p'&&forgot(I.id)?'<i class="cgmk fg" title="わすれかけ">💤</i>':''}
@@ -233,14 +233,14 @@ function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0
       ${I.k==='w'||I.k==='t'?`<p class="cgds">${'★'.repeat(star(id))}${'☆'.repeat(5-star(id))}${kira(id)?' ✨きらきら':''}${own?`　×${n}`:'　まだ もっていない'}</p>`:''}
       <details class="cgfold"><summary>くわしく</summary>
         ${I.k==='w'?`<p>📕 ${esc(LV[I.lv].n)}「${esc(I.bt)}」　${ATTR[I.a][1]} ${ATTR[I.a][2]}</p>`:''}
-        ${trait(id)?`<p class="cgtrx">${esc(traitTxt(trait(id)))}</p>`:''}<p>コスト ${I.cost}${cstat(id)?`　⚔${cstat(id).a} 🛡${cstat(id).d} ❤${cstat(id).h}`:`　パワー ${power(id)}`}${x[2]+x[3]?`　⭕${x[2]} ❌${x[3]}`:''}</p>
-        ${weak(id)?'<p>😣 苦手カード: 対戦で 正解すると「逆転」の 大ダメージ！</p>':''}${forgot(id)?'<p>💤 わすれかけ: 対戦で 正解すると ボーナス！</p>':''}
+        <p>コスト ${I.cost}${cstat(id)?`　⚔${cstat(id).a} 🛡${cstat(id).d} ❤${cstat(id).h}`:`　パワー ${power(id)}`}${x[2]+x[3]?`　⭕${x[2]} ❌${x[3]}`:''}</p>
+        ${weak(id)?'<p>😣 苦手カード: 島めぐりで 正解して 取りもどそう</p>':''}${forgot(id)?'<p>💤 わすれかけ: そろそろ ふくしゅう</p>':''}
         ${cs.length?`<p>🔗 コンボ ${known.length}/${cs.length}: ${cs.map(c=>CG.combo[c.k]?`<b>${esc(c.p)}</b>`:'？？？').join('、 ')}</p>`:''}
         ${R>=CG_RULE_AT.counter&&ANTO[h]?`<p>⚡ 反対語: ${esc([...ANTO[h]].join(', '))}</p>`:''}
         ${R>=CG_RULE_AT.guard&&SYN[h]?`<p>🛡️ なかま: ${esc([...SYN[h]].join(', '))}</p>`:''}
         ${R>=CG_RULE_AT.morph&&formsOf(I)?`<p>🔄 変身: ${esc(I.en)}</p>`:''}
         ${I.k==='p'?`<p>🧩 できる 単語: ${DERIV.filter(d=>d.p===I.part).slice(0,12).map(d=>esc(d.d)).join(', ')}…</p>`:''}
-        ${I.k==='s'?`<p>📜 対戦で ならべかえると 大技！</p>`:''}
+        ${I.k==='s'?`<p>📜 文カード（あつめる カード）</p>`:''}
       </details>
       <div class="cgdb">${own&&n>=2&&(I.k==='w')?`<button id="cgfuse">✨ 合成（★を 育てる）</button>`:''}</div>
       <button class="sub" id="cgclose">とじる</button></div></div>`,'dv');
@@ -293,7 +293,7 @@ function reveal(got,title,back){save();cleanDeck();
       if(I.k==='w')setTimeout(()=>{try{H.say(I.lv,I.en)}catch(e){}},150);
       if(--left===0){$('cgall').hidden=true;$('cgok').hidden=false;
         const np=got.filter(g=>g.isNew).map(g=>info(g.id)).filter(I=>I.k==='w');const cs=deckCombos(Object.keys(CG.c)).filter(c=>np.some(I=>I.h===c.a||I.h===c.b)&&!CG.combo[c.k]);
-        if(cs.length)H.toast(`✨ コンボの なかまが そろったかも…？<small>対戦で いっしょに 出してみよう</small>`,3200)}};
+        if(cs.length)H.toast(`✨ コンボの なかまが そろったかも…？<small>島めぐりで となりに 置いてみよう</small>`,3200)}};
     slots.forEach(s=>s.onclick=()=>{if(s.classList.contains('open')){const I=info(got[+s.dataset.i].id);try{H.say(I.k==='t'?'cards':I.lv,I.en)}catch(e){}}else flip(s)});
     $('cgall').onclick=()=>slots.forEach((s,i)=>setTimeout(()=>flip(s),i*140));
     $('cgok').onclick=()=>{sf('back');closeOv();back&&back()};
@@ -356,7 +356,7 @@ function starter(){const pool=W.filter(c=>c.lv==='es');const ids=[];
 /* the shop's front: big tiles */
 function open(){cleanDeck();const first=!CG.met;
   const g=first?CG_NAGI.first[0]:pickL(CG_NAGI.hi);
-  const tiles=[['battle','⚔️','対戦'],['pack','🎁','パック'],['one','🃏','1まい売り'],['snipe','🎯','ねらいうち'],['trade','♻️','交換・合成'],['book','📖','カード図鑑'],['combo','🔗','コンボ図鑑'],
+  const tiles=[['battle','🏝️','島めぐり'],['pack','🎁','パック'],['one','🃏','1まい売り'],['snipe','🎯','ねらいうち'],['trade','♻️','交換・合成'],['book','📖','カード図鑑'],['combo','🔗','コンボ図鑑'],
     ['dojo','🥋','コンボ道場'],['tour','🏆','カード大会'],['treasure','🎁','宝箱くじ']];
   H.show('cg',`<section class="pnl cgp">
     <div class="qtop"><button class="x" id="cgx" aria-label="もどる">←</button><b>🃏 カードショップ しおさい</b><span class="qn">${esc(rankName())}</span></div>
@@ -533,7 +533,7 @@ function comboBook(){const lvOf=c=>{const a=cardOfHead(c.a).lv,b=cardOfHead(c.b)
     <div class="cgsr">${list.map(c=>CG.combo[c.k]?`<div class="cgrow cb"><span class="rn"><b>${esc(c.p)}</b><small>${esc(c.j)}</small></span><button data-say="${esc(c.p)}" class="sub">🔊</button></div>`
       :`<div class="cgrow cb lk"><span class="rn"><b>${mine.has(c.a)?esc(c.a):'？？？'} ＋ ${mine.has(c.b)?esc(c.b):'？？？'}</b><small>${mine.has(c.a)||mine.has(c.b)?'ヒント: '+esc(c.j.replace(/[ぁ-ん]/g,'○').slice(0,8)):'まだ 見つけていない'}</small></span></div>`).join('')}</div>
     ${wr.length?`<details class="cgfold"><summary>⚠️ まちがいコンボ ノート（${wr.length}）</summary>${wr.map(w=>`<p class="cgwr"><s>${esc(w.a)} ${esc(w.b)}</s> → <b>${esc(w.ok)}</b><br><small>${esc(w.why)}</small></p>`).join('')}</details>`:''}
-    <p class="note">対戦で いっしょに 出したり、 🥋 コンボ道場で 見つけると のるよ</p></section>`);
+    <p class="note">島めぐりで となりに 置いたり、 🥋 コンボ道場で 見つけると のるよ</p></section>`);
   $('cgb').onclick=()=>{sf('back');open()};
   H.panel.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{cbLv=b.dataset.l;sf('step');comboBook()});
   H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>speak(b.dataset.say))}
