@@ -67,3 +67,22 @@
 .lvnora{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.5rem;background:#3a2f1f}
 .lvtopics button small{font-size:.6rem;min-height:.8em}
 .lvdates{grid-template-columns:repeat(2,1fr)}
+/* 第3弾: アルバム・図鑑・称号・ひみつ・ラブレター */
+.lvdot{position:relative!important;display:inline-block;top:-6px!important;right:auto!important;margin-left:4px;width:8px;height:8px;border-radius:50%;background:#ff3d6e}
+.lvfaces{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0 10px 10px}
+.lvfaces span{display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center}
+.lvfaces i{display:block;width:56px;height:56px;border-radius:50%;overflow:hidden;border:2px solid #ff8fb1;background:#1f2a5c;font-style:normal}
+.lvfaces i svg{display:block;width:100%;height:100%}
+.lvfaces span.no i{display:flex;align-items:center;justify-content:center;border-color:rgba(255,255,255,.2);color:var(--mute);font-size:1.2rem}
+.lvfaces small{font-size:.56rem;line-height:1.2}
+.lvfaces span.no small{color:var(--mute)}
+.lvtt{margin:0;font-size:.8rem}
+.lvtt.no{color:var(--mute)}
+.lvtt small{font-size:.64rem;color:var(--mute)}
+.lvhr{border:0;border-top:1px dashed rgba(255,255,255,.2);width:100%;margin:4px 0}
+.lvsec{font-family:"Libre Baskerville",Georgia,serif;font-size:.84rem;position:relative;padding-right:30px}
+.lvsecja{margin:0;font-size:.8rem;line-height:1.6;color:#ffd1e0;text-align:center}
+.lvlet .lvrq{margin:6px 0 0;text-align:center;font-size:.76rem;color:#8a5a2a}
+.lvlet .lvre button{color:#2a2340}
+.lvlet .lvj{color:#8a5a2a}
+.lvlet .kmina p{font-size:.78rem}

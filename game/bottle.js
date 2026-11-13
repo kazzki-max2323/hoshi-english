@@ -58,7 +58,9 @@ function mina(key,v,ms=7000){const m=M();if(!m)return;const [ex,tx]=m.line(key,v
 window.bottleArrive=()=>{setTimeout(()=>{const m=M();if(m&&m.canAnnounce&&m.canAnnounce())mina(BD.n?'bottleArrive':'bottleFirst',{},8000)},1800)};
 
 /* the bottle was tapped (called by the scene) */
-window.bottleOpen=()=>{const i=pickLetter(),L=LETTERS[i];let p=$('bmPop');if(p)p.remove();
+window.bottleOpen=()=>{/* 💌 ミナ先生からの ラブレターが まざる ことも（game/love.js） */
+  try{if(window.LOVE&&LOVE.letterDue()){LOVE.letter();return}}catch(e){}
+  const i=pickLetter(),L=LETTERS[i];let p=$('bmPop');if(p)p.remove();
   if(!BD.r.includes(i))BD.r.push(i);BD.n=(BD.n||0)+1;save();try{SFX.book()}catch(e){}
   p=document.createElement('div');p.id='bmPop';
   p.innerHTML=`<div class="bmPaper"><small class="bmFrom">${esc(L[2])} より</small>
