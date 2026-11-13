@@ -276,6 +276,8 @@ function hello(){const gap=MD.last?Math.floor((Date.now()-MD.last)/864e5):0;MD.l
   /* ミニ授業が いちばん: きょう まだなら、 半分くらいは きょうの 授業に さそう */
   if(window.LESSON&&!LESSON.doneToday()&&Math.random()<.5){const l=LESSON.today();if(l){const sk=LESSON.streak();
     return [...line(sk?'lesHelloStreak':'lesHello',{t:'「'+l.t+'」',n:sk,n1:sk+1}),['📖 授業を ひらく',()=>LESSON.open(l.id,H.home)]]}}
+  /* 💗 ふたりの 時間が はじまっていたら、 朝と 夜の あいさつは 段階で かわる（game/love.js） */
+  if(window.LOVE&&Math.random()<.5){const g=LOVE.greet(h);if(g)return g}
   const r=Math.random();
   if(opts.length&&r<.35){const o=pickL(opts);if(o[0]==='stepUp')MD.said.step=today();return [...line(o[0],o[1]),goTo(o)]}
   const sn=r<.75&&sense();if(sn)return [...line(sn[0],sn[1]),goTo(sn)];
@@ -317,6 +319,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     ${window.LESSON?`${LESSON.card('mina')}
     <div class="mtiles"><button id="mall" class="mvc mt-all"><span>📖 ぜんぶの 授業</span><b>${LESSON.count().join('/')}</b></button>${typeof GRAMMAR!=='undefined'?`<button id="mgl" class="mvc mt-gram"><span>📚 文法ノート</span><b>${(ST.gram.cleared||[]).length}/${['es','jh','hs'].reduce((a,k)=>a+(GRAMMAR[k]?GRAMMAR[k].notes.length:0),0)}</b></button>`:''}${menuTiles()}</div>`:''}
     <button id="msensei" class="msensei">🗣️ ミナ先生と 英語で 話す</button>
+    ${window.LOVE?LOVE.btn():''}
     ${window.KAIWA?`<button id="mkaiwa" class="sub">💬 浜辺の 会話</button>`:''}
     <details class="mfold mrec"><summary>📊 きろく・ごほうび<small>${D.a?`きょう ${D.a}問`:''}</small></summary><div class="mfbody">
     <div class="mstats"><div><b>${D.a}</b><small>きょう 答えた</small></div><div><b>${accToday==null?'-':accToday+'%'}</b><small>正解率</small></div><div><b>${D.l}</b><small>おぼえた</small></div><div><b>${MD.best}</b><small>れんぞく</small></div></div>
@@ -340,6 +343,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   const gl=$('mgl');if(gl)gl.onclick=()=>{SFX.book();const lv=level();H.gramFrom(lv==='adv'?'hs':lv,panelOpen)};
   const mt=$('mtok');if(mt)mt.onclick=()=>{SFX.step();SENSEI.tokkun(null,0,'mina')};
   const md=$('mdeep');if(md)md.onclick=()=>{SFX.step();DEEP.pick()};
+  if(window.LOVE)LOVE.bind(panelOpen);
   const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.talk();window.SENSEI?SENSEI.open():null};
   const mk=$('mkaiwa');if(mk)mk.onclick=()=>{SFX.talk();KAIWA.open()};
   const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.book();H.gramNote(wg.lv,wg.i)}}

@@ -37,6 +37,7 @@ button{touch-action:manipulation}
 <link rel="stylesheet" href="game/pension.css">
 <link rel="stylesheet" href="game/tutor.css">
 <link rel="stylesheet" href="game/gift.css">
+<link rel="stylesheet" href="game/love.css">
 </head>
 <body>
 <canvas id="stars"></canvas>
@@ -117,6 +118,8 @@ button{touch-action:manipulation}
 <script src="game/tutor.js"></script>
 <script src="game/gift-data.js"></script>
 <script src="game/gift.js"></script>
+<script src="game/love-data.js"></script>
+<script src="game/love.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});

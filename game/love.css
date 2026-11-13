@@ -1,0 +1,61 @@
+/* 💗 ミナ先生との 時間（game/love.js）。会話の 見た目は kaiwa.css / sensei.css を つかう */
+.mlove{position:relative;border-color:#ff8fb1!important;background:linear-gradient(rgba(255,143,177,.3),rgba(255,143,177,.12))!important;font-weight:800}
+.mlove .dot{position:absolute;top:8px;right:12px;width:9px;height:9px;border-radius:50%;background:#ff3d6e;box-shadow:0 0 6px #ff3d6e}
+.lvp{gap:10px}
+.lvp .mline{background:#fff0f5}
+.lvbig{border-color:#ff8fb1}
+.lvmood{margin:0;text-align:center;font-size:.8rem;color:var(--mute)}
+.lvmood b{color:#ffd1e0}
+.lvgo{border-color:#ff8fb1!important;background:linear-gradient(rgba(255,143,177,.34),rgba(255,143,177,.14))!important;font-size:1rem}
+.lvgo small{display:block;font-size:.66rem;font-weight:500;color:#ffd1e0}
+.lvgo.fight{border-color:#ffb02e!important;background:linear-gradient(rgba(255,176,46,.3),rgba(255,176,46,.12))!important}
+.lvgo.event{border-color:#ffd23f!important;background:linear-gradient(rgba(255,210,63,.34),rgba(255,143,177,.2))!important;animation:lvglow 1.6s ease-in-out infinite alternate}
+.lvgo.done{opacity:.6}
+@keyframes lvglow{to{box-shadow:0 0 14px rgba(255,210,63,.55)}}
+.lvp .row .sub small{margin-left:4px;font-size:.66rem;color:#ffd1e0}
+.lvbody{padding:0 12px 12px;display:flex;flex-direction:column;gap:8px}
+.lvladder{display:grid;grid-template-columns:repeat(6,1fr);gap:2px}
+.lvladder span{display:flex;flex-direction:column;align-items:center;font-size:1.05rem;opacity:.45;min-width:0}
+.lvladder span small{font-size:.52rem;color:var(--mute);text-align:center;line-height:1.2}
+.lvladder span.past{opacity:.8}
+.lvladder span.now{opacity:1}
+.lvladder span.now small{color:#ffd1e0;font-weight:800}
+.lvhrow{margin:0;display:flex;align-items:center;gap:8px;font-size:.8rem;width:100%}
+.lvhrow b{color:#ffd1e0;white-space:nowrap}
+.lvbar{flex:1;height:10px;border-radius:5px;background:rgba(255,255,255,.12);overflow:hidden}
+.lvbar i{display:block;height:100%;border-radius:5px;background:linear-gradient(90deg,#ff8fb1,#ff5d8f);transition:width .6s}
+.lvconds{display:flex;flex-direction:column;gap:3px}
+.lvconds>small{font-size:.66rem;color:var(--mute)}
+.lvconds span{font-size:.76rem}
+.lvconds span b{color:#ffe7a8;margin-left:4px}
+.lvconds span.ok{color:#c9fff0}
+.lvfort{margin:0;display:flex;align-items:center;gap:10px}
+.lvff{width:52px;height:52px;border-radius:50%;overflow:hidden;border:2px solid #ff8fb1;flex:0 0 auto}
+.lvff svg{display:block;width:100%;height:100%}
+.lvfort b{display:block;color:#ffd1e0}
+.lvfort small{font-size:.72rem;color:var(--mute)}
+.lvluck{margin:0;font-size:.8rem;line-height:1.8}
+.lvluck b{color:#ffe7a8}
+/* the talk */
+.lvw .lface{background:#3a1f3f}
+.lvj{display:none;font-family:var(--body,inherit);font-weight:500;font-size:.7rem;color:#ffd1e0;margin-top:2px}
+.lvj.on{display:block}
+.lvjb{align-self:center;font-size:.7rem!important;padding:3px 12px!important}
+.lvtopics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lvtopics button{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:.78rem;padding:10px 4px!important}
+.lvtopics button span{font-size:1.6rem}
+.lvord{margin:0;text-align:center;font-size:.8rem;color:var(--mute)}
+.lvord b{color:#ffd1e0}
+.lvsent{min-height:44px;display:flex;flex-wrap:wrap;gap:5px;align-items:center;justify-content:center;padding:6px;border-radius:10px;border:2px dashed rgba(255,143,177,.5);background:rgba(255,143,177,.08)}
+.lvsent small{color:var(--mute);font-size:.72rem}
+.lvsent button,.lvtiles button{font-family:"Libre Baskerville",Georgia,serif;font-weight:700;padding:5px 10px!important;font-size:.86rem!important;min-height:0}
+.lvsent button{background:#fff0f5!important;color:#2a2340!important;text-shadow:none!important}
+.lvtiles{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.lvtiles button:disabled{opacity:.2}
+/* 📔 フレーズ帳 */
+.lvbook{display:flex;flex-direction:column;gap:6px;max-height:min(56vh,480px);overflow:auto}
+.lvbook .lvlock summary{opacity:.6}
+.lvphl{display:flex;flex-direction:column;gap:5px;padding:0 10px 10px}
+.lvphl button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:1px;padding:6px 10px!important}
+.lvphl .en{font-family:"Libre Baskerville",Georgia,serif;font-weight:700;font-size:.84rem}
+.lvphl .ja{font-size:.7rem;color:#ffd1e0}
