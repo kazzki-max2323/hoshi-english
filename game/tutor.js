@@ -120,8 +120,9 @@ const SPOT=`<svg viewBox="0 0 72 60" aria-hidden="true">
 /* the night light: a little lantern under the parasol, drawn outside the darkening filter (opacity follows --dk) */
 const SPOT_GLOW=`<svg viewBox="0 0 72 60" aria-hidden="true">
   <defs><radialGradient id="tuGlow"><stop offset="0" stop-color="rgba(255,210,140,.7)"/><stop offset="1" stop-color="rgba(255,210,140,0)"/></radialGradient></defs>
-  <ellipse cx="41" cy="30" rx="13" ry="12" fill="url(#tuGlow)" opacity=".7"/>
-  <g class="tuFlame"><circle cx="41" cy="22.8" r="3.4" fill="url(#tuGlow)"/><rect x="40" y="21.4" width="2" height="2.8" rx=".4" fill="#ffe2a0"/></g>
+  <ellipse cx="36" cy="53" rx="24" ry="5" fill="url(#tuGlow)" opacity=".5"/>
+  <ellipse cx="38" cy="34" rx="20" ry="17" fill="url(#tuGlow)" opacity=".75"/>
+  <g class="tuFlame"><circle cx="41" cy="22.8" r="6" fill="url(#tuGlow)"/><rect x="40" y="21.4" width="2" height="2.8" rx=".4" fill="#fff0c0"/></g>
 </svg>`;
 function spot(){let b=$('tuSpot');const w=$('window');if(!w)return;
   if(!b){b=document.createElement('button');b.id='tuSpot';b.setAttribute('aria-label','家庭教師の バイト（リクの パラソル）');b.innerHTML=`<span class="tuBody">${SPOT}</span><span class="tuGlow">${SPOT_GLOW}</span>`;w.appendChild(b);

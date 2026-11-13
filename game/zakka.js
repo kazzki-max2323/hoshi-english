@@ -149,9 +149,10 @@ const HUT=`<svg viewBox="0 0 64 56" aria-hidden="true">
 /* the night light: drawn on top of the hut, outside its darkening filter, so a soft warm window and lamp show at night (opacity follows --dk) */
 const GLOW=`<svg viewBox="0 0 64 56" aria-hidden="true">
   <defs><radialGradient id="zkg"><stop offset="0" stop-color="rgba(255,206,130,.75)"/><stop offset="1" stop-color="rgba(255,206,130,0)"/></radialGradient></defs>
-  <ellipse cx="19.5" cy="35.5" rx="10" ry="8" fill="url(#zkg)" opacity=".55"/>
-  <rect x="14" y="31" width="11" height="8" rx=".6" fill="#ffcf86" opacity=".8"/><path d="M19.5 31 V39 M14 35 H25" stroke="#6e5238" stroke-width=".7"/>
-  <g class="zkLamp"><circle cx="30.6" cy="34.2" r="5" fill="url(#zkg)"/><rect x="29.8" y="32.6" width="1.6" height="2.8" fill="#ffe2a0"/></g>
+  <ellipse cx="30" cy="52" rx="26" ry="4" fill="url(#zkg)" opacity=".45"/>
+  <ellipse cx="19.5" cy="35.5" rx="14" ry="11" fill="url(#zkg)" opacity=".8"/>
+  <rect x="14" y="31" width="11" height="8" rx=".6" fill="#ffd690" opacity=".95"/><path d="M19.5 31 V39 M14 35 H25" stroke="#6e5238" stroke-width=".7"/>
+  <g class="zkLamp"><circle cx="30.6" cy="34.2" r="8" fill="url(#zkg)"/><rect x="29.8" y="32.6" width="1.6" height="2.8" fill="#fff0c0"/></g>
 </svg>`;
 function hut(){let b=$('zkHut');const w=$('window');if(!w)return;
   if(!b){b=document.createElement('button');b.id='zkHut';b.setAttribute('aria-label','浜辺の 雑貨屋');b.innerHTML=`<span class="zkBody">${HUT}</span><span class="zkGlow">${GLOW}</span>`;w.appendChild(b);
