@@ -56,7 +56,7 @@ function pickVoice(){if(!window.speechSynthesis)return;const vs=speechSynthesis.
 if(window.speechSynthesis){pickVoice();speechSynthesis.addEventListener&&speechSynthesis.addEventListener('voiceschanged',pickVoice)}
 let talkOn=false,talkId=0,talkMax=0;
 function speak(en,v){if(!ST.sound||!window.speechSynthesis)return;
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(en).replace(/\([^)]*\)/g,'').replace(/Nora/g,'Norah').replace(/\.\.\.\s*/g,' '));u.lang='en-US';if(enVoice)u.voice=enVoice;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(sayNames(String(en).replace(/\([^)]*\)/g,'')).replace(/\.\.\.\s*/g,' '));u.lang='en-US';if(enVoice)u.voice=enVoice;
     u.pitch=v?v.p:1;u.rate=(ST.slow?.72:.92)*(v?v.r:1);u.volume=Math.min(1,(ST.vol&&ST.vol.voice!=null)?ST.vol.voice:1);
     const id=++talkId;talkOn=true;talkMax=Date.now()+3000+String(en).length*(ST.slow?140:100)/(v?v.r:1);u.onend=u.onerror=()=>{if(id===talkId)talkOn=false};speechSynthesis.speak(u)}catch(e){talkOn=false}}
 const hush=()=>{try{speechSynthesis.cancel()}catch(e){}};

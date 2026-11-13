@@ -8,10 +8,13 @@
   日本語の声（jf_ / jm_ で始まる声）は pip install "misaki[ja]" で読みを作る
 
 audio/<レベル>.json には {英語: [開始秒, 長さ秒]} が入る。ffmpeg が必要。
+読みまちがえる言葉は tools/pron.py に書いておく（作り直したら audio/fix.* の分は python tools/make_fix.py audio で）。
 """
-import json, subprocess, sys
+import json, os, subprocess, sys
 import numpy as np, soundfile as sf
 from kokoro_onnx import Kokoro
+sys.path.insert(0, os.path.dirname(__file__))
+import pron  # 読みまちがえる言葉の 正しい読み
 
 lv, texts_dir, out = sys.argv[1], sys.argv[2], sys.argv[3]
 k = Kokoro("kokoro.onnx", "voices.bin")
@@ -27,7 +30,8 @@ for i, (t, voice) in enumerate(texts):
             jag2p = ja.JAG2P()
         s, _ = k.create(jag2p(t), voice=voice, speed=1.0, is_phonemes=True)
     else:
-        s, _ = k.create(t, voice=voice, speed=0.9, lang="en-us")
+        ph = pron.phonemes(t, k.tokenizer)
+        s, _ = k.create(ph or t, voice=voice, speed=0.9, lang="en-us", is_phonemes=bool(ph))
     s = s.astype(np.float32)
     nz = np.where(np.abs(s) > 0.01)[0]  # 前後の無音を切る
     if len(nz):

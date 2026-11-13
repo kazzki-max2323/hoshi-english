@@ -1,5 +1,8 @@
 /* 浜辺の英語: 浜辺でめくる単語帳と、つぶやくラジオ。
    ラジオの問題に正解するとコインがもらえ、コインでラジオや音楽、イベントを買う。 */
+/* names read the English way sound wrong (Gen = "jen", Mina = "my-na", Pochi = "pah-chai"): spelled for the voice only */
+const SAY_NAMES={Gen:'Ghen',Tome:'Toh-meh',Mina:'Meena',Hana:'Hahna',Pochi:'Poh-chee',Kanio:'Kah-nee-oh',Kamekichi:'Kah-meh-kee-chee',Hamako:'Hah-mah-ko',Riku:'Reeku',Mimi:'Meemee',Nora:'Norah'};
+const sayNames=t=>String(t).replace(new RegExp('\\b('+Object.keys(SAY_NAMES).join('|')+')\\b','g'),m=>SAY_NAMES[m]);
 (()=>{
 const {scene:SC,sfx:SFX,S:ST}=BEACH;
 const panel=$('panel');
@@ -31,7 +34,7 @@ const allWords=lv=>LEVELS[lv].books.flatMap(b=>b.w);
    played through Web Audio so it also works inside app web views without speech synthesis */
 const AUD={};
 /* which sprite holds which line: every sprite's small .json index is read up front */
-const SPRITES=['es','jh','hs','adv','suika','pop','season','star','folk','gram','jh2a','jh2b','jh2c','jh2d','hs2a','hs2b','hs2c','hs2d','adv2a','adv2b','adv2c','adv2d','cheer','cards','talk2es','talk2jh','talk2hs','talk2adv'],IDX={};
+const SPRITES=['fix','es','jh','hs','adv','suika','pop','season','star','folk','gram','jh2a','jh2b','jh2c','jh2d','hs2a','hs2b','hs2c','hs2d','adv2a','adv2b','adv2c','adv2d','cheer','cards','talk2es','talk2jh','talk2hs','talk2adv'],IDX={};
 const idxP=Promise.all(SPRITES.map(k=>fetch(`audio/${k}.json`).then(r=>r.json()).then(m=>{for(const t in m)if(!(t in IDX))IDX[t]=k}).catch(()=>{})));let idxOk=false;idxP.then(()=>{idxOk=true});
 function loadAud(lv){if(AUD[lv])return AUD[lv].p;const a=AUD[lv]={};
   a.p=Promise.all([fetch(`audio/${lv}.json`).then(r=>r.json()),fetch(`audio/${lv}.mp3`).then(r=>r.arrayBuffer())])
@@ -56,7 +59,7 @@ if(window.speechSynthesis){pickVoice();speechSynthesis.onvoiceschanged=pickVoice
 /* speaks and calls done() once the line has finished (or right away when it can't speak) */
 function speak(t,{done}={}){let fin=false;const end=()=>{if(!fin){fin=true;done&&done()}};
   if(!window.speechSynthesis||!ST.sound){setTimeout(end,1200);return}
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';if(voice)u.voice=voice;u.rate=ST.slow?.65:.85;u.onend=end;u.onerror=end;speechSynthesis.speak(u);setTimeout(end,600+t.length*160)}catch(e){end()}}
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(sayNames(t));u.lang='en-US';if(voice)u.voice=voice;u.rate=ST.slow?.65:.85;u.onend=end;u.onerror=end;speechSynthesis.speak(u);setTimeout(end,600+t.length*160)}catch(e){end()}}
 
 /* ---------- toast ---------- */
 function toast(html,ms=2600){const el=$('toast');el.innerHTML=html;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),ms)}
