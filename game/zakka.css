@@ -117,3 +117,4 @@
 .zkrare>div{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
 .zkrare .zkit{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px!important;min-width:0;background:rgba(255,231,168,.12)!important;border-color:rgba(255,215,120,.6)!important}
 @keyframes zkRare{50%{box-shadow:0 0 12px rgba(255,215,120,.35)}}
+.pnl.zk:not([data-stay]){padding-bottom:78px}

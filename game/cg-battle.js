@@ -283,6 +283,8 @@ function end(win,gaveUp){if(!B)return;const foeLvBefore=B.lv;const F=B.F,R=C.rec
   const ok=res.q.filter(x=>x.ok).length,miss=[...new Set(res.q.filter(x=>!x.ok).map(x=>x.id))];
   const cb=B.opt.onEnd;const back=B.opt.back;const fid=F.id;B=null;
   const nlv=win?foeLv(F):0,lvUp=win&&nlv>foeLvBefore;
+  /* 🗺️ a win now and then brings a treasure map (game/adventure.js) */
+  let mapN=null;try{if(win&&!cb&&window.ADV&&!ADV.has()&&Math.random()<.2)mapN=ADV.give()}catch(e){}
   if(win){snd('ko');setTimeout(()=>sf('fanfare'),600);confetti();try{const r=H.panel.getBoundingClientRect();FX.firework(r.left+r.width/2,r.top+80)}catch(e){}}else{sf('done');flash('rgba(0,0,30,.5)')}
   const lines=win?F.win:F.lose;
   H.show('cgb',`<section class="pnl cgp cgend ${win?'won':'lost'}">
@@ -291,6 +293,7 @@ function end(win,gaveUp){if(!B)return;const foeLvBefore=B.lv;const F=B.F,R=C.rec
     <div class="cgsum"><span>⭕ ${ok}/${res.q.length}</span>${res.combos.length?`<span>🔗 ${res.combos.length}</span>`:''}${coins?`<span>🪙+${coins}</span>`:''}${win&&F.pt?`<span>🎖️+${F.pt}</span>`:''}</div>
     ${after>before?`<div class="cgrank">🎖️ 段位アップ！ <b>${esc(CG_RANKS[after][0])}</b><small>${esc(CG_RANKS[after][2])} が ひらいた！</small></div>`:''}
     ${lvUp?`<p class="cglvup">${F.ico} ${esc(F.n)}が <b>Lv${nlv+1}</b> に パワーアップ！ <small>つぎは もっと 強いよ</small></p>`:''}
+    ${mapN?`<div class="cgmap"><p>🗺️ ${esc(F.n)}から 宝の地図「${esc(mapN)}」を もらった！</p><button id="egoMap" class="sub">宝探しに 行く</button></div>`:''}
     ${gift?`<div class="cggift">${C.face(gift,{ja:1})}<p>${esc(F.n)}から カードを もらった！</p></div>`:''}
     ${res.newCombo.length?`<p class="cgnc">✨ 新コンボ: ${res.newCombo.map(k=>esc(C.COMBO.find(c=>c.k===k).p)).join('、 ')}</p>`:''}
     ${miss.length?`<details class="cgfold" open><summary>📒 まちがえた 単語（${miss.length}）</summary><div class="cgsr">${miss.map(id=>{const I=C.info(id);return I?`<div class="cgrow"><span class="ri">${C.art(I)[0]}</span><span class="rn"><b>${esc(I.en)}</b><small>${esc(I.ja)}</small></span><button class="sub" data-say="${esc(id)}">🔊</button></div>`:''}).join('')}</div></details>`:''}
@@ -300,6 +303,7 @@ function end(win,gaveUp){if(!B)return;const foeLvBefore=B.lv;const F=B.F,R=C.rec
   H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>{const I=C.info(b.dataset.say);try{H.say(I.k==='t'?'cards':I.lv,I.en)}catch(e){}});
   $('eagain').onclick=()=>{sf('step');start(fid,{onEnd:cb,back})};$('eback').onclick=()=>{sf('back');cb?cb(win):back?back():menu()};
   if(cb)$('eagain').hidden=true;
+  if($('egoMap'))$('egoMap').onclick=()=>{try{SFX.map()}catch(e){}ADV.open()};
   try{window.CGM&&CGM.afterGame&&CGM.afterGame(fid,win,{ok,n:res.q.length,combos:res.combos.length,newCombo:res.newCombo.length,rankUp:after>before})}catch(e){}
   if(win&&F.mina)try{CGM.minaWin&&CGM.minaWin()}catch(e){}}
 

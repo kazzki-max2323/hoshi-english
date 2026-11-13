@@ -244,11 +244,11 @@ const R=[
 ['x_coinCard',2,F=>F.coins>=80&&F.coins<720?{c:F.coins}:null,()=>goCards()],
 ['x_coinTen',2,F=>F.coins>=720?{c:F.coins}:null,()=>goCards()],
 
-/* ===== 宝の地図 ===== */
-['x_advNone',2,F=>F.adv&&!F.adv.done.length&&!F.adv.laps?{}:null,()=>['🗺️ 宝の地図を ひらく',()=>ADV.open()]],
-['x_advMap',2,F=>{if(!F.adv||!F.adv.done.length)return null;const m=ADV.maps[F.adv.map];return m?{map:m.name,n:F.adv.done.length}:null},()=>['🗺️ 宝の地図を ひらく',()=>ADV.open()]],
+
+/* ===== 宝の地図（手に入れたら 宝探し。game/adventure.js） ===== */
+['x_advHave',3,F=>window.ADV&&ADV.has()?{map:ADV.name()}:null,()=>['🗺️ 宝探しに 行く',()=>ADV.open()]],
+['x_advWant',1,F=>window.ADV&&!ADV.has()&&ADV.rec().got>0?{}:null,null],
 ['x_advTitle',1,F=>F.adv&&F.adv.titles.length?{title:pickL(F.adv.titles)}:null,null],
-['x_advItem',1,F=>{if(!F.adv||!ADV.items)return null;const a=Object.entries(F.adv.items).filter(([,n])=>n>0);if(!a.length)return null;const [k,n]=pickL(a);return {item:ADV.items[k].name,ico:ADV.items[k].ico,n}},()=>['🗺️ 宝の地図を ひらく',()=>ADV.open()]],
 
 /* ===== 浜辺の 会話（game/kaiwa.js） ===== */
 ['x_kwStory',3,F=>{if(!window.KAIWA)return null;const lv=lvOf(F),a=KAIWA.scenes.filter(s=>s.story&&!KAIWA.rec().done[s.id]&&LVI(s.lv)<=LVI(lv));if(!a.length)return null;const s=pickL(a);return {t:s.t,c:KAIWA.chars[s.c].n,_id:s.id}},v=>goTalk(v._id)],
