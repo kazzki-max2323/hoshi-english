@@ -6,6 +6,11 @@
 /* 品物の しるし。 z:雑貨屋の プレゼント  t:リクからの お礼 */
 const GIFT_TAGS={
  'z:g_cookie':['food','sweet'],'z:g_pin':['cute','wear'],'z:g_shirt':['wear','fish'],'z:g_bone':['dog'],'z:g_hat':['wear','cute'],'z:g_pearl':['shiny','lux','wear'],
+ 'z:g_candy':['food','sweet','cute'],'z:g_ball':['dog','toy'],'z:g_lure':['fish','handmade','shiny'],'z:g_kite':['toy','adventure'],'z:g_mug':['handmade','cute'],
+ 'z:g_bookmark':['book','nature','art'],'z:g_candle':['shell','handmade','shiny'],'z:g_frame':['shell','handmade','art'],'z:g_stickers':['toy','art','adventure'],
+ 'z:g_puzzle':['toy','adventure'],'z:g_harmonica':['music','toy'],'z:g_scarf':['wear','handmade'],'z:g_tea':['food','nature'],'z:g_syrup':['food','sweet','handmade'],
+ 'z:g_shades':['wear'],'z:g_bubbles':['toy','cute'],
+ 'z:r_globe':['shiny','cute','rare'],'z:r_musicbox':['music','handmade','rare'],'z:r_ship':['handmade','adventure','rare'],'z:r_compass':['adventure','toy','rare'],'z:r_lamp':['shiny','shell','handmade','rare'],
  't:bm':['book','shell','handmade'],'t:draw':['art','handmade'],'t:fish':['handmade','fish','toy'],'t:stone':['nature','cute'],'t:glass':['shiny','nature'],
  't:flower':['nature','art'],'t:brace':['shell','wear','handmade'],'t:star':['shiny','nature','rare'],'t:acorn':['toy','nature'],'t:marble':['shiny','toy'],
  't:comet':['art','handmade'],'t:whistle':['shell','music','toy'],'t:words':['book','handmade'],'t:map':['adventure','toy','handmade']};
@@ -203,3 +208,8 @@ const GIFT_HAND=[
 const GIFT_HAND_FUN=[["Here. Take it. Quickly. Don't ask.","はい。 とって。 はやく。 なにも 聞かないで。"],["Give me money.","お金 ちょうだい。"],["This is for me.","これは わたし用です。"]];
 /* へんな ことばへの 返し（そのあと ちゃんと 受けとって くれる） */
 const GIFT_HAND_HUH=[["Huh? ...Oh, you mean it's a present? OK!","え？ …あ、 プレゼントって こと？ わかった！"],["Ha ha, wait, what? Oh, it's for me!","あはは、 まって、 え？ あ、 わたしにか！"]];
+/* 雑貨屋の 新しい 品（game/zakka-more.js）を 大好きな 人 */
+[['mina',['z:g_bookmark','z:g_candle','z:g_mug','z:r_musicbox']],['gen',['z:g_lure','z:g_shades','z:r_ship']],['pochi',['z:g_ball']],
+ ['sora',['z:g_kite','z:g_bubbles','z:g_candy','z:r_globe']],['riku',['z:g_puzzle','z:g_stickers','z:g_harmonica','z:r_compass']],
+ ['baba',['z:g_scarf','z:g_tea','z:r_lamp']],['hana',['z:g_syrup']],['nora',['z:r_lamp']],['kanio',['z:g_candle']],['taku',['z:g_kite']],['leo',['z:g_harmonica']]
+].forEach(([k,a])=>{if(GIFT_PEOPLE[k])GIFT_PEOPLE[k].love.push(...a)});

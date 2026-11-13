@@ -15,7 +15,8 @@ const W=c=>c.it.w,TH=c=>c.it.title?`"${c.it.title}"`:'this '+c.it.w;
 const pickBy=(c,a)=>a[c.seed%a.length];
 const list=a=>a.length<3?a.join(' and '):a.slice(0,-1).join(', ')+', and '+a[a.length-1];
 const listJ=a=>a.join('・');
-const TO={mina:["my teacher, Mina","ミナ先生"],gen:["Gen. He's a fisherman","つりびとの ゲンじい"],pochi:["Pochi. He's a dog","犬の ポチ"],sora:["Sora. She's my little friend","小さな 友だちの ソラ"]};
+const TO={mina:["my teacher, Mina","ミナ先生"],gen:["Gen. He's a fisherman","つりびとの ゲンじい"],pochi:["Pochi. He's a dog","犬の ポチ"],sora:["Sora. She's my little friend","小さな 友だちの ソラ"],
+ riku:["Riku. I teach him English","英語を 教えている リク"],baba:["Tome. She's Gen's wife","ゲンじいの おくさんの トメばあ"],hana:["Hana. She runs the shaved ice stand","かき氷屋の ハナさん"]};
 const bigger=c=>{const S=c.it.sizes.map(s=>s[0]),i=S.indexOf(c.size);return S[Math.min(S.length-1,i+1)]};
 const sizeJ=(c,en)=>(c.it.sizes.find(s=>s[0]===en)||['',en])[1];
 const colJ=(c,en)=>(c.it.colors.find(s=>s[0]===en)||['',en])[1];
@@ -65,7 +66,16 @@ buy:{t:'買いもの',start:'a',nodes:{
  look2:{s:"Anyway... just call me if you need help.",j:"とにかく… こまったら 呼んでね。",o:[
   O(c=>`OK. How much is this ${W(c)}?`,'howMuch',null,null,'price'),
   O("Thank you. Bye!",'thanksBye',"Bye! Come again!","またね！ また 来てね！",'eLook')]},
- price:{go:c=>c.it.lux&&!c.luxSeen?'lux':'price0'},
+ price:{go:c=>c.it.lux&&!c.luxSeen?'lux':c.it.rare&&c.it.r0&&!c.rareSeen?'rare':'price0'},
+ /* ✨ めずらしい 品（たまにしか ならばない）: ノラさんが とくべつに 話して くれる */
+ rare:{s:c=>`Oh, you found the ${W(c)}! It just came in today. ${c.it.a[0]}`,j:c=>`あら、 ${c.it.n}を 見つけたのね！ きょう 入った ばかりなの。 ${c.it.a[1]}`,enter:c=>{c.rareSeen=1},o:[
+  O("Is this the only one?",'onlyOne',c=>`Yes, only one. ${c.it.r0[0]}`,c=>`ええ、 1つだけ。 ${c.it.r0[1]}`,'rare2'),
+  O("When will you have more?",'restock',"Hmm... I really don't know. Maybe next month, maybe never.","うーん… ほんとに わからないの。 来月かも しれないし、 もう ないかも。",'rare2'),
+  O("Did you steal it from a dragon?",null,"A dragon?! Ha ha! No, dear. I traded with a very nice old man.","ドラゴン？！ あはは！ ちがうわよ。 とても やさしい おじいさんと 交換したの。",'rare2',{ok:0,j:"ドラゴンから ぬすんだの？",pip:"Dragon! Dragon!",fx:'🐉'})]},
+ rare2:{s:"Things like this don't stay on the shelf for long. Tomorrow, it might be gone.",j:"こういう ものは たなに 長くは のこらないの。 あしたには もう ないかも。",o:[
+  O("I'm lucky I came today. How much is it?",'lucky',null,null,'price0',{j:"きょう 来て よかった。 いくらですか？"}),
+  O("How much is it?",'howMuch',null,null,'price0'),
+  O("Then I'll come back tomorrow.",null,"Ha ha. Tomorrow, the shelf will be different, you know.","あはは。 あしたは たなが かわってるわよ。",'eThink',{ok:0,j:"じゃあ あした また 来ます。",pip:"Gone! Gone!",fx:'💨'})]},
  price0:{s:c=>`This ${W(c)} is ${P(c)} coins.`+(c.it.colors?` It comes in ${list(c.it.colors.map(x=>x[0]))}.`:''),
    j:c=>`この ${c.it.n}は ${P(c)}まいよ。`+(c.it.colors?` 色は ${listJ(c.it.colors.map(x=>x[1]))}が あるの。`:''),o:[
   O("I'll take it.",'takeIt',"Great choice!","いい えらび方ね！",'pre'),
