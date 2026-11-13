@@ -329,7 +329,7 @@ function hut(){let b=$('cgHut');const w=$('window');if(!w)return;
   let d;try{d=SCENE.dbg()}catch(e){return}
   /* right side of the sand, just left of the zakka hut (moved from .66 in v123). game.js sandSpots() keeps radios off this box */
   const k=d.k,wd=Math.round(54*k);b.style.width=wd+'px';
-  b.style.left=Math.round(Math.min(d.WW*.74,d.WW*.9-22*k-wd/2-4)-wd/2)+'px';b.style.top=Math.round(d.shore-d.WT+42*k-wd*60.6/72)+'px';
+  b.style.left=Math.round(Math.min(d.WW*.74,d.WW*.9-25*k-wd/2-4)-wd/2)+'px';b.style.top=Math.round(d.shore-d.WT+42*k-wd*60.6/72)+'px';
   const dk=Math.max(0,Math.min(1,d.dark||0));b.style.setProperty('--dk',dk.toFixed(2));
   b.classList.toggle('off',H.screen!=='home')}
 setTimeout(hut,600);addEventListener('resize',()=>setTimeout(hut,200));setInterval(hut,2500);

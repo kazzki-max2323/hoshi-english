@@ -330,8 +330,8 @@ function clearOfFire(x,y){const [fx,fy]=fireSpot();return Math.abs(x-fx)>.17||Ma
 /* the things that stand on the sand (Riku's parasol, the card shop, the zakka hut), as boxes [x,y,half-w,half-h] in fractions of the beach window.
    The same sizes and places as spot() in tutor.js, hut() in cg.js and hut() in zakka.js: change them together */
 function sandSpots(){try{const d=SC.dbg(),k=d.k,F=(px,top,w,h)=>[px/d.WW,(top+h/2)/d.WH,w/2/d.WW,h/2/d.WH];
-  const tw=60*k,cw=54*k,hw=44*k,cx=Math.min(d.WW*.74,d.WW*.9-hw/2-cw/2-4);
-  return [F(Math.max(d.WW*.11,tw/2+4),d.shore-d.WT+62*k-tw*57.4/72,tw,tw*60/72),F(cx,d.shore-d.WT+42*k-cw*60.6/72,cw,cw*64/72),F(d.WW*.9,d.shore-d.WT+34*k-hw*52/60,hw,hw*52/60)]}
+  const tw=60*k,cw=54*k,hw=50*k,cx=Math.min(d.WW*.74,d.WW*.9-hw/2-cw/2-4);
+  return [F(Math.max(d.WW*.11,tw/2+4),d.shore-d.WT+62*k-tw*57.4/72,tw,tw*60/72),F(cx,d.shore-d.WT+42*k-cw*60.6/72,cw,cw*64/72),F(d.WW*.9,d.shore-d.WT+36*k-hw*53.4/64,hw,hw*56/64)]}
   catch(e){return [[.11,.66,.075,.06],[.74,.64,.07,.055],[.9,.62,.06,.05]]}}
 function clearOfSpots(x,y){return sandSpots().every(([sx,sy,hw,hh])=>Math.abs(x-sx)>hw+.08||Math.abs(y-sy)>hh+.05)}
 const okSpot=(x,y)=>clearOfFire(x,y)&&clearOfSpots(x,y);
