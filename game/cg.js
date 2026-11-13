@@ -165,7 +165,7 @@ function quiz(id,opt={}){const I=typeof id==='string'?info(id):id;const n=opt.n|
   if(t==='rev'){const ws=others(I,n-1,'h');const ch=H.shuffle([I.en,...ws.map(x=>x.en)]);
     return {t,I,q:`<span class="qja">${esc(I.ja)}</span>`,ch,ans:ch.indexOf(I.en),hint:`さいしょは <b>${esc(I.en[0])}</b>`,tip,say}}
   const ws=others(I,n-1,'ja');const ch=H.shuffle([I.ja,...ws.map(x=>x.ja)]);
-  return {t:'mean',I,q:`<span class="qen">${esc(I.en)}</span>`,ch,ans:ch.indexOf(I.ja),hint:`${(ATTR[I.a]||[0,'🎁','宝'])[1]} ${(ATTR[I.a]||[0,0,'宝カード'])[2]}の ことば。 さいしょの 字は「${esc(I.ja[0])}」`,tip,say,sayFirst:1}}
+  return {t:'mean',I,q:`<span class="qen">${esc(I.en)}</span>`,ch,ans:ch.indexOf(I.ja),hint:`${(ATTR[I.a]||[0,'🎁','宝'])[1]} ${(ATTR[I.a]||[0,0,'宝カード'])[2]}の ことば。 さいしょの 字は「${esc(I.ja[0])}」`,tip,say}}
 /* a word's little lesson (shown after a miss) */
 function explain(I){const h=I.h,out=[];
   if(I.k==='w'&&/,/.test(I.en))out.push(`変化: <b>${esc(I.en)}</b>`);
@@ -186,14 +186,14 @@ function ask(box,q,done,opt={}){let hint=false,over=false;const nh=opt.noHint;bo
     <div class="cgqc">${q.ch.map((c,i)=>`<button data-i="${i}">${esc(c)}</button>`).join('')}</div>
     <div class="cgqf">${nh?'':'<button class="sub" data-h="1">💡 ヒント</button>'}</div><div class="cgqx" hidden></div></div>`;
   const sayIt=()=>{try{H.say(q.say[0],q.say[1])}catch(e){}};
-  if(q.auto||q.sayFirst)setTimeout(sayIt,250);
+  if(q.auto)setTimeout(sayIt,250);   // only the listening question speaks first; every other question speaks once, after the answer
   box.querySelectorAll('[data-play]').forEach(b=>b.onclick=e=>{e.stopPropagation();sayIt()});
   const hb=box.querySelector('[data-h]');if(hb)hb.onclick=()=>{if(over||hint)return;hint=true;sf('pickup');const el=box.querySelector('.cgqh');el.hidden=false;el.innerHTML='💡 '+q.hint;hb.disabled=true;opt.onHint&&opt.onHint()};
   box.querySelectorAll('.cgqc button').forEach(b=>b.onclick=()=>{if(over)return;over=true;const i=+b.dataset.i,ok=i===q.ans;
     box.querySelectorAll('.cgqc button').forEach(x=>{x.disabled=true;if(+x.dataset.i===q.ans)x.classList.add('ok')});
-    if(ok){b.classList.add('ok');sf('correct');if(!q.auto)sayIt();setTimeout(()=>done({ok:true,hint}),opt.fast?450:750)}
+    if(ok){b.classList.add('ok');sf('correct');if(!q.auto&&!opt.quiet)sayIt();setTimeout(()=>done({ok:true,hint}),opt.fast?450:750)}
     else{b.classList.add('ng');sf('wrong');const x=box.querySelector('.cgqx');x.hidden=false;
-      x.innerHTML=`<p>${q.tip}</p><button class="nx">つぎへ ▶</button>`;sayIt();
+      x.innerHTML=`<p>${q.tip}</p><button class="nx">つぎへ ▶</button>`;if(!opt.quiet)sayIt();
       x.querySelector('.nx').onclick=()=>{sf('step');done({ok:false,hint})};
       setTimeout(()=>x.scrollIntoView({block:'nearest',behavior:'smooth'}),50)}})}
 
@@ -222,13 +222,12 @@ function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0
         ${I.k==='p'?`<p>🧩 できる 単語: ${DERIV.filter(d=>d.p===I.part).slice(0,12).map(d=>esc(d.d)).join(', ')}…</p>`:''}
         ${I.k==='s'?`<p>📜 対戦で ならべかえると 大技！</p>`:''}
       </details>
-      <div class="cgdb">${own&&n>=2&&(I.k==='w')?`<button id="cgfuse">✨ 合成（★を 育てる）</button>`:''}${own&&inDeck(id)<Math.min(n,2)&&CG.deck.length<DECK_N?`<button id="cgadd">🗂️ デッキに 入れる</button>`:''}${inDeck(id)?`<button id="cgrem" class="sub">デッキから 出す</button>`:''}</div>
+      <div class="cgdb">${own&&n>=2&&(I.k==='w')?`<button id="cgfuse">✨ 合成（★を 育てる）</button>`:''}</div>
       <button class="sub" id="cgclose">とじる</button></div></div>`,'dv');
   const say=()=>{try{H.say(I.k==='t'?'cards':I.lv,I.k==='s'?I.en:I.en)}catch(e){}};say();
   $('cgsay').onclick=say;$('cgclose').onclick=()=>{sf('back');closeOv();back&&back()};
   if($('cgfuse'))$('cgfuse').onclick=()=>{fuse(id);closeOv();detail(id,back)};
-  if($('cgadd'))$('cgadd').onclick=()=>{CG.deck.push(id);save();sf('step');closeOv();back&&back()};
-  if($('cgrem'))$('cgrem').onclick=()=>{const i=CG.deck.lastIndexOf(id);if(i>=0)CG.deck.splice(i,1);save();sf('back');closeOv();back&&back()}}
+}
 
 /* ================================================================ deck */
 const DECK_N=20;
@@ -327,8 +326,8 @@ function starter(){const pool=W.filter(c=>c.lv==='es');const ids=[];
 /* the shop's front: big tiles */
 function open(){cleanDeck();const first=!CG.met;
   const g=first?CG_NAGI.first[0]:pickL(CG_NAGI.hi);
-  const tiles=[['battle','⚔️','対戦'],['pack','🎁','パック'],['one','🃏','1まい売り'],['snipe','🎯','ねらいうち'],['trade','♻️','交換・合成'],['deck','🗂️','デッキ'],['book','📖','カード図鑑'],['combo','🔗','コンボ図鑑'],
-    ['dojo','🥋','コンボ道場'],['tour','🏆','カード大会'],['doc','🩺','デッキ診断'],['treasure','🎁','宝箱くじ']];
+  const tiles=[['battle','⚔️','対戦'],['pack','🎁','パック'],['one','🃏','1まい売り'],['snipe','🎯','ねらいうち'],['trade','♻️','交換・合成'],['book','📖','カード図鑑'],['combo','🔗','コンボ図鑑'],
+    ['dojo','🥋','コンボ道場'],['tour','🏆','カード大会'],['treasure','🎁','宝箱くじ']];
   H.show('cg',`<section class="pnl cgp">
     <div class="qtop"><button class="x" id="cgx" aria-label="もどる">←</button><b>🃏 カードショップ しおさい</b><span class="qn">${esc(rankName())}</span></div>
     ${bubble(g[0],g[1])}
@@ -340,9 +339,9 @@ function open(){cleanDeck();const first=!CG.met;
   H.panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{sf('step');go(b.dataset.t)});
   if(first)setTimeout(()=>{const ids=starter();reveal(ids.slice(0,5).map(id=>({id,isNew:true})),'スターターデッキ（20まい）',()=>{H.toast(`🗂️ ${esc(CG_NAGI.first[1])}`,3600);open()})},700)}
 function bindBubble(){const b=H.panel.querySelector('.cgnb');if(b)b.onclick=()=>{jaOn=!jaOn;b.querySelector('.ja').hidden=!jaOn;speak(b.querySelector('.en').textContent)}}
-function go(t){({battle:()=>window.CGB&&CGB.menu(open),pack:packs,one:single,snipe,trade,deck,book:()=>book(),combo:comboBook,
+function go(t){({battle:()=>window.CGB&&CGB.menu(open),pack:packs,one:single,snipe,trade,book:()=>book(),combo:comboBook,
   dojo:()=>window.CGM&&CGM.dojo(open),tour:()=>{if(!ruleOn('tour')){H.toast(`🔒 カード大会は <b>${CG_RANKS[CG_RULE_AT.tour][0]}</b> から`);return}window.CGM&&CGM.tour(open)},
-  doc:()=>window.CGM&&CGM.doctor(open),treasure:()=>window.CARDS&&CARDS.open(null,open)})[t]()}
+  treasure:()=>window.CARDS&&CARDS.open(null,open)})[t]()}
 const top=(t,right='')=>`<div class="qtop"><button class="x" id="cgb" aria-label="もどる">←</button><b>${t}</b><span class="qn">${right}</span></div>`;
 const coinTxt=n=>`🪙${n}`;
 function pay(n){if(ST.coins<n){H.toast('🪙 コインが たりないよ');sf('wrong');return false}ST.coins-=n;save();H.head();sf('buy');return true}
@@ -437,35 +436,59 @@ function trade(){const dup=ownedWords().filter(id=>CG.c[id]>=2).sort((a,b)=>CG.c
   </section>`);
   $('cgb').onclick=()=>{sf('back');open()};bindBubble();
   const shard=id=>{take(id);CG.sh=(CG.sh||0)+LV[info(id).lv].sh};
-  if($('cgall'))$('cgall').onclick=()=>{let n=0;dup.forEach(id=>{while(CG.c[id]>1&&inDeck(id)<CG.c[id]){shard(id);n++}});save();sf('buy');H.toast(`🔹 ${n}まいを かけらに したよ`);trade()};
+  if($('cgall'))$('cgall').onclick=()=>{let n=0;dup.forEach(id=>{while(CG.c[id]>1){shard(id);n++}});save();sf('buy');H.toast(`🔹 ${n}まいを かけらに したよ`);trade()};
   H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{fuse(b.dataset.f);trade()});
   H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{shard(b.dataset.s);save();sf('coinIn');trade()});
   const q=$('cgq'),lvs=LVK.filter(lvOpen);q.oninput=()=>{$('cgsr').innerHTML=search(q.value,lvs).map(c=>`<div class="cgrow"><span class="ri">${art(c)[0]}</span><span class="rn"><b>${esc(c.en)}</b><small>${esc(c.ja)}</small></span><span class="rl">${LV[c.lv].k}</span><button data-tr="${esc(c.id)}" ${(CG.sh||0)<LV[c.lv].tr?'disabled':''}>🔹${LV[c.lv].tr}</button></div>`).join('');
     H.panel.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{const id=b.dataset.tr,c=BY[id];if((CG.sh||0)<LV[c.lv].tr)return;CG.sh-=LV[c.lv].tr;const r=receive([id]);save();sf('buy');reveal(r,'かけらで 交換',trade)})}}
 
-/* 🗂️ the deck */
-let dkLv='all',dkQ='';
-function deck(){cleanDeck();const D=CG.deck,cs=deckCombos(D);
-  const groups={};D.forEach(id=>groups[id]=(groups[id]||0)+1);
-  const own=[...ownedWords(),...TR().filter(t=>window.CARDS&&CARDS.has(t)).map(t=>'t:'+t.e),...Object.keys(CG.pt).filter(k=>CG.pt[k]>0).map(k=>'p:'+k),...Object.keys(CG.st).filter(k=>CG.st[k]>0).map(k=>'s:'+k)];
-  const list=own.filter(id=>{const I=info(id);if(!I)return false;if(dkLv!=='all'&&(dkLv==='sp'?!(I.k==='t'||I.k==='p'||I.k==='s'):I.lv!==dkLv))return false;if(dkQ&&!(I.en.toLowerCase().includes(dkQ)||I.ja.includes(dkQ)))return false;return true})
-    .sort((a,b)=>inDeck(b)-inDeck(a)||power(b)-power(a)).slice(0,90);
-  H.show('cg',`<section class="pnl cgp">${top('🗂️ デッキ',`${D.length}/${DECK_N}`)}
-    <div class="cgdeck">${Object.keys(groups).map(id=>`<button class="dkc" data-r="${esc(id)}">${art(info(id))[0]}<b>${esc(info(id).en.split(',')[0])}</b>${groups[id]>1?'<i>×2</i>':''}</button>`).join('')||'<p class="note">まだ からっぽ</p>'}</div>
-    <div class="row"><button id="cgauto" class="sub">🪄 おまかせで 組む</button><button id="cgdoc" class="sub">🩺 ミナ先生の 診断</button></div>
-    ${cs.length?`<p class="note">🔗 コンボに なる 組み合わせ ${cs.length}こ</p>`:''}
-    <details class="cgfold" ${D.length<DECK_N?'open':''}><summary>➕ カードを 入れる（もってる ${own.length}まい）</summary>
-      <div class="seg cgsg">${[['all','ぜんぶ'],...LVK.map(l=>[l,LV[l].k]),['sp','とくべつ']].map(([k,n])=>`<button data-l="${k}" class="${dkLv===k?'on':''}">${n}</button>`).join('')}</div>
-      <input id="cgq" class="cgin" placeholder="さがす" value="${esc(dkQ)}" autocomplete="off">
-      <div class="cggrid g4">${list.map(id=>face(id,{ja:1,n:count(id),cls:inDeck(id)?'indk':''})).join('')}</div></details>
-  </section>`);
-  $('cgb').onclick=()=>{sf('back');open()};
-  H.panel.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{const i=CG.deck.indexOf(b.dataset.r);if(i>=0)CG.deck.splice(i,1);save();sf('back');deck()});
-  H.panel.querySelectorAll('.cggrid .cgc').forEach(el=>el.onclick=()=>{const id=el.dataset.id;sf('flip');detail(id,deck)});
-  H.panel.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{dkLv=b.dataset.l;sf('step');deck()});
-  const q=$('cgq');let tm;q.oninput=()=>{clearTimeout(tm);tm=setTimeout(()=>{dkQ=q.value.trim().toLowerCase();deck();const n=$('cgq');n.focus();n.setSelectionRange(n.value.length,n.value.length)},350)};
-  $('cgauto').onclick=()=>{autoDeck();sf('done');deck()};
-  $('cgdoc').onclick=()=>{sf('talk');window.CGM&&CGM.doctor(deck)}}
+/* 🎲 no deck building: every battle gets a fresh random deck, gently balanced, plus 3 cards you pick from 9 */
+const ownAll=()=>[...ownedWords(),...TR().filter(t=>window.CARDS&&CARDS.has(t)).map(t=>'t:'+t.e),...Object.keys(CG.pt).filter(k=>CG.pt[k]>0).map(k=>'p:'+k),...Object.keys(CG.st).filter(k=>CG.st[k]>0).map(k=>'s:'+k)];
+const PICK_N=3;
+/* the balance: at most 5 cards of cost 3+, 2 of cost 4, 3 treasures; 2〜3 combo pairs; a partner for your picks now and then; a few weak cards to practice */
+function randDeck(picks=[]){const own=ownAll().filter(id=>info(id)),R=rank(),deck=[...picks];
+  const n=id=>deck.filter(x=>x===id).length;
+  const ok=id=>{const I=info(id);if(!I||n(id)>=1)return false;if(deck.length>=DECK_N)return false;
+    if(I.cost>=3&&deck.filter(x=>info(x).cost>=3).length>=5)return false;if(I.cost>=4&&deck.filter(x=>info(x).cost>=4).length>=2)return false;
+    if(I.k==='t'&&deck.filter(x=>x.startsWith('t:')).length>=3)return false;
+    if(I.k==='p'&&(!ruleOn('parts')||deck.filter(x=>x.startsWith('p:')).length>=2))return false;
+    if(I.k==='s'&&(!ruleOn('sent')||deck.filter(x=>x.startsWith('s:')).length>=2))return false;return true};
+  const add=id=>{if(ok(id)){deck.push(id);return true}return false};
+  const hs={};H.shuffle(own.slice()).forEach(id=>{const I=info(id);if(I.k==='w'||I.k==='t')(hs[I.h]=hs[I.h]||[]).push(id)});
+  /* a partner for what you picked (half the time) */
+  picks.forEach(id=>{const I=info(id);if(Math.random()<.5&&(I.k==='w'||I.k==='t')){const c=H.shuffle(combosWith(I.h)).find(c=>hs[c.a===I.h?c.b:c.a]);if(c)add(hs[c.a===I.h?c.b:c.a][0])}});
+  /* 2〜3 combo pairs */
+  let pairs=0;const want=2+(Math.random()<.5?1:0);
+  for(const c of H.shuffle(COMBO.slice())){if(pairs>=want)break;if(hs[c.a]&&hs[c.b]&&!deck.includes(hs[c.a][0])&&!deck.includes(hs[c.b][0])&&ok(hs[c.a][0])&&ok(hs[c.b][0])){add(hs[c.a][0]);add(hs[c.b][0]);pairs++}}
+  /* a part with a word it fits, a sentence */
+  if(ruleOn('parts')){const pp=H.shuffle(own.filter(id=>id.startsWith('p:')));for(const id of pp){const b=DERIV.find(d=>d.p===id.slice(2)&&hs[d.b]);if(b&&add(id)){add(hs[b.b][0]);break}}}
+  if(ruleOn('sent'))H.shuffle(own.filter(id=>id.startsWith('s:'))).slice(0,1).forEach(add);
+  /* 2 cards to practice */
+  H.shuffle(own.filter(id=>BY[id]&&(weak(id)||forgot(id)))).slice(0,2).forEach(add);
+  /* the rest at random */
+  H.shuffle(own.slice()).forEach(add);
+  /* not enough cards yet: second copies */
+  if(deck.length<DECK_N)H.shuffle(own.filter(id=>count(id)>=2)).forEach(id=>{if(deck.length<DECK_N&&n(id)<2)deck.push(id)});
+  return deck}
+/* 9 cards to choose 3 from: one reroll per battle */
+function pickCands(){const own=H.shuffle(ownAll().filter(id=>{const I=info(id);return I&&(I.k==='w'||I.k==='t'||(I.k==='p'&&ruleOn('parts'))||(I.k==='s'&&ruleOn('sent')))}));
+  const out=[];const big=own.filter(id=>info(id).cost>=3).slice(0,2);big.forEach(id=>out.push(id));
+  own.forEach(id=>{if(out.length<9&&!out.includes(id))out.push(id)});return H.shuffle(out)}
+function pick3(o,go,back){let cand=pickCands(),sel=[],rr=false;const need=Math.min(PICK_N,cand.length);
+  const draw=()=>{const I=sel.map(info),ws=I.filter(x=>x.k==='w'||x.k==='t');let tip='';
+    for(let i=0;i<ws.length;i++)for(let j=i+1;j<ws.length;j++){const c=comboOf(ws[i].h,ws[j].h);if(c)tip=CG.combo[c.k]?`🔗 <b>${esc(c.p)}</b> コンボ！`:'✨ なにか おきそう…'}
+    H.show('cg',`<section class="pnl cgp cgpick">${top(`⚔️ ${esc(o.n)}`,`<b>${sel.length}</b>/${need}`)}
+    <div class="pkhd"><b>🎲 3まい えらぼう</b><small>のこりの 17まいは 毎回 ランダム</small></div>
+    <div class="cggrid g3 pkgrid">${cand.map((id,i)=>`<div class="dkw" style="animation-delay:${i*40}ms">${face(id,{ja:1,sel:sel.includes(id)})}${sel.includes(id)?`<i class="pkn">${sel.indexOf(id)+1}</i>`:''}</div>`).join('')}</div>
+    <p class="pktip">${tip||'&nbsp;'}</p>
+    <div class="row"><button id="pkrr" class="sub" ${rr?'disabled':''}>🎲 引きなおす${rr?'':'（1回）'}</button><button id="pkau" class="sub">🪄 おまかせ</button></div>
+    <button id="pkgo" class="pkgo" ${sel.length===need?'':'disabled'}>⚔️ これで 勝負！</button></section>`);
+    $('cgb').onclick=()=>{sf('back');back?back():open()};
+    H.panel.querySelectorAll('.pkgrid .cgc').forEach(c=>c.onclick=()=>{const id=c.dataset.id,i=sel.indexOf(id);if(i>=0)sel.splice(i,1);else if(sel.length<need)sel.push(id);else{sel.shift();sel.push(id)}sf('tap');draw()});
+    $('pkrr').onclick=()=>{if(rr)return;rr=true;cand=pickCands();sel=[];sf('flip');draw()};
+    $('pkau').onclick=()=>{sel=H.shuffle(cand.slice()).slice(0,need);sf('step');draw()};
+    $('pkgo').onclick=()=>{if(sel.length<need)return;const d=randDeck(sel);CG.deck=d;save();go(d,sel)}};
+  draw()}
 
 /* 📖 the card book: by level (and treasure / parts / sentences), 60 at a time */
 let bkLv='es',bkA='all',bkPage=0;
@@ -506,9 +529,16 @@ function comboBook(){const lvOf=c=>{const a=cardOfHead(c.a).lv,b=cardOfHead(c.b)
 function foundCombo(c){if(CG.combo[c.k])return false;CG.combo[c.k]=dnum();save();return true}
 function metWrong(w){if(CG.wrong[w.k])return false;CG.wrong[w.k]=dnum();save();return true}
 
+/* a back button that stays at the bottom right while you scroll (card shop screens) */
+(()=>{const b=document.createElement('button');b.id='cgfab';b.className='cgfab';b.textContent='←';b.setAttribute('aria-label','もどる');b.hidden=true;document.body.appendChild(b);
+  b.onclick=e=>{e.stopPropagation();const x=H.panel&&H.panel.querySelector('.qtop .x');if(x)x.click()};
+  let q=0;const upd=()=>{q=0;const p=H.panel;b.hidden=!(p&&p.querySelector('.cgp>.qtop .x'))||!!$('cardOv')};
+  const kick=()=>{if(!q)q=requestAnimationFrame(upd)};
+  if(H.panel)new MutationObserver(kick).observe(H.panel,{childList:true});new MutationObserver(kick).observe(document.body,{childList:true})})();
+
 window.CG={open,go,info,face,art,quiz,formQuiz,formsOf,ask,ov,closeOv,detail,count,owns,give,take,receive,reveal,record,star,kira,weak,forgot,power,
   rank,rankName,ruleOn,lvOpen,deckCombos,autoDeck,cleanDeck,comboOf,combosWith,wrongOf:(a,b)=>WRG[a+'|'+b]||null,anto:h=>ANTO[h]?[...ANTO[h]]:[],syn:h=>SYN[h]?[...SYN[h]]:[],
   derivOf,sentWords,cardOfHead,foundCombo,metWrong,pickL,hash,dnum,today,speak,bubble,
   W,BY,COMBO,WRONG,DERIV,SENT,LV,ATTR,DECK_N,rec:()=>CG,save:()=>save(),pay,myLv,hut,
-  packs,deck,book,comboBook,single,snipe,trade};
+  randDeck,pick3,packs,book,comboBook,single,snipe,trade};
 })();

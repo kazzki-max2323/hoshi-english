@@ -1,6 +1,5 @@
-/* ことばカード の まわり: 🥋 コンボ道場・🩺 ミナ先生の デッキ診断・🏆 浜辺の カード大会・ほかの 機能との 連動・ミナ先生の セリフ
+/* ことばカード の まわり: 🥋 コンボ道場・🏆 浜辺の カード大会・ほかの 機能との 連動・ミナ先生の セリフ
    - コンボ道場: 対戦なしで ことばコンボを 5問（あいかた・どっちが 自然？・いみ）。 ヒント→解説、 出た 問題は 一巡するまで 出ない、 結果まとめ
-   - デッキ診断: コンボの 数・コスト・苦手/わすれかけ・属性・反対語や なかまの ペアを 見て、 ミナ先生が アドバイス
    - カード大会（3級から）: 3回 勝てば 優勝。 試合の あいだに 英語の 会話。 決勝は ミナ先生
    - 連動: 授業・苦手とっくんの ごほうびカード／まちがいノートの 単語は 苦手カード（game/cg.js）／ミナ先生に 勝つと ハートが すこし（ラブストーリー）と 特別な カード／ダブった カードを 浜辺の みんなに プレゼント */
 (()=>{
@@ -21,7 +20,7 @@ function rewardCard(){const lv=C.lvOpen(C.myLv())?C.myLv():'es',mine=new Set(Obj
 /* up to 3 a day */
 function reward(kind){const r=R(),d=C.today();if(r.rw&&r.rw.d===d&&r.rw.n>=3)return null;r.rw=r.rw&&r.rw.d===d?r.rw:{d,n:0};r.rw.n++;
   const id=rewardCard();C.give(id);C.save();const I=C.info(id);
-  if(kind==='tok')setTimeout(()=>H.toast(`🃏 ごほうびカード <b>${esc(I.en)}</b>（${esc(I.ja)}）<small>カードショップの デッキで 使えるよ</small>`,3600),1500);
+  if(kind==='tok')setTimeout(()=>H.toast(`🃏 ごほうびカード <b>${esc(I.en)}</b>（${esc(I.ja)}）<small>対戦の 3まい えらびで 出るかも</small>`,3600),1500);
   return I}
 window.LESSON_AFTER=window.LESSON_AFTER||[];
 LESSON_AFTER.push(()=>{const I=reward('lesson');if(!I)return null;const [,tx]=ML('cg_reward',{w:I.en});
@@ -34,7 +33,7 @@ function dojoQ(c){const t=pickL(C.WRONG.some(w=>w.ok.replace(/^(a|an|the) /,'')=
   if(t==='which'){const ws=C.WRONG.filter(w=>w.ok===c.p),wr=ws.map(w=>`${w.a} ${w.b}`),ch=H.shuffle([c.p,...wr.slice(0,3)]);
     return {t:'combo',q:`<span class="qja">「${esc(c.j)}」は どっち？</span>`,ch,ans:ch.indexOf(c.p),hint:`${esc(c.b)} と よく いっしょに 使う ことばを えらぼう`,tip:`<b>${esc(c.p)}</b> ＝ ${esc(c.j)}<br><small>${esc(ws[0].why)}</small>`,say:['es',c.p],c,w:ws[0]}}
   if(t==='mean'){const ws=H.shuffle(C.COMBO.filter(x=>x.k!==c.k&&x.j!==c.j)).slice(0,3).map(x=>x.j),ch=H.shuffle([c.j,...ws]);
-    return {t:'combo',q:`<span class="qen">${esc(c.p)}</span>`,ch,ans:ch.indexOf(c.j),hint:`${esc(c.a)} ＝ ${esc(C.cardOfHead(c.a).ja)}、 ${esc(c.b)} ＝ ${esc(C.cardOfHead(c.b).ja)}`,tip:`<b>${esc(c.p)}</b> ＝ ${esc(c.j)}`,say:['es',c.p],c,sayFirst:1}}
+    return {t:'combo',q:`<span class="qen">${esc(c.p)}</span>`,ch,ans:ch.indexOf(c.j),hint:`${esc(c.a)} ＝ ${esc(C.cardOfHead(c.a).ja)}、 ${esc(c.b)} ＝ ${esc(C.cardOfHead(c.b).ja)}`,tip:`<b>${esc(c.p)}</b> ＝ ${esc(c.j)}`,say:['es',c.p],c}}
   /* the partner: one of the two words is shown */
   const k=Math.random()<.5,show=k?c.a:c.b,ans=k?c.b:c.a,lv=C.cardOfHead(ans).lv;
   const bad=H.shuffle(C.W.filter(x=>x.lv===lv&&x.h!==ans&&!C.comboOf(show,x.h)&&!/ /.test(x.h)&&C.cardOfHead(ans).a===x.a)).slice(0,3).map(x=>x.h);
@@ -65,35 +64,6 @@ function dojo(back){const D=DJ(),pool=dojoPool();let fresh=pool.filter(c=>!D.see
     $('djag').onclick=()=>{sf('step');dojo(back)};$('djbk').onclick=()=>{sf('back');(back||C.open)()}};
   step()}
 
-/* ================================================================ 🩺 デッキ診断 */
-function doctor(back){C.cleanDeck();const D=R().deck,I=D.map(C.info).filter(Boolean),words=I.filter(x=>x.k==='w'||x.k==='t');
-  const notes=[];let score=60;
-  if(D.length<C.DECK_N){notes.push(['think',`デッキが ${D.length}まい。 あと ${C.DECK_N-D.length}まい 入れてね。 「おまかせで 組む」でも いいよ`]);score-=15}
-  const cs=C.deckCombos(D);
-  if(!cs.length){const mine=new Set(words.map(x=>x.h)),c=C.COMBO.find(c=>mine.has(c.a)!==mine.has(c.b));score-=10;
-    notes.push(['think',c?`コンボが まだ ないね。 ${esc(mine.has(c.a)?c.a:c.b)} が あるなら、 ${esc(mine.has(c.a)?c.b:c.a)} を 入れると コンボに なるよ（いみは「${esc(c.j)}」）`:'コンボの ペアを 入れよう。 「heavy＋rain」みたいな 自然な 組み合わせだよ'])}
-  else{score+=Math.min(20,cs.length*4);const known=cs.filter(c=>R().combo[c.k]);notes.push(['happy',`コンボに なる ペアが ${cs.length}こ。 ${known.length<cs.length?`まだ 見つけてない コンボも ${cs.length-known.length}こ かくれてるよ…`:'ぜんぶ 見つけてるね、 さすが！'}`])}
-  const avg=I.reduce((a,x)=>a+x.cost,0)/(I.length||1);
-  if(avg>2.8){score-=8;notes.push(['think',`コストの 平均が ${avg.toFixed(1)}。 はじめの ターンは しおが 3だから、 コスト1・2の カードも まぜると 出しやすいよ`])}
-  else if(avg<1.4&&C.rank()>=4){notes.push(['smile','コストが 低い カードばかりだね。 段位も 上がったし、 中や 高の 強い カードを 入れてみない？'])}
-  else{score+=5;notes.push(['smile',`コストの バランス、 いい 感じ（平均 ${avg.toFixed(1)}）`])}
-  const wk=words.filter(x=>C.weak(x.id)),fg=words.filter(x=>C.forgot(x.id));
-  if(wk.length){score+=5;notes.push(['proud',`苦手カードが ${wk.length}まい（${esc(wk.slice(0,2).map(x=>x.en.split(',')[0]).join('、 '))}…）。 対戦で 正解すると 「逆転」で 2ばい！ 苦手を 入れるのは 勇気の しるしだよ`])}
-  else notes.push(['smile','苦手カードは 入ってないね。 まちがいノートの 単語を ねらいうち注文で 買って 入れると、 逆転の チャンスが ふえるよ']);
-  if(fg.length)notes.push(['think',`💤 わすれかけカードが ${fg.length}まい。 正解すると 1.5ばい。 思い出す ちょうど いい タイミングだよ`]);
-  const at={};words.forEach(x=>{if(x.a)at[x.a]=(at[x.a]||0)+1});const top=Object.entries(at).sort((a,b)=>b[1]-a[1])[0];
-  if(top&&top[1]>=6&&C.ATTR[top[0]]){score+=5;notes.push(['happy',`${C.ATTR[top[0]][1]} ${C.ATTR[top[0]][2]}が ${top[1]}まい。 同じ 属性を いっしょに 出すと そろいボーナスだよ`])}
-  if(C.ruleOn('counter')){const hs=new Set(words.map(x=>x.h));const an=words.filter(x=>C.anto(x.h).some(y=>hs.has(y)));if(an.length)notes.push(['proud',`反対語の ペアが デッキに あるね（${esc(an[0].h)} ⇔ ${esc(C.anto(an[0].h).find(y=>hs.has(y)))}）。 カウンターの じゅんび ばっちり`])}
-  const kira=words.filter(x=>C.kira(x.id)).length;if(kira)notes.push(['love',`✨ きらきら版が ${kira}まい！ 完全に おぼえた しるしだよ`]);
-  score=Math.max(10,Math.min(100,score));
-  const [ex,tx]=ML(score>=85?'cg_docGreat':score>=65?'cg_docGood':'cg_docTry',{n:score});
-  H.show('cg',`<section class="pnl cgp">
-    <div class="qtop"><button class="x" id="cgb" aria-label="もどる">←</button><b>🩺 デッキ診断</b><span class="qn">${score}点</span></div>
-    <div class="cgnagi"><span class="cgnf cgm">${mface(ex)}</span><div class="cgnb"><b>ミナ先生</b><p>${tx}</p></div></div>
-    <div class="cgdoc">${notes.slice(0,5).map(([e,t])=>`<p>${{happy:'😊',think:'🤔',smile:'🙂',proud:'💪',love:'✨'}[e]||'🙂'} ${t}</p>`).join('')}</div>
-    <div class="row"><button id="cgdk" class="sub">🗂️ デッキへ</button><button id="cgbk" data-back>もどる</button></div></section>`);
-  sf('talk');$('cgb').onclick=$('cgbk').onclick=()=>{sf('back');(back||C.open)()};$('cgdk').onclick=()=>{sf('step');C.deck()}}
-
 /* ================================================================ 🏆 浜辺の カード大会 */
 let T=null;
 const TOUR_FEE=50;
@@ -116,7 +86,7 @@ function bracket(){const t=T;H.show('cg',`<section class="pnl cgp" data-stay>
     <div class="row"><button id="tplay">⚔️ ${esc(t.foes[t.round].n)}と 対戦！</button></div></section>`);
   $('cgb').onclick=()=>{C.ov(`<div class="cgbuy"><b>大会を やめる？</b><p class="note">エントリー代は もどらないよ</p><button id="qy" class="sub">やめる</button><button id="qn">つづける</button></div>`,'by');
     $('qn').onclick=()=>{sf('step');C.closeOv()};$('qy').onclick=()=>{C.closeOv();const b=T.back;T=null;(b||C.open)()}};
-  $('tplay').onclick=()=>{sf('step');CGB.start(t.foes[t.round].id,{onEnd:afterMatch})}}
+  $('tplay').onclick=()=>{sf('step');CGB.start(t.foes[t.round].id,{onEnd:afterMatch,pickBack:bracket})}}
 function afterMatch(win){const t=T;if(!t)return C.open();
   if(!win){t.alive=false;const prize=t.round===2?100:t.round===1?40:0;if(prize)H.addCoins(prize);const [ex,tx]=ML('cg_tourLose',{r:RN[t.round]});
     return finishTour(`🌙 ${RN[t.round]}で まけ…`,ex,tx,prize?`🪙 +${prize}（${t.round===2?'準優勝':'ベスト4'}）`:'')}
@@ -164,14 +134,11 @@ function giftUse(it){C.take(it.cid);C.save()}
 /* ================================================================ Ms. Mina's lines */
 Object.assign(MINA_LINES,{
  cg_first:[['wow','浜辺に カードショップ「しおさい」が できたよ！ 単語帳の 単語が ぜんぶ カードに なって 対戦できるんだって'],['happy','カードの ボタンは カードショップに おひっこし。 浜辺の 小屋を タップしてね']],
- cg_reward:[['happy','授業の ごほうび。 「{w}」は カードショップの デッキに 入れられるよ'],['smile','カードが 1まい ふえたよ。 コンボの なかまかも？']],
+ cg_reward:[['happy','授業の ごほうび。 「{w}」は 対戦の 3まい えらびで 出てくるかも'],['smile','カードが 1まい ふえたよ。 コンボの なかまかも？']],
  cg_dojoStart:[['smile','コンボ道場へ ようこそ。 英語として 自然な 組み合わせを 5問 いくよ'],['proud','「heavy rain」みたいな 組み合わせは まとめて おぼえると 強いよ'],['think','日本語で 考えると まちがえやすい 組み合わせも あるから 気をつけてね']],
  cg_dojoPerfect:[['love','5問 ぜんぶ 正解！ ことばの 組み合わせ、 体で わかってきたね'],['wow','かんぺき！ 対戦でも この コンボを ねらってみて']],
  cg_dojoGood:[['happy','{n}問 ヒントなしで 正解！ まちがえた ものは 声に 出して もう いちど 読んでみよう'],['smile','いい 調子。 組み合わせは 「セットで 音読」が いちばん 効くよ']],
  cg_dojoMiss:[['think','コンボは 1つずつ おぼえれば いいからね。 📘の ものを 声に 出してみて'],['smile','まちがえた 組み合わせほど、 つぎに 会うと おぼえてるものだよ']],
- cg_docGreat:[['love','{n}点！ コンボも コストも ばっちり。 これなら わたしにも 勝てるかも？'],['proud','{n}点。 いい デッキだね。 あとは 問題に 正解するだけ！']],
- cg_docGood:[['smile','{n}点。 なかなか いい デッキだよ。 下の アドバイスを 見てね'],['happy','{n}点！ もう ひと工夫で もっと 強くなるよ']],
- cg_docTry:[['think','{n}点。 まずは コンボの ペアを 入れてみよう'],['smile','{n}点。 だいじょうぶ、 1つずつ 直せば すぐ 強くなるよ']],
  cg_tourIntro:[['smile','浜辺の カード大会へ ようこそ！ 決勝で 待ってるからね'],['proud','大会では 英語の インタビューも あるよ。 落ち着いて 答えてね'],['happy','3回 勝てば 優勝。 わたしも 本気で いくよ！']],
  cg_tourWin:[['love','優勝 おめでとう！ わたしに 勝つなんて… ほんとに すごいよ'],['wow','チャンピオン！ {n}回目の 優勝だね。 ほこらしいよ']],
  cg_tourLose:[['smile','{r}で まけちゃったね。 でも 試合の 中で おぼえた 単語は ちゃんと のこってるよ'],['think','{r}まで 来たね。 まちがえた 単語を 復習して、 また いどもう']],
@@ -190,7 +157,7 @@ Object.assign(MINA_LINES,{
  x_cgDojo:[['think','コンボ道場で 5問 どう？ 対戦なしで 組み合わせを 練習できるよ'],['smile','道場で 見つけた コンボも 図鑑に のるよ']],
  x_cgTour:[['proud','浜辺の カード大会に 出られるように なったよ。 決勝で 待ってる！'],['happy','カード大会、 英語の インタビューも あって 楽しいよ']],
  x_cgKira:[['love','✨ きらきら版の カードが {n}まい！ 完全に おぼえた しるしだね'],['wow','★5の カードは きらきら 光るんだ。 {w}、 きれいだね']],
- x_cgDeck:[['think','デッキが {n}まいしか ないよ。 20まいに しよう'],['smile','デッキ診断で アドバイス するよ。 デッキを 見せて']],
+ x_cgPick:[['smile','カード対戦は 毎回 デッキが ランダム。 3まいだけ 自分で えらべるよ'],['happy','いつも ちがう カードが 来るから、 いろんな 単語に 会えるね']],
  x_cgWrong:[['think','「{bad}」じゃなくて 「{ok}」。 まちがいコンボ ノートに のってるよ'],['smile','日本語から 考えると まちがえやすい 組み合わせ、 「{ok}」で おぼえよう']],
  x_cgLast:[['happy','さっきの カード対戦、 {n}問中 {ok}問 正解！ 声に 出して 復習すると もっと 強くなるよ'],['smile','カード対戦で おぼえた 単語、 単語帳でも 見かえしてみてね']]});
 const goShop=()=>['🃏 カードショップへ',()=>C.open()];
@@ -205,10 +172,10 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_cgFree',3,()=>R().met&&R().free!==C.today()?{}:null,goTab('pack')],
  ['x_cgRank',2,()=>{if(!R().met)return null;const r=C.rank(),nx=CG_RANKS[r+1];if(!nx)return null;return {r:CG_RANKS[r][0],n:nx[1]-(R().rp||0),nx:nx[0],open:nx[2]}},goTab('battle')],
  ['x_cgMina',1,()=>R().met&&C.rank()>=8?{}:null,goTab('battle')],
+ ['x_cgPick',2,()=>R().met?{}:null,goTab('battle')],
  ['x_cgDojo',1,()=>R().met?{}:null,goTab('dojo')],
  ['x_cgTour',2,()=>R().met&&C.ruleOn('tour')&&!R().tw?{}:null,goTab('tour')],
  ['x_cgKira',1,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.kira(id));return a.length?{n:a.length,w:C.info(pickL(a)).en.split(',')[0]}:null},goTab('book')],
- ['x_cgDeck',2,()=>R().met&&R().deck.length<C.DECK_N?{n:R().deck.length}:null,goTab('deck')],
  ['x_cgWrong',1,()=>{const a=C.WRONG.filter(w=>R().wrong[w.k]);if(!a.length)return null;const w=pickL(a);return {bad:w.a+' '+w.b,ok:w.ok}},goTab('combo')],
  ['x_cgLast',2,()=>{const l=R().last;return l&&l.d===C.today()&&l.n?{n:l.n,ok:l.ok}:null},goTab('battle')]);
 /* the card button left the home screen: Mina points at the hut once */
@@ -216,5 +183,5 @@ setTimeout(function first(){if(R().told)return;const m=window.MINA;if(!m||!m.can
   R().told=1;C.save();const [ex,tx]=ML('cg_first');m.say('m',ex,tx,10000,null,['🃏 のぞいてみる',()=>C.open()])},9000);
 H.on('home',()=>{const l=R().last;if(!l||l.said||!window.MINA)return;l.said=1;C.save();setTimeout(()=>{try{if(!MINA.canAnnounce())return;const f=CGB.foe(l.f);const [ex,tx]=ML(l.win?'cg_win':'cg_lose',{f:f?f.n:''});MINA.say('m',ex,tx,8000)}catch(e){}},1500)});
 
-window.CGM={dojo,doctor,tour,reward,afterGame,minaWin,giftItems,giftUse};
+window.CGM={dojo,tour,reward,afterGame,minaWin,giftItems,giftUse};
 })();
