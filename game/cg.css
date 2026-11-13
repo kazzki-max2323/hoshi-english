@@ -294,9 +294,6 @@
 .cgend.won .qtop b{color:#ffe14a;text-shadow:0 0 12px #ffb84a;animation:vsin .6s}
 @media (prefers-reduced-motion:reduce){.bfi,.bside.rage .bfi,.bhp.low,.bhand .cgc.sel,.cgvs .vsf{animation:none}}
 .cgfoes em small{display:block;color:#ffe14a;font-family:var(--pixel)}
-.cgfab{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(max(14px,env(safe-area-inset-bottom,0px)) + 10px);z-index:50;width:56px;height:56px;border-radius:50%;font:inherit;font-size:1.6rem;font-weight:900;color:#fff;cursor:pointer;
-  background:radial-gradient(circle at 35% 30%,#ffb07a,#e0503a);border:3px solid #ffe0c8;box-shadow:0 4px 12px #000a;display:flex;align-items:center;justify-content:center}
-.cgfab[hidden]{display:none}.cgfab:active{transform:scale(.92)}
 .cgp{padding-bottom:78px!important}
 .cgmap{text-align:center;background:rgba(243,194,122,.15);border:1.5px solid #f3c27a;border-radius:12px;padding:8px}
 .cgmap p{margin:0 0 6px}

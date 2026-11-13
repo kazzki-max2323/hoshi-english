@@ -81,6 +81,7 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
     <div class="row">
       <button id="bookOpen" class="sub"><span>📕</span>単語帳</button>
       <button id="bagOpen" class="sub"><span>🎒</span>もちもの</button>
+      <button id="kaiwaOpen" class="sub"><span>💬</span>浜辺の 会話</button>
     </div>
     ${MUS.on&&MUS.id?`<div class="np"><span>🎵 ${esc(TRACKS[MUS.id].name)}</span><button id="npStop" class="sub">■ とめる</button></div>`:''}
     ${ST.radios.length?`<label class="gap"><span>📻 つぶやき</span><input id="gapR" type="range" min="3" max="30" step="1" value="${ST.radioGap}"><output id="gapV">${ST.radioGap}秒ごと</output></label>`:''}
@@ -88,6 +89,7 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
   /* 単語帳は 1つの ボタン。ひらくと 小学生〜ハイレベルを 上の タブで えらぶ（さいごに 見た レベルから） */
   $('bookOpen').onclick=()=>{SFX.book();books()};
   $('bagOpen').onclick=()=>{SFX.open();window.ZAKKA&&ZAKKA.bag(home)};
+  $('kaiwaOpen').onclick=()=>{if(!window.KAIWA)return;SFX.talk();KAIWA.open()};
   const ns=$('npStop');if(ns)ns.onclick=()=>{stopMusic(true);SFX.pop();home()};
   const g=$('gapR');if(g)g.oninput=()=>{ST.radioGap=+g.value;$('gapV').textContent=g.value+'秒ごと';save();if(nextAt>performance.now()+ST.radioGap*1000)nextAt=performance.now()+ST.radioGap*1000};
   rqIdle();emit('home',back);if(back)nextAt=Math.max(nextAt,performance.now()+RADIO_REST);else radioWake();
@@ -219,6 +221,16 @@ document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest
   const x=panel.querySelector('.qtop .x')||panel.querySelector('[data-back]');if(!x)return;
   e.preventDefault();e.stopPropagation();x.click();
   const eat=ev=>{ev.stopPropagation();ev.preventDefault()};document.addEventListener('click',eat,{capture:true,once:true});setTimeout(()=>document.removeEventListener('click',eat,true),400)},true);
+/* a round ← at the bottom right on every screen but home: it works like the screen's ← (or its data-back button).
+   Hidden where the outside tap is off too: mini games (no ← at all) and a running long talk / novel (data-stay) */
+const fab=document.createElement('button');fab.id='backFab';fab.className='backfab';fab.textContent='←';fab.setAttribute('aria-label','もどる');fab.hidden=true;document.body.appendChild(fab);
+const fabTarget=()=>{if(screen==='home'||$('cardOv')||$('dpov')||$('bmPop'))return null;   // popups over the panel have their own ✕
+  if(panel.querySelector('[data-stay]')&&!panel.querySelector('.kend,.kends'))return null;
+  return panel.querySelector('.qtop .x')||panel.querySelector('[data-back]')};
+fab.onclick=e=>{e.stopPropagation();const x=fabTarget();if(x)x.click()};
+let fabQ=0;const fabUpd=()=>{fabQ=0;const on=!!fabTarget();fab.hidden=!on;document.body.classList.toggle('fab-on',on)};
+const fabKick=()=>{if(!fabQ)fabQ=requestAnimationFrame(fabUpd)};
+new MutationObserver(fabKick).observe(panel,{childList:true,subtree:true,attributes:true,attributeFilter:['data-stay','class']});new MutationObserver(fabKick).observe(document.body,{childList:true});
 /* moving things (answer bubbles, residents, mini-game targets) answer the moment a finger touches them.
    A normal click needs the finger to go down and up on the same element, which fails when it drifts away in between. */
 const FAST='.ab.opt,.ab.line,button.folk,#ar .shell,#ar .st,#ar .crab,#ar .tile,#ar [data-d]';let eatUntil=0;
