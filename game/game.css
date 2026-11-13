@@ -236,3 +236,9 @@ mark.gmk{background:none;color:inherit;border-bottom:2px solid #7fc4ff;box-shado
 .gtip small{font-size:.74rem;line-height:1.5}
 .gtip button{align-self:flex-start;padding:3px 10px!important;font-size:.72rem!important}
 .gseen0{font-size:.74rem}
+
+/* the round ← at the bottom right of every screen but home (game/game.js) */
+.backfab{position:fixed;right:max(14px,env(safe-area-inset-right,0px));bottom:calc(max(14px,env(safe-area-inset-bottom,0px)) + 10px);z-index:50;width:56px;height:56px;border-radius:50%;font:inherit;font-size:1.6rem;font-weight:900;color:#fff;cursor:pointer;
+  background:radial-gradient(circle at 35% 30%,#ffb07a,#e0503a);border:3px solid #ffe0c8;box-shadow:0 4px 12px #000a;display:flex;align-items:center;justify-content:center}
+.backfab[hidden]{display:none}.backfab:active{transform:scale(.92)}
+body.fab-on #panel>.pnl{padding-bottom:78px}

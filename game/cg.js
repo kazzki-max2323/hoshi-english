@@ -547,13 +547,6 @@ function comboBook(){const lvOf=c=>{const a=cardOfHead(c.a).lv,b=cardOfHead(c.b)
 function foundCombo(c){if(CG.combo[c.k])return false;CG.combo[c.k]=dnum();save();return true}
 function metWrong(w){if(CG.wrong[w.k])return false;CG.wrong[w.k]=dnum();save();return true}
 
-/* a back button that stays at the bottom right while you scroll (card shop and zakka screens; not in talks) */
-(()=>{const b=document.createElement('button');b.id='cgfab';b.className='cgfab';b.textContent='←';b.setAttribute('aria-label','もどる');b.hidden=true;document.body.appendChild(b);
-  b.onclick=e=>{e.stopPropagation();const x=H.panel&&H.panel.querySelector('.qtop .x');if(x)x.click()};
-  let q=0;const upd=()=>{q=0;const p=H.panel;b.hidden=!(p&&p.querySelector('.cgp>.qtop .x,.zk:not([data-stay])>.qtop .x'))||!!$('cardOv')};
-  const kick=()=>{if(!q)q=requestAnimationFrame(upd)};
-  if(H.panel)new MutationObserver(kick).observe(H.panel,{childList:true});new MutationObserver(kick).observe(document.body,{childList:true})})();
-
 window.CG={open,go,info,face,art,quiz,formQuiz,formsOf,ask,ov,closeOv,detail,count,owns,give,take,receive,reveal,record,star,kira,weak,forgot,power,
   rank,rankName,ruleOn,lvOpen,deckCombos,autoDeck,cleanDeck,comboOf,combosWith,wrongOf:(a,b)=>WRG[a+'|'+b]||null,anto:h=>ANTO[h]?[...ANTO[h]]:[],syn:h=>SYN[h]?[...SYN[h]]:[],
   derivOf,sentWords,cardOfHead,foundCombo,metWrong,pickL,hash,dnum,today,speak,bubble,

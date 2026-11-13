@@ -320,7 +320,6 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     <div class="mtiles"><button id="mall" class="mvc mt-all"><span>📖 ぜんぶの 授業</span><b>${LESSON.count().join('/')}</b></button>${typeof GRAMMAR!=='undefined'?`<button id="mgl" class="mvc mt-gram"><span>📚 文法ノート</span><b>${(ST.gram.cleared||[]).length}/${['es','jh','hs'].reduce((a,k)=>a+(GRAMMAR[k]?GRAMMAR[k].notes.length:0),0)}</b></button>`:''}${menuTiles()}</div>`:''}
     <button id="msensei" class="msensei">🗣️ ミナ先生と 英語で 話す</button>
     ${window.LOVE?LOVE.btn():''}
-    ${window.KAIWA?`<button id="mkaiwa" class="sub">💬 浜辺の 会話</button>`:''}
     <details class="mfold mrec"><summary>📊 きろく・ごほうび<small>${D.a?`きょう ${D.a}問`:''}</small></summary><div class="mfbody">
     <div class="mstats"><div><b>${D.a}</b><small>きょう 答えた</small></div><div><b>${accToday==null?'-':accToday+'%'}</b><small>正解率</small></div><div><b>${D.l}</b><small>おぼえた</small></div><div><b>${MD.best}</b><small>れんぞく</small></div></div>
     ${su?`<p class="msug">⬆️ ${esc(su.lv)}の 正解率 ${su.acc}%。<b>${esc(su.next)}</b>に ちょうせん してみよう</p>`:''}
@@ -345,7 +344,6 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   const md=$('mdeep');if(md)md.onclick=()=>{SFX.step();DEEP.pick()};
   if(window.LOVE)LOVE.bind(panelOpen);
   const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.talk();window.SENSEI?SENSEI.open():null};
-  const mk=$('mkaiwa');if(mk)mk.onclick=()=>{SFX.talk();KAIWA.open()};
   const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.book();H.gramNote(wg.lv,wg.i)}}
 /* the face lives in the home row; tap = talk */
 H.on('home',()=>{const f1=$('minaFace');if(f1)f1.innerHTML=face('m',minaEx,minaPoseNow);const f=$('minaFace');if(f)f.onclick=()=>{SFX.talk();panelOpen()};
