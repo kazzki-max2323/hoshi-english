@@ -360,3 +360,13 @@
 .bu.cd .cgc{filter:saturate(.35) brightness(.6)}
 .bucd{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%);z-index:2;background:rgba(10,14,40,.85);border:2px solid #9fe8ff;border-radius:99px;padding:2px 9px;font-size:.85rem;white-space:nowrap;pointer-events:none;box-shadow:0 0 10px #6ad8ff88}
 .bucd b{font-family:var(--pixel);color:#bff3ff;margin-left:2px}
+/* the one mark each card has (top-right of the picture), and the battle's ✨ */
+.cgtr{position:absolute;right:3%;top:3%;font-size:max(10px,11cqw);line-height:1;padding:2px 4px;border-radius:8px;background:rgba(10,14,40,.72);border:1px solid rgba(255,255,255,.35);color:#fff;font-weight:700;white-space:nowrap;pointer-events:none}
+.cgtrx{margin:.3em 0;padding:.35em .6em;border-radius:10px;background:rgba(255,255,255,.08);font-size:.92rem}
+.btr{opacity:.9}
+.ben{font-family:var(--pixel);font-size:.85rem;padding:1px 7px;border-radius:99px;background:rgba(255,225,74,.15);border:1px solid #ffe14a88;color:#ffe9a0}
+.bu.supd .cgtr{opacity:.35;filter:grayscale(1)}
+#bsup{margin-top:4px;padding:4px 12px}
+.bs1{display:flex;flex-direction:column;align-items:center;gap:3px}
+.bs1 .btr{display:block;font-size:.72rem;opacity:.85}
+.bs1 #bsup{margin:2px 0 0}
