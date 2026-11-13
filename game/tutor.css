@@ -1,9 +1,9 @@
 /* 家庭教師の バイト（game/tutor.js） */
 /* the parasol on the beach: small, darker at night, a "?" bobs when Riku has questions */
 #tuSpot{position:absolute;z-index:1;pointer-events:auto;padding:0;margin:0;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .4s;opacity:.94}
-#tuSpot .tuBody{display:block;filter:brightness(calc(1 - var(--dk,0)*.45)) saturate(calc(1 - var(--dk,0)*.3));transition:filter 2s}
+#tuSpot .tuBody{display:block;filter:brightness(calc(1 - var(--dk,0)*.36)) saturate(calc(1 - var(--dk,0)*.3));transition:filter 2s}
 /* night: one small lantern, softer than the campfire */
-#tuSpot .tuGlow{position:absolute;inset:0;pointer-events:none;opacity:calc(var(--dk,0)*.85);transition:opacity 2s}
+#tuSpot .tuGlow{position:absolute;inset:0;pointer-events:none;opacity:var(--dk,0);transition:opacity 2s}
 #tuSpot .tuFlame{animation:tuflick 3.6s ease-in-out infinite}
 @keyframes tuflick{50%{opacity:.8}}
 #tuSpot svg{display:block;width:100%;height:auto;overflow:visible}

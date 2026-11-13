@@ -1,9 +1,9 @@
 /* ながれぎ雑貨店（game/zakka.js） */
 /* the hut on the beach: small, the colours of the sand, a warm window at night */
 #zkHut{position:absolute;z-index:1;pointer-events:auto;padding:0;margin:0;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:opacity .4s;opacity:.92}
-#zkHut .zkBody{display:block;filter:brightness(calc(1 - var(--dk,0)*.5)) saturate(calc(1 - var(--dk,0)*.35));transition:filter 2s}
+#zkHut .zkBody{display:block;filter:brightness(calc(1 - var(--dk,0)*.4)) saturate(calc(1 - var(--dk,0)*.35));transition:filter 2s}
 /* night: a small warm window and lamp, not brighter than the campfire */
-#zkHut .zkGlow{position:absolute;inset:0;pointer-events:none;opacity:calc(var(--dk,0)*.9);transition:opacity 2s}
+#zkHut .zkGlow{position:absolute;inset:0;pointer-events:none;opacity:var(--dk,0);transition:opacity 2s}
 #zkHut svg{display:block;width:100%;height:auto;overflow:visible}
 #zkHut .zkWin{transition:fill 2s;fill:color-mix(in srgb,#ffcf7a calc(var(--dk,0)*100%),#2b2a3a)}
 #zkHut .zkLamp{animation:zkflick 3.2s ease-in-out infinite}
