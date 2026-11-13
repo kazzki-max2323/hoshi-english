@@ -11,6 +11,8 @@
 (()=>{
 const {S:ST,sfx:SFX}=BEACH;
 const H=HE,esc=H.esc,$=id=>document.getElementById(id);
+/* 恋人むけの 品（love: n）は ミナ先生との 段階が n に なったら ならぶ（game/love-more.js） */
+const loveOk=i=>!i.love||(window.LOVE&&LOVE.rec().st>=i.love);
 const IT=ZAKKA_ITEMS,PCS=ZAKKA_CARDS,FTS=ZAKKA_FORTUNES,PH=ZAKKA_PHRASES,PHK=Object.keys(PH);
 const item=id=>IT.find(i=>i.id===id);
 const pickL=a=>a[Math.random()*a.length|0];
@@ -75,7 +77,7 @@ item,coins:()=>ST.coins,visits:()=>ZD.v||0,tgs:()=>{try{return window.TUTOR?TUTO
   part:()=>{const h=new Date().getHours();return h>=5&&h<12?'morning':h>=12&&h<18?'afternoon':'evening'},
   partJ:()=>{const h=new Date().getHours();return h>=5&&h<12?'おはよう':h>=12&&h<18?'こんにちは':'こんばんは'},
   recBook:()=>{const i=LV.indexOf(myLv()),a=books().filter(b=>!ZD.own[b.id]);return a.find(b=>LV.indexOf(b.lv)===i)||a.find(b=>LV.indexOf(b.lv)<i)||a[0]||null},
-  altGift:id=>{const g=IT.filter(i=>i.k==='gift');return g[(g.findIndex(i=>i.id===id)+1)%g.length]},
+  altGift:id=>{const g=IT.filter(i=>i.k==='gift'&&loveOk(i));return g[(g.findIndex(i=>i.id===id)+1)%g.length]},
   bonusW:()=>pcDone()?'fortune cookie':'postcard',bonusJ:()=>pcDone()?'おみくじ クッキー':'絵はがき',
   rcpt:id=>!!ZD.rcpt[id],
   exList:c=>books().filter(b=>!ZD.own[b.id]&&b.id!==c.it.id),
@@ -129,7 +131,7 @@ function greet(){
     [`Good ${Z.part()}! Pip has been waiting for you.`,`${Z.partJ()}！ ピップが 待ってたわよ。`],
     ["Tap anything on the shelf. Then let's talk in English!","たなの ものを タップしてね。 そしたら 英語で 話しましょう！"]];
   if(ZD.hold&&item(ZD.hold))g.push([`I'm still keeping the ${item(ZD.hold).w} for you.`,`${item(ZD.hold).n}、 まだ とっておいてるわよ。`]);
-  {const lx=IT.filter(i=>i.lux&&!ZD.own[i.id]&&ST.coins>=i.p);if(lx.length){const x=pickL(lx);g.push([`Would you like to see the glass case? The ${x.w} is something special.`,`ガラスケース、 見てみる？ ${x.n}は とくべつよ。`])}}
+  {const lx=IT.filter(i=>i.lux&&loveOk(i)&&!ZD.own[i.id]&&ST.coins>=i.p);if(lx.length){const x=pickL(lx);g.push([`Would you like to see the glass case? The ${x.w} is something special.`,`ガラスケース、 見てみる？ ${x.n}は とくべつよ。`])}}
   {const L=lineup();if(L.music.length)g.push([`The records change every day. Today's records are here until the ${({dawn:'morning',morning:'afternoon',noon:'evening',evening:'sunset',sunset:'night',night:'dawn'})[L.ph]}.`,`レコードは 毎日 入れかわるの。 いまの たなは あと ${nextMin()}分くらいよ。`]);
    const e=L.event[L.event.length-1];if(e)g.push([`Have you seen the events? The ${e.en} is on sale right now.`,`イベントは 見た？ いまは ${e.n}が 買えるのよ。`]);
    if(!ST.radios.length)g.push(["Look at the radios! The little one is free. Take it home!","ラジオを 見て！ 小さいのは ただよ。 もっていってね！"])}
@@ -167,8 +169,8 @@ function shop(tab){hush();pvDone(false);if(typeof tab==='string'&&TABS.some(t=>t
     <div class="qtop"><button class="x" id="zkx" aria-label="もどる">←</button><b>🏚️ ながれぎ雑貨店</b><span class="qn"></span></div>
     <div id="zkhi">${noraLine(en,ja)}</div>
     <div class="seg tabs zktabs">${TABS.map(([k,i,n])=>`<button data-zt="${k}" class="${tabNow===k?'on':''}"><span>${i}</span>${n}</button>`).join('')}</div>
-    ${tabNow==='zakka'?`<div class="zkshelf">${IT.filter(i=>!i.lux).map(tile).join('')}</div>
-    <div class="zkcase"><small>🔒 ガラスケース</small><div>${IT.filter(i=>i.lux).map(tile).join('')}</div></div>`:goodsShelf(tabNow)}
+    ${tabNow==='zakka'?`<div class="zkshelf">${IT.filter(i=>!i.lux&&loveOk(i)).map(tile).join('')}</div>
+    <div class="zkcase"><small>🔒 ガラスケース</small><div>${IT.filter(i=>i.lux&&loveOk(i)).map(tile).join('')}</div></div>`:goodsShelf(tabNow)}
     <div class="row zkrow"><button id="zkrec" class="sub">💬 おすすめ</button><button id="zksell" class="sub">💰 売る</button><button id="zkret" class="sub" ${sellable().length?'':'disabled'}>↩️ 返品</button></div>
     <div class="row zkrow"><button id="zkbag" class="sub">🎒 もちもの ${bagN()?`<small>${bagN()}</small>`:''}</button>${ZD.own.note?'<button id="zknote" class="sub">📒 フレーズ手帳</button>':''}</div>
     <details class="mfold"><summary>📊 きろく</summary><div class="zkrec"><span>🏁 見つけた エンド <b>${endsN()}/${endsAll()}</b></span><span>📒 言えた フレーズ <b>${phN()}/${PHK.length}</b></span><span>📮 絵はがき <b>${ZD.pc.length}/${PCS.length}</b></span>
@@ -587,7 +589,7 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_zkBottle',2,()=>ZD.met&&bottles()>=2?{n:bottles()}:null,()=>['💰 売りに 行く',()=>play('sell')]],
  ['x_zkEnds',1,()=>ZD.met&&endsN()?{n:endsN(),tot:endsAll()}:null,goShop],
  ['x_zkPc',1,()=>ZD.pc.length?{n:ZD.pc.length,left:PCS.length-ZD.pc.length}:null,()=>['📮 見る',()=>album(H.home)]],
- ['x_zkLux',3,()=>{const a=IT.filter(i=>i.lux&&!ZD.own[i.id]&&ST.coins>=i.p);return a.length?{t:pickL(a).n}:null},goShop],
+ ['x_zkLux',3,()=>{const a=IT.filter(i=>i.lux&&loveOk(i)&&!ZD.own[i.id]&&ST.coins>=i.p);return a.length?{t:pickL(a).n}:null},goShop],
  ['x_zkCrystal',4,()=>ZD.own.crystal&&!idiomToday()?{}:null,()=>['🔮 のぞく',()=>crystal(H.home)]],
  ['x_zkMoon',1,()=>ZD.own.moonmap&&Object.keys(ZD.end).filter(k=>k.startsWith('moon:')).length<4?{}:null,()=>['🌕 お話を 聞く',()=>play('moon')]],
  ['x_zkHold',3,()=>ZD.hold&&item(ZD.hold)?{t:item(ZD.hold).n}:null,goShop],
