@@ -1,5 +1,5 @@
 /* 🎁 プレゼント: もちものの 品を だれかに あげる（中身は game/gift-data.js）
-   - あげられる 品: 雑貨屋の プレゼント（ZAKKA.rec().gift）と リクからの お礼（TUTOR.rec().gifts）
+   - あげられる 品: 雑貨屋の プレゼント（ZAKKA.rec().gift）と リクからの お礼（TUTOR.rec().gifts）と ダブった 単語カード（game/cg-more.js）
    - あげられる 相手: ミナ先生・リク（バイトで 会ったら）・ノラさん（お店で 会ったら）・浜辺の 会話で 会った みんな
    - 会話: わたす ことば（小・中・高）→ 反応（4だん）→ 相手の 質問 → さいごの ひとこと → エンド。 へんな 答えでも 話は すすむ
    - 苦手だった ときに 「なにが 好き？」と 聞くと 好きな ものを 教えてくれる → 🎁 好きな物ノート に のこる
@@ -27,11 +27,12 @@ const zItem=id=>{try{return ZAKKA.items.find(i=>i.id===id)}catch(e){return null}
 function items(){const out=[],Z=ZR(),T=TR();
   if(Z)Z.gift.forEach((g,i)=>{const it=zItem(g.id);if(it)out.push({ref:'z'+i,key:'z:'+g.id,ico:it.ico,n:it.n,w:it.w,src:'z',wrap:g.w?g:null,lux:!!it.lux})});
   if(T&&typeof TUTOR_GIFTS!=='undefined')TUTOR_GIFTS.forEach(g=>{const c=T.gifts[g[0]]||0;if(c>0)out.push({ref:'t:'+g[0],key:'t:'+g[0],ico:g[1],n:g[2],w:g[3],src:'t',cnt:c})});
+  try{if(window.CGM)out.push(...CGM.giftItems())}catch(e){}   // spare word cards (game/cg-more.js)
   return out}
 const byRef=ref=>items().find(x=>x.ref===ref);
 const has=()=>items().length>0;
 /* take it out of the bag */
-function useUp(it){if(it.src==='z'){const Z=ZR(),i=+it.ref.slice(1);if(Z&&Z.gift[i])Z.gift.splice(i,1)}else{try{TUTOR.take(it.key.slice(2))}catch(e){}}save()}
+function useUp(it){if(it.src==='c'){try{CGM.giftUse(it)}catch(e){}return}if(it.src==='z'){const Z=ZR(),i=+it.ref.slice(1);if(Z&&Z.gift[i])Z.gift.splice(i,1)}else{try{TUTOR.take(it.key.slice(2))}catch(e){}}save()}
 
 /* ---------- who you can give to ---------- */
 function people(){const out=['mina'];const T=TR(),Z=ZR();
