@@ -66,6 +66,8 @@
 
 発音は Kokoro（Apache-2.0 の読み上げモデル、`kokoro-onnx`）で作った録音です。単語やセリフを増やしたときは、同じ方法で `audio/` を作り直してください。録音にない言葉は、ブラウザの読み上げ機能で代わりに読みます。
 
+Kokoro（中では espeak）が読みまちがえる言葉は `tools/pron.py` に正しい読み（音素）を書いておきます。同じつづりで意味によって読みが変わる語（単語カード live「すむ」・close「しめる」・use「つかう」、read, read, read の2つ目と3つ目、lives など）、人名・地名（Pochi・Kyoto・Hokkaido・Doraemon など）、「Mt.」「1996」「adapt / adopt」の / など。直した録音は `audio/fix.mp3` / `.json` にまとめてあり（`python tools/make_fix.py audio`。もとの声を自動でさがす）、元の音声の `.json` からはその言葉を消してあります。ブラウザの読み上げで読む会話では、キャラの名前（Gen・Mina・Pochi・Riku・Nora など）を `game/game.js` の `SAY_NAMES` の読み方にして読みます。
+
 ## 公開のしかた
 
 静的ファイルだけで動きます。GitHub Pages や https://app.netlify.com/drop にフォルダごと置けば公開できます。

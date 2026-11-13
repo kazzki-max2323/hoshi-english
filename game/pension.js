@@ -28,7 +28,7 @@ function pickVoice(){if(!window.speechSynthesis)return;const vs=speechSynthesis.
   enVoice=vs.find(v=>/en[-_]US/i.test(v.lang)&&/Samantha|Google|Natural/i.test(v.name))||vs.find(v=>/en[-_]US/i.test(v.lang))||vs[0]||null}
 if(window.speechSynthesis){pickVoice();speechSynthesis.addEventListener&&speechSynthesis.addEventListener('voiceschanged',pickVoice)}
 function talk(en,c){if(!ST.sound||!window.speechSynthesis||!en)return;
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(en).replace(/Odette/g,'Oh-det').replace(/—/g,',').replace(/\.\.\.\s*/g,' '));u.lang='en-US';if(enVoice)u.voice=enVoice;
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(sayNames(en).replace(/Odette/g,'Oh-det').replace(/—/g,',').replace(/\.\.\.\s*/g,' '));u.lang='en-US';if(enVoice)u.voice=enVoice;
     u.pitch=c?c.p:1;u.rate=(ST.slow?.72:.92)*(c?c.r:1);u.volume=Math.min(1,(ST.vol&&ST.vol.voice!=null)?ST.vol.voice:1);speechSynthesis.speak(u)}catch(e){}}
 const hush=()=>{try{speechSynthesis.cancel()}catch(e){}};
 

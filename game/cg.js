@@ -325,7 +325,7 @@ H.on('home',()=>setTimeout(hut,60));
 const NAGI={n:'ナギ',ico:'🧑‍🦱'};
 let jaOn=true;
 function bubble(en,ja){return `<div class="cgnagi"><span class="cgnf">${NAGI.ico}</span><div class="cgnb"><b>${NAGI.n}</b><p class="en">${esc(en)}</p><p class="ja" ${jaOn?'':'hidden'}>${esc(ja)}</p></div></div>`}
-function speak(en){try{if(!ST.sound||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(en);u.lang='en-US';u.rate=ST.slow?.75:.95;u.pitch=1.05;speechSynthesis.speak(u)}catch(e){}}
+function speak(en){try{if(!ST.sound||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(sayNames(en));u.lang='en-US';u.rate=ST.slow?.75:.95;u.pitch=1.05;speechSynthesis.speak(u)}catch(e){}}
 function starter(){const pool=W.filter(c=>c.lv==='es');const ids=[];
   H.shuffle(COMBO.filter(c=>cardOfHead(c.a).lv==='es'&&cardOfHead(c.b).lv==='es')).slice(0,5).forEach(c=>ids.push(cardOfHead(c.a).id,cardOfHead(c.b).id));
   while(ids.length<15){const c=pickL(pool);if(!ids.includes(c.id))ids.push(c.id)}
