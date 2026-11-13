@@ -144,12 +144,17 @@ const HUT=`<svg viewBox="0 0 64 56" aria-hidden="true">
   <g class="zkCrate"><rect x="3" y="43" width="7" height="6" fill="#c49462" stroke="#6e5238" stroke-width=".5"/><path d="M3 43 L10 49 M10 43 L3 49" stroke="#8a6a4a" stroke-width=".4"/>
    <path d="M5 43 L5 39.6 Q5 38.6 5.6 38.6 Q6.2 38.6 6.2 39.6 L6.2 43 Z" fill="#7fd0c0" opacity=".9"/><path d="M7.4 43 L7.4 40.6 Q7.4 39.8 8 39.8 Q8.6 39.8 8.6 40.6 L8.6 43 Z" fill="#a8c8ff" opacity=".9"/></g>
   <path d="M30.6 29 L30.6 32" stroke="#4a3a2a" stroke-width=".5"/>
-  <g class="zkLamp"><circle cx="30.6" cy="34.2" r="6" fill="url(#zkg)"/></g>
   <path d="M29.2 32 L32 32 L31.6 36 L29.6 36 Z" fill="#4a3a2a"/><rect class="zkWin" x="29.8" y="32.6" width="1.6" height="2.8" fill="#2b2a3a"/>
-  <defs><radialGradient id="zkg"><stop offset="0" stop-color="rgba(255,210,130,.9)"/><stop offset="1" stop-color="rgba(255,210,130,0)"/></radialGradient></defs>
+</svg>`;
+/* the night light: drawn on top of the hut, outside its darkening filter, so a soft warm window and lamp show at night (opacity follows --dk) */
+const GLOW=`<svg viewBox="0 0 64 56" aria-hidden="true">
+  <defs><radialGradient id="zkg"><stop offset="0" stop-color="rgba(255,206,130,.75)"/><stop offset="1" stop-color="rgba(255,206,130,0)"/></radialGradient></defs>
+  <ellipse cx="19.5" cy="35.5" rx="10" ry="8" fill="url(#zkg)" opacity=".55"/>
+  <rect x="14" y="31" width="11" height="8" rx=".6" fill="#ffcf86" opacity=".8"/><path d="M19.5 31 V39 M14 35 H25" stroke="#6e5238" stroke-width=".7"/>
+  <g class="zkLamp"><circle cx="30.6" cy="34.2" r="5" fill="url(#zkg)"/><rect x="29.8" y="32.6" width="1.6" height="2.8" fill="#ffe2a0"/></g>
 </svg>`;
 function hut(){let b=$('zkHut');const w=$('window');if(!w)return;
-  if(!b){b=document.createElement('button');b.id='zkHut';b.setAttribute('aria-label','浜辺の 雑貨屋');b.innerHTML=HUT;w.appendChild(b);
+  if(!b){b=document.createElement('button');b.id='zkHut';b.setAttribute('aria-label','浜辺の 雑貨屋');b.innerHTML=`<span class="zkBody">${HUT}</span><span class="zkGlow">${GLOW}</span>`;w.appendChild(b);
     b.onclick=e=>{e.stopPropagation();if(H.screen!=='home')return;SFX.shop();open()}}
   let d;try{d=SCENE.dbg()}catch(e){return}
   /* game.js sandSpots() and cg.js hut() use this size and place too: change them together */

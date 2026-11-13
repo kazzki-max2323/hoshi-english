@@ -93,6 +93,7 @@ const SPOT=`<svg viewBox="0 0 72 60" aria-hidden="true">
   <path d="M25 3 L1 19 Q5.0 22.2 9 16.6 Z" fill="#e8463e"/><path d="M25 3 L9 16.6 Q13.0 19.8 17 15.4 Z" fill="#fbf6ec"/><path d="M25 3 L17 15.4 Q21.0 18.6 25 15 Z" fill="#e8463e"/><path d="M25 3 L25 15 Q29.0 18.6 33 15.4 Z" fill="#fbf6ec"/><path d="M25 3 L33 15.4 Q37.0 19.8 41 16.6 Z" fill="#e8463e"/><path d="M25 3 L41 16.6 Q45.0 22.2 49 19 Z" fill="#fbf6ec"/>
   <path d="M1 19 Q5 22.2 9 16.6 Q13 19.6 17 15.4 Q21 18.6 25 15 Q29 18.6 33 15.4 Q37 19.6 41 16.6 Q45 22.2 49 19" fill="none" stroke="rgba(120,30,30,.35)" stroke-width=".5"/>
   <circle cx="25" cy="2.8" r="1.6" fill="#ffcf4a"/>
+  <g class="tuLantern"><path d="M41 17.4 V20.4" stroke="#6b4a2a" stroke-width=".4"/><path d="M39.8 20.4 H42.2 L42.6 21.2 V24.4 L42 25 H40 L39.4 24.4 V21.2 Z" fill="#c9952a" stroke="#6b4a2a" stroke-width=".35"/><rect x="40" y="21.4" width="2" height="2.8" rx=".4" fill="#f4e6c4"/></g>
   <g class="tuTable"><rect x="40" y="43" width="21" height="2.6" rx="1" fill="#c49462"/><rect x="42" y="45.6" width="1.8" height="9.6" fill="#9a734a"/><rect x="57.2" y="45.6" width="1.8" height="9.6" fill="#9a734a"/>
    <path d="M41.6 42.8 L46 40.4 L50.4 42.2 L54.8 40.4 L54.8 42.8 L50.4 43.6 L46 42.8 Z" fill="#fff"/><path d="M50.4 42.2 L50.4 43.6" stroke="#bbb" stroke-width=".4"/>
    <path d="M43 41.6 L48.6 41.6 M43.4 40.8 L48 40.8 M52 41.4 L54 41" stroke="#8aa" stroke-width=".35"/>
@@ -116,8 +117,14 @@ const SPOT=`<svg viewBox="0 0 72 60" aria-hidden="true">
    <text x="66" y="39" font-size="4.4" text-anchor="middle" fill="#e8463e" font-weight="bold" font-family="sans-serif">ABC</text></g>
   <g class="tuQ"><circle cx="11" cy="29" r="5.8" fill="#fff"/><path d="M14 33 L16.6 35.6 L12.6 34 Z" fill="#fff"/><text x="11" y="31.8" font-size="8" text-anchor="middle" fill="#e8463e" font-weight="bold" font-family="sans-serif">?</text></g>
 </svg>`;
+/* the night light: a little lantern under the parasol, drawn outside the darkening filter (opacity follows --dk) */
+const SPOT_GLOW=`<svg viewBox="0 0 72 60" aria-hidden="true">
+  <defs><radialGradient id="tuGlow"><stop offset="0" stop-color="rgba(255,210,140,.7)"/><stop offset="1" stop-color="rgba(255,210,140,0)"/></radialGradient></defs>
+  <ellipse cx="41" cy="30" rx="13" ry="12" fill="url(#tuGlow)" opacity=".7"/>
+  <g class="tuFlame"><circle cx="41" cy="22.8" r="3.4" fill="url(#tuGlow)"/><rect x="40" y="21.4" width="2" height="2.8" rx=".4" fill="#ffe2a0"/></g>
+</svg>`;
 function spot(){let b=$('tuSpot');const w=$('window');if(!w)return;
-  if(!b){b=document.createElement('button');b.id='tuSpot';b.setAttribute('aria-label','家庭教師の バイト（リクの パラソル）');b.innerHTML=SPOT;w.appendChild(b);
+  if(!b){b=document.createElement('button');b.id='tuSpot';b.setAttribute('aria-label','家庭教師の バイト（リクの パラソル）');b.innerHTML=`<span class="tuBody">${SPOT}</span><span class="tuGlow">${SPOT_GLOW}</span>`;w.appendChild(b);
     b.onclick=e=>{e.stopPropagation();if(H.screen!=='home')return;SFX.talk();open()}}
   let d;try{d=SCENE.dbg()}catch(e){return}
   /* left end of the sand (moved from .24 in v123, so the radios have room). game.js sandSpots() keeps radios off this box */
