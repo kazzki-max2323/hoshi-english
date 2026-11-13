@@ -324,8 +324,15 @@ const HUT=`<svg viewBox="0 0 72 64" aria-hidden="true">
   <g class="cgStand" transform="rotate(-8 5 50)"><path d="M3 58 L5 52" stroke="#6b4a2a" stroke-width=".8"/><rect x="0.4" y="40" width="9.2" height="13" rx="1.2" fill="#fff" stroke="#0c3b3f" stroke-width=".6"/><rect x="1.6" y="41.2" width="6.8" height="10.6" rx=".8" fill="#ff6a8a"/><text x="5" y="48.6" font-size="5" text-anchor="middle" fill="#fff">★</text></g>
   <g class="cgL"><circle cx="4.0" cy="27.4" r="1.1" fill="#ffd27a"/><circle cx="12.0" cy="22.9" r="1.1" fill="#ff9ab0"/><circle cx="20.0" cy="18.4" r="1.1" fill="#9ae6ff"/><circle cx="28.0" cy="13.9" r="1.1" fill="#ffd27a"/><circle cx="36.0" cy="9.4" r="1.1" fill="#ff9ab0"/><circle cx="44.0" cy="13.9" r="1.1" fill="#9ae6ff"/><circle cx="52.0" cy="18.4" r="1.1" fill="#ffd27a"/><circle cx="60.0" cy="22.9" r="1.1" fill="#ff9ab0"/><circle cx="68.0" cy="27.4" r="1.1" fill="#9ae6ff"/></g>
 </svg>`;
+/* the night light: drawn on top of the hut, outside its darkening filter. A soft warm window and the roof's little bulbs (opacity follows --dk) */
+const HUT_GLOW=`<svg viewBox="0 0 72 64" aria-hidden="true">
+  <defs><radialGradient id="cgGlow"><stop offset="0" stop-color="rgba(255,206,130,.7)"/><stop offset="1" stop-color="rgba(255,206,130,0)"/></radialGradient></defs>
+  <ellipse cx="26" cy="42" rx="17" ry="10" fill="url(#cgGlow)" opacity=".5"/>
+  <rect x="13.5" y="34.5" width="25" height="14" rx=".8" fill="#ffcf86" opacity=".35"/><rect x="46" y="36.4" width="10" height="7" rx=".8" fill="#ffcf86" opacity=".55"/>
+  <g class="cgLg"><circle cx="4.0" cy="27.4" r=".9" fill="#ffd27a"/><circle cx="12.0" cy="22.9" r=".9" fill="#ff9ab0"/><circle cx="20.0" cy="18.4" r=".9" fill="#9ae6ff"/><circle cx="28.0" cy="13.9" r=".9" fill="#ffd27a"/><circle cx="36.0" cy="9.4" r=".9" fill="#ff9ab0"/><circle cx="44.0" cy="13.9" r=".9" fill="#9ae6ff"/><circle cx="52.0" cy="18.4" r=".9" fill="#ffd27a"/><circle cx="60.0" cy="22.9" r=".9" fill="#ff9ab0"/><circle cx="68.0" cy="27.4" r=".9" fill="#9ae6ff"/></g>
+</svg>`;
 function hut(){let b=$('cgHut');const w=$('window');if(!w)return;
-  if(!b){b=document.createElement('button');b.id='cgHut';b.setAttribute('aria-label','カードショップ しおさい');b.innerHTML=HUT;w.appendChild(b);
+  if(!b){b=document.createElement('button');b.id='cgHut';b.setAttribute('aria-label','カードショップ しおさい');b.innerHTML=`<span class="cgBody">${HUT}</span><span class="cgGlow">${HUT_GLOW}</span>`;w.appendChild(b);
     b.onclick=e=>{e.stopPropagation();if(H.screen!=='home')return;sf('shop');open()}}
   let d;try{d=SCENE.dbg()}catch(e){return}
   /* right side of the sand, just left of the zakka hut (moved from .66 in v123). game.js sandSpots() keeps radios off this box */
