@@ -21,6 +21,10 @@ const hash=s=>{let h=2166136261;for(let i=0;i<s.length;i++){h^=s.charCodeAt(i);h
 const seeded=s=>{let a=hash(s);return ()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}};
 const DAY_MAX=5;
 const sx=()=>Math.min(LV.st,5);
+/* ネタバレ よけ: まだ 着いていない 段階の ことばは「？？？」に する（両親に あいさつ すると +.5、 家族が ふえると 6） */
+const lvl=()=>LV.kid?6:LV.st+(LV.st===3&&LV.par?.5:0);
+const SPOIL=[[/気になる 人/,1],[/友だち 以上|デート/,2],[/恋人/,3],[/両親|指輪|プロポーズ/,3.5],[/婚約|結婚|花嫁|夫婦/,4],[/家族|赤ちゃん|3人/,6]];
+const veil=s=>SPOIL.some(([re,n])=>re.test(s)&&lvl()<n)?'？？？':s;
 
 /* ---------- the record ---------- */
 const LV=(()=>{try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}').love;if(s&&s.ph)return s}catch(e){}
@@ -55,7 +59,7 @@ const dnum=()=>{const d=new Date();return Math.floor(new Date(d.getFullYear(),d.
 const propWait=()=>Math.max(0,(LV.pnext||0)-dnum());
 const propPct=()=>Math.min(60,10+5*(LV.pf||0));
 /* 恋人の あとは 関門が ふえる: 両親に あいさつ → 指輪 → プロポーズ（日を おいて） */
-const gates=()=>LV.st!==3?[]:[{t:'👪 両親に あいさつ',ok:!!LV.par},{t:'💍 星の 指輪（雑貨店の ガラスケース）',ok:ringOk()}];
+const gates=()=>LV.st!==3?[]:LV.par?[{t:'👪 両親に あいさつ',ok:true},{t:'💍 星の 指輪（雑貨店の ガラスケース）',ok:ringOk()}]:heartFull()&&conds().every(c=>c.ok)?[{t:'✨ とくべつな 日',ok:false}]:[];
 const ready=()=>{if(LV.st>=5||!heartFull()||!conds().every(c=>c.ok))return false;if(LV.st!==3)return true;return !LV.par||(ringOk()&&!propWait())};
 const isProp=()=>LV.st===3&&!!LV.par;
 const evNow=()=>isProp()?LOVE_PROPOSE:LOVE_EVENTS[LV.st];
@@ -101,7 +105,7 @@ function open(back){hush();if(back)backTo=back;const B=backTo||(()=>MINA.open())
   if(!MINA_LINES[k])k='lv_hi'+sx();
   const [e2,tx]=ML(k,v);if(t!=='day')ex=ex||e2;
   const need=S.need,hp=need?Math.min(1,LV.h/need):1,cs=conds();
-  const btn=t==='fight'?`🙏 仲直りの 話を する<small>${esc(F.t)}</small>`:t==='event'?`${isProp()?'💍':'✨'} 特別な 日：${esc(evNow().t)}<small>${isProp()?(LV.pf?`もう一度… 成功率 ${propPct()}%`:'成功率 10%… 運も ひつよう'):LV.ev?'もう一度 ちょうせん':LV.st===3?'プロポーズの 前の 関門':'段階アップの チャンス'}</small>`:t==='done'?`🌙 きょうは もう 会えたよ<small>また あした</small>`:`💗 きょうの 時間を すごす<small>${LV.n?`ふたりの 時間 ${LV.n}日め`:'英語で ちょっと おしゃべり'}</small>`;
+  const btn=t==='fight'?`🙏 仲直りの 話を する<small>${esc(F.t)}</small>`:t==='event'?`${isProp()?'💍':'✨'} 特別な 日：${esc(evNow().t)}<small>${isProp()?(LV.pf?`もう一度… 成功率 ${propPct()}%`:'成功率 10%… 運も ひつよう'):LV.ev?'もう一度 ちょうせん':'段階アップの チャンス'}</small>`:t==='done'?`🌙 きょうは もう 会えたよ<small>また あした</small>`:`💗 きょうの 時間を すごす<small>${LV.n?`ふたりの 時間 ${LV.n}日め`:'英語で ちょっと おしゃべり'}</small>`;
   H.show('love',`<section class="pnl lvp">
     <div class="qtop"><button class="x" id="lvx" aria-label="もどる">←</button><b>💗 ミナ先生との 時間</b><span class="qn">${S.ico}</span></div>
     <div class="mtalk"><span class="mbig lvbig">${face(ex,tx,pose)}</span><p class="mline">${tx}</p></div>
@@ -342,7 +346,7 @@ function phrases(){hush();const by={};Object.entries(LV.ph).forEach(([en,p])=>{(
   H.show('love',`<section class="pnl lvp">
     <div class="qtop"><button class="x" id="lvx" aria-label="もどる">←</button><b>📔 恋の フレーズ帳</b><span class="qn">${phN()}</span></div>
     <div class="kmina"><span class="lface">${face(ex,tx)}</span><p>${tx}</p></div>
-    <div class="lvbook">${Object.entries(CATS).map(([c,[ico,n]])=>{const L=(by[c]||[]).sort((a,b)=>a[1].t-b[1].t);
+    <div class="lvbook">${Object.entries(CATS).filter(([c])=>c!=='propose'||by[c]||lvl()>=3.5).map(([c,[ico,n]])=>{const L=(by[c]||[]).sort((a,b)=>a[1].t-b[1].t);
       return `<details class="mfold${L.length?'':' lvlock'}"><summary>${ico} ${n}<small>${L.length?L.length+'こ':c==='propose'?'？？？':'まだ'}</small></summary><div class="mfbody lvphl">
         ${L.length?L.map(([en,p])=>`<button data-say="${esc(en)}"><span class="en">${esc(en)}</span><span class="ja">${esc(p.j||'')}</span></button>`).join(''):`<p class="note">${c==='propose'?'💍 いつか きっと…':'ミナ先生との 会話で 正しく 言えると たまるよ'}</p>`}</div></details>`}).join('')}</div>
   </section>`);
@@ -463,7 +467,7 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_lvJeal',5,()=>LV.jeal&&todo()==='day'?{}:null,()=>['💗 ふたりの 時間へ',()=>open(H.home)]],
  ['x_lvMem',1,()=>memN()>=2?{n:memN()}:null,()=>['💗 ふたりの 時間へ',()=>open(H.home)]],
  ['x_lvAnniv',1,()=>LV.n>=7?{n:LV.n}:null,null],
- ['x_lvGiftLove',2,()=>{try{const L=ZAKKA.items.filter(i=>i.love&&LV.st>=i.love);return L.length?{n:pickL(L).n}:null}catch(e){return null}},()=>['🏚️ 雑貨屋へ 行く',()=>ZAKKA.open()]]);
+ ['x_lvGiftLove',2,()=>{try{const L=ZAKKA.items.filter(i=>i.love&&lvl()>=i.love);return L.length?{n:pickL(L).n}:null}catch(e){return null}},()=>['🏚️ 雑貨屋へ 行く',()=>ZAKKA.open()]]);
 
 /* ================================================================ 第3弾: 日記・約束・アルバム・図鑑・称号・ひみつ・ラブレター・リクエスト */
 const who3=()=>['my student','a certain student','my special person','my love','my partner-to-be','my partner'][sx()];
@@ -500,11 +504,11 @@ function album(){hush();ifs();const [ex,tx]=ML('lv_album',{});const fs=LOVE_FACE
     <div class="qtop"><button class="x" id="lvx" aria-label="もどる">←</button><b>📸 アルバム</b><span class="qn">💗</span></div>
     <div class="kmina"><span class="lface">${face(ex,tx)}</span><p>${tx}</p></div>
     <div class="lvbook">
-    <details class="mfold"><summary>🔒 先生の ひみつ<small>${Object.keys(LV.sec).length}/${LOVE_SECRETS.length}${newSecret()?' 🆕':''}</small></summary><div class="mfbody lvphl">${LOVE_SECRETS.map((x,i)=>secOpen(x)?`<button data-sec="${i}"><span class="en">🔓 ${esc(x.t)}${LV.sec[x.t]?'':' 🆕'}</span></button>`:`<p class="note">🔒 ？？？（${STG[x.st].n}${x.n?`・ふたりの 時間 ${x.n}日`:''}）</p>`).join('')}</div></details>
-    <details class="mfold"><summary>🖼️ 恋の 表情図鑑<small>${fs}/${LOVE_FACES.length}</small></summary><div class="mfbody"><div class="lvfaces">${LOVE_FACES.map(f=>f[5](LV)?`<span><i>${face(f[1],'',f[2])}</i><small>${esc(f[3])}</small></span>`:`<span class="no"><i>？</i><small>${esc(f[4])}</small></span>`).join('')}</div></div></details>
-    <details class="mfold"><summary>🏅 ふたりの 称号<small>${ts}/${LOVE_TITLES.length}</small></summary><div class="mfbody lvbody">${LOVE_TITLES.map(x=>x[1](LV)?`<p class="lvtt">🏅 <b>${esc(x[0])}</b></p>`:`<p class="lvtt no">？？？ <small>${esc(x[2])}</small></p>`).join('')}</div></details>
-    <details class="mfold"><summary>📸 ふたりの 思い出<small>${memN()}/${memAll()}</small></summary><div class="mfbody lvbody">${memories()||'<p class="note">デートや イベントの エンドが ここに のこるよ</p>'}${LV.hist.length?'<hr class="lvhr">'+LV.hist.slice().reverse().map(h=>`<p class="lvtt"><small>${esc(h.d)}</small> ${HISTN[h.k]?HISTN[h.k](h):''}</p>`).join(''):''}</div></details>
-    <details class="mfold"><summary>🌙 もしもエンド<small>${ifs().length}/${LOVE_IF.length}</small></summary><div class="mfbody lvphl">${LOVE_IF.map((x,i)=>LV.ifs[x.id]?`<button data-if="${i}"><span class="en">🌙 ${esc(x.t)}</span></button>`:`<p class="note">🔒 ？？？（${esc(x.hint)}）</p>`).join('')}</div></details>
+    <details class="mfold"><summary>🔒 先生の ひみつ<small>${Object.keys(LV.sec).length}/${LOVE_SECRETS.length}${newSecret()?' 🆕':''}</small></summary><div class="mfbody lvphl">${LOVE_SECRETS.map((x,i)=>secOpen(x)?`<button data-sec="${i}"><span class="en">🔓 ${esc(x.t)}${LV.sec[x.t]?'':' 🆕'}</span></button>`:`<p class="note">🔒 ？？？（${x.st>LV.st?'もっと なかよく なったら':`${STG[x.st].n}${x.n?`・ふたりの 時間 ${x.n}日`:''}`}）</p>`).join('')}</div></details>
+    <details class="mfold"><summary>🖼️ 恋の 表情図鑑<small>${fs}/${LOVE_FACES.length}</small></summary><div class="mfbody"><div class="lvfaces">${LOVE_FACES.map(f=>f[5](LV)?`<span><i>${face(f[1],'',f[2])}</i><small>${esc(f[3])}</small></span>`:`<span class="no"><i>？</i><small>${esc(veil(f[4]))}</small></span>`).join('')}</div></div></details>
+    <details class="mfold"><summary>🏅 ふたりの 称号<small>${ts}/${LOVE_TITLES.length}</small></summary><div class="mfbody lvbody">${LOVE_TITLES.map(x=>x[1](LV)?`<p class="lvtt">🏅 <b>${esc(x[0])}</b></p>`:`<p class="lvtt no">？？？ <small>${esc(veil(x[2]))}</small></p>`).join('')}</div></details>
+    <details class="mfold"><summary>📸 ふたりの 思い出<small>${memN()}/${memAll()}</small></summary><div class="mfbody lvbody">${memories()||'<p class="note">ふたりの イベントの エンドが ここに のこるよ</p>'}${LV.hist.length?'<hr class="lvhr">'+LV.hist.slice().reverse().map(h=>`<p class="lvtt"><small>${esc(h.d)}</small> ${HISTN[h.k]?HISTN[h.k](h):''}</p>`).join(''):''}</div></details>
+    <details class="mfold"><summary>🌙 もしもエンド<small>${ifs().length}/${LOVE_IF.length}</small></summary><div class="mfbody lvphl">${LOVE_IF.map((x,i)=>LV.ifs[x.id]?`<button data-if="${i}"><span class="en">🌙 ${esc(x.t)}</span></button>`:`<p class="note">🔒 ？？？${veil(x.hint)==='？？？'?'':`（${esc(x.hint)}）`}</p>`).join('')}</div></details>
     ${LV.baby?`<details class="mfold"><summary>👶 家族<small>${LV.kid?'3人':'もうすぐ'}</small></summary><div class="mfbody lvbody">${[LOVE_BABY,LOVE_BIRTH].filter(S=>['good','ok','fun'].some(k=>LV.ends[S.id+':'+k])).map(S=>`<p class="lvmem"><b>${S.ico} ${esc(S.t)}</b><span class="kends">${['good','ok'].map(k=>LV.ends[S.id+':'+k]?`<span class="${k==='good'?'g':''}">${esc(S.ends[k][0])}</span>`:'<span class="no">？？？</span>').join('')}</span></p>`).join('')}${LV.kid?LOVE_FAMILY.map(f=>`<p class="lvtt">${esc(f[1])}</p>`).join(''):''}</div></details>`:''}
     <details class="mfold"><summary>📓 先生の 日記（こっそり）<small>${LV.diary.length}</small></summary><div class="mfbody lvphl">${LV.diary.slice().reverse().slice(0,20).map(e=>`<button data-say="${esc(e.en)}"><span class="ja">${esc(e.d)}</span><span class="en">${esc(e.en)}</span><span class="ja">${esc(e.ja)}</span></button>`).join('')||'<p class="note">まだ 白い ページ…</p>'}</div></details>
     </div>
@@ -613,6 +617,6 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_lvPropWait',2,()=>isProp()&&ringOk()&&LV.pf&&propWait()?{}:null,null],
  ['x_lvFamily',2,()=>LV.kid?{}:null,()=>['💗 ふたりの 時間へ',()=>open(H.home)]]);
 
-window.LOVE={open,btn,bind,greet,phrases,todo,mood,ready,conds,gift,cardWin,letterDue,letter,album,rec:()=>LV,
+window.LOVE={lvl,open,btn,bind,greet,phrases,todo,mood,ready,conds,gift,cardWin,letterDue,letter,album,rec:()=>LV,
   _test:{set:o=>{Object.assign(LV,o);save()},reset:()=>{LV.day='';LV.rd='';save()},fight:i=>{LV.fight={i:i||0,d:dk(),tries:0};LV.day='';save()},story:(S,k)=>story(S,k)}};
 })();
