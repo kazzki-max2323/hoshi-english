@@ -245,11 +245,11 @@ setInterval(()=>{const now=performance.now(),dt=now-bgLast;bgLast=now;if(documen
   if(bgAt<bgNext||$('ar')||cheerOn)return;bgAt=0;bgNext=BG_GAP();const it=bgPick();if(!it)return;
   toast(`${it.ico} ${it.n}`,2200);try{it.k==='show'?SC.show(it.id,it.sec):SC.play(it.id)}catch(e){}},2000);
 
-/* ---------- shooting stars at night: tap one to catch coins (now and then a golden one) ---------- */
-let metAt=performance.now()+(1+Math.random()*2)*60000;
+/* ---------- shooting stars at night: tap one to catch coins (now and then a golden one). Every 6-15 minutes (was 2-5: too often) ---------- */
+let metAt=performance.now()+(3+Math.random()*6)*60000;
 setInterval(()=>{if(document.hidden||$('meteor'))return;const now=performance.now();if(now<metAt)return;
   let night=false;try{night=SC.dbg().dark>.6}catch(e){}if(!night||$('ar')){metAt=now+30000;return}
-  metAt=now+(2+Math.random()*3)*60000;spawnMeteor(Math.random()<.08)},2000);
+  metAt=now+(6+Math.random()*9)*60000;spawnMeteor(Math.random()<.08)},2000);
 function spawnMeteor(gold){const W=$('window').getBoundingClientRect(),b=document.createElement('button');b.id='meteor';if(gold)b.className='rare';
   b.setAttribute('aria-label','流れ星');b.innerHTML='<b></b><i></i>'+(gold?'<em></em>':'');document.body.appendChild(b);
   const ltr=Math.random()<.5,x0=W.left+(ltr?.05+Math.random()*.25:.7+Math.random()*.25)*W.width,y0=W.top+(.06+Math.random()*.12)*W.height,
@@ -261,7 +261,7 @@ function spawnMeteor(gold){const W=$('window').getBoundingClientRect(),b=documen
     const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,amt=gold?50:5+(Math.random()*6|0);
     FX.ring(cx,cy,gold?'#ffd23f':'#cfe3ff');FX.firework(cx,cy);SFX.chime();coinBurst(cx,cy,amt,gold);
     toast(gold?`🌟 金の 流れ星を つかまえた！ <b>+${amt}</b>`:`🌠 流れ星を つかまえた！ <b>+${amt}</b>`,2200);setTimeout(()=>b.remove(),600)})}
-/* the beach sends its own shooting star too (every 5 minutes at night, and when a treasure chest opens).
+/* the beach sends its own shooting star too (every 15 minutes at night, and when a treasure chest opens).
    It was only painted on the effects canvas, which ignores taps, so it looked catchable but did nothing: send a catchable one instead */
 FX.meteor=()=>{let night=false;try{night=SC.dbg().dark>.6}catch(e){}if(night&&!$('meteor'))spawnMeteor(Math.random()<.08)};
 
