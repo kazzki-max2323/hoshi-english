@@ -113,24 +113,48 @@ const mline=(k,v)=>MINA.line(k,v||{});
 const minaBox=(k,v)=>{const [ex,tx]=mline(k,v);return `<div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>`};
 
 /* ================================================================ the hut on the beach */
-const HUT=`<svg viewBox="0 0 60 52" aria-hidden="true">
-  <ellipse cx="30" cy="50" rx="27" ry="2.4" fill="rgba(0,0,0,.28)"/>
-  <rect x="9" y="22" width="40" height="27" rx="1" fill="#8a6a4a"/>
-  <g stroke="#6e5238" stroke-width=".7"><line x1="9" y1="28" x2="49" y2="28"/><line x1="9" y1="34" x2="49" y2="34"/><line x1="9" y1="40" x2="49" y2="40"/><line x1="9" y1="46" x2="49" y2="46"/></g>
-  <path d="M4 24 L29 9 L55 24 Z" fill="#6b5a46"/><path d="M4 24 L29 9 L55 24" fill="none" stroke="#a48a66" stroke-width="1.2"/>
-  <rect class="zkWin" x="14" y="29" width="11" height="9" rx="1" fill="#2b2a3a"/><line x1="19.5" y1="29" x2="19.5" y2="38" stroke="#6e5238" stroke-width=".8"/>
-  <rect x="32" y="30" width="10" height="19" rx="1" fill="#5a4330"/><circle cx="40" cy="40" r=".9" fill="#d8b878"/>
-  <line x1="45" y1="16" x2="45" y2="21" stroke="#4a3a2a" stroke-width=".6"/><rect x="40" y="20" width="12" height="5" rx="1" fill="#c9b08a"/>
-  <text x="46" y="24" font-size="3.6" text-anchor="middle" fill="#5a4330" font-family="Georgia,serif">SHOP</text>
-  <g class="zkLamp"><circle cx="29" cy="20" r="5" fill="url(#zkg)"/><circle cx="29" cy="20" r="1.3" fill="#ffe7a8"/></g>
+const HUT=`<svg viewBox="0 0 64 56" aria-hidden="true">
+  <ellipse cx="32" cy="53.4" rx="31" ry="2.6" fill="rgba(0,0,0,.28)"/>
+  <path d="M6 49 L58 49 L59 52 L5 52 Z" fill="#b8956a" stroke="#6e5238" stroke-width=".6"/><path d="M18 49 L17.6 52 M30 49 L30.4 52 M44 49 L43.6 52" stroke="#8a6a4a" stroke-width=".5"/>
+  <path d="M10.0 24 Q30.7 23.5 51.4 24.3 L51.0 29 Q30.7 29.4 10.6 29 Z" fill="#9c7a56" stroke="#5e4630" stroke-width=".5"/><ellipse cx="14" cy="26.5" rx="1" ry=".6" fill="#6e5238" opacity=".7"/><path d="M8.8 29 Q29.4 28.5 50.0 29.3 L49.6 34 Q29.4 34.4 9.4 34 Z" fill="#8a6a4a" stroke="#5e4630" stroke-width=".5"/><ellipse cx="23" cy="31.5" rx="1" ry=".6" fill="#6e5238" opacity=".7"/><path d="M10.0 34 Q30.7 33.5 51.4 34.3 L51.0 39 Q30.7 39.4 10.6 39 Z" fill="#a8865e" stroke="#5e4630" stroke-width=".5"/><ellipse cx="32" cy="36.5" rx="1" ry=".6" fill="#6e5238" opacity=".7"/><path d="M8.8 39 Q29.4 38.5 50.0 39.3 L49.6 44 Q29.4 44.4 9.4 44 Z" fill="#94704e" stroke="#5e4630" stroke-width=".5"/><ellipse cx="41" cy="41.5" rx="1" ry=".6" fill="#6e5238" opacity=".7"/><path d="M10.0 44 Q30.7 43.5 51.4 44.3 L51.0 49 Q30.7 49.4 10.6 49 Z" fill="#9c7a56" stroke="#5e4630" stroke-width=".5"/><ellipse cx="18" cy="46.5" rx="1" ry=".6" fill="#6e5238" opacity=".7"/>
+  <path d="M3 26 L4.8 29.6 L6.6 26 L8.4 28.4 L10.2 26 L12.0 29.6 L13.8 26 L15.6 28.4 L17.4 26 L19.2 29.6 L21.0 26 L22.8 28.4 L24.6 26 L26.4 29.6 L28.2 26 L30.0 28.4 L31.8 26 L33.6 29.6 L35.4 26 L37.2 28.4 L39.0 26 L40.8 29.6 L42.6 26 L44.4 28.4 L46.2 26 L48.0 29.6 L49.8 26 L51.6 28.4 L53.4 26 L55.2 29.6 L57.0 26 L58.8 28.4 L60.6 26 L60.8 29.6 L61.0 26 L32 6 Z" fill="#d6b56a"/>
+  <path d="M3 26 L32 6 L61 26" fill="none" stroke="#9c7a3a" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M12 20 L14 26 M20 14.6 L22 25 M28 9 L29 25 M36 9 L35 25 M44 14.6 L42 25 M52 20 L50 26" stroke="#b08a44" stroke-width=".6"/>
+  <path d="M3 26 L4.8 29.6 L6.6 26 L8.4 28.4 L10.2 26 L12.0 29.6 L13.8 26 L15.6 28.4 L17.4 26 L19.2 29.6 L21.0 26 L22.8 28.4 L24.6 26 L26.4 29.6 L28.2 26 L30.0 28.4 L31.8 26 L33.6 29.6 L35.4 26 L37.2 28.4 L39.0 26 L40.8 29.6 L42.6 26 L44.4 28.4 L46.2 26 L48.0 29.6 L49.8 26 L51.6 28.4 L53.4 26 L55.2 29.6 L57.0 26 L58.8 28.4 L60.6 26 L60.8 29.6 L61.0 26" fill="none" stroke="#9c7a3a" stroke-width=".6"/>
+  <path d="M26 6.4 Q32 3.6 38 6.4" stroke="#7a5a2a" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+  <g class="zkPip"><path d="M51.4 21.4 Q49.6 17 52 14.6 Q55 13.6 55.6 16.6 Q55.8 20 53.6 22 Z" fill="#3fbf6a"/><path d="M52 14.8 Q53.4 12.6 55.2 14.2 Q54.2 15.4 53 15.6 Z" fill="#e8463e"/>
+   <path d="M55.4 15.4 L57.2 16.2 L55.4 17 Z" fill="#ffcf4a"/><circle cx="54.2" cy="15.6" r=".5" fill="#1a1a1a"/><path d="M52.6 21.6 L51.6 24.6 L53.6 22.4 Z" fill="#2f8fe0"/><path d="M50.6 18.6 Q50 21 51.6 22" stroke="#2fa75a" stroke-width=".7" fill="none"/></g>
+  <rect x="13" y="30" width="13" height="10" rx="1" fill="#3a2f2a" stroke="#5e4630" stroke-width=".8"/>
+  <rect class="zkWin" x="14" y="31" width="11" height="8" rx=".6" fill="#2b2a3a"/><path d="M19.5 31 V39 M14 35 H25" stroke="#5e4630" stroke-width=".7"/>
+  <path d="M10.4 30 L13 30 L13 40 L10.4 40 Z M26 30 L28.6 30 L28.6 40 L26 40 Z" fill="#7fb6c4" stroke="#4e7f8c" stroke-width=".5"/>
+  <path d="M11.7 31 V39 M27.3 31 V39" stroke="#5e95a4" stroke-width=".4"/>
+  <rect x="12.6" y="40" width="14" height="1.6" rx=".5" fill="#c49462"/>
+  <circle cx="16" cy="38.6" r="1.4" fill="#7fd0e8" opacity=".9"/><path d="M21 39.8 L21 36.6 L22.4 36.6 L22.4 39.8 Z" fill="#6fbf7a"/><circle cx="23.6" cy="39" r=".9" fill="#ff9ab0"/>
+  <rect x="33" y="30" width="12" height="19" rx="1" fill="#6e5238" stroke="#4a3624" stroke-width=".7"/><path d="M37 30 V49 M41 30 V49" stroke="#5a4330" stroke-width=".5"/><circle cx="43" cy="40" r=".8" fill="#d8b878"/>
+  <path d="M39 35 L39.6 36.6 L41.3 36.7 L40 37.8 L40.4 39.4 L39 38.5 L37.6 39.4 L38 37.8 L36.7 36.7 L38.4 36.6 Z" fill="#ff9a6a"/>
+  <path d="M34 26.6 L35 28.4 M44 26.6 L43 28.4" stroke="#6e5238" stroke-width=".4"/>
+  <path d="M32 28.2 Q39 27.2 46 28.6 L45.6 32 Q39 31 32.4 31.8 Z" fill="#c9b08a" stroke="#6e5238" stroke-width=".5" transform="rotate(-3 39 30)"/>
+  <text x="39" y="30.9" font-size="3.2" text-anchor="middle" fill="#5a4330" font-family="Georgia,serif" font-weight="bold" transform="rotate(-3 39 30)">SHOP</text>
+  <path d="M8 27 Q12 30 16 27.6 M24 27.4 Q28 30.4 31 27.6" stroke="#e9dcc0" stroke-width=".4" fill="none"/>
+  <circle cx="10" cy="28.6" r=".9" fill="#fff4e6"/><circle cx="13.6" cy="29.4" r=".8" fill="#ffd1dc"/><circle cx="26.6" cy="29.2" r=".8" fill="#fff4e6"/><circle cx="29.6" cy="28.8" r=".9" fill="#cdeaff"/>
+  <g class="zkNet"><path d="M47 24 Q52 30 50.6 42 L48 45" fill="none" stroke="#e4d8bc" stroke-width=".5"/><path d="M48 26 L51 36 M50 26 Q48 34 49.4 42" stroke="#e4d8bc" stroke-width=".35" fill="none"/>
+   <circle cx="51" cy="38" r="2.6" fill="#5fb0e0" stroke="#e4d8bc" stroke-width=".4"/><circle cx="50.2" cy="37.2" r=".8" fill="#fff" opacity=".7"/></g>
+  <g class="zkBarrel"><path d="M54 40 Q53 44.6 54 49 L61 49 Q62 44.6 61 40 Z" fill="#9c6b3d" stroke="#5e4630" stroke-width=".5"/><path d="M53.6 42.6 H61.4 M53.6 46.6 H61.4" stroke="#5e4630" stroke-width=".7"/>
+   <path d="M55 40 L55.6 35.6 M57.4 40 L57.4 34.6 M59.6 40 L59.2 36" stroke="#6fbf7a" stroke-width="1.2" stroke-linecap="round"/><circle cx="57.4" cy="34.4" r="1" fill="#ffcf4a"/></g>
+  <g class="zkCrate"><rect x="3" y="43" width="7" height="6" fill="#c49462" stroke="#6e5238" stroke-width=".5"/><path d="M3 43 L10 49 M10 43 L3 49" stroke="#8a6a4a" stroke-width=".4"/>
+   <path d="M5 43 L5 39.6 Q5 38.6 5.6 38.6 Q6.2 38.6 6.2 39.6 L6.2 43 Z" fill="#7fd0c0" opacity=".9"/><path d="M7.4 43 L7.4 40.6 Q7.4 39.8 8 39.8 Q8.6 39.8 8.6 40.6 L8.6 43 Z" fill="#a8c8ff" opacity=".9"/></g>
+  <path d="M30.6 29 L30.6 32" stroke="#4a3a2a" stroke-width=".5"/>
+  <g class="zkLamp"><circle cx="30.6" cy="34.2" r="6" fill="url(#zkg)"/></g>
+  <path d="M29.2 32 L32 32 L31.6 36 L29.6 36 Z" fill="#4a3a2a"/><rect class="zkWin" x="29.8" y="32.6" width="1.6" height="2.8" fill="#2b2a3a"/>
   <defs><radialGradient id="zkg"><stop offset="0" stop-color="rgba(255,210,130,.9)"/><stop offset="1" stop-color="rgba(255,210,130,0)"/></radialGradient></defs>
 </svg>`;
 function hut(){let b=$('zkHut');const w=$('window');if(!w)return;
   if(!b){b=document.createElement('button');b.id='zkHut';b.setAttribute('aria-label','浜辺の 雑貨屋');b.innerHTML=HUT;w.appendChild(b);
     b.onclick=e=>{e.stopPropagation();if(H.screen!=='home')return;SFX.shop();open()}}
   let d;try{d=SCENE.dbg()}catch(e){return}
-  const k=d.k,wd=Math.round(44*k);b.style.width=wd+'px';
-  b.style.left=Math.round(d.WW*.9-wd/2)+'px';b.style.top=Math.round(d.shore-d.WT+34*k-wd*52/60)+'px';
+  /* game.js sandSpots() and cg.js hut() use this size and place too: change them together */
+  const k=d.k,wd=Math.round(50*k);b.style.width=wd+'px';
+  b.style.left=Math.round(d.WW*.9-wd/2)+'px';b.style.top=Math.round(d.shore-d.WT+36*k-wd*53.4/64)+'px';
   const dk=Math.max(0,Math.min(1,d.dark||0));b.style.setProperty('--dk',dk.toFixed(2));
   b.classList.toggle('off',H.screen!=='home')}
 setTimeout(hut,500);addEventListener('resize',()=>setTimeout(hut,200));setInterval(hut,2500);
