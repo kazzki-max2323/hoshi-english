@@ -356,7 +356,7 @@ addEventListener('pointerdown',e=>{const P=window._tidePts;if(!P||!P.length||!bg
 addEventListener('pointerdown',e=>{if(performance.now()-(window._snowOn||0)>500||!bg(e.target))return;let d;try{d=SCENE.dbg()}catch(err){return}const py=e.clientY+scrollY;if(py<d.shore+12*d.k)return;return;const cv=null;const g=null,k=d.k;
   g.save();g.fillStyle='rgba(120,135,170,.5)';for(const [dx,dy,r] of [[-5,4,-.15],[5,-4,.15]]){g.save();g.translate(e.clientX+dx*k,py+dy*k);g.rotate(r);g.beginPath();g.ellipse(0,0,3*k,6*k,0,0,7);g.fill();g.restore()}g.restore();tsnd(()=>noise(.18,{v:.03,type:'lowpass',f:900}))},true);
 let ducked=false;
-setInterval(()=>{if(!document.hidden&&S.phase!=='busy')FX.meteor()},300000);
+setInterval(()=>{if(!document.hidden&&S.phase!=='busy')FX.meteor()},900000);
 const SCENE=(()=>{
   const cv=$('stars'),x=cv.getContext('2d');
   let glints=[],foam=[],wet=[],W,H,k,hz,shore,desk=false,DPR,WL=0,WT=0,WW=0,WH=0,bg,twk=[],clouds=[],embers=[],flames=[],smoke=[],booms=[],t=0,last=0,shown=-1,moonX,moonY,moonR;
