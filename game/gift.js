@@ -195,7 +195,7 @@ function end(){if(!live())return;const {p,t,it,to}=C;
   GF.n++;GF.gave[to]=(GF.gave[to]||0)+1;if(C.fun)GF.fun+=C.fun;
   /* なかよし */
   let heart='';
-  if(to==='mina'){const pts=it.lux?30:[1,3,6,10][t];try{MOTI.gain(pts)}catch(e){}heart=`❤️ ミナ先生と なかよし +${pts}`}
+  if(to==='mina'){const pts=it.lux?30:[1,3,6,10][t];try{MOTI.gain(pts)}catch(e){}heart=`❤️ ミナ先生と なかよし +${pts}`;try{const lh=window.LOVE?LOVE.gift(t,it):'';if(lh)heart+=`　${lh}`}catch(e){}}
   else if(window.KAIWA&&KAIWA.chars[to]){const K=KAIWA.rec(),add=t>=2?2:1;K.heart[to]=(K.heart[to]||0)+add;heart=`${KAIWA.chars[to].ico} ${esc(p.n)}と なかよし ${'♥'.repeat(add)}`}
   else heart=`${PP[to].ico} ${esc(p.n)}、 ${t>=2?'とても よろこんでた':'よろこんでた'}`;
   const coins=newEnd?(t>=2?5:3):0;

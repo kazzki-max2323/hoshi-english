@@ -59,3 +59,11 @@
 .lvphl button{display:flex;flex-direction:column;align-items:flex-start;text-align:left;gap:1px;padding:6px 10px!important}
 .lvphl .en{font-family:"Libre Baskerville",Georgia,serif;font-weight:700;font-size:.84rem}
 .lvphl .ja{font-size:.7rem;color:#ffd1e0}
+/* 第2弾: 思い出・ヒント・ノラさん */
+.lvmem{margin:0;display:flex;flex-direction:column;gap:3px}
+.lvmem b{font-size:.78rem}
+.lvmem .kends{justify-content:flex-start}
+.lvhint{margin:0;font-size:.76rem;line-height:1.6;background:rgba(255,210,63,.1);border:1px dashed rgba(255,210,63,.5);border-radius:10px;padding:6px 10px}
+.lvnora{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:1.5rem;background:#3a2f1f}
+.lvtopics button small{font-size:.6rem;min-height:.8em}
+.lvdates{grid-template-columns:repeat(2,1fr)}
