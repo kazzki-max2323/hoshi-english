@@ -1,12 +1,14 @@
 /* ことばカードの 対戦。 カードの しくみは game/cg.js
    - カードには ⚔攻撃力・🛡防御力・❤HP。 むずかしい 単語ほど 数字が 高い（問題も むずかしい）。 ★で 育つ
-   - デッキ（15まいまで）から 4まいが ランダムで 出る。 場に 3まい、 のこりは ひかえ。 HPが 0に なると たおれて ひかえが 出る
+   - 対戦の まえに、 少し バランスを とった ランダムの 8まいから 4まい えらぶ（デッキ編集は なし）。 場に 3まい、 のこりは ひかえ。 HPが 0に なると たおれて ひかえが 出る
    - 相手の カードを ぜんぶ たおしたら 勝ち
    - 攻撃: その カードの 問題に 正解で ⚔そのまま、 はやく 正解で クリティカル（1.5ばい）、 まちがいで 半分
      苦手カードで 正解すると 逆転（2ばい）、 わすれかけカードは 1.5ばい
    - 防御: 攻撃してきた 相手の カードの 問題に 正解で 🛡が きく（はやいと 2ばい）。 まちがいで そのまま うける
      （相手の デッキの いろんな 単語に 出会える。 自分の 強い カードばかりの 問題に ならない）
-   - 同じ カードで 2ターン つづけて 攻撃すると 💦つかれて ⚔×0.7。 いろんな カードを 使おう
+   - カードごとに 1つの 印（cg.js trait）。 弱い カードは 1回だけの サポート（💚なおす・🛡️まもる・⚡おうえん・💡ひらめき）、
+     強い カードは ⏳チャージ（攻撃の あと 休む）・🔋エネルギー（✨を 使う。 ✨は 毎ターン 1 たまる）・🃏切り札（1回だけ ×2 防御むし）。
+     強い カードは ここぞの 一撃、 そのあいだは ほかの カードで 戦う
    - ことばコンボ: 場の 2まいが 自然な 組み合わせ（heavy + rain）なら 合体攻撃＝⚔の 合計×1.5で 防御むし。
      英語で 言わない 組み合わせ（strong rain）は 不発で、 正しい 言い方を 教えてくれる
    - 段位で ひらく: ⚡ 反対語アタック（2ばい）／🛡️ なかまガード（同じ なかまが ならぶと 🛡+2）／⛓️ 必殺（3まいが コンボで つながると 相手の 場 ぜんぶに 攻撃）
@@ -64,15 +66,23 @@ const side=k=>B[k];
 function unit(id,k){const I=C.info(id),F=B.F;let S;
   if(k==='me'){S=C.cstat(id);if(I.a===C.wind()[0])S=Object.assign({},S,{a:S.a+1,w:1})}
   else{S=Object.assign({},C.cstat(id,Math.min(5,1+foeStar(F))));S.a+=Math.floor(B.lv/3)+(F.mina?1:0);S.h=Math.round(S.h*(1+B.lv*.07))}
-  return {u:++uid,id,k,I,a:S.a,d:S.d,hp:S.h,max:S.h,w:S.w||0}}
+  return {u:++uid,id,k,I,T:C.trait(id),a:S.a,d:S.d,hp:S.h,max:S.h,w:S.w||0}}
 const alive=k=>side(k).field.length+side(k).bench.length;
 const hpSum=k=>[...side(k).field,...side(k).bench].reduce((a,x)=>a+Math.max(0,x.hp),0);
 /* the same kind (なかま) side by side: 🛡+2 */
 function buddy(x){if(!C.ruleOn('guard'))return false;const f=side(x.k).field;return f.some(y=>y!==x&&C.syn(x.I.h).includes(y.I.h))}
 const defOf=x=>x.d+(buddy(x)?2:0);
 const atkOf=x=>x.a+(x.k==='ai'&&B.rage?2:0)+(x.k==='ai'&&B.fx.boost?2:0);
-/* attacking with the same card two turns in a row tires it */
-const tired=x=>x.k==='me'&&x.last!=null&&x.last===B.turn-1;
+/* each card's mark (game/cg.js trait): ⏳ rests after attacking, 🔋 spends ✨, 🃏 one big hit then guard only, 💚🛡️⚡💡 a one-time support */
+const chargeOf=x=>x.T&&x.T.k==='cd'?x.T.n:0;
+const costOf=x=>x.T&&x.T.k==='en'?x.T.n:0;
+const nowOf=k=>k==='me'?B.turn:(B.aiN||0);
+const wait_=x=>Math.max(0,(x.ready||0)-nowOf(x.k));
+/* why this card can't attack now ('' = it can) */
+function why(x){if(x.T&&x.T.k==='ace'&&x.aceUsed)return 'ace';if(wait_(x))return 'cd';if(costOf(x)>side(x.k).en)return 'en';return ''}
+const ready=x=>!why(x);
+function used(x){x.ready=nowOf(x.k)+chargeOf(x)+1;const S=side(x.k);S.en=Math.max(0,S.en-costOf(x))}
+const MAX_EN=5;
 const anti=(x,y)=>C.ruleOn('counter')&&C.anto(x.I.h).includes(y.I.h);
 /* the combo between two cards on the field, either way round */
 const comboOf=(x,y)=>(x.I.k==='w'||x.I.k==='t')&&(y.I.k==='w'||y.I.k==='t')?C.comboOf(x.I.h,y.I.h)||C.comboOf(y.I.h,x.I.h):null;
@@ -81,43 +91,48 @@ const wrongOf=(x,y)=>C.wrongOf(x.I.h,y.I.h)||C.wrongOf(y.I.h,x.I.h);
 function chainOf(us){if(us.length!==3)return null;const ps=[];for(let i=0;i<3;i++)for(let j=i+1;j<3;j++){const c=comboOf(us[i],us[j]);if(c)ps.push(c)}return ps.length>=2?ps.slice(0,2):null}
 
 function start(id,opt={}){const F=foe(id);if(!F)return;
-  if(!C.deckOk()){C.autoDeck();H.toast('🗂️ デッキを おまかせで 組んだよ<small>ショップの 「デッキ」で 入れかえられるよ</small>',3200)}
-  const lv=foeLv(F);B={F,opt,lv,turn:0,me:{field:[],bench:[]},ai:{field:[],bench:[]},sel:[],busy:true,rage:false,spU:0,spN:lv>=2?2:1,fx:{},lastCombo:0,qtype:null,
+  C.pickBattle(F,ids=>begin(F,opt,ids),opt.pickBack||opt.back||(()=>menu()))}
+function begin(F,opt,ids){
+  const lv=foeLv(F);B={F,opt,lv,turn:0,me:{field:[],bench:[],en:0},ai:{field:[],bench:[],en:0},sel:[],busy:true,rage:false,spU:0,spN:lv>=2?2:1,fx:{},lastCombo:0,qtype:null,
     res:{q:[],combos:[],newCombo:[],wrong:[],stars:[],crit:0,anti:0}};
-  const mine=C.battleDraw().map(id=>unit(id,'me')),theirs=foeDeck(F).map(id=>unit(id,'ai'));B.aiMax=theirs.reduce((a,x)=>a+x.hp,0);
+  const mine=ids.map(id=>unit(id,'me')),theirs=foeDeck(F).map(id=>unit(id,'ai'));B.aiMax=theirs.reduce((a,x)=>a+x.hp,0);
   B.me.field=mine.slice(0,3);B.me.bench=mine.slice(3);B.ai.field=theirs.slice(0,3);B.ai.bench=theirs.slice(3);
   if(F.sp.k==='easy'){B.fx.easy=2;B.spU=9}
   sf('card');intro()}
 function intro(){const F=B.F;
   C.ov(`<div class="cgvs"><div class="vsf">${F.ico}</div><b>${esc(F.n)}</b><p class="en">${esc(F.hi[0])}</p><p class="ja">${esc(F.hi[1])}</p>
     <p class="vslv">${'★'.repeat(B.lv+1)}<small>Lv${B.lv+1}${B.lv?' ・ 勝つたびに 強くなる':''}</small></p><p class="vssp">得意技 <b>${esc(F.sp.n)}</b><small>${esc(F.sp.d)}${B.spN>1&&F.sp.k!=='easy'?'（2回 くる！）':''}</small></p>
-    <div class="vsdeal">${B.me.field.concat(B.me.bench).map(x=>C.face(x.id,{mini:1})).join('')}</div><small class="vsdn">きょうの メンバー（デッキから ランダム）</small><button id="vsgo">⚔️ 勝負！</button></div>`,'vs').dataset.stay=1;
+    <div class="vsdeal">${B.me.field.concat(B.me.bench).map(x=>C.face(x.id,{mini:1})).join('')}</div><small class="vsdn">きょうの メンバー</small><button id="vsgo">⚔️ 勝負！</button></div>`,'vs').dataset.stay=1;
   C.speak(F.hi[0]);snd('charge');$('vsgo').onclick=()=>{C.closeOv();snd('boom');flash('rgba(255,255,255,.5)');myTurn()}}
 
 /* ================================================================ screen */
-function unitHtml(x,o={}){const r=Math.max(0,x.hp)/x.max;
-  return `<div class="bu ${x.k} ${o.sel?'sel':''} ${o.tgt?'tgt':''} ${o.enter?'enter':''}" data-u="${x.u}">${C.face(x.id,{mini:1,st:{a:atkOf(x),d:defOf(x)},marks:x.k==='me'})}
-    <div class="buhp ${r<.35?'low':''}"><i style="width:${r*100}%"></i><span>❤${Math.max(0,x.hp)}</span></div>
-    <div class="bubf">${buddy(x)?'<i title="なかまガード">🛡️</i>':''}${x.w?'<i title="きょうの風">🌬️</i>':''}${tired(x)?'<i title="つかれ ⚔×0.7">💦</i>':''}${o.anti?'<i class="ba">⚡</i>':''}</div></div>`}
+function unitHtml(x,o={}){const r=Math.max(0,x.hp)/x.max,cw=Math.min(chargeOf(x),x.k==='me'?Math.max(0,(x.ready||0)-B.turn-(B.aiPhase?1:0)):Math.max(0,(x.ready||0)-(B.aiN||0)-(B.aiPhase?0:1)));
+  const ov=cw?`⏳<b>${cw}</b>`:x.T&&x.T.k==='ace'&&x.aceUsed?'🛡️ 守りだけ':x.k==='me'&&!B.aiPhase&&costOf(x)>B.me.en?`🔋<b>${costOf(x)}</b>`:'';
+  return `<div class="bu ${x.k} ${ov?'cd':''} ${x.supUsed?'supd':''} ${o.sel?'sel':''} ${o.tgt?'tgt':''} ${o.enter?'enter':''}" data-u="${x.u}">${C.face(x.id,{mini:1,st:{a:atkOf(x),d:defOf(x)},marks:x.k==='me'})}
+    ${ov?`<div class="bucd">${ov}</div>`:''}<div class="buhp ${r<.35?'low':''}"><i style="width:${r*100}%"></i><span>❤${Math.max(0,x.hp)}</span></div>
+    <div class="bubf">${buddy(x)?'<i title="なかまガード">🛡️</i>':''}${x.w?'<i title="きょうの風">🌬️</i>':''}${o.anti?'<i class="ba">⚡</i>':''}</div></div>`}
 function render(msg){if(!B)return;const F=B.F,me=B.me,ai=B.ai,sel=B.sel.map(u=>me.field.find(x=>x.u===u)).filter(Boolean),ent=B.enter||[];B.enter=[];
   H.show('cgb',`<section class="pnl cgbt" data-stay>
     <div class="qtop"><button class="x" id="bx" aria-label="やめる">←</button><b>⚔️ ${esc(F.n)} <small class="blv">Lv${B.lv+1}</small></b><span class="qn">ターン ${B.turn}</span></div>
-    <div class="bside ai ${B.rage?'rage':''}"><span class="bfi">${F.ico}</span><span class="bben">${ai.bench.map(()=>'🂠').join('')}<small>${alive('ai')}まい</small></span>${B.rage?'<em class="brg">🔥 本気</em>':''}</div>
+    <div class="bside ai ${B.rage?'rage':''}"><span class="bfi">${F.ico}</span><span class="bben">${ai.bench.map(()=>'🂠').join('')}<small>${alive('ai')}まい</small></span><span class="ben" title="エネルギー">✨${ai.en}</span>${B.rage?'<em class="brg">🔥 本気</em>':''}</div>
     <div class="bfrow ai">${ai.field.map(x=>unitHtml(x,{tgt:sel.length&&!B.busy,anti:sel.length===1&&anti(sel[0],x),enter:ent.includes(x.u)})).join('')}</div>
     <div class="bfield" id="bfield"><span>${msg||''}</span></div>
     <div class="bfrow me">${me.field.map(x=>unitHtml(x,{sel:B.sel.includes(x.u),enter:ent.includes(x.u)})).join('')}</div>
-    <div class="bside me"><span class="bfi">🫵</span><span class="bben">${me.bench.map(()=>'🂠').join('')}<small>${alive('me')}まい</small></span></div>
+    <div class="bside me"><span class="bfi">🫵</span><span class="bben">${me.bench.map(()=>'🂠').join('')}<small>${alive('me')}まい</small></span><span class="ben" title="エネルギー">✨${me.en}</span></div>
     <div class="bsel" id="bsel">${selInfo(sel)}</div>
   </section>`);
   $('bx').onclick=quit;
-  H.panel.querySelectorAll('.bu.me').forEach(el=>el.onclick=()=>{if(B.busy)return;const u=+el.dataset.u,i=B.sel.indexOf(u);if(i>=0)B.sel.splice(i,1);else B.sel.push(u);sf('tap');render(B.msg)});
+  const pb=$('bpass');if(pb)pb.onclick=async()=>{if(B.busy)return;B.busy=true;sf('step');say('⏳ チャージ…');await wait(500);aiTurn()};
+  H.panel.querySelectorAll('.bu.me').forEach(el=>el.onclick=()=>{if(B.busy)return;const u=+el.dataset.u,i=B.sel.indexOf(u);const x=B.me.field.find(y=>y.u===u);const w=x&&why(x);if(i<0&&w&&!(x.T.k==='sup'&&!x.supUsed)){sf('pop');H.toast(w==='cd'?`⏳ ${esc(W_(x.I))} は チャージ中<small>あと ${wait_(x)}ターンで 使えるよ</small>`:w==='en'?`🔋 ✨が たりない<small>${esc(W_(x.I))} は ✨${costOf(x)} 使う。 ✨は 毎ターン 1 たまる</small>`:`🃏 ${esc(W_(x.I))} の 切り札は もう 使った<small>あとは 守りだけ</small>`);return}if(i>=0)B.sel.splice(i,1);else B.sel.push(u);sf('tap');render(B.msg)});
+  const sb=$('bsup');if(sb)sb.onclick=()=>{if(!B.busy)support(B.me.field.find(x=>x.u===B.sel[0]))};
   H.panel.querySelectorAll('.bu.ai').forEach(el=>el.onclick=()=>{if(B.busy)return;if(!B.sel.length){sf('pop');H.toast('さきに 自分の カードを えらんでね');return}act(ai.field.find(x=>x.u===+el.dataset.u))});
   const hb=$('bhis');if(hb)hb.onclick=()=>{if(!B.busy)act(null)}}
 /* what happens with the chosen cards (combos you know show their name; new ones only sparkle) */
 function selInfo(sel){if(B.busy)return '<span class="note">…</span>';
-  if(!sel.length){const f=B.me.field;let hint='';for(let i=0;i<f.length;i++)for(let j=i+1;j<f.length;j++)if(comboOf(f[i],f[j]))hint='<br><em>✨ 場に コンボが ありそう…</em>';
+  if(!sel.length){const f=B.me.field;if(f.length&&!f.some(ready))return '<button id="bpass">⏳ みんな チャージ中… ためる（パス）</button>';let hint='';for(let i=0;i<f.length;i++)for(let j=i+1;j<f.length;j++)if(comboOf(f[i],f[j]))hint='<br><em>✨ 場に コンボが ありそう…</em>';
     return `<span class="note">自分の カードを えらんで、 相手の カードを タップ！${hint}</span>`}
-  if(sel.length===1)return `⚔ <b>${esc(W_(sel[0].I))}</b> で 攻撃 → 相手を タップ${tired(sel[0])?'<br><em>💦 つづけて 使うと つかれて ⚔×0.7</em>':''}`;
+  if(sel.length===1){const x=sel[0],T=x.T,sp=T&&T.k==='sup'&&!x.supUsed;
+    return `<div class="bs1"><span>${ready(x)?`⚔ <b>${esc(W_(x.I))}</b> で 攻撃 → 相手を タップ`:`<b>${esc(W_(x.I))}</b>`}</span><small class="btr">${T&&!(T.k==='sup'&&x.supUsed)?esc(C.traitTxt(T)):'サポートは 使った'}</small>${sp?`<br><button id="bsup" class="sub">${C.SUP[T.s][0]} ${C.SUP[T.s][1]}（ターンは つづく）</button>`:''}</div>`}
   if(sel.length===2){const c=comboOf(sel[0],sel[1]);return c?(C.rec().combo[c.k]?`🔗 <b>${esc(c.p)}</b> 合体攻撃！ → 相手を タップ`:'✨ なにか おきそう… → 相手を タップ'):'🔗 2まいで 合体… できるかな？ → 相手を タップ'}
   const ch=chainOf(sel);if(!C.ruleOn('sent'))return `⛓️ 必殺は <b>${esc(CG_RANKS[CG_RULE_AT.sent][0])}</b> から`;
   return ch?`<button id="bhis">⛓️ 必殺！ 相手の 場 ぜんぶに 攻撃</button>`:'⛓️ 3まいが コンボで つながらない…'}
@@ -169,10 +184,12 @@ function note(html,btn='OK'){return new Promise(res=>{const o=C.ov(`<div class="
 
 
 /* ================================================================ your turn */
-function myTurn(){if(!B)return;B.turn++;B.sel=[];B.fx.hardNow=!!B.fx.hard;B.fx.hard=0;B.busy=false;
+function myTurn(){if(!B)return;B.turn++;B.aiPhase=false;B.me.en=Math.min(MAX_EN,B.me.en+1);B.sel=[];B.fx.hardNow=!!B.fx.hard;B.fx.hard=0;B.busy=false;
   render('あなたの ターン！');snd('turn');fxEl('fxturn me','<b>YOUR TURN</b>',1100)}
 /* what the chosen cards do to the target */
 async function act(t){const sel=B.sel.map(u=>B.me.field.find(x=>x.u===u)).filter(Boolean);if(!sel.length)return;
+  const nr=sel.find(x=>!ready(x));if(nr){sf('pop');H.toast(`${esc(W_(nr.I))} は いま 攻撃できないよ`);return}
+  if(sel.reduce((a,x)=>a+costOf(x),0)>B.me.en){sf('pop');H.toast('🔋 ✨が たりない');return}
   if(sel.length===3){const ch=chainOf(sel);if(!C.ruleOn('sent')){H.toast(`⛓️ 必殺は ${esc(CG_RANKS[CG_RULE_AT.sent][0])} から`);return}if(!ch){sf('pop');H.toast('3まいが コンボで つながらないよ<small>2まいか 1まいに してね</small>');return}
     B.busy=true;render(B.msg);await special3(sel,ch)}
   else{if(!t)return;B.busy=true;B.sel=[];render(B.msg);if(sel.length===2)await pair(sel[0],sel[1],t);else await strike(sel[0],t)}
@@ -181,36 +198,54 @@ async function act(t){const sel=B.sel.map(u=>B.me.field.find(x=>x.u===u)).filter
 async function strike(x,t,o={}){const I=x.I;
   const r=await askCard(I,qFor(I),{nm:W_(I),st:{a:atkOf(x),d:defOf(x),h:x.hp},tag:o.tag||`⚔ ${esc(W_(I))} の 攻撃`});
   const wk=C.weak(x.id),fg=C.forgot(x.id),up=C.record(x.id,r.ok);B.res.q.push({id:x.id,ok:r.ok});if(up)B.res.stars.push([x.id,up]);
-  let m=r.ok?(r.hint?.75:1):.5,tags=[];const crit=r.ok&&!r.hint&&r.ms<4500;
-  if(tired(x)){m*=.7;tags.push('<em>💦 つかれ ×0.7</em>')}x.last=B.turn;
+  let m=r.ok?(r.hint?.75:1):.5,tags=[];const crit=r.ok&&(B.fx.idea||!r.hint&&r.ms<4500);B.fx.idea=0;
+  const ace=x.T&&x.T.k==='ace';used(x);if(ace){x.aceUsed=1;m*=2;tags.push('<em class="cr">🃏 切り札 ×2・防御むし</em>')}
   if(crit){m*=1.5;tags.push('<em class="cr">💥 クリティカル！</em>');B.res.crit++}
   if(r.ok&&wk){m*=2;tags.push('<em class="rev">😣→😤 逆転 ×2</em>')}else if(r.ok&&fg){m*=1.5;tags.push('<em class="fg">💤 思い出した ×1.5</em>')}
   const an=anti(x,t);if(an){m*=2;tags.push('<em>⚡ 反対語 ×2</em>');B.res.anti++}
   if(B.fx.weak){m*=.5;B.fx.weak=0;tags.push('<em>（得意技で 半分）</em>')}
-  const raw=Math.max(1,Math.round(x.a*m)),gd=Math.random()<B.F.p,dmg=Math.max(1,raw-(gd?defOf(t):0));
-  render();if(an){snd('charge');await cutin('⚡ 反対語アタック！',`${esc(x.I.h)} ⇔ ${esc(t.I.h)}`,'combo',900)}else if(crit){snd('charge');await cutin('💥 CRITICAL!','','combo',650)}
-  await lunge(x,t);hurt(t,dmg,{crit});if(gd&&raw>dmg)guardFx(t);
+  const raw=Math.max(1,Math.round(x.a*m)),gd=!ace&&Math.random()<B.F.p,dmg=Math.max(1,raw-(gd?defOf(t):0));
+  render();if(ace){snd('charge');flash('rgba(255,200,120,.45)');await cutin('🃏 切り札！',esc(W_(x.I)),'combo',900)}else if(an){snd('charge');await cutin('⚡ 反対語アタック！',`${esc(x.I.h)} ⇔ ${esc(t.I.h)}`,'combo',900)}else if(crit){snd('charge');await cutin('💥 CRITICAL!','','combo',650)}
+  await lunge(x,t);if(await blocked(t,W_(x.I)))return;hurt(t,dmg,{crit});if(gd&&raw>dmg)guardFx(t);
   say(`${r.ok?'⭕':'❌'} <b>${esc(W_(I))}</b> → ${esc(W_(t.I))} に <b>${dmg}</b>${gd&&raw>dmg?' <small>（🛡 ガード）</small>':''}${tags.length?'<br>'+tags.join(' '):''}`);await wait(800)}
+/* the foe's 🛡️まもる stops your next hit (the quiz still counts) */
+async function blocked(t,n){if(!B.fx.foeShield)return false;B.fx.foeShield=0;render();guardFx(t,true);say(`🛡️ ${esc(B.F.n)}の まもる！ ${esc(n)} の 攻撃は ふせがれた`);await wait(900);return true}
 /* two cards together: a natural combo hits hard and skips the guard; a wrong one teaches the right words */
 async function pair(x,y,t){const c=comboOf(x,y);
   if(!c){const w=wrongOf(x,y);
     if(w){C.metWrong(w);B.res.wrong.push(w.k);sf('pop');await note(`<b>⚠️ 不発！ まちがいコンボ</b><p><s>${esc(w.a)} ${esc(w.b)}</s> → <b>${esc(w.ok)}</b></p><small>${esc(w.why)}</small>`,'なるほど');C.speak(w.ok);say('⚠️ 不発… 英語では そう 言わないんだ');return}
     sf('pop');say(`🔗 <b>${esc(W_(x.I))}</b> ＋ <b>${esc(W_(y.I))}</b> は コンボに ならなかった… ${esc(W_(x.I))} で 攻撃`);await wait(900);return strike(x,t)}
-  const r=await askCombo(c,'🔗 合体攻撃！');B.res.combos.push(c.k);const sum=Math.round(atkOf(x)*(tired(x)?.7:1)+atkOf(y)*(tired(y)?.7:1));x.last=y.last=B.turn;
+  const r=await askCombo(c,'🔗 合体攻撃！');B.res.combos.push(c.k);const sum=atkOf(x)+atkOf(y);used(x);used(y);
   if(r.ok){const nw=C.foundCombo(c);if(nw){B.res.newCombo.push(c.k);H.addCoins(10)}const dmg=Math.round(sum*1.5*(B.fx.weak?.5:1));B.fx.weak=0;B.lastCombo=dmg;
     snd('combo');flash('rgba(255,225,74,.35)');await cutin('🔗 COMBO!',`${esc(c.p)}<br>${esc(c.j)}`,'combo');C.speak(c.p);
-    lunge(y,t);await lunge(x,t);hurt(t,dmg,{col:'#ffe14a'});say(`🔗 <b>${esc(c.p)}</b>（${esc(c.j)}） 防御むしで <b>${dmg}</b>！${nw?'　<em>新コンボ発見！ 🪙10</em>':''}`)}
-  else{const dmg=Math.max(1,Math.round(sum*.5)-defOf(t));await lunge(x,t);hurt(t,dmg);say(`🔗 ${esc(c.p)}… 意味を まちがえて 力が 半分 <b>${dmg}</b>`)}
+    lunge(y,t);await lunge(x,t);if(await blocked(t,c.p))return;hurt(t,dmg,{col:'#ffe14a'});say(`🔗 <b>${esc(c.p)}</b>（${esc(c.j)}） 防御むしで <b>${dmg}</b>！${nw?'　<em>新コンボ発見！ 🪙10</em>':''}`)}
+  else{const dmg=Math.max(1,Math.round(sum*.5)-defOf(t));await lunge(x,t);if(await blocked(t,c.p))return;hurt(t,dmg);say(`🔗 ${esc(c.p)}… 意味を まちがえて 力が 半分 <b>${dmg}</b>`)}
   await wait(900)}
 /* ⛓️ three cards tied by two combos: hits every card on their side */
-async function special3(us,ch){let ok=0;for(const c of ch){const r=await askCombo(c,'⛓️ 必殺！');if(r.ok){ok++;C.foundCombo(c)&&(B.res.newCombo.push(c.k),H.addCoins(10))}B.res.combos.push(c.k)}
+async function special3(us,ch){us.forEach(used);let ok=0;for(const c of ch){const r=await askCombo(c,'⛓️ 必殺！');if(r.ok){ok++;C.foundCombo(c)&&(B.res.newCombo.push(c.k),H.addCoins(10))}B.res.combos.push(c.k)}
   const sum=us.reduce((a,x)=>a+atkOf(x),0),each=Math.max(1,Math.round(sum*(ok===2?.6:ok?.4:.2)));
   snd('chain');flash('rgba(160,230,255,.5)');await cutin('⛓️ 必殺！',ch.map(c=>esc(c.p)).join(' ＋ '),'chain',1300);ch.forEach(c=>C.speak(c.p));
   for(const t of B.ai.field.slice()){hurt(t,each,{col:'#9fe8ff'});await wait(180)}say(`⛓️ 必殺！ 相手の 場 ぜんぶに <b>${each}</b>`);await wait(900)}
 
+/* ✨ a one-time support: answer that card's question to make it work. it doesn't end your turn */
+function supDo(x,ok){const s=x.T.s,S=side(x.k),nm=esc(W_(x.I));x.supUsed=1;if(!ok)return `${C.SUP[s][0]} ${nm} の サポート しっぱい…`;
+  if(s==='heal'){const t=S.field.slice().sort((a,b)=>a.hp/a.max-b.hp/b.max)[0];heal(t,8);snd('heal');return `💚 なおす！ ${esc(W_(t.I))} の ❤+8`}
+  if(s==='guard'){if(x.k==='me')B.fx.shield=1;else B.fx.foeShield=1;guardFx(x,true);return `🛡️ まもる！ つぎの ${x.k==='me'?'相手の':'あなたの'} 攻撃を ふせぐ`}
+  if(s==='cheer'){S.field.forEach(y=>{y.ready=0;burst(elOf(y),'#ffe14a',6)});S.en=Math.min(MAX_EN,S.en+1);snd('turn');return `⚡ おうえん！ ⏳が なくなって ✨+1`}
+  if(x.k==='me')B.fx.idea=1;else B.fx.foeIdea=1;snd('charge');return `💡 ひらめき！ つぎの 攻撃は クリティカル`}
+async function support(x){if(!x||!x.T||x.T.k!=='sup'||x.supUsed)return;B.busy=true;render(B.msg);
+  const r=await askCard(x.I,qFor(x.I),{nm:W_(x.I),st:{a:atkOf(x),d:defOf(x),h:x.hp},tag:`${C.SUP[x.T.s][0]} サポート`});
+  C.record(x.id,r.ok);B.res.q.push({id:x.id,ok:r.ok});B.res.sup=(B.res.sup||0)+(r.ok?1:0);
+  render();const msg=supDo(x,r.ok);if(r.ok){const el=elOf(x);if(el)burst(el,'#9fe8ff',12)}say(msg);await wait(700);B.sel=[];B.busy=false;render(msg)}
+/* the other side uses a support now and then (no question; it works if they "know" it) */
+async function aiSupport(){const S=B.ai,c=S.field.filter(x=>x.T&&x.T.k==='sup'&&!x.supUsed);if(!c.length)return;
+  const pick=c.find(x=>x.T.s==='heal'&&S.field.some(y=>y.hp<y.max*.5))||c.find(x=>x.T.s==='cheer'&&S.field.some(y=>!ready(y)))||(Math.random()<.3?pickL(c):null);if(!pick)return;
+  render();const msg=supDo(pick,Math.random()<B.F.p);say(`${B.F.ico} ${msg}`);await wait(1000)}
+
 /* ================================================================ their turn */
-async function aiTurn(){if(!B)return;const F=B.F;B.busy=true;render(`${F.ico} ${esc(F.n)}の ターン…`);snd('foeTurn');fxEl('fxturn ai',`<b>${esc(F.n)}の ターン</b>`,1100);await wait(900);
+async function aiTurn(){if(!B)return;const F=B.F;B.busy=true;B.aiN=(B.aiN||0)+1;B.aiPhase=true;B.ai.en=Math.min(MAX_EN,B.ai.en+1);render(`${F.ico} ${esc(F.n)}の ターン…`);snd('foeTurn');fxEl('fxturn ai',`<b>${esc(F.n)}の ターン</b>`,1100);await wait(900);
   let times=1;const sp=special();if(sp){times+=await doSpecial(sp)}
+  await aiSupport();
   for(let i=0;i<times&&alive('me')&&alive('ai');i++){await aiAct();await sweep()}
   if(B.fx.easy)B.fx.easy--;
   if(!alive('me'))return end(false);await wait(300);myTurn()}
@@ -232,17 +267,20 @@ async function doSpecial(sp){const F=B.F;snd('charge');flash('rgba(255,140,80,.3
   else if(k==='lesson'){B.fx.combo2=1;return 1}
   return 0}
 /* one action: a combo if they have one, or their strongest card at your weakest */
-async function aiAct(){const F=B.F,ai=B.ai.field,me=B.me.field;if(!ai.length||!me.length)return;
+async function aiAct(){const F=B.F,ai=B.ai.field.filter(ready),me=B.me.field;if(!B.ai.field.length||!me.length)return;
+  if(!ai.length){say(`⏳ ${esc(F.n)}の カードは みんな チャージ中…`);await wait(900);return}
   const ok=Math.random()<Math.min(.97,F.p+B.lv*.03);let pr=null;
   for(let i=0;i<ai.length&&!pr;i++)for(let j=i+1;j<ai.length;j++){const c=comboOf(ai[i],ai[j]);if(c){pr=[ai[i],ai[j],c];break}}
   const t=Math.random()<.65?me.slice().sort((a,b)=>a.hp-b.hp)[0]:pickL(me);
-  if(pr&&(B.fx.combo2||Math.random()<F.p+.1+B.lv*.05)){const [x,y,c]=pr;let dmg=Math.round((atkOf(x)+atkOf(y))*1.5*(ok?1:.5)*(B.fx.combo2?1.5:1)*(B.fx.easy?.5:1));B.fx.combo2=0;
+  if(pr&&(B.fx.combo2||Math.random()<F.p+.1+B.lv*.05)){const [x,y,c]=pr;used(x);used(y);if(B.fx.shield){B.fx.shield=0;render();guardFx(t,true);say(`🛡️ まもる！ ${esc(F.n)}の コンボを ふせいだ`);await wait(900);return}let dmg=Math.round((atkOf(x)+atkOf(y))*1.5*(ok?1:.5)*(B.fx.combo2?1.5:1)*(B.fx.easy?.5:1));B.fx.combo2=0;
     snd('combo');await cutin(`${F.ico} COMBO!`,esc(c.p),'foe',900);C.speak(c.p);
     const r=await askCombo(c,'📖 相手の コンボ！ いみが わかれば ダメージ半分');B.res.q.push({id:C.cardOfHead(c.a).id,ok:r.ok,foe:1});
     if(r.ok)dmg=Math.ceil(dmg/2);render();lunge(y,t);await lunge(x,t);hurt(t,dmg);
     say(`🔗 ${esc(F.n)}の <b>${esc(c.p)}</b>（${esc(c.j)}） → ${esc(W_(t.I))} に <b>${dmg}</b>${r.ok?' <small>（読んで 半分）</small>':''}`);await wait(900);return}
-  const x=ai.slice().sort((a,b)=>atkOf(b)-atkOf(a))[0];let raw=Math.round(atkOf(x)*(ok?1:.5)*(B.fx.easy?.5:1));const an=anti(x,t);if(an)raw*=2;
-  const pierce=B.fx.pierce;B.fx.pierce=0;
+  const x=ai.slice().sort((a,b)=>atkOf(b)-atkOf(a))[0];const ace=x.T&&x.T.k==='ace';used(x);if(ace)x.aceUsed=1;
+  if(B.fx.shield){B.fx.shield=0;render();await lunge(x,t);guardFx(t,true);say(`🛡️ まもる！ ${esc(W_(x.I))} の 攻撃を ふせいだ`);await wait(900);return}
+  let raw=Math.round(atkOf(x)*(ok?1:.5)*(B.fx.easy?.5:1)*(ace?2:1));const an=anti(x,t);if(an)raw*=2;const idea=B.fx.foeIdea;if(idea){raw=Math.round(raw*1.5);B.fx.foeIdea=0}
+  const pierce=B.fx.pierce||ace;B.fx.pierce=0;if(ace){await cutin(`${F.ico} 🃏 切り札！`,esc(W_(x.I)),'foe',900)}
   /* your guard: a question on THEIR card that is coming at you (you meet their words, not only yours) */
   let dmg=raw,gd=0;
   if(!pierce){render();const r=await askCard(x.I,qFor(x.I),{nm:W_(x.I),st:{a:atkOf(x),d:x.d,h:x.hp},tag:'🛡️ ガード',
@@ -250,7 +288,7 @@ async function aiAct(){const F=B.F,ai=B.ai.field,me=B.me.field;if(!ai.length||!m
     C.record(x.id,r.ok);B.res.q.push({id:x.id,ok:r.ok,foe:1});if(r.ok){gd=r.ms<4500&&!r.hint?2:1;dmg=Math.max(1,raw-defOf(t)*gd)}}
   render();if(an){await cutin('⚡ 反対語アタック！',`${esc(x.I.h)} ⇔ ${esc(t.I.h)}`,'foe',800)}
   await lunge(x,t);hurt(t,dmg);if(gd)guardFx(t,gd===2);
-  say(`${F.ico} <b>${esc(W_(x.I))}</b> → ${esc(W_(t.I))} に <b>${dmg}</b>${gd?` <small>（${gd===2?'パーフェクト':''}ガード）</small>`:pierce?' <small>（👽 ガードできない）</small>':''}`);await wait(900)}
+  say(`${F.ico} <b>${esc(W_(x.I))}</b> → ${esc(W_(t.I))} に <b>${dmg}</b>${gd?` <small>（${gd===2?'パーフェクト':''}ガード）</small>`:ace?' <small>（🃏 ガードできない）</small>':pierce?' <small>（👽 ガードできない）</small>':''}${idea?' <small>💡</small>':''}`);await wait(900)}
 
 /* ================================================================ the end */
 const RW=C;
@@ -290,18 +328,17 @@ function end(win,gaveUp){if(!B)return;const foeLvBefore=B.lv;const F=B.F,R=C.rec
 let menuBack=null;
 function menu(back){if(back)menuBack=back;const R=C.rec(),r=C.rank(),nx=CG_RANKS[r+1],rp=R.rp||0;
   const rules=[['基本',0,'カードには ⚔攻撃力・🛡防御力・❤HP。 場に 3まい。 相手の カードを ぜんぶ たおしたら 勝ち'],['⚔ 攻撃',0,'自分の カードを えらんで 相手を タップ。 問題に 正解で ⚔そのまま、 はやいと 💥クリティカル、 まちがいで 半分'],
-    ['🛡 防御',0,'攻撃してきた 相手の カードの 問題に 正解で 🛡が きく（はやいと 2ばい）'],['💦 つかれ',0,'同じ カードで 2ターン つづけて 攻撃すると ⚔×0.7。 いろんな カードを 使おう'],['🔗 ことばコンボ',0,'自然な 組み合わせの 2まいで 合体攻撃。 ⚔の 合計×1.5で 防御むし。 相手の コンボも 意味が わかれば 半分'],
-    ['😣 逆転・💤 思い出し',0,'苦手カードで 正解すると 2ばい、 わすれかけカードは 1.5ばい'],['🗂️ デッキ',0,'15まいまで・コストの 上限あり。 対戦では 4まいが ランダム。 前に 出た カードは ☕おやすみで 出にくい。 🌬️きょうの風の 種類は ⚔+1'],
+    ['🛡 防御',0,'攻撃してきた 相手の カードの 問題に 正解で 🛡が きく（はやいと 2ばい）'],['🏷️ カードの 印',0,'カードの 右上の 印。 💚🛡️⚡💡＝1回だけの サポート（ターンを 使わない）／⏳＝攻撃の あと 休む／🔋＝✨を 使う（✨は 毎ターン 1 たまる）／🃏＝1回だけ ×2 防御むし'],['🔗 ことばコンボ',0,'自然な 組み合わせの 2まいで 合体攻撃。 ⚔の 合計×1.5で 防御むし。 相手の コンボも 意味が わかれば 半分'],
+    ['😣 逆転・💤 思い出し',0,'苦手カードで 正解すると 2ばい、 わすれかけカードは 1.5ばい'],['🎴 えらぶ',0,'対戦の まえに 8まいから 4まい えらぶ（引きなおし 1回）。 🌬️きょうの風の 種類は ⚔+1'],
     ['⭐ 相手の レベル',0,'勝つたびに 相手が 強くなる（Lv6まで）。 さいごの 1まいは 本気モード'],
     ['⚡ 反対語アタック',CG_RULE_AT.counter,'反対の 意味の カードを ねらうと 2ばい'],['🛡️ なかまガード',CG_RULE_AT.guard,'にた 意味の カードが 場に ならぶと 🛡+2'],['⛓️ 必殺',CG_RULE_AT.sent,'3まいが コンボで つながると 相手の 場 ぜんぶに 攻撃']];
   H.show('cg',`<section class="pnl cgp">
     <div class="qtop"><button class="x" id="cgb" aria-label="もどる">←</button><b>⚔️ 対戦</b><span class="qn">${esc(CG_RANKS[r][0])}</span></div>
     <div class="cgrk"><b>🎖️ ${esc(CG_RANKS[r][0])}</b>${nx?`<i><u style="width:${Math.min(100,(rp-CG_RANKS[r][1])/(nx[1]-CG_RANKS[r][1])*100)}%"></u></i><small>つぎ ${esc(nx[0])}: ${esc(nx[2])}</small>`:'<small>最高段位！</small>'}</div>
     <div class="cgfoes">${FOES.map(F=>{const lock=r<F.need;const w=R.win[F.id]||0;return `<button data-f="${F.id}" class="${lock?'lk':''} ${F.mina?'mina':''}"><span class="fi">${lock?'🔒':F.ico}</span><span class="fn"><b>${esc(F.n)}</b><small>${lock?esc(CG_RANKS[F.need][0])+'から':esc(F.d)}</small></span>${w?`<em>🏆${w}<small>Lv${Math.min(5,w)+1}</small></em>`:''}</button>`}).join('')}</div>
-    <div class="row"><button id="cgdk" class="sub">🗂️ デッキ（${C.rec().deck.length}/${C.DECK_N}）</button></div>
     <details class="cgfold"><summary>📘 ルール</summary>${rules.map(([n,at,d])=>`<p class="${r>=at?'':'lk'}">${r>=at?'':'🔒 '}<b>${n}</b><br><small>${r>=at?d:esc(CG_RANKS[at][0])+'で ひらく'}</small></p>`).join('')}</details>
   </section>`);
-  $('cgb').onclick=()=>{sf('back');(menuBack||C.open)()};$('cgdk').onclick=()=>{sf('step');C.deck(()=>menu())};
+  $('cgb').onclick=()=>{sf('back');(menuBack||C.open)()};
   H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{const F=foe(b.dataset.f);if(r<F.need){H.toast(`🔒 ${esc(F.n)}とは <b>${esc(CG_RANKS[F.need][0])}</b> から 対戦できるよ`);return}sf('step');start(F.id,{back:()=>menu()})})}
 
 window.CGB={start,menu,foes:FOES,foe,foeDeck,_state:()=>B,_render:()=>render(),_act:act};
