@@ -182,7 +182,7 @@ const LOVE_IF=[
 
 /* ================= 💍 指輪（恋人から、 雑貨店の ガラスケース。 プレゼントには しない。 プロポーズに つかう） ================= */
 (()=>{if(typeof ZAKKA_ITEMS==='undefined')return;
-ZAKKA_ITEMS.push({id:'g_ring',k:'ring',ico:'💍',n:'星の 指輪',w:'ring',p:5000,lux:1,love:3,sizes:[['small','S'],['medium','M'],['large','L']],
+ZAKKA_ITEMS.push({id:'g_ring',k:'ring',ico:'💍',n:'星の 指輪',w:'ring',p:5000,lux:1,love:3.5,sizes:[['small','S'],['medium','M'],['large','L']],
   a:["A silver ring with a tiny star-shaped diamond. It's not just a present... is it?","小さな 星の 形の ダイヤが ついた 銀の 指輪。 ただの プレゼント… じゃないわよね？"],
   lux0:["The star was cut by a jeweler who only makes one ring a year. Whoever wears it, they say, is never lost.","1年に 1つしか 作らない 職人が 星の 形に カットしたの。 これを つけた 人は ぜったい 道に まよわないって。"],
   worth:["For the person you want to spend your life with? Then it's priceless.","一生を いっしょに すごしたい 人の ため？ なら、 値段なんて つけられないわ。"]});

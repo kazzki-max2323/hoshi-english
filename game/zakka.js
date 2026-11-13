@@ -12,7 +12,7 @@
 const {S:ST,sfx:SFX}=BEACH;
 const H=HE,esc=H.esc,$=id=>document.getElementById(id);
 /* 恋人むけの 品（love: n）は ミナ先生との 段階が n に なったら ならぶ（game/love-more.js） */
-const loveOk=i=>!i.love||(window.LOVE&&LOVE.rec().st>=i.love);
+const loveOk=i=>!i.love||(window.LOVE&&(LOVE.lvl?LOVE.lvl():LOVE.rec().st)>=i.love);
 const IT=ZAKKA_ITEMS,PCS=ZAKKA_CARDS,FTS=ZAKKA_FORTUNES,PH=ZAKKA_PHRASES,PHK=Object.keys(PH);
 const item=id=>IT.find(i=>i.id===id);
 const pickL=a=>a[Math.random()*a.length|0];
