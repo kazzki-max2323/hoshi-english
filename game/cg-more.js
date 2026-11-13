@@ -20,7 +20,7 @@ function rewardCard(){const lv=C.lvOpen(C.myLv())?C.myLv():'es',mine=new Set(Obj
 /* up to 3 a day */
 function reward(kind){const r=R(),d=C.today();if(r.rw&&r.rw.d===d&&r.rw.n>=3)return null;r.rw=r.rw&&r.rw.d===d?r.rw:{d,n:0};r.rw.n++;
   const id=rewardCard();C.give(id);C.save();const I=C.info(id);
-  if(kind==='tok')setTimeout(()=>H.toast(`🃏 ごほうびカード <b>${esc(I.en)}</b>（${esc(I.ja)}）<small>対戦の 3まい えらびで 出るかも</small>`,3600),1500);
+  if(kind==='tok')setTimeout(()=>H.toast(`🃏 ごほうびカード <b>${esc(I.en)}</b>（${esc(I.ja)}）<small>デッキに 入れて 使えるよ</small>`,3600),1500);
   return I}
 window.LESSON_AFTER=window.LESSON_AFTER||[];
 LESSON_AFTER.push(()=>{const I=reward('lesson');if(!I)return null;const [,tx]=ML('cg_reward',{w:I.en});
@@ -134,7 +134,7 @@ function giftUse(it){C.take(it.cid);C.save()}
 /* ================================================================ Ms. Mina's lines */
 Object.assign(MINA_LINES,{
  cg_first:[['wow','浜辺に カードショップ「しおさい」が できたよ！ 単語帳の 単語が ぜんぶ カードに なって 対戦できるんだって'],['happy','カードの ボタンは カードショップに おひっこし。 浜辺の 小屋を タップしてね']],
- cg_reward:[['happy','授業の ごほうび。 「{w}」は 対戦の 3まい えらびで 出てくるかも'],['smile','カードが 1まい ふえたよ。 コンボの なかまかも？']],
+ cg_reward:[['happy','授業の ごほうび。 「{w}」を デッキに 入れてみて'],['smile','カードが 1まい ふえたよ。 コンボの なかまかも？']],
  cg_dojoStart:[['smile','コンボ道場へ ようこそ。 英語として 自然な 組み合わせを 5問 いくよ'],['proud','「heavy rain」みたいな 組み合わせは まとめて おぼえると 強いよ'],['think','日本語で 考えると まちがえやすい 組み合わせも あるから 気をつけてね']],
  cg_dojoPerfect:[['love','5問 ぜんぶ 正解！ ことばの 組み合わせ、 体で わかってきたね'],['wow','かんぺき！ 対戦でも この コンボを ねらってみて']],
  cg_dojoGood:[['happy','{n}問 ヒントなしで 正解！ まちがえた ものは 声に 出して もう いちど 読んでみよう'],['smile','いい 調子。 組み合わせは 「セットで 音読」が いちばん 効くよ']],
@@ -144,7 +144,7 @@ Object.assign(MINA_LINES,{
  cg_tourLose:[['smile','{r}で まけちゃったね。 でも 試合の 中で おぼえた 単語は ちゃんと のこってるよ'],['think','{r}まで 来たね。 まちがえた 単語を 復習して、 また いどもう']],
  cg_minaGift:[['love','負けちゃった… でも うれしいな。 これ、 わたしからの とくべつな 文カード'],['happy','きみ、 ほんとに 強くなったね。 はい、 ごほうびの 文カード'],['proud','{n}回目の 勝利だね。 先生として ほこらしいよ']],
  cg_win:[['happy','{f}に 勝ったね！ コンボ、 うまく 使えてた'],['proud','勝利！ 正解した 単語は ★が 育ってるよ']],
- cg_lose:[['smile','{f}に 負けちゃったね。 まちがえた 単語は 結果に のってるよ'],['think','つぎは 📖 読む や コンボを ためしてみて']],
+ cg_lose:[['smile','{f}に 負けちゃったね。 まちがえた 単語は 結果に のってるよ'],['think','つぎは ねらわれた カードの 問題に はやく 答えて 🛡を 2ばいに してみて'],['smile','相手の コンボも 意味が わかれば ダメージ半分だよ']],
  x_cgOpen:[['smile','浜辺の 小屋は カードショップ「しおさい」。 単語が カードに なって 対戦できるよ'],['happy','カードショップに 行ってみて！ 店長の ナギさんが スターターデッキを くれるよ']],
  x_cgCombo:[['think','コンボ図鑑、 {n}/{tot}。 まだ 見つけてない 組み合わせが いっぱい あるよ'],['smile','ことばコンボを {n}こ 見つけたね。 自然な 組み合わせを おぼえると 英語が グッと 自然に なるよ']],
  x_cgWeak:[['proud','苦手カードの {w}、 対戦で 正解すると 「逆転」で 2ばいだよ。 にげずに 使ってみて'],['think','{w} は まちがいノートの 単語。 カードで 出すと おぼえやすいよ']],
@@ -157,7 +157,8 @@ Object.assign(MINA_LINES,{
  x_cgDojo:[['think','コンボ道場で 5問 どう？ 対戦なしで 組み合わせを 練習できるよ'],['smile','道場で 見つけた コンボも 図鑑に のるよ']],
  x_cgTour:[['proud','浜辺の カード大会に 出られるように なったよ。 決勝で 待ってる！'],['happy','カード大会、 英語の インタビューも あって 楽しいよ']],
  x_cgKira:[['love','✨ きらきら版の カードが {n}まい！ 完全に おぼえた しるしだね'],['wow','★5の カードは きらきら 光るんだ。 {w}、 きれいだね']],
- x_cgPick:[['smile','カード対戦は 毎回 デッキが ランダム。 3まいだけ 自分で えらべるよ'],['happy','いつも ちがう カードが 来るから、 いろんな 単語に 会えるね']],
+ x_cgPick:[['smile','デッキは 15まいまで。 対戦では その中から 4まいが ランダムで 出るよ'],['happy','前の 対戦に 出た カードは ☕おやすみ。 いろんな 単語に 会えるね'],['think','きょうの風は {wind}。 その 種類の カードは ⚔+1 だよ']],
+ x_cgRule:[['proud','はやく 正解すると 💥クリティカル！ 1.5ばいだよ'],['think','反対の 意味の カードを ねらうと ⚡反対語アタックで 2ばい。 hot なら cold を ねらって'],['smile','にた 意味の カードを 場に ならべると 🛡️なかまガード。 守りが +2 だよ'],['happy','2まいが 自然な 組み合わせなら 合体攻撃。 防御を むしして 1.5ばいだよ']],
  x_cgWrong:[['think','「{bad}」じゃなくて 「{ok}」。 まちがいコンボ ノートに のってるよ'],['smile','日本語から 考えると まちがえやすい 組み合わせ、 「{ok}」で おぼえよう']],
  x_cgLast:[['happy','さっきの カード対戦、 {n}問中 {ok}問 正解！ 声に 出して 復習すると もっと 強くなるよ'],['smile','カード対戦で おぼえた 単語、 単語帳でも 見かえしてみてね']]});
 const goShop=()=>['🃏 カードショップへ',()=>C.open()];
@@ -172,7 +173,8 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_cgFree',3,()=>R().met&&R().free!==C.today()?{}:null,goTab('pack')],
  ['x_cgRank',2,()=>{if(!R().met)return null;const r=C.rank(),nx=CG_RANKS[r+1];if(!nx)return null;return {r:CG_RANKS[r][0],n:nx[1]-(R().rp||0),nx:nx[0],open:nx[2]}},goTab('battle')],
  ['x_cgMina',1,()=>R().met&&C.rank()>=8?{}:null,goTab('battle')],
- ['x_cgPick',2,()=>R().met?{}:null,goTab('battle')],
+ ['x_cgPick',2,()=>R().met?{wind:C.wind()[1]+' '+C.wind()[2]}:null,goTab('deck')],
+ ['x_cgRule',2,()=>R().met&&R().games?{}:null,goTab('battle')],
  ['x_cgDojo',1,()=>R().met?{}:null,goTab('dojo')],
  ['x_cgTour',2,()=>R().met&&C.ruleOn('tour')&&!R().tw?{}:null,goTab('tour')],
  ['x_cgKira',1,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.kira(id));return a.length?{n:a.length,w:C.info(pickL(a)).en.split(',')[0]}:null},goTab('book')],

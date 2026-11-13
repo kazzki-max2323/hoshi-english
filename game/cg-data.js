@@ -987,7 +987,7 @@ const CG_ATTR_RULE=[['ani',/どうぶつ|いきもの|動物|植物|生物/],['f
  ['act',/動詞|うごき|動く|話す・伝える|生活の動作|変わる|句動詞|変化|make/],
  ['look',/形容詞|ようす|副詞/],
  ['learn',/./]];
-/* レベル: コスト（ことだまの 力）・パワー・色・パックの 値段 */
+/* レベル: コスト（デッキの 上限に 数える）・パワー・色・パックの 値段 */
 const CG_LV={es:{k:'小',n:'小学生',c:1,p:2,col:'#4cbf78',pack:60,one:30,sh:1,tr:10},jh:{k:'中',n:'中学生',c:2,p:4,col:'#3f86e0',pack:100,one:50,sh:2,tr:20},
  hs:{k:'高',n:'高校生',c:3,p:6,col:'#9a62e0',pack:150,one:80,sh:3,tr:35},adv:{k:'H',n:'ハイレベル',c:4,p:9,col:'#e0a91a',pack:220,one:120,sh:5,tr:60}};
 /* 語源パーツの 意味 */
@@ -996,8 +996,8 @@ const CG_PARTS={un:['un-','〜でない'],re:['re-','もう一度・もとへ'],
  ly:['-ly','〜に（ようすを 言う）'],able:['-able','〜できる'],er:['-er','〜する 人・もの'],ment:['-ment','〜する こと（名詞に）'],ion:['-ion','〜する こと（名詞に）'],
  y:['-y','〜っぽい・〜の 多い'],ous:['-ous','〜の 多い'],al:['-al','〜の・〜に 関する'],ive:['-ive','〜な せいしつの']};
 /* 段位: [名前, ひつような ポイント, ひらく もの] */
-const CG_RANKS=[['10級',0,'基本の ルールと ことばコンボ・小の パック'],['9級',2,'📖 相手の 単語を 読む・中の パック'],['8級',5,'⚡ 反対語カウンター・テーマパック'],
- ['7級',9,'🛡️ なかまガード'],['6級',14,'🔄 変身（動詞の 活用）・高の パック'],['5級',20,'🧩 語源パーツ・パーツパック'],['4級',27,'📜 文カードと 連鎖・ハイレベルの パック'],
+const CG_RANKS=[['10級',0,'基本の ルールと ことばコンボ・小の パック'],['9級',2,'中の パック'],['8級',5,'⚡ 反対語アタック・テーマパック'],
+ ['7級',9,'🛡️ なかまガード'],['6級',14,'高の パック・デッキの コスト +2'],['5級',20,'パーツパック'],['4級',27,'⛓️ 必殺・ハイレベルの パック'],
  ['3級',35,'🏆 浜辺の カード大会'],['2級',44,'✨ きらきら 宝パック'],['1級',54,'👑 ミナ先生に 本気で いどめる'],['初段',66,'🎖️ 初段の しるし'],['二段',80,'🎖️ 二段の しるし'],['三段',96,'🎖️ 三段の しるし'],['名人',120,'🌟 ことばカード名人']];
 /* ルールが ひらく 段位（CG_RANKS の 番号） */
 const CG_RULE_AT={read:1,counter:2,guard:3,morph:4,parts:5,sent:6,tour:7};
@@ -1006,33 +1006,33 @@ const CG_RULE_AT={read:1,counter:2,guard:3,morph:4,parts:5,sent:6,tour:7};
    hi/win(あなたが 勝った)/lose(あなたが 負けた)/sp(技の ひとこと) は [英語, 日本語] */
 const CG_FOES=[
  {id:'nagi',n:'ナギ',ico:'🧑‍🦱',d:'カード屋の 店長。 練習相手',lv:['es'],at:[],p:.55,hp:24,need:0,pt:0,coin:15,
-  sp:{n:'てかげん',d:'さいしょの 2ターンは 半分の 力',k:'easy'},hi:["Let's practice! Take your time.","練習しよう！ ゆっくりで いいよ。"],win:["Nice! You're getting it!","いいね！ わかってきたね！"],lose:["Good try! Let's go again.","いい ちょうせん！ もう 1回 やろう。"],spl:["I'll go easy on you!","手かげん するよ！"]},
+  sp:{n:'てかげん',d:'さいしょの 2ターンは 攻撃が 半分',k:'easy'},hi:["Let's practice! Take your time.","練習しよう！ ゆっくりで いいよ。"],win:["Nice! You're getting it!","いいね！ わかってきたね！"],lose:["Good try! Let's go again.","いい ちょうせん！ もう 1回 やろう。"],spl:["I'll go easy on you!","手かげん するよ！"]},
  {id:'sora',n:'ソラ',ico:'👧',d:'6さい。 どうぶつ デッキ',lv:['es'],at:['ani','food'],p:.6,hp:28,need:0,pt:1,coin:30,
-  sp:{n:'なかよしハグ',d:'ほしが 6 もどる',k:'heal',v:6},hi:["Let's play! I love animal cards!","あそぼ！ どうぶつの カード、 大好き！"],win:["Aww... You're so strong!","うー… つよーい！"],lose:["Yay! I won! Let's play again!","やったー！ かった！ また あそぼ！"],spl:["Big hug! I feel better!","ぎゅー！ げんき でた！"]},
+  sp:{n:'なかよしハグ',d:'場の カードの ❤が 6 もどる',k:'heal',v:6},hi:["Let's play! I love animal cards!","あそぼ！ どうぶつの カード、 大好き！"],win:["Aww... You're so strong!","うー… つよーい！"],lose:["Yay! I won! Let's play again!","やったー！ かった！ また あそぼ！"],spl:["Big hug! I feel better!","ぎゅー！ げんき でた！"]},
  {id:'pochi',n:'ポチ',ico:'🐶',d:'食いしんぼう。 たべもの デッキ',lv:['es'],at:['food'],p:.62,hp:30,need:0,pt:1,coin:30,
-  sp:{n:'おかわり',d:'カードを 2まい 引いて もう いちど 出す',k:'again'},hi:["Woof! Food cards are the best cards!","ワン！ たべものの カードが 最強だワン！"],win:["Woof... I'm hungry now.","ワン… おなか すいた。"],lose:["Woof woof! I win! Treat time!","ワンワン！ かった！ おやつの 時間！"],spl:["Seconds, please!","おかわり！"]},
+  sp:{n:'おかわり',d:'もう 1回 攻撃する',k:'again'},hi:["Woof! Food cards are the best cards!","ワン！ たべものの カードが 最強だワン！"],win:["Woof... I'm hungry now.","ワン… おなか すいた。"],lose:["Woof woof! I win! Treat time!","ワンワン！ かった！ おやつの 時間！"],spl:["Seconds, please!","おかわり！"]},
  {id:'kanio',n:'カニオ',ico:'🦀',d:'数が 好き。 ことば デッキ',lv:['es','jh'],at:['word','look'],p:.66,hp:32,need:1,pt:2,coin:40,
-  sp:{n:'よこばさみ',d:'3の ダメージを 2回',k:'pinch',v:3},hi:["Snip snip! Count your cards carefully!","チョキチョキ！ カードは よく 数えてね！"],win:["Snip... You counted better than me.","チョキ… きみの ほうが 数えるの うまいね。"],lose:["Snip! One, two, I win!","チョキ！ いち、 に、 ぼくの かち！"],spl:["Side pinch! Snip, snip!","よこばさみ！ チョキチョキ！"]},
+  sp:{n:'よこばさみ',d:'あなたの 場の ぜんぶに 3ダメージ',k:'pinch',v:3},hi:["Snip snip! Count your cards carefully!","チョキチョキ！ カードは よく 数えてね！"],win:["Snip... You counted better than me.","チョキ… きみの ほうが 数えるの うまいね。"],lose:["Snip! One, two, I win!","チョキ！ いち、 に、 ぼくの かち！"],spl:["Side pinch! Snip, snip!","よこばさみ！ チョキチョキ！"]},
  {id:'hana',n:'ハナさん',ico:'🍧',d:'かき氷屋さん。 あまい デッキ',lv:['es','jh'],at:['food','heart'],p:.68,hp:32,need:1,pt:2,coin:40,
-  sp:{n:'かき氷ブリザード',d:'つぎの ターン、 あなたの ことだまが 2 へる',k:'freeze',v:2},hi:["Hello! Let's have a sweet game!","こんにちは！ あまーい 勝負に しましょ！"],win:["Wow, you melted my ice!","わあ、 わたしの 氷が とけちゃった！"],lose:["Ha ha! Sweet victory!","あはは！ あまい 勝利！"],spl:["Shaved ice blizzard!","かき氷ブリザード！"]},
+  sp:{n:'かき氷ブリザード',d:'あなたの つぎの 攻撃が 半分',k:'freeze',v:2},hi:["Hello! Let's have a sweet game!","こんにちは！ あまーい 勝負に しましょ！"],win:["Wow, you melted my ice!","わあ、 わたしの 氷が とけちゃった！"],lose:["Ha ha! Sweet victory!","あはは！ あまい 勝利！"],spl:["Shaved ice blizzard!","かき氷ブリザード！"]},
  {id:'taku',n:'タク',ico:'⚽',d:'中学生。 うごき デッキ',lv:['jh'],at:['act','life'],p:.72,hp:36,need:2,pt:2,coin:50,
-  sp:{n:'ハットトリック',d:'つぎの コンボが 3ばい',k:'combo3'},hi:["Ready? I'm not going to lose!","じゅんび いい？ 負けないからな！"],win:["Man... Good game! Let's play again.","くそー… いい 試合だった！ またやろう。"],lose:["Goal! I win this one!","ゴール！ この 試合は おれの かち！"],spl:["Hat trick! Three in a row!","ハットトリック！ 3れんぞく！"]},
+  sp:{n:'ハットトリック',d:'つぎの コンボ攻撃が 1.5ばい',k:'combo3'},hi:["Ready? I'm not going to lose!","じゅんび いい？ 負けないからな！"],win:["Man... Good game! Let's play again.","くそー… いい 試合だった！ またやろう。"],lose:["Goal! I win this one!","ゴール！ この 試合は おれの かち！"],spl:["Hat trick! Three in a row!","ハットトリック！ 3れんぞく！"]},
  {id:'emma',n:'エマ',ico:'🧳',d:'カナダからの 旅行者。 くらし デッキ',lv:['jh'],at:['life','word'],p:.74,hp:36,need:2,pt:2,coin:50,
-  sp:{n:'より道',d:'あなたは つぎの ターン カードを 引けない',k:'nodraw'},hi:["Hi! I learned this game on my trip. Let's play!","ハイ！ 旅で この ゲームを おぼえたの。 やろう！"],win:["Oh no, I'm lost again! Well played!","あら、 また まいごに なっちゃった！ おみごと！"],lose:["I won! Even travelers can win sometimes!","かった！ 旅人だって たまには かつのよ！"],spl:["Let's take a little detour!","ちょっと より道 しましょ！"]},
+  sp:{n:'より道',d:'あなたの つぎの 攻撃が 半分',k:'nodraw'},hi:["Hi! I learned this game on my trip. Let's play!","ハイ！ 旅で この ゲームを おぼえたの。 やろう！"],win:["Oh no, I'm lost again! Well played!","あら、 また まいごに なっちゃった！ おみごと！"],lose:["I won! Even travelers can win sometimes!","かった！ 旅人だって たまには かつのよ！"],spl:["Let's take a little detour!","ちょっと より道 しましょ！"]},
  {id:'gen',n:'ゲンじい',ico:'👴',d:'つりびと。 しぜん デッキ',lv:['jh','hs'],at:['nat','ani'],p:.75,hp:38,need:3,pt:3,coin:60,
-  sp:{n:'大物つり',d:'あなたの 手札から 1まい つりあげて 使う',k:'steal'},hi:["Eh? A card game? Oh ho, I'm good at waiting.","え？ カード？ ほっほ、 待つのは とくいじゃよ。"],win:["Oh ho... The big one got away.","ほっほ… 大物に にげられたわい。"],lose:["Oh ho! A big catch today!","ほっほ！ きょうは 大漁じゃ！"],spl:["Here comes the big one!","大物が かかったぞ！"]},
+  sp:{n:'大物つり',d:'あなたの いちばん 強い カードの ⚔を 2 つりあげる',k:'steal'},hi:["Eh? A card game? Oh ho, I'm good at waiting.","え？ カード？ ほっほ、 待つのは とくいじゃよ。"],win:["Oh ho... The big one got away.","ほっほ… 大物に にげられたわい。"],lose:["Oh ho! A big catch today!","ほっほ！ きょうは 大漁じゃ！"],spl:["Here comes the big one!","大物が かかったぞ！"]},
  {id:'leo',n:'レオ',ico:'🎸',d:'ギターの お兄さん。 きもち デッキ',lv:['jh','hs'],at:['heart','look'],p:.78,hp:40,need:3,pt:3,coin:60,
-  sp:{n:'アンコール',d:'さっきの ターンの ダメージを もう 半分',k:'encore'},hi:["Let's make some music with words.","ことばで 音楽を つくろうぜ。"],win:["Nice rhythm. You won.","いい リズムだ。 きみの かち。"],lose:["Thanks for listening. That's my song.","聞いて くれて ありがとう。 これが おれの 歌さ。"],spl:["Encore! One more time!","アンコール！ もう いちど！"]},
+  sp:{n:'アンコール',d:'もう 1回 攻撃する',k:'encore'},hi:["Let's make some music with words.","ことばで 音楽を つくろうぜ。"],win:["Nice rhythm. You won.","いい リズムだ。 きみの かち。"],lose:["Thanks for listening. That's my song.","聞いて くれて ありがとう。 これが おれの 歌さ。"],spl:["Encore! One more time!","アンコール！ もう いちど！"]},
  {id:'zuzu',n:'ズーズー',ico:'👽',d:'星から 来た子。 しぜん・まなび デッキ',lv:['hs'],at:['nat','learn'],p:.8,hp:42,need:4,pt:3,coin:70,
-  sp:{n:'ワープ',d:'つぎの カードは 読めない・ふせげない',k:'warp'},hi:["Beep! Earth words are very interesting. Let's battle!","ピピッ！ 地球の ことばは おもしろい。 勝負だ！"],win:["Beep... Data says you are strong.","ピピ… データに よると きみは つよい。"],lose:["Beep boop! Victory data saved!","ピピポ！ 勝利データを 保存！"],spl:["Warp! You can't see this one!","ワープ！ これは 見えないよ！"]},
+  sp:{n:'ワープ',d:'つぎの 攻撃は ガードできない',k:'warp'},hi:["Beep! Earth words are very interesting. Let's battle!","ピピッ！ 地球の ことばは おもしろい。 勝負だ！"],win:["Beep... Data says you are strong.","ピピ… データに よると きみは つよい。"],lose:["Beep boop! Victory data saved!","ピピポ！ 勝利データを 保存！"],spl:["Warp! You can't see this one!","ワープ！ これは 見えないよ！"]},
  {id:'kame',n:'カメ吉',ico:'🐢',d:'100さいの カメ。 まなび デッキ',lv:['hs'],at:['learn','word'],p:.82,hp:44,need:5,pt:4,coin:80,
-  sp:{n:'百年の 知恵',d:'ほしが 10 もどる',k:'heal',v:10},hi:["Slowly... and surely... Let's play.","ゆっくり… 確実に… 勝負じゃ。"],win:["You are... quick... and wise.","きみは… はやくて… かしこい。"],lose:["Slow and steady... wins the race.","ゆっくりでも… 着実が 勝つ。"],spl:["One hundred years... of wisdom.","百年の… 知恵じゃ。"]},
+  sp:{n:'百年の 知恵',d:'場の カードの ❤が 10 もどる',k:'heal',v:10},hi:["Slowly... and surely... Let's play.","ゆっくり… 確実に… 勝負じゃ。"],win:["You are... quick... and wise.","きみは… はやくて… かしこい。"],lose:["Slow and steady... wins the race.","ゆっくりでも… 着実が 勝つ。"],spl:["One hundred years... of wisdom.","百年の… 知恵じゃ。"]},
  {id:'nora',n:'ノラさん',ico:'👩‍🦳',d:'雑貨店の 店主。 くらし・ようす デッキ',lv:['hs','adv'],at:['life','look'],p:.84,hp:46,need:6,pt:4,coin:90,
-  sp:{n:'ピップの ものまね',d:'あなたの さいごの コンボと 同じ ダメージ',k:'mimic'},hi:["Oh, a card battle? Pip and I won't go easy.","カード勝負？ ピップと わたしは 手かげん しないわよ。"],win:["My, my. You've become quite the player.","まあまあ。 すっかり 一人前ね。"],lose:["Pip says, 'Try again! Try again!'","ピップが 「もう いっかい！ もう いっかい！」 ですって。"],spl:["Pip, copy that combo!","ピップ、 その コンボを まねして！"]},
+  sp:{n:'ピップの ものまね',d:'あなたの さいごの コンボと 同じ ダメージを 1まいに',k:'mimic'},hi:["Oh, a card battle? Pip and I won't go easy.","カード勝負？ ピップと わたしは 手かげん しないわよ。"],win:["My, my. You've become quite the player.","まあまあ。 すっかり 一人前ね。"],lose:["Pip says, 'Try again! Try again!'","ピップが 「もう いっかい！ もう いっかい！」 ですって。"],spl:["Pip, copy that combo!","ピップ、 その コンボを まねして！"]},
  {id:'fuku',n:'フクロウ博士',ico:'🦉',d:'夜の 物知り。 ハイレベル デッキ',lv:['adv'],at:['learn','act'],p:.88,hp:48,need:7,pt:5,coin:110,
   sp:{n:'夜の 講義',d:'つぎの あなたの 問題は 5択で ヒントなし',k:'hard'},hi:["Hoo. Let us see how deep your vocabulary goes.","ホウ。 きみの 語彙の 深さを 見せてもらおう。"],win:["Hoo... A splendid performance.","ホウ… みごとな 戦いだった。"],lose:["Hoo. Knowledge is a lifelong journey.","ホウ。 学びは 一生の 旅じゃよ。"],spl:["Time for a night lecture.","夜の 講義の 時間じゃ。"]},
  {id:'mina',n:'ミナ先生',ico:'👩‍🏫',d:'さいきょう。 ぜんぶの レベルと コンボ',lv:['jh','hs','adv'],at:[],p:.93,hp:55,need:8,pt:6,coin:150,mina:1,
-  sp:{n:'とくべつ授業',d:'コンボを 2回 つづけて 出す',k:'lesson'},hi:["A card battle with me? Okay, I won't hold back today!","わたしと カード勝負？ いいよ、 きょうは 手かげん しないからね！"],win:["Wow... You beat me. I'm really proud of you.","すごい… 負けちゃった。 ほんとに ほこらしいよ。"],lose:["I won this time! But your combos were great.","こんかいは わたしの かち！ でも コンボ、 すごかったよ。"],spl:["Special lesson! Watch closely!","とくべつ授業！ よく 見ててね！"]}];
+  sp:{n:'とくべつ授業',d:'1.5ばいの コンボ攻撃を ふくめて 2回 攻撃',k:'lesson'},hi:["A card battle with me? Okay, I won't hold back today!","わたしと カード勝負？ いいよ、 きょうは 手かげん しないからね！"],win:["Wow... You beat me. I'm really proud of you.","すごい… 負けちゃった。 ほんとに ほこらしいよ。"],lose:["I won this time! But your combos were great.","こんかいは わたしの かち！ でも コンボ、 すごかったよ。"],spl:["Special lesson! Watch closely!","とくべつ授業！ よく 見ててね！"]}];
 
 /* カード屋の ナギと 英語で 買いもの: レベルごとの やりとり。 [ナギ, [正しい, まちがい, まちがい], 説明] */
 const CG_BUY_TALK={
