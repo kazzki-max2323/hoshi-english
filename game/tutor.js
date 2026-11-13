@@ -83,24 +83,46 @@ const mline=(k,v)=>MINA.line(k,v||{});
 const minaBox=(k,v)=>{const [ex,tx]=mline(k,v);return `<div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>`};
 
 /* ================================================================ the parasol on the beach */
-const SPOT=`<svg viewBox="0 0 56 56" aria-hidden="true">
-  <ellipse cx="28" cy="53" rx="25" ry="2.4" fill="rgba(0,0,0,.28)"/>
-  <line x1="21" y1="14" x2="25" y2="52" stroke="#d9cfc0" stroke-width="1.4"/>
-  <path d="M3 18 Q20 2 39 10 Q30 13 21 14 Q12 15 3 18 Z" fill="#f2f2ee"/>
-  <path d="M3 18 Q8 9 15 6 Q16 11 21 14 Q12 15 3 18 Z" fill="#e8686a"/><path d="M21 14 Q24 7 27 4.6 Q34 6 39 10 Q30 13 21 14 Z" fill="#e8686a"/>
-  <rect x="30" y="41" width="18" height="2.6" rx="1" fill="#b68a5a"/><rect x="32" y="43" width="1.6" height="9" fill="#9a734a"/><rect x="45" y="43" width="1.6" height="9" fill="#9a734a"/>
-  <rect x="35" y="38.4" width="8" height="2.8" rx=".5" fill="#7fc4ff"/><line x1="39" y1="38.4" x2="39" y2="41.2" stroke="#fff" stroke-width=".5"/>
-  <g class="tuKid"><circle cx="24" cy="34" r="5" fill="#f3c9a0"/><path d="M19 33 Q19 27.6 24 27.8 Q29 27.6 29 33 Q27 30.6 24 31 Q21 30.6 19 33 Z" fill="#3a2a1c"/>
-   <circle cx="22.4" cy="34.3" r=".6" fill="#3a2a1c"/><circle cx="25.6" cy="34.3" r=".6" fill="#3a2a1c"/><path d="M22.6 36.4 Q24 37.4 25.4 36.4" stroke="#a05a3a" stroke-width=".6" fill="none"/>
-   <path d="M18.6 52 L19.6 41 Q24 38.6 28.4 41 L29.4 52 Z" fill="#ffcf4a"/><path d="M28 43 L34 40.6" stroke="#f3c9a0" stroke-width="2" stroke-linecap="round"/></g>
-  <g class="tuQ"><circle cx="11" cy="27" r="5.6" fill="#fff"/><path d="M14 31 L16.4 33.4 L12.6 32 Z" fill="#fff"/><text x="11" y="29.8" font-size="8" text-anchor="middle" fill="#e8686a" font-weight="bold" font-family="sans-serif">?</text></g>
+const SPOT=`<svg viewBox="0 0 72 60" aria-hidden="true">
+  <ellipse cx="36" cy="57.4" rx="33" ry="2.6" fill="rgba(0,0,0,.26)"/>
+  <path d="M9 56 L52 56 L59 49.6 L17 49.6 Z" fill="#5ab4ff"/><path d="M14.4 56 L21.6 49.6 M24 56 L31 49.6 M33.6 56 L40.6 49.6 M43.2 56 L50.2 49.6" stroke="#fff" stroke-width="2.2" opacity=".85"/>
+  <g class="tuToys"><path d="M4.6 49 L12.4 49 L11.4 56 L5.6 56 Z" fill="#ffcf4a" stroke="#c9952a" stroke-width=".5"/><path d="M5 49 Q8.5 44.6 12 49" fill="none" stroke="#c9952a" stroke-width=".6"/>
+   <path d="M13.6 47 L15.6 55.4" stroke="#9a734a" stroke-width=".9"/><path d="M14.6 54 Q15 57.6 17 56.6 Q17.6 54.6 16.2 53.4 Z" fill="#5ab4ff"/>
+   <path d="M2.6 57 Q4 55 6 56 Q5 57.6 2.6 57 Z" fill="#ff9a8a"/></g>
+  <line x1="25" y1="4" x2="29" y2="56" stroke="#e9e2d6" stroke-width="1.6"/>
+  <path d="M25 3 L1 19 Q5.0 22.2 9 16.6 Z" fill="#e8463e"/><path d="M25 3 L9 16.6 Q13.0 19.8 17 15.4 Z" fill="#fbf6ec"/><path d="M25 3 L17 15.4 Q21.0 18.6 25 15 Z" fill="#e8463e"/><path d="M25 3 L25 15 Q29.0 18.6 33 15.4 Z" fill="#fbf6ec"/><path d="M25 3 L33 15.4 Q37.0 19.8 41 16.6 Z" fill="#e8463e"/><path d="M25 3 L41 16.6 Q45.0 22.2 49 19 Z" fill="#fbf6ec"/>
+  <path d="M1 19 Q5 22.2 9 16.6 Q13 19.6 17 15.4 Q21 18.6 25 15 Q29 18.6 33 15.4 Q37 19.6 41 16.6 Q45 22.2 49 19" fill="none" stroke="rgba(120,30,30,.35)" stroke-width=".5"/>
+  <circle cx="25" cy="2.8" r="1.6" fill="#ffcf4a"/>
+  <g class="tuTable"><rect x="40" y="43" width="21" height="2.6" rx="1" fill="#c49462"/><rect x="42" y="45.6" width="1.8" height="9.6" fill="#9a734a"/><rect x="57.2" y="45.6" width="1.8" height="9.6" fill="#9a734a"/>
+   <path d="M41.6 42.8 L46 40.4 L50.4 42.2 L54.8 40.4 L54.8 42.8 L50.4 43.6 L46 42.8 Z" fill="#fff"/><path d="M50.4 42.2 L50.4 43.6" stroke="#bbb" stroke-width=".4"/>
+   <path d="M43 41.6 L48.6 41.6 M43.4 40.8 L48 40.8 M52 41.4 L54 41" stroke="#8aa" stroke-width=".35"/>
+   <circle cx="58.6" cy="41.2" r="1.8" fill="#e8463e"/><path d="M58.6 39.4 L59 38.4" stroke="#6b4a2a" stroke-width=".4"/><path d="M59 38.8 Q60.4 38 60.8 38.8 Q59.8 39.4 59 38.8 Z" fill="#5ab65a"/></g>
+  <g class="tuKid">
+   <path d="M21.4 55.6 Q21 51 24.6 50.4 L34 50.4 Q37.4 51 37 55.6 Z" fill="#3f6fd8"/>
+   <ellipse cx="22.4" cy="55.8" rx="2.2" ry="1.2" fill="#f3c9a0"/><ellipse cx="36" cy="55.8" rx="2.2" ry="1.2" fill="#f3c9a0"/>
+   <path d="M23.4 51 L24 41.4 Q29.4 38.4 34.8 41.4 L35.4 51 Z" fill="#ffcf4a"/>
+   <path d="M29.4 44 L30.1 45.5 L31.7 45.6 L30.5 46.6 L30.9 48.2 L29.4 47.3 L27.9 48.2 L28.3 46.6 L27.1 45.6 L28.7 45.5 Z" fill="#fff6dd"/>
+   <path d="M24.2 43 Q22.4 47 25.4 49.2" stroke="#ffcf4a" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+   <path d="M34 42.6 Q38 43 42.4 41.4" stroke="#ffcf4a" stroke-width="2.4" fill="none" stroke-linecap="round"/><circle cx="43" cy="41.2" r="1.3" fill="#f3c9a0"/>
+   <path d="M43.4 41 L46.4 37.4" stroke="#ff8a5a" stroke-width=".9" stroke-linecap="round"/>
+   <circle cx="29.2" cy="33.6" r="6.4" fill="#f3c9a0"/><circle cx="22.9" cy="34.4" r="1.2" fill="#f3c9a0"/><circle cx="35.5" cy="34.4" r="1.2" fill="#f3c9a0"/>
+   <path d="M22.6 33 Q22 26 29.2 26.2 Q36.4 26 35.8 33 Q34 29.6 31 30.4 Q30 28.6 27.4 30.2 Q24.6 29.6 22.6 33 Z" fill="#4a3220"/>
+   <path d="M29 26.4 Q28.6 23.4 31.4 23 Q29.8 24.6 30.4 26.4 Z" fill="#4a3220"/>
+   <ellipse cx="26.8" cy="34.4" rx=".95" ry="1.25" fill="#2a1c10"/><ellipse cx="31.6" cy="34.4" rx=".95" ry="1.25" fill="#2a1c10"/>
+   <circle cx="27.1" cy="34" r=".35" fill="#fff"/><circle cx="31.9" cy="34" r=".35" fill="#fff"/>
+   <ellipse cx="25.2" cy="36.4" rx="1.3" ry=".8" fill="#ff9a8a" opacity=".6"/><ellipse cx="33.2" cy="36.4" rx="1.3" ry=".8" fill="#ff9a8a" opacity=".6"/>
+   <path d="M27.8 37 Q29.2 38.4 30.6 37" stroke="#a05a3a" stroke-width=".65" fill="none" stroke-linecap="round"/></g>
+  <g class="tuSign"><path d="M66 41 L66 56.4" stroke="#9a734a" stroke-width="1.2"/><rect x="60.4" y="33.6" width="11.2" height="7.6" rx="1.2" fill="#fff6dd" stroke="#9a734a" stroke-width=".7"/>
+   <text x="66" y="39" font-size="4.4" text-anchor="middle" fill="#e8463e" font-weight="bold" font-family="sans-serif">ABC</text></g>
+  <g class="tuQ"><circle cx="11" cy="29" r="5.8" fill="#fff"/><path d="M14 33 L16.6 35.6 L12.6 34 Z" fill="#fff"/><text x="11" y="31.8" font-size="8" text-anchor="middle" fill="#e8463e" font-weight="bold" font-family="sans-serif">?</text></g>
 </svg>`;
 function spot(){let b=$('tuSpot');const w=$('window');if(!w)return;
   if(!b){b=document.createElement('button');b.id='tuSpot';b.setAttribute('aria-label','家庭教師の バイト（リクの パラソル）');b.innerHTML=SPOT;w.appendChild(b);
     b.onclick=e=>{e.stopPropagation();if(H.screen!=='home')return;SFX.talk();open()}}
   let d;try{d=SCENE.dbg()}catch(e){return}
-  const k=d.k,wd=Math.round(46*k);b.style.width=wd+'px';
-  b.style.left=Math.round(d.WW*.24-wd/2)+'px';b.style.top=Math.round(d.shore-d.WT+62*k-wd)+'px';
+  /* left end of the sand (moved from .24 in v123, so the radios have room). game.js sandSpots() keeps radios off this box */
+  const k=d.k,wd=Math.round(60*k),x=Math.max(d.WW*.11,wd/2+4);b.style.width=wd+'px';
+  b.style.left=Math.round(x-wd/2)+'px';b.style.top=Math.round(d.shore-d.WT+62*k-wd*57.4/72)+'px';
   const dk2=Math.max(0,Math.min(1,d.dark||0));b.style.setProperty('--dk',dk2.toFixed(2));
   b.classList.toggle('ask',paidLeft()>0);b.classList.toggle('off',H.screen!=='home')}
 setTimeout(spot,600);addEventListener('resize',()=>setTimeout(spot,200));setInterval(spot,2500);

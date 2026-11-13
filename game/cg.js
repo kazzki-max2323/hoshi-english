@@ -299,23 +299,37 @@ function reveal(got,title,back){save();cleanDeck();
     setTimeout(()=>slots[0]&&flip(slots[0]),300)},1400)}
 
 /* ================================================================ the hut on the beach */
-const HUT=`<svg viewBox="0 0 60 56" aria-hidden="true">
-  <path d="M6 22 L30 6 L54 22 Z" fill="#2fa7a0" stroke="#0c3b3f" stroke-width="1.5"/>
-  <path d="M6 22 L30 6 L54 22" fill="none" stroke="#e8fff8" stroke-width="1.2" stroke-dasharray="4 4"/>
-  <rect x="10" y="22" width="40" height="26" fill="#f2d7a7" stroke="#6b4a2a" stroke-width="1.5"/>
-  <rect x="14" y="28" width="16" height="12" rx="1" fill="var(--win,#3d4a6b)" stroke="#6b4a2a"/>
-  <g transform="rotate(-10 22 34)"><rect x="17" y="29" width="7" height="10" rx="1" fill="#ff8a5a" stroke="#fff" stroke-width=".8"/></g>
-  <g transform="rotate(8 26 34)"><rect x="23" y="29" width="7" height="10" rx="1" fill="#5ab4ff" stroke="#fff" stroke-width=".8"/></g>
-  <rect x="34" y="30" width="10" height="18" fill="#9c6b3d" stroke="#6b4a2a"/>
-  <rect x="16" y="14" width="28" height="7" rx="2" fill="#fff6dd" stroke="#6b4a2a" stroke-width=".8"/>
-  <text x="30" y="19.6" text-anchor="middle" font-size="5.2" font-weight="800" fill="#0c3b3f">CARDS</text>
-  <path d="M30 6 L30 1" stroke="#6b4a2a"/><path d="M30 1 L37 3 L30 5 Z" fill="#ff6a8a"/></svg>`;
+const HUT=`<svg viewBox="0 0 72 64" aria-hidden="true">
+  <ellipse cx="36" cy="60.6" rx="34" ry="2.8" fill="rgba(0,0,0,.26)"/>
+  <rect x="9" y="24" width="54" height="34" fill="#f7e3b8" stroke="#6b4a2a" stroke-width="1.2"/>
+  <path d="M18 24 V58 M27 24 V58 M36 24 V58 M45 24 V58 M54 24 V58" stroke="#e6c891" stroke-width=".7"/>
+  <rect x="5" y="57" width="62" height="3.4" rx="1" fill="#b68a5a" stroke="#6b4a2a" stroke-width=".6"/>
+  <path d="M2 26.6 L36 7 L70 26.6 Z" fill="#2fa7a0" stroke="#0c3b3f" stroke-width="1.3" stroke-linejoin="round"/>
+  <path d="M7 25 L36 8.6 L65 25" fill="none" stroke="#e8fff8" stroke-width="1" stroke-dasharray="3 3"/>
+  <rect x="21" y="14.6" width="30" height="8.6" rx="2.2" fill="#fff6dd" stroke="#6b4a2a" stroke-width=".8"/>
+  <text x="36" y="21" text-anchor="middle" font-size="6" font-weight="800" fill="#0c3b3f" font-family="sans-serif" letter-spacing=".3">CARDS</text>
+  <path d="M36 7 L36 0.6" stroke="#6b4a2a" stroke-width=".8"/><path d="M36 .6 L43 2.6 L36 4.6 Z" fill="#ff6a8a"/>
+  <rect x="13" y="34" width="26" height="15" rx="1" fill="var(--win,#3d4a6b)" stroke="#6b4a2a" stroke-width="1"/>
+  <g transform="rotate(-14 21 44)"><rect x="17" y="37" width="7.4" height="10.4" rx="1" fill="#ff8a5a" stroke="#fff" stroke-width=".8"/><text x="20.7" y="44" font-size="4" text-anchor="middle" fill="#fff">★</text></g>
+  <g><rect x="22.4" y="36" width="7.4" height="10.4" rx="1" fill="#ffcf4a" stroke="#fff" stroke-width=".8"/><text x="26.1" y="43" font-size="4" text-anchor="middle" fill="#fff">A</text></g>
+  <g transform="rotate(14 31 44)"><rect x="28.2" y="37" width="7.4" height="10.4" rx="1" fill="#5ab4ff" stroke="#fff" stroke-width=".8"/><text x="31.9" y="44" font-size="4" text-anchor="middle" fill="#fff">♥</text></g>
+  <rect x="12" y="48.6" width="28" height="2" rx=".6" fill="#c49462"/>
+  <path d="M12 30 L17 30 L17 34 Q14.5 36.6 12 34 Z" fill="#2fa7a0"/><path d="M17 30 L22 30 L22 34 Q19.5 36.6 17 34 Z" fill="#f4fffb"/><path d="M22 30 L27 30 L27 34 Q24.5 36.6 22 34 Z" fill="#2fa7a0"/><path d="M27 30 L32 30 L32 34 Q29.5 36.6 27 34 Z" fill="#f4fffb"/><path d="M32 30 L37 30 L37 34 Q34.5 36.6 32 34 Z" fill="#2fa7a0"/><path d="M37 30 L42 30 L42 34 Q39.5 36.6 37 34 Z" fill="#f4fffb"/>
+  <rect x="44" y="34" width="14" height="23" rx="1.4" fill="#9c6b3d" stroke="#6b4a2a"/><rect x="46" y="36.4" width="10" height="7" rx=".8" fill="var(--win,#3d4a6b)" opacity=".85"/>
+  <circle cx="55.6" cy="47" r=".9" fill="#ffd27a"/>
+  <path d="M48.4 44.6 L51 42.6 L53.6 44.6" stroke="#6b4a2a" stroke-width=".4" fill="none"/><rect x="47" y="44.6" width="8" height="3.6" rx=".6" fill="#fff"/>
+  <text x="51" y="47.4" font-size="2.6" text-anchor="middle" fill="#2fa7a0" font-weight="bold" font-family="sans-serif">OPEN</text>
+  <g class="cgPlant"><path d="M61 52 L67 52 L66.2 57.6 L61.8 57.6 Z" fill="#e8863e"/><path d="M64 52 Q60 46 61.6 44 M64 52 Q64 45 66 43 M64 52 Q68 47 69.4 47.6" stroke="#3f9a4f" stroke-width="1.6" fill="none" stroke-linecap="round"/></g>
+  <g class="cgStand" transform="rotate(-8 5 50)"><path d="M3 58 L5 52" stroke="#6b4a2a" stroke-width=".8"/><rect x="0.4" y="40" width="9.2" height="13" rx="1.2" fill="#fff" stroke="#0c3b3f" stroke-width=".6"/><rect x="1.6" y="41.2" width="6.8" height="10.6" rx=".8" fill="#ff6a8a"/><text x="5" y="48.6" font-size="5" text-anchor="middle" fill="#fff">★</text></g>
+  <g class="cgL"><circle cx="4.0" cy="27.4" r="1.1" fill="#ffd27a"/><circle cx="12.0" cy="22.9" r="1.1" fill="#ff9ab0"/><circle cx="20.0" cy="18.4" r="1.1" fill="#9ae6ff"/><circle cx="28.0" cy="13.9" r="1.1" fill="#ffd27a"/><circle cx="36.0" cy="9.4" r="1.1" fill="#ff9ab0"/><circle cx="44.0" cy="13.9" r="1.1" fill="#9ae6ff"/><circle cx="52.0" cy="18.4" r="1.1" fill="#ffd27a"/><circle cx="60.0" cy="22.9" r="1.1" fill="#ff9ab0"/><circle cx="68.0" cy="27.4" r="1.1" fill="#9ae6ff"/></g>
+</svg>`;
 function hut(){let b=$('cgHut');const w=$('window');if(!w)return;
   if(!b){b=document.createElement('button');b.id='cgHut';b.setAttribute('aria-label','カードショップ しおさい');b.innerHTML=HUT;w.appendChild(b);
     b.onclick=e=>{e.stopPropagation();if(H.screen!=='home')return;sf('shop');open()}}
   let d;try{d=SCENE.dbg()}catch(e){return}
-  const k=d.k,wd=Math.round(40*k);b.style.width=wd+'px';
-  b.style.left=Math.round(d.WW*.66-wd/2)+'px';b.style.top=Math.round(d.shore-d.WT+40*k-wd*48/60)+'px';
+  /* right side of the sand, just left of the zakka hut (moved from .66 in v123). game.js sandSpots() keeps radios off this box */
+  const k=d.k,wd=Math.round(54*k);b.style.width=wd+'px';
+  b.style.left=Math.round(Math.min(d.WW*.74,d.WW*.9-22*k-wd/2-4)-wd/2)+'px';b.style.top=Math.round(d.shore-d.WT+42*k-wd*60.6/72)+'px';
   const dk=Math.max(0,Math.min(1,d.dark||0));b.style.setProperty('--dk',dk.toFixed(2));
   b.classList.toggle('off',H.screen!=='home')}
 setTimeout(hut,600);addEventListener('resize',()=>setTimeout(hut,200));setInterval(hut,2500);

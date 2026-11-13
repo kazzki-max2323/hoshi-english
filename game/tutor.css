@@ -3,7 +3,7 @@
 #tuSpot{position:absolute;z-index:1;pointer-events:auto;padding:0;margin:0;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
   filter:brightness(calc(1 - var(--dk,0)*.45)) saturate(calc(1 - var(--dk,0)*.3));transition:filter 2s,opacity .4s;opacity:.94}
 #tuSpot svg{display:block;width:100%;height:auto;overflow:visible}
-#tuSpot .tuQ{opacity:0;transition:opacity .6s;transform-origin:11px 30px}
+#tuSpot .tuQ{opacity:0;transition:opacity .6s;transform-origin:11px 32px}
 #tuSpot.ask .tuQ{opacity:1;animation:tubob 2.4s ease-in-out infinite}
 #tuSpot.off{pointer-events:none}
 #tuSpot:active{transform:translateY(1px)}
