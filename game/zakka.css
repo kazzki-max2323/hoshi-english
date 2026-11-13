@@ -111,3 +111,9 @@
 .zkjuke .rbtn{display:flex;gap:4px}
 .zkjuke .rbtn button{padding:5px 8px!important;font-size:.72rem}
 .zkjuke .ritem.has .rn small{color:#55e0b4}
+/* ✨ きょうだけの めずらしい 品 */
+.zkrare{border-radius:12px;padding:6px 8px 8px;margin-bottom:6px;background:linear-gradient(160deg,rgba(255,215,120,.22),rgba(255,255,255,.03) 50%,rgba(255,190,90,.14));border:1px solid rgba(255,215,120,.55);animation:zkRare 3s ease-in-out infinite}
+.zkrare>small{display:block;font-size:.66rem;color:#ffe7a8;margin-bottom:4px}
+.zkrare>div{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px}
+.zkrare .zkit{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px!important;min-width:0;background:rgba(255,231,168,.12)!important;border-color:rgba(255,215,120,.6)!important}
+@keyframes zkRare{50%{box-shadow:0 0 12px rgba(255,215,120,.35)}}
