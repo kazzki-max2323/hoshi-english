@@ -4,7 +4,7 @@
    - 🍪 持ち帰りの 食べ物: ながれぎ雑貨店の 「おかし」の たなで 英語で 買う（game/zakka.js・データは game/food-data.js の FOOD_SNACKS）
        もちものに 入り、 あとで 食べる か、 プレゼントに できる（game/gift.js）
    - 🍽️ しおかぜ食堂: 浜辺の 砂の 上（リクと カードショップの あいだ）。 元・船の コックの マルコさんの お店
-       お品書きは 毎日 + 浜辺の 時間帯（朝ごはん・昼ごはん・おやつ・夜ごはん）で かわる。 世界の 料理 55品。 持ち帰りなし、 その場で 食べる
+       お品書きは 毎日 + 浜辺の 時間帯（朝ごはん・昼ごはん・おやつ・夜ごはん）で かわる。 世界の 料理 64品。 持ち帰りなし、 その場で 食べる
        英語で 注文: 席 → 注文（なにが 入ってる？・おすすめは？）→ 好み（辛さ・大きさ・焼き加減…）→ 飲み物 → うんちく → 食べる → 感想 → お会計
        料理の レベル（小・中・高）で 英語の むずかしさが かわる。 💡ヒントと、 えらんだ あとの 解説つき。 へんな 答えは マルコさんが わらって、 もう一回 えらべる（失敗なし）
        食べた 料理の うんちくは 📜 うんちく図鑑に のこる
@@ -134,7 +134,7 @@ const C_EN={'アメリカ':'America','イギリス':'Britain','フランス':'Fr
 const cEn=d=>C_EN[d.c]||'far away';
 
 /* ---------- 🏠 the board ---------- */
-function open(){FD.v=(FD.v||0)+1;save();const M=menu(),[en,ja]=greet(M),h=hp(),B=BANDS[M.b];
+function open(){gen++;P=null;FD.v=(FD.v||0)+1;save();const M=menu(),[en,ja]=greet(M),h=hp(),B=BANDS[M.b];
   const row=d=>{const p=d.p,short=ST.coins<p,ate=FD.eaten[d.id];
     return `<button class="fdrow ${short?'short':''} ${d===M.sp?'sp':''}" data-d="${d.id}"><span class="fdi">${d.ico}</span><span class="fdn"><b>${esc(d.n)}${ate?' <i class="fdate">✓</i>':''}</b><small>${d.fl} ${esc(d.c)}${d===M.sp?' ・ <em>★ おすすめ</em>':''}</small></span><span class="fdlv zlv zlv-${d.lv}">${LVJ[d.lv]}</span><span class="fdp">🪙${p}<small>❤+${d.hp}</small></span></button>`};
   H.show('food',`<section class="pnl fd">
@@ -246,7 +246,7 @@ function scene(c){const d=c.d,D=one(d.en),T=art(d.en),b=c.b,dr=DRINK[b];
    o:c=>[O(L(c,[`${cap(d.en)}, please.`,`I'd like ${T}, please.`,`I'll have ${T}, please.`]),L(c,[`${d.n}を ください。`,`${d.n}を おねがいします。`,`${d.n}に します。`]),1,
        L(c,[`${cap(d.en)}! Good choice.`,`${cap(T)}. Good choice!`,`Excellent choice. ${cap(T)} is one of my favorites.`]),L(c,[`${d.n}！ いいね。`,`${d.n}だね。 いい えらび方！`,`すばらしい。 ${d.n}は ぼくの お気に入りなんだ。`]),c=>prefNode(c)?'pref':'drink',
        {x:L(c,['～, please. ＝ ～を ください','I\'d like ～ ＝ ～が ほしいです（want より ていねい）','I\'ll have ～ ＝ ～に します（注文の きまり文句）']),act:c=>{c.ord=1}}),
-     ...(!c.asked?[O(L(c,[`What is ${d.en}?`,`What's in ${T}?`,`Could you tell me what's in ${T}?`]),L(c,[`${d.n}って なに？`,`${d.n}には なにが 入ってるの？`,`${d.n}に なにが 入っているか 教えて もらえますか？`]),1,
+     ...(!c.asked?[O(L(c,[`${/s$/.test(d.en)&&!/ss$/.test(d.en)?'What are':'What is'} ${d.en}?`,`What's in ${T}?`,`Could you tell me what's in ${T}?`]),L(c,[`${d.n}って なに？`,`${d.n}には なにが 入ってるの？`,`${d.n}に なにが 入っているか 教えて もらえますか？`]),1,
        L(c,[`It's from ${cEn(d)}. It has ${d.in[0]}.`,`It's from ${cEn(d)}. It has ${d.in[0]}.`,`It's a dish from ${cEn(d)}, made with ${d.in[0]}.`]),`${d.c}の 料理で、 ${d.in[1]}が 入ってるよ。`,'order',{x:L(c,['What is ～? ＝ ～って なに？','What\'s in ～? ＝ ～には なにが 入ってる？','Could you tell me ～? ＝ ～を 教えて もらえますか（ていねい）']),act:c=>{c.asked=1}})]:[]),
      ...(d.lv!=='es'&&!c.rec?[O(L(c,['','What do you recommend?','What would you recommend?']),L(c,['','おすすめは なに？','おすすめは なんですか？']),1,
        c=>M0(c).sp===d?`Good eye! ${cap(T)} is today's special.`:`Today I recommend ${M0(c).sp.en}. But ${T} is great too!`,c=>M0(c).sp===d?`お目が 高い！ ${d.n}が きょうの おすすめだよ。`:`きょうの おすすめは ${M0(c).sp.n}。 でも ${d.n}も おいしいよ！`,'order',{x:'recommend ＝ すすめる。 お店で 聞くと 楽しいよ',act:c=>{c.rec=1}})]:[]),
@@ -297,14 +297,16 @@ const M0=c=>c.M;
 const price=c=>c.d.p+(c.large?15:0);
 
 /* ---------- the talk ---------- */
-let P=null;const live=()=>P&&$('fdlog');
-function order(d,M){c={d,M,b:M.b,tri:{},seed:Math.random()*1e6|0};P={c,N:scene(c),at:'seat',step:0,used:[],fun:0};
+let P=null,gen=0;const live=()=>P&&$('fdlog');
+/* a timer that dies when the talk ends or a new one starts */
+const later=(fn,ms)=>{const g=gen;setTimeout(()=>{if(g===gen)fn()},ms)};
+function order(d,M){gen++;c={d,M,b:M.b,tri:{},seed:Math.random()*1e6|0};P={c,N:scene(c),at:'seat',step:0,used:[],fun:0};
   H.show('food',`<section class="pnl lsn kw fd fdtalk" data-stay>
     <div class="qtop"><button class="x" id="fdx" aria-label="注文を やめる">←</button><b>${d.ico} ${esc(d.n)} <small class="zlv zlv-${d.lv}">${LVJ[d.lv]}</small></b><span class="qn" id="fdq"></span></div>
     <div class="lslog kwlog" id="fdlog"></div>
     <div id="fdans" class="kans"></div></section>`);
   $('fdx').onclick=()=>{sf('back');try{speechSynthesis.cancel()}catch(e){}P=null;open()};
-  setTimeout(turn,250)}
+  later(turn,250)}
 let c=null;
 function scrollLog(){const l=$('fdlog');if(l)l.scrollTo({top:l.scrollHeight,behavior:'smooth'})}
 function them(en,ja,fx,cls=''){if(!live())return;const d=document.createElement('div'),on=jaOn();d.className='lsay kth '+cls;
@@ -316,14 +318,14 @@ function you(en,x){if(!live())return;const d=document.createElement('div');d.cla
   d.innerHTML=`<span class="lface kf you">⭐</span><div class="lbody"><p>${esc(en)}</p>${x?`<small class="fdx">📖 ${esc(x)}</small>`:''}</div>`;$('fdlog').appendChild(d);scrollLog()}
 function afterTalk(fn,gap=500,minMs=900){const t0=Date.now();
   const wait=()=>{if(!live())return;const busy=ST.sound&&window.speechSynthesis&&(speechSynthesis.speaking||speechSynthesis.pending)&&Date.now()<talking;
-    if(busy||Date.now()-t0<minMs){setTimeout(wait,150);return}setTimeout(fn,gap)};setTimeout(wait,150)}
+    if(busy||Date.now()-t0<minMs){later(wait,150);return}later(fn,gap)};later(wait,150)}
 function turn(){if(!live())return;let N=P.N[P.at],g=0;
   while(N&&N.go&&g++<5){const nx=N.go(c);if(!nx)break;P.at=nx;N=P.N[P.at]}
   if(P.at==='pref'){N=prefNode(c);if(!N){P.at='drink';N=P.N.drink}}
   if(!N)return open();if(N.enter)N.enter(c);
   if(N.eat)return eatScene();if(N.end)return finish(N);
   P.step++;$('fdq').textContent=`💬 ${P.step}`;P.cur=N;
-  P.opts=(val(N.o,c)||[]);them(val(N.s,c),val(N.j,c));setTimeout(()=>answers(),350)}
+  P.opts=(val(N.o,c)||[]);them(val(N.s,c),val(N.j,c));later(()=>answers(),350)}
 function answers(hintOpen){if(!live())return;const on=jaOn(),N=P.cur;
   $('fdans').innerHTML=`${hintOpen?`<p class="khint">💡 ${esc(N.h||'')}</p>`:''}
     <div class="lopts kopts fdopts">${P.opts.map((o,i)=>`<button data-o="${i}">${esc(val(o.e,c))}${on&&o.j?`<small>${esc(val(o.j,c))}</small>`:''}</button>`).join('')}</div>
@@ -333,9 +335,9 @@ function answers(hintOpen){if(!live())return;const on=jaOn(),N=P.cur;
 function pick(i){if(!live())return;const o=P.opts[i];$('fdans').innerHTML='';
   const e=val(o.e,c);you(e,val(o.x,c));if(o.act)o.act(c);
   if(o.ok){FD.ph[e]=(FD.ph[e]||0)+1;if(!P.used.includes(e))P.used.push(e);save()}
-  setTimeout(()=>{if(!live())return;const r=val(o.r,c),nx=val(o.nx,c);
+  later(()=>{if(!live())return;const r=val(o.r,c),nx=val(o.nx,c);
     if(!o.ok){P.fun++;sf('tease')}else sf('step');
-    const next=()=>{if(nx===P.at){P.opts=P.opts.filter(x=>x!==o);setTimeout(()=>answers(),300);return}P.at=nx;afterTalk(turn)};
+    const next=()=>{if(nx===P.at){P.opts=P.opts.filter(x=>x!==o);later(()=>answers(),300);return}P.at=nx;afterTalk(turn)};
     if(r){them(r,val(o.rj,c),o.fx||(o.ok?'😊':'😂'),o.ok?'k-good':'k-oops');if(nx===P.at)afterTalk(next,200,500);else next()}else next()},500)}
 /* the dish comes: three bites, ❤ fills */
 function eatScene(){if(!live())return;const d=c.d,before=hp();
@@ -356,7 +358,7 @@ function finish(N){if(!live())return;const d=c.d,p=price(c);
   const [ex,tx]=ML(k,v);
   const phs=P.used.map(e=>`<button data-ph="${esc(e)}">${esc(e)}</button>`).join('');
   const triH=[0,1].filter(i=>c.tri[i]).map(i=>`<div class="fdtri"><p>${esc(d.t[i][0])}<button class="ksay" data-say="${esc(d.t[i][0])}">🔊</button></p><small>${esc(d.t[i][1])}</small></div>`).join('');
-  setTimeout(()=>{if(!live())return;$('fdq').textContent='🍽️';
+  later(()=>{if(!live())return;$('fdq').textContent='🍽️';
     $('fdans').innerHTML=`<div class="kres">
       <p class="kend good">🍽️ ごちそうさま！${first?' <small>はじめての 料理！</small>':''}</p>
       <p class="zkres">${d.ico} <b>${esc(d.n)}</b>（${d.fl} ${esc(d.c)}） 🪙${p} ・ ❤ ${c.hpA} → <b>${c.hpB}</b></p>
@@ -439,7 +441,7 @@ function hut(){let b=$('fdHut');const w=$('window');if(!w)return;
   const dk=Math.max(0,Math.min(1,d.dark||0));b.style.setProperty('--dk',dk.toFixed(2));
   b.classList.toggle('off',H.screen!=='home')}
 setTimeout(hut,650);addEventListener('resize',()=>setTimeout(hut,200));setInterval(hut,2500);
-H.on('home',()=>setTimeout(hut,70));
+H.on('home',()=>{gen++;P=null;setTimeout(hut,70)});
 
 /* ================================================================ 🍙 ミオの まかない（鉱山の 入口で へとへとの とき。1日1回） */
 const MAKA=30;
