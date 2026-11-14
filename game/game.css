@@ -161,20 +161,7 @@
 .radio.sleep{filter:grayscale(.6) brightness(.7)}
 .radio .zz{position:absolute;left:62%;top:-12px;font-style:normal;font-size:.8rem;animation:zz 2s ease-in-out infinite}
 @keyframes zz{50%{transform:translate(4px,-5px);opacity:.5}}
-.bubble.ab .folkt{background:#ffe7a8}
 
-/* beach residents */
-#folk{position:absolute;inset:0;pointer-events:none;z-index:1}
-.folk{position:absolute;transform:translate(-50%,-50%);pointer-events:auto;background:none;border:0;padding:2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;transition:left 3s linear;color:#fff}
-.folk .fe{font-size:2rem;line-height:1;display:block;filter:drop-shadow(0 3px 2px #0009);animation:walk .5s ease-in-out infinite alternate}
-.folk.flip .fe{transform:scaleX(-1)}
-.folk b{font-size:.6rem;font-weight:800;background:rgba(11,13,36,.65);border-radius:99px;padding:0 6px;margin-top:1px;white-space:nowrap}
-.folk .fq{position:absolute;top:-16px;right:-8px;font-style:normal;font-size:1rem;animation:popb .5s cubic-bezier(.2,1.9,.4,1) both,zz 1.6s ease-in-out .5s infinite}
-.folk.talk .fe{animation:walk .25s ease-in-out infinite alternate}
-.folk.bye .fq{display:none}
-@keyframes walk{to{transform:translateY(-3px) rotate(4deg)}}
-.folk.flip .fe{animation-name:walkf}
-@keyframes walkf{from{transform:scaleX(-1)}to{transform:scaleX(-1) translateY(-3px) rotate(-4deg)}}
 
 /* grammar notes */
 .home .row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}

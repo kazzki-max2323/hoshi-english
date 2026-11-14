@@ -236,7 +236,7 @@ const fabKick=()=>{if(!fabQ)fabQ=requestAnimationFrame(fabUpd)};
 new MutationObserver(fabKick).observe(panel,{childList:true,subtree:true,attributes:true,attributeFilter:['data-stay','class']});new MutationObserver(fabKick).observe(document.body,{childList:true});
 /* moving things (answer bubbles, residents, mini-game targets) answer the moment a finger touches them.
    A normal click needs the finger to go down and up on the same element, which fails when it drifts away in between. */
-const FAST='.ab.opt,.ab.line,button.folk,#ar .shell,#ar .st,#ar .crab,#ar .tile,#ar [data-d]';let eatUntil=0;
+const FAST='.ab.opt,.ab.line,#ar .shell,#ar .st,#ar .crab,#ar .tile,#ar [data-d]';let eatUntil=0;
 document.addEventListener('pointerdown',e=>{if(e.button>0)return;let t=e.target.closest(FAST);if(!t)return;
   /* the shining grammar inside the radio's line is its own button (game/gram-see.js), not "say it again" */
   const gm=e.target.closest('.ab.line [data-gmk]');if(gm)t=gm;
@@ -477,33 +477,8 @@ function coinBurst(x,y,amt,quick){const tg=document.querySelector('.coin i').get
       {duration:760+k*70,easing:'cubic-bezier(.45,0,.55,1)',fill:'forwards'});
     an.onfinish=()=>{d.remove();if(share)addCoins(share);SFX.coin()}}}
 
-/* ---------- beach residents ----------
-   one walks in now and then (the owl only at night);
-   tap it and it says something in English — pick the right Japanese for coins. */
-const folkLayer=document.createElement('div');folkLayer.id='folk';$('window').appendChild(folkLayer);
-const FOLK_REWARD=5;
-/* a resident drops by once every ten minutes */
-const FOLK_EVERY=10*60*1000;
-let folkNow=null,folkNext=performance.now()+FOLK_EVERY;
-function folkUnlocked(){return FOLK.filter(f=>!f[4]||isNight())}
-function folkSpawn(){const pool=folkUnlocked();if(!pool.length)return;const F=pick(pool),[fx]=fireSpot();
-  let x;do{x=.12+Math.random()*.76}while(Math.abs(x-fx)<.16);const from=Math.random()<.5?-.08:1.08;
-  const el=document.createElement('button');el.className='folk';el.innerHTML=`<span class="fe">${F[1]}</span><b>${F[2]}</b><i class="fq">💬</i>`;
-  el.style.left=from*100+'%';el.style.top=(.72+Math.random()*.06)*100+'%';el.setAttribute('aria-label',`${F[2]}（${F[3]}）`);folkLayer.appendChild(el);
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{el.style.left=x*100+'%'}));el.classList.toggle('flip',from>x);
-  folkNow={F,el,x,until:performance.now()+26000,talked:false};
-  el.onclick=()=>folkTalk()}
-function folkLeave(){const f=folkNow;if(!f)return;folkNow=null;const el=f.el;el.classList.remove('flip');el.classList.toggle('flip',f.x>.5);el.style.left=(f.x>.5?1.1:-.1)*100+'%';el.classList.add('bye');setTimeout(()=>el.remove(),3200);folkNext=performance.now()+FOLK_EVERY}
-/* a resident's line uses the same floating answers as the radios */
-function folkTalk(){const f=folkNow;if(!f||f.talked||screen!=='home')return;if(cur&&!cur.done&&talking)return;
-  f.talked=true;f.el.querySelector('.fq').textContent='…';radioQuiet();
-  const lines=f.F[5],ans=pick(lines),others=shuffle(FOLK.flatMap(x=>x[5]).filter(l=>l!==ans&&!overlap(l[1],ans[1]))).slice(0,2);
-  cur={lv:'folk',src:'folk',who:f.F[2],ico:f.F[1],en:ans[0],ja:ans[1],opts:shuffle([ans[1],...others.map(o=>o[1])]),reward:FOLK_REWARD,t0:performance.now()};
-  drawLine({x:f.x,y:.7});talking=true;f.el.classList.add('talk');say('folk',ans[0],()=>{talking=false;f.el.classList.remove('talk')})}
-function folkDone(ok){const f=folkNow;if(!f)return;f.el.querySelector('.fq').textContent=ok?'❤️':'💦';setTimeout(folkLeave,1800);nextAt=Math.max(nextAt,performance.now()+4000)}
-setInterval(()=>{const now=performance.now();
-  if(folkNow&&(now>folkNow.until&&!(cur&&cur.src==='folk'&&!cur.done)))folkLeave();
-  if(!folkNow&&!cheerOn&&!cheerDue()&&screen==='home'&&!document.hidden&&now>folkNext&&!(cur&&!cur.done))folkSpawn()},1000);
+/* 浜辺の 住人が ときどき 歩いてくる イベントは やめた（浜辺に 店や 人が ふえて こみあうので）。台本は game/extras/folk.js に のこしてある */
+let folkNow=null,folkNext=0;const folkDone=()=>{};
 
 /* ---------- grammar notes (game/grammar/*.js): all open from the start (no buying), read and practised here.
    ST.gram.owned is the old shop data: kept in the save as it was, but no longer used to lock anything ---------- */
