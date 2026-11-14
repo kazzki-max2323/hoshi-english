@@ -1324,7 +1324,7 @@ const SCENE=(()=>{
   delete EV.supermoon;const EVN=Object.keys(EV);let cur=null,lastEv=null,nextAt=performance.now()+300000;
   function startEvent(name){try{if(['dblPick','won','dblTie'].includes(S.phase)||document.body.classList.contains('dbl'))setTimeout(()=>say('evDuringDbl',{delay:0}),5200)}catch(e){}if(!name){const c=EVN.filter(n=>n!==lastEv&&timeOk(n));let tot=c.reduce((a,n)=>a+evWeight(n),0),r=Math.random()*tot;name=c[c.length-1];for(const n of c){r-=evWeight(n);if(r<=0){name=n;break}}}lastEv=name;cur={name,et:0,st:{}};try{window.diaryNote&&diaryNote('ev',name)}catch(e){}
     let g='';try{g=grantEvent(name)}catch(e){}try{if(S.mapN>0||Math.random()<(.12+treB())/3){if(S.mapN>0)S.mapN--;const tr=giveTre(0);g=g?g+'<br>'+tr:tr}}catch(e){}
-    sfx.chime();const el=$('toast');el.innerHTML=EV[name].msg+(g?`<br><b>${g}</b>`:'');el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),4800)}
+    if(g){sfx.chime();const el=$('toast');el.innerHTML=`<b>${g}</b>`;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),4800)}}
 
   // ---- animal visitors: their own gentle schedule, one at a time ----
   const shadeF=(cx,cy,r,c)=>{const b=dark>.5?mixc(c,'#1a1830',.3):c,g=x.createRadialGradient(cx-r*.35,cy-r*.45,r*.1,cx,cy,r*1.15);g.addColorStop(0,mixc(b,'#ffffff',.22));g.addColorStop(.6,b);g.addColorStop(1,mixc(b,'#000000',.3));return g};
@@ -1730,7 +1730,7 @@ const SCENE=(()=>{
   const VISN=Object.keys(VIS);let vcur=null,vlast=null,visitAt=performance.now()+R(300000,480000);
   const visOk=n=>{const w=VIS[n].when,h=gameHour();if(!w)return true;if(w==='night')return dark>.6;if(w==='day')return dark<.35;if(w==='dusk')return h>=17||h<6;if(w==='morning')return h>=5&&h<11;return true};
   function startVisitor(name){if(!name){const c=VISN.filter(n=>n!==vlast&&visOk(n));name=c[Math.random()*c.length|0]}if(!name)return;vlast=name;vcur={name,et:0,st:{}};try{window.diaryNote&&diaryNote('an',name)}catch(e){}let g='';try{if(Math.random()<.1+.03*((S.up&&S.up.gift)||0))g=grantEvent('an_'+name);else say('ev_an_'+name,{n:1+(Math.random()*2|0),origin:'beach',delay:1600,gap:1300})}catch(e){}try{if(S.mapN>0){if(S.mapN>0)S.mapN--;const tr=giveTre(0);g=g?g+'<br>'+tr:tr}}catch(e){}
-    const el=$('toast');el.innerHTML=VIS[name].msg+(g?`<br><b>${g}</b>`:'');el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),4200);try{sfx.chime()}catch(e){}}
+    if(g){const el=$('toast');el.innerHTML=`<b>${g}</b>`;el.classList.add('on');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('on'),4200);try{sfx.chime()}catch(e){}}}
   function runVisitor(layer,rdt){if(!vcur)return;const v=VIS[vcur.name];if((v.layer||'beach')!==layer)return;vcur.et+=rdt;const p=vcur.et/v.dur;if(p>=1){vcur=null;return}window._vrec=[];x.save();v.draw(p,vcur.st,vcur.et);x.restore();window._visPts={name:vcur.name,pts:window._vrec,t:Date.now()};window._vrec=null}
 
   // ---- ambient scenes: no rewards, just life on the beach ----
