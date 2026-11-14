@@ -98,3 +98,18 @@
 .mssum b{font-size:.84rem}.mssum b i{font-style:normal;font-size:.62rem;background:#ffffff26;border-radius:5px;padding:1px 5px;margin-left:4px}.mssum small{font-size:.72rem;color:#ffe7a8}
 /* メモ */
 .shmemo .ps{font-size:.8rem}.shmemo .wd{background:#fff3c4;border-radius:8px;padding:4px 8px;margin-top:6px}.shmemo .sg{text-align:right;font-family:"Segoe Print","Comic Sans MS",cursive,sans-serif;color:#d8902a;margin:2px 0 0}
+/* 鉱山（コース） */
+.mnlbl{margin:0;font-size:.78rem;color:#cbd2ff}
+.mncs{margin:4px 0;padding-left:22px;font-size:.8rem;display:flex;flex-direction:column;gap:2px}.mncs small{margin-left:6px;color:#ffe14a;font-size:.68rem}
+.mnst{margin:0;text-align:center;font-size:.85rem}.mnst small{color:#ffe14a;margin-left:4px}.mnst em{font-style:normal;font-size:.68rem;background:#ff7a8a;color:#fff;border-radius:6px;padding:1px 6px;margin-left:4px}
+.mnt.done .cgc{filter:saturate(.4) brightness(.65)}
+.mnms{letter-spacing:3px;font-family:var(--pixel,monospace)}
+.mnty{display:flex;gap:6px;margin:8px 0}.mnty input{flex:1;min-width:0;font-size:1.25rem;padding:8px 10px;border-radius:10px;border:2px solid #ffffff55;background:#0006;color:#fff;font-family:"Libre Baskerville",Georgia,serif;text-transform:lowercase}
+.mnty input.ok{border-color:#55e0b4;color:#55e0b4}.mnty input.ng{border-color:#ff7a8a;color:#ff7a8a}.mnty button{padding:8px 16px!important}
+.mnfind{background:radial-gradient(circle at 50% 30%,#4a3a8a,#1f2a5c);border-radius:16px;padding:16px;width:min(92vw,380px);display:flex;flex-direction:column;align-items:center;gap:10px;box-shadow:0 0 0 3px #ffd23f,0 0 40px #ffd23f88;animation:mnpop .5s cubic-bezier(.2,1.6,.4,1)}
+.mnfh{margin:0;font-size:1.15rem;font-weight:800;color:#ffe14a;text-shadow:0 0 10px #ffb000}
+.mnfc{width:min(52vw,190px)}.mnfc .cgc{animation:mnglow 1.6s ease-in-out infinite}
+.mnnew{margin:0;font-weight:900;color:#55e0b4;letter-spacing:2px}
+@keyframes mnpop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+@keyframes mnglow{50%{box-shadow:0 0 24px #ffe14a}}
+@media (prefers-reduced-motion:reduce){.mnfind,.mnfc .cgc{animation:none}}

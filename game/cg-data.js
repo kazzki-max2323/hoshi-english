@@ -1053,7 +1053,7 @@ const CG_NAGI={
  hi:[["Welcome to Shiosai Cards!","カードショップ しおさいへ ようこそ！"],["Every word is a card here. Which one will you meet today?","ここでは どの 単語も カードに なるんだ。 きょうは どれに 会える？"],["Check today's single cards! They change every day.","きょうの 1まい売りを 見てね！ 毎日 かわるよ。"],["Want to know a secret? Natural word pairs make the strongest combos.","ひみつを 教えようか？ 英語として 自然な ペアが いちばん 強い コンボに なるんだ。"],["If you answer the quiz right, your card gets full power.","問題に 正解すると カードは フルパワーだよ。"]],
  first:[["Oh, a new face! Here, take this starter deck. It's on me!","おや、 はじめての お客さん！ はい、 スターターデッキ。 プレゼントだよ！"],"ナギが 小学生の 単語カード 20まいの デッキを くれた！"],
  snipe:["Which word should I order for you? I can get any card, once a day.","どの 単語を 取りよせようか？ 1日 1まい、 どの カードでも 取りよせるよ。"],
- dup:["Got doubles? Turn them into shards, and trade shards for the card you want.","ダブった カードは かけらに して、 ほしい カードと 交換できるよ。"]};
+ dup:["Got doubles? Put them on the shelf. Someone will love them!","ダブった カードは 売り場に ならべよう。 だれかが 気に入って くれるよ。"]};
 
 /* 浜辺の カード大会: 試合の あいだの 英語の 会話（相手 or 司会の カモメ） [だれ, 英語, 日本語, [正しい, まちがい, まちがい], 説明] */
 const CG_TOUR_TALK=[

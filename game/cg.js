@@ -1,7 +1,7 @@
 /* ことばカード: 単語帳の 単語が ぜんぶ カードに なる。 浜辺の カードショップ「しおさい」（店長は きみ。 game/shop.js）と 単語の 鉱山（game/mine.js）で 使う。
    - カード: 単語帳の 6000語あまり（小・中・高・ハイレベル）＋ 宝箱の カード（宝カード）＋ 語源パーツ ＋ 文カード
    - 絵: 単語の 意味の 絵（2つの 絵の 組み合わせも）。 属性と レベルで 背景と わくが かわり、 もようは 単語ごとに ちがう（同じ 見た目の カードは ない）
-   - おぼえた 度合い（正解で 育つ。 画面には 出さない）は 鉱山の ❤HP だけに つかう。 苦手（まちがいが 多い・まちがいノートの 単語）と わすれかけ（しばらく 見ていない）の しるし
+   - おぼえた 度合い（正解で 育つ。 画面には 出さない）は 鉱山の カードの えらび方に つかう。 苦手（まちがいが 多い・まちがいノートの 単語）と わすれかけ（しばらく 見ていない）の しるし
    - ショップ: パック（レベル・テーマ・パーツ・文）、 きょうの 1まい売り、 ねらいうち注文（1日1まい）、 ダブりの かけら・合成・交換、 デッキ、 図鑑、 コンボ図鑑
    - 仕入れ（パック）は 問屋さんと 英語で やりとりすると おまけが つく
    道場・ほかの 機能との 連動・ミナ先生の セリフは game/cg-more.js。 データは game/cg-data.js */
@@ -64,16 +64,16 @@ _saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');s.
 function count(id){if(id.startsWith('t:')){const t=TR().find(c=>c.e===id.slice(2));return t&&window.CARDS?CARDS.n(t):0}
   if(id.startsWith('p:'))return CG.pt[id.slice(2)]||0;if(id.startsWith('s:'))return CG.st[id.slice(2)]||0;return CG.c[id]||0}
 const owns=id=>count(id)>0;
-function give(id,n=1){if(id.startsWith('p:'))CG.pt[id.slice(2)]=(CG.pt[id.slice(2)]||0)+n;else if(id.startsWith('s:'))CG.st[id.slice(2)]=(CG.st[id.slice(2)]||0)+n;else CG.c[id]=(CG.c[id]||0)+n}
-function take(id,n=1){if(id.startsWith('p:'))CG.pt[id.slice(2)]=Math.max(0,(CG.pt[id.slice(2)]||0)-n);else if(id.startsWith('s:'))CG.st[id.slice(2)]=Math.max(0,(CG.st[id.slice(2)]||0)-n);else{CG.c[id]=Math.max(0,(CG.c[id]||0)-n);if(!CG.c[id])delete CG.c[id]}}
+function give(id,n=1){if(id.startsWith('t:'))return;if(id.startsWith('p:'))CG.pt[id.slice(2)]=(CG.pt[id.slice(2)]||0)+n;else if(id.startsWith('s:'))CG.st[id.slice(2)]=(CG.st[id.slice(2)]||0)+n;else CG.c[id]=(CG.c[id]||0)+n}
+function take(id,n=1){if(id.startsWith('t:')){try{for(let k=0;k<n;k++)CARDS.take(id.slice(2))}catch(e){}return}if(id.startsWith('p:'))CG.pt[id.slice(2)]=Math.max(0,(CG.pt[id.slice(2)]||0)-n);else if(id.startsWith('s:'))CG.st[id.slice(2)]=Math.max(0,(CG.st[id.slice(2)]||0)-n);else{CG.c[id]=Math.max(0,(CG.c[id]||0)-n);if(!CG.c[id])delete CG.c[id]}}
 const ownedWords=()=>Object.keys(CG.c).filter(id=>CG.c[id]>0&&BY[id]);
 
-/* おぼえた 度合い: xp 0,3,8,15,25 → 1..5（表示は しない。 鉱山の ❤HP だけで つかう） */
+/* おぼえた 度合い: xp 0,3,8,15,25 → 1..5（表示は しない。 鉱山で どの カードを 先に 練習するかに つかう） */
 const STEP=[0,3,8,15,25];
 const xs=id=>CG.x[id]||(CG.x[id]=[0,0,0,0]);   // [xp, last day seen, right, wrong]
 const stat=id=>CG.x[id]||[0,0,0,0];
 function star(id){const x=stat(id)[0];let s=1;STEP.forEach((t,i)=>{if(x>=t)s=i+1});return s}
-const kira=id=>false;   // ★の 表示・きらきら版は なくした（おぼえた 度合いは 鉱山の ❤だけに つかう）
+const kira=id=>false;   // ★の 表示・きらきら版は なくした
 let weakSet=null,weakAt=0;
 function weakHeads(){if(weakSet&&performance.now()-weakAt<20000)return weakSet;weakAt=performance.now();weakSet=new Set();
   try{MINA.weakWords().forEach(w=>weakSet.add(head(w.en)))}catch(e){}return weakSet}
@@ -147,7 +147,7 @@ function face(id,opt={}){const I=typeof id==='string'?info(id):id;if(!I)return '
     <div class="cgt"><span class="cgcost">${I.cost}</span><span class="cglv">${lvTag(I)}</span></div>
     <div class="cgart"><span class="cgm">${m}</span>${s?`<span class="cgs">${s}</span>`:''}</div>
     <div class="cgn"><b>${lock?'？？？':esc(nm)}</b>${opt.ja&&!lock?`<small>${esc(I.ja)}</small>`:''}</div>
-    <div class="cgb"><span>${attrIco(I)}</span>${I.k==='p'?'':(I.k==='w'||I.k==='t')&&!lock&&!opt.noStat?`<span class="cgpw">❤${window.MINE?MINE.hpMax(I.id):cstat(I,opt.star).h}</span>`:`<span class="cgpw">⚔${pw}</span>`}</div>
+    <div class="cgb"><span>${attrIco(I)}</span>${I.k==='p'||I.k==='w'||I.k==='t'?'':`<span class="cgpw">⚔${pw}</span>`}</div>
     ${!lock&&opt.marks!==false&&I.k==='w'&&weak(I.id)?'<i class="cgmk wk" title="苦手">😣</i>':''}${!lock&&opt.marks!==false&&I.k!=='p'&&forgot(I.id)?'<i class="cgmk fg" title="わすれかけ">💤</i>':''}
     ${opt.n>1?`<i class="cgcnt">×${opt.n}</i>`:''}</div>`}
 
@@ -165,7 +165,7 @@ function misspell(w){const out=new Set(),V='aeiou';const tries=[
   ()=>w.length>4?w.slice(0,-1)+(w.endsWith('e')?'':'e'):w+'e',
   ()=>w.replace(/(ph|f|ck|k|c)/,m=>({ph:'f',f:'ph',ck:'k',k:'ck',c:'k'})[m])];
   for(let t=0;t<40&&out.size<3;t++){const x=pickL(tries)();if(x&&x!==w&&!hasHead(x)&&/^[a-z-]+$/.test(x))out.add(x)}return [...out]}
-const QT={mean:'いみは？',rev:'英語で いうと？',spell:'ただしい つづりは？',listen:'聞こえた ことばは？',fill:'あなうめ',form:'変身！',combo:'ことばコンボ',read:'相手の 単語を 読もう'};
+const QT={tf:'あってる？',miss:'ぬけた 文字は？',mean:'いみは？',rev:'英語で いうと？',spell:'ただしい つづりは？',listen:'聞こえた ことばは？',fill:'あなうめ',form:'変身！',combo:'ことばコンボ',read:'相手の 単語を 読もう'};
 /* a question about a card. opt.n = choices (4), opt.type to force a kind */
 function quiz(id,opt={}){const I=typeof id==='string'?info(id):id;const n=opt.n||4,h=I.h;let types=opt.type?[opt.type]:null;
   if(!types){types=['mean','mean','mean','rev','rev'];
@@ -449,23 +449,9 @@ function snipe(){const used=CG.snipe===today(),lvs=LVK.filter(lvOpen);
   q.oninput=()=>{$('cgsr').innerHTML=search(q.value,lvs).map(c=>row(c.id)).join('')||'<p class="note">みつからないよ</p>';bind()};bind();
   function row(id,why){const I=info(id);return `<div class="cgrow"><span class="ri">${art(I)[0]}</span><span class="rn"><b>${esc(I.en)}</b><small>${esc(I.ja)}${why?'　'+why:''}</small></span><span class="rl">${LV[I.lv].k}</span><button data-sn="${esc(id)}">${owns(id)?'もってる ':''}${coinTxt(LV[I.lv].one*2)}</button></div>`}}
 
-/* ♻️ duplicates: break into shards, trade shards for a card */
-function trade(){const dup=ownedWords().filter(id=>CG.c[id]>=2).sort((a,b)=>CG.c[b]-CG.c[a]);
-  H.show('cg',`<section class="pnl cgp">${top('♻️ 交換',`🔹${CG.sh||0}`)}
-    ${bubble(...CG_NAGI.dup)}
-    ${dup.length?`<button id="cgall" class="sub">🔹 ダブりを ぜんぶ かけらに（1まいずつ のこす）</button>
-    <div class="cgsr">${dup.map(id=>{const I=info(id);return `<div class="cgrow"><span class="ri">${art(I)[0]}</span><span class="rn"><b>${esc(I.en)}</b><small>×${CG.c[id]}</small></span>
-      <button data-s="${esc(id)}" class="sub">🔹+${LV[I.lv].sh}</button></div>`}).join('')}</div>`:'<p class="note">ダブった カードは まだ ないよ</p>'}
-    <details class="cgfold"><summary>🔹 かけらで カードと 交換する</summary>
-      <input id="cgq" class="cgin" placeholder="ほしい 単語を さがす" autocomplete="off"><div id="cgsr" class="cgsr"></div>
-      <p class="note">小 ${LV.es.tr}・中 ${LV.jh.tr}・高 ${LV.hs.tr}・H ${LV.adv.tr} かけら</p></details>
-  </section>`);
-  $('cgb').onclick=()=>{sf('back');open()};bindBubble();
-  const shard=id=>{take(id);CG.sh=(CG.sh||0)+LV[info(id).lv].sh};
-  if($('cgall'))$('cgall').onclick=()=>{let n=0;dup.forEach(id=>{while(CG.c[id]>1){shard(id);n++}});save();sf('buy');H.toast(`🔹 ${n}まいを かけらに したよ`);trade()};
-  H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{shard(b.dataset.s);save();sf('coinIn');trade()});
-  const q=$('cgq'),lvs=LVK.filter(lvOpen);q.oninput=()=>{$('cgsr').innerHTML=search(q.value,lvs).map(c=>`<div class="cgrow"><span class="ri">${art(c)[0]}</span><span class="rn"><b>${esc(c.en)}</b><small>${esc(c.ja)}</small></span><span class="rl">${LV[c.lv].k}</span><button data-tr="${esc(c.id)}" ${(CG.sh||0)<LV[c.lv].tr?'disabled':''}>🔹${LV[c.lv].tr}</button></div>`).join('');
-    H.panel.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{const id=b.dataset.tr,c=BY[id];if((CG.sh||0)<LV[c.lv].tr)return;CG.sh-=LV[c.lv].tr;const r=receive([id]);save();sf('buy');reveal(r,'かけらで 交換',trade)})}}
+/* ♻️ 交換（かけら）は なくした。 ダブった カードは カードショップの 売り場で 売る。 前の かけらは コインに かえる */
+function trade(){try{SHOP.floor()}catch(e){open()}}
+setTimeout(function cash(){if(!(CG.sh>0)||typeof CG.sh!=='number')return;if(!H.addCoins)return setTimeout(cash,3000);const v=CG.sh*3;CG.sh=0;save();H.addCoins(v);H.toast(`🔹 かけらは なくなったので、 コイン 🪙${v} に かえたよ`,4200)},7000);
 
 /* 🎴 no deck building: each battle shows 8 cards from your collection (gently balanced), you pick 4.
    today's wind (きょうの風) gives one kind of word ⚔+1 */

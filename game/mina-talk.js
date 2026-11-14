@@ -933,7 +933,7 @@ x_eventShop:[
  x_cardSeries:[
   ['wow','{ico} {ser}の カード、 あと {left}まいで コンプリート！'],
   ['happy','{ico} {ser}は {n}/{tot}。 いちばん 近いね'],
-  ['think','{ico} {ser}、 のこり {left}まいは 星のかけらで こうかん できるよ'],
+  ['think','{ico} {ser}、 のこり {left}まい。 鉱山の 奥でも 見つかるかも'],
  ],
  x_cardFree:[
   ['wow','きょうの むりょう くじ、 まだ 引いてないよ！'],
@@ -956,11 +956,7 @@ x_eventShop:[
  ],
  x_cardDup:[
   ['wow','{ico} {en}、 {n}まいも もってるね！ よっぽど 気に入られてる'],
-  ['smile','{ico} {en} が また 出たら 星のかけらに なるよ'],
- ],
- x_cardShards:[
-  ['think','星のかけら {n}こ。 ほしい カードと こうかん できるかも'],
-  ['smile','星のかけらが {n}こ たまってるよ'],
+  ['smile','{ico} {en}、 ダブった カードは カードショップで 売れるよ'],
  ],
  x_cardTeach:[
   ['think','クイズ！ {ico} を 英語で？ ヒント：{first}から はじまる {len}文字… こたえは {en}'],

@@ -24,7 +24,7 @@ function allCards(){const r=R(),out=Object.keys(r.c).filter(id=>r.c[id]>0&&C.BY[
   try{CARDS.book.forEach(t=>{if(CARDS.n(t)>0)out.push('t:'+t.e)})}catch(e){}
   Object.keys(r.pt||{}).forEach(k=>{if(r.pt[k]>0)out.push('p:'+k)});Object.keys(r.st||{}).forEach(k=>{if(r.st[k]>0)out.push('s:'+k)});return out}
 /* the floor only keeps cards you still have */
-function cleanFloor(){const S=SH(),need={};S.floor=S.floor.filter(id=>{need[id]=(need[id]||0)+1;return C.info(id)&&C.count(id)>=need[id]&&!id.startsWith('t:')})}
+function cleanFloor(){const S=SH(),need={};S.floor=S.floor.filter(id=>{need[id]=(need[id]||0)+1;return C.info(id)&&C.count(id)>=need[id]})}
 const onFloor=id=>SH().floor.filter(x=>x===id).length;
 function sell(id,p,fly){const S=SH(),i=S.floor.indexOf(id);if(i<0)return false;S.floor.splice(i,1);C.take(id);S.sold++;S.earn+=p;
   const d=C.today();if(S.tday!==d){S.tday=d;S.tearn=0}S.tearn+=p;if(!fly)H.addCoins(p);save();return true}
@@ -43,19 +43,18 @@ function open(){cleanFloor();const S=SH(),first=!S.met;
   if(first)return intro();
   if(S.away)return report();
   const g=night()>.6?pickL(MIO_NIGHT):pickL(MIO_HI),ex=pickL(['smile','laugh','wink']),pose=pickL(['wave','peace','','thumb']);
-  const tired=window.MINE?MINE.tiredN():0;
-  H.show('cg',`<section class="pnl cgp shp">
+    H.show('cg',`<section class="pnl cgp shp">
     ${top('🃏 カードショップ しおさい',esc(C.rankName()),'cgx')}
     ${bubble(g[0],g[1],ex,pose)}
     <div class="shbig">
       <button data-t="counter" class="c1"><span>🧑‍💼</span>カウンターに 立つ<small>お客さんを まつ</small></button>
-      <button data-t="mine" class="c2"><span>⛏️</span>鉱山へ<small>${tired?`💤${tired}まい 休けい中`:'単語で ほりすすむ'}</small></button>
+      <button data-t="mine" class="c2"><span>⛏️</span>鉱山へ<small>5まいを じゅんばんに 練習</small></button>
       <button data-t="floor" class="c3"><span>🏷️</span>売り場<small>${S.floor.length}/${FLOOR_N}まい</small>${S.floor.length?'':'<i class="dot"></i>'}</button>
       <button data-t="store" class="c4"><span>📦</span>倉庫<small>${allCards().length}しゅるい</small></button>
     </div>
     <div class="row shmio"><button id="shtalk">💬 ミオと 話す${window.MIOC&&MIOC.newN()?'<i class="dot"></i>':''}</button><button id="shgift" class="sub">🎁 プレゼント</button></div>
     <details class="shmore"><summary>そのほか（仕入れ・図鑑・道場）</summary>
-      <div class="cgtiles">${[['pack','🎁','仕入れ'],['one','🃏','きょうの 1まい'],['snipe','🎯','とりよせ'],['trade','♻️','交換'],['book','📖','カード図鑑'],['combo','🔗','コンボ図鑑'],['dojo','🥋','コンボ道場'],['treasure','🎁','宝箱くじ']]
+      <div class="cgtiles">${[['pack','🎁','仕入れ'],['one','🃏','きょうの 1まい'],['snipe','🎯','とりよせ'],['book','📖','カード図鑑'],['combo','🔗','コンボ図鑑'],['dojo','🥋','コンボ道場'],['treasure','🎁','宝箱くじ']]
         .map(([k,i,n])=>{const dot=k==='one'&&R().d!==C.today()||k==='snipe'&&R().snipe!==C.today()||k==='treasure'&&window.CARDS&&CARDS.freeOk()||k==='pack'&&R().free!==C.today();
           return `<button data-g="${k}"><span>${i}</span>${n}${dot?'<i class="dot"></i>':''}</button>`}).join('')}</div></details>
     <p class="shsum">これまでに ${S.sold}まい 売れた・ 売り上げ 🪙${S.earn}${S.best?` ・ 鉱山 最高 ${S.best}m`:''}</p>
@@ -104,16 +103,15 @@ function leave(){SH().away=Date.now();save()}
 
 /* ================================================================ 📦 the storeroom */
 let stF='all';
-function store(){const F=[['all','ぜんぶ'],['es','小'],['jh','中'],['hs','高'],['adv','H'],['t','宝'],['weak','😣苦手'],['tired','💤']];
+function store(){const F=[['all','ぜんぶ'],['es','小'],['jh','中'],['hs','高'],['adv','H'],['t','宝'],['weak','😣苦手']];
   let ids=allCards().filter(id=>{const I=C.info(id);if(!I)return false;if(stF==='all')return true;if(stF==='t')return I.k==='t';if(stF==='weak')return I.k==='w'&&C.weak(id);
-    if(stF==='tired')return window.MINE&&MINE.tired(id);return I.k==='w'&&I.lv===stF});
+return I.k==='w'&&I.lv===stF});
   ids.sort((a,b)=>(C.info(a).lv||'').localeCompare(C.info(b).lv||'')||C.star(a)-C.star(b));
   const shown=ids.slice(0,240);
   H.show('cg',`<section class="pnl cgp shp">${top('📦 倉庫',`${ids.length}しゅるい`)}
     <div class="shf">${F.map(([k,n])=>`<button data-f="${k}" class="${stF===k?'on':''}">${n}</button>`).join('')}</div>
-    <p class="note">❤ = 鉱山で 使える 回数（おぼえるほど へる）。 💤 = つかれて 休けい中</p>
-    <div class="shgrid">${shown.map(id=>{const hp=window.MINE?MINE.hpNow(id):0,mx=window.MINE?MINE.hpMax(id):0,t=window.MINE&&MINE.tired(id);
-      return `<div class="shcell ${t?'tired':''}" data-id="${esc(id)}">${C.face(id,{mini:1,n:C.count(id)})}${C.info(id).k==='w'||C.info(id).k==='t'?`<i class="shhp"><b style="width:${mx?hp/mx*100:0}%"></b></i>`:''}${t?`<em>💤${MINE.restMin(id)}分</em>`:''}${onFloor(id)?'<u>🏷️</u>':''}</div>`}).join('')||'<p class="note">カードが ないよ</p>'}</div>
+    <div class="shgrid">${shown.map(id=>{
+      return `<div class="shcell" data-id="${esc(id)}">${C.face(id,{mini:1,n:C.count(id)})}${onFloor(id)?'<u>🏷️</u>':''}</div>`}).join('')||'<p class="note">カードが ないよ</p>'}</div>
     ${ids.length>shown.length?`<p class="note">ほか ${ids.length-shown.length}しゅるい（しぼりこんで 見てね）</p>`:''}</section>`);
   $('shb').onclick=()=>{sf('back');open()};
   H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{stF=b.dataset.f;sf('tap');store()});
@@ -127,12 +125,12 @@ function floor(){cleanFloor();const S=SH();
     <div class="row"><button id="shauto">🃏 ダブりで おまかせ</button><button id="shclr" class="sub">ぜんぶ 下げる</button></div></section>`);
   $('shb').onclick=()=>{sf('back');open()};
   H.panel.querySelectorAll('.shslot').forEach(s=>s.onclick=()=>{const i=+s.dataset.i;if(S.floor[i]){S.floor.splice(i,1);save();sf('back');floor()}else pick()});
-  $('shauto').onclick=()=>{const dup=allCards().filter(id=>!id.startsWith('t:')&&C.count(id)-onFloor(id)>=2).sort((a,b)=>C.count(b)-C.count(a));let n=0;
+  $('shauto').onclick=()=>{const dup=allCards().filter(id=>C.count(id)-onFloor(id)>=2).sort((a,b)=>C.count(b)-C.count(a));let n=0;
     for(const id of dup){if(S.floor.length>=FLOOR_N)break;S.floor.push(id);n++}save();if(n){sf('card');H.toast(`🏷️ ${n}まい ならべたよ`)}else H.toast('ダブった カードが ないよ。 ＋から えらんでね');floor()};
   $('shclr').onclick=()=>{S.floor=[];save();sf('back');floor()}}
 /* choose a card to put out */
-function pick(){const S=SH();const ids=allCards().filter(id=>!id.startsWith('t:')&&C.count(id)-onFloor(id)>0).sort((a,b)=>C.count(b)-C.count(a)||price(b)-price(a)).slice(0,120);
-  const o=C.ov(`<div class="shpick"><b>どの カードを ならべる？</b><p class="note">ダブっている カードが 上。 宝カードは 売れないよ</p>
+function pick(){const S=SH();const ids=allCards().filter(id=>C.count(id)-onFloor(id)>0).sort((a,b)=>C.count(b)-C.count(a)||price(b)-price(a)).slice(0,120);
+  const o=C.ov(`<div class="shpick"><b>どの カードを ならべる？</b><p class="note">ダブっている カードが 上。 🎁宝カードも 売れるよ（1まいしか ない カードは 図鑑から いなくなるので 注意）</p>
     <div class="shgrid">${ids.map(id=>`<div class="shcell" data-id="${esc(id)}">${C.face(id,{mini:1,n:C.count(id)-onFloor(id),marks:false})}<span>🪙${price(id)}</span></div>`).join('')||'<p class="note">ならべられる カードが ないよ</p>'}</div>
     <button class="sub" id="shpx">やめる</button></div>`,'by');
   o.querySelector('#shpx').onclick=()=>{sf('back');C.closeOv()};
@@ -289,7 +287,6 @@ const goShop=t=>()=>['🃏 カードショップへ',()=>{CG.open();if(t)setTime
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_shMine',4,()=>SH().met?{}:null,goShop('mine')],
  ['x_shDeep',2,()=>{const b=SH().best||0;return b>=5?{d:b}:null},goShop('mine')],
- ['x_shTired',2,()=>{const n=window.MINE?MINE.tiredN():0;return n?{n}:null},goShop('store')],
  ['x_shShelf',3,()=>SH().met&&!SH().floor.length?{}:null,goShop('floor')],
  ['x_shCounter',2,()=>SH().met?{}:null,goShop('counter')],
  ['x_shReport',2,()=>SH().sold?{n:SH().sold}:null,goShop()],
