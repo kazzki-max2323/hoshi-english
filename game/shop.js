@@ -30,7 +30,8 @@ function sell(id,p,fly){const S=SH(),i=S.floor.indexOf(id);if(i<0)return false;S
 
 /* ================================================================ the Mio bubble */
 let jaOn=true;
-function speak(en){try{C.speak(en)}catch(e){}}
+function speak(en){try{MIO.say(en)}catch(e){}}
+const gspeak=en=>{try{C.speak(en)}catch(e){}};
 function bubble(en,ja,ex='smile',pose=''){return `<div class="cgnagi shm"><span class="cgnf cgm">${MIO.face(ex,pose)}</span><div class="cgnb"><b>ミオ</b><p class="en">${esc(en)}</p><p class="ja" ${jaOn?'':'hidden'}>${esc(ja)}</p></div></div>`}
 function bindBubble(root=H.panel){root.querySelectorAll('.shm .cgnb').forEach(b=>b.onclick=()=>{jaOn=!jaOn;b.querySelector('.ja').hidden=!jaOn;speak(b.querySelector('.en').textContent)})}
 const night=()=>{try{return SCENE.dark()}catch(e){return 0}};
@@ -83,16 +84,20 @@ function awaySales(min){const S=SH(),n=Math.min(12,Math.floor(min/1.5)),sold=[];
   S.guests+=guests;return {guests,sold}}
 function report(){const S=SH(),min=Math.max(0,(Date.now()-S.away)/6e4);S.away=0;save();
   const r=awaySales(min),coins=r.sold.reduce((a,x)=>a+x[1],0);
-  const memo=r.sold.length?pickL(MIO_MEMO):pickL(MIO_MEMO_QUIET);S.memo=memo;save();
+  const wd=id=>{const I=C.info(id);return I&&I.en?String(I.en).split(',')[0].trim():''};
+  const M=window.MIOMEMO?MIOMEMO.make(r,wd):{lines:[r.sold.length?pickL(MIO_MEMO):pickL(MIO_MEMO_QUIET)],ph:null,sign:['– Mio','ミオ']};
+  const memo=M.lines;S.memo=M;save();const memoEn=memo.map(x=>x[0]).join(' ');
   const ex=r.sold.length?'laugh':r.guests?'smile':'oops',pose=r.sold.length?'peace':'';
   H.show('cg',`<section class="pnl cgp shp">${top('📋 るすばんの 報告','','shb')}
     <div class="shrep"><div class="shrf">${MIO.face(ex,pose)}</div>
       <div><p class="shrn">お客さん <b>${r.guests}</b>人 ・ 売れた カード <b>${r.sold.length}</b>まい</p>
       ${r.sold.length?`<div class="shsold">${r.sold.map(([id])=>C.face(id,{mini:1,marks:false})).join('')}</div><p class="shcoin">🪙 +${coins}</p>`:''}</div></div>
-    <div class="shmemo"><b>📝 ミオの メモ</b><p class="en">${esc(memo[0])}</p><p class="ja">${esc(memo[1])}</p><button class="sub" id="shsay">🔊 読む</button></div>
+    <div class="shmemo"><b>📝 ミオの メモ</b>${memo.map((x,i)=>`<p class="en${i?' ps':''}">${esc(x[0])}</p><p class="ja">${esc(x[1])}</p>`).join('')}
+      ${M.ph?`<div class="wd"><p class="en">📌 Today's phrase: <b>${esc(M.ph[0])}</b> ＝ ${esc(M.ph[1])}</p><p class="ja">${esc(M.ph[2])}</p></div>`:''}
+      <p class="sg">${esc(M.sign[0])}</p><button class="sub" id="shsay">🔊 読む</button></div>
     <button id="shok" class="big">お店に もどる</button></section>`);
   if(r.sold.length){sf('coinIn');setTimeout(()=>sf('buy'),300)}else sf('talk');
-  $('shsay').onclick=()=>speak(memo[0]);$('shb').onclick=$('shok').onclick=()=>{sf('step');open()}}
+  $('shsay').onclick=()=>speak(memoEn+(M.ph?' '+M.ph[2]:''));$('shb').onclick=$('shok').onclick=()=>{sf('step');open()}}
 /* the mine calls this when you leave for it */
 function leave(){SH().away=Date.now();save()}
 
@@ -270,9 +275,9 @@ function talk(T,id,p,done){const g=T.g,I=C.info(id),box=$('shact');const lv=({es
   const ch=H.shuffle(x[2].map((s,j)=>[fill(s),j]));
   box.innerHTML=`<div class="shtalk"><p class="en"><b>${esc(g.G.n)}</b> 🗣️ ${esc(fill(x[0]))} <button class="sub" id="shsay">🔊</button></p><p class="ja">${esc(fill(x[1]))}</p>
     <p class="shq">店長の 答えは？</p><div class="cgtc">${ch.map(([s,j])=>`<button data-j="${j}">${esc(s)}</button>`).join('')}</div><div class="cgtx" hidden></div></div>`;
-  sf('hey');speak(fill(x[0]));$('shsay').onclick=()=>speak(fill(x[0]));
+  sf('hey');gspeak(fill(x[0]));$('shsay').onclick=()=>gspeak(fill(x[0]));
   box.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{const ok=b.dataset.j==='0';box.querySelectorAll('[data-j]').forEach(y=>{y.disabled=true;if(y.dataset.j==='0')y.classList.add('ok')});
-    if(ok){b.classList.add('ok');sf('correct');speak(fill(x[2][0]))}else{b.classList.add('ng');sf('wrong')}
+    if(ok){b.classList.add('ok');sf('correct');gspeak(fill(x[2][0]))}else{b.classList.add('ng');sf('wrong')}
     const tip=ok&&k!=='deal'?Math.max(2,Math.round(pp*.2)):0;const hh=ok&&window.MIOC?MIOC.gain(1,'ctr'):'';
     const e=box.querySelector('.cgtx');e.hidden=false;e.innerHTML=`<p>${ok?'⭕ ':'💡 '}${esc(x[3])}</p>${tip?`<p class="shtip">お客さんが よろこんで チップ 🪙${tip}！</p>`:''}${hh?`<p class="shq">${hh} <small>ミオ「Nice English, boss!」</small></p>`:''}<button class="nx">${k==='rumor'?'うわさを 聞いて 売る ▶':'売る ▶'}</button>`;
     e.querySelector('.nx').onclick=()=>{sf('step');if(tip)H.addCoins(tip);done(true,pp);
