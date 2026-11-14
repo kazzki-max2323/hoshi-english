@@ -2,6 +2,7 @@
    - 練習の 形は コースで きまっている: 和訳を 2周 → ○✕ → 英語で 2周 → 聞きとり → 正しい つづり → ならべかえ 2周 → ぬけた 文字 → 例文 あなうめ → 書く 2周 → 聞いて 書く → そのあとは まぜて ずっと
      1周 = 5まいを 左から 1回ずつ。 まちがえた カードは その 周の さいごに もう一回 出る（苦手ほど たくさん 練習）
    - 体力（❤）が あるのは 自分だけ。 1問で 1 へる。 0に なっても 見つけた 物は ぜんぶ 持ち帰れる
+     体力は 鉱山の 外でも のこり、 時間で 少しずつ もどる。 食べると たくさん もどる（game/food.js の FOOD）
    - 正解で 1m ほれる。 深い 層ほど 宝石が 高く、 見つかる カードも むずかしく なる
    - 見つかる 物: 宝石（コイン）・イベント・ごく たまに 単語カード や 🎁宝カード（見つけた ときは 大きな お祝い）
    データは game/shop-data.js（MINE_LAYERS / MINE_EVENT / MINE_GEM） */
@@ -13,6 +14,9 @@ const sf=k=>{try{SFX[k]&&SFX[k]()}catch(e){}};
 const ML=(k,v)=>{try{return MINA.line(k,v||{})}catch(e){return ['smile','']}};
 const MN=()=>{const r=R();const m=r.mn||(r.mn={dives:0,best:0,q:0,ok:0,cards:0});delete m.u;return m};
 const ME_HP=80,HAND=5;
+/* 体力は game/food.js（鉱山の 外でも のこる・時間で もどる）。 ない ときは 毎回 まんたん */
+const myHp=()=>window.FOOD?FOOD.hp():ME_HP;
+const keepHp=n=>{try{if(window.FOOD)FOOD.setHp(n)}catch(e){}};
 /* 見つかる 確率（正解 1回ごと） */
 const P_EVENT=.04,P_WORD=.018,P_TREASURE=.008,P_GEM=.2;
 
@@ -39,22 +43,24 @@ function autoHand(){const all=tools();
   return all.sort((a,b)=>score(b)-score(a)).slice(0,HAND)}
 let hand=null;
 function open(){const M=MN();if(!hand||hand.some(id=>!C.owns(id)))hand=autoHand();
-  const [ex,tx]=ML('mn_course');
+  const [ex,tx]=ML(myHp()<20&&window.FOOD?'fd_tired':'mn_course');
   H.show('cg',`<section class="pnl cgp shp mnp">
     <div class="qtop"><button class="x" id="mnb" aria-label="もどる">←</button><b>⛏️ 単語の 鉱山</b><span class="qn">${M.best?`最高 ${M.best}m`:''}</span></div>
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
+    ${window.FOOD?FOOD.mineBox():''}
     <p class="mnlbl">きょうの 5まい（左から じゅんばん）</p>
     <div class="mnhand">${hand.map(id=>`<div class="mnt" data-id="${esc(id)}">${C.face(id,{mini:1,marks:false})}</div>`).join('')}${'<div class="mnt empty"></div>'.repeat(Math.max(0,HAND-hand.length))}</div>
     <button id="mnre" class="sub">🔀 ほかの 5まいに する</button>
     <details class="shmore"><summary>練習の コース（${course().length}つの 形）</summary>
       <ol class="mncs">${course().map(s=>`<li>${s.ico} ${esc(s.n)}<small>${s.laps}周</small></li>`).join('')}<li>${MIX.ico} ${MIX.n}<small>ずっと</small></li></ol>
-      <p class="note">1周 ＝ 5まいを 左から 1回ずつ。 まちがえた カードは その 周の さいごに もう一回。 ❤ ${ME_HP}（1問で 1 へる）</p></details>
-    <button id="mngo" class="big" ${hand.length?'':'disabled'}>⛏️ ほりに いく</button>
+      <p class="note">1周 ＝ 5まいを 左から 1回ずつ。 まちがえた カードは その 周の さいごに もう一回。 ❤は 最大 ${ME_HP}（1問で 1 へる・2分で 1 もどる・食べると たくさん もどる）</p></details>
+    <button id="mngo" class="big" ${hand.length&&myHp()>0?'':'disabled'}>⛏️ ほりに いく${myHp()<ME_HP?` <small>❤${myHp()}</small>`:''}</button>
   </section>`);
   $('mnb').onclick=()=>{sf('back');SHOP.open()};
   $('mnre').onclick=()=>{sf('flip'in SFX?'flip':'tap');const old=hand.slice();let k=0;do{hand=autoHand()}while(k++<5&&hand.join()===old.join());open()};
   H.panel.querySelectorAll('.mnt[data-id]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id)});
-  $('mngo').onclick=()=>{if(!hand.length)return;sf('open');dive(hand.slice())}}
+  if(window.FOOD)FOOD.mineBind(open);
+  $('mngo').onclick=()=>{if(!hand.length||myHp()<1)return;sf('open');dive(hand.slice())}}
 
 /* ================================================================ the dive */
 let D=null;
@@ -62,7 +68,7 @@ const layerOf=d=>{let L=MINE_LAYERS[0];MINE_LAYERS.forEach(x=>{if(d>=x.at)L=x});
 const stageOf=i=>course()[i]||MIX;
 function dive(cards){try{SHOP.leave()}catch(e){}
   const M=MN();M.dives++;C.save();
-  D={hand:cards,st:0,lap:0,queue:[],redo:[],redone:{},cur:-1,depth:0,hp:ME_HP,q:0,ok:0,got:[],coins:0,events:[],words:{},crack:0,luck:0,alive:true,f:0,parts:[],pop:null,swing:0};
+  D={hand:cards,st:0,lap:0,queue:[],redo:[],redone:{},cur:-1,depth:0,hp:myHp(),q:0,ok:0,got:[],coins:0,events:[],words:{},crack:0,luck:0,alive:true,f:0,parts:[],pop:null,swing:0};
   startLap();
   H.show('cg',`<section class="pnl cgp mnp mnd" data-stay>
     <div class="qtop"><button class="x" id="mnx" aria-label="もちかえる">←</button><b id="mnl">⛏️ 0m</b><span class="qn" id="mnh"></span></div>
@@ -165,7 +171,7 @@ function sentQ(I){const h=I.h;if(!/^[a-z]+$/.test(h))return null;const re=new Re
   return {t:'fill',I,q:`<span class="qen">${esc(blank)}</span><span class="qja">${esc(s.ja)}</span>`,ch,ans:ch.indexOf(h),hint:`いみは「${esc(I.ja)}」`,
     tip:`<b>${esc(s.en)}</b><br>${esc(s.ja)}<br><small>${esc(I.en)} ＝ ${esc(I.ja)}。 文ごと 声に 出すと おぼえやすいよ</small>`,say:[s.lv,s.en]}}
 /* after an answer */
-function after(id,ok){if(!D||D.busy)return;D.busy=true;D.q++;D.hp--;C.record(id,ok);const w=D.words[id]||(D.words[id]=[0,0]);w[ok?0:1]++;
+function after(id,ok){if(!D||D.busy)return;D.busy=true;D.q++;D.hp--;keepHp(D.hp);C.record(id,ok);const w=D.words[id]||(D.words[id]=[0,0]);w[ok?0:1]++;
   const M=MN();M.q++;if(ok)M.ok++;
   if(!ok&&!D.redone[D.cur]&&!D.redo.includes(D.cur))D.redo.push(D.cur);
   if(ok){D.ok++;D.swing=6;sf('tap');setTimeout(()=>{if(!D)return;D.crack=0;D.depth++;burst();sf('knock');const big=find();C.save();hud();if(!big)setTimeout(()=>next(),D.pop?650:450)},420);
@@ -178,7 +184,7 @@ function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.
   if(r<P_TREASURE+P_WORD+deep){const lv=pickL(L.lv),pool=C.W.filter(c=>c.lv===lv),fresh=pool.filter(c=>!C.owns(c.id));const c=pickL(fresh.length&&Math.random()<.85?fresh:pool);
     const isNew=!C.owns(c.id);C.give(c.id);D.got.push({id:c.id,isNew});return celebrate(c.id,isNew,false)}
   if(r<P_TREASURE+P_WORD+deep+P_EVENT){const E=pickL(MINE_EVENT);D.events.push(E);
-    if(E.hp)D.hp=Math.min(ME_HP,D.hp+E.hp);if(E.deep)D.depth+=E.deep;if(E.luck)D.luck+=E.luck;if(E.coin)D.coins+=E.coin;
+    if(E.hp){D.hp=Math.min(ME_HP,D.hp+E.hp);keepHp(D.hp)}if(E.deep)D.depth+=E.deep;if(E.luck)D.luck+=E.luck;if(E.coin)D.coins+=E.coin;
     D.pop={ico:E.ico,t:0,big:1};sf('hey');H.toast(`${E.ico} <b>${esc(E.n)}</b><small>${esc(E.t)}</small>`,3600);return false}
   if(r<P_TREASURE+P_WORD+deep+P_EVENT+P_GEM+lk){const gi=Math.min(MINE_GEM.length-1,Math.floor(Math.random()*(2+D.depth/12))),G=MINE_GEM[gi];const v=G[2]+Math.floor(D.depth/5);
     D.coins+=v;D.pop={ico:G[0],t:0};sf('coinIn');return false}
@@ -224,7 +230,7 @@ function draw(c){const L=layerOf(D.depth),[a,b,k]=L.col;
 function burst(){const L=layerOf(D.depth);for(let i=0;i<14;i++)D.parts.push({x:96,y:44,vx:(Math.random()-.3)*3.2,vy:-Math.random()*3.5,l:12+Math.random()*8,c:pickL(L.col)})}
 
 /* ================================================================ back home */
-function finish(why){if(!D)return;const d=D;D.alive=false;D=null;const M=MN(),S=(()=>{try{return SHOP.rec()}catch(e){return {}}})();
+function finish(why){if(!D)return;const d=D;D.alive=false;D=null;keepHp(d.hp);const M=MN(),S=(()=>{try{return SHOP.rec()}catch(e){return {}}})();
   try{C.closeOv()}catch(e){}
   if(d.depth>M.best)M.best=d.depth;if(d.depth>(S.best||0))S.best=d.depth;S.mined=(S.mined||0)+1;
   let mapN=null;try{if(d.depth>=8&&window.ADV&&!ADV.has()&&Math.random()<.2)mapN=ADV.give()}catch(e){}
@@ -239,13 +245,15 @@ function finish(why){if(!D)return;const d=D;D.alive=false;D=null;const M=MN(),S=
       <p>${d.coins?`🪙 +${d.coins}（宝石）`:''} ${d.got.length?`✨ カード ${d.got.length}まい`:''} ${d.events.map(e=>e.ico).join('')}</p>${mapN?`<p class="mnmap">🗺️ 岩の すきまに 古い 宝の地図！「${esc(mapN)}」 <button id="mnmapgo" class="sub">宝探しに 行く</button></p>`:''}</div>
     <p class="note">練習した 単語（○＝正解 ×＝まちがい）。 タップで カード</p>
     <div class="mnws">${ws.map(([id,w])=>{const I=C.info(id);return `<button data-id="${esc(id)}"><b>${esc(head1(I))}</b> ${esc(I.ja)} <span>${'○'.repeat(w[0])}${'×'.repeat(w[1])}</span></button>`}).join('')}</div>
+    ${why==='hp'&&window.FOOD?`<p class="note">❤は 2分で 1 もどるよ。 🍽️ しおかぜ食堂か 🍪 おかしで いっきに 回復！</p><div class="row"><button id="mndin" class="sub">🍽️ 食堂へ</button></div>`:''}
     <div class="row"><button id="mnshop" class="big">🃏 お店に もどる</button></div></section>`);
+  if($('mndin'))$('mndin').onclick=()=>{sf('open');FOOD.open()};
   sf(d.depth>=20?'done':'step');
   $('mnb').onclick=$('mnshop').onclick=()=>{sf('step');SHOP.open()};
   if($('mnmapgo'))$('mnmapgo').onclick=()=>{try{SFX.map()}catch(e){}ADV.open()};
   H.panel.querySelectorAll('.mnws [data-id]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id)});
   setTimeout(()=>{try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()){const [ex,tx]=ML('sh_mineEnd',{n:d.q,d:d.depth});MINA.say('m',ex,tx,7000)}}catch(e){}},900)}
-H.on('home',()=>{if(D){D.alive=false;if(D.coins)H.addCoins(D.coins);D=null;C.save()}});
+H.on('home',()=>{if(D){D.alive=false;keepHp(D.hp);if(D.coins)H.addCoins(D.coins);D=null;C.save()}});
 
 /* ================================================================ ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
