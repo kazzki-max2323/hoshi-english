@@ -42,7 +42,7 @@ const trackShort=id=>{const n=(typeof TRACKS!=='undefined'&&TRACKS[id]||{}).name
 function good(kind,id){const g=GD[kind]&&GD[kind][id];if(!g)return null;
   if(kind==='radio'){const L=LEVELS[id];return L?Object.assign({kind,id,ico:'📻',n:L.name+'ラジオ',p:L.price||0},g):null}
   if(kind==='music'){const m=CATALOG.music.find(x=>x[0]===id);return m&&typeof TRACKS!=='undefined'&&TRACKS[id]?Object.assign({kind,id,ico:m[2],n:trackShort(id),p:m[1]},g):null}
-  if(kind==='food')return Object.assign({kind,id},g);   // 🍪 持ち帰りの おかし（game/food-data.js）
+  if(kind==='food')return Object.assign({kind,id},g);   // 🥪 持ち帰りの 食べ物（game/food-data.js）
   const e=CATALOG.event.find(x=>x.id===id);return e?Object.assign({kind,id,ico:e.ico,n:e.n,p:e.p,t:e.t,sec:e.sec,k:e.k},g):null}
 const gOwned=it=>it.kind==='radio'?ST.radios.some(r=>r.lv===it.id):it.kind==='music'?ST.music.includes(it.id):false;
 const gScene=it=>gOwned(it)?'gOwn':SCN[it.lv]||'gEs';
@@ -58,9 +58,9 @@ function lineup(){const ph=phNow(),dk=shelfDay()+':'+ph;
   const radio=[...H.LV_ORDER,'star'].map(k=>good('radio',k)).filter(Boolean);
   const music=pickShelf(Object.keys(GD.music).map(id=>good('music',id)).filter(it=>it&&!gOwned(it)),4,it=>rnd(dk+it.id)+(it.t&&it.t.includes(ph)?.6:0));
   const event=pickShelf(Object.keys(GD.event).map(id=>good('event',id)).filter(it=>it&&H.onSale(it)),6,it=>rnd(dk+it.id)+(it.t?.3:0));
-  /* 🍪 おかしは 日替わり（6品）。 おにぎりは いつも ある */
+  /* 🥪 食べ物は 日替わり（8品）。 おにぎりは いつも ある */
   const fd=Object.keys(GD.food||{}).map(id=>good('food',id)).filter(Boolean),fdk='f:'+shelfDay();
-  const food=[...fd.filter(it=>it.always),...pickShelf(fd.filter(it=>!it.always),6,it=>rnd(fdk+it.id))];
+  const food=[...fd.filter(it=>it.always),...pickShelf(fd.filter(it=>!it.always),8,it=>rnd(fdk+it.id))];
   return {radio,music,event,food,ph}}
 /* real minutes until the shelf changes (one beach day = three real hours) */
 function nextMin(){let h=12;try{h=GH()}catch(e){}let best=24;PHASES.forEach(p=>{const d=(p[0]-h+24)%24;if(d>0&&d<best)best=d});return Math.max(1,Math.ceil(best*7.5))}
@@ -183,7 +183,7 @@ function greet(){
    if(!ST.radios.length)g.push(["Look at the radios! The little one is free. Take it home!","ラジオを 見て！ 小さいのは ただよ。 もっていってね！"])}
   {const T=today();if(T.rare){const r=[`You're lucky today! I have a ${T.rare.w}. It doesn't come in often.`,`きょうは ついてるわね！ ${T.rare.n}が あるの。 めったに 入らないのよ。`];g.push(r,r,r)}
    g.push(["The shelf is different every day. Let's see what came in today!","たなは 毎日 ちがうの。 きょうは なにが 入ったかしら！"]);
-   {const f=(lineup().food||[]).filter(x=>!x.always);if(f.length){const x=pickL(f);g.push([`Hungry? The snack shelf has a ${x.en} today. Take it home for later!`,`おなか すいてる？ きょうは おかしの たなに ${x.n}が あるわ。 持ち帰って あとで どうぞ！`])}}
+   {const f=(lineup().food||[]).filter(x=>!x.always);if(f.length){const x=pickL(f);g.push([`Hungry? The food shelf has ${/s$/.test(x.en)?'some':/^[aeiou]/i.test(x.en)?'an':'a'} ${x.en} today. Take it home for later!`,`おなか すいてる？ きょうは 食べ物の たなに ${x.n}が あるわ。 持ち帰って あとで どうぞ！`])}}
    const d=T.day.filter(i=>i.k==='gift');if(d.length){const x=pickL(d);g.push([`A ${x.w} came in today. Someone on the beach might like it.`,`きょうは ${x.n}が 入ったの。 浜辺の だれかが よろこぶかも。`])}}
   if(ZD.gift.length)g.push(["Did you give your present yet? I'm sure they'll love it.","プレゼント、 もう わたした？ きっと よろこぶわ。"]);
   if(Z.tgs().length)g.push(["Did Riku give you something nice? I'd love to see it.","リクから なにか すてきな もの もらった？ 見てみたいわ。"]);
@@ -202,12 +202,12 @@ const bagN=()=>(window.FOOD?FOOD.count():0)+ownBooks().length+ZD.pc.length+ZD.fo
 function open(tab){if(!ZD.v){ZD.v=1;save();if(tab)tabNow=tab;return play('hello')}
   ZD.v++;save();shop(tab)}
 let tabNow='zakka',jukeOpen=false;
-const TABS=[['zakka','🧺','雑貨'],['food','🍪','おかし'],['radio','📻','ラジオ'],['music','🎵','レコード'],['event','🎆','イベント']];
+const TABS=[['zakka','🧺','雑貨'],['food','🥪','食べ物'],['radio','📻','ラジオ'],['music','🎵','レコード'],['event','🎆','イベント']];
 /* 📻 / 🎵 / 🎆 tabs: the goods, each with its 小・中・高 mark */
 function goodsShelf(kind){const L=lineup(),list=L[kind]||[];
   const tile=it=>{const own=gOwned(it),fn=it.kind==='food'&&window.FOOD?(FOOD.rec().bag[it.id]||0):0;return `<button class="zkit zkg ${own?'own':''}" data-g="${it.kind}:${it.id}"><i class="zlv zlv-${it.lv}">${GLV[it.lv]}</i>${fn?`<i class="zkfn">🎒${fn}</i>`:''}<span class="zi">${it.ico}</span><span class="zn">${esc(it.n)}</span><span class="zp">${own?'✓ もってる':it.p?'🪙'+it.p.toLocaleString():'むりょう'}</span>${it.kind==='food'?`<span class="zkhp">❤+${it.hp}</span>`:''}</button>`};
   let h=list.length?`<div class="zkshelf zkgs zkgs-${kind}">${list.map(tile).join('')}</div>`:`<p class="note">${kind==='music'?'🎵 レコードは ぜんぶ もってるよ！':'いまは なにも ないみたい'}</p>`;
-  if(kind==='food')h+=`<p class="note zkrot">🔄 おかしは 毎日 入れかわるよ ・ 持ち帰り用。 🎒 もちものから 食べたり、 プレゼントしたり できる${window.FOOD?`<br>❤ ${FOOD.hp()}/${FOOD.MAX}`:''}</p>`;
+  if(kind==='food')h+=`<p class="note zkrot">🔄 食べ物は 毎日 入れかわるよ ・ 持ち帰り用。 🎒 もちものから 食べたり、 プレゼントしたり できる${window.FOOD?`<br>❤ ${FOOD.hp()}/${FOOD.MAX}`:''}</p>`;
   else if(kind!=='radio')h+=`<p class="note zkrot">🔄 あと やく${nextMin()}分で たなが 入れかわるよ</p>`;
   if(kind==='music'){const mine=ST.music.filter(id=>typeof TRACKS!=='undefined'&&TRACKS[id]);
     if(mine.length)h+=`<details class="mfold zkjuke" ${jukeOpen?'open':''}><summary>🎵 もってる 曲 ${mine.length}</summary><div class="zkbag">${mine.map(id=>{const m=CATALOG.music.find(x=>x[0]===id)||[id,0,'🎵'],on=H.playing===id;

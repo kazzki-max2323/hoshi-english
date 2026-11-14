@@ -1,7 +1,7 @@
 /* 🍽️ 食べ物と 体力 と しおかぜ食堂
    - 体力（❤）: 鉱山で つかう 自分の 体力。 最大 80。 鉱山の 外でも のこり、 2分で 1ずつ もどる（0 から まんたんまで 約2時間40分）
        食べ物を 食べると たくさん もどる。 鉱山の 入口で へとへとの ときは ミオの まかない（1日1回 ただ）が あるので、 ずっと 入れない ことは ない
-   - 🍪 持ち帰りの 食べ物: ながれぎ雑貨店の 「おかし」の たなで 英語で 買う（game/zakka.js・データは game/food-data.js の FOOD_SNACKS）
+   - 🍪 持ち帰りの 食べ物: ながれぎ雑貨店の 「食べ物」の たなで 英語で 買う（game/zakka.js・データは game/food-data.js の FOOD_SNACKS）
        もちものに 入り、 あとで 食べる か、 プレゼントに できる（game/gift.js）
    - 🍽️ しおかぜ食堂: 浜辺の 砂の 上（リクと カードショップの あいだ）。 元・船の コックの マルコさんの お店
        お品書きは 毎日 + 浜辺の 時間帯（朝ごはん・昼ごはん・おやつ・夜ごはん）で かわる。 世界の 料理 64品。 持ち帰りなし、 その場で 食べる
@@ -70,7 +70,7 @@ function eat(id,back){const s=snack(id);back=typeof back==='function'?back:H.hom
   $('fdx').onclick=$('fdok').onclick=()=>{sf('back');back()};
   munch(H.panel.querySelector('.fdeat'),a,b,()=>{const m=H.panel.querySelector('.fdmn');if(m)m.hidden=false})}
 /* pick something to eat (from the mine) */
-function eatPick(back){const L=bagList();if(!L.length){H.toast('🎒 食べものが ないよ <small>雑貨屋の 🍪おかし で 買えるよ</small>');return}
+function eatPick(back){const L=bagList();if(!L.length){H.toast('🎒 食べものが ないよ <small>雑貨屋の 🥪食べ物 の たなで 買えるよ</small>');return}
   H.show('food',`<section class="pnl fd">
     <div class="qtop"><button class="x" id="fdx" aria-label="もどる">←</button><b>🍪 なにを 食べる？</b><span class="qn"></span></div>
     ${hpLine()}
@@ -481,23 +481,25 @@ Object.assign(MINA_LINES,{
  fd_eatWas:[['think','あれ、 もう ❤ まんたんだったよ。 おいしかったなら いいけどね'],['smile','まんたんでも 食べたく なる 気持ち、 わかる。 でも つぎは とっておこうね']],
  fd_book:[['smile','{n}品 食べて、 {c}か国の 味を 知ったね。 うんちくは 話の ネタに なるよ'],['point','うんちくの 英語は 🔊で 聞けるよ。 「Did you know ～?」で だれかに 話してみて']],
  fd_bookNone:[['smile','まだ なにも 食べてないね。 食堂で 注文すると、 ここに うんちくが たまっていくよ'],['happy','浜辺の しおかぜ食堂に 行ってみよう。 世界の 料理が 毎日 かわるんだって']],
- fd_tired:[['worry','❤が へってるね。 時間が たつと 少しずつ もどるけど、 食べると いっきに もどるよ'],['think','つかれてる？ しおかぜ食堂で ごはんか、 もちものの おかしを 食べよう']],
- zk_endFood:[['happy','{t}、 買えたね！ 🎒 もちものに 入ってるよ。 鉱山で つかれたら 食べてね'],['smile','{t}は 持ち帰り用。 だれかに プレゼントしても よろこばれるよ'],['point','食べものの 英語、 おぼえた？ 「Do you want one?」「Yes, please!」 かんたんだけど よく つかうよ']],
+ fd_tired:[['worry','❤が へってるね。 時間が たつと 少しずつ もどるけど、 食べると いっきに もどるよ'],['think','つかれてる？ しおかぜ食堂で ごはんか、 もちものの 食べ物を 食べよう']],
+ zk_endFood:[['smile','{t}、 いい えらび方！ パンや くだものは 鉱山の おともに ぴったりだよ'],['point','くだものの 英語は 数え方に 注意。 「a bunch of grapes」（ぶどう 1ふさ）、 「a slice of watermelon」（すいか 1切れ）って 言うんだよ'],['happy','{t}、 買えたね！ 🎒 もちものに 入ってるよ。 鉱山で つかれたら 食べてね'],['smile','{t}は 持ち帰り用。 だれかに プレゼントしても よろこばれるよ'],['point','食べものの 英語、 おぼえた？ 「Do you want one?」「Yes, please!」 かんたんだけど よく つかうよ']],
  x_fdNew:[['wow','浜辺に 食堂が できたの、 見た？ 元・船の コックさんが 世界の 料理を 出してくれるんだって'],['happy','新しい お店、 しおかぜ食堂！ 英語で 注文すると、 料理の うんちくを 教えてくれるよ']],
  x_fdTired:[['worry','❤が {n}しか ないよ。 しおかぜ食堂で ごはんに しない？'],['think','鉱山で がんばったね。 ❤ {n}… ごはんを 食べると たくさん もどるよ']],
  x_fdMenu:[['smile','いまの 時間は {b}の お品書き。 おすすめは {d}だって'],['point','食堂の お品書きは 毎日、 時間でも かわるよ。 いまは {b}。 {d}が おすすめ！'],['happy','{b}の 時間だね。 {d}、 英語で 注文してみない？']],
  x_fdTrivia:[['think','{d}の うんちく、 おぼえてる？ 「{t}」'],['smile','マルコさんの 話、 おもしろかったね。 {d}… 「{t}」']],
  x_fdSnack:[['smile','もちものに {n}が あるよ。 鉱山の おともに どうぞ'],['happy','{n}、 だれかに あげても いいね。 ミオちゃんは あまい ものが 大好きなんだって']],
- x_fdShop:[['smile','雑貨屋の 🍪おかしの たなは 毎日 かわるよ。 鉱山の おともに 1つ どう？'],['point','ノラさんの お店で おかしが 買えるよ。 持ち帰って あとで 食べたり、 プレゼントしたり できるの']]});
+ x_fdFruit:[['smile','{n}、 もちものに あるよ。 英語で なんて 言うか おぼえてる？ 「{w}」だよ'],['happy','{n}、 だれかに あげても よろこばれそう。 人に よって 好きな 食べ物が ちがうんだ']],
+ x_fdShop:[['smile','雑貨屋の 🥪食べ物の たなは 毎日 かわるよ。 パンや くだもの、 おかしも あるの。 鉱山の おともに 1つ どう？'],['point','ノラさんの お店で 食べ物が 買えるよ。 持ち帰って あとで 食べたり、 プレゼントしたり できるの']]});
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_fdNew',3,()=>!FD.v?{}:null,()=>['🍽️ 食堂を のぞく',open]],
  ['x_fdTired',3,()=>{const h=hp();try{return h<30&&MINE.rec().dives>0?{n:h}:null}catch(e){return null}},()=>['🍽️ 食堂へ',open]],
  ['x_fdMenu',2,()=>{if(!FD.v)return null;const M=menu();return {b:BANDS[M.b][1],d:M.sp.n}},()=>['🍽️ お品書きを 見る',open]],
  ['x_fdTrivia',1,()=>{const a=Object.keys(FD.tri).filter(id=>dish(id)&&FD.tri[id][0]);if(!a.length)return null;const d=dish(pickL(a));return {d:d.n,t:d.t[0][1]}},()=>['📜 うんちく図鑑',()=>book(H.home)]],
  ['x_fdSnack',2,()=>{const L=bagList();return L.length?{n:pickL(L).n}:null},()=>['🎒 もちもの',()=>{window.ZAKKA?ZAKKA.bag(H.home):eatPick(H.home)}]],
+ ['x_fdFruit',1,()=>{const L=bagList().filter(x=>['apple','mikan','watermelon','grapes','baguette','currypan','nikuman','yakiimo','soup','bento'].includes(x.id));if(!L.length)return null;const x=pickL(L);return {n:x.n,w:x.en}},()=>['🎒 もちもの',()=>{window.ZAKKA?ZAKKA.bag(H.home):eatPick(H.home)}]],
  ['x_fdShop',1,()=>{try{return ZAKKA.rec().met&&!FD.snacks&&!count()?{}:null}catch(e){return null}},()=>['🏚️ 雑貨屋へ',()=>{try{ZAKKA.open('food')}catch(e){}}]]);
 
-/* ================================================================ プレゼント: おかしの しるしと 好み（game/gift-data.js） */
+/* ================================================================ プレゼント: 食べ物の しるしと 好み（game/gift-data.js） */
 try{Object.keys(SN).forEach(id=>{GIFT_TAGS['f:'+id]=SN[id].tg});
   /* ミオは あまい ものと かわいい ものが 大好き */
   GIFT_PEOPLE.mio&&GIFT_PEOPLE.mio.love.push('f:daifuku','f:macaron','f:pudding','f:gummy');
@@ -505,7 +507,13 @@ try{Object.keys(SN).forEach(id=>{GIFT_TAGS['f:'+id]=SN[id].tg});
   GIFT_PEOPLE.mina&&GIFT_PEOPLE.mina.love.push('f:castella');
   GIFT_PEOPLE.gen&&GIFT_PEOPLE.gen.love.push('f:senbei');
   GIFT_PEOPLE.pochi&&GIFT_PEOPLE.pochi.love.push('f:onigiri');
-  GIFT_PEOPLE.baba&&GIFT_PEOPLE.baba.love.push('f:baum')}catch(e){}
+  GIFT_PEOPLE.baba&&GIFT_PEOPLE.baba.love.push('f:baum','f:yakiimo');
+  GIFT_PEOPLE.riku&&GIFT_PEOPLE.riku.love.push('f:currypan');
+  GIFT_PEOPLE.gen&&GIFT_PEOPLE.gen.love.push('f:bento');
+  GIFT_PEOPLE.hana&&GIFT_PEOPLE.hana.love.push('f:watermelon');
+  GIFT_PEOPLE.sora&&GIFT_PEOPLE.sora.love.push('f:mikan');
+  GIFT_PEOPLE.taku&&GIFT_PEOPLE.taku.love.push('f:nikuman');
+  GIFT_PEOPLE.mio&&GIFT_PEOPLE.mio.love.push('f:grapes')}catch(e){}
 /* ミオの ひとこと（カードショップの あいさつ） */
 try{MIO_HI.push(["Boss, have you tried the new diner? The chef was a ship's cook!","店長、 新しい 食堂 行きました？ コックさん、 むかし 船の コックだったんですって！"],
   ["I had pancakes at Seabreeze Diner this morning. Fluffy!","けさ しおかぜ食堂で パンケーキ 食べました。 ふわっふわ！"],
