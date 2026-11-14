@@ -368,7 +368,7 @@ function open(){if(window.SHOP)return SHOP.open();cleanDeck();const first=!CG.me
   bindBubble();speak(g[0]);
   H.panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{sf('step');go(b.dataset.t)});
   if(first)setTimeout(()=>{const ids=starter();reveal(ids.slice(0,5).map(id=>({id,isNew:true})),'スターターデッキ（15まい）',()=>{H.toast(`🗂️ ${esc(CG_NAGI.first[1])}`,3600);open()})},700)}
-function bindBubble(){const b=H.panel.querySelector('.cgnb');if(b)b.onclick=()=>{jaOn=!jaOn;b.querySelector('.ja').hidden=!jaOn;speak(b.querySelector('.en').textContent)}}
+function bindBubble(){const b=H.panel.querySelector('.cgnb');if(b)b.onclick=()=>{jaOn=!jaOn;b.querySelector('.ja').hidden=!jaOn;const t=b.querySelector('.en').textContent;window.MIO?MIO.say(t):speak(t)}}
 function go(t){({battle:()=>window.MINE?MINE.open():open(),mine:()=>window.MINE?MINE.open():open(),pack:packs,one:single,snipe,trade,book:()=>book(),combo:comboBook,
   dojo:()=>window.CGM&&CGM.dojo(open),tour:()=>window.MINE?MINE.open():open(),
   treasure:()=>window.CARDS&&CARDS.open(null,open)})[t]()}
@@ -405,7 +405,7 @@ function deliver(p,bonus){if(p.k==='kira'){if(window.CARDS)CARDS.gift(3,2);retur
 function talkBuy(p,done){const lv=({es:'es',jh:'jh',hs:'hs',adv:'hs'})[myLv()]||'es';const T=H.shuffle(CG_BUY_TALK[lv]).slice(0,2);let i=0,good=0;
   const step=()=>{const t=T[i];const ch=H.shuffle(t[1].map((x,j)=>[x,j]));
     const o=ov(`<div class="cgtalk">${bubble(t[0][0],t[0][1])}<div class="cgtc">${ch.map(([x,j])=>`<button data-j="${j}">${esc(x)}</button>`).join('')}</div><div class="cgtx" hidden></div></div>`,'tk');o.dataset.stay=1;
-    speak(t[0][0]);o.querySelector('.cgnb').onclick=()=>{jaOn=!jaOn;o.querySelector('.ja').hidden=!jaOn;speak(t[0][0])};
+    const ms=x=>window.MIO?MIO.say(x):speak(x);ms(t[0][0]);o.querySelector('.cgnb').onclick=()=>{jaOn=!jaOn;o.querySelector('.ja').hidden=!jaOn;ms(t[0][0])};
     o.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{const ok=b.dataset.j==='0';o.querySelectorAll('[data-j]').forEach(x=>{x.disabled=true;if(x.dataset.j==='0')x.classList.add('ok')});
       if(ok){good++;b.classList.add('ok');sf('correct');speak(t[1][0])}else{b.classList.add('ng');sf('wrong')}
       const x=o.querySelector('.cgtx');x.hidden=false;x.innerHTML=`<p>${ok?'⭕ ':'💡 '}${esc(t[2])}</p><button class="nx">つぎへ ▶</button>`;

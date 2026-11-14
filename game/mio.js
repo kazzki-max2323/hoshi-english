@@ -100,5 +100,19 @@ function draw(c,x,y,pose='stand',f=0){const s=P.skin,arm=P.shirt;x=Math.round(x)
   const h=P.hair;R(c,x+3,y+1,8,3,h);R(c,x+4,y,6,1,h);R(c,x+2,y+2,2,8,h);R(c,x+10,y+2,2,8,h);R(c,x+3,y+4,2,1,h);R(c,x+7,y+4,2,1,h);R(c,x+5,y+1,3,1,P.hair2);
   R(c,x+3,y,8,2,P.acc);R(c,x+4,y-1,6,1,P.acc);R(c,x+11,y+1,2,1,P.acc);R(c,x+12,y+2,1,1,P.acc);R(c,x+5,y,1,1,'#fff');R(c,x+8,y+1,1,1,'#fff')}
 
-window.MIO={face,draw,name:'ミオ'};
+/* ミオの 声: 若い 女の人の 声を えらぶ（ミナ先生の Samantha とは べつの 声を 先に さがす）。 男の 声は つかわない */
+const FEM=/Ava|Allison|Nicky|Karen|Tessa|Moira|Serena|Susan|Victoria|Kathy|Princess|Jenny|Aria|Michelle|Emma|Ana\b|Zira|Hazel|Libby|Sonia|Natasha|Clara|Female|Woman|Samantha|Google US English|Google UK English Female/i;
+const MALE=/\bMale\b|Alex|Daniel|Fred|Tom\b|Aaron|Arthur|Guy|David|Mark|George|Ryan|Eric|Rishi|Oliver|Thomas|Gordon|Lee\b|Ralph|Junior|Albert|Bruce|Christopher|Roger|Steffan|Brian|Andrew|William|James|Liam/i;
+let MV=null,MVok=false;
+function voice(){if(MVok)return MV;if(!window.speechSynthesis)return null;const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));if(!vs.length)return null;
+  const ok=vs.filter(v=>!MALE.test(v.name));
+  const pref=['Ava','Allison','Nicky','Jenny','Aria','Karen','Tessa','Susan','Zira','Libby','Google US English','Samantha'];
+  MV=null;for(const n of pref){MV=ok.find(v=>v.name.includes(n));if(MV)break}
+  MV=MV||ok.find(v=>FEM.test(v.name))||null;MVok=true;return MV}
+if(window.speechSynthesis&&speechSynthesis.addEventListener)speechSynthesis.addEventListener('voiceschanged',()=>{MVok=false});
+function say(en){try{const ST=BEACH.S;if(!ST.sound||!window.speechSynthesis||!en)return;speechSynthesis.cancel();
+  const t=(typeof sayNames==='function'?sayNames(String(en)):String(en)).replace(/[“”"]/g,'').replace(/\.\.\.|…/g,', ');
+  const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=voice();if(v)u.voice=v;
+  u.pitch=v?1.2:1.45;u.rate=(ST.slow?.76:.98);u.volume=Math.min(1,(ST.vol&&ST.vol.voice!=null)?ST.vol.voice:1);speechSynthesis.speak(u)}catch(e){}}
+window.MIO={face,draw,say,voice,name:'ミオ'};
 })();

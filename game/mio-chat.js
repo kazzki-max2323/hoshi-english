@@ -11,7 +11,7 @@ const pickL=a=>a[Math.random()*a.length|0];
 const sf=k=>{try{SFX[k]&&SFX[k]()}catch(e){}};
 const today=()=>{try{return CG.today()}catch(e){return new Date().toDateString()}};
 const save=()=>{try{CG.save()}catch(e){}};
-const speak=en=>{try{CG.speak(String(en).replace(/[“”"]/g,''))}catch(e){}};
+const speak=en=>{try{MIO.say(en)}catch(e){}};
 const MR=()=>{const S=SHOP.rec();return S.mio||(S.mio={h:0,lover:0,ends:{},n:{},day:{},cday:'',cn:0})};
 const POSE={wave:'wave',peace:'peace',thumb:'thumb',guts:'guts',point:'thumb',there:'wave',look:'wave',pencil:'peace'};
 const face=(ex,p)=>MIO.face(ex||'smile',POSE[p]||'');
@@ -45,16 +45,20 @@ function open(back){back=back||SHOP.open;hush();const M=MR(),s=stage(),g=MIO_STG
     ${top('💬 ミオと 話す',`♥ ${M.h}`,'mcx')}
     <div class="cgnagi shm"><span class="cgnf cgm">${face(s>=4?'wink':'laugh',s>=5?'peace':'wave')}</span><div class="cgnb"><b>ミオ</b><p class="en">${esc(hi[0])}</p><p class="ja">${esc(hi[1])}</p></div></div>
     <div class="mcst"><span>${g.ico}</span><div><b>${esc(g.n)}</b>${nx?`<span class="mcbar"><b style="width:${pct}%"></b></span><small>つぎ ？？？</small>`:s===4?'<small>つぎは… ？？？</small>':'<small>💞</small>'}</div></div>
+    ${window.MIOS?`<button id="mcstudy" class="mcstudy"><span>📝</span><b>英語で おしゃべり<small>毎回 ちがう 話・いまの レベルで</small></b>${MIOS.rec().d!==CG.today()?'<i class="dot"></i>':''}</button>`:''}
+    <p class="mchd">💬 ミオの 話</p>
     <div class="mcls">${L.map(t=>{const e=endsOf(t).length,n=gotN(t);
       return `<button data-k="${t.id}"><span>${t.ico}</span><b>${esc(t.t)}</b><i>${n>=e?'★':`${n}/${e}`}</i>${isNew(t)?'<u>NEW</u>':''}</button>`}).join('')}</div>
     ${lock?`<p class="note">♥ が ふえると 話せる ことが ふえるよ（あと ${lock}こ）</p>`:''}
     <details class="shmore"><summary>ふたりの 関係</summary><div class="mcstg">${MIO_STG.map((x,i)=>i<=s?`<span class="on">${x.ico} ${esc(x.n)}</span>`:'<span>？ ？？？</span>').join('')}</div></details>
-    <div class="row"><button id="mcgift" class="sub">🎁 プレゼント</button>${(window.GIFT&&GIFT.rec().n)?'<button id="mcnote" class="sub">📔 好きな物ノート</button>':''}</div>
+    <div class="row"><button id="mcgift" class="sub">🎁 プレゼント</button>${window.MIOS&&Object.keys(MIOS.rec().ok).length?'<button id="mcbook" class="sub">📒 まなんだ こと</button>':''}${(window.GIFT&&GIFT.rec().n)?'<button id="mcnote" class="sub">📔 好きな物ノート</button>':''}</div>
   </section>`);
   $('mcx').onclick=()=>{sf('back');hush();back()};
   H.panel.querySelector('.shm .cgnb').onclick=e=>{const j=e.currentTarget.querySelector('.ja');j.hidden=!j.hidden;speak(hi[0])};
   H.panel.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{sf('step');play(MIO_TALKS.find(t=>t.id===b.dataset.k),back)});
   $('mcgift').onclick=()=>{sf('step');GIFT.pick({to:'mio',back:()=>open(back)})};
+  const st=$('mcstudy');if(st)st.onclick=()=>{sf('step');MIOS.start(()=>open(back))};
+  const bk=$('mcbook');if(bk)bk.onclick=()=>{sf('book');MIOS.book(()=>open(back))};
   const nb=$('mcnote');if(nb)nb.onclick=()=>{sf('book');GIFT.note(()=>open(back))};
   speak(hi[0])}
 

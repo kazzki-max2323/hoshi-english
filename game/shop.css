@@ -85,3 +85,16 @@
 .mcstg span.on{background:rgba(255,154,192,.15);border-color:rgba(255,154,192,.5);color:#fff}
 .mc .lface.mcf{overflow:hidden;border-radius:50%;box-shadow:0 0 0 2px #e8b84a}.mc .lface.mcf svg{width:100%;height:100%;display:block}
 .mc .kopts small.mcja{display:block;font-size:.7rem;color:#ffe7a8;margin-top:2px}
+.mcstudy{display:flex;align-items:center;gap:10px;text-align:left;padding:12px 14px!important;position:relative;background:linear-gradient(#ff9ac0,#d85a8a)!important;border-color:#ffd6e6!important}
+.mcstudy span{font-size:1.8rem}.mcstudy b{display:flex;flex-direction:column;font-size:1rem}.mcstudy small{font-size:.68rem;font-weight:600;opacity:.9}
+.mcstudy .dot{position:absolute;top:8px;right:10px;width:9px;height:9px;border-radius:50%;background:#ffe14a;box-shadow:0 0 6px #ffe14a}
+.mchd{margin:4px 0 0;font-size:.78rem;color:#cbd2ff}
+/* 英語で おしゃべり（game/mio-study.js） */
+.msbox{margin:2px 8px;border-radius:12px;padding:8px 12px;font-size:.82rem}
+.msbox.mshd{text-align:center;padding:2px}.mstag{display:inline-block;font-size:.72rem;font-weight:800;background:#ffffff1a;border-radius:999px;padding:3px 10px}
+.msbox.mshint{background:#fff3c4;color:#5a4300;text-shadow:none}
+.msbox.msexp{background:#e3fff4;color:#14473a;text-shadow:none}.msbox.msexp p{margin:4px 0 0}
+.mssum{display:flex;flex-direction:column;gap:6px}.mssum p{margin:0;background:#ffffff12;border-radius:10px;padding:7px 10px;display:flex;flex-direction:column;gap:2px}
+.mssum b{font-size:.84rem}.mssum b i{font-style:normal;font-size:.62rem;background:#ffffff26;border-radius:5px;padding:1px 5px;margin-left:4px}.mssum small{font-size:.72rem;color:#ffe7a8}
+/* メモ */
+.shmemo .ps{font-size:.8rem}.shmemo .wd{background:#fff3c4;border-radius:8px;padding:4px 8px;margin-top:6px}.shmemo .sg{text-align:right;font-family:"Segoe Print","Comic Sans MS",cursive,sans-serif;color:#d8902a;margin:2px 0 0}

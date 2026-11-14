@@ -177,7 +177,7 @@ const MIO_TALKS=[
  end2:{m:["Snow will melt, silly! …But OK, I'll bring a snow globe. Then it'll never melt, just like this feeling.","雪は とけちゃいますよ！ …でも わかった、 スノードームを もってきます。 そしたら とけない。 この 気持ちと 同じ。"],ex:'wink',p:'cheeks',end:'good'}}}];
 
 /* プレゼントの 相手（game/gift.js の GIFT_PEOPLE に たす） */
-GIFT_PEOPLE.mio={n:'ミオ',ico:'🙋‍♀️',v:{p:1.3,r:1.05},love:['z:g_cookie','z:g_bubbles','z:g_candy'],like:['sweet','food','cute','shell','music','nature'],no:['lux','book'],
+GIFT_PEOPLE.mio={n:'ミオ',ico:'🙋‍♀️',v:{p:1.2,r:1.05,pick:()=>window.MIO&&MIO.voice?MIO.voice():null},love:['z:g_cookie','z:g_bubbles','z:g_candy'],like:['sweet','food','cute','shell','music','nature'],no:['lux','book'],
  hi:["Boss? Why are you hiding your hands? …Is that for me?!","店長？ なんで 手を かくしてるんですか？ …それ、 わたしに？！"],
  r:{3:[["For me?! A {w}! I love it! Thank you, boss! I'm going to put it next to the register!","わたしに？！ {n}！ 大好き！ ありがとう、 店長！ レジの 横に かざります！"],["No way! This is exactly what I wanted! How did you know?!","うそ！ ちょうど ほしかった ものです！ なんで わかったんですか？！"]],
   2:[["A {w}! It's so nice! Thank you!","{n}！ すてき！ ありがとうございます！"],["Thank you, boss! I'll take good care of it.","ありがとう、 店長！ 大切に します。"]],
