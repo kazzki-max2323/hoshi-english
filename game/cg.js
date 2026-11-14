@@ -1,7 +1,7 @@
 /* ことばカード: 単語帳の 単語が ぜんぶ カードに なる。 浜辺の カードショップ「しおさい」（店長は きみ。 game/shop.js）と 単語の 鉱山（game/mine.js）で 使う。
    - カード: 単語帳の 6000語あまり（小・中・高・ハイレベル）＋ 宝箱の カード（宝カード）＋ 語源パーツ ＋ 文カード
    - 絵: 単語の 意味の 絵（2つの 絵の 組み合わせも）。 属性と レベルで 背景と わくが かわり、 もようは 単語ごとに ちがう（同じ 見た目の カードは ない）
-   - ★: 問題に 正解すると 育つ。 ★5で きらきら版。 苦手（まちがいが 多い・まちがいノートの 単語）と わすれかけ（しばらく 見ていない）の しるし
+   - おぼえた 度合い（正解で 育つ。 画面には 出さない）は 鉱山の ❤HP だけに つかう。 苦手（まちがいが 多い・まちがいノートの 単語）と わすれかけ（しばらく 見ていない）の しるし
    - ショップ: パック（レベル・テーマ・パーツ・文）、 きょうの 1まい売り、 ねらいうち注文（1日1まい）、 ダブりの かけら・合成・交換、 デッキ、 図鑑、 コンボ図鑑
    - 仕入れ（パック）は 問屋さんと 英語で やりとりすると おまけが つく
    道場・ほかの 機能との 連動・ミナ先生の セリフは game/cg-more.js。 データは game/cg-data.js */
@@ -68,12 +68,12 @@ function give(id,n=1){if(id.startsWith('p:'))CG.pt[id.slice(2)]=(CG.pt[id.slice(
 function take(id,n=1){if(id.startsWith('p:'))CG.pt[id.slice(2)]=Math.max(0,(CG.pt[id.slice(2)]||0)-n);else if(id.startsWith('s:'))CG.st[id.slice(2)]=Math.max(0,(CG.st[id.slice(2)]||0)-n);else{CG.c[id]=Math.max(0,(CG.c[id]||0)-n);if(!CG.c[id])delete CG.c[id]}}
 const ownedWords=()=>Object.keys(CG.c).filter(id=>CG.c[id]>0&&BY[id]);
 
-/* ★ grows with right answers: xp 0,3,8,15,25 → ★1..5 */
+/* おぼえた 度合い: xp 0,3,8,15,25 → 1..5（表示は しない。 鉱山の ❤HP だけで つかう） */
 const STEP=[0,3,8,15,25];
 const xs=id=>CG.x[id]||(CG.x[id]=[0,0,0,0]);   // [xp, last day seen, right, wrong]
 const stat=id=>CG.x[id]||[0,0,0,0];
 function star(id){const x=stat(id)[0];let s=1;STEP.forEach((t,i)=>{if(x>=t)s=i+1});return s}
-const kira=id=>star(id)>=5;
+const kira=id=>false;   // ★の 表示・きらきら版は なくした（おぼえた 度合いは 鉱山の ❤だけに つかう）
 let weakSet=null,weakAt=0;
 function weakHeads(){if(weakSet&&performance.now()-weakAt<20000)return weakSet;weakAt=performance.now();weakSet=new Set();
   try{MINA.weakWords().forEach(w=>weakSet.add(head(w.en)))}catch(e){}return weakSet}
@@ -83,16 +83,16 @@ function weak(id){const x=stat(id);if(x[3]>=2&&x[3]>x[2])return true;const c=BY[
 const forgot=id=>{const x=stat(id);return x[1]>0&&dnum()-x[1]>=3};
 /* after a quiz on a card */
 function record(id,ok){if(!id||id.startsWith('p:')||id.startsWith('s:'))return 0;const x=xs(id),before=star(id);x[1]=dnum();if(ok){x[0]++;x[2]++}else x[3]++;save();return star(id)>before?star(id):0}
-/* the card's power right now (★ adds to it) */
-const power=id=>{const I=info(id);if(!I)return 0;return I.pow+(I.k==='w'||I.k==='t'?star(id)-1:0)};
+/* the card's power */
+const power=id=>{const I=info(id);if(!I)return 0;return I.pow};
 
-/* ⚔ 攻撃力・🛡 防御力・❤ HP: むずかしい 単語ほど 強い。 種類で すこし 個性、 ★で 育つ */
+/* ⚔ 攻撃力・🛡 防御力・❤ HP: むずかしい 単語ほど 強い。 種類で すこし 個性 */
 const ST_LV={es:[4,1,9],jh:[5,2,11],hs:[6,2,13],adv:[8,3,15]},ST_TR=[[4,1,9],[4,1,9],[5,1,10],[6,2,12],[7,2,14],[9,3,16]];
 const TILT={act:[1,0,-1],heart:[1,0,-1],ani:[1,0,-1],food:[0,0,2],nat:[0,0,2],life:[0,1,0],look:[0,1,0],word:[0,1,0],learn:[0,0,1],tr:[0,0,0]};
 function cstat(id,st){const I=typeof id==='string'?info(id):id;if(!I||!(I.k==='w'||I.k==='t'))return null;
   const b=I.k==='t'?ST_TR[I.r]||ST_TR[1]:ST_LV[I.lv],t=TILT[I.a]||[0,0,0];let a=b[0]+t[0],d=b[1]+t[1],h=b[2]+t[2];
   const v=hash('st'+I.id)%5;if(v===0)a++;else if(v===1)h+=2;else if(v===2)d++;
-  const s=(st!=null?st:star(I.id))-1;a+=Math.ceil(s/2);d+=Math.floor(s/3);h+=s*2;
+  const s=0;a+=Math.ceil(s/2);d+=Math.floor(s/3);h+=s*2;
   return {a:Math.max(1,a),d:Math.max(0,d),h:Math.max(5,h)}}
 
 /* 🏷️ one mark per card (the same card always has the same one):
@@ -147,7 +147,7 @@ function face(id,opt={}){const I=typeof id==='string'?info(id):id;if(!I)return '
     <div class="cgt"><span class="cgcost">${I.cost}</span><span class="cglv">${lvTag(I)}</span></div>
     <div class="cgart"><span class="cgm">${m}</span>${s?`<span class="cgs">${s}</span>`:''}</div>
     <div class="cgn"><b>${lock?'？？？':esc(nm)}</b>${opt.ja&&!lock?`<small>${esc(I.ja)}</small>`:''}</div>
-    <div class="cgb"><span>${attrIco(I)}</span>${I.k==='p'?'':(I.k==='w'||I.k==='t')&&!lock&&!opt.noStat?`<span class="cgpw">❤${window.MINE?MINE.hpMax(I.id):cstat(I,opt.star).h}</span>`:`<span class="cgpw">⚔${pw}</span>`}${st&&!opt.mini?`<span class="cgst">${'★'.repeat(st)}</span>`:''}</div>
+    <div class="cgb"><span>${attrIco(I)}</span>${I.k==='p'?'':(I.k==='w'||I.k==='t')&&!lock&&!opt.noStat?`<span class="cgpw">❤${window.MINE?MINE.hpMax(I.id):cstat(I,opt.star).h}</span>`:`<span class="cgpw">⚔${pw}</span>`}</div>
     ${!lock&&opt.marks!==false&&I.k==='w'&&weak(I.id)?'<i class="cgmk wk" title="苦手">😣</i>':''}${!lock&&opt.marks!==false&&I.k!=='p'&&forgot(I.id)?'<i class="cgmk fg" title="わすれかけ">💤</i>':''}
     ${opt.n>1?`<i class="cgcnt">×${opt.n}</i>`:''}</div>`}
 
@@ -230,7 +230,7 @@ function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0
     <div class="cgdi">
       <button class="cgsay" id="cgsay">🔊 ${esc(I.en)}</button>
       <p class="cgdj">${esc(I.ja)}</p>
-      ${I.k==='w'||I.k==='t'?`<p class="cgds">${'★'.repeat(star(id))}${'☆'.repeat(5-star(id))}${kira(id)?' ✨きらきら':''}${own?`　×${n}`:'　まだ もっていない'}</p>`:''}
+      ${I.k==='w'||I.k==='t'?`<p class="cgds">${own?`もっている かず ×${n}`:'まだ もっていない'}</p>`:''}
       <details class="cgfold"><summary>くわしく</summary>
         ${I.k==='w'?`<p>📕 ${esc(LV[I.lv].n)}「${esc(I.bt)}」　${ATTR[I.a][1]} ${ATTR[I.a][2]}</p>`:''}
         <p>コスト ${I.cost}${cstat(id)?`　⚔${cstat(id).a} 🛡${cstat(id).d} ❤${cstat(id).h}`:`　パワー ${power(id)}`}${x[2]+x[3]?`　⭕${x[2]} ❌${x[3]}`:''}</p>
@@ -242,11 +242,9 @@ function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0
         ${I.k==='p'?`<p>🧩 できる 単語: ${DERIV.filter(d=>d.p===I.part).slice(0,12).map(d=>esc(d.d)).join(', ')}…</p>`:''}
         ${I.k==='s'?`<p>📜 文カード（あつめる カード）</p>`:''}
       </details>
-      <div class="cgdb">${own&&n>=2&&(I.k==='w')?`<button id="cgfuse">✨ 合成（★を 育てる）</button>`:''}</div>
-      <button class="sub" id="cgclose">とじる</button></div></div>`,'dv');
+            <button class="sub" id="cgclose">とじる</button></div></div>`,'dv');
   const say=()=>{try{H.say(I.k==='t'?'cards':I.lv,I.k==='s'?I.en:I.en)}catch(e){}};say();
   $('cgsay').onclick=say;$('cgclose').onclick=()=>{sf('back');closeOv();back&&back()};
-  if($('cgfuse'))$('cgfuse').onclick=()=>{fuse(id);closeOv();detail(id,back)};
 }
 
 /* ================================================================ combos in a list of cards */
@@ -451,15 +449,13 @@ function snipe(){const used=CG.snipe===today(),lvs=LVK.filter(lvOpen);
   q.oninput=()=>{$('cgsr').innerHTML=search(q.value,lvs).map(c=>row(c.id)).join('')||'<p class="note">みつからないよ</p>';bind()};bind();
   function row(id,why){const I=info(id);return `<div class="cgrow"><span class="ri">${art(I)[0]}</span><span class="rn"><b>${esc(I.en)}</b><small>${esc(I.ja)}${why?'　'+why:''}</small></span><span class="rl">${LV[I.lv].k}</span><button data-sn="${esc(id)}">${owns(id)?'もってる ':''}${coinTxt(LV[I.lv].one*2)}</button></div>`}}
 
-/* ♻️ duplicates: break into shards, fuse for ★, trade shards for a card */
-function fuse(id){if(count(id)<2)return false;take(id);const x=xs(id),b=star(id);x[0]+=5;save();const a=star(id);sf('done');
-  H.toast(`✨ <b>${esc(info(id).en)}</b> を 合成！${a>b?` ★${a} に なった！`:' 経験 +5'}${a>=5&&b<5?'<small>きらきら版に なったよ！</small>':''}`,3000);return true}
+/* ♻️ duplicates: break into shards, trade shards for a card */
 function trade(){const dup=ownedWords().filter(id=>CG.c[id]>=2).sort((a,b)=>CG.c[b]-CG.c[a]);
-  H.show('cg',`<section class="pnl cgp">${top('♻️ 交換・合成',`🔹${CG.sh||0}`)}
+  H.show('cg',`<section class="pnl cgp">${top('♻️ 交換',`🔹${CG.sh||0}`)}
     ${bubble(...CG_NAGI.dup)}
     ${dup.length?`<button id="cgall" class="sub">🔹 ダブりを ぜんぶ かけらに（1まいずつ のこす）</button>
-    <div class="cgsr">${dup.map(id=>{const I=info(id);return `<div class="cgrow"><span class="ri">${art(I)[0]}</span><span class="rn"><b>${esc(I.en)}</b><small>×${CG.c[id]}　${'★'.repeat(star(id))}</small></span>
-      <button data-f="${esc(id)}">✨合成</button><button data-s="${esc(id)}" class="sub">🔹+${LV[I.lv].sh}</button></div>`}).join('')}</div>`:'<p class="note">ダブった カードは まだ ないよ</p>'}
+    <div class="cgsr">${dup.map(id=>{const I=info(id);return `<div class="cgrow"><span class="ri">${art(I)[0]}</span><span class="rn"><b>${esc(I.en)}</b><small>×${CG.c[id]}</small></span>
+      <button data-s="${esc(id)}" class="sub">🔹+${LV[I.lv].sh}</button></div>`}).join('')}</div>`:'<p class="note">ダブった カードは まだ ないよ</p>'}
     <details class="cgfold"><summary>🔹 かけらで カードと 交換する</summary>
       <input id="cgq" class="cgin" placeholder="ほしい 単語を さがす" autocomplete="off"><div id="cgsr" class="cgsr"></div>
       <p class="note">小 ${LV.es.tr}・中 ${LV.jh.tr}・高 ${LV.hs.tr}・H ${LV.adv.tr} かけら</p></details>
@@ -467,7 +463,6 @@ function trade(){const dup=ownedWords().filter(id=>CG.c[id]>=2).sort((a,b)=>CG.c
   $('cgb').onclick=()=>{sf('back');open()};bindBubble();
   const shard=id=>{take(id);CG.sh=(CG.sh||0)+LV[info(id).lv].sh};
   if($('cgall'))$('cgall').onclick=()=>{let n=0;dup.forEach(id=>{while(CG.c[id]>1){shard(id);n++}});save();sf('buy');H.toast(`🔹 ${n}まいを かけらに したよ`);trade()};
-  H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{fuse(b.dataset.f);trade()});
   H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{shard(b.dataset.s);save();sf('coinIn');trade()});
   const q=$('cgq'),lvs=LVK.filter(lvOpen);q.oninput=()=>{$('cgsr').innerHTML=search(q.value,lvs).map(c=>`<div class="cgrow"><span class="ri">${art(c)[0]}</span><span class="rn"><b>${esc(c.en)}</b><small>${esc(c.ja)}</small></span><span class="rl">${LV[c.lv].k}</span><button data-tr="${esc(c.id)}" ${(CG.sh||0)<LV[c.lv].tr?'disabled':''}>🔹${LV[c.lv].tr}</button></div>`).join('');
     H.panel.querySelectorAll('[data-tr]').forEach(b=>b.onclick=()=>{const id=b.dataset.tr,c=BY[id];if((CG.sh||0)<LV[c.lv].tr)return;CG.sh-=LV[c.lv].tr;const r=receive([id]);save();sf('buy');reveal(r,'かけらで 交換',trade)})}}
