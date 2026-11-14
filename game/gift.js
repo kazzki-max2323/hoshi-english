@@ -1,6 +1,6 @@
 /* 🎁 プレゼント: もちものの 品を だれかに あげる（中身は game/gift-data.js）
    - あげられる 品: 雑貨屋の プレゼント（ZAKKA.rec().gift）と リクからの お礼（TUTOR.rec().gifts）と ダブった 単語カード（game/cg-more.js）
-   - あげられる 相手: ミナ先生・リク（バイトで 会ったら）・ノラさん（お店で 会ったら）・浜辺の 会話で 会った みんな
+   - あげられる 相手: ミナ先生・リク（バイトで 会ったら）・ノラさん（お店で 会ったら）・ミオ（カードショップで 会ったら）・浜辺の 会話で 会った みんな
    - 会話: わたす ことば（小・中・高）→ 反応（4だん）→ 相手の 質問 → さいごの ひとこと → エンド。 へんな 答えでも 話は すすむ
    - 苦手だった ときに 「なにが 好き？」と 聞くと 好きな ものを 教えてくれる → 🎁 好きな物ノート に のこる
    - ミナ先生は なかよし度、 浜辺の みんなは ♥ が 上がる。 新しい エンドで コイン
@@ -37,10 +37,11 @@ function useUp(it){if(it.src==='c'){try{CGM.giftUse(it)}catch(e){}return}if(it.s
 /* ---------- who you can give to ---------- */
 function people(){const out=['mina'];const T=TR(),Z=ZR();
   if(T&&T.met)out.push('riku');if(Z&&Z.met)out.push('nora');
+  try{if(window.MIOC&&SHOP.rec().met)out.push('mio')}catch(e){}
   try{const K=KAIWA.rec();Object.keys(PP).forEach(k=>{if(KAIWA.chars[k]&&K.heart[k]>0)out.push(k)})}catch(e){}
   return out}
 const pName=to=>PP[to].n;
-const pFace=(to,ex)=>to==='mina'?MINA.face('m',ex||'smile'):`<span class="gfi">${(to!=='riku'&&to!=='nora'&&window.KAIWA&&KAIWA.chars[to]||PP[to]).ico}</span>`;
+const pFace=(to,ex)=>to==='mina'?MINA.face('m',ex||'smile'):to==='mio'&&window.MIO?MIO.face(({worry:'oops',happy:'laugh',love:'wink'})[ex]||'smile'):`<span class="gfi">${(to!=='riku'&&to!=='nora'&&window.KAIWA&&KAIWA.chars[to]||PP[to]).ico}</span>`;
 
 /* how much they like it: 3 大よろこび 2 よろこぶ 1 ふつう 0 苦手 */
 function tier(to,key){const p=PP[to];if(p.love.includes(key))return 3;
@@ -197,6 +198,7 @@ function end(){if(!live())return;const {p,t,it,to}=C;
   /* なかよし */
   let heart='';
   if(to==='mina'){const pts=it.lux?30:[1,3,6,10][t];try{MOTI.gain(pts)}catch(e){}heart=`❤️ ミナ先生と なかよし +${pts}`;try{const lh=window.LOVE?LOVE.gift(t,it):'';if(lh)heart+=`　${lh}`}catch(e){}}
+  else if(to==='mio'&&window.MIOC){heart=MIOC.gain([1,1,2,3][t],'gift')}
   else if(window.KAIWA&&KAIWA.chars[to]){const K=KAIWA.rec(),add=t>=2?2:1;K.heart[to]=(K.heart[to]||0)+add;heart=`${KAIWA.chars[to].ico} ${esc(p.n)}と なかよし ${'♥'.repeat(add)}`}
   else heart=`${PP[to].ico} ${esc(p.n)}、 ${t>=2?'とても よろこんでた':'よろこんでた'}`;
   const coins=newEnd?(t>=2?5:3):0;

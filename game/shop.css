@@ -72,3 +72,16 @@
 .mnws{display:flex;flex-direction:column;gap:4px}
 .mnws button{text-align:left;font-size:.8rem!important;padding:6px 10px!important;display:flex;gap:6px;align-items:center}
 .mnws button span{margin-left:auto;color:#ffe14a;letter-spacing:1px}.mnws button i{font-style:normal;font-size:.7rem;opacity:.8}
+/* ミオと 話す（game/mio-chat.js） */
+.shmio button{flex:1;position:relative}.shmio .dot{position:absolute;top:6px;right:8px;width:9px;height:9px;border-radius:50%;background:#ff5a7a;box-shadow:0 0 6px #ff5a7a}
+.mcst{display:flex;gap:10px;align-items:center;background:#ffffff14;border-radius:12px;padding:8px 12px}
+.mcst>span{font-size:1.6rem}.mcst>div{flex:1;display:flex;flex-direction:column;gap:3px}.mcst small{font-size:.66rem;color:#cbd2ff}
+.mcbar{display:block;height:7px;border-radius:4px;background:#0006;overflow:hidden}.mcbar b{display:block;height:100%;background:linear-gradient(90deg,#ff9ac0,#ffd23f)}
+.mcls{display:flex;flex-direction:column;gap:6px}
+.mcls button{display:flex;align-items:center;gap:8px;text-align:left;padding:9px 12px!important;position:relative}
+.mcls button span{font-size:1.3rem}.mcls button b{flex:1;font-size:.9rem}.mcls button i{font-style:normal;font-size:.72rem;color:#ffe14a}
+.mcls button u{text-decoration:none;font-size:.6rem;font-weight:800;background:#ff5a7a;color:#fff;border-radius:6px;padding:1px 5px}
+.mcstg{display:flex;flex-wrap:wrap;gap:4px;padding:0 4px 6px}.mcstg span{font-size:.7rem;padding:2px 8px;border-radius:999px;background:#ffffff0d;border:1px solid #ffffff26;color:var(--mute)}
+.mcstg span.on{background:rgba(255,154,192,.15);border-color:rgba(255,154,192,.5);color:#fff}
+.mc .lface.mcf{overflow:hidden;border-radius:50%;box-shadow:0 0 0 2px #e8b84a}.mc .lface.mcf svg{width:100%;height:100%;display:block}
+.mc .kopts small.mcja{display:block;font-size:.7rem;color:#ffe7a8;margin-top:2px}

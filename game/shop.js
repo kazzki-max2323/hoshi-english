@@ -51,6 +51,7 @@ function open(){cleanFloor();const S=SH(),first=!S.met;
       <button data-t="floor" class="c3"><span>🏷️</span>売り場<small>${S.floor.length}/${FLOOR_N}まい</small>${S.floor.length?'':'<i class="dot"></i>'}</button>
       <button data-t="store" class="c4"><span>📦</span>倉庫<small>${allCards().length}しゅるい</small></button>
     </div>
+    <div class="row shmio"><button id="shtalk">💬 ミオと 話す${window.MIOC&&MIOC.newN()?'<i class="dot"></i>':''}</button><button id="shgift" class="sub">🎁 プレゼント</button></div>
     <details class="shmore"><summary>そのほか（仕入れ・図鑑・道場）</summary>
       <div class="cgtiles">${[['pack','🎁','仕入れ'],['one','🃏','きょうの 1まい'],['snipe','🎯','とりよせ'],['trade','♻️','交換・合成'],['book','📖','カード図鑑'],['combo','🔗','コンボ図鑑'],['dojo','🥋','コンボ道場'],['treasure','🎁','宝箱くじ']]
         .map(([k,i,n])=>{const dot=k==='one'&&R().d!==C.today()||k==='snipe'&&R().snipe!==C.today()||k==='treasure'&&window.CARDS&&CARDS.freeOk()||k==='pack'&&R().free!==C.today();
@@ -59,6 +60,8 @@ function open(){cleanFloor();const S=SH(),first=!S.met;
   </section>`);
   $('cgx').onclick=()=>{sf('back');H.home()};
   bindBubble();speak(g[0]);
+  $('shtalk').onclick=()=>{sf('step');MIOC.open(open)};
+  $('shgift').onclick=()=>{sf('step');GIFT.pick({to:'mio',back:open})};
   H.panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{sf('step');({counter,mine:()=>MINE.open(),floor,store})[b.dataset.t]()});
   H.panel.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{sf('step');C.go(b.dataset.g)})}
 
@@ -270,8 +273,8 @@ function talk(T,id,p,done){const g=T.g,I=C.info(id),box=$('shact');const lv=({es
   sf('hey');speak(fill(x[0]));$('shsay').onclick=()=>speak(fill(x[0]));
   box.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{const ok=b.dataset.j==='0';box.querySelectorAll('[data-j]').forEach(y=>{y.disabled=true;if(y.dataset.j==='0')y.classList.add('ok')});
     if(ok){b.classList.add('ok');sf('correct');speak(fill(x[2][0]))}else{b.classList.add('ng');sf('wrong')}
-    const tip=ok&&k!=='deal'?Math.max(2,Math.round(pp*.2)):0;
-    const e=box.querySelector('.cgtx');e.hidden=false;e.innerHTML=`<p>${ok?'⭕ ':'💡 '}${esc(x[3])}</p>${tip?`<p class="shtip">お客さんが よろこんで チップ 🪙${tip}！</p>`:''}<button class="nx">${k==='rumor'?'うわさを 聞いて 売る ▶':'売る ▶'}</button>`;
+    const tip=ok&&k!=='deal'?Math.max(2,Math.round(pp*.2)):0;const hh=ok&&window.MIOC?MIOC.gain(1,'ctr'):'';
+    const e=box.querySelector('.cgtx');e.hidden=false;e.innerHTML=`<p>${ok?'⭕ ':'💡 '}${esc(x[3])}</p>${tip?`<p class="shtip">お客さんが よろこんで チップ 🪙${tip}！</p>`:''}${hh?`<p class="shq">${hh} <small>ミオ「Nice English, boss!」</small></p>`:''}<button class="nx">${k==='rumor'?'うわさを 聞いて 売る ▶':'売る ▶'}</button>`;
     e.querySelector('.nx').onclick=()=>{sf('step');if(tip)H.addCoins(tip);done(true,pp);
       try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<.4){const [ex,tx]=ML(ok?'sh_talkGood':'sh_talkMiss');MINA.say('m',ex,tx,6000)}}catch(er){}}})}
 
