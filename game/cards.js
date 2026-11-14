@@ -1,5 +1,5 @@
 /* カード図鑑: コインで「宝箱くじ」を引いて、1000種類のカードを集める。
-   カードは英単語つき（タップで発音）。ダブったカードは「星のかけら」になり、かけらで まだ持っていないカードと交換できる。
+   カードは英単語つき（タップで発音）。ダブったカードは カードショップの 売り場で 売れる（星のかけらは なくした。 たまっていた かけらは コインに かえる）。 鉱山の 奥でも 見つかる。
    1日1回は むりょうで引ける。データは game/cards-data.js（CARDS_DATA） */
 (()=>{
 const {S:ST,sfx:SFX,scene:SC}=BEACH;
@@ -46,7 +46,7 @@ function open(t,back){if(back!==undefined)kBack=typeof back==='function'?back:nu
   const sc=s=>{const a=BOOK.filter(c=>s==='all'||c.s===s);return [a.filter(has).length,a.length]};
   H.show('cards',`<section class="pnl cardsp">
     <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>🃏 カード図鑑</b><span class="qn">${ownedN()}/${BOOK.length}</span></div>
-    <div class="kbar"><button id="kdraw" class="kdraw">🎁 宝箱くじ${freeOk()?' <em>きょうの むりょう！</em>':''}</button><span class="kshard">✦ かけら ${CD.shards}</span></div>
+    <div class="kbar"><button id="kdraw" class="kdraw">🎁 宝箱くじ${freeOk()?' <em>きょうの むりょう！</em>':''}</button></div>
     <div class="kser">${[['all','🃏','ぜんぶ'],...TABS].map(s=>{const [h,n]=sc(s[0]);return `<button data-s="${s[0]}" class="${s[0]===tab?'on':''} ${h===n?'done':''}"><span>${s[1]}</span><small>${h}/${n}</small></button>`}).join('')}</div>
     <div class="khead"><b>${tab==='all'?'🃏 ぜんぶの カード':SER[tab][1]+' '+SER[tab][2]}</b><div class="seg kf">${[['all','ぜんぶ'],['have','もってる'],['not','まだ']].map(([k,n])=>`<button data-f="${k}" class="${filt===k?'on':''}">${n}</button>`).join('')}</div></div>
     <div class="kgrid">${list.map(c=>face(c)).join('')||'<p class="note">ここには まだ ないよ</p>'}</div>
@@ -76,8 +76,7 @@ function view(c){const own=has(c),R=RAR[c.r];
       <button id="ksay" class="kbtn">🔊 ${esc(c.en)}</button>
       ${c.r>=4?`<button id="kspecial" class="kbtn gold">💫 タップ</button>`:''}
       ${c.r>=3&&summonOf(c)?`<button id="ksummon" class="kbtn">${summonOk(c)?`🏖️ 浜辺に よぶ：${summonOf(c).n}`:'🏖️ きょうは もう よんだよ（あしたまた）'}</button>`:''}`
-    :`<b class="rk r${c.r}">${R.k}　${R.n}</b><span>まだ もっていない</span>
-      <button id="ktrade" class="kbtn" ${CD.shards<R.cost?'disabled':''}>✦ かけら ${R.cost}こ で こうかん（いま ${CD.shards}こ）</button>`}
+    :`<b class="rk r${c.r}">${R.k}　${R.n}</b><span>まだ もっていない</span><span class="khint">宝箱くじか、 鉱山の 奥で 見つかるよ</span>`}
     <button id="kclose" class="kbtn sub">とじる</button></div></div>`,'kv');
   tilt(o.querySelector('.tc'));o.querySelector('.tc').classList.add('live');
   $('kclose').onclick=()=>{SFX.pop();closeOv()};
@@ -85,7 +84,6 @@ function view(c){const own=has(c),R=RAR[c.r];
     if(c.r>=3){const art=o.querySelector('.tcart');art.style.cursor='pointer';art.onclick=e=>{e.stopPropagation();move(c,o)}}
     if($('kspecial'))$('kspecial').onclick=()=>special(c);
     if($('ksummon'))$('ksummon').onclick=()=>summon(c)}
-  else $('ktrade').onclick=()=>{if(CD.shards<R.cost)return;CD.shards-=R.cost;CD.own[c.e]=1;save();SFX.buy();closeOv();open();view(c);H.toast(`✦ <b>${esc(c.ja)}</b> と こうかん！`);checkSeries([c])};
 }
 
 
@@ -128,7 +126,7 @@ function drawMenu(){const fr=freeOk();
     <button id="kd1" class="kbtn" ${ST.coins<PRICE1?'disabled':''}>1回 🪙${PRICE1}</button>
     <button id="kd10" class="kbtn" ${ST.coins<PRICE10?'disabled':''}>10回 🪙${PRICE10}<small>SR以上 1まい かくてい</small></button>
     <p class="kodds">${RAR.slice(1).map(r=>`<span class="rk">${r.k}</span> ${r.w}%`).join('　')}</p>
-    <p class="note">ダブったカードは 星のかけらに なるよ。ダブったら、つぎの 同じレアは かならず 新しいカード</p>
+    <p class="note">ダブったカードは カードショップで 売れるよ。ダブったら、つぎの 同じレアは かならず 新しいカード</p>
     <button id="kclose" class="kbtn sub">とじる</button></div>`,'kv');
   $('kclose').onclick=()=>{SFX.pop();closeOv()};
   if(fr)$('kd0').onclick=()=>{CD.free=today();save();draw(1)};
@@ -140,7 +138,7 @@ function pick(r){const pool=BY_R[r],fresh=pool.filter(c=>!has(c));
   if(CD.pity[r]&&fresh.length){CD.pity[r]=0;return fresh[Math.random()*fresh.length|0]}
   const c=pool[Math.random()*pool.length|0];if(has(c))CD.pity[r]=1;return c}
 function draw(n,min=1){const got=[];for(let i=0;i<n;i++){const r=roll(Math.max(min,n===10&&i===n-1&&!got.some(g=>g.c.r>=3)?3:1));const c=pick(r),isNew=!has(c);
-    if(isNew)CD.own[c.e]=1;else{CD.own[c.e]++;CD.shards+=RAR[r].sh}got.push({c,isNew})}
+    if(isNew)CD.own[c.e]=1;else CD.own[c.e]++;got.push({c,isNew})}
   save();const best=Math.max(...got.map(g=>g.c.r));
   /* the chest shakes, then glows in the colour of the best card inside */
   const o=overlay(`<div class="kopen b${best}"><div class="kchest shake">🎁</div><p>${n===10?'10まい':'1まい'}</p></div>`,'kv');
@@ -165,6 +163,11 @@ function checkSeries(newCards){const done=[...new Set(newCards.map(c=>c.s))].fil
   done.forEach((s,i)=>setTimeout(()=>{SFX.fanfare(3);H.toast(`🏆 <b>${SER[s][1]} ${SER[s][2]}</b> コンプリート！`,3600)},800+i*1600))}
 
 /* a free draw given as a reward (Mina's lesson time): n cards, each at least rarity min */
-window.CARDS={open,count:()=>[ownedN(),BOOK.length],freeOk,gift:(n=1,min=1)=>draw(n,min),face,has,book:BOOK,series:TABS,rar:RAR,shards:()=>CD.shards,n:c=>CD.own[c.e]||0};
+/* 鉱山で 見つかる 1まい（演出なし）: {c,isNew} */
+function find1(){const r=Math.random()<.7?1:Math.random()<.75?2:Math.random()<.8?3:4;const c=pick(r),isNew=!has(c);if(isNew)CD.own[c.e]=1;else CD.own[c.e]++;save();return {c,isNew}}
+function takeOne(e){if(CD.own[e]>0){CD.own[e]--;if(!CD.own[e])delete CD.own[e];save()}}
+/* 前の 版の 星のかけらは コインに かえる */
+setTimeout(function cash(){if(!(CD.shards>0))return;if(!H.addCoins)return setTimeout(cash,3000);const v=CD.shards*2;CD.shards=0;save();H.addCoins(v);H.toast(`✦ 星のかけらは なくなったので、 コイン 🪙${v} に かえたよ`,4200)},6000);
+window.CARDS={find1,take:takeOne,open,count:()=>[ownedN(),BOOK.length],freeOk,gift:(n=1,min=1)=>draw(n,min),face,has,book:BOOK,series:TABS,rar:RAR,shards:()=>CD.shards,n:c=>CD.own[c.e]||0};
 if(H.screen==='home')H.home();   // show the free-draw dot on the home button
 })();
