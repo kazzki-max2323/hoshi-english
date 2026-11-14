@@ -1,0 +1,74 @@
+/* カードショップの 店長（game/shop.js）・単語の 鉱山（game/mine.js）・ミオ（game/mio.js） */
+.shm .cgnf.cgm{width:52px;height:52px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px #e8b84a,0 2px 6px #0007}
+.shm .cgnb b{color:#d8902a}
+.shbig{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.shbig button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 4px!important;font-size:.95rem;font-weight:800;position:relative}
+.shbig button span{font-size:2.1rem;line-height:1.1}
+.shbig button small{font-size:.68rem;font-weight:600;opacity:.85}
+.shbig .c1{background:linear-gradient(#5ab4ff,#2a6fc0)!important;border-color:#cfe8ff!important}
+.shbig .c2{background:linear-gradient(#b08858,#6e4a2a)!important;border-color:#f0d6b0!important}
+.shbig .c3{background:linear-gradient(#ff8a7a,#d8504a)!important;border-color:#ffd6d0!important}
+.shbig .c4{background:linear-gradient(#8ac08a,#4a8a5a)!important;border-color:#d6f0d6!important}
+.shbig .dot{position:absolute;top:6px;right:8px;width:9px;height:9px;border-radius:50%;background:#ff5a7a;box-shadow:0 0 6px #ff5a7a}
+.shmore summary{cursor:pointer;font-size:.8rem;color:#bfe9ff;padding:4px 2px}
+.shmore[open] summary{margin-bottom:6px}
+.shsum{font-size:.72rem;color:#cbd2ff;text-align:center;margin:0}
+.shintro{width:150px;height:150px;margin:0 auto;border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px #e8b84a,0 4px 14px #0008}
+.shintro svg{width:100%;height:100%;display:block}
+/* report */
+.shrep{display:flex;gap:12px;align-items:center}
+.shrf{flex:0 0 92px;height:92px;border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px #e8b84a}
+.shrf svg{width:100%;height:100%;display:block}
+.shrn{margin:0 0 4px;font-size:.9rem}
+.shsold{display:flex;gap:4px;flex-wrap:wrap}.shsold .cgc{width:46px}
+.shcoin{margin:4px 0 0;color:#ffe14a;font-weight:800}
+.shmemo{background:#fffaf0;color:#2a2340;text-shadow:none;border-radius:4px 14px 14px 14px;padding:10px 12px;box-shadow:0 3px 0 #1b1740;background-image:repeating-linear-gradient(transparent 0 21px,#e8dcc8 21px 22px)}
+.shmemo b{font-size:.75rem;color:#d8902a}.shmemo p{margin:4px 0}.shmemo .en{font-family:"Segoe Print","Comic Sans MS",cursive,sans-serif;font-size:.95rem}.shmemo .ja{font-size:.75rem;color:#6a6280}
+/* storeroom / floor */
+.shf{display:flex;gap:4px;flex-wrap:wrap}.shf button{padding:4px 9px!important;font-size:.75rem}.shf button.on{background:linear-gradient(#ffd23f,#e0a020)!important;color:#2a2340}
+.shgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:6px}
+.shcell{position:relative;text-align:center;font-size:.68rem;cursor:pointer}
+.shcell.sel .cgc{box-shadow:0 0 0 3px #ffe14a,0 0 10px #ffe14a}
+.shcell.tired .cgc{filter:saturate(.35) brightness(.7)}
+.shcell em{position:absolute;left:0;right:0;top:34%;font-style:normal;font-size:.7rem;background:#0009;border-radius:6px;margin:0 4px}
+.shcell u{position:absolute;top:-4px;right:-2px;text-decoration:none;font-size:.8rem}
+.shhp{display:block;height:4px;border-radius:2px;background:#0006;margin-top:2px;overflow:hidden}.shhp b{display:block;height:100%;background:linear-gradient(90deg,#ff7a8a,#ffd23f)}
+.shfloor{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.shslot{position:relative;text-align:center;font-size:.7rem;cursor:pointer}
+.shslot.empty{aspect-ratio:5/7;border:2px dashed #ffffff55;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.shslot.empty b{font-size:1.4rem;opacity:.6}
+.shslot em{display:block;font-style:normal;font-size:.6rem;color:#ffb0b0}
+.shpick{background:#1f2a5c;border-radius:14px;padding:12px;max-height:80vh;overflow:auto;width:min(92vw,520px);display:flex;flex-direction:column;gap:8px}
+/* counter */
+.shstage{border-radius:10px;overflow:hidden;box-shadow:0 0 0 3px #e8b84a,0 4px 14px #0008;background:#000}
+.shstage canvas{display:block;width:100%;height:auto;image-rendering:pixelated}
+.shst{margin:0;font-size:.82rem;min-height:1.3em;text-align:center}
+.shact:empty{display:none}
+.shask{display:flex;gap:10px;align-items:center;background:#ffffff14;border-radius:12px;padding:8px}
+.shask .cgc{width:62px;flex:0 0 auto}.shask p{margin:2px 0;font-size:.85rem}.shask .ja{font-size:.75rem;color:#cbd2ff}
+.shtalk{background:#ffffff14;border-radius:12px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.shtalk p{margin:0}.shtalk .en{font-size:.92rem}.shtalk .en button{padding:2px 8px!important;font-size:.75rem}.shtalk .ja{font-size:.75rem;color:#cbd2ff}
+.shq{font-size:.75rem;color:#ffe7a8}.shtip{color:#7a5a00!important;background:#fff3c4!important}
+/* mine */
+.mnhand{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+.mnhand.sm .cgc{max-width:58px;margin:0 auto}
+.mnt{position:relative;text-align:center;cursor:pointer}
+.mnt i{display:block;font-style:normal;font-size:.7rem}
+.mnt.on .cgc{box-shadow:0 0 0 3px #ffe14a,0 0 12px #ffe14a;transform:translateY(-3px)}
+.mnt.tired .cgc{filter:saturate(.3) brightness(.6)}
+.mnt.empty{aspect-ratio:5/7;border:2px dashed #ffffff40;border-radius:8px}
+.mnstage{border-radius:10px;overflow:hidden;box-shadow:0 0 0 3px #b08858,0 4px 14px #0008;background:#000}
+.mnstage canvas{display:block;width:100%;height:auto;image-rendering:pixelated}
+.mnme{display:inline-block;width:60px;height:7px;border-radius:4px;background:#0008;overflow:hidden;vertical-align:middle}.mnme b{display:block;height:100%;background:linear-gradient(90deg,#ff5a6a,#ffb04a)}
+.mnw{display:flex;gap:4px;justify-content:center;margin:8px 0}
+.mnw b{width:26px;height:32px;border-bottom:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:1.3rem;font-family:var(--pixel,monospace)}
+.mnw b u{text-decoration:none;opacity:.5}
+.mnw.ok b{color:#55e0b4;border-color:#55e0b4}.mnw.ng b{color:#ff7a8a;border-color:#ff7a8a}
+.mnls{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
+.mnls button{min-width:40px;font-size:1.15rem!important;padding:6px 8px!important;text-transform:lowercase}
+.mnls button:disabled{opacity:.25}
+.mnres{background:#ffffff14;border-radius:12px;padding:8px 12px}.mnres p{margin:3px 0}
+.mnmap{color:#ffe7a8}
+.mnws{display:flex;flex-direction:column;gap:4px}
+.mnws button{text-align:left;font-size:.8rem!important;padding:6px 10px!important;display:flex;gap:6px;align-items:center}
+.mnws button span{margin-left:auto;color:#ffe14a;letter-spacing:1px}.mnws button i{font-style:normal;font-size:.7rem;opacity:.8}

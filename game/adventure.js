@@ -32,7 +32,7 @@ const A0={map:0,node:'S',trail:[],done:[],lv:'es',items:{compass:0,glass:0,hint:
 let AD;try{AD=Object.assign({},A0,JSON.parse(localStorage.getItem(SAVE_KEY)||'{}').adv||{})}catch(e){AD={...A0}}
 AD.items=Object.assign({compass:0,glass:0,hint:0},AD.items);
 _saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');s.adv=AD;localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
-/* 宝の地図は 手に入れて はじめて 行ける（びんの 手紙・カード対戦の 勝ちで 見つかる）。 AD.got = もらった 地図の 数、 AD.map = 宝箱まで 行った 数 */
+/* 宝の地図は 手に入れて はじめて 行ける（びんの 手紙・単語の 鉱山で 見つかる）。 AD.got = もらった 地図の 数、 AD.map = 宝箱まで 行った 数 */
 if(AD.got==null)AD.got=AD.map+(AD.node!=='S'||AD.trail.length?1:0);
 const has=()=>AD.map<AD.got;
 const mapAt=i=>MAPS[i%MAPS.length];
@@ -51,7 +51,7 @@ function bottleMap(){if(has())return false;if(AD.got>0&&Math.random()>.25)return
 const map=()=>MAPS[AD.map%MAPS.length],cost=()=>COST[AD.lv]*(1+Math.floor(AD.map/MAPS.length));
 
 /* ---------- the map screen ---------- */
-function open(){if(!has()){H.toast('🗺️ 宝の地図が ないよ<small>びんの 手紙や カード対戦で 見つかるかも</small>',3200);return}
+function open(){if(!has()){H.toast('🗺️ 宝の地図が ないよ<small>びんの 手紙や 単語の 鉱山で 見つかるかも</small>',3200);return}
   const M=map(),N=M.nodes,cur=N[AD.node],next=cur[3];
   const edges=Object.entries(N).flatMap(([k,n])=>n[3].map(t=>[k,t]));
   const svg=`<svg class="amap" viewBox="0 0 100 140" role="img" aria-label="${M.name}の 地図">
@@ -132,7 +132,7 @@ function treasure(){const M=map(),R=M.reward,first=AD.map<MAPS.length,got=[];
   H.show('adv',`<section class="pnl adv chest">
     <div class="box">💎</div><b class="ct">${M.name}の 宝箱を あけた！</b>
     <ul class="got">${got.map(g=>`<li>${g}</li>`).join('')}</ul>
-    ${has()?`<div class="row"><button id="nx">つぎの 地図へ ▶</button><button id="hm" class="sub" data-back>浜辺に もどる</button></div>`:`<p class="note">つぎの 宝の地図は びんの 手紙や カード対戦で 見つかるかも</p><div class="row"><button id="hm" data-back>浜辺に もどる</button></div>`}
+    ${has()?`<div class="row"><button id="nx">つぎの 地図へ ▶</button><button id="hm" class="sub" data-back>浜辺に もどる</button></div>`:`<p class="note">つぎの 宝の地図は びんの 手紙や 単語の 鉱山で 見つかるかも</p><div class="row"><button id="hm" data-back>浜辺に もどる</button></div>`}
   </section>`);
   const r=$('panel').getBoundingClientRect();for(let i=0;i<4;i++)setTimeout(()=>FX.firework(r.left+r.width*(.2+Math.random()*.6),r.top+20+Math.random()*60),i*350);
   if($('nx'))$('nx').onclick=()=>{SFX.map();open()};$('hm').onclick=()=>{SFX.back();H.home()}}

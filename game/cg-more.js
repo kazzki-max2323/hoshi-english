@@ -20,7 +20,7 @@ function rewardCard(){const lv=C.lvOpen(C.myLv())?C.myLv():'es',mine=new Set(Obj
 /* up to 3 a day */
 function reward(kind){const r=R(),d=C.today();if(r.rw&&r.rw.d===d&&r.rw.n>=3)return null;r.rw=r.rw&&r.rw.d===d?r.rw:{d,n:0};r.rw.n++;
   const id=rewardCard();C.give(id);C.save();const I=C.info(id);
-  if(kind==='tok')setTimeout(()=>H.toast(`🃏 ごほうびカード <b>${esc(I.en)}</b>（${esc(I.ja)}）<small>島めぐりの デッキに まざるよ</small>`,3600),1500);
+  if(kind==='tok')setTimeout(()=>H.toast(`🃏 ごほうびカード <b>${esc(I.en)}</b>（${esc(I.ja)}）<small>鉱山の 道具に 使えるよ</small>`,3600),1500);
   return I}
 window.LESSON_AFTER=window.LESSON_AFTER||[];
 LESSON_AFTER.push(()=>{const I=reward('lesson');if(!I)return null;const [,tx]=ML('cg_reward',{w:I.en});
@@ -66,53 +66,6 @@ function dojo(back){const D=DJ(),pool=dojoPool();let fresh=pool.filter(c=>!D.see
 
 /* ================================================================ 🏆 浜辺の カード大会 */
 let T=null;
-const TOUR_FEE=50;
-function tour(back){if(T&&T.alive)return bracket();
-  const r=C.rank(),pool=CGB.foes.filter(f=>!f.mina&&f.id!=='nagi'&&f.need<=r);
-  const [ex,tx]=ML('cg_tourIntro');
-  H.show('cg',`<section class="pnl cgp">
-    <div class="qtop"><button class="x" id="cgb" aria-label="もどる">←</button><b>🏆 浜辺の カード大会</b><span class="qn">🏆${R().tw||0}</span></div>
-    <div class="cgnagi"><span class="cgnf cgm">${mface(ex)}</span><div class="cgnb"><b>ミナ先生</b><p>${tx}</p></div></div>
-    <p class="note">3回 勝てば 優勝！ 決勝の 相手は ミナ先生。 試合の あいだに 英語で インタビューが あるよ</p>
-    <div class="row"><button id="tgo">🏆 エントリー（🪙${TOUR_FEE}）</button></div></section>`);
-  $('cgb').onclick=()=>{sf('back');(back||C.open)()};
-  $('tgo').onclick=()=>{if(!C.pay(TOUR_FEE))return;const ops=H.shuffle(pool).slice(0,6);const easy=ops.slice().sort((a,b)=>a.p-b.p);
-    T={alive:true,back,round:0,res:[],foes:[easy[0],easy[easy.length-1]||easy[0],CGB.foe('mina')],others:ops,talk:H.shuffle(CG_TOUR_TALK.map((x,i)=>i)),good:0};interview(0,bracket)}}
-const RN=['1回戦','準決勝','決勝'];
-function bracket(){const t=T;H.show('cg',`<section class="pnl cgp" data-stay>
-    <div class="qtop"><button class="x" id="cgb" aria-label="やめる">←</button><b>🏆 カード大会</b><span class="qn">${RN[Math.min(2,t.round)]}</span></div>
-    <div class="cgbr">${t.foes.map((f,i)=>`<div class="br ${i<t.round?'won':i===t.round?'now':''}"><span>${RN[i]}</span><span class="bri">${f.ico}</span><b>${esc(f.n)}</b><em>${i<t.round?'🏆 かち':i===t.round?'つぎ！':''}</em></div>`).join('')}</div>
-    <p class="note">ほかの 試合: ${t.others.filter(f=>!t.foes.includes(f)).map(f=>f.ico).join(' ')} も がんばってる</p>
-    <div class="row"><button id="tplay">⚔️ ${esc(t.foes[t.round].n)}と 島めぐり！</button></div></section>`);
-  $('cgb').onclick=()=>{C.ov(`<div class="cgbuy"><b>大会を やめる？</b><p class="note">エントリー代は もどらないよ</p><button id="qy" class="sub">やめる</button><button id="qn">つづける</button></div>`,'by');
-    $('qn').onclick=()=>{sf('step');C.closeOv()};$('qy').onclick=()=>{C.closeOv();const b=T.back;T=null;(b||C.open)()}};
-  $('tplay').onclick=()=>{sf('step');CGB.start(t.foes[t.round].id,{onEnd:afterMatch,pickBack:bracket})}}
-function afterMatch(win){const t=T;if(!t)return C.open();
-  if(!win){t.alive=false;const prize=t.round===2?100:t.round===1?40:0;if(prize)H.addCoins(prize);const [ex,tx]=ML('cg_tourLose',{r:RN[t.round]});
-    return finishTour(`🌙 ${RN[t.round]}で まけ…`,ex,tx,prize?`🪙 +${prize}（${t.round===2?'準優勝':'ベスト4'}）`:'')}
-  t.round++;if(t.round<3)return interview(t.round,bracket);
-  /* champion */
-  t.alive=false;const r=R();r.tw=(r.tw||0)+1;r.rp=(r.rp||0)+3;H.addCoins(300);
-  const lv=LVK.filter(C.lvOpen).pop(),pool=C.W.filter(c=>c.lv===lv&&!C.owns(c.id)&&C.combosWith(c.h).length);const card=pickL(pool.length?pool:C.W.filter(c=>c.lv===lv)).id;C.give(card);C.save();
-  sf('fanfare');try{const b=H.panel.getBoundingClientRect();[0,400,800].forEach(d=>setTimeout(()=>FX.firework(b.left+b.width*(.3+Math.random()*.4),b.top+60),d))}catch(e){}
-  const [ex,tx]=ML('cg_tourWin',{n:r.tw});finishTour('🏆 優勝！',ex,tx,`🪙 +300　🎖️ +3　${C.face(card,{ja:1,cls:'tprize'})}`)}
-function finishTour(title,ex,tx,prize){const b=T&&T.back;T=null;
-  H.show('cg',`<section class="pnl cgp">
-    <div class="qtop"><span></span><b>${title}</b><span></span></div>
-    <div class="cgnagi"><span class="cgnf cgm">${mface(ex)}</span><div class="cgnb"><b>ミナ先生</b><p>${tx}</p></div></div>
-    ${prize?`<div class="cgtp">${prize}</div>`:''}
-    <div class="row"><button id="tbk" data-back>もどる</button></div></section>`);
-  $('tbk').onclick=()=>{sf('back');(b||C.open)()}}
-/* the interview between matches: one line of English */
-function interview(round,next){const t=T,k=t.talk[round%t.talk.length],x=CG_TOUR_TALK[k];const ch=H.shuffle(x[3].map((s,j)=>[s,j]));
-  const o=C.ov(`<div class="cgtalk"><div class="cgnagi"><span class="cgnf">🐦</span><div class="cgnb"><b>司会の カモメ</b><p class="en">${esc(x[1])}</p><p class="ja">${esc(x[2])}</p></div></div>
-    <div class="cgtc">${ch.map(([s,j])=>`<button data-j="${j}">${esc(s)}</button>`).join('')}</div><div class="cgtx" hidden></div></div>`,'tk');o.dataset.stay=1;C.speak(x[1]);
-  o.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{const ok=b.dataset.j==='0';o.querySelectorAll('[data-j]').forEach(y=>{y.disabled=true;if(y.dataset.j==='0')y.classList.add('ok')});
-    b.classList.add(ok?'ok':'ng');sf(ok?'correct':'wrong');if(ok){t.good++;C.speak(x[3][0])}
-    const tx=o.querySelector('.cgtx');tx.hidden=false;tx.innerHTML=`<p>${ok?'⭕ 会場から はくしゅ！ 👏':'💡 '+esc(x[3][0])}<br><small>${esc(x[4])}</small></p><button class="nx">つぎへ ▶</button>`;
-    tx.querySelector('.nx').onclick=()=>{sf('step');C.closeOv();next()}})}
-
-/* ================================================================ after a game */
 function afterGame(fid,win,s){const r=R();r.last={f:fid,win:win?1:0,d:C.today(),ok:s.ok,n:s.n,c:s.combos};C.save()}
 /* beating Ms. Mina: a little heart (the love story; once a day) and a special card */
 function minaWin(){const r=R();r.mw=(r.mw||0)+1;let msg='';
@@ -133,10 +86,10 @@ function giftUse(it){C.take(it.cid);C.save()}
 
 /* ================================================================ Ms. Mina's lines */
 Object.assign(MINA_LINES,{
- cg_first:[['wow','浜辺に カードショップ「しおさい」が できたよ！ 単語帳の 単語が ぜんぶ カードに なって 対戦できるんだって'],['happy','カードの ボタンは カードショップに おひっこし。 浜辺の 小屋を タップしてね']],
- cg_reward:[['happy','授業の ごほうび。 「{w}」が 島めぐりの デッキに まざるかも'],['smile','カードが 1まい ふえたよ。 コンボの なかまかも？']],
+ cg_first:[['wow','浜辺に カードショップ「しおさい」が あるよ！ 単語帳の 単語が ぜんぶ カードに なるんだ。 店長は なんと きみ'],['happy','カードの ボタンは カードショップに おひっこし。 浜辺の 小屋を タップしてね']],
+ cg_reward:[['happy','授業の ごほうび。 「{w}」の カードは 鉱山の 道具に なるよ'],['smile','カードが 1まい ふえたよ。 コンボの なかまかも？']],
  cg_dojoStart:[['smile','コンボ道場へ ようこそ。 英語として 自然な 組み合わせを 5問 いくよ'],['proud','「heavy rain」みたいな 組み合わせは まとめて おぼえると 強いよ'],['think','日本語で 考えると まちがえやすい 組み合わせも あるから 気をつけてね']],
- cg_dojoPerfect:[['love','5問 ぜんぶ 正解！ ことばの 組み合わせ、 体で わかってきたね'],['wow','かんぺき！ 島めぐりでも この コンボを ねらってみて']],
+ cg_dojoPerfect:[['love','5問 ぜんぶ 正解！ ことばの 組み合わせ、 体で わかってきたね'],['wow','かんぺき！ 鉱山の あなうめでも この コンボが 出るよ']],
  cg_dojoGood:[['happy','{n}問 ヒントなしで 正解！ まちがえた ものは 声に 出して もう いちど 読んでみよう'],['smile','いい 調子。 組み合わせは 「セットで 音読」が いちばん 効くよ']],
  cg_dojoMiss:[['think','コンボは 1つずつ おぼえれば いいからね。 📘の ものを 声に 出してみて'],['smile','まちがえた 組み合わせほど、 つぎに 会うと おぼえてるものだよ']],
  cg_tourIntro:[['smile','浜辺の カード大会へ ようこそ！ 決勝で 待ってるからね'],['proud','大会では 英語の インタビューも あるよ。 落ち着いて 答えてね'],['happy','3回 勝てば 優勝。 わたしも 本気で いくよ！']],
@@ -145,47 +98,34 @@ Object.assign(MINA_LINES,{
  cg_minaGift:[['love','負けちゃった… でも うれしいな。 これ、 わたしからの とくべつな 文カード'],['happy','きみ、 ほんとに 強くなったね。 はい、 ごほうびの 文カード'],['proud','{n}回目の 勝利だね。 先生として ほこらしいよ']],
  cg_win:[['happy','{f}に 勝ったね！ コンボ、 うまく 使えてた'],['proud','勝利！ 正解した 単語は ★が 育ってるよ']],
  cg_lose:[['smile','{f}に 負けちゃったね。 まちがえた 単語は 結果に のってるよ'],['think','守るときは 相手の カードの 問題だよ。 はやく 答えると 🛡が 2ばい'],['smile','となりの 土地と コンボに なる 単語を 置くと、 通行料が 2ばい。 そこを ねらってみて'],['think','同じ 色の 土地を あつめると 通行料が どんどん 上がるよ']],
- x_cgOpen:[['smile','浜辺の 小屋は カードショップ「しおさい」。 単語が カードに なって すごろくで 遊べるよ'],['happy','カードショップに 行ってみて！ 店長の ナギさんが スターターデッキを くれるよ']],
+ x_cgOpen:[['smile','浜辺の 小屋は カードショップ「しおさい」。 きみが 店長に なって、 単語の 鉱山で カードを ほるんだ'],['happy','カードショップに 行ってみて！ アルバイトの ミオさんが 待ってるよ']],
  x_cgCombo:[['think','コンボ図鑑、 {n}/{tot}。 まだ 見つけてない 組み合わせが いっぱい あるよ'],['smile','ことばコンボを {n}こ 見つけたね。 自然な 組み合わせを おぼえると 英語が グッと 自然に なるよ']],
- x_cgWeak:[['proud','苦手カードの {w}、 島めぐりで 置くときに 正解すると 💪げんきに なるよ。 にげずに 使ってみて'],['think','{w} は まちがいノートの 単語。 カードで 出すと おぼえやすいよ']],
- x_cgForgot:[['think','💤 {w} の カード、 しばらく 見てないね。 島めぐりで 使ってみて'],['smile','わすれかけた ころに 思い出すと、 いちばん 記憶に のこるんだ']],
+ x_cgWeak:[['proud','苦手カードの {w}、 鉱山の 道具に すると 何回も 練習できるよ。 にげずに 使ってみて'],['think','{w} は まちがいノートの 単語。 カードで 出すと おぼえやすいよ']],
+ x_cgForgot:[['think','💤 {w} の カード、 しばらく 見てないね。 鉱山で 使ってみて'],['smile','わすれかけた ころに 思い出すと、 いちばん 記憶に のこるんだ']],
  x_cgOne:[['smile','カードショップの 1まい売り、 きょうの 6まいが ならんでるよ'],['happy','1まい売りに コンボの なかまが 出てるかも？']],
  x_cgSnipe:[['think','ねらいうち注文は 1日 1まい。 まちがいノートの 単語を 注文するのも おすすめ'],['smile','ほしい カードを ねらいうち できるよ。 コンボの あいかたを さがしてみて']],
  x_cgFree:[['happy','カードショップで きょうの むりょうパックが もらえるよ'],['smile','むりょうパック、 まだ あけてないよ']],
  x_cgRank:[['proud','いまは {r}。 あと {n}ポイントで {nx}！ {open}が ひらくよ'],['smile','段位を 上げると 新しい ルールが ひらくよ。 つぎは {open}']],
- x_cgMina:[['smile','わたしと 島めぐり、 する？ 手かげん しないけどね'],['love','いつか わたしに 勝てたら… なにか いい ことが あるかもね']],
  x_cgDojo:[['think','コンボ道場で 5問 どう？ 対戦なしで 組み合わせを 練習できるよ'],['smile','道場で 見つけた コンボも 図鑑に のるよ']],
- x_cgTour:[['proud','浜辺の カード大会に 出られるように なったよ。 決勝で 待ってる！'],['happy','カード大会、 英語の インタビューも あって 楽しいよ']],
  x_cgKira:[['love','✨ きらきら版の カードが {n}まい！ 完全に おぼえた しるしだね'],['wow','★5の カードは きらきら 光るんだ。 {w}、 きれいだね']],
- x_cgPick:[['smile','島めぐりの デッキは 自分で えらぶ 5まい ＋ ランダム。 コンボの あいかたを 入れると 楽しいよ'],['happy','毎回 ちがう カードが まざるから、 いろんな 単語に 会えるね'],['think','強い カードは 置くのに ✨が かかるよ。 安い カードも 大事']],
- x_cgRule:[['think','となりの 自分の 土地と コンボに なる 単語を 置くと 通行料 2ばい。 heavy の となりに rain、 みたいにね'],['smile','島の 1辺ごとに 色が あるよ。 同じ なかまの 単語を 置くと 守りが +3'],['proud','相手の 土地では、 払うか 勝負か。 ⭕の カードなら 相手が 正解しても 勝てるよ'],['happy','🎁サポートは 1回きり。 ここぞで 使うのが 楽しいところ'],['think','自分の 土地に 止まったら ⭐レベルアップ。 通行料も 守りも 上がるよ'],['smile','🗼見はり台を 通って スタートに もどると 1周ボーナス'],['proud','守りの 問題は 相手の カード。 知らない 単語に 出会えるチャンスだよ']],
- x_cgIsland:[['wow','カード対戦が すごろくに 生まれかわったよ！ 「ことば島めぐり」。 土地に 単語を 置いて、 コンボで 通行料ザクザク'],['happy','島めぐり、 もう やってみた？ となりに コンボの 単語を 置くのが コツだよ']],
- x_cgWrong:[['think','「{bad}」じゃなくて 「{ok}」。 まちがいコンボ ノートに のってるよ'],['smile','日本語から 考えると まちがえやすい 組み合わせ、 「{ok}」で おぼえよう']],
- x_cgLast:[['happy','さっきの 島めぐり、 {n}問中 {ok}問 正解！ 声に 出して 復習すると もっと 強くなるよ'],['smile','島めぐりで おぼえた 単語、 単語帳でも 見かえしてみてね']]});
+ x_cgWrong:[['think','「{bad}」じゃなくて 「{ok}」。 まちがいコンボ ノートに のってるよ'],['smile','日本語から 考えると まちがえやすい 組み合わせ、 「{ok}」で おぼえよう']]});
 const goShop=()=>['🃏 カードショップへ',()=>C.open()];
 const goTab=t=>()=>['🃏 カードショップへ',()=>{C.open();setTimeout(()=>C.go(t),50)}];
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_cgOpen',4,()=>!R().met?{}:null,goShop],
  ['x_cgCombo',2,()=>{const n=Object.keys(R().combo).length;return R().met?{n,tot:C.COMBO.length}:null},goTab('combo')],
- ['x_cgWeak',3,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.weak(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('battle')],
- ['x_cgForgot',2,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.forgot(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('battle')],
+ ['x_cgWeak',3,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.weak(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('mine')],
+ ['x_cgForgot',2,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.forgot(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('mine')],
  ['x_cgOne',1,()=>R().met&&R().d!==C.today()?{}:null,goTab('one')],
  ['x_cgSnipe',1,()=>R().met&&R().snipe!==C.today()?{}:null,goTab('snipe')],
  ['x_cgFree',3,()=>R().met&&R().free!==C.today()?{}:null,goTab('pack')],
- ['x_cgRank',2,()=>{if(!R().met)return null;const r=C.rank(),nx=CG_RANKS[r+1];if(!nx)return null;return {r:CG_RANKS[r][0],n:nx[1]-(R().rp||0),nx:nx[0],open:nx[2]}},goTab('battle')],
- ['x_cgMina',1,()=>R().met&&C.rank()>=8?{}:null,goTab('battle')],
- ['x_cgPick',2,()=>R().met?{}:null,goTab('battle')],
- ['x_cgIsland',6,()=>R().met&&!R().isl?{}:null,goTab('battle')],
- ['x_cgRule',2,()=>R().met&&R().games?{}:null,goTab('battle')],
+ ['x_cgRank',2,()=>{if(!R().met)return null;const r=C.rank(),nx=CG_RANKS[r+1];if(!nx)return null;return {r:CG_RANKS[r][0],n:nx[1]-(R().rp||0),nx:nx[0],open:nx[2]}},goTab('mine')],
  ['x_cgDojo',1,()=>R().met?{}:null,goTab('dojo')],
- ['x_cgTour',2,()=>R().met&&C.ruleOn('tour')&&!R().tw?{}:null,goTab('tour')],
  ['x_cgKira',1,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.kira(id));return a.length?{n:a.length,w:C.info(pickL(a)).en.split(',')[0]}:null},goTab('book')],
- ['x_cgWrong',1,()=>{const a=C.WRONG.filter(w=>R().wrong[w.k]);if(!a.length)return null;const w=pickL(a);return {bad:w.a+' '+w.b,ok:w.ok}},goTab('combo')],
- ['x_cgLast',2,()=>{const l=R().last;return l&&l.d===C.today()&&l.n?{n:l.n,ok:l.ok}:null},goTab('battle')]);
+ ['x_cgWrong',1,()=>{const a=C.WRONG.filter(w=>R().wrong[w.k]);if(!a.length)return null;const w=pickL(a);return {bad:w.a+' '+w.b,ok:w.ok}},goTab('combo')]);
 /* the card button left the home screen: Mina points at the hut once */
 setTimeout(function first(){if(R().told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,15000);
   R().told=1;C.save();const [ex,tx]=ML('cg_first');m.say('m',ex,tx,10000,null,['🃏 のぞいてみる',()=>C.open()])},9000);
-H.on('home',()=>{const l=R().last;if(!l||l.said||!window.MINA)return;l.said=1;C.save();setTimeout(()=>{try{if(!MINA.canAnnounce())return;const f=CGB.foe(l.f);const [ex,tx]=ML(l.win?'cg_win':'cg_lose',{f:f?f.n:''});MINA.say('m',ex,tx,8000)}catch(e){}},1500)});
 
-window.CGM={dojo,tour,reward,afterGame,minaWin,giftItems,giftUse};
+window.CGM={dojo,reward,afterGame,minaWin,giftItems,giftUse};
 })();
