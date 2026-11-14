@@ -96,7 +96,7 @@ Object.assign(MINA_LINES,{
  cg_tourWin:[['love','優勝 おめでとう！ わたしに 勝つなんて… ほんとに すごいよ'],['wow','チャンピオン！ {n}回目の 優勝だね。 ほこらしいよ']],
  cg_tourLose:[['smile','{r}で まけちゃったね。 でも 試合の 中で おぼえた 単語は ちゃんと のこってるよ'],['think','{r}まで 来たね。 まちがえた 単語を 復習して、 また いどもう']],
  cg_minaGift:[['love','負けちゃった… でも うれしいな。 これ、 わたしからの とくべつな 文カード'],['happy','きみ、 ほんとに 強くなったね。 はい、 ごほうびの 文カード'],['proud','{n}回目の 勝利だね。 先生として ほこらしいよ']],
- cg_win:[['happy','{f}に 勝ったね！ コンボ、 うまく 使えてた'],['proud','勝利！ 正解した 単語は ★が 育ってるよ']],
+ cg_win:[['happy','{f}に 勝ったね！ コンボ、 うまく 使えてた'],['proud','勝利！ 正解した 単語は おぼえて きてるよ']],
  cg_lose:[['smile','{f}に 負けちゃったね。 まちがえた 単語は 結果に のってるよ'],['think','守るときは 相手の カードの 問題だよ。 はやく 答えると 🛡が 2ばい'],['smile','となりの 土地と コンボに なる 単語を 置くと、 通行料が 2ばい。 そこを ねらってみて'],['think','同じ 色の 土地を あつめると 通行料が どんどん 上がるよ']],
  x_cgOpen:[['smile','浜辺の 小屋は カードショップ「しおさい」。 きみが 店長に なって、 単語の 鉱山で カードを ほるんだ'],['happy','カードショップに 行ってみて！ アルバイトの ミオさんが 待ってるよ']],
  x_cgCombo:[['think','コンボ図鑑、 {n}/{tot}。 まだ 見つけてない 組み合わせが いっぱい あるよ'],['smile','ことばコンボを {n}こ 見つけたね。 自然な 組み合わせを おぼえると 英語が グッと 自然に なるよ']],
@@ -107,7 +107,6 @@ Object.assign(MINA_LINES,{
  x_cgFree:[['happy','カードショップで きょうの むりょうパックが もらえるよ'],['smile','むりょうパック、 まだ あけてないよ']],
  x_cgRank:[['proud','いまは {r}。 あと {n}ポイントで {nx}！ {open}が ひらくよ'],['smile','段位を 上げると 新しい ルールが ひらくよ。 つぎは {open}']],
  x_cgDojo:[['think','コンボ道場で 5問 どう？ 対戦なしで 組み合わせを 練習できるよ'],['smile','道場で 見つけた コンボも 図鑑に のるよ']],
- x_cgKira:[['love','✨ きらきら版の カードが {n}まい！ 完全に おぼえた しるしだね'],['wow','★5の カードは きらきら 光るんだ。 {w}、 きれいだね']],
  x_cgWrong:[['think','「{bad}」じゃなくて 「{ok}」。 まちがいコンボ ノートに のってるよ'],['smile','日本語から 考えると まちがえやすい 組み合わせ、 「{ok}」で おぼえよう']]});
 const goShop=()=>['🃏 カードショップへ',()=>C.open()];
 const goTab=t=>()=>['🃏 カードショップへ',()=>{C.open();setTimeout(()=>C.go(t),50)}];
@@ -121,7 +120,6 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_cgFree',3,()=>R().met&&R().free!==C.today()?{}:null,goTab('pack')],
  ['x_cgRank',2,()=>{if(!R().met)return null;const r=C.rank(),nx=CG_RANKS[r+1];if(!nx)return null;return {r:CG_RANKS[r][0],n:nx[1]-(R().rp||0),nx:nx[0],open:nx[2]}},goTab('mine')],
  ['x_cgDojo',1,()=>R().met?{}:null,goTab('dojo')],
- ['x_cgKira',1,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.kira(id));return a.length?{n:a.length,w:C.info(pickL(a)).en.split(',')[0]}:null},goTab('book')],
  ['x_cgWrong',1,()=>{const a=C.WRONG.filter(w=>R().wrong[w.k]);if(!a.length)return null;const w=pickL(a);return {bad:w.a+' '+w.b,ok:w.ok}},goTab('combo')]);
 /* the card button left the home screen: Mina points at the hut once */
 setTimeout(function first(){if(R().told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,15000);

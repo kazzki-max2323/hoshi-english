@@ -1,5 +1,5 @@
 /* ⛏️ 単語の 鉱山: 単語カードを 道具に して ほりすすむ。 同じ 単語を 何度も 使って おぼえる。
-   - カードの ❤HP = 1回の 鉱山で 使える 回数。 苦手ほど 多く、 おぼえるほど（★が 育つほど） 少ない。 0に なると 💤 つかれて、 時間で 回復（5分で 1）
+   - カードの ❤HP = 1回の 鉱山で 使える 回数。 苦手ほど 多く、 おぼえるほど 少ない。 0に なると 💤 つかれて、 時間で 回復（5分で 1）
    - 問題: 和訳・英語で・聞きとり・つづり ならべかえ・コンボ あなうめ・例文 あなうめ。 深い 層ほど むずかしい 形と 単語
    - 自分の ❤ は 1回 30（5〜10分）。 0に なっても 見つけた 物は ぜんぶ 持ち帰れる
    - 見つかる 物: カード・宝石（コイン）・イベント。 ほっている あいだは ドット絵
@@ -29,7 +29,7 @@ const tiredN=()=>tools().filter(tired).length;
 let pickSel=[];
 function open(){const all=tools(),M=MN();
   const ok=all.filter(id=>hpNow(id)>0);
-  /* おまかせ: 苦手・わすれかけ・★の 低い 順 */
+  /* おまかせ: 苦手・わすれかけ・まだ おぼえていない 順 */
   const score=id=>(C.weak(id)?100:0)+(C.forgot(id)?50:0)+(6-C.star(id))*8+hpNow(id)+Math.random()*6;
   pickSel=pickSel.filter(id=>ok.includes(id));
   if(!pickSel.length)pickSel=ok.slice().sort((a,b)=>score(b)-score(a)).slice(0,HAND);
@@ -110,7 +110,7 @@ function sentQ(I){if(I.k!=='w')return null;const h=I.h;if(!/^[a-z]+$/.test(h))re
 function after(id,ok){if(!D)return;D.busy=true;D.q++;D.hp--;use(id);const st=C.record(id,ok);const w=D.words[id]||(D.words[id]=[0,0]);w[ok?0:1]++;
   const M=MN();M.q++;if(ok)M.ok++;
   if(ok){D.ok++;D.swing=6;sf('tap');setTimeout(()=>{if(!D)return;D.crack=0;D.depth++;burst();sf('knock');find();C.save();hud();setTimeout(()=>next(),D.pop&&D.pop.big?1100:500)},420);
-    if(st)setTimeout(()=>H.toast(`⭐ ${esc(C.info(id).en.split(',')[0])} が ★${st} に！ ❤が へったよ（おぼえてきた しるし）`,2600),600);
+    if(st)setTimeout(()=>H.toast(`💡 ${esc(C.info(id).en.split(',')[0])} の ❤が へったよ（おぼえてきた しるし）`,2600),600);
     const r=R();r.rpq=(r.rpq||0)+1;if(r.rpq%6===0){const b=C.rank();r.rp=(r.rp||0)+1;if(C.rank()>b)setTimeout(()=>{sf('done');H.toast(`🎖️ 段位が <b>${esc(C.rankName())}</b> に 上がった！`,3200)},900)}}
   else{D.swing=6;D.crack=Math.min(2,D.crack+1);setTimeout(()=>{sf('tap')},300);C.save();hud();setTimeout(()=>next(),200)}
   if(hpNow(id)<=0)setTimeout(()=>{H.toast(`💤 ${esc(C.info(id).en.split(',')[0])} は つかれちゃった。 べつの カードに もちかえよう`,2600)},700)}

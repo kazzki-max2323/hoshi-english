@@ -10,7 +10,8 @@ const C=CG,R=()=>C.rec(),pickL=a=>a[Math.random()*a.length|0];
 const sf=k=>{try{SFX[k]&&SFX[k]()}catch(e){}};
 const ML=(k,v)=>{try{return MINA.line(k,v||{})}catch(e){return ['smile','']}};
 const FLOOR_N=10;
-const SH=()=>{const r=R();return r.sh||(r.sh={floor:[],sold:0,earn:0,guests:0,talk:0,met:0,away:0,best:0,mined:0,tday:'',tearn:0,memo:null})};
+/* お店の 記録は r.shop（r.sh は 交換の かけらの 数。 前の 版で まちがえて r.sh に 入れていたら うつす） */
+const SH=()=>{const r=R();if(r.sh&&typeof r.sh==='object'){if(!r.shop)r.shop=r.sh;r.sh=0}if(typeof r.shop!=='object'||!r.shop||!Array.isArray(r.shop.floor))r.shop=null;return r.shop||(r.shop={floor:[],sold:0,earn:0,guests:0,talk:0,met:0,away:0,best:0,mined:0,tday:'',tearn:0,memo:null})};
 const save=()=>C.save();
 
 /* ================================================================ prices（覚えた 度合いでは 変えない） */
@@ -54,7 +55,7 @@ function open(){cleanFloor();const S=SH(),first=!S.met;
     </div>
     <div class="row shmio"><button id="shtalk">💬 ミオと 話す${window.MIOC&&MIOC.newN()?'<i class="dot"></i>':''}</button><button id="shgift" class="sub">🎁 プレゼント</button></div>
     <details class="shmore"><summary>そのほか（仕入れ・図鑑・道場）</summary>
-      <div class="cgtiles">${[['pack','🎁','仕入れ'],['one','🃏','きょうの 1まい'],['snipe','🎯','とりよせ'],['trade','♻️','交換・合成'],['book','📖','カード図鑑'],['combo','🔗','コンボ図鑑'],['dojo','🥋','コンボ道場'],['treasure','🎁','宝箱くじ']]
+      <div class="cgtiles">${[['pack','🎁','仕入れ'],['one','🃏','きょうの 1まい'],['snipe','🎯','とりよせ'],['trade','♻️','交換'],['book','📖','カード図鑑'],['combo','🔗','コンボ図鑑'],['dojo','🥋','コンボ道場'],['treasure','🎁','宝箱くじ']]
         .map(([k,i,n])=>{const dot=k==='one'&&R().d!==C.today()||k==='snipe'&&R().snipe!==C.today()||k==='treasure'&&window.CARDS&&CARDS.freeOk()||k==='pack'&&R().free!==C.today();
           return `<button data-g="${k}"><span>${i}</span>${n}${dot?'<i class="dot"></i>':''}</button>`}).join('')}</div></details>
     <p class="shsum">これまでに ${S.sold}まい 売れた・ 売り上げ 🪙${S.earn}${S.best?` ・ 鉱山 最高 ${S.best}m`:''}</p>
