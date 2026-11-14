@@ -3,7 +3,7 @@
        D(id, 絵, 名前, 英語, 国旗, 国, レベル, 時間帯, 値段, ❤回復, 注文の 好み, [中身 英語, 日本語], [うんちく1], [うんちく2])
        レベル es=小 jh=中 hs=高 … 注文の 英語と うんちくの 英語の むずかしさ
        好み: spicy 辛さ / size 大きさ / egg たまご / steak 焼き加減 / top トッピング / side つけあわせ / sweet あまさ / wasabi わさび / noodle めんの かたさ / drink 飲み物つき
-   - FOOD_SNACKS: ながれぎ雑貨店で 買う 持ち帰りの おかし・軽食。 もちものに 入り、 あとで 食べたり プレゼントしたり できる
+   - FOOD_SNACKS: ながれぎ雑貨店で 買う 持ち帰りの 食べ物（パン・くだもの・お弁当・おかし）。 もちものに 入り、 あとで 食べたり プレゼントしたり できる
        雑貨店の 品物と 同じ 形（d 説明 q 質問 f おもしろい まちがい e ひとこと x 高の 物語）。 tg = プレゼントの しるし（game/gift-data.js） */
 const FOOD_BANDS={am:['🌅','朝ごはん','breakfast'],noon:['☀️','昼ごはん','lunch'],tea:['🫖','おやつ','afternoon tea'],night:['🌙','夜ごはん','dinner']};
 const FOOD_DISHES=(()=>{const D=(id,ico,n,en,fl,c,lv,w,p,hp,o,inn,t1,t2)=>({id,ico,n,en,fl,c,lv,w:w.split(' '),p,hp,o,in:inn,t:[t1,t2]});return [
@@ -210,7 +210,7 @@ const FOOD_DRINKS={am:[['orange juice','オレンジジュース','🍊'],['milk
  tea:[['black tea','紅茶','🫖'],['hot cocoa','ココア','☕'],['mango juice','マンゴージュース','🥭']],
  night:[['ginger ale','ジンジャーエール','🫚'],['jasmine tea','ジャスミンティー','🍵'],['sparkling water','炭酸水','🫧']]};
 
-/* ================================================================ 🍪 ながれぎ雑貨店の おかし（持ち帰り） */
+/* ================================================================ 🥪 ながれぎ雑貨店の 食べ物（持ち帰り） */
 const FOOD_SNACKS={
  choco:{lv:'es',ico:'🍫',n:'板チョコ',en:'chocolate bar',p:30,hp:12,tg:['sweet','food'],
   d:["This is a chocolate bar. It's sweet. Good for a long day!","これは 板チョコ。 あまいわよ。 長い 一日に ぴったり！"],
@@ -305,6 +305,58 @@ const FOOD_SNACKS={
   f:["Do I have to climb a mountain to eat it?","山に のぼらないと 食べちゃ だめ？","Not at all, though I'd recommend at least climbing out of bed first.","ぜんぜん。 でも せめて ベッドからは 出てから 食べてね。","Climb! Climb!"],
   x:["An old explorer used to buy a bag every week. He said the chocolate chips were his reward for reaching the top.","年取った 探検家が 毎週 1ふくろ 買っていったの。 チョコチップは 頂上に ついた ごほうびだって。"],
   e:["Take it to the mine. You'll thank me later.","鉱山に もっていって。 あとで わたしに 感謝するわよ。"]},
+ /* ---------- くだもの・パン・お弁当 ---------- */
+ apple:{lv:'es',ico:'🍎',n:'りんご',en:'apple',p:15,hp:10,tg:['food','nature'],
+  d:["A red apple! It's sweet and crunchy.","赤い りんご！ あまくて シャキシャキよ。"],
+  q:["Is it sweet?","あまい？","Yes, very sweet. Take a big bite!","ええ、 とっても あまいわ。 がぶっと かじってね！"],
+  f:["Can I play baseball with it?","これで 野球 できる？","No, no! It's for eating, not for hitting!","だめ だめ！ 食べる もので、 打つ ものじゃ ないわ！","Home run! Home run!"],
+  e:["An apple a day keeps the doctor away!","1日 1こ りんごで 医者いらず！"]},
+ mikan:{lv:'es',ico:'🍊',n:'みかん 3こ',en:'bag of mandarin oranges',p:20,hp:12,tg:['food','nature'],
+  d:["Three mandarin oranges. Easy to peel. Very juicy!","みかん 3こ。 皮が むきやすくて、 とっても ジューシー！"],
+  q:["Are they sour?","すっぱい？","Just a little. Mostly sweet!","ちょっとだけ。 ほとんど あまいわ！"],
+  f:["Can I juggle them?","お手玉 できる？","You can try! But don't drop them in the sand.","やってみて！ でも すなに 落とさないでね。","Juggle! Juggle!"],
+  e:["Share them with your friends!","お友だちと わけてね！"]},
+ watermelon:{lv:'es',ico:'🍉',n:'すいか 1切れ',en:'slice of watermelon',p:25,hp:14,tg:['food','nature','sweet'],
+  d:["A big slice of watermelon. Cold and sweet. Perfect for the beach!","大きな すいかの 1切れ。 つめたくて あまい。 浜辺に ぴったり！"],
+  q:["Does it have seeds?","たねは ある？","Yes, a few black seeds. Spit them out!","ええ、 黒い たねが 少し。 ぺっと 出してね！"],
+  f:["Can I plant the seeds on the beach?","たねを 浜辺に うえて いい？","Ha ha! Maybe a watermelon will grow by summer!","あはは！ 夏までに すいかが できるかもね！","Grow! Grow!"],
+  e:["Eat it with a big smile!","にっこり 笑って 食べてね！"]},
+ grapes:{lv:'jh',ico:'🍇',n:'ぶどう',en:'bunch of grapes',p:35,hp:14,tg:['food','nature','sweet'],
+  d:["A bunch of purple grapes. They came from a farm on the hill this morning.","むらさきの ぶどう 1ふさ。 けさ 丘の 上の 農園から 来たの。"],
+  q:["Can I eat the skin?","皮も 食べられる？","Yes, you can. Most of the vitamins are in the skin.","ええ、 食べられるわ。 ビタミンは 皮に 多いのよ。"],
+  f:["Can I make wine with them?","これで ワインを 作れる？","Not until you're much older! Eat them as they are.","それは ずっと 大人に なってからね！ そのまま 食べて。","Grape juice! Grape juice!"],
+  e:["Keep them cool, and they'll stay fresh.","ひやしておけば 新鮮な ままよ。"]},
+ baguette:{lv:'jh',ico:'🥖',n:'バゲット',en:'baguette',p:30,hp:18,tg:['food'],
+  d:["A long French baguette. Crispy outside, soft inside. It was baked this morning.","長い フランスパン。 外は パリッと、 中は ふわっと。 けさ 焼いたの。"],
+  q:["How long is it?","どれくらい 長い？","About as long as your arm! Break it in half if it's too big.","あなたの うでくらいよ！ 大きすぎたら 半分に わってね。"],
+  f:["Can I use it as a sword?","剣に つかえる？","Ha ha! Kids always ask that. Please don't fight with bread!","あはは！ 子どもは みんな それを 聞くの。 パンで たたかわないでね！","En garde! En garde!"],
+  e:["It's great with butter, or with soup.","バターでも スープとでも おいしいわよ。"]},
+ currypan:{lv:'jh',ico:'🍛',n:'カレーパン',en:'curry bread',p:35,hp:20,tg:['food'],
+  d:["Curry bread! Curry is inside fried bread. It's a Japanese favorite.","カレーパン！ 揚げた パンの 中に カレーが 入ってるの。 日本で 大人気よ。"],
+  q:["Is it spicy?","からい？","Only a little. It's a mild curry.","ちょっとだけ。 あまくちの カレーよ。"],
+  f:["Is it bread or curry?","パン？ カレー？","Both! That's the magic of curry bread.","どっちもよ！ それが カレーパンの 魔法なの。","Both! Both!"],
+  e:["Eat it while it's warm. The crust is crunchy.","あたたかい うちに 食べてね。 外が サクサクよ。"]},
+ nikuman:{lv:'jh',ico:'🥟',n:'肉まん',en:'steamed meat bun',p:35,hp:20,tg:['food'],
+  d:["A hot steamed meat bun. Soft white dough with pork inside. Good on a windy day.","ほかほかの 肉まん。 やわらかい 白い 生地に 豚肉が 入ってるの。 風の 強い 日に いいわね。"],
+  q:["Is it still hot?","まだ あつい？","Very hot! Be careful with the first bite.","とっても あついわ！ ひとくちめに 気を つけてね。"],
+  f:["Can I use it as a pillow?","まくらに できる？","It's soft, but you'll get sleepy and hungry at the same time!","やわらかいけど、 ねむいのと おなか すいたのが いっしょに 来ちゃうわよ！","Pillow! Pillow!"],
+  e:["Blow on it before you eat it!","ふーふー してから 食べてね！"]},
+ yakiimo:{lv:'jh',ico:'🍠',n:'焼きいも',en:'roasted sweet potato',p:30,hp:18,tg:['food','sweet','nature'],
+  d:["A roasted sweet potato, cooked slowly in hot stones. It's naturally sweet.","あつい 石で ゆっくり 焼いた 焼きいも。 しぜんの あまさなの。"],
+  q:["Why is it so sweet?","どうして こんなに あまいの？","Slow cooking turns the starch into sugar. No sugar is added at all.","ゆっくり 焼くと でんぷんが あまく なるの。 さとうは ぜんぜん 入れてないわ。"],
+  f:["Can I keep it in my pocket as a heater?","ポケットに 入れて カイロに していい？","It would work for a while, but you'd smell like potatoes all day!","しばらくは あったかいけど、 一日中 おいもの においが するわよ！","Warm! Warm!"],
+  e:["Hold it with both hands. It's hot!","りょう手で もってね。 あついから！"]},
+ soup:{lv:'jh',ico:'🥣',n:'コーンスープ',en:'cup of corn soup',p:30,hp:16,tg:['food'],
+  d:["A cup of creamy corn soup. It warms you up from the inside.","クリーミーな コーンスープ。 体の 中から あたたまるわ。"],
+  q:["Is there corn in it?","コーンの つぶは 入ってる？","Yes, lots of little corn pieces. Shake the cup a little first.","ええ、 小さな つぶが たくさん。 先に カップを 少し ふってね。"],
+  f:["Can I drink it with a fork?","フォークで 飲める？","You could try, but it might take all day!","やってみても いいけど、 一日 かかるわよ！","Fork! Fork!"],
+  e:["Don't burn your tongue!","したを やけど しないでね！"]},
+ bento:{lv:'hs',ico:'🍱',n:'浜辺の お弁当',en:'beach bento box',p:70,hp:40,tg:['food','handmade'],
+  d:["A beach bento: rice, fried chicken, a rolled omelet, and a few pickles. My neighbor makes only ten a day, so it's a bit of a treasure.","浜辺の お弁当。 ごはん・からあげ・たまご焼き・つけもの少し。 おとなりさんが 1日 10こしか 作らないから、 ちょっとした お宝なの。"],
+  q:["Is it filling enough for a whole afternoon of digging?","午後ずっと ほりつづけられるくらい おなか いっぱいに なる？","Absolutely. Miners used to carry bento just like this into the mountains.","もちろん。 むかしの 鉱夫も、 こういう お弁当を 山に もっていったのよ。"],
+  f:["Does the box come with a chef who cooks for me every day?","毎日 作ってくれる シェフも ついてくる？","I'm afraid the chef isn't included, but I'll pass on your compliments.","シェフは ついてないけど、 ほめてたって つたえておくわ。","Chef! Chef!"],
+  x:["The word \"bento\" is used in English now. You'll even find bento boxes in shops in London and New York.","「bento」は いまでは 英語でも つかわれるの。 ロンドンや ニューヨークの お店でも 見かけるのよ。"],
+  e:["Eat it before it gets too warm in the sun.","日なたで あたたまりすぎる 前に 食べてね。"]},
 };
-/* 雑貨店の 品物と して 足す（game/zakka.js の 「おかし」の たな） */
+/* 雑貨店の 品物と して 足す（game/zakka.js の 「食べ物」の たな） */
 if(typeof ZAKKA_GOODS!=='undefined')ZAKKA_GOODS.food=FOOD_SNACKS;
