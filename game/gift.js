@@ -28,11 +28,12 @@ function items(){const out=[],Z=ZR(),T=TR();
   if(Z)Z.gift.forEach((g,i)=>{const it=zItem(g.id);if(it)out.push({ref:'z'+i,key:'z:'+g.id,ico:it.ico,n:it.n,w:it.w,src:'z',wrap:g.w?g:null,lux:!!it.lux})});
   if(T&&typeof TUTOR_GIFTS!=='undefined')TUTOR_GIFTS.forEach(g=>{const c=T.gifts[g[0]]||0;if(c>0)out.push({ref:'t:'+g[0],key:'t:'+g[0],ico:g[1],n:g[2],w:g[3],src:'t',cnt:c})});
   try{if(window.CGM)out.push(...CGM.giftItems())}catch(e){}   // spare word cards (game/cg-more.js)
+  try{if(window.FOOD)out.push(...FOOD.giftItems())}catch(e){}   // 🍪 snacks to take home (game/food.js)
   return out}
 const byRef=ref=>items().find(x=>x.ref===ref);
 const has=()=>items().length>0;
 /* take it out of the bag */
-function useUp(it){if(it.src==='c'){try{CGM.giftUse(it)}catch(e){}return}if(it.src==='z'){const Z=ZR(),i=+it.ref.slice(1);if(Z&&Z.gift[i])Z.gift.splice(i,1)}else{try{TUTOR.take(it.key.slice(2))}catch(e){}}save()}
+function useUp(it){if(it.src==='c'){try{CGM.giftUse(it)}catch(e){}return}if(it.src==='f'){try{FOOD.giftUse(it)}catch(e){}return}if(it.src==='z'){const Z=ZR(),i=+it.ref.slice(1);if(Z&&Z.gift[i])Z.gift.splice(i,1)}else{try{TUTOR.take(it.key.slice(2))}catch(e){}}save()}
 
 /* ---------- who you can give to ---------- */
 function people(){const out=['mina'];const T=TR(),Z=ZR();
@@ -157,12 +158,12 @@ function after(){afterTalk(()=>{const {t}=C;t>=2?askWhere():t===1?askWhy():askMe
 const src=()=>C.it.src;
 function askWhere(){const {p,to}=C;them(p.ask,'❓');
   const o=[];
-  if(src()==='z')o.push(to==='nora'?{e:"I bought it at your shop!",j:"あなたの お店で 買ったんだよ！",ok:1,lv:'es',go:()=>said(["I know! Ha ha. You're my best customer.","知ってるわよ！ あはは。 いちばんの お客さんね。"])}
+  if(src()==='z'||src()==='f')o.push(to==='nora'?{e:"I bought it at your shop!",j:"あなたの お店で 買ったんだよ！",ok:1,lv:'es',go:()=>said(["I know! Ha ha. You're my best customer.","知ってるわよ！ あはは。 いちばんの お客さんね。"])}
     :{e:"I bought it at Nora's shop by the beach.",j:"浜辺の ノラさんの お店で 買ったよ。",ok:1,lv:'jh',go:()=>said(["Nora's shop! I should go there sometime.","ノラさんの お店！ こんど 行って みよう。"])});
   else o.push(to==='riku'?{e:"You gave it to me, remember?",j:"きみが くれたんだよ、 おぼえてる？",ok:1,lv:'jh',go:()=>said(["Oh yeah! Ha ha! Now it's a present again!","そうだった！ あはは！ また プレゼントに なった！"])}
     :{e:"Riku gave it to me. I teach him English.",j:"リクが くれたの。 英語を 教えてるんだ。",ok:1,lv:'hs',go:()=>said(["You teach English? That's amazing!","英語を 教えてるの？ すごい！"])});
   o.push({e:"It's a secret.",j:"ひみつ。",ok:1,lv:'es',go:()=>said(["A secret? Ha ha, OK. I like secrets.","ひみつ？ あはは、 わかった。 ひみつって すてき。"])});
-  o.push({e:"I made it myself!",j:"自分で 作ったんだ！",ok:0,go:()=>said(src()==='z'?["Really? ...There's a price tag on it. Ha ha!","ほんと？ …値札が ついてるよ。 あはは！"]:["Really? ...It looks like a kid made it! Ha ha!","ほんと？ …子どもが 作ったみたい！ あはは！"],'😂','k-oops')});
+  o.push({e:"I made it myself!",j:"自分で 作ったんだ！",ok:0,go:()=>said(src()==='z'||src()==='f'?["Really? ...There's a price tag on it. Ha ha!","ほんと？ …値札が ついてるよ。 あはは！"]:["Really? ...It looks like a kid made it! Ha ha!","ほんと？ …子どもが 作ったみたい！ あはは！"],'😂','k-oops')});
   o.push({e:"It fell from the moon.",j:"月から おちてきたの。",ok:0,go:()=>said(C.p.fun,'😂','k-oops')});
   ask(shuffle(o))}
 function askWhy(){const {p}=C;them(p.why,'❓');

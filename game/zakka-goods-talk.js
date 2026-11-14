@@ -27,7 +27,7 @@ const tj=c=>c.it.t?c.it.t.map(x=>TJ[x]).join('・'):'';
 
 return {
 /* =============================================================== 小 */
-gEs:{t:'ラジオ・レコード・イベント（小）',start:'a',nodes:{
+gEs:{t:'ラジオ・レコード・イベント・おかし（小）',start:'a',nodes:{
  a:{s:c=>`${pickBy(c,["Hi!","Hello!","Look!"])} ${c.it.d[0]}`,j:c=>`${pickBy(c,["こんにちは！","いらっしゃい！","見て！"])} ${c.it.d[1]}`,o:[
   Q('b'),
   O("Can I listen?",'listen',"Sure! Here you go.","いいわよ！ どうぞ。",'b',{if:c=>isM(c)&&!c.pv,act:c=>Z.preview(c)}),
@@ -72,7 +72,7 @@ gEs:{t:'ラジオ・レコード・イベント（小）',start:'a',nodes:{
 }},
 
 /* =============================================================== 中 */
-gJh:{t:'ラジオ・レコード・イベント（中）',start:'a',nodes:{
+gJh:{t:'ラジオ・レコード・イベント・おかし（中）',start:'a',nodes:{
  a:{s:c=>`${pickBy(c,["Hi there!","Welcome back!",`Good ${Z.part()}!`])} ${c.it.d[0]}`,j:c=>`${pickBy(c,["いらっしゃい！","また 来てくれたのね！",`${Z.partJ()}！`])} ${c.it.d[1]}`,o:[
   Q('b'),
   O("Could I listen to it first?",'listenFirst',"Of course. Here's a little of it.","もちろん。 ちょっと ながすわね。",'b',{if:c=>isM(c)&&!c.pv,act:c=>Z.preview(c)}),
@@ -125,7 +125,7 @@ gJh:{t:'ラジオ・レコード・イベント（中）',start:'a',nodes:{
 }},
 
 /* =============================================================== 高 */
-gHs:{t:'ラジオ・レコード・イベント（高）',start:'a',nodes:{
+gHs:{t:'ラジオ・レコード・イベント・おかし（高）',start:'a',nodes:{
  a:{s:c=>`${pickBy(c,["Ah, you have a good eye.","That's one of my favorites.","I was hoping someone would notice that."])} ${c.it.d[0]}`,j:c=>`${pickBy(c,["あら、 お目が 高いわね。","それ、 わたしの お気に入りの ひとつなの。","だれか 気づいて くれないかなって 思ってたの。"])} ${c.it.d[1]}`,o:[
   Q('b'),
   O("Would you mind if I listened to a bit of it first?",'mindIf',"Not at all. Here's the opening.","ぜんぜん。 はじめの ところよ。",'b',{if:c=>isM(c)&&!c.pv,act:c=>Z.preview(c)}),

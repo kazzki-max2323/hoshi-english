@@ -42,6 +42,7 @@ const trackShort=id=>{const n=(typeof TRACKS!=='undefined'&&TRACKS[id]||{}).name
 function good(kind,id){const g=GD[kind]&&GD[kind][id];if(!g)return null;
   if(kind==='radio'){const L=LEVELS[id];return L?Object.assign({kind,id,ico:'📻',n:L.name+'ラジオ',p:L.price||0},g):null}
   if(kind==='music'){const m=CATALOG.music.find(x=>x[0]===id);return m&&typeof TRACKS!=='undefined'&&TRACKS[id]?Object.assign({kind,id,ico:m[2],n:trackShort(id),p:m[1]},g):null}
+  if(kind==='food')return Object.assign({kind,id},g);   // 🍪 持ち帰りの おかし（game/food-data.js）
   const e=CATALOG.event.find(x=>x.id===id);return e?Object.assign({kind,id,ico:e.ico,n:e.n,p:e.p,t:e.t,sec:e.sec,k:e.k},g):null}
 const gOwned=it=>it.kind==='radio'?ST.radios.some(r=>r.lv===it.id):it.kind==='music'?ST.music.includes(it.id):false;
 const gScene=it=>gOwned(it)?'gOwn':SCN[it.lv]||'gEs';
@@ -57,7 +58,10 @@ function lineup(){const ph=phNow(),dk=shelfDay()+':'+ph;
   const radio=[...H.LV_ORDER,'star'].map(k=>good('radio',k)).filter(Boolean);
   const music=pickShelf(Object.keys(GD.music).map(id=>good('music',id)).filter(it=>it&&!gOwned(it)),4,it=>rnd(dk+it.id)+(it.t&&it.t.includes(ph)?.6:0));
   const event=pickShelf(Object.keys(GD.event).map(id=>good('event',id)).filter(it=>it&&H.onSale(it)),6,it=>rnd(dk+it.id)+(it.t?.3:0));
-  return {radio,music,event,ph}}
+  /* 🍪 おかしは 日替わり（6品）。 おにぎりは いつも ある */
+  const fd=Object.keys(GD.food||{}).map(id=>good('food',id)).filter(Boolean),fdk='f:'+shelfDay();
+  const food=[...fd.filter(it=>it.always),...pickShelf(fd.filter(it=>!it.always),6,it=>rnd(fdk+it.id))];
+  return {radio,music,event,food,ph}}
 /* real minutes until the shelf changes (one beach day = three real hours) */
 function nextMin(){let h=12;try{h=GH()}catch(e){}let best=24;PHASES.forEach(p=>{const d=(p[0]-h+24)%24;if(d>0&&d<best)best=d});return Math.max(1,Math.ceil(best*7.5))}
 /* 🧺 the 雑貨 shelf changes every day (game/zakka-more.js): 6 things from the pool, sometimes one ✨ rare thing.
@@ -179,6 +183,7 @@ function greet(){
    if(!ST.radios.length)g.push(["Look at the radios! The little one is free. Take it home!","ラジオを 見て！ 小さいのは ただよ。 もっていってね！"])}
   {const T=today();if(T.rare){const r=[`You're lucky today! I have a ${T.rare.w}. It doesn't come in often.`,`きょうは ついてるわね！ ${T.rare.n}が あるの。 めったに 入らないのよ。`];g.push(r,r,r)}
    g.push(["The shelf is different every day. Let's see what came in today!","たなは 毎日 ちがうの。 きょうは なにが 入ったかしら！"]);
+   {const f=(lineup().food||[]).filter(x=>!x.always);if(f.length){const x=pickL(f);g.push([`Hungry? The snack shelf has a ${x.en} today. Take it home for later!`,`おなか すいてる？ きょうは おかしの たなに ${x.n}が あるわ。 持ち帰って あとで どうぞ！`])}}
    const d=T.day.filter(i=>i.k==='gift');if(d.length){const x=pickL(d);g.push([`A ${x.w} came in today. Someone on the beach might like it.`,`きょうは ${x.n}が 入ったの。 浜辺の だれかが よろこぶかも。`])}}
   if(ZD.gift.length)g.push(["Did you give your present yet? I'm sure they'll love it.","プレゼント、 もう わたした？ きっと よろこぶわ。"]);
   if(Z.tgs().length)g.push(["Did Riku give you something nice? I'd love to see it.","リクから なにか すてきな もの もらった？ 見てみたいわ。"]);
@@ -192,17 +197,18 @@ function bindLine(root){root.querySelectorAll('[data-say]').forEach(b=>b.onclick
 const endsAll=()=>Object.values(SC).reduce((a,s)=>a+Object.values(s.nodes).filter(n=>n.end).length,0);
 const endsN=()=>Object.keys(ZD.end).length;
 const phN=()=>Object.keys(ZD.ph).filter(k=>PH[k]).length;
-const bagN=()=>ownBooks().length+ZD.pc.length+ZD.fortN+ZD.gift.length+(ZD.own.note?1:0)+(ZD.own.crystal?1:0)+(ZD.own.moonmap?1:0)+(ZD.own.g_ring?1:0)+(window.ADV&&ADV.has()?1:0);
+const bagN=()=>(window.FOOD?FOOD.count():0)+ownBooks().length+ZD.pc.length+ZD.fortN+ZD.gift.length+(ZD.own.note?1:0)+(ZD.own.crystal?1:0)+(ZD.own.moonmap?1:0)+(ZD.own.g_ring?1:0)+(window.ADV&&ADV.has()?1:0);
 
 function open(tab){if(!ZD.v){ZD.v=1;save();if(tab)tabNow=tab;return play('hello')}
   ZD.v++;save();shop(tab)}
 let tabNow='zakka',jukeOpen=false;
-const TABS=[['zakka','🧺','雑貨'],['radio','📻','ラジオ'],['music','🎵','レコード'],['event','🎆','イベント']];
+const TABS=[['zakka','🧺','雑貨'],['food','🍪','おかし'],['radio','📻','ラジオ'],['music','🎵','レコード'],['event','🎆','イベント']];
 /* 📻 / 🎵 / 🎆 tabs: the goods, each with its 小・中・高 mark */
 function goodsShelf(kind){const L=lineup(),list=L[kind]||[];
-  const tile=it=>{const own=gOwned(it);return `<button class="zkit zkg ${own?'own':''}" data-g="${it.kind}:${it.id}"><i class="zlv zlv-${it.lv}">${GLV[it.lv]}</i><span class="zi">${it.ico}</span><span class="zn">${esc(it.n)}</span><span class="zp">${own?'✓ もってる':it.p?'🪙'+it.p.toLocaleString():'むりょう'}</span></button>`};
+  const tile=it=>{const own=gOwned(it),fn=it.kind==='food'&&window.FOOD?(FOOD.rec().bag[it.id]||0):0;return `<button class="zkit zkg ${own?'own':''}" data-g="${it.kind}:${it.id}"><i class="zlv zlv-${it.lv}">${GLV[it.lv]}</i>${fn?`<i class="zkfn">🎒${fn}</i>`:''}<span class="zi">${it.ico}</span><span class="zn">${esc(it.n)}</span><span class="zp">${own?'✓ もってる':it.p?'🪙'+it.p.toLocaleString():'むりょう'}</span>${it.kind==='food'?`<span class="zkhp">❤+${it.hp}</span>`:''}</button>`};
   let h=list.length?`<div class="zkshelf zkgs zkgs-${kind}">${list.map(tile).join('')}</div>`:`<p class="note">${kind==='music'?'🎵 レコードは ぜんぶ もってるよ！':'いまは なにも ないみたい'}</p>`;
-  if(kind!=='radio')h+=`<p class="note zkrot">🔄 あと やく${nextMin()}分で たなが 入れかわるよ</p>`;
+  if(kind==='food')h+=`<p class="note zkrot">🔄 おかしは 毎日 入れかわるよ ・ 持ち帰り用。 🎒 もちものから 食べたり、 プレゼントしたり できる${window.FOOD?`<br>❤ ${FOOD.hp()}/${FOOD.MAX}`:''}</p>`;
+  else if(kind!=='radio')h+=`<p class="note zkrot">🔄 あと やく${nextMin()}分で たなが 入れかわるよ</p>`;
   if(kind==='music'){const mine=ST.music.filter(id=>typeof TRACKS!=='undefined'&&TRACKS[id]);
     if(mine.length)h+=`<details class="mfold zkjuke" ${jukeOpen?'open':''}><summary>🎵 もってる 曲 ${mine.length}</summary><div class="zkbag">${mine.map(id=>{const m=CATALOG.music.find(x=>x[0]===id)||[id,0,'🎵'],on=H.playing===id;
       return `<div class="ritem zkbi ${on?'has':''}"><span class="ri">${m[2]}</span><span class="rn"><b>${esc(trackShort(id))}</b>${on?'<small>🎵 いま ながれているよ</small>':''}</span><span class="rbtn"><button class="play ${on?'on':''}" data-pl="${id}">${on?'■ とめる':'▶ ながす'}</button>${GD.music[id]?`<button class="sub" data-sm="${id}">売る</button>`:''}</span></div>`}).join('')}</div></details>`}
@@ -328,7 +334,7 @@ function deal(N){const c=P.c,it=c.it,R={};
   case 'refund':{R.got=paid(it.id);R.sold=it.ico+' '+it.n;R.ret=1;forget(it.id);break}
   case 'buyback':{R.got=half(it);R.sold=it.ico+' '+it.n;R.ret=1;forget(it.id);break}
   /* 📻🎵🎆 */
-  case 'gbuy':{const p=Z.price(c);if(ST.coins<p){R.short=1;break}pay(p);R.paid=p;R.good=it;if(it.kind==='event')pendEv.push(it);else H.goods.buy(it);break}
+  case 'gbuy':{const p=Z.price(c);if(ST.coins<p){R.short=1;break}pay(p);R.paid=p;R.good=it;if(it.kind==='event')pendEv.push(it);else if(it.kind==='food'){try{FOOD.add(it.id)}catch(e){}}else H.goods.buy(it);break}
   case 'gsell':{R.got=c.sellP||0;R.sold=it.ico+' '+it.n;R.gsold=it;H.goods.sell(it);break}
   case 'exch':{const d=Z.diff(c),pd=paid(it.id),rc=ZD.rcpt[it.id];if(d)pay(d);forget(it.id);ZD.own[c.to2.id]=1;ZD.paid[c.to2.id]=pd+d;if(rc)ZD.rcpt[c.to2.id]=1;R.ex=c.to2;break}}
   save();return R}
@@ -352,7 +358,8 @@ function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!
     if(R.bonusPc!=null&&R.bonusPc>=0)more+=`<button data-go="pc" data-n="${R.bonusPc}">📮 おまけの 絵はがき</button>`}
   else if(R.good){res=`🛍️ ${R.good.ico} <b>${esc(R.good.n)}</b> を ${R.paid?`<b>${R.paid.toLocaleString()}まい</b>で 買った${R.paid<R.good.p?` <small>（${R.good.p-R.paid}まい おトク）</small>`:''}`:'もらった'}`;
     if(R.good.kind==='event')more+=`<button data-go="ev">🏖️ 浜辺で 見る</button>`;
-    if(R.good.kind==='radio')more+=`<button data-go="beach">🏖️ 浜辺に おいた ラジオを 見る</button>`}
+    if(R.good.kind==='radio')more+=`<button data-go="beach">🏖️ 浜辺に おいた ラジオを 見る</button>`;
+    if(R.good.kind==='food'){more+=`<button data-go="eat">😋 いま 食べる</button>`;if(window.GIFT)more+=`<button data-go="fgive" class="sub">🎁 だれかに あげる</button>`}}
   else if(R.gsold&&!R.got)res=`🤲 ${esc(R.sold)} を ノラさんに かえした`;
   else if(R.got)res=`💰 ${esc(R.sold)} を ${R.ret?'返して':'売って'} <b>${R.got}まい</b> もらった`;
   else if(R.ex)res=`🔄 ${R.ex.ico} <b>${esc(R.ex.n)}</b> に 交換した`;
@@ -368,7 +375,7 @@ function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!
   else if(N.act==='hold')k='zk_endHold';else if(!good)k='zk_endFun';
   if(N.act==='sellTg'){k='tu_sold';v.g=c.it.n}
   if(R.good||/^g(Es|Jh|Hs)$/.test(sid)){
-    if(R.good){k=R.good.kind==='radio'?'zk_endRadio':R.good.kind==='music'?'zk_endSong':'zk_endEvent';v={t:R.good.n,lv:GLV[R.good.lv]}}
+    if(R.good){k=R.good.kind==='radio'?'zk_endRadio':R.good.kind==='music'?'zk_endSong':R.good.kind==='food'?'zk_endFood':'zk_endEvent';v={t:R.good.n,lv:GLV[R.good.lv]}}
     else if(good)k='zk_'+sid}
   if(R.gsold){k='zk_endGoodSell';v={t:R.gsold.n}}
   if(P.newPh.length&&Math.random()<.5){k='zk_endPhrase';v.p=PH[P.newPh[0]][0];v.pj=PH[P.newPh[0]][1]}
@@ -388,7 +395,7 @@ function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!
     good?SFX.done():(SFX.tease?SFX.tease():SFX.pop());if(R.got)addCoins(R.got);
     $('zkans').querySelectorAll('[data-ph]').forEach(b=>b.onclick=()=>talk(PH[b.dataset.ph][0],NORA));
     $('zkans').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const g=b.dataset.go;hush();P=null;
-      if(g==='read'){SFX.book();reader(R.it.id,shop)}else if(g==='pc'){SFX.book();postcard(+b.dataset.n,shop)}else if(g==='fort'){fortune(shop)}else if(g==='give'){window.GIFT?GIFT.who('z'+(ZD.gift.length-1),shop):give(ZD.gift.length-1,shop)}else if(g==='note'){SFX.book();notebook(shop)}else if(g==='crystal'){crystal(shop)}else if(g==='moon'){SFX.talk();play('moon')}else if(g==='ev'||g==='beach'){SFX.back();H.home()}});
+      if(g==='read'){SFX.book();reader(R.it.id,shop)}else if(g==='pc'){SFX.book();postcard(+b.dataset.n,shop)}else if(g==='fort'){fortune(shop)}else if(g==='give'){window.GIFT?GIFT.who('z'+(ZD.gift.length-1),shop):give(ZD.gift.length-1,shop)}else if(g==='note'){SFX.book();notebook(shop)}else if(g==='crystal'){crystal(shop)}else if(g==='moon'){SFX.talk();play('moon')}else if(g==='ev'||g==='beach'){SFX.back();H.home()}else if(g==='eat'){FOOD.eat(R.good.id,shop)}else if(g==='fgive'){SFX.open();GIFT.who('f:'+R.good.id,shop)}});
     const sid0=c.it&&c.it.kind?[gScene(c.it),{it:c.it}]:sid==='buy'&&c.it?['buy',{it:c.it}]:[sid==='hello'?'rec':sid==='moon'?'moon':sid];
     $('zkagain').onclick=()=>{SFX.step();play(...sid0)};
     $('zkback').onclick=()=>{SFX.back();hush();P=null;shop()};
@@ -407,7 +414,8 @@ function bag(bk){hush();const back=typeof bk==='function'?bk:shop,me=()=>bag(bac
     window.ADV&&ADV.has()?row('🗺️','宝の地図',`「${esc(ADV.name())}」・ 宝箱が ねむっている`,`<button data-adv="1">宝探しに 行く</button>`):'',
     ZD.own.moonmap?row('🗺️','月の 市場への 地図','ノラさんの ひみつの お話',`<button data-mm="1">聞く</button>`):'',
     Z.tgs().length?row('👦','リクからの お礼',Z.tgs().map(t=>t.ico).join(' ')+'・あげても 売っても いいよ',`${window.GIFT?'<button data-tgv="1">あげる</button>':''}<button data-tg="1" class="sub">売る</button>`):'',
-    ZD.own.note?row('📒','買いもの フレーズ手帳',`言えた フレーズ ${phN()}/${PHK.length}`,`<button data-nt="1">ひらく</button>`):''].filter(Boolean);
+    ZD.own.note?row('📒','買いもの フレーズ手帳',`言えた フレーズ ${phN()}/${PHK.length}`,`<button data-nt="1">ひらく</button>`):'',
+    ...(window.FOOD?FOOD.bagRows(row):[])].filter(Boolean);
   H.show('zakka',`<section class="pnl zk">
     <div class="qtop"><button class="x" id="zkx" aria-label="もどる">←</button><b>🎒 もちもの</b><span class="qn"></span></div>
     ${minaBox(rows.length?'zk_bag':'zk_bagNone',{})}
@@ -427,7 +435,8 @@ function bag(bk){hush();const back=typeof bk==='function'?bk:shop,me=()=>bag(bac
   H.panel.querySelectorAll('[data-mm]').forEach(b=>b.onclick=()=>{SFX.talk();play('moon')});
   H.panel.querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>{SFX.talk();LOVE.open(me)});
   H.panel.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{SFX.talk();play('sell')});
-  H.panel.querySelectorAll('[data-nt]').forEach(b=>b.onclick=()=>{SFX.book();notebook(me)})}
+  H.panel.querySelectorAll('[data-nt]').forEach(b=>b.onclick=()=>{SFX.book();notebook(me)});
+  H.panel.querySelectorAll('[data-fe]').forEach(b=>b.onclick=()=>FOOD.eat(b.dataset.fe,me))}
 
 /* ---------- 📖 a picture book: line by line, 🔊 and Japanese on a tap ---------- */
 function reader(id,back){hush();const b=item(id);if(!b||!ZD.own[id])return back();
