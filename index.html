@@ -133,6 +133,8 @@ button{touch-action:manipulation}
 <script src="game/mio.js"></script>
 <script src="game/shop.js"></script>
 <script src="game/mine.js"></script>
+<script src="game/mio-talk.js"></script>
+<script src="game/mio-chat.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});
