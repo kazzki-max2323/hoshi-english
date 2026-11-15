@@ -243,7 +243,7 @@ function mutTick(T,t){const m=T.mu,e=$('shmut'),now=Date.now();if(!e)return;
     const st=e.parentNode,sx=st.clientWidth/W,sy=st.clientHeight/HH,bw=e.offsetWidth,cx=(sp.x+7)*sx;
     const left=Math.max(4,Math.min(st.clientWidth-bw-4,cx-bw/2));e.style.left=left+'px';e.style.bottom=Math.round((HH-sp.y+2)*sy)+'px';e.style.setProperty('--tx',Math.round(cx-left)+'px');return}
   /* Mio, by herself: every 15〜25 s when no guest and no question is open */
-  if(T.g||m.q.length||now<m.next)return;const box=$('shact');if(box&&box.innerHTML)return;
+  if(T.g||m.q.length||now<m.next)return;const box=$('shact');if(box&&box.innerHTML&&!box.querySelector('.svx'))return;
   m.next=now+15000+Math.random()*10000;
   const S=SH(),r=Math.random(),mp=T.mio.pose;let k;
   if(mp==='doze')k='doze';else if(!S.floor.length&&r<.45)k='empty';else if(S.floor.length&&S.floor.length<3&&r<.3)k='few';else if(mp==='sweep'&&r<.5)k='sweep';else k=r<.55?t:'any';
@@ -298,50 +298,44 @@ function step(T){const now=Date.now();mioIdle(T);
       if(Math.random()<.75)mut(T,'g',gLine(g,p[2]==='look'?'g_shelf':'g_table',.45),p[3]+600,1);return}
     g.path.shift();if(!g.path.length)return decide(T);return}
   g.pose='walk';if(Math.abs(dx)>=1)g.x+=Math.sign(dx)*1.5;if(Math.abs(dy)>=1)g.y+=Math.sign(dy)*1.5}
-/* buy, or leave */
+/* buy, or leave（やりとりの 形は game/shop-serve.js の SHSV.plan で ここで きめる） */
 function decide(T){const g=T.g,S=SH();
   if(g.st===0){g.st=1;
     if(!S.floor.length){g.bub='…';T.status(`${esc(g.G.n)}は 帰っていった`);mut(T,'g',ML2('g_none'));mut(T,'m',ML2('sorry'));return out(T,1600)}
+    g.plan=window.SHSV?SHSV.plan(g,S.floor):{k:'quick'};
+    /* おすすめを 聞きに くる お客は カードを もたずに レジへ */
+    if(g.plan.k==='rec'){g.want=null;g.path=[[120,62]];g.bub='?';T.status(`${esc(g.G.n)}が レジへ… なにか さがしてる みたい`);return}
     /* the card they want: their favorite kind, if it's there */
     const fav=S.floor.filter(id=>{const I=C.info(id);return I&&g.G.a.includes(I.a)});
     const id=fav.length&&Math.random()<.7?pickL(fav):pickL(S.floor);
-    if(Math.random()<(fav.includes(id)?.85:.6)){g.want=id;g.path=[[120,62]];g.bub='♪';T.status(`${esc(g.G.n)}が カードを もって レジへ`);mut(T,'g',ML2('g_buy'),2200)}
+    if(Math.random()<(fav.includes(id)?.85:.6)){g.want=id;g.path=[[120,62]];g.bub='♪';const I=C.info(id);
+      T.status(`${esc(g.G.n)}が 「<b>${esc(SHSV?SHSV.word(I):I.en)}</b>」${SHSV&&SHSV.jaOf(I)&&g.plan.k!=='mean'?`（${esc(SHSV.jaOf(I))}）`:''}を もって レジへ`);mut(T,'g',ML2('g_buy'),2200)}
     else{g.bub='…';T.status(`${esc(g.G.n)}は 見ていくだけ みたい`);mut(T,'g',ML2('g_leave'));mut(T,'m',ML2('bye'));return out(T,1200)}
     return}
   if(g.st===1){g.st=2;g.hold=1;g.pose='stand';atCounter(T)}}
 function out(T,ms){const g=T.g;g.hold=1;setTimeout(()=>{if(!T.alive||T.g!==g)return;g.hold=0;g.st=9;g.path=[[g.x,46],[14,46],[14,32]];g.bub='';
   const fin=()=>{if(T.g===g&&!g.path.length){T.g=null;T.next=Date.now()+60000+Math.random()*60000;T.status('お客さんを まとう…（📣 よびこみも できるよ）');SH().guests++;save()}};
   const iv=setInterval(()=>{if(!T.alive){clearInterval(iv);return}if(T.g!==g||!g.path.length){clearInterval(iv);fin()}},300)},ms)}
-/* at the register: a button, or (about 1 in 5) English */
-function atCounter(T){const g=T.g,S=SH(),id=g.want,I=C.info(id),p=price(id),box=$('shact');if(!box)return;
-  T.visits++;S.talk=(S.talk||0)+1;save();
-  const nm=I.k==='w'?I.en.split(',')[0]:I.en;
-  const done=(sold,pp)=>{box.innerHTML='';if(sold){if(sell(id,pp,true)){g.pose='happy';g.bub='♥';sf('coinIn');T.status(`🪙 +${pp}　「${esc(nm)}」が 売れた！`);T.mio.pose='cheer';T.mio.until=Date.now()+2500;T.mu.q=[];T.mu.until=0;mut(T,'g',gLine(g,'g_happy',.2));mut(T,'m',ML2(night()>.6&&Math.random()<.6?'thanksNight':'thanks'));T.soldAt=Date.now();
-        const r=cv0();try{if(r)H.coinBurst(r.x,r.y,pp,true);else H.addCoins(pp)}catch(e){H.addCoins(pp)}}
-      else T.status('あれ？ その カードは もう ないみたい')}else{g.bub='…';T.status(`${esc(g.G.n)}は 帰っていった`)}
-    out(T,sold?1200:600)};
-  if(S.talk%5===0)return talk(T,id,p,done);
-  box.innerHTML=`<div class="shask">${C.face(id,{mini:1,marks:false})}<div><p><b>${esc(g.G.n)}</b>「${esc(pickL(GUEST_SAY.buy))}」</p><p class="ja">「${esc(nm)}」を 🪙${p}で ください</p>
-    <div class="row"><button id="shsell">🪙 売る</button><button id="shno" class="sub">売らない</button></div></div></div>`;
-  sf('talk');
-  $('shsell').onclick=()=>{sf('buy');done(true,p)};$('shno').onclick=()=>{sf('back');done(false)}}
+/* at the register: 自分で 対応 か ミオに まかせる（game/shop-serve.js） */
+function atCounter(T){const g=T.g,S=SH(),box=$('shact');if(!box)return;
+  T.visits++;S.talk=(S.talk||0)+1;save();T.mu.q=[];T.mu.until=0;
+  const minaSay=(k,pr)=>{try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<pr){const [ex,tx]=ML(k);MINA.say('m',ex,tx,6000)}}catch(er){}};
+  const finish=(id,sold,pp,R)=>{R=R||{};const nm=id?SHSV.word(C.info(id)):'';
+    if(sold&&id&&sell(id,pp,true)){g.pose='happy';g.bub='♥';sf('coinIn');T.mio.pose='cheer';T.mio.until=Date.now()+2500;T.soldAt=Date.now();
+      const r=cv0();try{if(r)H.coinBurst(r.x,r.y,pp,true);else H.addCoins(pp)}catch(e){H.addCoins(pp)}
+      if(R.tip)setTimeout(()=>{H.addCoins(R.tip);sf('coin')},700);
+      let hh='';if(R.mode==='me'&&R.talked&&!R.miss&&window.MIOC)hh=MIOC.gain(1,'ctr');
+      T.status(`🪙 +${pp}${R.tip?` ＋チップ ${R.tip}`:''}　「${esc(nm)}」が 売れた！${R.mode==='mio'?'（ミオが 対応）':''}${hh?`<br><small>${hh}</small>`:''}`);
+      if(R.mode==='mio'){S.byMio=(S.byMio||0)+1;mut(T,'m',pickL(SV_MIO.done),4200,1);minaSay('sh_mioDone',.25)}
+      else{S.bySelf=(S.bySelf||0)+1;mut(T,'g',gLine(g,'g_happy',.2));mut(T,'m',ML2(night()>.6&&Math.random()<.6?'thanksNight':'thanks'));
+        if(R.k==='mean')minaSay(R.miss?'sh_meanMiss':'sh_meanOk',.4);else if(R.k==='quiz')minaSay(R.miss?'sh_talkMiss':'sh_talkGood',.4);else if(R.talked)minaSay('sh_selfGood',.3)}
+      save();if(R.close)R.close();else box.innerHTML='';out(T,1600)}
+    else{if(sold)T.status('あれ？ その カードは もう ないみたい');else{g.bub='…';T.status(`${esc(g.G.n)}は 帰っていった`)}setTimeout(()=>{if(box.isConnected)box.innerHTML=''},1500);out(T,600)}};
+  if(!window.SHSV){/* 予備: ボタンだけ */const id=g.want;if(!id)return finish(null,false,0);const p=price(id);
+    box.innerHTML=`<div class="shask">${C.face(id,{mini:1,marks:false})}<div><p><b>${esc(g.G.n)}</b>「${esc(pickL(GUEST_SAY.buy))}」</p><div class="row"><button id="shsell">🪙 ${p} で 売る</button><button id="shno" class="sub">売らない</button></div></div></div>`;
+    $('shsell').onclick=()=>finish(id,true,p);$('shno').onclick=()=>finish(id,false,0);return}
+  SHSV.serve({T,g,box,id:g.want,price,rare,floor:()=>SH().floor.slice(),finish,mio:speak,gs:gspeak})}
 const cv0=()=>{const e=$('shcv');if(!e)return null;const r=e.getBoundingClientRect();return {x:r.left+r.width*.6,y:r.top+r.height*.6}};
-/* the English talk at the counter */
-function talk(T,id,p,done){const g=T.g,I=C.info(id),box=$('shact');const lv=({es:'es',jh:'jh',hs:'hs',adv:'hs'})[C.myLv()]||'es';
-  const kinds=['want','deal','rumor'];if(rare(id))kinds.push('rare','rare');if(C.count(id)<=1)kinds.push('only','only');
-  const k=pickL(kinds),x=pickL(SHOP_TALK[k][lv]);const nm=I.k==='w'?I.en.split(',')[0]:I.en;
-  const pp=k==='deal'?Math.max(1,Math.round(p*.85)):k==='rare'||k==='only'?Math.round(p*1.2):p;
-  const fill=s=>s.replace(/\{w\}/g,nm).replace(/\{p\}/g,pp);
-  const ch=H.shuffle(x[2].map((s,j)=>[fill(s),j]));
-  box.innerHTML=`<div class="shtalk"><p class="en"><b>${esc(g.G.n)}</b> 🗣️ ${esc(fill(x[0]))} <button class="sub" id="shsay">🔊</button></p><p class="ja">${esc(fill(x[1]))}</p>
-    <p class="shq">店長の 答えは？</p><div class="cgtc">${ch.map(([s,j])=>`<button data-j="${j}">${esc(s)}</button>`).join('')}</div><div class="cgtx" hidden></div></div>`;
-  sf('hey');gspeak(fill(x[0]));$('shsay').onclick=()=>gspeak(fill(x[0]));
-  box.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{const ok=b.dataset.j==='0';box.querySelectorAll('[data-j]').forEach(y=>{y.disabled=true;if(y.dataset.j==='0')y.classList.add('ok')});
-    if(ok){b.classList.add('ok');sf('correct');gspeak(fill(x[2][0]))}else{b.classList.add('ng');sf('wrong')}
-    const tip=ok&&k!=='deal'?Math.max(2,Math.round(pp*.2)):0;const hh=ok&&window.MIOC?MIOC.gain(1,'ctr'):'';
-    const e=box.querySelector('.cgtx');e.hidden=false;e.innerHTML=`<p>${ok?'⭕ ':'💡 '}${esc(x[3])}</p>${tip?`<p class="shtip">お客さんが よろこんで チップ 🪙${tip}！</p>`:''}${hh?`<p class="shq">${hh} <small>ミオ「Nice English, boss!」</small></p>`:''}<button class="nx">${k==='rumor'?'うわさを 聞いて 売る ▶':'売る ▶'}</button>`;
-    e.querySelector('.nx').onclick=()=>{sf('step');if(tip)H.addCoins(tip);done(true,pp);
-      try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<.4){const [ex,tx]=ML(ok?'sh_talkGood':'sh_talkMiss');MINA.say('m',ex,tx,6000)}}catch(er){}}})}
 
 /* ================================================================ Ms. Mina points the way */
 const goBgm=()=>['🎵 お店の BGMへ',()=>{CG.open();setTimeout(()=>{if(SH().met&&!SH().away)bgm()},60)}];
@@ -355,7 +349,8 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_shMio',1,()=>SH().met?{}:null,goShop()],
  ['x_shMutter',2,()=>SH().met&&MU().day?{}:null,goShop('counter')],
  ['x_shBgm',2,()=>songs().length&&!H.shopSongId?{}:null,goBgm],
- ['x_shBgmOn',1,()=>H.shopSongId?{song:songName(H.shopSongId)}:null,goBgm]);
+ ['x_shBgmOn',1,()=>H.shopSongId?{song:songName(H.shopSongId)}:null,goBgm],
+ ['x_shServe',3,()=>SH().met&&window.SHSV?{}:null,goShop('counter')]);
 /* 🎵 お店の BGM の ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
  x_shBgm:[['smile','レコード、 もってるよね。 カードショップの 🎵 BGMで えらぶと、 お店の 中で ながれるよ'],['happy','お店で 曲を ながすと、 ミオさんも ごきげんに なるんだって']],
@@ -373,6 +368,10 @@ setTimeout(function first4(){const S=SH();if(S.bgmTold||!songs().length)return;c
 setTimeout(function first3(){const S=SH();if(S.mutTold||!S.met||!MU().day)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first3,20000);
   S.mutTold=1;save();const [ex,tx]=ML('sh_mutNew');m.say('m',ex,tx,10000,null,goShop('counter')())},34000);
 
+/* the counter talk is new: Mina tells you once */
+setTimeout(function first5(){const S=SH();if(S.svTold||!S.met||!window.SHSV)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first5,20000);
+  S.svTold=1;save();const [ex,tx]=ML('sh_serveNew');m.say('m',ex,tx,10000,null,goShop('counter')())},26000);
+
 H.on('home',()=>{if(CT)CT.alive=false});
-window.SHOP={open,leave,price,allCards,counter,floor,store,rec:SH,inBook,free,stock,storeCards,bookRec:BOOKR,cleanFloor,rare};
+window.SHOP={ct:()=>CT,open,leave,price,allCards,counter,floor,store,rec:SH,inBook,free,stock,storeCards,bookRec:BOOKR,cleanFloor,rare};
 })();

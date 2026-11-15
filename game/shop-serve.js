@@ -1,0 +1,144 @@
+/* カウンターの お客さんの 対応（データは game/shop-serve-data.js、 店の しくみは game/shop.js）
+   - お客さんが レジに 来たら 「自分で 対応」か 「ミオに まかせる」を えらぶ。 WAIT びょう えらばなければ ミオが 対応
+   - やりとりの 形は 毎回 かわる: なし（すぐ 売れる）・世間話・意味を 聞かれる・英語の 受け答え・プレゼント・値段の 相談・おすすめ
+   - ミオの ときは 同じ 会話を ミオが 話す（英語＋日本語、 タップで 読む）。 ミオは ときどき おっちょこちょい
+   - 買う カードは 上の 帯に いつも 見える */
+(()=>{
+const H=HE,esc=H.esc,C=CG,pickL=a=>a[Math.random()*a.length|0];
+const sf=k=>{try{BEACH.sfx[k]&&BEACH.sfx[k]()}catch(e){}};
+const night=()=>{try{return SCENE.dark()}catch(e){return 0}};
+const tod=()=>{const d=night();return d>.6?'night':d>.25?'dusk':'day'};
+const WAIT=6;
+const KINDS=[['quick',22],['chat',14],['mean',16],['quiz',14],['gift',11],['deal',10],['rec',13]];
+let lastK='',lastChat=null;
+const who=g=>SV_WHO[GUESTS.indexOf(g.G)]||{en:'friend',ico:'🙂',rel:['friend','友だち']};
+const short=g=>String(g.G.n).split(' ').pop();
+const word=I=>!I?'':I.k==='w'?String(I.en).split(',')[0].trim():String(I.en);
+const jaOf=I=>!I?'':String(I.ja||'').split(/[、,;／/]/)[0].trim();
+const SV_REC_AT=k=>SV_REC.at[k]||['cards','カード'];
+
+/* ================================================================ which kind of talk（店の decide() で 1回） */
+function plan(g,floor){const kinds=KINDS.filter(([k])=>k!=='rec'||new Set(floor).size>=2);
+  let k,n=0;do{let tot=kinds.reduce((a,x)=>a+x[1],0),r=Math.random()*tot;k=kinds.find(x=>(r-=x[1])<0)[0]}while(k===lastK&&++n<8);lastK=k;
+  return {k,pre:!/quick|chat/.test(k)&&Math.random()<.3,end:k!=='quick'&&Math.random()<.3}}
+
+/* ================================================================ the talk */
+function serve(X){const {T,g,box}=X,P=g.plan||plan(g,X.floor()),W=who(g),nm=short(g);
+  let id=X.id,p=id?X.price(id):0,pp=p,hideJa=P.k==='mean',mode='',fast=false,miss=0,tip=0,ok=0;
+  const alive=()=>T.alive&&T.g===g&&box.isConnected;
+  const STOP={};
+  const fill=s=>String(s).replace(/\{(\w+)\}/g,(m,k)=>{const I=C.info(id);const at=SV_REC_AT((g.G.a||[])[0]);
+    return ({w:word(I),ja:jaOf(I),p:pp,p2:Math.max(1,Math.round(p*.85)),rel:W.rel[0],relj:W.rel[1],at:at[0],atj:at[1],n:W.en})[k]??m});
+  const enOnly=s=>s.replace(/[“"「][^”"」]*[぀-ヿ一-鿿][^”"」]*[”"」]/g,'').replace(/\s+([.!?,])/g,'$1').trim();
+
+  box.innerHTML=`<div class="shsv"><div class="shwant" id="svw"></div><div class="shlog" id="svlog"></div><div class="shopt" id="svo"></div></div>`;
+  const $=s=>box.querySelector(s),logE=$('#svlog'),optE=$('#svo');
+  const want=()=>{const e=$('#svw');if(!e)return;const I=C.info(id);
+    e.innerHTML=!I?`<span class="q">❓</span><div><b>${esc(nm)}は カードを さがしてる</b><small>おすすめを 聞かれるかも</small></div>`
+      :`${C.face(id,{mini:1,marks:false})}<div><small>${esc(nm)}が 買いたい カード</small><b class="en">${esc(word(I))}</b><small class="ja">${hideJa?'（意味は？）':esc(jaOf(I))}</small></div><span class="pr">${pp!==p?`<s>🪙${p}</s>`:''}🪙${pp}</span>`};
+  want();
+
+  /* a line in the log: who = g（お客）/ m（ミオ）/ me（店長）/ nt（メモ） */
+  const add=(r,line,ex)=>{if(!alive())throw STOP;const en=fill(line[0]),ja=line[1]?fill(line[1]):'';const d=document.createElement('div');d.className='svl '+r;
+    if(r==='nt'){d.innerHTML=`<p>${esc(en)}</p>`}
+    else{const ico=r==='g'?`<i>${W.ico}</i>`:r==='m'?`<i class="mf">${MIO.face(ex||'smile')}</i>`:'';
+      d.innerHTML=`${ico}<div><b>${r==='g'?esc(nm):r==='m'?'ミオ':'店長（きみ）'}</b><p class="en">${esc(en)}</p>${ja?`<p class="ja">${esc(ja)}</p>`:''}</div>`;
+      const say=()=>{const s=enOnly(en);if(!s)return;r==='m'?X.mio(s):X.gs(s)};d.onclick=say;if(r!=='me')say()}
+    logE.appendChild(d);logE.scrollTop=logE.scrollHeight;try{d.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}
+    if(r==='g'){g.bub='';T.mu.until=0}
+    return en};
+  const wait=ms=>new Promise(res=>{const t0=Date.now();const iv=setInterval(()=>{if(!alive()||fast||Date.now()-t0>=ms){clearInterval(iv);res()}},80)});
+  const pace=s=>mode==='mio'?1100+Math.min(3200,String(s).length*62):mode==='me'?650:0;
+  const G=async(line)=>{const s=add('g',line);await wait(pace(s))};
+  const ME=async(line,ex)=>{const s=add(mode==='mio'?'m':'me',line,ex);await wait(pace(s)*(mode==='me'?.4:1))};
+
+  /* choose: you tap, or Mio decides. opts = [{t:html, ok?}], mioPick = index Mio takes */
+  const choose=(opts,mioPick,head)=>new Promise((res,rej)=>{if(!alive())return rej(STOP);
+    if(mode==='mio'){const iv=setInterval(()=>{if(!alive()){clearInterval(iv);rej(STOP)}},200);setTimeout(()=>{clearInterval(iv);alive()?res(mioPick):rej(STOP)},fast?150:700);return}
+    optE.innerHTML=`${head?`<p class="shq">${head}</p>`:''}<div class="cgtc">${opts.map((o,i)=>`<button data-i="${i}">${o.t}</button>`).join('')}</div>`;
+    const iv=setInterval(()=>{if(!alive()){clearInterval(iv);rej(STOP)}},300);
+    optE.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{clearInterval(iv);sf('tap');optE.innerHTML='';res(+b.dataset.i)})});
+  const optT=o=>`${esc(fill(o[0]))}<small>${esc(fill(o[1]))}</small>`;
+
+  /* a branching node: {g, o:[[en,ja,next,eff]]} */
+  const node=async n=>{if(n.g)await G(n.g);if(!n.o||!n.o.length)return;
+    const i=await choose(n.o.map(o=>({t:optT(o)})),Math.random()*n.o.length|0,'店長の 返事は？');const o=n.o[i];await ME(o);
+    if(o[3]&&o[3].d){pp=Math.max(1,Math.round(p*.85));want()}
+    if(o[2])await node(o[2])};
+  /* small talk: the guest's own, or anyone's（店長 あての 会話は ミオの ときは 出さない） */
+  const chat=async()=>{const own=SV_CHAT[GUESTS.indexOf(g.G)]||[];let pool=own.concat(own,SV_CHAT_ANY[tod()]||[],SV_CHAT_ANY.any).filter(c=>mode==='mio'?!c.own:!c.mio);
+    if(pool.length>1)pool=pool.filter(c=>c!==lastChat);const c=pickL(pool);lastChat=c;await node(c)};
+
+  /* ------------------------------------------------ the kinds */
+  const K={};
+  K.quick=async()=>{await G(pickL(SV_QUICK.g));if(mode==='me'){
+      const i=await choose([{t:`🪙 売る<small>${esc(fill('{p}コインで'))}</small>`},{t:'売らない<small>また こんど</small>'}],0);
+      if(i===1){add('me',["Sorry, not this one today.","ごめんなさい、 これは きょうは…"]);return 'no'}}
+    await ME(pickL(SV_QUICK.me));await G(pickL(SV_QUICK.pay))};
+  K.chat=async()=>{await chat();await ME(pickL(SV_QUICK.me));await G(pickL(SV_QUICK.pay))};
+  K.mean=async()=>{const I=C.info(id);const right=jaOf(I);
+    const pool=C.W.filter(c=>c.ja&&jaOf(c)!==right&&(I.lv==='tr'||c.lv===I.lv));const ds=[];let n=0;while(ds.length<2&&n++<60){const d=jaOf(pickL(pool));if(d&&d!==right&&!ds.includes(d))ds.push(d)}
+    const opts=H.shuffle([right,...ds]);hideJa=true;want();
+    await G(pickL(SV_MEAN.ask));
+    const say=j=>[SV_MEAN.say[0].replace('{ja}',j),SV_MEAN.say[1].replace('{ja}',j)];
+    let pick=await choose(opts.map(j=>({t:`「${esc(j)}」<small>It means “${esc(j)}.”</small>`})),Math.random()<.2?opts.findIndex(j=>j!==right):opts.indexOf(right),`「${esc(word(I))}」の 意味は？`);
+    await ME(say(opts[pick]),opts[pick]===right?'smile':'oops');hideJa=false;want();
+    if(opts[pick]===right){ok=1;if(mode==='me')tip=Math.max(2,Math.round(p*.2));await G(pickL(SV_MEAN.ok))}
+    else{miss=1;await G(SV_MEAN.hm);if(mode==='mio'){await ME(SV_MEAN.oops,'oops')}else{add('m',SV_MEAN.fix,'wink');await wait(900)}
+      await G(["Oh, I see. Thanks!","そっか。 ありがとう！"])}
+    add('nt',[`📝 ${word(I)} ＝ ${right}`])};
+  K.quiz=async()=>{const I=C.info(id),lv=({es:'es',jh:'jh',hs:'hs',adv:'hs'})[C.myLv()]||'es';
+    const kinds=['want','deal','rumor'];if(X.rare(id))kinds.push('rare','rare');if(C.count(id)<=1)kinds.push('only','only');
+    const k=pickL(kinds),x=pickL(SHOP_TALK[k][lv]);if(k==='deal'){pp=Math.max(1,Math.round(p*.85))}else if(k==='rare'||k==='only')pp=Math.round(p*1.2);want();
+    await G([x[0],x[1]]);
+    const ch=H.shuffle(x[2].map((s,j)=>[s,j]));const right=ch.findIndex(c=>c[1]===0);
+    const mp=Math.random()<.15?ch.findIndex(c=>c[1]!==0):right;
+    const i=await choose(ch.map(c=>({t:esc(fill(c[0]))})),mp,'店長の 答えは？');
+    if(i===right){ok=1;await ME([x[2][0],''],'smile');if(mode==='me'){sf('correct');if(k!=='deal')tip=Math.max(2,Math.round(pp*.2))}}
+    else{miss=1;if(mode==='me'){add('me',[ch[i][0],'']);sf('wrong');add('nt',[`💡 ${fill(x[2][0])}`])}else{await ME([ch[i][0],''],'oops');await ME([SV_MIO.quizOops[0]+' '+x[2][0],SV_MIO.quizOops[1]],'laugh')}}
+    add('nt',[`${i===right?'⭕':'💡'} ${x[3]}`]);await G(pickL(SV_QUICK.pay))};
+  K.gift=async()=>{await node(SV_GIFT)};
+  K.deal=async()=>{const o=SV_DEAL.o;await G(pickL(SV_DEAL.g));
+    const i=await choose(o.map(x=>({t:optT(x)})),Math.random()<.5?0:1+(Math.random()*2|0),'店長の 返事は？');await ME(o[i]);if(o[i][3]&&o[i][3].d){pp=Math.max(1,Math.round(p*.85));want()}await G(o[i][2].g)};
+  K.rec=async()=>{const fl=[...new Set(X.floor())].filter(x=>C.info(x));const fav=fl.filter(x=>(g.G.a||[]).includes(C.info(x).a));
+    let c=H.shuffle(fl).slice(0,3);if(fav.length&&!c.some(x=>fav.includes(x)))c[c.length-1]=pickL(fav);c=H.shuffle(c);
+    await G(pickL(SV_REC.ask));
+    const mp=fav.length&&Math.random()<.8?c.findIndex(x=>fav.includes(x)):Math.random()*c.length|0;
+    const i=await choose(c.map(x=>({t:`<span class="svc">${C.face(x,{mini:1,marks:false})}</span>${esc(word(C.info(x)))}<small>🪙${X.price(x)}</small>`})),Math.max(0,mp),'どれを すすめる？');
+    id=c[i];p=pp=X.price(id);want();await ME([SV_REC.say[0],SV_REC.say[1]]);
+    const love=fav.includes(id);if(love){ok=1;const at=SV_REC_AT(C.info(id).a);const L=pickL(SV_REC.love);await G([L[0].replace('{at}',at[0]),L[1].replace('{atj}',at[1])])}else await G(pickL(SV_REC.try))};
+
+  /* ------------------------------------------------ run */
+  const run=async()=>{
+    if(P.k==='mean'){const I=C.info(id);if(!I||!/^[wt]$/.test(I.k)||!jaOf(I))P.k='quiz'}
+    if(P.k==='rec'&&!id&&new Set(X.floor()).size<1)P.k='quick';
+    if(!id&&P.k!=='rec'){P.k='rec'}
+    if(mode==='mio'){const h=pickL(SV_MIO.hi);await ME(h,'laugh')}
+    if(P.pre)await chat();
+    const r=await K[P.k]();
+    if(r==='no')return X.finish(id,false,0);
+    if(P.end)await node(pickL(SV_END));
+    if(mode==='mio')await ME(pickL(night()>.6?SV_MIO.byeN:SV_MIO.bye),'laugh');
+    optE.innerHTML='';
+    const talked=P.k!=='quick'||P.pre||P.end;
+    X.finish(id,true,pp,{mode,tip,talked,ok,miss,k:P.k,close:closeBtn})};
+  const closeBtn=()=>{if(!box.isConnected)return;optE.innerHTML=`<button class="sub svx" id="svx">とじる</button>`;$('#svx').onclick=()=>{sf('tap');box.innerHTML=''}};
+
+  /* ------------------------------------------------ first: you, or Mio?（WAIT びょうで ミオ） */
+  const I0=C.info(id);
+  optE.innerHTML=`<p class="shq">${esc(nm)}が レジに 来たよ。 どうする？</p>
+    <div class="row svwho"><button id="svme">🧑‍💼 自分で 対応</button><button id="svmio" class="mio">🙋‍♀️ ミオに まかせる</button></div>
+    <div class="svcd"><i></i></div><p class="svcn" id="svcn">${WAIT}びょうで ミオが 対応するよ</p>`;
+  sf('talk');
+  const t0=Date.now(),bar=$('.svcd i');let cd;
+  const go=m=>{clearInterval(cd);if(mode)return;mode=m;optE.innerHTML='';
+    if(m==='mio'){logE.classList.add('mio');T.mio.pose='wave';T.mio.until=Date.now()+3000;
+      optE.innerHTML=`<button class="sub svfast" id="svfast">⏩ はやく</button>`;$('#svfast').onclick=()=>{fast=true;sf('tap');try{speechSynthesis.cancel()}catch(e){}$('#svfast').remove()}}
+    X.chose&&X.chose(m);
+    run().catch(e=>{if(e!==STOP)console.error(e)})};
+  cd=setInterval(()=>{if(!alive()){clearInterval(cd);return}const s=(Date.now()-t0)/1000;if(bar)bar.style.width=Math.max(0,100-s/WAIT*100)+'%';
+    const n=$('#svcn');if(n)n.textContent=`${Math.max(1,Math.ceil(WAIT-s))}びょうで ミオが 対応するよ`;if(s>=WAIT)go('mio')},100);
+  $('#svme').onclick=()=>{sf('step');go('me')};$('#svmio').onclick=()=>{sf('step');go('mio')}}
+
+window.SHSV={plan,serve,word,jaOf,WAIT};
+})();

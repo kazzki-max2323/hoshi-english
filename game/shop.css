@@ -134,3 +134,25 @@
 .shbgm b{flex:1;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .shbgm small{opacity:.75;font-size:.72rem}
 .shbg .zkbag{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+/* counter: serving a guest（game/shop-serve.js） */
+.shsv{display:flex;flex-direction:column;gap:6px}
+.shwant{display:flex;gap:8px;align-items:center;background:#fffaf0;color:#2a2340;text-shadow:none;border-radius:12px;padding:6px 10px}
+.shwant .cgc{width:46px;flex:0 0 auto}.shwant>div{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
+.shwant b{font-size:1.05rem}.shwant small{font-size:.7rem;color:#6a6080}.shwant .ja{font-size:.8rem;color:#3a3060}
+.shwant .pr{font-weight:700;white-space:nowrap}.shwant .pr s{opacity:.5;font-weight:400;margin-right:4px;font-size:.8rem}.shwant .q{font-size:1.6rem}
+.shlog{display:flex;flex-direction:column;gap:5px;max-height:42vh;overflow:auto}
+.shlog:empty{display:none}
+.svl{display:flex;gap:6px;align-items:flex-start;cursor:pointer;animation:shmutIn .25s ease-out}
+.svl>i{font-style:normal;font-size:1.4rem;line-height:1;flex:0 0 auto;width:30px;text-align:center}
+.svl>i.mf svg,.svl>i.mf img{width:30px;height:30px}
+.svl>div{background:#fffdf6;color:#2a2340;text-shadow:none;border-radius:10px;padding:5px 9px;max-width:85%}
+.svl b{font-size:.68rem;color:#7a6a90;display:block}.svl p{margin:0}.svl .en{font-size:.88rem;font-weight:700}.svl .ja{font-size:.72rem;color:#5a5070}
+.svl.m>div{background:#fff1cc}
+.svl.me{justify-content:flex-end}.svl.me>div{background:#d8f0ff}
+.svl.nt{justify-content:center}.svl.nt p{background:#ffffff1c;border-radius:8px;padding:3px 10px;font-size:.78rem}
+.shopt .cgtc button small{display:block;font-size:.7rem;opacity:.85}
+.shopt .cgtc button .svc{display:inline-block;width:34px;vertical-align:middle;margin-right:8px}
+.svwho button{flex:1}.svwho .mio{background:linear-gradient(#ffcf6a,#e8a03a)!important;color:#3a2a10;text-shadow:none}
+.svcd{height:6px;border-radius:3px;background:#0006;overflow:hidden;margin-top:6px}.svcd i{display:block;height:100%;width:100%;background:#ffcf6a}
+.svcn{margin:2px 0 0;font-size:.72rem;text-align:center;color:#ffe7a8}
+.svfast,.svx{width:100%}
