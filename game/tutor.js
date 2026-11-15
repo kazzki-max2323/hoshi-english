@@ -12,7 +12,7 @@
 (()=>{
 const {S:ST,sfx:SFX}=BEACH;
 const H=HE,esc=H.esc,$=id=>document.getElementById(id);
-const TQ=TUTOR_Q,TG=TUTOR_GIFTS,K=TUTOR_KID;
+const TQ=TUTOR_Q,TG=TUTOR_GIFTS,K=TUTOR_KID,TX=window.TUTOR_TEACH||{};
 const pickL=a=>a[Math.random()*a.length|0];
 const shuffle=a=>H.shuffle?H.shuffle(a.slice()):a.slice().sort(()=>Math.random()-.5);
 const LV=['es','jh','hs','adv'];
@@ -196,25 +196,31 @@ function choices(list,fn,cls=''){if(!live())return;
   $('tuans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{$('tuans').innerHTML='';fn(+b.dataset.o)});
   setTimeout(()=>{const a=$('tuans');if(a)a.scrollIntoView({block:'nearest',behavior:'smooth'})},80)}
 
+function partOfDay(){const h=new Date().getHours();return h<5?'night':h<11?'morning':h<16?'day':h<19?'evening':'night'}
+function hiLine(){const T=(K.hiTime||{})[partOfDay()];return T&&Math.random()<.4?pickL(T):pickL(K.hi)}
 function intro(){const ops=shuffle(K.open).slice(0,3);
-  kid(pickL(['せんせい、 来てくれた！','あ、 せんせい！ まってたよ','せんせい、 こっち こっち！']),'👋');
+  kid(hiLine(),'👋');
   afterTalk(()=>choices(ops.map(o=>[o[0]]),i=>{you(ops[i][0]);SFX.step();setTimeout(()=>{kid(ops[i][1],'😊');afterTalk(()=>ask())},500)}),300,600)}
 
 /* ---------- a question ---------- */
-function ask(){if(!live())return;const {q,tag}=P.qs[P.i];P.tries[q.id]=0;P.avail=shuffle(q.o.map((o,i)=>i));P.wr=0;
+/* this time's wording of each way to teach (right ones and wrong ones come in several lengths, so the long one is not always right) */
+function labels(q){const x=TX[q.id]||{};return q.o.map((o,i)=>pickL([o[0]].concat(o[1]?(x.c||[]):((x.w||{})[i]||[]))))}
+/* "I got it!" — not always the same word */
+function gotLine(t){t=String(t);return /^わかった！/.test(t)&&Math.random()<.7?t.replace(/^わかった！/,pickL(K.got)):t}
+function ask(){if(!live())return;const {q,tag}=P.qs[P.i];P.tries[q.id]=0;P.avail=shuffle(q.o.map((o,i)=>i));P.wr=0;P.peek=0;P.lab=labels(q);
   $('tuq').textContent=`❓ ${P.i+1}/${P.qs.length}`;
   sys(`${KIND[q.k||'why']}${tag?'・'+TAG[tag]:''}<br>${esc(q.t)}`);
   kid(q.q,'🤔');
   afterTalk(()=>teach(),300,700)}
 function teach(){const {q}=P.qs[P.i];
-  choices(P.avail.map(i=>[q.o[i][0]]),k=>{const oi=P.avail[k],o=q.o[oi];you(o[0]);
+  choices(P.avail.map(i=>[P.lab[i]]),k=>{const oi=P.avail[k],o=q.o[oi];you(P.lab[oi]);
     setTimeout(()=>o[1]?good():wrong(oi),550)},'tuteach')}
 
 /* a right way to teach: Riku gets it and tries the English */
 function good(){const {q}=P.qs[P.i],first=!P.tries[q.id];SFX.correct();
   if(first){P.firstOk++;TD.first[q.id]=(TD.first[q.id]||0)+1}
   TD.taught[q.id]=(TD.taught[q.id]||0)+1;if(!P.taught.includes(q))P.taught.push(q);save();
-  kid(q.ok[0],'💡','k-good',' ');
+  kid(gotLine(q.ok[0]),'💡','k-good',' ');
   afterTalk(()=>{kidEn(q.ok[1],'🗣️','k-good');afterTalk(()=>{if(q.m&&Math.random()<.8)more();else next()},400)},300,500)}
 
 /* a wrong way to teach: no failing. Riku helps, Mina whispers, or Riku says something funny and laughs */
@@ -226,11 +232,14 @@ function wrong(oi){const {q}=P.qs[P.i],o=q.o[oi];P.tries[q.id]++;P.avail=P.avail
   if(mode==='fun')return funny(q,oi);
   if(mode==='help'){kid(q.help,'🤔');afterTalk(()=>{kid(pickL(K.retry));afterTalk(teach,200,300)},300,600);return}
   /* Mina at the window */
-  setTimeout(()=>{whisper(q.mina);setTimeout(()=>{kid(pickL(K.whisperHuh),'👀');afterTalk(teach,300,500)},1400)},300)}
+  setTimeout(()=>{whisper(peekText(q));setTimeout(()=>{kid(pickL(K.whisperHuh),'👀');afterTalk(teach,300,500)},1400)},300)}
+/* Mina's whisper: the first time her hint, the next time a plainer one (never the same words twice in a row) */
+const PEEK2=['もう ひとこと… 「{p}」 だよ','ないしょで 答えに 近い ヒント。 「{p}」','こっそり ノートを 見せるね… 「{p}」','がんばれ〜。 ポイントは 「{p}」'];
+function peekText(q){const n=P.peek++;return n?pickL(PEEK2).replace('{p}',q.pt):q.mina}
 
 /* Riku uses the wrong rule as it is: a funny English line, laughter, then "what is the right way?" */
 function funny(q,oi){const o=q.o[oi];
-  kid('じゃあ…','🤓');
+  kid(pickL(K.lead),'🤓');
   afterTalk(()=>{kidEn(o[2],'😂','k-oops');recFun(q.id+':'+oi);
     afterTalk(()=>{kid(pickL(K.laugh),'🤣','',' ');if(o[3])sys(`😂 ${esc(o[3])}`);
       afterTalk(()=>fix(q,o[2]),300,700)},300,500)},300,500)}
@@ -241,17 +250,19 @@ function fix(q,bad){kid(pickL(K.fixQ),'🙋');
     setTimeout(()=>{if(t===q.ok[1]){SFX.correct();P.fix++;TD.fix++;
         TD.taught[q.id]=(TD.taught[q.id]||0)+1;if(!P.taught.includes(q))P.taught.push(q);save();
         kidEn(q.ok[1],'💡','k-good');afterTalk(()=>{kid(pickL(K.fixed)+(P.paid?' （おまけ +1まい）':''),'🥰');afterTalk(next,300)},300)}
-      else{SFX.wrong();opts=opts.filter(x=>x!==t);kid(pickL(K.fixMiss),'🤔');
-        if(opts.length>1)afterTalk(go,200,400);else afterTalk(()=>{whisper(q.mina);setTimeout(go,1200)},200,400)}},500)},'tufix');
+      else{SFX.wrong();opts=opts.filter(x=>x!==t);
+        const then=()=>{if(opts.length>1)afterTalk(go,200,400);else afterTalk(()=>{whisper(peekText(q));setTimeout(go,1200)},200,400)};
+        if(t===bad){kid(pickL(K.fixSame),'😆','',' ');then()}
+        else{const oi=q.o.findIndex(x=>x[2]===t);kidEn(t,'😂','k-oops');if(oi>=0)recFun(q.id+':'+oi);afterTalk(()=>{kid(pickL(K.fixOther),'🤣','',' ');then()},300,500)}}},500)},'tufix');
   afterTalk(go,200,400)}
 
 /* the follow-up: "then what about …?" */
 function more(){const {q}=P.qs[P.i],m=q.m;let av=shuffle(m.o.map((o,i)=>i));
   kid(m.q,'🙋');
   const go=()=>choices(av.map(i=>[m.o[i][0]]),k=>{const oi=av[k],o=m.o[oi];you(o[0]);
-    setTimeout(()=>{if(o[1]){SFX.correct();kid(m.ok[0],'😆','k-good',' ');afterTalk(()=>{kidEn(m.ok[1],'🗣️','k-good');afterTalk(next,400)},300,400)}
+    setTimeout(()=>{if(o[1]){SFX.correct();kid(gotLine(m.ok[0]),'😆','k-good',' ');afterTalk(()=>{kidEn(m.ok[1],'🗣️','k-good');afterTalk(next,400)},300,400)}
       else{SFX.tease?SFX.tease():SFX.pop();av=av.filter(i=>i!==oi);
-        if(o[2]){const [fe,fj]=splitF(o[2]);kidEn(fe,'😂','k-oops');recFun(q.id+':m'+oi);afterTalk(()=>{kid((fj?fj+' ':'')+pickL(K.laugh)+' '+pickL(K.retry),'🤣','',' ');afterTalk(go,200,400)},300,500)}
+        if(o[2]){const [fe,fj]=splitF(o[2]);kidEn(fe,'😂','k-oops');recFun(q.id+':m'+oi);afterTalk(()=>{kid(fj?fj+'！ あはは':pickL(K.laugh),'🤣','',' ');afterTalk(()=>{kid(pickL(K.moreRetry),'🙋','',' ');afterTalk(go,200,300)},300,500)},300,500)}
         else{kid(pickL(K.moreMiss),'🤔');afterTalk(go,200,400)}}},500)},'tufix');
   afterTalk(go,200,500)}
 function recFun(k){if(!P.funs.includes(k))P.funs.push(k);if(!TD.fun[k]){TD.fun[k]=1;P.newFun.push(k);save();
@@ -261,19 +272,19 @@ function chat(fn){const C=K.chat||[];const left=C.filter(c=>!(TD.chat||[]).inclu
   TD.chat=(TD.chat||[]).filter(x=>x!==c[0]).concat([c[0]]).slice(-Math.max(1,C.length-2));save();
   sys('☕ ひとやすみ');kid(c[0],'😄');
   afterTalk(()=>choices(c[1].map(o=>[o[0]]),i=>{you(c[1][i][0]);SFX.step();setTimeout(()=>{kid(c[1][i][1],'😆');afterTalk(fn,300,600)},500)}),300,600)}
-function next(){if(!live())return;P.i++;if(P.i<P.qs.length){if(!P.chatted&&P.i<P.qs.length&&Math.random()<.55){P.chatted=1;return chat(()=>{kid('じゃあ つぎの 質問！','✋');afterTalk(ask,300,500)})}
-  kid(pickL(['あと もう1つ！','つぎの 質問 いい？','ねえねえ、 もう1つ！']),'✋');afterTalk(ask,300,500)}else bye()}
+function next(){if(!live())return;P.i++;if(P.i<P.qs.length){if(!P.chatted&&P.i<P.qs.length&&Math.random()<.55){P.chatted=1;return chat(()=>{kid(pickL(K.backToQ),'✋');afterTalk(ask,300,500)})}
+  kid(pickL(P.i===P.qs.length-1&&Math.random()<.5?K.lastQ:K.nextQ),'✋');afterTalk(ask,300,500)}else bye()}
 
 /* ---------- the end ---------- */
 function bye(){$('tuq').textContent='🏁';const ops=shuffle(K.bye).slice(0,3);
-  kid('きょうは ここまで！ せんせい、 ありがとう！','😊');
+  kid(pickL(K.byeHi),'😊');
   afterTalk(()=>choices(ops.map(o=>[o[0]]),i=>{you(ops[i][0]);SFX.step();setTimeout(()=>{kid(ops[i][1],ops[i][2]);afterTalk(finish,300,500)},500)}),300,500)}
 function rollGift(){const w=TG.map(g=>[g,g[7]===1?6:g[7]===2?3:1]);let r=Math.random()*w.reduce((a,x)=>a+x[1],0);return w.find(x=>(r-=x[1])<0)[0]}
 function finish(){if(!live())return;
   const paid=P.paid&&paidLeft()>0;let coins=0,gift=null;
   if(paid){TD.day={d:dk(),n:paidToday()+1};coins=PAY+Math.min(3,P.fix);gift=rollGift();TD.gifts[gift[0]]=(TD.gifts[gift[0]]||0)+1;TD.got[gift[0]]=(TD.got[gift[0]]||0)+1}
   TD.n++;TD.last=Date.now();const letter=(K.letters||[]).find(l=>l[0]===TD.n);if(letter){TD.letters=(TD.letters||[]).concat([letter[0]])}save();
-  kid(paid?K.thanks:K.thanksFree,paid?'🎁':'👋');
+  kid(pickL(paid?K.thanksL:K.thanksFreeL),paid?'🎁':'👋');
   /* Mina */
   let k='tu_end',v={n:P.taught.length};
   if(P.firstOk===P.qs.length)k='tu_endPerfect';else if(P.fix)k='tu_endFix';else if(P.funs.length)k='tu_endFun';
@@ -385,6 +396,15 @@ Object.assign(MINA_LINES,{
  x_tuGift:[['smile','リクくんの お礼が {n}こ あるね。 ノラさんの 雑貨店で 売れるよ'],['happy','{g}、 雑貨店に もっていくと 英語で 売れるよ']],
  x_tuFun:[['happy','へんな英文 図鑑、 {n}こ たまったね。 「{e}」 は わらったなあ'],['happy','リクくんの へんな 英文、 また 聞きたいな。 「{e}」 とか']],
 });
+/* セリフを ふやす（同じ ことばかり 言わないように） */
+[['tu_hello',[['wink','教え方は 何通りも あるよ。 長い 説明が いつも 正しい とは かぎらないから、 よく 読んでね'],['smile','リクくん、 先生が 来るのを 毎日 たのしみに してるんだって']]],
+ ['tu_end',[['happy','教えると、 自分が どこまで わかってるか よく 見えるよね'],['smile','リクくんの 「わかった！」の 顔、 よかったね'],['proud','きょうの {n}つ、 もう 人に 説明できる ことに なったね']]],
+ ['tu_endPerfect',[['wow','一発で ぜんぶ！ 説明の 言い方が かわっても ちゃんと 見ぬけたね'],['love','まよわず 教えられるって、 ほんとに わかってる しょうこ。 かっこよかったよ']]],
+ ['tu_endFix',[['proud','へんな 英文と 正しい 英文、 ならべて くらべると 一生 わすれないよ'],['happy','「ほんとは？」に すぐ 答えられたね。 それが いちばんの ふくしゅう']]],
+ ['tu_endFun',[['happy','リクくんの わらい声、 まどの 外まで 聞こえてたよ'],['wink','へんな 英文で わらった ぶん、 正しい 形が 頭に のこるんだ']]],
+ ['tu_endFree',[['smile','バイト代が なくても 来てくれるって、 リクくん よろこぶよ'],['happy','教えた ぶんだけ、 あなたの 英語も きたえられてるよ']]],
+ ['tu_endWeak',[['proud','前は つまずいた 「{t}」を、 こんどは 教える がわ。 すごい ことだよ']]],
+].forEach(([k,L])=>{MINA_LINES[k]=(MINA_LINES[k]||[]).concat(L)});
 const goTu=()=>['👦 リクの ところへ',open];
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_tuNone',4,()=>!TD.met?{}:null,goTu],
