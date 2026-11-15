@@ -37,7 +37,7 @@ if(AD.got==null)AD.got=AD.map+(AD.node!=='S'||AD.trail.length?1:0);
 const has=()=>AD.map<AD.got;
 const mapAt=i=>MAPS[i%MAPS.length];
 /* a new map: from where (bottle / card). returns the map's name */
-function give(){AD.got++;save();return mapAt(AD.got-1).name}
+function give(){AD.got++;save();const n=mapAt(AD.got-1).name;try{RECENT.add('map',{ja:n})}catch(e){}return n}
 /* the bottle sometimes holds a map: always the first time, then 1 in 4 (only while you have none to use) */
 function bottleMap(){if(has())return false;if(AD.got>0&&Math.random()>.25)return false;const name=give();
   let p=document.getElementById('bmPop');if(p)p.remove();p=document.createElement('div');p.id='bmPop';
@@ -127,6 +127,7 @@ function treasure(){const M=map(),R=M.reward,first=AD.map<MAPS.length,got=[];
     (R.event||[]).forEach(id=>{if(!AD.rareEv.includes(id))AD.rareEv.push(id);got.push(`${RARE_EV[id].ico} ${RARE_EV[id].n}（いつでも よべる）`)});
     if(R.title&&!AD.titles.includes(R.title)){AD.titles.push(R.title);got.push(`🏅 しょうごう「${R.title}」`)}}
   const bonus=cost()*20;ST.coins+=bonus;got.push(`🪙 ${bonus}まい`);
+  try{RECENT.add('treasure',{ja:M.name})}catch(e){}
   AD.done.push(AD.map);AD.map++;AD.node='S';AD.trail=[];save();H.head();SC.update(ST.coins);
   SFX.fanfare(3);try{FX.meteor()}catch(e){}
   H.show('adv',`<section class="pnl adv chest">

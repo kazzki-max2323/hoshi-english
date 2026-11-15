@@ -377,7 +377,7 @@ function rollGift(){const w=TG.map(g=>[g,g[7]===1?6:g[7]===2?3:1]);let r=Math.ra
 function finish(){if(!live())return;
   const paid=P.paid&&paidLeft()>0;let coins=0,gift=null;
   if(paid){TD.day={d:dk(),n:paidToday()+1};coins=PAY+Math.min(3,P.fix);gift=rollGift();TD.gifts[gift[0]]=(TD.gifts[gift[0]]||0)+1;TD.got[gift[0]]=(TD.got[gift[0]]||0)+1}
-  TD.n++;TD.last=Date.now();try{RECENT.add('tutor',{n:TD.n})}catch(e){}const letter=(K.letters||[]).find(l=>l[0]===TD.n);if(letter){TD.letters=(TD.letters||[]).concat([letter[0]])}save();
+  TD.n++;TD.last=Date.now();try{RECENT.add('tutor',{n:TD.n,day:P.day||'',taught:P.taught.length,ok:P.firstOk,tot:P.qs.length,t:(P.taught[0]||{}).t||'',fun:P.funs.length})}catch(e){}const letter=(K.letters||[]).find(l=>l[0]===TD.n);if(letter){TD.letters=(TD.letters||[]).concat([letter[0]])}save();
   if(paid&&P.day==='pochi'){far('🐕','ポチ','ワン！ （お礼を くわえて 走っていく）');kid(K.pochiGift,'😱');setTimeout(()=>{if(live())kid(K.pochiGift2,'😅','',' ')},1600)}
   else if(P.day==='short'){if(paid)sys('🎁 リクが 走りながら お礼を おいていった')}
   else kid(pickL(paid?K.thanksL:K.thanksFreeL),paid?'🎁':'👋');

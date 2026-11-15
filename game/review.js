@@ -89,7 +89,8 @@ function drill(mode,back){back=back||list;const Q=build(mode);if(!Q.length){H.to
     /* the spacing: a lesson whose day had come moves on a step if all its answers were right; any miss starts it over */
     Object.entries(res).forEach(([id,ok])=>{const r=rvOf(id);if(!ok)R.qz.rv[id]={n:0,t:now};else if(nextDay(id)<=D)R.qz.rv[id]={n:r.n+1,t:now}});
     if(R.rd.d!==today()){R.rd.d=today();R.rd.n=0}const paid=R.rd.n<PAID_DAY;R.rd.n++;save();
-    const all=okN===Q.length,coin=paid?okN*PER+(all?PERFECT:0):0,mn=missN();
+    const all=okN===Q.length;try{RECENT.add('review',{n:Q.length,ok:okN,all})}catch(e){}
+    const coin=paid?okN*PER+(all?PERFECT:0):0,mn=missN();
     H.show('review',`<section class="pnl lsn">
       <div class="lsay by-m big"><span class="lface">${MINA.face('m',all?'love':'proud')}</span><div class="lbody"><p>ふくしゅう おつかれさま！ <b>${okN}/${Q.length}</b> せいかい${all?'。 ぜんぶ おぼえてたね！':'。 まちがえた 問題は また 出すね'}
         ${coin?`<br>🪙<b>${coin}</b>まい${all?`（ぜんもん 正解 ボーナス +${PERFECT}）`:''}`:paid?'':'<br><small>きょうの ごほうびは おわり。 でも ふくしゅうは なんかいでも OK！</small>'}</p></div></div>

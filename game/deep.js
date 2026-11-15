@@ -172,6 +172,7 @@ function missed(q,o,d){const T=C.T,left=d.querySelectorAll('[data-o]:not(:disabl
 /* the end of the 5: ★, coins, Mina's word, what next */
 function result(){const c=C,T=c.T,st=T.st,N=T.qs.length,r=rec()[c.id];
   const perfect=st.ok===N,stars=perfect?3:st.miss<=1?2:1,firstChk=!r.cn,new3=stars===3&&(r.best||0)<3;
+  try{RECENT.add('deep',{id:c.id,g:c.g,stars,perfect,miss:st.miss})}catch(e){}
   r.cn=(r.cn||0)+1;r.best=Math.max(r.best||0,stars);r.last=stars;r.ct=Date.now();
   const P=PAY[c.lv]||8,pay=(firstChk?P:Math.max(3,P/2|0))+(perfect?5:0)+(new3?5:0);save();
   const k=new3?'dp_cMaster':perfect?'dp_cPerfect':stars===2?'dp_cGood':'dp_cMiss',[ex,tx]=ML(k,{g:c.g,n:st.ok,N,m:st.miss});

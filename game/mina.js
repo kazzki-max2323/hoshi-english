@@ -69,9 +69,14 @@ function weakKeys(){const k=[];const g=weakGram();if(g)k.push(g.title);const s=g
 /* ---------- lines ---------- */
 const fill=(t,v={})=>t.replace(/\{(\w+)\}/g,(m,k)=>v[k]!=null?esc(String(v[k])):m);
 MINA_LINES.lesson=MINA_LINES.lesson||[['smile','ミニ授業 {t} が おすすめだよ。 わたしの 顔を タップしてね'],['happy','きょうは {t} を いっしょに やってみない？'],['think','{t} を 知ると、 もっと 分かるように なるよ'],['proud','{t}、 2分で できるよ。 コインも もらえるからね']];
-/* she does not say a line again until 12 others have come (when the list is long enough) */
-const saidRecent=[];
-const line=(key,v)=>{const L=MINA_LINES[key]||MINA_LINES.tap,c=L.filter(l=>!saidRecent.includes(l[1])),l=pickL(c.length?c:L);
+/* 同じ 場面の セリフは ぜんぶ 出おわるまで 同じものを 出さない（ふくろから 1つずつ。 つぎの ふくろの 最初は さっきの と ちがう もの）。
+   ふくろと 直近 12この セリフは セーブに のこるので、 ひらきなおしても すぐ 同じ ことは 言わない */
+MD.bag=MD.bag||{};MD.sr=Array.isArray(MD.sr)?MD.sr:[];
+const saidRecent=MD.sr;
+const line=(key,v)=>{if(!MINA_LINES[key])key='tap';const L=MINA_LINES[key];let l;
+  if(L.length<2)l=L[0];
+  else{let b=(MD.bag[key]||[]).filter(i=>i<L.length);if(!b.length){b=L.map((x,i)=>i);const lst=MD.bag[key+'_']; if(lst!=null&&b.length>1)b=b.filter(i=>i!==lst)}
+    const c=b.filter(i=>!saidRecent.includes(L[i][1])),i=pickL(c.length?c:b);MD.bag[key]=b.filter(x=>x!==i);MD.bag[key+'_']=i;l=L[i]}
   saidRecent.push(l[1]);if(saidRecent.length>12)saidRecent.shift();return [l[0],fill(l[1],v)]};
 /* the most useful thing to say now, or a plain line */
 function advice(){const ww=weakWords(),opts=[];
@@ -230,7 +235,7 @@ function sayRow(who,ex,text,ms=6500,pop,go){const b=$('minaSay'),rq=$('rq');if(!
   b.hidden=false;if(rq)rq.hidden=true;b.className='msay '+(who==='m'?'by-m':'by-h')+(go?' go':'');
   b.innerHTML=`<b>${who==='m'?'ミナ先生':'ハマ子'}</b>${text}${go?`<small class="mgo">${go[0]} ▶</small>`:''}`;
   /* tap her words = go where she talks about (the word book, the lesson, the shop…) */
-  b.onclick=go?e=>{e.stopPropagation();SFX.step();b.hidden=true;if(rq)rq.hidden=false;go[1]()}:null;b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew');
+  b.onclick=go?e=>{e.stopPropagation();SFX.step();if(window.MINA_REACT)MINA_REACT.noteSug(go);b.hidden=true;if(rq)rq.hidden=false;go[1]()}:null;b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew');
   if(who==='m')setFace(ex,text);else{const h=$('hamaFace');if(h)h.innerHTML=face('h',ex)}
   SFX.pop();speakUntil=performance.now()+ms;clearTimeout(hideT);hideT=setTimeout(()=>{if(talkOn)return;b.hidden=true;if(rq)rq.hidden=false;setFace('smile');H.rest(2500)},ms);return true}
 /* lines waiting for a good moment (praise after a streak, etc.) */
@@ -273,6 +278,8 @@ let opened=false,talkAt=0,talkGap=(3+Math.random()*2)*60000,hamaAt=0,hamaGap=(12
 function hello(){const gap=MD.last?Math.floor((Date.now()-MD.last)/864e5):0;MD.last=Date.now();save();
   const h=new Date().getHours(),opts=advice();
   if(gap>=3)return line('openBack',{days:gap});
+  /* この前 したこと（game/mina-react.js） */
+  if(window.MINA_REACT){const b=MINA_REACT.hello();if(b)return b}
   /* ミニ授業が いちばん: きょう まだなら、 半分くらいは きょうの 授業に さそう */
   if(window.LESSON&&!LESSON.doneToday()&&Math.random()<.5){const l=LESSON.today();if(l){const sk=LESSON.streak();
     return [...line(sk?'lesHelloStreak':'lesHello',{t:'「'+l.t+'」',n:sk,n1:sk+1}),['📖 授業を ひらく',()=>LESSON.open(l.id,H.home)]]}}
@@ -302,7 +309,7 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
 /* what she says at the top of her page: her face, the line, and where tapping it goes */
 function talkBox(o){const [ex,tx]=o?line(o[0],o[1]):line('tap'),go=goTo(o);
   return {go,html:`<span class="mbig">${face('m',ex,poseFor(ex,tx))}</span>${go?`<button class="mline go" id="mgo">${tx}<small>${go[0]} ▶</small></button>`:`<p class="mline">${tx}</p>`}`}}
-function bindTalk(o,t){if(!t.go)return;$('mgo').onclick=()=>{SFX.step();if(o[0]==='stepUp')MD.said.step=today();t.go[1]()};H.panel.querySelector('.mbig').onclick=()=>$('mgo').click()}
+function bindTalk(o,t){if(!t.go)return;$('mgo').onclick=()=>{SFX.step();if(window.MINA_REACT)MINA_REACT.noteSug(t.go);if(o[0]==='stepUp')MD.said.step=today();t.go[1]()};H.panel.querySelector('.mbig').onclick=()=>$('mgo').click()}
 /* 授業メニューの 🎯 苦手 とっくん と 🔎 とことん授業（中身は 先生と 話す 画面と 同じ。ここからも すぐ 行ける） */
 function menuTiles(){let h='';
   if(window.SENSEI){const w=SENSEI.weak().length;h+=`<button id="mtok" class="mvc mt-tok${w?' hot':''}"><span>🎯 苦手 とっくん</span><b>${w?`🔥 苦手 ${w}こ`:'5問 ちょうせん'}</b></button>`}
@@ -310,7 +317,8 @@ function menuTiles(){let h='';
   return h}
 function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advice(),ra=recentAcc(),wg=weakGram()||gramForSentences(),su=stepUp();
   /* half the time the most useful advice, else something about what she sees now */
-  const first=opts.length&&Math.random()<.5?opts[0]:(sense()||opts[0]||null),T0=talkBox(first);
+  /* さっき したこと・いま 起きた ことが あれば、 まず それ（game/mina-react.js） */
+  const first=(window.MINA_REACT&&MINA_REACT.page())||(opts.length&&Math.random()<.5?opts[0]:(sense()||opts[0]||null)),T0=talkBox(first);
   const accToday=D.a?Math.round(D.o/D.a*100):null;
   H.show('mina',`<section class="pnl minap">
     <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b>${window.GIFT?GIFT.btn('mina','mgift'):'<span></span>'}</div>
