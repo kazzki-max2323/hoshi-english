@@ -540,7 +540,7 @@ const SCENE=(()=>{
     wet=Array.from({length:14},()=>({g:G(),o:R(2,20),w:R(2,7),p:R(0,6)}));
     clouds=Array.from({length:7},(_,n)=>{const st=n>=5,d=R(.35,1);return{x:R(-.1,1)*W,y:st?hz*R(.78,.92):hz*(.18+.55*(1-d)+R(-.05,.05)),w:(st?R(220,380):R(70,150)*(.6+d*.6))*k,h:(st?R(6,10):R(24,42)*(.6+d*.5))*k,v:R(.015,.04)*(st?.6:(.5+d)),st,seed:Math.random()*1e4|0,d}})}
   const pos=it=>[WL+it.m[0]*WW,WT+it.m[1]*WH];
-  const fireP=()=>[WL+WW*.4,Math.min(WT+WH*.94,WT+WH-22*k-10)];
+  const fireP=()=>[WL+WW*.4,Math.min(WT+WH*.95,WT+WH-12*k-8)];
   let LT=1;const LITS=new Set(['ランタン','テント','キャンピングカー','たいまつ','ライトのガーランド']);
   const flick=(s=1)=>.85+.15*Math.sin(t*9*s)*Math.sin(t*5.3*s+1);
   const waveY=px=>shore+Math.sin(t*.35)*9*k+Math.sin(px*.008+t*.6)*5*k+Math.sin(px*.023-t*.9)*2.5*k;
