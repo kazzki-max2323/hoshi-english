@@ -42,6 +42,10 @@ const MIOT=[
 {id:'mn_short',k:'mine',if:e=>e.depth<=3,m:["Back already, boss? Only {d} meters? Did you forget your lunch?","もう 帰ってきたんですか？ {d}メートル？ お弁当 わすれた？"],ex:'wink',o:[
  ["Just a short break.","ちょっと 休けい。",["A short break is important. Even moles take breaks. Probably.","休けいは 大事。 モグラも 休けい しますよ。 たぶん。",'laugh']],
  ["I missed the shop.","お店が 恋しくて。",["Aww! The shop missed you too. And… maybe I did, a little.","わあ！ お店も 店長が 恋しかったですよ。 それと… わたしも ちょっとだけ。",'wink']]]},
+{id:'mn_many',k:'mine',if:e=>e.cards&&e.cards.length>=4&&!e.rare,m:["Boss, {n} cards from one trip?! The mine is so generous these days!","店長、 1回で {n}まいも？！ 最近の 鉱山、 太っぱら ですね！"],ex:'laugh',p:'guts',o:[
+ ["I studied hard down there.","下で がんばって 勉強したからね。",["I can tell! More words, more cards. That's a fair trade.","わかります！ 単語が ふえると カードも ふえる。 いい 取引 ですね。",'smile']],
+ ["Let's put some on the shelf.","何まいか 売り場に 出そう。",["Yes! But keep your favorites in the card book, OK? Ha ha.","はい！ でも お気に入りは カードブックに 入れて おいて くださいね。 あはは。",'laugh']]],ph:["generous","太っぱら・気前が いい"]},
+
 {id:'mn_cards',k:'mine',if:e=>e.cards&&e.cards.length&&!e.rare,m:["You found a new card in the mine! Let's see… oh, \"{w}\"! I love that word.","鉱山で 新しい カード 見つけたんですね！ どれどれ… あ、 「{w}」！ その 単語 好き。"],ex:'laugh',o:[
  ["Do you know what it means?","意味 わかる？",["Of course! …It means \"{wj},\" right? I peeked at the back. Ha ha.","もちろん！ …「{wj}」 ですよね？ うらを 見ちゃった。 あはは。",'laugh']],
  ["I'll put it on the shelf.","売り場に 出そうかな。",["Good idea! A fresh card from the mine. Customers will love that story.","いいですね！ 鉱山から とれたての カード。 お客さん、 その 話 好きですよ。",'smile']]]},

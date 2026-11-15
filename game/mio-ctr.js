@@ -24,7 +24,7 @@ const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
 const art=s=>!s?s:/^(a|an|the|some)\s/i.test(s)||/[^s]s$/i.test(s)?s:(/^[aeiou]/i.test(s)?'an ':'a ')+s;
 const wordOf=id=>{try{const I=CG.info(id);return I?[String(I.en).split(',')[0].trim(),String(I.ja||'').split(/[、,;／/]/)[0].trim()]:['','']}catch(e){return ['','']}};
 function vals(e,N){const M=mem(),V={};e=e||{};
-  if(e.k==='mine'){Object.assign(V,{d:e.depth,best:e.best,ok:e.ok,q:e.q,coins:e.coins});if(e.cards&&e.cards[0]){const [w,j]=wordOf(e.cards[0]);V.w=w;V.wj=j}}
+  if(e.k==='mine'){Object.assign(V,{d:e.depth,best:e.best,ok:e.ok,q:e.q,coins:e.coins,n:(e.cards||[]).length});if(e.cards&&e.cards[0]){const [w,j]=wordOf(e.cards[0]);V.w=w;V.wj=j}}
   if(e.k==='book'||e.k==='sell'||e.k==='buyin'){V.w=e.en;V.wj=e.ja;V.p=e.p}
   if(e.k==='meal'||e.k==='snack'){V.food=e.en;V.foodj=e.ja}
   if(e.k==='zbuy'||e.k==='gift'){V.item=e.en;V.itemj=e.ja}
