@@ -63,7 +63,7 @@ const ord=(a,b)=>{const A=where(a),B=where(b);return SEC.findIndex(s=>s.k===A[0]
 
 /* ================================================================ the book */
 let backTo=null,cur='t5',pg={},greet=true,flash='',hl='',mode='page',q='',sortAbc=false,cap=60,addSet=new Set();
-function pocket(id,i){const no=i+1,cls=`${flash===id?'pop':''} ${hl===id?'hl':''}`;
+function pocket(id,i){const no=i+1,cls=`${flash===id?'cbnew':''} ${hl===id?'hl':''}`;
   if(has(id))return `<div class="cbp in ${cls}" data-id="${esc(id)}">${C.face(id,{mini:1,marks:false})}</div>`;
   const own=C.count(id)>0,ok=own&&SHOP.free(id)>0,I=C.info(id);
   /* まだ もっていない 宝カードは ないしょ。 単語は うすく 書いておく（さがしやすく） */
