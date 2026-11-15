@@ -58,7 +58,7 @@ Object.assign(MINA_LINES,{
  x_cgWeak:[['proud','苦手カードの {w}、 鉱山の 道具に すると 何回も 練習できるよ。 にげずに 使ってみて'],['think','{w} は まちがいノートの 単語。 カードで 出すと おぼえやすいよ']],
  x_cgForgot:[['think','💤 {w} の カード、 しばらく 見てないね。 鉱山で 使ってみて'],['smile','わすれかけた ころに 思い出すと、 いちばん 記憶に のこるんだ']],
  x_cgFree:[['happy','カードショップで きょうの むりょうパックが もらえるよ'],['smile','むりょうパック、 まだ あけてないよ']],
- x_cgPack:[['smile','カードショップの 仕入れ、 1パック 10まい前後 入ってるよ。 まだ もってない カードが 出やすいんだ'],['happy','仕入れの パックは ぜんぶ さいしょから 買えるよ。 小学生パックから ハイレベルまで、 すきな ところから'],['think','仕入れは ちょっと 高いけど、 1パックで 10まいくらい ふえるよ。 鉱山で ためた コインで どうぞ']],
+ x_cgPack:[['smile','カードショップの 仕入れ、 1パック 10まい前後 入ってるよ。 まだ もってない カードが 出やすいんだ'],['happy','仕入れの パックは ぜんぶ さいしょから 買えるよ。 小学生パックから ハイレベルまで、 すきな ところから'],['think','仕入れは ちょっと 高いけど、 1パックで 10まいくらい ふえるよ。 鉱山で ためた コインで どうぞ'],['smile','仕入れは 1日 2回まで。 どの パックに するか、 じっくり えらんでね'],['think','きょうの 仕入れ、 あと {n}回 できるよ。 ほしい カードの パックを えらぼう']],
  x_cgSent:[['smile','📜 文カードパックには 文カードが 2まい。 文に 出てくる 単語の カードも いっしょに 入ってるよ'],['proud','文カードの 英文、 声に 出して 読んでみて。 単語が 文の 中で どう 使われるか わかるよ']],
  x_cgKira:[['wow','コインが {c}まい！ 💎きらきら宝パック（🪙1200）が 買えるよ。 宝カードだけ 10まい前後、 SR以上 1まい かくてい'],['happy','きらきら宝パック、 いまなら 買えるね。 どんな 宝カードが 出るかな']]});
 const goShop=()=>['🃏 カードショップへ',()=>C.open()];
@@ -68,9 +68,9 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_cgWeak',3,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.weak(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('mine')],
  ['x_cgForgot',2,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.forgot(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('mine')],
  ['x_cgFree',3,()=>R().met&&R().free!==C.today()?{}:null,goTab('pack')],
- ['x_cgPack',2,()=>R().met&&ST.coins>=150?{}:null,goTab('pack')],
- ['x_cgSent',1,()=>R().met&&ST.coins>=450?{}:null,goTab('pack')],
- ['x_cgKira',2,()=>R().met&&ST.coins>=1200&&window.CARDS&&CARDS.pull?{c:ST.coins}:null,goTab('pack')]);
+ ['x_cgPack',2,()=>R().met&&ST.coins>=150&&C.buyLeft()?{n:C.buyLeft()}:null,goTab('pack')],
+ ['x_cgSent',1,()=>R().met&&ST.coins>=450&&C.buyLeft()?{}:null,goTab('pack')],
+ ['x_cgKira',2,()=>R().met&&ST.coins>=1200&&C.buyLeft()&&window.CARDS&&CARDS.pull?{c:ST.coins}:null,goTab('pack')]);
 /* the card button left the home screen: Mina points at the hut once */
 setTimeout(function first(){if(R().told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,15000);
   R().told=1;C.save();const [ex,tx]=ML('cg_first');m.say('m',ex,tx,10000,null,['🃏 のぞいてみる',()=>C.open()])},9000);

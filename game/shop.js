@@ -61,7 +61,7 @@ function open(){cleanFloor();const S=SH(),first=!S.met;
       <button data-t="store" class="c4"><span>📦</span>倉庫<small>${storeCards().length}しゅるい</small></button>
     </div>
     ${window.CBOOK?(()=>{const [g,t]=CBOOK.stat();return `<button data-t="book" class="shbook"><span>📖</span><b>カードブック</b><small>${g} / ${t}</small></button>`})():''}
-    <button data-g="pack" class="shpack"><span>🎁</span><b>仕入れ</b><small>1パック 10まい前後</small>${R().free!==C.today()?'<i class="dot"></i>':''}</button>
+    <button data-g="pack" class="shpack"><span>🎁</span><b>仕入れ</b><small>${C.buyLeft()?`きょう あと ${C.buyLeft()}回`:'また あした'}</small>${R().free!==C.today()?'<i class="dot"></i>':''}</button>
     <div class="row shmio"><button id="shtalk">💬 ミオと 話す${window.MIOC&&MIOC.newN()?'<i class="dot"></i>':''}</button><button id="shgift" class="sub">🎁 プレゼント</button></div>
     <p class="shsum">これまでに ${S.sold}まい 売れた・ 売り上げ 🪙${S.earn}${S.best?` ・ 鉱山 最高 ${S.best}m`:''}</p>
   </section>`);

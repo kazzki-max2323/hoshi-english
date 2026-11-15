@@ -1028,20 +1028,6 @@ const CG_FOES=[
  {id:'mina',n:'ミナ先生',ico:'👩‍🏫',d:'さいきょう。 ぜんぶの レベルと コンボ',lv:['jh','hs','adv'],at:[],p:.93,hp:55,need:8,pt:6,coin:150,mina:1,
   sp:{n:'とくべつ授業',d:'1.5ばいの コンボ攻撃を ふくめて 2回 攻撃',k:'lesson'},hi:["A card battle with me? Okay, I won't hold back today!","わたしと カード勝負？ いいよ、 きょうは 手かげん しないからね！"],win:["Wow... You beat me. I'm really proud of you.","すごい… 負けちゃった。 ほんとに ほこらしいよ。"],lose:["I won this time! But your combos were great.","こんかいは わたしの かち！ でも コンボ、 すごかったよ。"],spl:["Special lesson! Watch closely!","とくべつ授業！ よく 見ててね！"]}];
 
-/* カード屋の ナギと 英語で 買いもの: レベルごとの やりとり。 [ナギ, [正しい, まちがい, まちがい], 説明] */
-const CG_BUY_TALK={
- es:[[["Hi! What can I get for you?","いらっしゃい！ なにに する？"],["A pack, please.","I am a pack.","Pack is you."],'「〜, please.」で 「〜を ください」'],
-  [["Hello! Do you want a pack?","こんにちは！ パック いる？"],["Yes, please!","Yes, I am.","No, thank."],'「Yes, please.」は 「はい、 おねがいします」'],
-  [["That's the price. Here's your pack!","この 値段だよ。 はい、 パック！"],["Thank you!","You're welcome!","Sorry!"],'もらったら 「Thank you!」'],
-  [["Which pack do you like?","どの パックが いい？"],["This one, please.","This is one.","One this."],'「This one, please.」で 「これを ください」']],
- jh:[[["Hi there! What would you like?","いらっしゃい！ なにが いい？"],["Can I have a pack, please?","Can you have a pack?","I can a pack, please."],'「Can I have 〜?」は 「〜を もらえますか」'],
-  [["How many would you like?","いくつ ほしい？"],["Just one, please.","I'm one, please.","Many one."],'「How many 〜?」には 数で 答えるよ'],
-  [["That's the price. Is that okay?","この 値段だけど いい？"],["Sure. Here you are.","Sure. Here are you.","Sure. You are here."],'お金を わたすときは 「Here you are.」'],
-  [["Are you looking for anything special?","なにか さがしてる？"],["I'm looking for strong cards.","I'm looking strong cards.","I look at for strong cards."],'「look for 〜」で 「〜を さがす」']],
- hs:[[["Good to see you! What can I do for you today?","いらっしゃい！ きょうは なにを？"],["I'd like to buy a pack, please.","I'd like buying a pack.","I like to bought a pack."],'「I\'d like to 〜」は ていねいな 「〜したいです」'],
-  [["Would you like me to wrap it?","つつみましょうか？"],["No, thank you. I'll open it now.","No, thank you. I open it yesterday.","No, thanks you."],'「I\'ll 〜」で 「いまから 〜する」'],
-  [["Any particular theme in mind?","なにか テーマは 決まってる？"],["I was wondering if you have a combo-friendly pack.","I wonder you have combo pack?","I was wonder if have a pack."],'「I was wondering if 〜」は とても ていねいな たずね方'],
-  [["Here you go. Good luck with your deck!","どうぞ。 デッキづくり がんばって！"],["Thanks! I'll let you know how it goes.","Thanks! I'll let you know how does it go.","Thanks! I let know you."],'「how it goes」（間接疑問）の 語順に 注意']]};
 /* ねらいうち注文・1まい売りの ひとこと */
 const CG_NAGI={
  hi:[["Welcome to Shiosai Cards!","カードショップ しおさいへ ようこそ！"],["Every word is a card here. Which one will you meet today?","ここでは どの 単語も カードに なるんだ。 きょうは どれに 会える？"],["Check today's single cards! They change every day.","きょうの 1まい売りを 見てね！ 毎日 かわるよ。"],["Want to know a secret? Natural word pairs make the strongest combos.","ひみつを 教えようか？ 英語として 自然な ペアが いちばん 強い コンボに なるんだ。"],["If you answer the quiz right, your card gets full power.","問題に 正解すると カードは フルパワーだよ。"]],
