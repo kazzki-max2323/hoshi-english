@@ -81,7 +81,7 @@ const lesOf=id=>(typeof LESSONS!=='undefined'?LESSONS:[]).find(l=>l.id===id);
 const CATN={zu:'図解',kotsu:'覚え方の コツ',yarikata:'勉強の やり方',oto:'音と 発音',hama:'ハマ子の 語呂',kagaku:'学び方の 科学'};
 const DOW=['日','月','火','水','木','金','土'],DOW_EN=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 const MON_EN=['January','February','March','April','May','June','July','August','September','October','November','December'];
-const TIME_SONG={morning:['piano','lofi5','hawaii','piano_hi'],noon:['uke','reggae','steel','samba','lofi3'],evening:['hawaii_s','guitar_y','waltz','guitar'],night:['nocturne','jazz_mid','lofi4','harp','musicbox_w'],late:['musicbox','gymno','lofi4','nocturne']};
+const TIME_SONG={morning:['piano','lofi5','hawaii','piano_hi','lofi_cat'],noon:['uke','reggae','steel','samba','lofi3','lofi_nap','lofi_rain','lofi_library'],evening:['hawaii_s','guitar_y','waltz','guitar','lofi_tape','lofi_lamp'],night:['nocturne','jazz_mid','lofi4','harp','musicbox_w','lofi_moon','lofi_train','lofi_snow'],late:['musicbox','gymno','lofi4','nocturne','lofi_tide','lofi_moon','lofi_snow']};
 const serOf=c=>(CARDS.series.find(s=>s[0]===c.s)||[c.s,'🃏',''])
 const rarN=c=>(CARDS.rar[c.r]||{n:''}).n;
 
