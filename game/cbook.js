@@ -62,7 +62,7 @@ const abc=(a,b)=>norm(C.info(a).en).localeCompare(norm(C.info(b).en));
 const ord=(a,b)=>{const A=where(a),B=where(b);return SEC.findIndex(s=>s.k===A[0])-SEC.findIndex(s=>s.k===B[0])||A[1]-B[1]};
 
 /* ================================================================ the book */
-let cur='t5',pg={},greet=true,flash='',hl='',mode='page',q='',sortAbc=false,cap=60,addSet=new Set();
+let backTo=null,cur='t5',pg={},greet=true,flash='',hl='',mode='page',q='',sortAbc=false,cap=60,addSet=new Set();
 function pocket(id,i){const no=i+1,cls=`${flash===id?'pop':''} ${hl===id?'hl':''}`;
   if(has(id))return `<div class="cbp in ${cls}" data-id="${esc(id)}">${C.face(id,{mini:1,marks:false})}</div>`;
   const own=C.count(id)>0,ok=own&&SHOP.free(id)>0,I=C.info(id);
@@ -78,7 +78,8 @@ function nextCan(k,p){const L=list(k);let f=L.findIndex((id,i)=>i>=(p+1)*PER&&ad
 const cell=id=>{const w=where(id);return w?`<div class="cbcell">${pocket(id,w[1])}<button class="cbgo" data-go="${esc(id)}">📍 ${esc(label(id))}</button></div>`:''};
 
 /* そとから 開くとき: 入れられる カードが ある ページから 見せる */
-function enter(k,m){prune();addSet=new Set(addable());mode=m||'page';q='';hl='';cap=60;
+/* back: ← で もどる 先（ホームから 開いたら ホームへ。 ないときは お店の メニュー） */
+function enter(k,m,back){backTo=back||null;prune();addSet=new Set(addable());mode=m||'page';q='';hl='';cap=60;
   if(k&&SK[k])cur=k;else if(!list(cur).some(id=>addSet.has(id))){const s=SEC.find(s=>list(s.k).some(id=>addSet.has(id)))||SEC.find(s=>list(s.k).some(has));if(s)cur=s.k}
   if(!k&&addSet.size&&!list(cur).slice((pg[cur]||0)*PER,(pg[cur]||0)*PER+PER).some(id=>addSet.has(id))){const f=list(cur).findIndex(id=>addSet.has(id));if(f>=0)pg[cur]=Math.floor(f/PER)}
   open()}
@@ -95,7 +96,7 @@ function open(k){if(k&&SK[k])cur=k;prune();SHOP.cleanFloor();addSet=new Set(adda
     <div id="cbbody"></div>
     <button id="cball" class="cbin" ${addSet.size?'':'disabled'}>📥 まだの カードを ぜんぶ 入れる${addSet.size?`<b>${addSet.size}</b>`:''}</button>
   </section>`);
-  $('cbx').onclick=()=>{sf('back');SHOP.open()};
+  $('cbx').onclick=()=>{sf('back');if(backTo)backTo();else SHOP.open()};
   bindMio(H.panel);if(line)say(line[0]);
   const qi=$('cbq');let tm=0;
   qi.oninput=()=>{clearTimeout(tm);tm=setTimeout(()=>{q=qi.value.trim();cap=60;$('cbqx').hidden=!q;H.panel.querySelectorAll('.cbmode button').forEach(b=>b.classList.toggle('on',!q&&b.dataset.m===mode));body()},180)};
@@ -227,10 +228,12 @@ Object.assign(MINA_LINES,{
  x_shBook:[['smile','まだ ブックに 入れていない カードが {n}まい あるよ。 「ぜんぶ 入れる」で 一気に 入るよ'],['think','カードブック、 空いてる ポケットが 光ってるよ。 入れに 行こう？'],['smile','ブックの 「＋ 入れられる」を 押すと、 入れられる カードだけ ならぶよ。 タップで 1まいずつ 入れられるの']],
  sh_bookFind:[['wow','カードブックで 単語を さがせるように なったよ！ 🔍に 英語か 日本語を 打ってね。 📍を 押すと その ポケットの ページに とぶよ'],['happy','カードブックが 使いやすく なったよ。 タブの 黄色い 数字は 入れられる カードの 数。 倉庫や パックから そのまま 入れることも できるよ']],
  sh_bookFound:[['smile','「{w}」、 見つかったね。 さがした 単語は 声に 出して 1回 読んでみよう'],['think','さがした 単語は 覚えたい 単語。 鉱山で 何回か 使うと しっかり 覚えられるよ']],
+ sh_bookHomeNew:[['wow','ホームの ボタンに 📖カードブックが ふえたよ！ お店に 行かなくても すぐ 開けるの'],['happy','カードブックは ホームからも 開けるように なったよ。 黄色い 数字は 入れられる カードの 数だよ']],
+ sh_bookHome:[['smile','カードブック、 ひらいたね。 知ってる 単語を 見つけたら 声に 出して 読んでみよう'],['think','光ってる ポケットは 入れられる カード。 「＋ 入れられる」で タップすれば すぐ 入るよ'],['happy','ページを めくるだけでも 単語の ふくしゅうに なるんだよ']],
  sh_bookIn1:[['happy','{w}、 ブックに 入れたね。 {p}ばんの ポケットだよ'],['smile','倉庫から そのまま 入れられて 便利でしょ？ 入れた カードも 鉱山では 使えるからね']],
  x_shBookGot:[['proud','カードブック、 もう {n}まい！ 1まい ずつが きみの 覚えた しるしだね'],['happy','ブックの {n}まい、 ときどき めくって 声に 出して 読んでみてね']]});
 
-const goBook=(m)=>['📖 カードブックへ',()=>{CG.open();setTimeout(()=>{if(!SHOP.rec().away&&SHOP.rec().met)enter(null,m)},60)}];
+const goBook=(m)=>['📖 カードブックへ',()=>{if(SHOP.rec().met)enter(null,m,()=>H.home())}];
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_shBook',2,()=>{if(!SHOP.rec().met)return null;const n=addable().length;return n>=5?{n}:null},()=>goBook('can')],
  ['x_shBookGot',1,()=>{const [g]=stat();return g>=10?{n:g}:null},goBook]);
@@ -241,6 +244,15 @@ setTimeout(function first(){const S=SHOP.rec();if(S.bookTold||!S.met)return;cons
 /* もう 1回: 新しく できた「さがす・入れやすく」を 1回だけ */
 setTimeout(function first2(){const S=SH2();if(!S||S.bookTold2||!S.bookTold)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first2,20000);
   S.bookTold2=1;save();const [ex,tx]=ML('sh_bookFind');m.say('m',ex,tx,10000,null,goBook())},30000);
+/* 🏠 ホームの ボタンの 列（単語帳・もちもの・浜辺の 会話 の となり）に 📖 カードブック */
+const homeBtn=()=>{try{const row=H.panel.querySelector('.home .row');if(!row||row.querySelector('#cbHome')||!SHOP.rec().met)return;
+  const n=addable().length,b=document.createElement('button');b.id='cbHome';b.className='sub';
+  b.innerHTML=`<span>📖</span>カードブック${n?`<em class="cbhn">${n>99?'99+':n}</em>`:''}`;b.setAttribute('aria-label','カードブック');
+  b.onclick=()=>{sf('flip');enter(null,null,()=>H.home());mina('sh_bookHome',{n},.3)};row.appendChild(b)}catch(e){}};
+try{H.on('home',()=>setTimeout(homeBtn,0))}catch(e){}
+setTimeout(homeBtn,0);
+setTimeout(function first3(){const S=SH2();if(!S||S.bookTold3||!S.met)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first3,25000);
+  S.bookTold3=1;S.bookTold2=1;save();const [ex,tx]=ML('sh_bookHomeNew');m.say('m',ex,tx,10000,null,goBook())},34000);
 function SH2(){try{return SHOP.rec()}catch(e){return null}}
 
 window.CBOOK={open:enter,stat,addable,list,SEC,canIn,putOne,label,mina,nm};
