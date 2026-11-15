@@ -31,6 +31,9 @@ function cleanFloor(){const S=SH(),need={};S.floor=S.floor.filter(id=>{need[id]=
 const onFloor=id=>SH().floor.filter(x=>x===id).length;
 /* 売り場に 出せる まい数（ブックの 1まいと 売り場の 分を のぞく） */
 const free=id=>C.count(id)-onFloor(id)-inBook(id);
+/* 倉庫に ある まい数（ブックに 入れた 1まいは 倉庫から 出ていく。 鉱山の 練習には allCards() で そのまま つかえる） */
+const stock=id=>C.count(id)-inBook(id);
+const storeCards=()=>allCards().filter(id=>stock(id)>0);
 function sell(id,p,fly){const S=SH(),i=S.floor.indexOf(id);if(i<0)return false;S.floor.splice(i,1);C.take(id);S.sold++;S.earn+=p;
   const d=C.today();if(S.tday!==d){S.tday=d;S.tearn=0}S.tearn+=p;if(!fly)H.addCoins(p);save();return true}
 
@@ -55,7 +58,7 @@ function open(){cleanFloor();const S=SH(),first=!S.met;
       <button data-t="counter" class="c1"><span>🧑‍💼</span>カウンターに 立つ<small>お客さんを まつ</small></button>
       <button data-t="mine" class="c2"><span>⛏️</span>鉱山へ<small>5まいを じゅんばんに 練習</small></button>
       <button data-t="floor" class="c3"><span>🏷️</span>売り場<small>${S.floor.length}/${FLOOR_N}まい</small>${S.floor.length?'':'<i class="dot"></i>'}</button>
-      <button data-t="store" class="c4"><span>📦</span>倉庫<small>${allCards().length}しゅるい</small></button>
+      <button data-t="store" class="c4"><span>📦</span>倉庫<small>${storeCards().length}しゅるい</small></button>
     </div>
     ${window.CBOOK?(()=>{const [g,t]=CBOOK.stat();return `<button data-t="book" class="shbook"><span>📖</span><b>カードブック</b><small>${g} / ${t}</small></button>`})():''}
     <div class="row shmio"><button id="shtalk">💬 ミオと 話す${window.MIOC&&MIOC.newN()?'<i class="dot"></i>':''}</button><button id="shgift" class="sub">🎁 プレゼント</button></div>
@@ -110,14 +113,15 @@ function leave(){SH().away=Date.now();save()}
 /* ================================================================ 📦 the storeroom */
 let stF='all';
 function store(f){if(typeof f==='string')stF=f;const F=[['all','ぜんぶ'],['es','小'],['jh','中'],['hs','高'],['adv','H'],['t','宝'],['weak','😣苦手'],...(window.UNK?[['unk','📜']]:[])];
-  let ids=allCards().filter(id=>{const I=C.info(id);if(!I)return false;if(stF==='all')return true;if(stF==='t')return I.k==='t';if(stF==='weak')return I.k==='w'&&C.weak(id);if(stF==='unk')return UNK.cardHas(I);
+  let ids=storeCards().filter(id=>{const I=C.info(id);if(!I)return false;if(stF==='all')return true;if(stF==='t')return I.k==='t';if(stF==='weak')return I.k==='w'&&C.weak(id);if(stF==='unk')return UNK.cardHas(I);
 return I.k==='w'&&I.lv===stF});
   ids.sort((a,b)=>(C.info(a).lv||'').localeCompare(C.info(b).lv||'')||C.star(a)-C.star(b));
   const shown=ids.slice(0,240);
   H.show('cg',`<section class="pnl cgp shp">${top('📦 倉庫',`${ids.length}しゅるい`)}
     <div class="shf">${F.map(([k,n])=>`<button data-f="${k}" class="${stF===k?'on':''}">${n}</button>`).join('')}</div>
     <div class="shgrid">${shown.map(id=>{
-      return `<div class="shcell" data-id="${esc(id)}">${C.face(id,{mini:1,n:C.count(id)})}${onFloor(id)?'<u>🏷️</u>':''}${inBook(id)?'<u class="bk">📖</u>':''}</div>`}).join('')||'<p class="note">カードが ないよ</p>'}</div>
+      return `<div class="shcell" data-id="${esc(id)}">${C.face(id,{mini:1,n:stock(id)})}${onFloor(id)?'<u>🏷️</u>':''}</div>`}).join('')||'<p class="note">カードが ないよ</p>'}</div>
+    ${Object.keys(BOOKR()).length?'<p class="note">📖 ブックに 入れた カードは カードブックで 見てね</p>':''}
     ${ids.length>shown.length?`<p class="note">ほか ${ids.length-shown.length}しゅるい（しぼりこんで 見てね）</p>`:''}</section>`);
   $('shb').onclick=()=>{sf('back');open()};
   H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{stF=b.dataset.f;sf('tap');store()});
@@ -302,5 +306,5 @@ setTimeout(function first(){const S=SH();if(S.told)return;const m=window.MINA;if
   S.told=1;save();const [ex,tx]=ML('sh_first');m.say('m',ex,tx,10000,null,['🃏 お店へ',()=>CG.open()])},12000);
 
 H.on('home',()=>{if(CT)CT.alive=false});
-window.SHOP={open,leave,price,allCards,counter,floor,store,rec:SH,inBook,free,bookRec:BOOKR,cleanFloor,rare};
+window.SHOP={open,leave,price,allCards,counter,floor,store,rec:SH,inBook,free,stock,storeCards,bookRec:BOOKR,cleanFloor,rare};
 })();
