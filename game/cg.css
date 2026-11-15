@@ -61,7 +61,9 @@
 .cgc.sel{transform:translateY(-8%);box-shadow:0 0 0 3px #ffe14a,0 6px 14px #000a}
 .cgc.dim{filter:saturate(.45) brightness(.7)}
 .cgc.indk{outline:3px solid #55e0b4;outline-offset:-3px}
-.cgc.big{width:min(48vw,190px);margin:0 auto;cursor:default}
+.cgc.big{width:min(48vw,190px);margin:0 auto;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.cgc.big.tapsay{animation:cgTapSay .35s ease}
+@keyframes cgTapSay{40%{transform:scale(.95)}100%{transform:scale(1)}}
 @media (prefers-reduced-motion:reduce){.cgc.kira::after{animation:none}}
 
 .cggrid{display:grid;gap:7px;padding:2px}

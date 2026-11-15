@@ -524,7 +524,11 @@ function comboBook(){const lvOf=c=>{const a=cardOfHead(c.a).lv,b=cardOfHead(c.b)
 function foundCombo(c){if(CG.combo[c.k])return false;CG.combo[c.k]=dnum();save();return true}
 function metWrong(w){if(CG.wrong[w.k])return false;CG.wrong[w.k]=dnum();save();return true}
 
-window.CG={open,go,starter,info,face,art,quiz,formQuiz,formsOf,ask,ov,closeOv,detail,count,owns,give,take,receive,reveal,record,star,kira,weak,forgot,power,
+/* 大きな カードを タップすると その 英語を 読む（鉱山で 見つけた・くわしく 見る・カードブック など） */
+function sayCard(id){const I=info(id);if(!I||!I.en)return;try{H.say(I.k==='t'?'cards':I.k==='p'?'es':I.lv,I.en)}catch(e){}}
+document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('.cgc.big');if(!c||c.classList.contains('lock')||!c.dataset.id)return;
+  sayCard(c.dataset.id);c.classList.remove('tapsay');void c.offsetWidth;c.classList.add('tapsay')});
+window.CG={open,sayCard,go,starter,info,face,art,quiz,formQuiz,formsOf,ask,ov,closeOv,detail,count,owns,give,take,receive,reveal,record,star,kira,weak,forgot,power,
   rank,rankName,ruleOn,lvOpen,deckCombos,cleanDeck,comboOf,combosWith,wrongOf:(a,b)=>WRG[a+'|'+b]||null,anto:h=>ANTO[h]?[...ANTO[h]]:[],syn:h=>SYN[h]?[...SYN[h]]:[],
   derivOf,sentWords,cardOfHead,foundCombo,metWrong,pickL,hash,dnum,today,speak,bubble,
   W,BY,COMBO,WRONG,DERIV,SENT,LV,ATTR,DECK_N,rec:()=>CG,save:()=>save(),pay,myLv,hut,
