@@ -21,6 +21,15 @@ const bigger=c=>{const S=c.it.sizes.map(s=>s[0]),i=S.indexOf(c.size);return S[Ma
 const sizeJ=(c,en)=>(c.it.sizes.find(s=>s[0]===en)||['',en])[1];
 const colJ=(c,en)=>(c.it.colors.find(s=>s[0]===en)||['',en])[1];
 const how=c=>Math.max(1,Math.round(c.it.p*.75));
+/* お会計の 組み立て（毎回 かわる）: はらう 前に 0〜1こ、 はらった あとに 0〜2こ。 ぜんぶで 0〜2こ。 同じ 形・同じ 聞き方は つづけて 出ない */
+const tip=t=>c=>{(c.tips=c.tips||[]).push(t)};
+const shuf=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+const CK_PRE={else:['else1','else2','else3'],pts:['pts1','pts2']},CK_POST={rcpt:['rcptq','rcpt2','rcpt3'],bag:['bagq','bag2','bag3'],tag:['tag1']};
+const plan=c=>{const can=[...Object.keys(CK_PRE),...Object.keys(CK_POST).filter(k=>k!=='tag'||c.it.k==='gift')];let ks=[];
+  for(let t=0;t<8;t++){const r=Math.random(),n=r<.3?0:r<.75?1:2;ks=shuf(can).slice(0,n);
+    if(ks.filter(k=>CK_PRE[k]).length>1){ks=ks.slice(0,1);continue}if(Z.sameShape('buy',ks))continue;break}
+  if(!ks.includes('rcpt'))c.rcpt=1;   // 聞かれない ときは ノラさんが ふつうに レシートを わたす（返品が できる）
+  return [...ks.filter(k=>CK_PRE[k]).map(k=>Z.pickV(k,CK_PRE[k])),Z.pickV('pay',['pay','payB','payC','payD','payE','payF']),...ks.filter(k=>CK_POST[k]).map(k=>Z.pickV(k,CK_POST[k]))]};
 
 return {
 /* ======================================================= はじめて 来た とき */
@@ -157,10 +166,20 @@ buy:{t:'買いもの',start:'a',nodes:{
   O("Can you give me a discount, too?",'discount',null,null,'disc',{j:"値引きも して もらえますか？"}),
   O("I'll think about it.",'think',"Sure. Come back anytime.","ええ。 いつでも 来てね。",'eThink')]},
  pre:{go:c=>c.it.colors&&!c.color?'color':c.it.sizes&&!c.size?'size':c.it.k==='gift'?'gift':'payq'},
- gift:{s:"Is it a gift?",j:"プレゼント？",o:[
+ /* 🎁 「プレゼント？」は 毎回は 聞かない。 聞く ときも 聞き方を かえる（同じ 聞き方は つづけて 出ない。 Z.pickV） */
+ gift:{go:c=>Math.random()<.4?'payq':Z.pickV('gift',['gift1','gift2','gift3'])},
+ gift1:{s:"Is it a gift?",j:"プレゼント？",enter:tip("「Is it a gift?」は お店で よく 聞かれるよ。 自分用なら 「It's for me.」で だいじょうぶ"),o:[
   O(c=>`Yes. It's a present for ${TO[c.it.to][0]}.`,'present',c=>`How nice! ${TO[c.it.to][0].split(/[,.]/)[0].replace('my teacher','your teacher')} will be happy.`,c=>`すてき！ ${TO[c.it.to][1]}、 きっと よろこぶわ。`,'wrapq',{j:c=>`はい。 ${TO[c.it.to][1]}への プレゼントです。`}),
-  O("No, it's for me.",null,"OK!","わかったわ！",'payq',{j:"いいえ、 自分用です。"}),
+  O("No, it's for me.",'forMe',"OK!","わかったわ！",'payq',{j:"いいえ、 自分用です。"}),
   O("Yes. It's a present for my goldfish.",null,c=>`For your goldfish?! ...I hope it likes the ${W(c)}.`,c=>`金魚に？！ …${c.it.n}、 気に入ると いいわね。`,'wrapq',{ok:0,j:"はい。 金魚への プレゼントです。",fx:'🐟'})]},
+ gift2:{s:"Is this for someone special?",j:"だれか とくべつな 人に あげるの？",enter:tip("「someone special」は 「だれか とくべつな 人」。 「It's for 〜.（〜に あげます）」で こたえられるよ"),o:[
+  O(c=>`Yes. It's for ${TO[c.it.to][0]}.`,null,c=>`How sweet! ${TO[c.it.to][0].split(/[,.]/)[0].replace('my teacher','your teacher')} is lucky.`,c=>`やさしいのね！ ${TO[c.it.to][1]}は しあわせ ものね。`,'wrapq',{j:c=>`はい。 ${TO[c.it.to][1]}に あげます。`}),
+  O("No, it's just for me.",'forMe',"Then I hope you enjoy it!","じゃあ 自分で たのしんでね！",'payq',{j:"いいえ、 自分用です。"}),
+  O("Yes. It's for my pet rock.",null,"Your pet rock? ...I'm sure it will be very happy. Very quietly.","ペットの 石？ …きっと よろこぶわ。 とっても しずかにね。",'wrapq',{ok:0,j:"はい。 ペットの 石に あげます。",fx:'🪨'})]},
+ gift3:{s:"Shall I wrap it as a present?",j:"プレゼント用に つつみましょうか？",enter:tip("「Shall I 〜?」は 「〜しましょうか？」。 お店の 人が よく つかう ていねいな 言い方だよ"),o:[
+  O(c=>`Yes, please. It's for ${TO[c.it.to][0]}.`,null,"Wonderful. Let's make it pretty!","すてき。 かわいく つつみましょう！",'paper',{j:c=>`はい、 おねがいします。 ${TO[c.it.to][1]}に あげるんです。`}),
+  O("No, thanks. It's for me.",'forMe',"OK!","わかったわ！",'payq',{j:"いいえ、 けっこうです。 自分用です。"}),
+  O("Yes! Wrap it ten times!",null,"Ten times? It would look like a mummy! Once is enough, dear.","10回？ ミイラみたいに なっちゃう！ 1回で じゅうぶんよ。",'paper',{ok:0,j:"うん！ 10回 つつんで！",fx:'🎁'})]},
  wrapq:{s:"Would you like it gift-wrapped? It's free.",j:"プレゼント用に つつむ？ 無料よ。",o:[
   O("Yes. Could you gift-wrap it?",'wrap',null,null,'paper'),
   O("No, thank you.",null,"OK!","わかったわ！",'payq',{j:"いいえ、 けっこうです。"})]},
@@ -171,23 +190,88 @@ buy:{t:'買いもの',start:'a',nodes:{
  rib:{s:"And would you like a ribbon?",j:"リボンも つける？",o:[
   O("Yes. Could you put a ribbon on it?",'ribbon',"There! Isn't it pretty?","はい！ きれいでしょ？",'payq',{act:c=>{c.rib=1}}),
   O("No ribbon, thanks.",null,"OK. Simple is nice, too.","わかった。 シンプルも いいわね。",'payq',{j:"リボンは いりません。"})]},
- payq:{go:c=>Z.coins()<P(c)?'nomoney':'pay'},
- pay:{s:c=>`That'll be ${P(c)} coins, please.`,j:c=>`${P(c)}まいに なります。`,o:[
-  O("I'll pay in cash.",'payCash',"Thank you!","ありがとう！",'rcptq'),
+ /* 💰 お会計: 毎回 同じに ならないように、 はらい方の 聞き方を かえて、 その前後に 0〜2この やりとり（これで ぜんぶ？・ポイントカード・
+    レシート・ふくろ・値札）が 入ったり 入らなかったり する。 同じ 聞き方は つづけて 出ない（Z.pickV）。 */
+ payq:{go:c=>Z.coins()<P(c)?'nomoney':'ck0'},
+ ck0:{go:c=>{if(!c.ck)c.ck=plan(c);return 'ck'}},
+ ck:{go:c=>c.ck.length?c.ck.shift():'fin'},
+ /* --- はらう（どれか 1つ） --- */
+ pay:{s:c=>`That'll be ${P(c)} coins, please.`,j:c=>`${P(c)}まいに なります。`,enter:tip("「That'll be 〜, please.」は 「〜に なります」。 お店の 人の 決まった 言い方だよ"),o:[
+  O("I'll pay in cash.",'payCash',"Thank you!","ありがとう！",'ck'),
   O("Can I pay by card?",'payCard',"Sorry, we only take coins here. It's a beach shop!","ごめんね、 ここは コインだけなの。 浜辺の お店だから！",'card'),
   O("Can I pay with seashells?",null,"Seashells? I wish! Coins only, please.","貝がら？ そうだったら いいけど！ コインで おねがい。",'pay2',{ok:0,j:"貝がらで はらえますか？",pip:"Shells! Shells!",fx:'🐚'})]},
  pay2:{s:c=>`So, ${P(c)} coins, please.`,j:c=>`それじゃ、 ${P(c)}まい おねがいね。`,o:[
-  O("I'll pay in cash.",'payCash',"Thank you!","ありがとう！",'rcptq'),
+  O("I'll pay in cash.",'payCash',"Thank you!","ありがとう！",'ck'),
   O("Can I pay by card?",'payCard',"Sorry, coins only. It's a beach shop!","ごめんね、 コインだけなの。 浜辺の お店だから！",'card')]},
  card:{s:"Is that OK?",j:"それで いい？",o:[
-  O("Sure. Here you are.",null,"Thank you!","ありがとう！",'rcptq',{j:"もちろん。 はい、 どうぞ。"})]},
- rcptq:{s:"Would you like a receipt?",j:"レシートは いる？",o:[
-  O("Yes. Can I have a receipt?",'receipt',"Here you are. Keep it in a safe place.","はい、 どうぞ。 なくさないでね。",'bagq',{act:c=>{c.rcpt=1}}),
-  O("No, thanks.",null,"OK!","わかったわ！",'bagq',{j:"いいえ、 けっこうです。"})]},
- bagq:{s:"Do you need a bag?",j:"ふくろは いる？",o:[
-  O("I don't need a bag. Thanks.",'noBag',"Thank you for saving paper!","紙の せつやく、 ありがとう！",'fin'),
-  O("Yes. Can I have a bag?",'bag',"Sure. Here you go.","ええ。 はい、 どうぞ。",'fin'),
-  O("Can I have a really big box?",null,c=>`A big box for one little ${W(c)}? ...Well, OK!`,c=>`小さな ${c.it.n} 1つに 大きな 箱？ …まあ、 いいわ！`,'fin',{ok:0,j:"すごく 大きな 箱を もらえる？",fx:'📦',act:c=>{c.box=1}})]},
+  O("Sure. Here you are.",null,"Thank you!","ありがとう！",'ck',{j:"もちろん。 はい、 どうぞ。"})]},
+ payB:{s:c=>`That's ${P(c)} coins altogether.`,j:c=>`ぜんぶで ${P(c)}まいよ。`,enter:tip("「altogether」は 「ぜんぶで」。 「That's 〜 altogether.」は 合計を 言う ときの 決まった 言い方だよ"),o:[
+  O("Here you are.",'hereYouAre',"Thank you!","ありがとう！",'ck'),
+  O("Can I pay in chocolate?",null,"Chocolate? I'd eat it all before lunch! Coins, please.","チョコ？ お昼までに ぜんぶ 食べちゃうわ！ コインで おねがい。",'payB',{ok:0,j:"チョコで はらえる？",fx:'🍫',if:c=>!c.choc,act:c=>{c.choc=1}})]},
+ payC:{s:c=>`That's ${P(c)} coins. Do you have exact change?`,j:c=>`${P(c)}まいよ。 ちょうど ある？`,enter:tip("「exact change」は 「ちょうどの お金」、 「change」だけだと 「おつり」。 「Here's your change.」は 「おつりです」だよ"),o:[
+  O("Yes. Here's the exact amount.",'exact',"Perfect. Thank you!","ぴったりね。 ありがとう！",'ck',{j:"はい。 ちょうど あります。"}),
+  O("Sorry, I don't have any small change.",'noChange',"No problem. Here's your change. Please check it.","だいじょうぶよ。 はい、 おつり。 たしかめてね。",'ck'),
+  O("I have a button. Is that OK?",null,"A button? Ha ha! That goes on your shirt, dear.","ボタン？ あはは！ それは シャツに つける ものよ。",'payC',{ok:0,j:"ボタンなら あるけど いい？",fx:'🔘',if:c=>!c.btn,act:c=>{c.btn=1}})]},
+ payD:{s:c=>`Your total is ${P(c)} coins.`,j:c=>`お会計は ${P(c)}まいです。`,enter:tip("「total」は 「合計」。 「Does that include tax?（税こみですか？）」は 外国の お店で 役に 立つよ"),o:[
+  O("Here you go.",'hereYouGo',"Thank you!","ありがとう！",'ck'),
+  O("Does that include tax?",'taxIn',"Yes, it does. Beach shop prices are simple!","ええ、 税こみよ。 浜辺の お店の 値段は シンプルなの！",'payD',{if:c=>!c.tax,act:c=>{c.tax=1}}),
+  O("Can I pay with a smile?",null,"What a lovely smile! ...But I still need coins, dear.","すてきな えがお！ …でも やっぱり コインが いるのよ。",'payD',{ok:0,j:"えがおで はらえる？",fx:'😁',if:c=>!c.smile,act:c=>{c.smile=1}})]},
+ payE:{s:c=>`${P(c)} coins, please.`,j:c=>`${P(c)}まい おねがいね。`,enter:tip("きょうの お会計は みじかかったね。 「〜 coins, please.」には 「Here you are.」だけで じゅうぶんだよ"),o:[
+  O("Here you are.",'hereYouAre',"Thank you, dear!","ありがとう！",'ck'),
+  O("Sure. Here you go.",'hereYouGo',"Thanks!","ありがとう！",'ck',{j:"はい、 どうぞ。"})]},
+ payF:{s:"Cash or card?",j:"現金？ それとも カード？",enter:tip("「Cash or card?」は レジの 定番。 「Cash, please.」の ように 1語＋please で こたえられるよ"),o:[
+  O("Cash, please.",'cashPls',c=>`Thank you! ${P(c)} coins, then.`,c=>`ありがとう！ じゃあ ${P(c)}まいね。`,'ck'),
+  O("Card, please.",null,"Oh, sorry! I only take coins. It's a beach shop!","あら、 ごめんね！ コインだけなの。 浜辺の お店だから！",'card',{j:"カードで おねがいします。"}),
+  O("Seashells, please.",null,"Seashells? Ha ha! Pip, did you teach that one?","貝がら？ あはは！ ピップ、 あなたが 教えたの？",'payF2',{ok:0,j:"貝がらで！",pip:"Shells! Shells!",fx:'🐚'})]},
+ payF2:{s:c=>`Coins only, dear. ${P(c)} coins, please.`,j:c=>`コインだけよ。 ${P(c)}まい おねがいね。`,o:[
+  O("Sure. Here you are.",'hereYouAre',"Thank you!","ありがとう！",'ck',{j:"はい、 どうぞ。"})]},
+ /* --- はらう 前（入る ときと 入らない ときが ある） --- */
+ else1:{s:"Will that be all?",j:"これで ぜんぶ？",enter:tip("「Will that be all?」は 「ごちゅうもんは 以上ですか？」。 「Yes, that's all.」で こたえよう"),o:[
+  O("Yes, that's all.",'thatsAll',"OK!","はい！",'ck'),
+  O("And the parrot, please!",null,"Pip? Oh no, Pip is not for sale! Ha ha.","ピップ？ だめだめ、 ピップは 売りものじゃ ないの！ あはは。",'ck',{ok:0,j:"それと、 その オウムも ください！",pip:"Not for sale! Not for sale!",fx:'🦜'})]},
+ else2:{s:"Anything else today?",j:"きょうは ほかに なにか いる？",enter:tip("「Anything else?」は 「ほかには？」。 「No, that's it.（それだけです）」が 言えると スムーズだよ"),o:[
+  O("No, that's it. Thanks.",'thatsIt',"All right!","わかったわ！",'ck',{j:"いいえ、 それだけです。 ありがとう。"}),
+  O("Just this, please.",'justThis',"Sure!","はい！",'ck'),
+  O("Yes. One free cookie, please!",null,"Free? Nice try, dear! Ha ha.","ただで？ うまいこと 言うわね！ あはは。",'ck',{ok:0,j:"うん。 ただの クッキーを 1つ！",pip:"Nice try! Nice try!",fx:'🍪'})]},
+ else3:{s:"Did you find everything you were looking for?",j:"さがしてた もの、 ぜんぶ 見つかった？",enter:tip("「Did you find everything you were looking for?」は アメリカの レジで ほんとに よく 聞かれるよ"),o:[
+  O("Yes, I did. Thank you.",'foundAll',"I'm glad!","よかった！",'ck'),
+  O("Yes. You have a lovely shop.",'lovelyShop',"Oh, thank you, dear! You made my day.","まあ、 ありがとう！ きょう いちばん うれしい ことばよ。",'ck',{j:"はい。 すてきな お店ですね。"}),
+  O("No. I'm looking for my homework.",null,"Your homework? It's not here, dear. ...Pip, did you take it?","宿題？ ここには ないわよ。 …ピップ、 あなた もってった？",'ck',{ok:0,j:"いいえ。 宿題を さがしてます。",pip:"Not me! Not me!",fx:'📝'})]},
+ pts1:{s:"Do you have a points card?",j:"ポイントカードは もってる？",enter:tip("ポイントカードは 英語で points card や rewards card、 loyalty card とも 言うよ"),o:[
+  O("No, I don't.",null,"No problem!","だいじょうぶよ！",'ck',{j:"いいえ、 もってません。"}),
+  O("Sorry, I left it at home.",'leftHome',"That's OK. Next time!","いいのよ。 また こんどね！",'ck'),
+  O("Is this it?",null,"That's a seashell, dear! Ha ha.","それは 貝がらよ！ あはは。",'ck',{ok:0,j:"これですか？（貝がらを 出す）",pip:"Shell! Shell!",fx:'🐚'})]},
+ pts2:{s:"Are you a member here?",j:"うちの 会員さん だったかしら？",enter:tip("「member」は 「会員」。 「Not yet.（まだです）」は いろんな 場面で つかえる 便利な 答えだよ"),o:[
+  O("Not yet.",'notYet',"Then come often, and Pip will remember your face!","じゃあ たくさん 来てね。 ピップが 顔を おぼえるわ！",'ck',{pip:"I remember! I remember!"}),
+  O("Yes, I come here a lot.",null,"I know! You're one of my favorite customers.","知ってるわ！ だいすきな お客さんの ひとりよ。",'ck',{j:"はい、 よく 来てます。"}),
+  O("Yes. I'm the president of the Pip Fan Club.",null,"A Pip Fan Club?! Don't tell him. His head will get too big.","ピップ ファンクラブ？！ 本人には ないしょね。 調子に のっちゃうから。",'ck',{ok:0,j:"はい。 ピップ ファンクラブの 会長です。",pip:"Fan club! Fan club!",fx:'🦜'})]},
+ /* --- はらった あと（入る ときと 入らない ときが ある） --- */
+ rcptq:{s:"Would you like a receipt?",j:"レシートは いる？",enter:tip("「receipt」の p は 読まないよ。 「レシート」じゃなくて 「リシート」に 近い 音なんだ"),o:[
+  O("Yes. Can I have a receipt?",'receipt',"Here you are. Keep it in a safe place.","はい、 どうぞ。 なくさないでね。",'ck',{act:c=>{c.rcpt=1}}),
+  O("No, thanks.",null,"OK!","わかったわ！",'ck',{j:"いいえ、 けっこうです。",act:c=>{c.rcpt=0}})]},
+ rcpt2:{s:"Do you need the receipt?",j:"レシート、 いる？",enter:tip("「No, I'm fine.」は 「だいじょうぶです（いりません）」。 ことわる ときの やさしい 言い方だよ"),o:[
+  O("Yes, please.",'yesPlease',"Here you are.","はい、 どうぞ。",'ck',{j:"はい、 おねがいします。",act:c=>{c.rcpt=1}}),
+  O("No, I'm fine. Thanks.",'imFine',"OK! I'll throw it away for you.","わかった！ こっちで すてて おくわね。",'ck',{act:c=>{c.rcpt=0}})]},
+ rcpt3:{s:"Here's your receipt. Keep it, in case you want to return it.",j:"はい、 レシート。 返品するかも しれないから、 とっておいてね。",enter:c=>{c.rcpt=1;tip("「change my mind」は 「気が かわる」。 返品の ときは レシートが いるから、 とっておこう")(c)},o:[
+  O("Thank you.",null,"You're welcome!","どういたしまして！",'ck',{j:"ありがとう。"}),
+  O("Can I return it if I change my mind?",'changeMind',"Yes. Just bring it back with the receipt.","ええ。 レシートと いっしょに もってきてね。",'ck'),
+  O("Can I eat the receipt?",null,"Eat it?! It's paper, dear! Ha ha.","食べる？！ 紙よ！ あはは。",'ck',{ok:0,j:"レシート 食べても いい？",pip:"Paper! Paper!",fx:'🧾'})]},
+ bagq:{s:"Do you need a bag?",j:"ふくろは いる？",enter:tip("「I don't need a bag.」は ふくろを ことわる 言い方。 海に やさしいね"),o:[
+  O("I don't need a bag. Thanks.",'noBag',"Thank you for saving paper!","紙の せつやく、 ありがとう！",'ck'),
+  O("Yes. Can I have a bag?",'bag',"Sure. Here you go.","ええ。 はい、 どうぞ。",'ck'),
+  O("Can I have a really big box?",null,c=>`A big box for one little ${W(c)}? ...Well, OK!`,c=>`小さな ${c.it.n} 1つに 大きな 箱？ …まあ、 いいわ！`,'ck',{ok:0,j:"すごく 大きな 箱を もらえる？",fx:'📦',act:c=>{c.box=1}})]},
+ bag2:{s:"Shall I put it in a bag?",j:"ふくろに 入れましょうか？",enter:tip("「I have my own bag.（自分の ふくろが あります）」は エコな 言い方。 外国でも よく つかうよ"),o:[
+  O("Yes, please.",'yesPlease',"Here you go.","はい、 どうぞ。",'ck',{j:"はい、 おねがいします。"}),
+  O("It's OK. I have my own bag.",'ownBag',"Oh, good for you! The sea says thank you.","まあ、 えらいわね！ 海も ありがとうって 言ってるわ。",'ck',{j:"だいじょうぶです。 自分の ふくろが あります。"}),
+  O("No, thanks. I'll carry it.",'carryIt',"OK. Here you are.","わかった。 はい、 どうぞ。",'ck',{j:"いいえ、 けっこうです。 このまま もって いきます。"})]},
+ bag3:{s:"Would you like a bag, or is it OK like this?",j:"ふくろ いる？ それとも このままで いい？",enter:tip("「like this」は 「このまま」。 「It's OK like this.（このままで いいです）」は かんたんで 便利だよ"),o:[
+  O("It's OK like this. Thank you.",'likeThis',"All right. Here you are.","わかったわ。 はい、 どうぞ。",'ck'),
+  O("A bag, please.",null,"Sure. Here you go.","ええ。 はい、 どうぞ。",'ck',{j:"ふくろを おねがいします。"}),
+  O("Can I have a bag for my bag?",null,"A bag for your bag? ...Then you'll need a bag for that bag, too! Ha ha.","ふくろ用の ふくろ？ …じゃあ その ふくろ用の ふくろも いるわね！ あはは。",'ck',{ok:0,j:"ふくろを 入れる ふくろも もらえる？",pip:"Bag! Bag! Bag!",fx:'🛍️'})]},
+ tag1:{s:"Shall I take the price tag off?",j:"値札、 はずして おく？",enter:tip("「price tag」は 「値札」。 「take 〜 off」で 「〜を はずす」。 プレゼントを 買う ときに つかえるよ"),o:[
+  O("Yes. Could you take the price tag off?",'tagOff',"Of course. Nobody needs to know the price!","もちろん。 値段は ないしょね！",'ck',{j:"はい。 値札を はずして もらえますか？"}),
+  O("No, it's OK.",null,"All right.","わかったわ。",'ck',{j:"いいえ、 そのままで いいです。"}),
+  O("Can you make the price bigger?",null,"Bigger?! So they'll think it was expensive? Ha ha, you're funny.","大きく？！ 高そうに 見せたいの？ あはは、 おもしろい 子ね。",'ck',{ok:0,j:"値段を もっと 大きく 書いて くれる？",pip:"Show-off! Show-off!",fx:'🏷️'})]},
  fin:{go:c=>c.box?'eBox':c.it.lux?(c.disc?'eLuxDeal':'eLux'):c.disc>=.2?'eHaggle':c.disc?'eDeal':c.bonus?'eBonus':c.wrap?'eGift':'eBuy'},
  nomoney:{s:c=>`That's ${P(c)} coins... Oh dear, you only have ${Z.coins()} coins.`,j:c=>`${P(c)}まいね… あら、 ${Z.coins()}まいしか ないみたい。`,o:[
   O("Could you put it aside for me?",'putAside',null,null,'eHold'),
