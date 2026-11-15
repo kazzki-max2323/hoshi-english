@@ -9,6 +9,7 @@ const MIO_HI=[
  ["New packs came in! About ten cards in each one.","新しい パックが 入りましたよ！ どれも 10まいくらい 入ってます。"],
  ["Boss, the sparkly treasure packs are on the shelf too. They're pricey, though!","店長、 きらきら宝パックも ならんでますよ。 ちょっと お高いですけど！"],
  ["Shall we stock up? Every pack is open to us now.","仕入れ、 しましょうか？ パックは ぜんぶ 仕入れられますよ。"],
+ ["We can stock two packs a day. Let's choose carefully!","仕入れは 1日 2パックまで。 よく えらびましょうね！"],
  ["I'm studying English between customers. Wish me luck!","お客さんの あいだに 英語の 勉強してます。 おうえん してください！"],
  ["Today's lucky word is \"sunny\"! Because I'm always sunny!","きょうの ラッキーワードは 「sunny」！ わたし いつも 晴れやかなので！"],
  ["The mine is calling you, boss! I'll take care of the shop.","店長、 鉱山が よんでますよ！ お店は まかせてください。"],
