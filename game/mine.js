@@ -4,7 +4,7 @@
    - 体力（❤）が あるのは 自分だけ。 1問で 1 へる。 0に なっても 見つけた 物は ぜんぶ 持ち帰れる
      体力は 鉱山の 外でも のこり、 時間で 少しずつ もどる。 食べると たくさん もどる（game/food.js の FOOD）
    - 正解で 1m ほれる。 深い 層ほど 宝石が 高く、 見つかる カードも むずかしく なる
-   - 見つかる 物: 宝石（コイン）・イベント・ごく たまに 単語カード や 🎁宝カード（見つけた ときは 大きな お祝い）
+   - 見つかる 物: 宝石（コイン）・イベント・単語カード（1回で 平均 4〜5まい。 ほりながら 上に 小さく 出て、 タップで 📖）・🎁宝カード（大きな お祝い）
    データは game/shop-data.js（MINE_LAYERS / MINE_EVENT / MINE_GEM） */
 (()=>{
 const {S:ST,sfx:SFX}=BEACH;
@@ -18,7 +18,7 @@ const ME_HP=80,HAND=5;
 const myHp=()=>window.FOOD?FOOD.hp():ME_HP;
 const keepHp=n=>{try{if(window.FOOD)FOOD.setHp(n)}catch(e){}};
 /* 見つかる 確率（正解 1回ごと） */
-const P_EVENT=.04,P_WORD=.018,P_TREASURE=.008,P_GEM=.2;
+const P_EVENT=.04,P_WORD=.054,P_TREASURE=.024,P_GEM=.2;   // カードは 11/15 に 3倍（単語:宝 の 比は そのまま）
 
 /* ================================================================ コース（練習の 形の じゅんばん） */
 const COURSE=[
@@ -77,7 +77,7 @@ function dive(cards){try{SHOP.leave()}catch(e){}
   startLap();
   H.show('cg',`<section class="pnl cgp mnp mnd" data-stay>
     <div class="qtop"><button class="x" id="mnx" aria-label="もちかえる">←</button><b id="mnl">⛏️ 0m</b><span class="qn" id="mnh"></span></div>
-    <div class="mnstage"><canvas id="mncv" width="160" height="80"></canvas><span class="mndep" id="mndep">0m</span><div class="mngot" id="mngot"></div></div>
+    <div class="mnstage"><canvas id="mncv" width="160" height="80"></canvas><span class="mndep" id="mndep">0m</span><div class="mngot" id="mngot"></div><div class="mncard" id="mncard"></div></div>
     <div class="mnloot" id="mnloot"></div>
     <p class="mnst" id="mnst"></p>
     <div class="mnhand sm" id="mnhd"></div>
@@ -187,10 +187,10 @@ function after(id,ok){if(!D||D.busy)return;D.busy=true;D.q++;D.hp--;keepHp(D.hp)
   else{D.swing=6;D.crack=Math.min(2,D.crack+1);setTimeout(()=>{sf('tap')},300);C.save();hud();setTimeout(()=>next(),200)}}
 /* what you find. カードは めったに 出ない（出たら 大きな お祝い）。 true を かえすと お祝いの あとで つぎへ */
 function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.luck>0)D.luck--;
-  const deep=Math.min(.012,D.depth/5000);   // 深いほど 少しだけ 出やすい
+  const deep=Math.min(.036,D.depth*3/5000);   // 深いほど 少しだけ 出やすい
   if(r<P_TREASURE+deep/2&&window.CARDS&&CARDS.find1){const g=CARDS.find1();const id='t:'+g.c.e;D.got.push({id,isNew:g.isNew});return celebrate(id,g.isNew,true)}
   if(r<P_TREASURE+P_WORD+deep){const lv=pickL(L.lv),pool=C.W.filter(c=>c.lv===lv),fresh=pool.filter(c=>!C.owns(c.id));const c=pickL(fresh.length&&Math.random()<.85?fresh:pool);
-    const isNew=!C.owns(c.id);C.give(c.id);D.got.push({id:c.id,isNew});return celebrate(c.id,isNew,false)}
+    const isNew=!C.owns(c.id);C.give(c.id);D.got.push({id:c.id,isNew});cardTag(c.id,isNew);return false}
   if(r<P_TREASURE+P_WORD+deep+P_EVENT){const E=pickL(MINE_EVENT);D.events.push(E);
     if(E.hp){D.hp=Math.min(ME_HP,D.hp+E.hp);keepHp(D.hp)}if(E.deep)D.depth+=E.deep;if(E.luck)D.luck+=E.luck;if(E.coin)D.coins+=E.coin;
     D.pop={ico:E.ico,t:0,big:1};gotTag(E.ico,E.n,E.coin?`+${E.coin}枚`:'');sf('hey');H.toast(`${E.ico} <b>${esc(E.n)}</b><small>${esc(E.t)}</small>`,3600);return false}
@@ -228,7 +228,17 @@ function lootInfo(kind,ico){if(!D)return;sf('card');const back='<button class="m
 function gotTag(ico,name,val){const el=$('mngot');if(!el)return;const t=document.createElement('div');t.className='mngt';
   t.innerHTML=`<span class="gi">${ico}</span><span class="gn">${esc(name)}</span>${val?`<b>${esc(val)}</b>`:''}`;
   el.appendChild(t);while(el.children.length>2)el.firstChild.remove();setTimeout(()=>t.remove(),1800)}
-/* カードを 見つけた！（めったに ない ので 大きな お祝い） */
+/* 単語カードを 見つけた: よく 出るので ほる テンポを 止めない。 ドット絵の 上に カードの 札（タップで 📖 くわしく＋読む）。
+   ほりつづけても 🎒🎴 から あとで 見られる。 さいしょの 1まいの あとで 1回だけ ミナ先生が 教えてくれる（札に かさならないよう 札が 消えてから） */
+function cardTag(id,isNew){const M=MN();M.cards=(M.cards||0)+1;C.save();D.pop={ico:'🎴',t:0,big:1};
+  try{SFX.fanfare(1)}catch(e){sf('done')}
+  try{const r=$('mncv').getBoundingClientRect();FX.firework(r.left+r.width*(.3+Math.random()*.4),r.top+r.height*.4)}catch(e){}
+  const el=$('mncard');if(!el)return;const I=C.info(id);if(!I)return;
+  el.innerHTML=`<button class="mncd" data-id="${esc(id)}"><span class="gi">🎴</span><span class="cn"><small>カードを 見つけた！${isNew?' <em>NEW</em>':''}</small><b>${esc(head1(I))}</b><i>${esc(I.ja)}</i></span><span class="tp">📖</span></button>`;
+  const b=el.firstChild;b.onclick=()=>{sf('card');C.detail(id)};
+  clearTimeout(el._t);el._t=setTimeout(()=>{if(b.isConnected)b.classList.add('out');setTimeout(()=>{if(b.isConnected)b.remove()},400)},6500);
+  if(!MN().cardTold){MN().cardTold=1;C.save();setTimeout(()=>{if(!D)return;try{const [,tx]=ML('mn_card',{w:head1(I)});H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)}catch(e){}},7200)}}
+/* 宝カードを 見つけた！（めったに ない ので 大きな お祝い） */
 function celebrate(id,isNew,treasure){const M=MN();M.cards=(M.cards||0)+1;C.save();D.pop={ico:treasure?'🎁':'🎴',t:0,big:1};
   try{SFX.fanfare(treasure?3:2)}catch(e){sf('done')}
   try{const r=$('mncv').getBoundingClientRect();[0,350,700].forEach(t=>setTimeout(()=>FX.firework(r.left+r.width*(.3+Math.random()*.4),r.top+r.height*.4),t))}catch(e){}
@@ -300,7 +310,7 @@ H.on('home',()=>{if(D){D.alive=false;keepHp(D.hp);if(D.coins)H.addCoins(D.coins)
 /* ================================================================ ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
  mn_course:[['smile','5まいを 左から じゅんばんに 練習するよ。 さいしょは 和訳、 2周目は スペルの ならべかえ、 つぎは 英語で… と 1周ごとに 形が かわるの'],['point','まちがえた カードは その 周の さいごに もう一回 出るよ。 苦手な 単語ほど たくさん 練習できるんだ'],['smile','スマホで 打つのが 大変な ときは 「書く 問題」を 出さない ように できるよ。 つづりは ならべかえでも しっかり 練習できるから'],['happy','同じ 5まいを 形を かえて 何回も。 さいごには 聞いて 書けるように なってるはず！']],
- mn_card:[['wow','すごい！ 「{w}」の カードを 見つけたね！ めったに 出ないんだよ'],['love','カードが 出た！ 練習を がんばった ごほうびだね'],['smile','カードを タップすると 「{w}」って 読むよ。 声に 出して まねしてみてね']],
+ mn_card:[['wow','「{w}」の カード、 見つけたね！ カードは よく 出るように なったよ。 見つけた カードは 🎒の 🎴に たまるから、 タップで 読んで くわしく 見てね'],['smile','カードが 出たら 上に 札が 出るよ。 タップすると 「{w}」を 読んで くわしく 見られるの。 見のがしても 🎒の 🎴から 見られるからね']],
  mn_treasure:[['wow','🎁 宝カード！？ 鉱山の 奥で 見つかるなんて… すごい 運だね！'],['love','宝カードだ！ カードブックに 入れられるよ。 ダブったら お店で 売れるからね']],
  mn_lootTap:[['smile','🎒の ところに ならんだ 物は、 タップすると くわしく 見られるよ。 宝石の 英語の 名前も わかるの'],['happy','手に 入れた 石や カードは、 タップで くわしく！ ほっている とちゅうでも だいじょうぶ']],
  x_mnType:[['think','鉱山の 「つづりを 書く」は むずかしい？ ヒントで さいしょの 字が わかるよ'],['smile','聞いて 書けたら、 もう その 単語は きみの もの']]
