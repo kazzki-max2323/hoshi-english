@@ -98,7 +98,9 @@ function onReturn(tries=0){clearTimeout(homeT);if(!R()||!onHome())return;
   const a=pending(20*MIN);if(!a.length)return;
   if(MINA.busy()||(H.stage||{}).cheer){if(tries<8)homeT=setTimeout(()=>onReturn(tries+1),1500);return}
   const e=a[0],r=react(e);useAll(a);if(!r)return;
-  const first=[r[0],r[1],r[2]];
+  /* その ことで ゆっくり 話せる おしゃべりが あれば ボタンに（game/mina-chat.js） */
+  let go=r[2];if(!go&&window.MCHAT){const id=MCHAT.forEvent(e);if(id)go=['☕ その 話を もっと',()=>MCHAT.open(id,H.home)]}
+  const first=[r[0],r[1],go];
   if(sugFor(e)&&has('r_sug')){MINA.rec().sug=null;return speak2(['r_sug',{}],first)}
   const names=descList(a.slice(0,3));
   if(a.length>=3&&names.length>=2&&has('r_busy'))return speak2(['r_busy',{list:names.join('・')}],first);
