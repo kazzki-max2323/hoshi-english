@@ -205,15 +205,38 @@ function guest(c,x,y,L,pose,f){x=Math.round(x);y=Math.round(y);const s=L.skin,st
   else{PR(c,x+3,y+1,8,2,h);PR(c,x+4,y,6,1,h);PR(c,x+2,y+2,1,4,h);PR(c,x+11,y+2,1,4,h);PR(c,x+3,y+3,3,1,h)}}
 function bub(c,x,y,t){PR(c,x,y,9,8,'#fff');PR(c,x+1,y-1,7,1,'#fff');PR(c,x+1,y+8,7,1,'#fff');PR(c,x+2,y+9,2,1,'#fff');c.fillStyle='#2a2340';c.font='bold 7px monospace';c.fillText(t,x+2,y+7)}
 
+/* the little speech bubbles: Mio and the guests mutter in English（データは game/shop-mutter.js）。 1つずつ 順番に 出す */
+const MU=()=>typeof SHOP_MUTTER!=='undefined'?SHOP_MUTTER:{};
+/* a line from a pool, not the same one as last time */
+function ML2(k){const a=MU()[k];if(!a||!a.length)return null;const L=ML2.last||(ML2.last={});let x,n=0;do{x=pickL(a)}while(a.length>1&&L[k]===x&&++n<6);L[k]=x;return x}
+/* a guest's line: sometimes their own（GUESTS と 同じ じゅんばんの who） */
+function gLine(g,k,own){const i=GUESTS.indexOf(g.G),w=(MU().who||[])[i];if(w&&w.length&&Math.random()<own){let x,n=0;do{x=pickL(w)}while(w.length>1&&g.said===x&&++n<6);g.said=x;return x}return ML2(k)}
+function mut(T,who,line,ms,free){if(!line||!T.mu)return;const m=T.mu;if(m.until>Date.now()){if(!free&&m.q.length<2)m.q.push([who,line,ms]);return}
+  m.who=who;m.line=line;m.until=Date.now()+(ms||Math.max(3200,1800+line[0].length*90));const e=$('shmut');if(!e)return;
+  e.querySelector('.en').textContent=line[0];e.querySelector('.ja').textContent=line[1];e.className='shmut '+(who==='m'?'mio':'gst');e.hidden=false;e.style.animation='none';e.offsetWidth;e.style.animation=''}
+/* every frame: follow the speaker, end the bubble, and let Mio mutter when the shop is quiet */
+function mutTick(T,t){const m=T.mu,e=$('shmut'),now=Date.now();if(!e)return;
+  if(m.who&&now>=m.until){m.who='';e.hidden=true;m.next=Math.max(m.next,now+1200);const n=m.q.shift();if(n){m.next=0;setTimeout(()=>{if(T.alive)mut(T,...n)},450)}}
+  if(m.who){const sp=m.who==='m'?T.mio:T.g;if(!sp){m.until=0;return}
+    const st=e.parentNode,sx=st.clientWidth/W,sy=st.clientHeight/HH,bw=e.offsetWidth,cx=(sp.x+7)*sx;
+    const left=Math.max(4,Math.min(st.clientWidth-bw-4,cx-bw/2));e.style.left=left+'px';e.style.bottom=Math.round((HH-sp.y+2)*sy)+'px';e.style.setProperty('--tx',Math.round(cx-left)+'px');return}
+  /* Mio, by herself: every 15〜25 s when no guest and no question is open */
+  if(T.g||m.q.length||now<m.next)return;const box=$('shact');if(box&&box.innerHTML)return;
+  m.next=now+15000+Math.random()*10000;
+  const S=SH(),r=Math.random(),mp=T.mio.pose;let k;
+  if(mp==='doze')k='doze';else if(!S.floor.length&&r<.45)k='empty';else if(S.floor.length&&S.floor.length<3&&r<.3)k='few';else if(mp==='sweep'&&r<.5)k='sweep';else k=r<.55?t:'any';
+  mut(T,'m',ML2(k))}
+
 let CT=null;   // the counter's state while it is open
 function counter(){if(CT)CT.alive=false;const S=SH();cleanFloor();
   H.show('cg',`<section class="pnl cgp shp shctr">${top('🧑‍💼 カウンター',`きょう 🪙${S.tday===C.today()?S.tearn:0}`)}
-    <div class="shstage"><canvas id="shcv" width="${W}" height="${HH}"></canvas></div>
+    <div class="shstage"><canvas id="shcv" width="${W}" height="${HH}"></canvas><div class="shmut" id="shmut" hidden><b class="en"></b><small class="ja"></small></div></div>
     <p class="shst" id="shst">お店を あけたよ。 お客さんを まとう</p>
     <div id="shact" class="shact"></div>
     <div class="row"><button id="shcall" class="sub">📣 よびこみ</button><button id="shfl" class="sub">🏷️ 売り場（${S.floor.length}）</button></div></section>`);
   const cv=$('shcv'),c=cv.getContext('2d');c.imageSmoothingEnabled=false;
-  const T=CT={alive:true,f:0,g:null,next:Date.now()+4000+Math.random()*4000,mio:{x:150,y:44,pose:'stand',until:0,walk:null},visits:0,busy:false};
+  const T=CT={alive:true,f:0,g:null,next:Date.now()+4000+Math.random()*4000,mio:{x:150,y:44,pose:'stand',until:0,walk:null},visits:0,busy:false,mu:{who:'',until:0,q:[],next:Date.now()+2500,last:{}}};
+  $('shmut').onclick=()=>{const m=T.mu;if(!m.who||!m.line)return;(m.who==='m'?speak:gspeak)(m.line[0])};
   $('shb').onclick=()=>{T.alive=false;sf('back');open()};
   $('shfl').onclick=()=>{T.alive=false;sf('step');floor()};
   $('shcall').onclick=()=>{if(T.g||Date.now()<T.callOk){H.toast(T.g?'いまは お客さんが いるよ':'少し まってから よびこもう');return}T.next=Date.now()+1500;T.callOk=Date.now()+20000;sf('hey');
@@ -229,8 +252,8 @@ function counter(){if(CT)CT.alive=false;const S=SH();cleanFloor();
     const g=T.g;if(g&&g.y+32<=m.y+32){guest(c,g.x,g.y,g.L,g.pose,T.f>>1)}
     if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1)}
     if(g&&g.y+32>m.y+32)guest(c,g.x,g.y,g.L,g.pose,T.f>>1);
-    if(g&&g.bub)bub(c,g.x+11,g.y-9,g.bub);
-    lights(c,t)};
+    if(g&&g.bub&&!(T.mu.who==='g'&&T.mu.until>Date.now()))bub(c,g.x+11,g.y-9,g.bub);
+    lights(c,t);mutTick(T,t)};
   requestAnimationFrame(tick);
   if(!S.floor.length)setTimeout(()=>status('🏷️ 売り場が からっぽ… お客さんが 来ても 買えないよ。 カードを ならべよう'),1200)}
 /* Mio's little life between guests */
@@ -243,23 +266,25 @@ function mioIdle(T){const m=T.mio,now=Date.now();if(now<m.until||m.walk)return;c
 function step(T){const now=Date.now();mioIdle(T);
   if(!T.g){if(now>=T.next&&!T.busy){const G=pickL(GUESTS);T.g={G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],[56,46],[56,46,'look',2500],[92,58],[92,58,'think',2600]],bub:'',st:0,wait:0};
       T.status(`🔔 ${esc(T.g.G.n)}が 来た！`);sf('knock');setTimeout(()=>{if(T.g)T.g.bub=''},1500);T.g.bub='!';
-      if(T.mio.y<60){T.mio.pose='wave';T.mio.until=now+2500}}return}
+      if(T.mio.y<60){T.mio.pose='wave';T.mio.until=now+2500}
+      const nt=night()>.6;if(Math.random()<.5)mut(T,'m',ML2(nt?'helloNight':'hello'),2600);mut(T,'g',gLine(T.g,nt?'g_enterNight':'g_enter',.3))}return}
   const g=T.g;if(g.hold)return;
   if(g.wait){if(now<g.wait)return;g.wait=0;g.bub='';g.path.shift();if(!g.path.length)return decide(T)}
   const p=g.path[0];if(!p)return;
   const dx=p[0]-g.x,dy=p[1]-g.y;
-  if(Math.abs(dx)<1.2&&Math.abs(dy)<1.2){g.x=p[0];g.y=p[1];if(p[2]){g.pose=p[2]==='look'?'stand':'think';g.bub=p[2]==='think'?'?':'';g.wait=now+p[3];return}
+  if(Math.abs(dx)<1.2&&Math.abs(dy)<1.2){g.x=p[0];g.y=p[1];if(p[2]){g.pose=p[2]==='look'?'stand':'think';g.bub=p[2]==='think'?'?':'';g.wait=now+p[3];
+      if(Math.random()<.75)mut(T,'g',gLine(g,p[2]==='look'?'g_shelf':'g_table',.45),p[3]+600,1);return}
     g.path.shift();if(!g.path.length)return decide(T);return}
   g.pose='walk';if(Math.abs(dx)>=1)g.x+=Math.sign(dx)*1.5;if(Math.abs(dy)>=1)g.y+=Math.sign(dy)*1.5}
 /* buy, or leave */
 function decide(T){const g=T.g,S=SH();
   if(g.st===0){g.st=1;
-    if(!S.floor.length){g.bub='…';T.status(`${esc(g.G.n)}「${esc(pickL(GUEST_SAY.none))}」`);return out(T,800)}
+    if(!S.floor.length){g.bub='…';T.status(`${esc(g.G.n)}は 帰っていった`);mut(T,'g',ML2('g_none'));mut(T,'m',ML2('sorry'));return out(T,1600)}
     /* the card they want: their favorite kind, if it's there */
     const fav=S.floor.filter(id=>{const I=C.info(id);return I&&g.G.a.includes(I.a)});
     const id=fav.length&&Math.random()<.7?pickL(fav):pickL(S.floor);
-    if(Math.random()<(fav.includes(id)?.85:.6)){g.want=id;g.path=[[120,62]];g.bub='♪';T.status(`${esc(g.G.n)}が カードを もって レジへ`)}
-    else{g.bub='…';T.status(`${esc(g.G.n)}「${esc(pickL(GUEST_SAY.leave))}」`);return out(T,600)}
+    if(Math.random()<(fav.includes(id)?.85:.6)){g.want=id;g.path=[[120,62]];g.bub='♪';T.status(`${esc(g.G.n)}が カードを もって レジへ`);mut(T,'g',ML2('g_buy'),2200)}
+    else{g.bub='…';T.status(`${esc(g.G.n)}は 見ていくだけ みたい`);mut(T,'g',ML2('g_leave'));mut(T,'m',ML2('bye'));return out(T,1200)}
     return}
   if(g.st===1){g.st=2;g.hold=1;g.pose='stand';atCounter(T)}}
 function out(T,ms){const g=T.g;g.hold=1;setTimeout(()=>{if(!T.alive||T.g!==g)return;g.hold=0;g.st=9;g.path=[[g.x,46],[14,46],[14,32]];g.bub='';
@@ -269,7 +294,7 @@ function out(T,ms){const g=T.g;g.hold=1;setTimeout(()=>{if(!T.alive||T.g!==g)ret
 function atCounter(T){const g=T.g,S=SH(),id=g.want,I=C.info(id),p=price(id),box=$('shact');if(!box)return;
   T.visits++;S.talk=(S.talk||0)+1;save();
   const nm=I.k==='w'?I.en.split(',')[0]:I.en;
-  const done=(sold,pp)=>{box.innerHTML='';if(sold){if(sell(id,pp,true)){g.pose='happy';g.bub='♥';sf('coinIn');T.status(`🪙 +${pp}　「${esc(nm)}」が 売れた！`);T.mio.pose='cheer';T.mio.until=Date.now()+2500;
+  const done=(sold,pp)=>{box.innerHTML='';if(sold){if(sell(id,pp,true)){g.pose='happy';g.bub='♥';sf('coinIn');T.status(`🪙 +${pp}　「${esc(nm)}」が 売れた！`);T.mio.pose='cheer';T.mio.until=Date.now()+2500;T.mu.q=[];T.mu.until=0;mut(T,'g',gLine(g,'g_happy',.2));mut(T,'m',ML2(night()>.6&&Math.random()<.6?'thanksNight':'thanks'));T.soldAt=Date.now();
         const r=cv0();try{if(r)H.coinBurst(r.x,r.y,pp,true);else H.addCoins(pp)}catch(e){H.addCoins(pp)}}
       else T.status('あれ？ その カードは もう ないみたい')}else{g.bub='…';T.status(`${esc(g.G.n)}は 帰っていった`)}
     out(T,sold?1200:600)};
@@ -304,10 +329,15 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_shShelf',3,()=>SH().met&&!SH().floor.length?{}:null,goShop('floor')],
  ['x_shCounter',2,()=>SH().met?{}:null,goShop('counter')],
  ['x_shReport',2,()=>SH().sold?{n:SH().sold}:null,goShop()],
- ['x_shMio',1,()=>SH().met?{}:null,goShop()]);
+ ['x_shMio',1,()=>SH().met?{}:null,goShop()],
+ ['x_shMutter',2,()=>SH().met&&MU().day?{}:null,goShop('counter')]);
 /* the shop changed: Mina tells you once */
 setTimeout(function first(){const S=SH();if(S.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,15000);
   S.told=1;save();const [ex,tx]=ML('sh_first');m.say('m',ex,tx,10000,null,['🃏 お店へ',()=>CG.open()])},12000);
+
+/* the bubbles are new: Mina tells you once（もう お店を 知っている 人だけ） */
+setTimeout(function first3(){const S=SH();if(S.mutTold||!S.met||!MU().day)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first3,20000);
+  S.mutTold=1;save();const [ex,tx]=ML('sh_mutNew');m.say('m',ex,tx,10000,null,goShop('counter')())},34000);
 
 H.on('home',()=>{if(CT)CT.alive=false});
 window.SHOP={open,leave,price,allCards,counter,floor,store,rec:SH,inBook,free,stock,storeCards,bookRec:BOOKR,cleanFloor,rare};
