@@ -44,7 +44,7 @@ function react(e){const v={};let k=null,go=null;
   case 'meal':{Object.assign(v,{n:e.ja,en:e.en,c:e.c||''});let n=0;try{n=FOOD.rec().eaten[e.id]|0}catch(er){}k=n<=1&&Math.random()<.6?'r_dn_first':'r_dn';break}
   case 'snack':Object.assign(v,{n:e.ja,en:e.en||e.ja});k='r_eat';break;
   case 'zbuy':{Object.assign(v,{n:e.ja,ico:e.ico||''});const it=zItem(e.id),kd=e.kind||'';
-    k=it&&(it.lux||it.p>=1000)?'r_zk_lux':kd==='food'?'r_zk_food':kd==='music'?'r_zk_music':kd==='radio'?'r_zk_radio':kd==='event'?'r_zk_event':kd==='gift'?'r_zk_gift':'r_zk_buy';break}
+    k=it&&(it.lux||it.p>=1000)?'r_zk_lux':kd==='food'?'r_zk_food':kd==='music'?(e.now?'r_zk_musicNow':'r_zk_music'):kd==='radio'?'r_zk_radio':kd==='event'?'r_zk_event':kd==='gift'?'r_zk_gift':'r_zk_buy';break}
   case 'zsell':v.n=e.kind==='music'&&e.tn?e.tn:e.ja;k=e.ret?'r_zk_refund':e.kind==='music'?'r_zk_sellRec':'r_zk_sell';break;
   case 'bottle':{v.from=e.from||'だれか';let L=null;try{L=BOTTLE.letters.find(l=>l[2]===e.from)}catch(er){}if(L){v.w=L[3];v.ja=L[4]}
     k=pickL(L?['r_bt','r_bt','r_bt_w']:['r_bt']);break}

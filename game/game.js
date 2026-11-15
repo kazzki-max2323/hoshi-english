@@ -92,9 +92,15 @@ let musWhere=null;   // 'shop' = お店の BGM ／ ほかは その曲を かけ
 /* お店の 中＝カードショップの 画面（鉱山と、 ホームから 開いた カードブック .cbout は のぞく） */
 const inShop=()=>screen==='cg'&&!panel.querySelector('.mnp,.cbout');
 const songOk=id=>!!id&&typeof TRACKS!=='undefined'&&!!TRACKS[id]&&ST.music.includes(id);
-function musAt(){const shopNow=inShop();
-  if(MUS.on&&musWhere!==(shopNow?'shop':screen)){try{stopMusic(true)}catch(e){}musWhere=null}
-  if(shopNow&&ST.sound&&songOk(ST.shopSong)&&!(MUS.on&&MUS.id===ST.shopSong)){try{startMusic(ST.shopSong,36000);musWhere='shop'}catch(e){}}}
+/* 🎶 その 場所の BGM（いまは 雑貨屋だけ）: placeBgm[画面名] = {id:()=>曲, v:音量(0〜1)}。 曲は もっていなくても ながれる。
+   試聴（その 画面で かけた 曲）が 先。 とめると BGMに もどる */
+const placeBgm={};
+const bgmNow=()=>{const pb=!inShop()&&placeBgm[screen];if(!pb||!ST.sound)return null;try{const id=pb.id();return id&&typeof TRACKS!=='undefined'&&TRACKS[id]?id:null}catch(e){return null}};
+function musLv(v){try{const g=MUS.bus.gain,t=ac.currentTime;g.cancelScheduledValues(t);g.setValueAtTime(.0001,t);g.exponentialRampToValueAtTime(Math.max(.001,.85*v),t+1.5)}catch(e){}}
+function musAt(){const shopNow=inShop(),pid=bgmNow();
+  if(MUS.on){const keep=shopNow?musWhere==='shop':musWhere===screen||(!!pid&&musWhere==='bgm:'+screen&&MUS.id===pid);if(!keep){try{stopMusic(true)}catch(e){}musWhere=null}}
+  if(shopNow&&ST.sound&&songOk(ST.shopSong)&&!(MUS.on&&MUS.id===ST.shopSong)){try{startMusic(ST.shopSong,36000);musWhere='shop'}catch(e){}}
+  else if(!shopNow&&pid&&!MUS.on){try{startMusic(pid,36000);musLv(placeBgm[screen].v);musWhere='bgm:'+screen}catch(e){}}}
 /* お店の BGMを えらぶ（null で とめる） */
 function shopSong(id){ST.shopSong=songOk(id)?id:null;if(ST.shopSong)ST.shopLast=ST.shopSong;save();if(MUS.on&&musWhere==='shop'){try{stopMusic(true)}catch(e){}musWhere=null}musAt()}
 
@@ -586,9 +592,9 @@ function timeBadge(t){const k=t.join(',');return ({'night':'🌙 夜専用','sun
 /* ---------- the shop: moved into ながれぎ雑貨店 (game/zakka.js). What the shop used to do on the beach happens here ---------- */
 const goods={
   buy(it){if(it.kind==='radio'){if(ST.radios.some(r=>r.lv===it.id))return;const [x,y]=freeSpot();ST.radios.push({lv:it.id,on:true,x,y});save();drawRadios()}
-    else if(it.kind==='music'){if(!ST.music.includes(it.id))ST.music.push(it.id);if(!songOk(ST.shopSong))ST.shopSong=it.id;save();playTrack(it.id)}},
+    else if(it.kind==='music'){if(!ST.music.includes(it.id))ST.music.push(it.id);if(!songOk(ST.shopSong))ST.shopSong=it.id;save();if(!(MUS.on&&MUS.id===it.id))playTrack(it.id)}},
   sell(it){if(it.kind==='radio'){let idx=-1;ST.radios.forEach((r,i)=>{if(r.lv===it.id)idx=i});if(idx>=0)ST.radios.splice(idx,1);save();drawRadios()}
-    else if(it.kind==='music'){if(MUS.on&&MUS.id===it.id)stopMusic(true);ST.music=ST.music.filter(m=>m!==it.id);
+    else if(it.kind==='music'){if(MUS.on&&MUS.id===it.id&&!/^bgm:/.test(musWhere||''))stopMusic(true);ST.music=ST.music.filter(m=>m!==it.id);
       /* 売った 曲が お店の BGMなら、 のこっている ほかの 曲に かわる（なければ とまる） */
       const nx=()=>ST.music.find(m=>songOk(m))||null;if(ST.shopSong===it.id)ST.shopSong=nx();if(ST.shopLast===it.id)ST.shopLast=ST.shopSong||nx();save()}},
   /* an event plays on the beach (the radio keeps going while it plays) */
@@ -600,7 +606,7 @@ function playTrack(id){if(inShop()&&songOk(id)){ST.shopSong=id;save()}
   if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,inShop()?36000:3600);musWhere=inShop()?'shop':screen}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={goods,stopMusic:()=>stopMusic(true),books,gramFrom:(lv,back)=>gramList(lv,back||null),book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},shopSong,get shopSongId(){return songOk(ST.shopSong)?ST.shopSong:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramTry,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
+window.HE={goods,stopMusic:()=>stopMusic(true),books,gramFrom:(lv,back)=>gramList(lv,back||null),book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},get bgmOn(){return MUS.on&&/^bgm:/.test(musWhere||'')?MUS.id:null},placeBgm:(name,o)=>{placeBgm[name]=o},musAt,shopSong,get shopSongId(){return songOk(ST.shopSong)?ST.shopSong:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramTry,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();

@@ -125,6 +125,9 @@ const MIOT=[
   ["It's a present for someone.","だれかへの プレゼント。",["A present? For who? …No, no, don't tell me! It's a secret, right?","プレゼント？ だれに？ …いや、 言わないで！ ひみつ ですよね？",'wink']],
   ["It's for me.","自分用。",["Treat yourself! You work hard, boss. You deserve it.","自分への ごほうび！ いつも がんばってる から、 店長には その 価値が あります。",'smile']]]}],
  ["It's a secret.","ひみつ。",["A secret?! Now I'm curious. I'll find out… someday.","ひみつ？！ 気に なる。 いつか… 見つけだします。",'wink']]],ph:["Treat yourself!","自分に ごほうびを！"]},
+{id:'zb_now',k:'zbuy',if:e=>e.kind==='music'&&!!e.now,m:["Boss, I heard Nora plays music in her shop now. Did you buy the song that was playing?","店長、 ノラさんの お店でも 音楽が ながれてるんですって？ ながれてた 曲、 買ったんですか？"],ex:'smile',o:[
+ ["Yes. I loved it, so I bought it.","うん。 気に入ったから 買った。",["Then let's play it here, too! A song you fall in love with in a shop is special.","じゃあ ここでも かけましょ！ お店で ひとめぼれ した 曲って、 とくべつ ですよね。",'wink']],
+ ["Nora picked it for the time of day.","ノラさんが 時間に あわせて えらんでた。",["Music for the time of day… I'll try that at our counter, too. Morning songs, night songs!","時間に あわせた 音楽… うちの カウンターでも やってみます。 朝の 曲、 夜の 曲！",'smile']]],ph:["fall in love with","〜に ひとめぼれ する"]},
 {id:'zb_any',k:'zbuy',if:e=>!e.en,m:["You went to Nora's shop, right? Did Pip the parrot say anything funny?","ノラさんの お店、 行きました？ オウムの ピップ、 なにか おもしろい こと 言ってました？"],ex:'laugh',o:[
  ["He said \"Hello\" ten times.","「Hello」を 10回 言ってた。",["Ha ha! He only knows five words, but he uses them with confidence!","あはは！ 5つしか 単語 知らない のに、 自信 まんまん なんですよね！",'laugh']],
  ["He was sleeping.","ねてた。",["Even parrots need naps. Just like me after lunch. Ha ha.","オウムも お昼ね するんですね。 お昼の あとの わたしと 同じ。 あはは。",'wink']]],ph:["with confidence","自信を もって"]},
