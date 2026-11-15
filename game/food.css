@@ -96,3 +96,21 @@
 .unkno span{opacity:.35;filter:grayscale(.7)}
 .unkno small{font-size:.7rem;color:var(--mute);margin-left:4px}
 .cgdi .unkf{text-align:left}
+/* ❤ 右上の 体力（上の列の すぐ 下） */
+header{position:relative}
+.hpchip{position:absolute;right:0;top:calc(100% + 5px);z-index:6;display:flex;align-items:center;gap:5px;padding:2px 9px 2px 7px;border-radius:999px;
+  background:rgba(12,14,40,.62);border:1px solid rgba(255,122,154,.55);color:#fff;font:inherit;font-size:.82rem;line-height:1.4;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hpchip .hh{color:#ff7a9a;font-size:.8rem}
+.hpchip .hb{display:block;width:38px;height:6px;border-radius:9px;background:rgba(255,255,255,.18);overflow:hidden}
+.hpchip .hb i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff6a8a,#ff9ab0);border-radius:9px;transition:width .45s}
+.hpchip b{font-weight:700;min-width:1.4em;text-align:right;font-variant-numeric:tabular-nums}
+.hpchip.low{border-color:#ff5a6a}.hpchip.low .hh{animation:hpBeat 1.4s infinite}
+.hpchip.full .hb i{background:linear-gradient(90deg,#ff7a9a,#ffd36b)}
+.hpchip.bump{animation:cbump .35s}
+@keyframes hpBeat{0%,100%{transform:scale(1)}20%{transform:scale(1.25)}}
+#hpPop{position:absolute;right:0;top:calc(100% + 36px);z-index:7;width:min(260px,calc(100vw - 40px));display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px;
+  background:rgba(20,22,52,.95);border:1px solid rgba(255,122,154,.5);border-radius:12px;color:#fff;font-size:.82rem;line-height:1.5;box-shadow:0 6px 18px rgba(0,0,0,.45)}
+#hpPop .lface{width:40px;height:40px;flex:0 0 40px}#hpPop .lface svg{width:100%;height:100%}
+#hpPop p{margin:0;flex:1 1 150px}
+#hpPop button{margin-left:auto;font:inherit;font-size:.78rem;font-weight:700;padding:5px 12px;border-radius:999px;border:1px solid rgba(255,122,154,.6);background:rgba(255,122,154,.18);color:#fff;cursor:pointer}
+.hpchip[hidden]{display:none}
