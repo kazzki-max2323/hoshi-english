@@ -52,7 +52,7 @@ function open(){cleanFloor();const S=SH(),first=!S.met;
   if(S.away)return report();
   const g=night()>.6?pickL(MIO_NIGHT):pickL(MIO_HI),ex=pickL(['smile','laugh','wink']),pose=pickL(['wave','peace','','thumb']);
     H.show('cg',`<section class="pnl cgp shp">
-    ${top('🃏 カードショップ しおさい',esc(C.rankName()),'cgx')}
+    ${top('🃏 カードショップ しおさい','','cgx')}
     ${bubble(g[0],g[1],ex,pose)}
     <div class="shbig">
       <button data-t="counter" class="c1"><span>🧑‍💼</span>カウンターに 立つ<small>お客さんを まつ</small></button>
@@ -61,11 +61,8 @@ function open(){cleanFloor();const S=SH(),first=!S.met;
       <button data-t="store" class="c4"><span>📦</span>倉庫<small>${storeCards().length}しゅるい</small></button>
     </div>
     ${window.CBOOK?(()=>{const [g,t]=CBOOK.stat();return `<button data-t="book" class="shbook"><span>📖</span><b>カードブック</b><small>${g} / ${t}</small></button>`})():''}
+    <button data-g="pack" class="shpack"><span>🎁</span><b>仕入れ</b><small>1パック 10まい前後</small>${R().free!==C.today()?'<i class="dot"></i>':''}</button>
     <div class="row shmio"><button id="shtalk">💬 ミオと 話す${window.MIOC&&MIOC.newN()?'<i class="dot"></i>':''}</button><button id="shgift" class="sub">🎁 プレゼント</button></div>
-    <details class="shmore"><summary>そのほか（仕入れ・図鑑・道場）</summary>
-      <div class="cgtiles">${[['pack','🎁','仕入れ'],['one','🃏','きょうの 1まい'],['snipe','🎯','とりよせ'],['book','📖','カード図鑑'],['combo','🔗','コンボ図鑑'],['dojo','🥋','コンボ道場'],['treasure','🎁','宝箱くじ']]
-        .map(([k,i,n])=>{const dot=k==='one'&&R().d!==C.today()||k==='snipe'&&R().snipe!==C.today()||k==='treasure'&&window.CARDS&&CARDS.freeOk()||k==='pack'&&R().free!==C.today();
-          return `<button data-g="${k}"><span>${i}</span>${n}${dot?'<i class="dot"></i>':''}</button>`}).join('')}</div></details>
     <p class="shsum">これまでに ${S.sold}まい 売れた・ 売り上げ 🪙${S.earn}${S.best?` ・ 鉱山 最高 ${S.best}m`:''}</p>
   </section>`);
   $('cgx').onclick=()=>{sf('back');H.home()};

@@ -137,6 +137,10 @@ function roll(min=1){let x=Math.random()*100,r=5;for(let k=1;k<=5;k++){x-=RAR[k]
 function pick(r){const pool=BY_R[r],fresh=pool.filter(c=>!has(c));
   if(CD.pity[r]&&fresh.length){CD.pity[r]=0;return fresh[Math.random()*fresh.length|0]}
   const c=pool[Math.random()*pool.length|0];if(has(c))CD.pity[r]=1;return c}
+/* カードショップの きらきら宝パック: 演出なしで n まい（どれも min 以上、 SR以上 1まい かくてい）→ [{c,isNew}] */
+function pull(n,min=2){const got=[];for(let i=0;i<n;i++){const r=roll(Math.max(min,i===n-1&&!got.some(g=>g.c.r>=3)?3:1));const c=pick(r),isNew=!has(c);
+    if(isNew)CD.own[c.e]=1;else CD.own[c.e]++;got.push({c,isNew})}
+  save();return got}
 function draw(n,min=1){const got=[];for(let i=0;i<n;i++){const r=roll(Math.max(min,n===10&&i===n-1&&!got.some(g=>g.c.r>=3)?3:1));const c=pick(r),isNew=!has(c);
     if(isNew)CD.own[c.e]=1;else CD.own[c.e]++;got.push({c,isNew})}
   save();const best=Math.max(...got.map(g=>g.c.r));
@@ -147,7 +151,7 @@ function draw(n,min=1){const got=[];for(let i=0;i<n;i++){const r=roll(Math.max(m
   setTimeout(()=>{if(o.isConnected)reveal(got)},1600)}
 function reveal(got){
   const o=overlay(`<div class="kres ${got.length>1?'ten':'one'}">${got.map((g,i)=>`<div class="kslot" data-i="${i}"><div class="kback b${g.c.r}">✦</div>${face(g.c,{show:1,big:got.length===1})}${g.isNew?'<em class="knew">NEW!</em>':`<em class="kdup">✦+${RAR[g.c.r].sh}</em>`}</div>`).join('')}</div>
-    <div class="kresb"><button id="kall" class="kbtn">ぜんぶ めくる</button><button id="kok" class="kbtn sub" hidden>図鑑へ</button></div>`,'kv kr');
+    <div class="kresb"><button id="kall" class="kbtn">ぜんぶ めくる</button><button id="kok" class="kbtn sub" hidden>OK</button></div>`,'kv kr');
   const slots=[...o.querySelectorAll('.kslot')];let left=slots.length;
   const flip=s=>{if(s.classList.contains('open'))return;s.classList.add('open');const g=got[+s.dataset.i];
     if(g.c.r>=3){const r=s.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,g.c.r>=5?'#ff6ad5':g.c.r>=4?'#9fe8ff':'#ffd23f');if(g.c.r>=4)FX.firework(r.left+r.width/2,r.top+r.height/2)}
@@ -155,7 +159,7 @@ function reveal(got){
     if(--left===0){$('kall').hidden=true;$('kok').hidden=false;checkSeries(got.filter(g=>g.isNew).map(g=>g.c))}};
   slots.forEach(s=>s.onclick=()=>{if(s.classList.contains('open')){const g=got[+s.dataset.i];H.say('es',g.c.en)}else flip(s)});
   $('kall').onclick=()=>slots.forEach((s,i)=>setTimeout(()=>flip(s),i*110));
-  $('kok').onclick=()=>{SFX.pop();closeOv();open(got.slice().sort((a,b)=>b.c.r-a.c.r)[0].c.s)};
+  $('kok').onclick=()=>{SFX.pop();closeOv()};
   if(got.length===1)setTimeout(()=>flip(slots[0]),350)}
 
 /* finishing a series is celebrated once */
@@ -168,6 +172,6 @@ function find1(){const r=Math.random()<.7?1:Math.random()<.75?2:Math.random()<.8
 function takeOne(e){if(CD.own[e]>0){CD.own[e]--;if(!CD.own[e])delete CD.own[e];save()}}
 /* 前の 版の 星のかけらは コインに かえる */
 setTimeout(function cash(){if(!(CD.shards>0))return;if(!H.addCoins)return setTimeout(cash,3000);const v=CD.shards*2;CD.shards=0;save();H.addCoins(v);H.toast(`✦ 星のかけらは なくなったので、 コイン 🪙${v} に かえたよ`,4200)},6000);
-window.CARDS={find1,take:takeOne,open,count:()=>[ownedN(),BOOK.length],freeOk,gift:(n=1,min=1)=>draw(n,min),face,has,book:BOOK,series:TABS,rar:RAR,shards:()=>CD.shards,n:c=>CD.own[c.e]||0};
+window.CARDS={find1,take:takeOne,open,count:()=>[ownedN(),BOOK.length],freeOk,pull,gift:(n=1,min=1)=>draw(n,min),face,has,book:BOOK,series:TABS,rar:RAR,shards:()=>CD.shards,n:c=>CD.own[c.e]||0};
 if(H.screen==='home')H.home();   // show the free-draw dot on the home button
 })();
