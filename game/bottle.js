@@ -63,7 +63,7 @@ window.bottleOpen=()=>{/* 💌 ミナ先生からの ラブレターが まざ�
   /* 🗺️ 宝の地図が 入っている ことも（game/adventure.js） */
   try{if(window.ADV&&ADV.bottleMap())return}catch(e){}
   const i=pickLetter(),L=LETTERS[i];let p=$('bmPop');if(p)p.remove();
-  if(!BD.r.includes(i))BD.r.push(i);BD.n=(BD.n||0)+1;save();try{SFX.book()}catch(e){}
+  if(!BD.r.includes(i))BD.r.push(i);BD.n=(BD.n||0)+1;save();try{RECENT.add('bottle',{from:L[2]})}catch(e){}try{SFX.book()}catch(e){}
   p=document.createElement('div');p.id='bmPop';
   p.innerHTML=`<div class="bmPaper"><small class="bmFrom">${esc(L[2])} より</small>
     <p class="bmEn">${esc(L[0])}</p>

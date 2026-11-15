@@ -205,7 +205,7 @@ function end(N){if(!live())return;const s=P.s,c=P.c,first=!KD.done[s.id];
   them(ln[0],ln[1],ln[2],good?'k-good':'k-oops');
   const ek=s.id+':'+key,newEnd=!KD.end[ek];KD.end[ek]=1;
   const bonus=newEnd&&s.story?(good?6:3):0,pay=(first?PAY[s.lv]*2:Math.max(2,PAY[s.lv]/2|0))+bonus;
-  KD.done[s.id]=(KD.done[s.id]||0)+1;const firstMeet=!KD.heart[s.c];KD.heart[s.c]=(KD.heart[s.c]||0)+1;KD.n++;KD.ask=(KD.ask||0)+P.asked;KD.last=Date.now();save();
+  KD.done[s.id]=(KD.done[s.id]||0)+1;const firstMeet=!KD.heart[s.c];KD.heart[s.c]=(KD.heart[s.c]||0)+1;KD.n++;KD.ask=(KD.ask||0)+P.asked;KD.last=Date.now();save();try{RECENT.add('kaiwa',{id:s.id,c:s.c,good:good?1:0})}catch(e){}
   const E=endsOf(s),got=endsGot(s),tot=E.length,starGot=E.some(e=>e[1]&&KD.end[s.id+':'+e[0]]);
   /* what Mina says about it */
   let k='k_endGood',v={c:c.n,n:P.fun,free:P.free,h:KD.heart[s.c],t:title,got,tot};

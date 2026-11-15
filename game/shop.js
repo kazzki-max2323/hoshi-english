@@ -92,7 +92,7 @@ function bgm(say){const own=songs(),cur=H.shopSongId,ln=say||pickL(MIO_BGM[!own.
     <p class="note">レコードは お店の 中だけで ながれるよ（鉱山や 浜辺では とまる）</p>
   </section>`);
   bindBubble();speak(ln[0]);$('shb').onclick=()=>{sf('back');open()};
-  H.panel.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{const id=b.dataset.bg||null;sf('pop');H.shopSong(id);bgm(pickL(MIO_BGM[id?'on':'off']))})}
+  H.panel.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{const id=b.dataset.bg||null;sf('pop');H.shopSong(id);try{RECENT.add('bgm',{id,ja:id?songName(id):''})}catch(e){}bgm(pickL(MIO_BGM[id?'on':'off']))})}
 
 /* the first visit: Mio says hello, and the starter cards */
 function intro(){const S=SH();let i=0;
@@ -112,6 +112,7 @@ function awaySales(min){const S=SH(),n=Math.min(12,Math.floor(min/1.5)),sold=[];
   S.guests+=guests;return {guests,sold}}
 function report(){const S=SH(),min=Math.max(0,(Date.now()-S.away)/6e4);S.away=0;save();
   const r=awaySales(min),coins=r.sold.reduce((a,x)=>a+x[1],0);
+  try{RECENT.add('away',{sold:r.sold.length,guests:r.guests,coins})}catch(e){}
   const wd=id=>{const I=C.info(id);return I&&I.en?String(I.en).split(',')[0].trim():''};
   const M=window.MIOMEMO?MIOMEMO.make(r,wd):{lines:[r.sold.length?pickL(MIO_MEMO):pickL(MIO_MEMO_QUIET)],ph:null,sign:['– Mio','ミオ']};
   const memo=M.lines;S.memo=M;save();const memoEn=memo.map(x=>x[0]).join(' ');
@@ -324,6 +325,7 @@ function atCounter(T){const g=T.g,S=SH(),box=$('shact');if(!box)return;
     if(sold&&id&&sell(id,pp,true)){g.pose='happy';g.bub='♥';sf('coinIn');T.mio.pose='cheer';T.mio.until=Date.now()+2500;T.soldAt=Date.now();
       const r=cv0();try{if(r)H.coinBurst(r.x,r.y,pp,true);else H.addCoins(pp)}catch(e){H.addCoins(pp)}
       if(R.tip)setTimeout(()=>{H.addCoins(R.tip);sf('coin')},700);
+      try{const I=C.info(id);RECENT.add('sell',{id,en:nm,ja:SHSV.jaOf(I),p:pp,by:R.mode||'me',kind:R.k||'',miss:R.miss||0,tip:R.tip||0,guest:g.G.n})}catch(e){}
       let hh='';if(R.mode==='me'&&R.talked&&!R.miss&&window.MIOC)hh=MIOC.gain(1,'ctr');
       T.status(`🪙 +${pp}${R.tip?` ＋チップ ${R.tip}`:''}　「${esc(nm)}」が 売れた！${R.mode==='mio'?'（ミオが 対応）':''}${hh?`<br><small>${hh}</small>`:''}`);
       if(R.mode==='mio'){S.byMio=(S.byMio||0)+1;mut(T,'m',pickL(SV_MIO.done),4200,1);minaSay('sh_mioDone',.25)}

@@ -162,7 +162,7 @@ function put(id){if(!canIn(id))return;const w=where(id);B()[id]=1;save();flash=i
   const p=pg[cur]||0,full=pageFull(cur,p),done=list(cur).every(has);open();
   if(full)cheer(done)}
 /* 倉庫や パックから 1まい 入れる（入れた 場所を かえす） */
-function putOne(id){if(!canIn(id))return '';B()[id]=1;save();return label(id)}
+function putOne(id){if(!canIn(id))return '';B()[id]=1;save();try{const I=C.info(id);RECENT.add('book',{id,en:I&&I.en?String(I.en).split(',')[0].trim():'',ja:I&&I.ja?String(I.ja).split(/[、,]/)[0]:''})}catch(e){}return label(id)}
 /* ページが うまった！ */
 function cheer(done){const el=H.panel.querySelector('.cbpage');if(el){el.classList.add('shine');setTimeout(()=>el.classList.remove('shine'),1600)}
   try{SFX.fanfare(done?2:0)}catch(e){sf('chime')}

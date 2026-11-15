@@ -59,7 +59,7 @@ function munch(box,before,after,done){const f=box.querySelector('.fdfood'),bar=b
   setTimeout(bite,450)}
 /* eat a snack from the bag */
 function eat(id,back){const s=snack(id);back=typeof back==='function'?back:H.home;if(!s||!take(id))return back();
-  const [a,b]=gain(s.hp);FD.snacks++;save();
+  const [a,b]=gain(s.hp);FD.snacks++;save();try{RECENT.add('snack',{id,en:s.en,ja:s.n,ico:s.ico})}catch(e){}
   const [ex,tx]=ML(b>=MAX&&a<MAX?'fd_eatFull':a>=MAX?'fd_eatWas':'fd_eat',{n:s.n,h:b-a});
   H.show('food',`<section class="pnl fd fdeat">
     <div class="qtop"><button class="x" id="fdx" aria-label="もどる">←</button><b>${s.ico} ${esc(s.n)}</b><span class="qn"></span></div>
@@ -352,7 +352,7 @@ function finish(N){if(!live())return;const d=c.d,p=price(c);
   them(val(N.s,c),val(N.j,c),'👋','k-good');
   const first=!FD.eaten[d.id],newC=first&&!countries().includes(d.c);
   ST.coins=Math.max(0,ST.coins-p);save();H.head();sf('buy');
-  FD.eaten[d.id]=(FD.eaten[d.id]||0)+1;FD.meals=(FD.meals||0)+1;
+  FD.eaten[d.id]=(FD.eaten[d.id]||0)+1;FD.meals=(FD.meals||0)+1;try{RECENT.add('meal',{id:d.id,en:d.en||'',ja:d.n,ico:d.ico,c:d.c})}catch(e){}
   const tr=FD.tri[d.id]||(FD.tri[d.id]=[0,0]);let newT=0;[0,1].forEach(i=>{if(c.tri[i]&&!tr[i]){tr[i]=1;newT++}});save();
   let k='fd_end',v={d:d.n,c:d.c,n:Object.keys(FD.eaten).length};
   if(FD.meals===1)k='fd_first';else if(newC)k='fd_newCountry';else if(c.hpB>=MAX&&c.hpA<MAX)k='fd_full';else if(d.lv==='hs')k='fd_hs';else if(P.fun>=2)k='fd_fun';

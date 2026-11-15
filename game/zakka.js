@@ -342,7 +342,9 @@ function deal(N){const c=P.c,it=c.it,R={};
   case 'gbuy':{const p=Z.price(c);if(ST.coins<p){R.short=1;break}pay(p);R.paid=p;R.good=it;if(it.kind==='event')pendEv.push(it);else if(it.kind==='food'){try{FOOD.add(it.id)}catch(e){}}else H.goods.buy(it);break}
   case 'gsell':{R.got=c.sellP||0;R.sold=it.ico+' '+it.n;R.gsold=it;H.goods.sell(it);break}
   case 'exch':{const d=Z.diff(c),pd=paid(it.id),rc=ZD.rcpt[it.id];if(d)pay(d);forget(it.id);ZD.own[c.to2.id]=1;ZD.paid[c.to2.id]=pd+d;if(rc)ZD.rcpt[c.to2.id]=1;R.ex=c.to2;break}}
-  save();return R}
+  save();
+  try{const x=R.it||R.good;if(x&&R.paid)RECENT.add('zbuy',{id:x.id,en:x.w||x.en||'',ja:x.n||x.name||'',ico:x.ico||'',kind:x.k||x.kind||''});else if(R.sold)RECENT.add('zsell',{ja:R.sold,ret:R.ret||0})}catch(e){}
+  return R}
 function forget(id){delete ZD.own[id];delete ZD.rcpt[id];delete ZD.paid[id];delete ZD.read[id]}
 
 function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!N.good,newEnd=!ZD.end[key];

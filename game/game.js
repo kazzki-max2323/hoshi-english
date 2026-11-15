@@ -277,7 +277,7 @@ function spawnMeteor(gold){const W=$('window').getBoundingClientRect(),b=documen
   const fly=()=>{if(done||!b.isConnected)return;const q=(performance.now()-t0)/dur;if(q>=1){b.classList.add('gone');setTimeout(()=>b.remove(),400);return}
     b.style.transform=`translate(${x0+dx*q}px,${y0+dy*q}px)`;b.style.opacity=q<.1?q*10:q>.8?(1-q)*5:1;requestAnimationFrame(fly)};fly();
   b.addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();if(done)return;done=true;b.classList.add('caught');
-    const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,amt=gold?50:5+(Math.random()*6|0);
+    const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,amt=gold?50:5+(Math.random()*6|0);try{RECENT.add('meteor',{gold:!!gold,coins:amt})}catch(e){}
     FX.ring(cx,cy,gold?'#ffd23f':'#cfe3ff');FX.firework(cx,cy);SFX.chime();coinBurst(cx,cy,amt,gold);
     toast(gold?`🌟 金の 流れ星を つかまえた！ <b>+${amt}</b>`:`🌠 流れ星を つかまえた！ <b>+${amt}</b>`,2200);setTimeout(()=>b.remove(),600)})}
 /* the beach sends its own shooting star too (every 15 minutes at night, and when a treasure chest opens).
