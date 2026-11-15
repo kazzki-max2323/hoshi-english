@@ -110,6 +110,7 @@
 .mnfh{margin:0;font-size:1.15rem;font-weight:800;color:#ffe14a;text-shadow:0 0 10px #ffb000}
 .mnfc{width:min(52vw,190px)}.mnfc .cgc{animation:mnglow 1.6s ease-in-out infinite}
 .mnnew{margin:0;font-weight:900;color:#55e0b4;letter-spacing:2px}
+.mntap{margin:2px 0 0;font-size:12px;opacity:.75}
 @keyframes mnpop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
 @keyframes mnglow{50%{box-shadow:0 0 24px #ffe14a}}
 @media (prefers-reduced-motion:reduce){.mnfind,.mnfc .cgc{animation:none}}
