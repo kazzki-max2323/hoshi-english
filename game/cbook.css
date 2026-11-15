@@ -1,0 +1,62 @@
+/* 📖 カードブック（game/cbook.js）: 白い 海の家に おいてある 紺の バインダー */
+.shbook{display:flex;align-items:center;gap:8px;padding:10px 14px!important;background:linear-gradient(#2c4a8a,#1a2c5c)!important;border-color:#e8b84a!important;box-shadow:inset 0 0 0 2px #ffffff14}
+.shbook span{font-size:1.7rem;line-height:1}.shbook b{flex:1;text-align:left;font-size:.95rem}.shbook small{font-size:.72rem;color:#ffe7a8;font-weight:700}
+.shcell u.bk{right:auto;left:-2px}
+
+.cbtabs{display:flex;flex-direction:column;gap:5px}
+.cbtabs>div{display:flex;gap:4px;align-items:center}
+.cbtabs small{flex:0 0 20px;text-align:center;font-size:.9rem}
+.cbt{flex:1;min-width:0;padding:5px 2px 7px!important;font-size:.74rem!important;font-weight:800;position:relative;overflow:hidden}
+.cbt i{position:absolute;left:4px;right:4px;bottom:3px;height:3px;border-radius:2px;background:#0005}
+.cbt i::after{content:"";position:absolute;inset:0;width:var(--p);border-radius:2px;background:#ffe14a}
+.cbt.on{color:#2a2340;background:linear-gradient(#fff6d6,#ffd88a)!important;border-color:#fff!important}
+.cbt.done span::after{content:"🏆";font-size:.6rem;margin-left:1px}
+.cbt.t5 span{background:linear-gradient(90deg,#ff7ac8,#ffd23f,#5ae0c8,#7aa2ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.cbt.t4 span{color:#ffd23f}.cbt.t3 span{color:#d6a0ff}.cbt.t2 span{color:#8ad0ff}
+.cbt.on.t4 span{color:#b07a00}.cbt.on.t3 span{color:#8a4ac0}.cbt.on.t2 span{color:#2a7ac0}
+
+/* the binder */
+.cbbind{--bc:#1f3a78;position:relative;border-radius:14px;padding:10px 10px 10px 22px;background:linear-gradient(135deg,color-mix(in srgb,var(--bc) 85%,#fff),var(--bc) 40%,color-mix(in srgb,var(--bc) 70%,#000));
+  box-shadow:0 4px 0 #0b1430,0 8px 18px #0008,inset 0 0 0 2px #ffffff22;display:flex;flex-direction:column;gap:8px}
+.cbbind::before{content:"";position:absolute;inset:5px;border:2px dashed #ffffff40;border-radius:10px;pointer-events:none}
+.cbbind::after{content:"";position:absolute;left:7px;top:18%;bottom:18%;width:8px;background:radial-gradient(circle,#e8e2d0 3px,#8a8270 4px,transparent 5px) 0 0/8px 25% repeat-y;pointer-events:none}
+.cbbind.t5{--bc:#5a2a7a}.cbbind.t4{--bc:#7a5a1a}.cbbind.t3{--bc:#4a2a8a}.cbbind.t2{--bc:#1a5a9a}.cbbind.t1{--bc:#4a5a6a}
+.cbbind.es{--bc:#2a7a5a}.cbbind.jh{--bc:#1f4a8a}.cbbind.hs{--bc:#8a3a4a}.cbbind.adv{--bc:#3a2a6a}.cbbind.ex{--bc:#6a4a2a}
+.cbhd{display:flex;justify-content:space-between;align-items:baseline;padding:0 4px;position:relative;z-index:1}
+.cbhd b{font-size:.88rem;color:#fff6d6}.cbhd span{font-size:.72rem;color:#ffe7a8}
+.cbpage{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:9px;border-radius:8px;
+  background:#f6f1e4;background-image:repeating-linear-gradient(0deg,transparent 0 11px,#ebe3cf 11px 12px);box-shadow:inset 0 0 0 1px #d8cdb0,inset 0 2px 6px #0002}
+.cbp{position:relative;aspect-ratio:5/7;border-radius:7px;cursor:pointer;background:linear-gradient(160deg,#ffffffb0,#e6edf2a0 60%,#ffffffc0);box-shadow:inset 0 0 0 1px #c9d3dc,0 1px 2px #0002}
+.cbp::after{content:"";position:absolute;inset:0;border-radius:7px;background:linear-gradient(120deg,transparent 30%,#ffffff70 42%,transparent 54%);pointer-events:none}
+.cbp .cgc{width:100%;height:100%;border-radius:6px}
+.cbp.blank{background:none;box-shadow:inset 0 0 0 1px #e2d8c0;cursor:default}.cbp.blank::after{display:none}
+.cbno{position:absolute;top:4px;left:0;right:0;text-align:center;font:700 .62rem var(--pixel,monospace);color:#a8b2bc}
+.cbsil{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.9rem;filter:grayscale(1) brightness(.4);opacity:.3}
+.cbsil svg,.cbsil img{width:56%;height:auto}
+.cbp>b{position:absolute;right:4px;bottom:3px;font-size:.95rem;color:#e09a1a}
+.cbp.can{box-shadow:inset 0 0 0 2px #ffcf4a,0 0 8px #ffcf4a99;animation:cbcan 1.6s ease-in-out infinite}
+.cbp.can .cbsil{opacity:.5;filter:grayscale(.6) brightness(.8)}
+.cbp.fl>b{font-size:.75rem}
+.cbp.pop{animation:cbpop .45s cubic-bezier(.2,1.6,.4,1)}
+@keyframes cbcan{50%{box-shadow:inset 0 0 0 2px #ffcf4a,0 0 14px #ffcf4a}}
+@keyframes cbpop{from{transform:scale(1.35) rotate(-6deg);opacity:.3}to{transform:none;opacity:1}}
+.cbpage.full{box-shadow:inset 0 0 0 2px #e8b84a,inset 0 2px 6px #0002}
+.cbpage.shine::after{content:"";position:absolute;inset:0;border-radius:8px;pointer-events:none;background:linear-gradient(110deg,transparent 20%,#fff8 45%,transparent 70%) -200% 0/200% 100% no-repeat;animation:cbshine 1.4s ease-out}
+@keyframes cbshine{to{background-position:200% 0}}
+.cbnav{display:flex;align-items:center;gap:6px;position:relative;z-index:1}
+.cbnav button{padding:4px 10px!important}.cbnav input{flex:1;min-width:0;accent-color:#ffd23f}.cbnav span{font-size:.7rem;color:#ffe7a8;min-width:44px;text-align:center}
+.cbjump{align-self:center;font-size:.72rem!important;padding:4px 10px!important;position:relative;z-index:1}
+.cbin{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px!important;font-weight:800;background:linear-gradient(#ffd23f,#e09a1a)!important;color:#2a2340;border-color:#fff3c4!important}
+.cbin b{background:#2a2340;color:#ffe14a;border-radius:999px;padding:1px 9px;font-size:.8rem}
+.cbin:disabled{opacity:.45;filter:saturate(.3)}
+.cbmenu{align-items:stretch}
+
+/* 「ぜんぶ 入れる」の あと */
+.cbdone{background:radial-gradient(circle at 50% 25%,#3a5aa8,#1a2c5c);border-radius:16px;padding:16px;width:min(92vw,380px);display:flex;flex-direction:column;gap:10px;align-items:stretch;
+  box-shadow:0 0 0 3px #e8b84a,0 0 40px #ffd23f66;animation:mnpop .5s cubic-bezier(.2,1.6,.4,1)}
+.cbdh{margin:0;text-align:center;font-size:1.15rem;font-weight:900;color:#ffe14a;text-shadow:0 0 10px #ffb000}
+.cbfan{position:relative;height:118px}
+.cbfan>div{position:absolute;left:50%;top:6px;width:64px;transform-origin:50% 160%;transform:translateX(-50%) rotate(calc((var(--i) - (var(--n) - 1)/2)*11deg));animation:cbfan .5s calc(var(--i)*70ms) cubic-bezier(.2,1.4,.5,1) both}
+@keyframes cbfan{from{transform:translateX(-50%) translateY(30px) rotate(0);opacity:0}}
+.cbdp{margin:0;text-align:center;font-weight:800;color:#fff6d6}
+@media (prefers-reduced-motion:reduce){.cbp.can,.cbp.pop,.cbfan>div,.cbdone,.cbpage.shine::after{animation:none}}
