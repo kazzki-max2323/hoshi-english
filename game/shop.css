@@ -57,7 +57,7 @@
 .mnt.on .cgc{box-shadow:0 0 0 3px #ffe14a,0 0 12px #ffe14a;transform:translateY(-3px)}
 .mnt.tired .cgc{filter:saturate(.3) brightness(.6)}
 .mnt.empty{aspect-ratio:5/7;border:2px dashed #ffffff40;border-radius:8px}
-.mnstage{border-radius:10px;overflow:hidden;box-shadow:0 0 0 3px #b08858,0 4px 14px #0008;background:#000}
+.mnstage{position:relative;border-radius:10px;overflow:hidden;box-shadow:0 0 0 3px #b08858,0 4px 14px #0008;background:#000}
 .mnstage canvas{display:block;width:100%;height:auto;image-rendering:pixelated}
 .mnme{display:inline-block;width:60px;height:7px;border-radius:4px;background:#0008;overflow:hidden;vertical-align:middle}.mnme b{display:block;height:100%;background:linear-gradient(90deg,#ff5a6a,#ffb04a)}
 .mnw{display:flex;gap:4px;justify-content:center;margin:8px 0}
@@ -114,3 +114,11 @@
 @keyframes mnpop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
 @keyframes mnglow{50%{box-shadow:0 0 24px #ffe14a}}
 @media (prefers-reduced-motion:reduce){.mnfind,.mnfc .cgc{animation:none}}
+
+/* 鉱山: 手に 入れた 物の 表示と もちかえる 物の まとめ */
+.mngot{position:absolute;top:6px;right:6px;display:flex;flex-direction:column;align-items:flex-end;gap:4px;pointer-events:none}
+.mngt{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 6px;border-radius:999px;background:rgba(12,10,30,.85);border:2px solid #ffe14a;color:#fff;font-size:.9rem;font-weight:700;box-shadow:0 2px 8px #0009;animation:mngt 1.8s ease forwards}
+.mngt .gi{font-size:1.35rem;line-height:1}.mngt b{color:#ffe14a}
+@keyframes mngt{0%{opacity:0;transform:translateY(6px) scale(.8)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){.mngt{animation:none}}
+.mnloot{margin:6px 0 0;text-align:center;font-size:.82rem;color:#e8f4ff}.mnloot b{color:#ffe14a}.mnloot span{margin-left:6px}
