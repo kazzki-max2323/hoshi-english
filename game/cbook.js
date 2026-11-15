@@ -88,7 +88,7 @@ function open(k){if(k&&SK[k])cur=k;prune();SHOP.cleanFloor();addSet=new Set(adda
   const [ag,at]=stat(),inN=all().filter(has).length;
   let line=null;if(greet){greet=false;line=!ag?pickL(CB_MIO.empty):addSet.size>=3?pickL(CB_MIO.many):pickL(CB_MIO.hi)}
   const chip=(m,t,n)=>`<button data-m="${m}" class="${mode===m&&!q?'on':''}">${t}${n!=null?`<b>${n}</b>`:''}</button>`;
-  H.show('cg',`<section class="pnl cgp shp cbk">
+  H.show('cg',`<section class="pnl cgp shp cbk${backTo?' cbout':''}">
     <div class="qtop"><button class="x" id="cbx" aria-label="もどる">←</button><b>📖 カードブック</b><span class="qn">${ag}/${at}</span></div>
     ${line?mio(line,pickL(['smile','laugh','wink']),pickL(['wave','','peace'])):''}
     <div class="cbfind"><span>🔍</span><input id="cbq" type="search" enterkeyhint="search" autocomplete="off" placeholder="さがす（apple ／ りんご）" value="${esc(q)}"><button id="cbqx" class="sub" ${q?'':'hidden'} aria-label="けす">✕</button></div>
