@@ -303,7 +303,9 @@ function cheerNext(){let b=ST.cheerBag.filter(i=>i<CHEER.length);
 function cheerShow(){const [en,ja,who]=cheerNext();
   cheerEl.innerHTML=`${en?`<p class="che">${esc(en)} <i>🔊</i></p>`:''}<p class="chj">${esc(ja)}</p>${who?`<small>— ${esc(who)}</small>`:''}`;
   cheerOn=true;if(cur&&!cur.done)radioQuiet();cheerEl.hidden=false;cheerEl.classList.remove('on','bye');void cheerEl.offsetWidth;cheerEl.classList.add('on');SFX.hey();
-  cheerEl.onclick=()=>{if(en){say('cheer',en);clearTimeout(cheerEl._t);cheerEl._t=setTimeout(cheerHide,8000)}else cheerHide()};
+  /* 1st tap reads the English aloud (it stays up while reading, then 8s more); 2nd tap closes. Japanese-only lines close on the 1st tap */
+  let read=false;cheerEl.onclick=e=>{e.stopPropagation();if(!en||read){if(read)stopClip();cheerHide();return}
+    read=true;clearTimeout(cheerEl._t);say('cheer',en,()=>{if(cheerOn){clearTimeout(cheerEl._t);cheerEl._t=setTimeout(cheerHide,8000)}})};
   clearTimeout(cheerEl._t);cheerEl._t=setTimeout(cheerHide,en?12000:9000)}
 function cheerHide(){if(cheerEl.hidden)return;cheerOn=false;const t=performance.now()+CHEER_REST;nextAt=Math.max(nextAt,t);folkNext=Math.max(folkNext,t);cheerEl.classList.add('bye');setTimeout(()=>{cheerEl.hidden=true;cheerEl.classList.remove('on','bye')},400)}
 setInterval(()=>{const now=performance.now(),dt=now-cheerLast;cheerLast=now;if(document.hidden||!ST.cheer)return;cheerAt+=dt;
