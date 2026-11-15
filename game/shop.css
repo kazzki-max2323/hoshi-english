@@ -154,6 +154,7 @@
 .shwant .cgc{width:46px;flex:0 0 auto}.shwant>div{flex:1;min-width:0;display:flex;flex-direction:column;line-height:1.25}
 .shwant b{font-size:1.05rem}.shwant small{font-size:.7rem;color:#6a6080}.shwant .ja{font-size:.8rem;color:#3a3060}
 .shwant .pr{font-weight:700;white-space:nowrap}.shwant .pr s{opacity:.5;font-weight:400;margin-right:4px;font-size:.8rem}.shwant .q{font-size:1.6rem}
+.shwant .pr small{display:block;font-weight:400;font-size:.62rem;text-align:right}.shwant .svnew{font-style:normal;font-weight:900;color:#0e9f7a;margin-left:4px}
 .shlog{display:flex;flex-direction:column;gap:5px;max-height:42vh;overflow:auto}
 .shlog:empty{display:none}
 .svl{display:flex;gap:6px;align-items:flex-start;cursor:pointer;animation:shmutIn .25s ease-out}

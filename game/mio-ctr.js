@@ -13,7 +13,7 @@ const save=()=>{try{CG.save()}catch(e){}};
 const MR=()=>MIOC.rec();
 const stage=()=>{try{return MIOC.stage()}catch(e){return 0}};
 const RC=()=>window.RECENT||null;
-const TAP_HEART=4,EV_KINDS=['mine','pack','book','sell','away','meal','snack','zbuy','zsell','gift','meteor','lesson','tutor','bottle','kaiwa','bgm','mio'];
+const TAP_HEART=4,EV_KINDS=['mine','pack','book','sell','away','meal','snack','zbuy','zsell','gift','meteor','lesson','tutor','bottle','kaiwa','bgm','mio','buyin'];
 const mem=()=>{const M=MR();if(!M.mem||typeof M.mem!=='object')M.mem={};return M.mem};
 const seenL=()=>{const M=MR();if(!Array.isArray(M.tseen))M.tseen=[];return M.tseen};
 function markSeen(id){const L=seenL(),i=L.indexOf(id);if(i>=0)L.splice(i,1);L.unshift(id);if(L.length>40)L.length=40}
@@ -25,7 +25,7 @@ const art=s=>!s?s:/^(a|an|the|some)\s/i.test(s)||/[^s]s$/i.test(s)?s:(/^[aeiou]/
 const wordOf=id=>{try{const I=CG.info(id);return I?[String(I.en).split(',')[0].trim(),String(I.ja||'').split(/[、,;／/]/)[0].trim()]:['','']}catch(e){return ['','']}};
 function vals(e,N){const M=mem(),V={};e=e||{};
   if(e.k==='mine'){Object.assign(V,{d:e.depth,best:e.best,ok:e.ok,q:e.q,coins:e.coins});if(e.cards&&e.cards[0]){const [w,j]=wordOf(e.cards[0]);V.w=w;V.wj=j}}
-  if(e.k==='book'||e.k==='sell'){V.w=e.en;V.wj=e.ja;V.p=e.p}
+  if(e.k==='book'||e.k==='sell'||e.k==='buyin'){V.w=e.en;V.wj=e.ja;V.p=e.p}
   if(e.k==='meal'||e.k==='snack'){V.food=e.en;V.foodj=e.ja}
   if(e.k==='zbuy'||e.k==='gift'){V.item=e.en;V.itemj=e.ja}
   if(e.k==='gift'){V.to=MIOT_NAME[e.to]||'someone';V.toj=e.toN||'だれか'}
