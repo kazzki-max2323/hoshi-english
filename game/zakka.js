@@ -73,8 +73,10 @@ function today(){const dk='zk:'+shelfDay(),hold=ZD.hold&&item(ZD.hold);
   const day=[],bk=pool.find(i=>i.k==='book');if(bk)day.push(bk);
   pool.forEach(i=>{if(day.length<DAYN&&!day.includes(i))day.push(i)});
   const rs=IT.filter(i=>i.rare&&loveOk(i)&&!fixed.includes(i)&&!(UNIQ.includes(i.k)&&ZD.own[i.id]));
-  const rare=rs.length&&rnd(dk+':rare')<.3?rs[rnd(dk+':which')*rs.length|0]:null;
-  return {day:day.sort((a,b)=>a.p-b.p),fixed,rare,all:[...(rare?[rare]:[]),...day,...fixed]}}
+  let rare=rs.length&&rnd(dk+':rare')<.3?rs[rnd(dk+':which')*rs.length|0]:null;
+  /* ✨ there is only one: once bought it is gone for the day (ZD.rareBuy = {d:that day, id}) */
+  const rb=ZD.rareBuy,sold=rb&&rb.d===dk?item(rb.id):null;if(sold)rare=null;
+  return {day:day.sort((a,b)=>a.p-b.p),fixed,rare,sold,all:[...(rare?[rare]:[]),...day,...fixed]}}
 const rareAll=()=>IT.filter(i=>i.rare);
 /* listening before buying: the record plays, and if it isn't bought the old music comes back */
 let PV=null;
@@ -185,6 +187,10 @@ function greet(){
    const e=L.event[L.event.length-1];if(e)g.push([`Have you seen the events? The ${e.en} is on sale right now.`,`イベントは 見た？ いまは ${e.n}が 買えるのよ。`]);
    if(!ST.radios.length)g.push(["Look at the radios! The little one is free. Take it home!","ラジオを 見て！ 小さいのは ただよ。 もっていってね！"])}
   {const T=today();if(T.rare){const r=[`You're lucky today! I have a ${T.rare.w}. It doesn't come in often.`,`きょうは ついてるわね！ ${T.rare.n}が あるの。 めったに 入らないのよ。`];g.push(r,r,r)}
+   if(T.sold){const w=T.sold.w,n=T.sold.n;g.push(
+     [`The ${w} found a good home with you. Take good care of it!`,`${n}、 いい 人の ところへ 行ったわね。 だいじに してね！`],
+     [`The special spot is empty now. You got the only ${w}!`,`とくべつの たなは もう からっぽ。 たった 1つの ${n}は あなたの ものよ！`],
+     [`I'll keep my eyes open for the next special thing. Come back in a few days!`,`つぎの めずらしい 品も さがしておくわね。 また 数日したら 来てね！`])}
    g.push(["The shelf is different every day. Let's see what came in today!","たなは 毎日 ちがうの。 きょうは なにが 入ったかしら！"]);
    {const f=(lineup().food||[]).filter(x=>!x.always);if(f.length){const x=pickL(f);g.push([`Hungry? The food shelf has ${/s$/.test(x.en)?'some':/^[aeiou]/i.test(x.en)?'an':'a'} ${x.en} today. Take it home for later!`,`おなか すいてる？ きょうは 食べ物の たなに ${x.n}が あるわ。 持ち帰って あとで どうぞ！`])}}
    const d=T.day.filter(i=>i.k==='gift');if(d.length){const x=pickL(d);g.push([`A ${x.w} came in today. Someone on the beach might like it.`,`きょうは ${x.n}が 入ったの。 浜辺の だれかが よろこぶかも。`])}}
@@ -224,7 +230,7 @@ function shop(tab){hush();pvDone(false);if(typeof tab==='string'&&TABS.some(t=>t
     <div class="qtop"><button class="x" id="zkx" aria-label="もどる">←</button><b>🏚️ ながれぎ雑貨店</b>${window.GIFT?GIFT.btn('nora','zkgv'):'<span class="qn"></span>'}</div>
     <div id="zkhi">${noraLine(en,ja)}</div>
     <div class="seg tabs zktabs">${TABS.map(([k,i,n])=>`<button data-zt="${k}" class="${tabNow===k?'on':''}"><span>${i}</span>${n}</button>`).join('')}</div>
-    ${tabNow==='zakka'?`${TD.rare?`<div class="zkrare"><small>✨ きょうだけの めずらしい 品</small><div>${tile(TD.rare)}</div></div>`:''}<div class="zkshelf">${[...TD.day,...TD.fixed].map(tile).join('')}</div>
+    ${tabNow==='zakka'?`${TD.rare?`<div class="zkrare"><small>✨ きょうだけの めずらしい 品</small><div>${tile(TD.rare)}</div></div>`:TD.sold?`<div class="zkrare sold"><small>✨ きょうだけの めずらしい 品 ・ あなたが 買ったよ</small><div><span class="zkit out"><span class="zi">${TD.sold.ico}</span><span class="zn">${esc(TD.sold.n.replace(/^(幻の )?絵本/,''))}</span><span class="zp">うりきれ</span></span></div></div>`:''}<div class="zkshelf">${[...TD.day,...TD.fixed].map(tile).join('')}</div>
     <p class="note zkrot">🔄 あしたは べつの 品物が ならぶよ${ownBooks().length?'　<small>📖 買った 絵本は 🎒 もちもの に あるよ</small>':''}</p>
     <div class="zkcase"><small>🔒 ガラスケース</small><div>${IT.filter(i=>i.lux&&loveOk(i)).map(tile).join('')}</div></div>`:goodsShelf(tabNow)}
     <div class="row zkrow"><button id="zkrec" class="sub">💬 おすすめ</button><button id="zksell" class="sub">💰 売る</button><button id="zkret" class="sub" ${sellable().length?'':'disabled'}>↩️ 返品</button></div>
@@ -331,6 +337,7 @@ function deal(N){const c=P.c,it=c.it,R={};
     else if(it.k==='fortune')ZD.fortN++;
     else if(it.k==='gift')ZD.gift.push({id:it.id,w:c.wrap||'',r:c.rib?1:0,col:c.color||'',sz:c.size||''});
     if(c.bonus){if(pcDone())ZD.fortN++;else R.bonusPc=newPc()}
+    if(it.rare&&(today().rare||{}).id===it.id)ZD.rareBuy={d:'zk:'+shelfDay(),id:it.id};
     if(ZD.hold===it.id)ZD.hold=null;break}
   case 'hold':ZD.hold=it.id;break;
   case 'sellBottles':{const n=bottles(),got=n*(c.per||2);ZD.bsold=(ZD.bsold||0)+n;R.got=got;R.sold=`🍾 からの びん ${n}本`;break}
@@ -345,7 +352,7 @@ function deal(N){const c=P.c,it=c.it,R={};
   save();
   try{const x=R.it||R.good;if(x&&R.paid)RECENT.add('zbuy',{id:x.id,en:x.w||x.en||'',ja:x.n||x.name||'',ico:x.ico||'',kind:x.k||x.kind||''});else if(R.sold)RECENT.add('zsell',{ja:R.sold,ret:R.ret||0})}catch(e){}
   return R}
-function forget(id){delete ZD.own[id];delete ZD.rcpt[id];delete ZD.paid[id];delete ZD.read[id]}
+function forget(id){if(ZD.rareBuy&&ZD.rareBuy.id===id)delete ZD.rareBuy;delete ZD.own[id];delete ZD.rcpt[id];delete ZD.paid[id];delete ZD.read[id]}
 
 function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!N.good,newEnd=!ZD.end[key];
   them(val(N.s,c),val(N.j,c),N.fx||(good?'🌟':'😂'),good?'k-good':'k-oops');
@@ -631,6 +638,7 @@ Object.assign(MINA_LINES,{
  zk_endRare:[['wow','{t}？！ めったに 入らない 品だよね。 「Is this the only one?」って 聞けたかな'],['proud','めずらしい 品を 英語で 買えたね。 「I\'m lucky I came today.」は 「きょう 来て よかった」って いみだよ'],['love','{t}、 だいじに してね。 きょう のぞきに 行って よかったね']],
  zk_daily:[['wow','お知らせ！ ノラさんの 雑貨屋、 たなが 日替わりに なったよ。 品物も ふえて、 たまに めずらしい 品も 出るんだって'],['smile','雑貨屋の たな、 毎日 かわるように なったよ。 毎日 のぞくと 新しい 英語に 会えるね']],
  /* ホーム・ミナ先生の ページで（game/mina-sense.js の ルール） */
+ x_zkRareGot:[['proud','きょうの めずらしい {t}、 買えたんだね！ たった 1つ だったんだよ'],['love','{t}、 もう ノラさんの たなには ないよ。 世界に 1つの 品、 だいじに してね'],['think','めずらしい 品は 1つ 買ったら おしまい。 つぎは 数日 したら また 出るかも']],
  x_zkRare:[['wow','ねえ、 きょうは ノラさんの お店に めずらしい {t}が 出てるよ。 あしたには もう ないかも'],['think','{t}、 めったに 入らないんだって。 「When will you have more?」って 聞いてみたら？'],['smile','✨ きょうだけの 品が あるよ。 {t}… 気に ならない？']],
  x_zkToday:[['smile','きょうの 雑貨屋には {ico} {t}が ならんでるよ。 英語で 説明を 聞いてみよう'],['happy','雑貨屋の たな、 きょうは {ico} {t}が 入ったんだって。 {who}が よろこびそう'],['think','雑貨屋の たなは 毎日 かわるよ。 きょうは {ico} {t}が あるみたい']],
  x_zkTodayBook:[['wow','きょうの 雑貨屋に 絵本 「{t}」が 出てるよ。 {lv}くらいの 英語だから、 ちょうど いいかも'],['smile','新しい 絵本 「{t}」、 たなに あったよ。 1行ずつ 🔊で 聞けるんだ']],
@@ -682,6 +690,7 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_zkRare',5,()=>{if(!ZD.met)return null;const r=today().rare;return r&&!(UNIQ.includes(r.k)&&ZD.own[r.id])?{t:r.n}:null},goShop],
  ['x_zkToday',2,()=>{if(!ZD.met)return null;const a=today().day.filter(i=>i.k==='gift');if(!a.length)return null;const it=pickL(a);return {ico:it.ico,t:it.n,who:it.to==='mina'?'だれか':whoN(it.to)}},goShop],
  ['x_zkTodayBook',2,()=>{if(!ZD.met)return null;const b=today().day.find(i=>i.k==='book');return b?{t:b.title,lv:({es:'小学生',jh:'中学生',hs:'高校生',adv:'大人'})[b.lv]||'中学生'}:null},goShop],
+ ['x_zkRareGot',3,()=>{const s=ZD.met&&today().sold;return s?{t:s.n}:null},goShop],
  ['x_zkRareAll',1,()=>{const n=Object.keys(ZD.rareSeen||{}).length;return n?{n,tot:rareAll().length}:null},goShop],
  ['x_zkHold',3,()=>ZD.hold&&item(ZD.hold)?{t:item(ZD.hold).n}:null,goShop],
  /* 📻🎵🎆 */
