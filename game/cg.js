@@ -243,7 +243,7 @@ function more(I){const h=I.h,WI=window.WI,out=[];
   else if(fam.length)out.push(`<p>🧩 なかまの ことば: ${fam.map(d=>`<b>${esc(d.d)}</b>`).join(', ')}</p>`);
   const tips=[];if(x.tip)tips.push(esc(x.tip));
   const wr=WRONG.find(w=>w.a===h||w.b===h);if(wr&&tips.length<2)tips.push(`×「${esc(wr.a)} ${esc(wr.b)}」→ ⭕「${esc(wr.ok)}」 ${esc(wr.why)}`);
-  f.tips.slice(0,Math.max(0,3-tips.length)).forEach(t=>tips.push(t));
+  f.tips.slice(0,x.tip?1:2).slice(0,Math.max(0,3-tips.length)).forEach(t=>tips.push(t));
   if(tips.length)out.push(`<div class="witip">${tips.map(t=>`<p>💡 ${t}</p>`).join('')}</div>`);
   if(!out.length)return '';
   return `<details class="cgfold wif"><summary>📖 くわしく</summary>${out.join('')}</details>`}
