@@ -380,8 +380,7 @@ function pay(n){if(ST.coins<n){H.toast('🪙 コインが たりないよ');sf('
 function packList(){const L=[];LVK.forEach(lv=>L.push({k:'lv',arg:lv,ico:'🎴',n:`${LV[lv].n}パック`,p:LV[lv].pack,open:lvOpen(lv),need:({es:0,jh:1,hs:4,adv:6})[lv],lv}));
   CG_ATTR.forEach(a=>L.push({k:'at',arg:a[0],ico:a[1],n:`${a[2]}パック`,p:120,open:ruleOn('counter'),need:CG_RULE_AT.counter}));
   L.push({k:'part',ico:'🧩',n:'語源パーツパック',p:160,open:ruleOn('parts'),need:CG_RULE_AT.parts});
-  L.push({k:'sent',ico:'📜',n:'文カードパック',p:200,open:ruleOn('sent'),need:CG_RULE_AT.sent});
-  L.push({k:'kira',ico:'💎',n:'きらきら宝パック',p:400,open:rank()>=8,need:8});return L}
+  L.push({k:'sent',ico:'📜',n:'文カードパック',p:200,open:ruleOn('sent'),need:CG_RULE_AT.sent});return L}
 function packs(){const L=packList(),free=CG.free!==today();
   H.show('cg',`<section class="pnl cgp">${top('🎁 パック',coinTxt(ST.coins))}
     ${free?`<button class="cgfree" id="cgfree">🎁 きょうの むりょうパック（3まい）</button>`:''}
@@ -398,7 +397,7 @@ function buyAsk(p){if(ST.coins<p.p){H.toast('🪙 コインが たりないよ')
   $('cgno').onclick=()=>{sf('back');closeOv()};
   $('cgqk').onclick=()=>{closeOv();if(!pay(p.p))return;deliver(p,false)};
   $('cgen').onclick=()=>{closeOv();if(!pay(p.p))return;talkBuy(p,ok=>deliver(p,ok))}}
-function deliver(p,bonus){if(p.k==='kira'){if(window.CARDS)CARDS.gift(3,2);return}
+function deliver(p,bonus){
   let ids=packCards(p.k,p.arg);if(bonus){const lv=p.lv||LVK.filter(lvOpen).pop();ids.push(pickL(W.filter(c=>c.lv===lv&&!owns(c.id))).id)}
   CG.talk=(CG.talk||0)+(bonus?1:0);reveal(receive(ids),p.n+(bonus?'＋おまけ':''),packs)}
 /* the English talk with Nagi: two lines at your level */
