@@ -89,7 +89,7 @@ function bgm(say){const own=songs(),cur=H.shopSongId,ln=say||pickL(MIO_BGM[!own.
     ${own.length?`<div class="zkbag">${own.map(id=>{const m=CATALOG.music.find(x=>x[0]===id)||[id,0,'🎵'],on=cur===id;
       return `<div class="ritem ${on?'has':''}"><span class="ri">${m[2]}</span><span class="rn"><b>${esc(songName(id))}</b>${on?'<small>🎵 いま ながれているよ</small>':''}</span><span class="rbtn"><button class="play ${on?'on':''}" data-bg="${on?'':id}">${on?'■ とめる':'▶ ながす'}</button></span></div>`}).join('')}</div>`
       :`<p class="note">🎵 レコードは 浜辺の 右はしの ながれぎ雑貨店で 買えるよ</p>`}
-    <p class="note">レコードは お店の 中だけで ながれるよ（鉱山や 浜辺では とまる）</p>
+    <p class="note">レコードは お店の 中だけで ながれるよ（鉱山や 浜辺では とまる）。 カウンターの 🎶 レコードプレイヤーを タップしても オン・オフ できるよ</p>
   </section>`);
   bindBubble();speak(ln[0]);$('shb').onclick=()=>{sf('back');open()};
   H.panel.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{const id=b.dataset.bg||null;sf('pop');H.shopSong(id);try{RECENT.add('bgm',{id,ja:id?songName(id):''})}catch(e){}bgm(pickL(MIO_BGM[id?'on':'off']))})}
@@ -228,6 +228,45 @@ function guest(c,x,y,L,pose,f){x=Math.round(x);y=Math.round(y);const s=L.skin,st
   else{PR(c,x+3,y+1,8,2,h);PR(c,x+4,y,6,1,h);PR(c,x+2,y+2,1,4,h);PR(c,x+11,y+2,1,4,h);PR(c,x+3,y+3,3,1,h)}}
 function bub(c,x,y,t){PR(c,x,y,9,8,'#fff');PR(c,x+1,y-1,7,1,'#fff');PR(c,x+1,y+8,7,1,'#fff');PR(c,x+2,y+9,2,1,'#fff');c.fillStyle='#2a2340';c.font='bold 7px monospace';c.fillText(t,x+2,y+7)}
 
+/* 🎶 the record player on the floor, in front of the counter（タップで お店の BGMを オン・オフ） */
+const PX=[170,86,199,116];   // タップできる ところ（x1,y1,x2,y2）
+const DISC=[[181,92],[184,92],[186,93],[187,94],[186,95],[183,96],[180,96],[177,95],[176,94],[177,93],[179,92]];
+function player(c,on,f){
+  /* the low wooden cabinet, with records inside */
+  PR(c,170,99,27,14,'#b07a4a');PR(c,170,99,27,1,'#d09a62');PR(c,171,113,2,3,'#7a4e2a');PR(c,194,113,2,3,'#7a4e2a');PR(c,170,112,27,1,'#8a5a32');
+  PR(c,172,101,23,10,'#6a4428');['#ff7a8a','#5ab4ff','#ffd23f','#7ad37a','#c79ad6','#ff9a4a','#fff','#5ab4ff','#ff7a8a'].forEach((col,i)=>PR(c,173+i*2+(i>5?3:0),102+(i%3===1?1:0),1,9-(i%3===1?1:0),col));
+  PR(c,186,103,1,8,'#e8c86a');PR(c,187,104,1,7,'#3a7ac0');
+  /* the turntable */
+  PR(c,171,89,25,8,'#4a3a5a');PR(c,171,89,25,1,'#6a5a7a');PR(c,171,96,25,3,'#2e2438');
+  PR(c,177,91,9,1,'#1a1420');PR(c,175,92,13,1,'#1a1420');PR(c,174,93,15,2,'#1a1420');PR(c,175,95,13,1,'#1a1420');PR(c,177,96,9,1,'#1a1420');
+  PR(c,180,93,3,2,on?'#ff6a5a':'#c04a4a');PR(c,181,93,1,1,'#fff2c8');
+  if(on){const a=DISC[f%DISC.length],b=DISC[(f+5)%DISC.length];PR(c,a[0],a[1],1,1,'#8a7aa0');PR(c,b[0],b[1],1,1,'#5a4a70')}else PR(c,178,92,2,1,'#5a4a70');
+  /* the tonearm: on the record when it plays */
+  PR(c,192,90,2,2,'#c8ccd8');if(on){PR(c,190,92,2,1,'#c8ccd8');PR(c,188,93,2,1,'#c8ccd8');PR(c,187,94,1,1,'#fff')}else{PR(c,193,92,1,3,'#c8ccd8');PR(c,192,95,2,1,'#fff')}
+  PR(c,173,97,2,1,on?'#7aff9a':'#5a4a3a');PR(c,190,97,3,1,'#8a7aa0')}
+/* 音符（♪）は DOMで ふわっと のぼらせる（キャンバスより なめらか） */
+function note(){const box=$('shnotes');if(!box)return;const st=box.parentNode,k=st.clientWidth/W,e=document.createElement('i');
+  e.textContent=pickL(['♪','♫','♪','♬']);e.style.left=((176+Math.random()*12)*k)+'px';e.style.top=(80*k)+'px';e.style.fontSize=Math.max(16,12*k)+'px';
+  e.style.color=pickL(night()>.25?['#ffd23f','#ff9ab0','#8fd8ff','#a8f0a0','#fff2c8']:['#ff6a8a','#3a9ae0','#f0a020','#4ab04a','#a070d0']);e.style.setProperty('--sx',(Math.random()<.5?-1:1)*(6+Math.random()*8)*k/2+'px');
+  e.style.setProperty('--up',(26+Math.random()*10)*k+'px');e.onanimationend=()=>e.remove();box.appendChild(e);while(box.children.length>8)box.firstChild.remove()}
+const MIO_REC={
+  on:[["Ooh, good pick, boss! I love this one.","おっ、 「{song}」！ いい えらび方ですね、 店長。"],["The record is spinning! I love that little crackle.","レコードが 回ってる！ あの パチパチって 音が 好きなんです。"],["Music on! Let's sell some cards with a beat.","音楽 オン！ リズムに のって カードを 売りましょう。"],["This song makes the shop feel like summer.","この曲で お店が 夏っぽく なりますね。 「{song}」！"]],
+  off:[["Music off. Now I can hear the waves again.","音楽 オフ。 また 波の 音が 聞こえますね。"],["Taking a break, Mr. Record? Good job today.","レコードさんも ひと休み？ きょうも おつかれさま。"],["Shh… the shop is quiet now.","しーっ… お店が しずかに なりました。"]],
+  wake:[["Huh?! I wasn't sleeping! …Nice song, though.","はっ！？ ねてません！ …でも いい曲ですね。"]],
+  empty:[["We have a record player, but no records yet! Nora's shop on the beach sells them.","プレイヤーは あるけど、 レコードが まだ ないんです！ 浜辺の ノラさんの お店で 売ってますよ。"],["The player is hungry for records. Let's buy one at Nora's shop!","プレイヤーが レコードを まってます。 ノラさんの お店で 買いましょう！"]],
+  mute:[["The record is spinning, but the sound is off. Try the speaker button at the top!","レコードは 回ってるけど、 音が オフみたい。 右上の 🔊 ボタンを 見てみて！"]],
+  play:[["La la la… Oh! Did you hear me singing?","ラララ♪ …あっ！ 歌ってるの 聞こえました？"],["I tap my foot when I work. It's the music's fault!","仕事しながら 足で リズムを とっちゃう。 音楽の せいです！"],["Customers walk slower when music plays. I think they like it.","音楽が かかってると、 お客さんが ゆっくり 歩くんです。 気に入ってるのかな。"],["This part is my favorite! Listen!","ここの ところが いちばん 好き！ 聞いて！"],["When I study English, I listen to songs too. The words stay in my head!","英語の 勉強の ときも 歌を 聞くんです。 ことばが 頭に のこるの！"],["Again? I'm not tired of this song. Not at all!","また 「{song}」？ あきてませんよ。 ぜんぜん！"]]};
+const recLine=k=>{const x=pickL(MIO_REC[k]),n=H.shopSongId?songName(H.shopSongId):'';return [x[0],x[1].replace('{song}',n)]};
+/* タップ: オンなら とめる、 オフなら 前に えらんだ 曲（なければ もっている 曲から 1つ） */
+function recTap(T){const own=songs();
+  if(!own.length){sf('tap');T.mut(recLine('empty'));T.status('🎶 レコードは 浜辺の 右はしの ながれぎ雑貨店で 買えるよ');return}
+  const cur=H.shopSongId;
+  if(cur){sf('back');H.shopSong(null);try{RECENT.add('bgm',{id:null,ja:''})}catch(e){}T.mio.pose='stand';T.mio.until=Date.now()+1500;T.mut(recLine('off'));T.status('🎶 音楽を とめたよ');return}
+  const id=own.includes(ST.shopLast)?ST.shopLast:pickL(own);sf('pop');H.shopSong(id);try{RECENT.add('bgm',{id,ja:songName(id)})}catch(e){}
+  const dz=T.mio.pose==='doze';T.mio.pose='cheer';T.mio.until=Date.now()+2500;
+  T.mut(recLine(!ST.sound?'mute':dz?'wake':'on'));T.status(`🎶 「${esc(songName(id))}」を かけたよ${ST.sound?'':'（いまは 音が オフ）'}`);T.noteAt=0;
+  try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&ST.sound&&Math.random()<.2){const [ex,tx]=ML('sh_recOn',{song:songName(id)});MINA.say('m',ex,tx,6000)}}catch(e){}}
+
 /* the little speech bubbles: Mio and the guests mutter in English（データは game/shop-mutter.js）。 1つずつ 順番に 出す */
 const MU=()=>typeof SHOP_MUTTER!=='undefined'?SHOP_MUTTER:{};
 /* a line from a pool, not the same one as last time */
@@ -246,6 +285,7 @@ function mutTick(T,t){const m=T.mu,e=$('shmut'),now=Date.now();if(!e)return;
   /* Mio, by herself: every 15〜25 s when no guest and no question is open */
   if(T.g||m.q.length||now<m.next)return;const box=$('shact');if(box&&box.innerHTML&&!box.querySelector('.svx'))return;
   m.next=now+15000+Math.random()*10000;
+  if(H.playing&&T.mio.pose!=='doze'&&Math.random()<.3){mut(T,'m',recLine('play'));return}
   if(window.MIOCT&&T.mio.pose!=='doze'&&Math.random()<.6){const rx=MIOCT.mutter();if(rx){mut(T,'m',rx);return}}
   const S=SH(),r=Math.random(),mp=T.mio.pose;let k;
   if(mp==='doze')k='doze';else if(!S.floor.length&&r<.45)k='empty';else if(S.floor.length&&S.floor.length<3&&r<.3)k='few';else if(mp==='sweep'&&r<.5)k='sweep';else k=r<.55?t:'any';
@@ -254,7 +294,7 @@ function mutTick(T,t){const m=T.mu,e=$('shmut'),now=Date.now();if(!e)return;
 let CT=null;   // the counter's state while it is open
 function counter(){if(CT)CT.alive=false;const S=SH();cleanFloor();
   H.show('cg',`<section class="pnl cgp shp shctr">${top('🧑‍💼 カウンター',`きょう 🪙${S.tday===C.today()?S.tearn:0}`)}
-    <div class="shstage"><canvas id="shcv" width="${W}" height="${HH}"></canvas><div class="shmut" id="shmut" hidden><b class="en"></b><small class="ja"></small></div></div>
+    <div class="shstage"><canvas id="shcv" width="${W}" height="${HH}"></canvas><div class="shnotes" id="shnotes"></div><div class="shmut" id="shmut" hidden><b class="en"></b><small class="ja"></small></div></div>
     <p class="shst" id="shst">お店を あけたよ。 お客さんを まとう</p>
     <div id="shact" class="shact"></div>
     <div class="row shcrow"><button id="shcall" class="sub">📣 よびこみ</button>${window.MIOCT?'<button id="shmio" class="sub">💬 話す</button>':''}<button id="shfl" class="sub">🏷️ 売り場（${S.floor.length}）</button></div></section>`);
@@ -268,10 +308,11 @@ function counter(){if(CT)CT.alive=false;const S=SH();cleanFloor();
   const status=t=>{const e=$('shst');if(e)e.innerHTML=t};T.status=status;
   /* 💬 ミオを タップ（または ボタン）で 話しかける（game/mio-ctr.js） */
   T.mut=line=>mut(T,'m',line,3200,1);
-  if(window.MIOCT){const tapMio=()=>MIOCT.tap(T,$('shact'));$('shmio').onclick=()=>{sf('step');tapMio()};
-    cv.onclick=ev=>{const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*W,y=(ev.clientY-r.top)/r.height*HH,m=T.mio;
-      if(x>m.x-8&&x<m.x+22&&y>m.y-6&&y<m.y+36){sf('tap');tapMio()}};
-    cv.style.cursor='pointer'}
+  const tapMio=()=>MIOCT.tap(T,$('shact'));if(window.MIOCT)$('shmio').onclick=()=>{sf('step');tapMio()};
+  cv.onclick=ev=>{const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*W,y=(ev.clientY-r.top)/r.height*HH,m=T.mio;
+    if(x>=PX[0]&&x<=PX[2]&&y>=PX[1]&&y<=PX[3])return recTap(T);
+    if(window.MIOCT&&x>m.x-8&&x<m.x+22&&y>m.y-6&&y<m.y+36){sf('tap');tapMio()}};
+  cv.style.cursor='pointer'
   let last=0;
   const tick=now=>{if(!T.alive||!cv.isConnected){T.alive=false;return}requestAnimationFrame(tick);if(now-last<140)return;last=now;T.f++;step(T);
     const d=night(),t=d>.6?'night':d>.25?'dusk':'day';
@@ -282,8 +323,11 @@ function counter(){if(CT)CT.alive=false;const S=SH();cleanFloor();
     const g=T.g;if(g&&g.y+32<=m.y+32){guest(c,g.x,g.y,g.L,g.pose,T.f>>1)}
     if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1)}
     if(g&&g.y+32>m.y+32)guest(c,g.x,g.y,g.L,g.pose,T.f>>1);
+    const on=!!H.shopSongId;player(c,on,T.f);
     if(g&&g.bub&&!(T.mu.who==='g'&&T.mu.until>Date.now()))bub(c,g.x+11,g.y-9,g.bub);
-    lights(c,t);mutTick(T,t)};
+    lights(c,t);if(t!=='day'){if(on)glow(c,182,93,12,t==='night'?.28:.18);PR(c,173,97,2,1,on?'#7aff9a':'#5a4a3a')}
+    if(H.playing&&now>=(T.noteAt||0)){T.noteAt=now+500+Math.random()*400;note()}
+    mutTick(T,t)};
   requestAnimationFrame(tick);
   if(!S.floor.length)setTimeout(()=>status('🏷️ 売り場が からっぽ… お客さんが 来ても 買えないよ。 カードを ならべよう'),1200)}
 /* Mio's little life between guests */
@@ -359,11 +403,15 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_shMutter',2,()=>SH().met&&MU().day?{}:null,goShop('counter')],
  ['x_shBgm',2,()=>songs().length&&!H.shopSongId?{}:null,goBgm],
  ['x_shBgmOn',1,()=>H.shopSongId?{song:songName(H.shopSongId)}:null,goBgm],
+ ['x_shRec',2,()=>SH().met&&songs().length?{}:null,goShop('counter')],
  ['x_shServe',3,()=>SH().met&&window.SHSV?{}:null,goShop('counter')]);
 /* 🎵 お店の BGM の ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
  x_shBgm:[['smile','レコード、 もってるよね。 カードショップの 🎵 BGMで えらぶと、 お店の 中で ながれるよ'],['happy','お店で 曲を ながすと、 ミオさんも ごきげんに なるんだって']],
  x_shBgmOn:[['happy','カードショップで 「{song}」を ながしてるんだね。 店長さんの センス、 いいね'],['smile','「{song}」は お店に 入ると ながれるよ。 浜辺では 波の 音を 聞こうね']],
+ x_shRec:[['smile','カードショップの カウンターの 前に レコードプレイヤーが あるよ。 タップすると 曲が かかって、 音符が ふわふわ 出てくるんだ'],['happy','ミオさん、 レコードプレイヤーで 曲を かけると ごきげんに なるんだって。 カウンターで ためしてみてね']],
+ sh_recOn:[['happy','あ、 お店から 「{song}」が 聞こえる。 いい曲だね'],['smile','レコードの 音って あったかいよね。 お仕事 がんばってね、 店長さん']],
+ sh_recNew:[['wow','お知らせ！ カードショップの カウンターの 前に レコードプレイヤーを おいたよ。 タップで 音楽の オン・オフが できて、 曲が ながれると 音符が ふわふわ 出てくるよ'],['smile','カウンターに レコードプレイヤーが 来たよ。 タップすると 曲が かかるんだ。 ミオさんも よろこんでたよ']],
  sh_bgmNew:[['wow','お知らせ！ レコードは カードショップの 中だけで ながれるように なったよ。 お店の 🎵 BGMで 曲を えらんでね'],['smile','曲は カードショップの 中だけで ながれるように なったんだ。 浜辺に 出ると 止まって、 お店に もどると また ながれるよ']]});
 /* the shop changed: Mina tells you once */
 setTimeout(function first(){const S=SH();if(S.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,15000);
@@ -372,6 +420,10 @@ setTimeout(function first(){const S=SH();if(S.told)return;const m=window.MINA;if
 /* records play only in the shop now: Mina tells you once（レコードを もっている 人だけ） */
 setTimeout(function first4(){const S=SH();if(S.bgmTold||!songs().length)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first4,20000);
   S.bgmTold=1;save();const [ex,tx]=ML('sh_bgmNew');m.say('m',ex,tx,10000,null,goBgm())},26000);
+
+/* the record player is new: Mina tells you once（もう お店を 知っている 人だけ） */
+setTimeout(function first5(){const S=SH();if(S.recTold||!S.met)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first5,20000);
+  S.recTold=1;save();const [ex,tx]=ML('sh_recNew');m.say('m',ex,tx,10000,null,goShop('counter')())},40000);
 
 /* the bubbles are new: Mina tells you once（もう お店を 知っている 人だけ） */
 setTimeout(function first3(){const S=SH();if(S.mutTold||!S.met||!MU().day)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first3,20000);
