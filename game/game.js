@@ -365,12 +365,21 @@ function sandSpots(){try{const d=SC.dbg(),k=d.k,F=(px,top,w,h)=>[px/d.WW,(top+h/
   catch(e){return [[.11,.66,.075,.06],[.74,.64,.07,.055],[.9,.62,.06,.05],[.4,.64,.065,.055]]}}
 function clearOfSpots(x,y){return sandSpots().every(([sx,sy,hw,hh])=>Math.abs(x-sx)>hw+.08||Math.abs(y-sy)>hh+.05)}
 const okSpot=(x,y)=>clearOfFire(x,y)&&clearOfSpots(x,y);
-function freeSpot(skip){const others=ST.radios.filter(r=>r!==skip&&r.x!=null&&r.y!=null);
-  for(let t=0;t<120;t++){const x=.07+Math.random()*.86,y=.66+Math.random()*.1;if(okSpot(x,y)&&others.every(o=>Math.abs(o.x-x)>.1||Math.abs(o.y-y)>.06))return [x,y]}
-  for(let t=0;t<120;t++){const x=.07+Math.random()*.86,y=.66+Math.random()*.1;if(okSpot(x,y)&&others.every(o=>Math.abs(o.x-x)>.07||Math.abs(o.y-y)>.04))return [x,y]}
-  for(let t=0;t<120;t++){const x=.07+Math.random()*.86,y=.66+Math.random()*.1;if(okSpot(x,y))return [x,y]}
-  return [.3+Math.random()*.25,.7]}
-function placeRadios(){ST.radios.forEach(r=>{if(r.y==null||r.y>.78||!okSpot(r.x,r.y)){[r.x,r.y]=freeSpot(r)}})}
+/* radios keep clear of each other in pixels, not fractions: on a narrow phone two radios 10% apart would sit on top of each other */
+const RAD_W=46,RAD_H=42;   // a radio button with its level badge and glow, in px
+const RAD_Y1=.86;   // the lowest a radio stands (the fire sits near the bottom of the sand since sw v180, so the sand below the huts is free)
+function winPx(){const w=$('window');return [w.clientWidth||360,w.clientHeight||640]}
+function radioGap(x,y,o){const [W,H]=winPx();return Math.max(Math.abs(x-o.x)*W/RAD_W,Math.abs(y-o.y)*H/RAD_H)}   // 1 or more = they don't touch
+function freeSpot(skip){const others=ST.radios.filter(r=>r!==skip&&r.x!=null&&r.y!=null),ok=[];
+  for(let x=.06;x<=.94;x+=.01)for(let y=.64;y<=RAD_Y1;y+=.01)if(okSpot(x,y))ok.push([x,y,others.length?Math.min(...others.map(o=>radioGap(x,y,o))):9]);
+  if(!ok.length)return [.3+Math.random()*.25,.7];
+  const roomy=ok.filter(c=>c[2]>=1.25),fits=ok.filter(c=>c[2]>=1);
+  const pool=roomy.length?roomy:fits.length?fits:[ok.reduce((a,c)=>c[2]>a[2]?c:a)];
+  const [x,y]=pool[Math.random()*pool.length|0];return [x,y]}
+/* a radio is moved when it stands on the fire, a hut or another radio (checked again when the screen size changes) */
+function placeRadios(){let moved=false;ST.radios.forEach((r,i)=>{const before=ST.radios.slice(0,i).filter(o=>o.x!=null&&o.y!=null);
+  if(r.x==null||r.y==null||r.y>RAD_Y1||!okSpot(r.x,r.y)||before.some(o=>radioGap(r.x,r.y,o)<1)){[r.x,r.y]=freeSpot(r);moved=true}});return moved}
+let rzT=0;addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if(placeRadios()){save();drawRadios()}},400)});
 const isNight=()=>phaseOf(GH())[1]==='night';
 const asleep=r=>LEVELS[r.lv].nightOnly&&!isNight();
 function drawRadios(){layer.innerHTML=ST.radios.map((r,i)=>`<button class="radio ${r.on?'on':''} ${asleep(r)?'sleep':''}" data-i="${i}" style="left:${r.x*100}%;top:${r.y*100}%" aria-label="${LEVELS[r.lv].name}ラジオ ${r.on?'オン':'オフ'}"><span class="rb">📻</span><b class="lv-${r.lv}">${LEVELS[r.lv].short}</b>${asleep(r)?'<i class="zz">💤</i>':''}</button>`).join('');
