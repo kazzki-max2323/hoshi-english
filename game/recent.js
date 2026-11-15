@@ -21,7 +21,7 @@
    meal   食堂で 食べた          {id, en, ja, ico, c(国)}
    snack  もちものの 食べ物を 食べた {id, en, ja, ico}
    zbuy   雑貨店で 買った        {id, en, ja, ico, kind}
-   zsell  雑貨店で 売った・返品   {en, ja, ico}
+   zsell  雑貨店で 売った・返品   {ja, ret, kind('music'|'radio'|'gift'|''), en(曲・ラジオの 英語名), tn(曲名)}
    gift   プレゼントした         {to, toN(名前), en, ja, ico, tier(0-3)}
    meteor 流れ星を つかまえた     {gold, coins}
    lesson 授業を おえた          {id, en, ja, miss}

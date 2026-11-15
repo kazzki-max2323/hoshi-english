@@ -13,6 +13,10 @@ const E=(good,t,s,j,fx,act)=>({end:1,good,t,s,j,fx,act});
 const P=c=>Z.price(c);
 const W=c=>c.it.w,TH=c=>c.it.title?`"${c.it.title}"`:'this '+c.it.w;
 const pickBy=(c,a)=>a[c.seed%a.length];
+/* 売る もの（一覧から えらんだ もの）の 言い方 */
+const SW=c=>c.pk==='bot'?'some empty bottles':c.pk==='g'?(c.it.kind==='music'?`my record, "${c.it.en}"`:`my ${c.it.en}`):c.it.title?'this book':`this ${c.it.w}`;
+const SY=c=>c.pk==='bot'?'a bag of empty bottles':c.pk==='g'?(c.it.kind==='music'?`your record, "${c.it.en}"`:`your ${c.it.en}`):c.it.title?`your book, "${c.it.title}"`:`your ${c.it.w}`;
+const SJ=c=>c.pk==='bot'?'からの びん':c.it.n;
 const list=a=>a.length<3?a.join(' and '):a.slice(0,-1).join(', ')+', and '+a[a.length-1];
 const listJ=a=>a.join('・');
 const TO={mina:["my teacher, Mina","ミナ先生"],gen:["Gen. He's a fisherman","つりびとの ゲンじい"],pochi:["Pochi. He's a dog","犬の ポチ"],sora:["Sora. She's my little friend","小さな 友だちの ソラ"],
@@ -363,6 +367,44 @@ sell:{t:'売りに 来た',start:'a',nodes:{
   /* ラジオ・レコード（game/zakka-goods-talk.js の gOwn へ） */
   ...Z.ownGoods(c.seed).slice(0,2).map(it=>O(it.kind==='music'?`I'd like to sell my record, "${it.en}".`:`I'd like to sell my ${it.en}.`,'sell',null,null,'@gOwn:offer',{j:`${it.n}を 売りたいです。`,act:c=>{c.it=it}})),
   O("Actually, never mind.",null,"No problem!","いいのよ！",'eNo',{j:"やっぱり やめます。"})]},
+ /* 💰 一覧（game/zakka.js sellList）から えらんで 来た とき: c.pk = bk(本・手帳) / gf(プレゼント) / tg(リクの お礼) / bot(びん) / g(ラジオ・レコード)
+    はじまりは 毎回 かわる（あいさつ・「それ なあに？」・ノラさんが 先に 気づく・すぐ 値段の 話）。 同じ 形は つづけて 出ない */
+ p0:{go:()=>Z.pickV('sellOpen',['p1','p2','p3','p4'])},
+ p1:{s:c=>pickBy(c,["Hello! What can I do for you today?","Hi there! Did you come to shop, or to sell?","Welcome back! What brings you here today?"]),
+   j:c=>pickBy(c,["こんにちは！ きょうは どうしたの？","いらっしゃい！ 買いに 来たの？ 売りに 来たの？","おかえり！ きょうは なんの 用？"]),o:[
+  O(c=>`I'd like to sell ${SW(c)}.`,'sell',null,null,'pr',{j:c=>`${SJ(c)}を 売りたいです。`}),
+  O("I'd like to sell Pip.",null,"Pip?! Ha ha! He's not for sale. He'd talk the new owner's ears off.","ピップ？！ あはは！ ピップは 売りものじゃ ないの。 新しい 飼い主が しゃべり つかれちゃう。",'p1b',{ok:0,j:"ピップを 売りたいです。",pip:"Not for sale! Not for sale!",fx:'🦜',if:c=>!c.pip,act:c=>{c.pip=1}})]},
+ p1b:{s:"So, what would you really like to sell?",j:"それで、 ほんとうは なにを 売りたいの？",o:[
+  O(c=>`I'd like to sell ${SW(c)}.`,'sell',null,null,'pr',{j:c=>`${SJ(c)}を 売りたいです。`})]},
+ p2:{s:"Oh? What's that you're holding?",j:"あら？ もっているの、 なあに？",o:[
+  O(c=>`I'd like to sell ${SW(c)}.`,'sell',null,null,'pr',{j:c=>`${SJ(c)}を 売りたいです。`}),
+  O("It's a secret!",null,"A secret? Then I can't buy it! Ha ha. Come on, show me.","ひみつ？ それじゃ 買えないわ！ あはは。 ほら、 見せて。",'p2b',{ok:0,j:"ひみつ！",fx:'🤫',pip:"Secret! Secret!"})]},
+ p2b:{s:"Well? What is it?",j:"それで？ なあに？",o:[
+  O(c=>`Sorry. I'd like to sell ${SW(c)}.`,'sell',null,null,'pr',{j:c=>`ごめんなさい。 ${SJ(c)}を 売りたいです。`})]},
+ p3:{s:c=>`Oh, is that ${SY(c)}? Would you like to sell it?`,j:c=>`あら、 それ ${SJ(c)}？ 売りたいの？`,o:[
+  O("Yes, please.",null,null,null,'pr',{j:"はい、 おねがいします。"}),
+  O("No. I just wanted to show you.",null,"Oh, how sweet! Thank you for showing me.","まあ、 うれしい！ 見せて くれて ありがとう。",'eShow',{j:"いいえ。 見せたかった だけです。"})]},
+ p4:{go:()=>'pr'},
+ pr:{go:c=>c.bgm?'pBgm':{bk:'bk',gf:'gf',tg:'tg',bot:'bot',g:'@gOwn:offer'}[c.pk]||'what'},
+ /* お店（カードショップ）で ながしている 曲を 売る ときは ひとこと たしかめる */
+ pBgm:{s:c=>`Wait. Isn't "${c.it.en}" the song you play in your card shop? Are you sure?`,j:c=>`まって。 「${c.it.n}」って、 あなたの カードショップで ながしている 曲 じゃない？ ほんとうに いいの？`,o:[
+  O("Yes. I'd like to try a new song.",null,null,null,'@gOwn:offer',{j:"はい。 新しい 曲に したいんです。"}),
+  O("Oh! Then I'll keep it.",'keepIt',null,null,'eKeep',{j:"あっ！ じゃあ、 もっておきます。"})]},
+ eShow:E(1,'見せに 来た',"Come and show me anytime. I like hearing about your treasures.","いつでも 見せに 来てね。 あなたの 宝物の 話、 好きなの。",'😊'),
+ /* 🎁 わたさなかった プレゼント */
+ gf:{s:c=>`${/^[aeiou]/i.test(c.it.w)?'An':'A'} ${c.it.w}! ${pickBy(c,["It looks brand new.","It's in perfect shape.","Nobody has used it yet, right?"])} I can give you ${Z.half(c.it)} coins.`,j:c=>`${c.it.n}ね！ ${pickBy(c,["新品みたい。","きれいな ままね。","まだ だれも つかってないのね？"])} ${Z.half(c.it)}まいで 買えるわ。`,enter:c=>{c.sellP=Z.half(c.it)},o:[
+  O("That sounds fair.",'fair',null,null,'eGf'),
+  O("Could you pay a little more?",'more',null,null,'gfMore'),
+  O("It was for someone, but I changed my mind.",null,"I see. Then I'll find it a happy new home.","そう。 じゃあ しあわせな 新しい 持ち主を さがすわね。",'gf2',{j:"だれかに あげる はずだったけど、 気が かわったんです。",if:c=>!c.cm,act:c=>{c.cm=1}}),
+  O("I'll keep it, then.",'keepIt',null,null,'eKeep')]},
+ gf2:{s:c=>`So, ${c.sellP} coins. How about it?`,j:c=>`それで、 ${c.sellP}まい。 どう？`,o:[
+  O("That sounds fair.",'fair',null,null,'eGf'),
+  O("Could you pay a little more?",'more',null,null,'gfMore'),
+  O("I'll keep it, then.",'keepIt',null,null,'eKeep')]},
+ gfMore:{s:c=>`Hmm... it IS a nice one. OK, ${Math.round(Z.half(c.it)*1.2)} coins.`,j:c=>`うーん… たしかに いい 品ね。 いいわ、 ${Math.round(Z.half(c.it)*1.2)}まい。`,enter:c=>{c.sellP=Math.round(Z.half(c.it)*1.2)},o:[
+  O("It's a deal!",'deal',null,null,'eGf'),
+  O("I'll keep it, then.",'keepIt',null,null,'eKeep')]},
+ eGf:E(1,'プレゼントを 売った',c=>`Here are your ${c.sellP} coins. I'll wrap it up for someone special.`,c=>`はい、 ${c.sellP}まい。 だれか とくべつな 人の ために つつんで おくわね。`,'🎁','sellGift'),
  bot:{s:"Empty bottles! I love old bottles. I put flowers in them. How many do you have?",j:"からの びん！ 古い びんって 大好き。 花を さすの。 何本 あるの？",o:[
   O(c=>`I have ${Z.bottles()}.`,null,null,null,'botOffer',{j:c=>`${Z.bottles()}本 あります。`}),
   O("I have a million!",null,"A million?! My shop is too small! ...Really, how many?","100万本？！ お店に 入らないわ！ …ほんとは 何本？",'bot2',{ok:0,j:"100万本 あります！",fx:'🍾'})]},

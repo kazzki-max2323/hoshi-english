@@ -27,6 +27,7 @@ function vals(e,N){const M=mem(),V={};e=e||{};
   if(e.k==='mine'){Object.assign(V,{d:e.depth,best:e.best,ok:e.ok,q:e.q,coins:e.coins,n:(e.cards||[]).length});if(e.cards&&e.cards[0]){const [w,j]=wordOf(e.cards[0]);V.w=w;V.wj=j}}
   if(e.k==='book'||e.k==='sell'||e.k==='buyin'){V.w=e.en;V.wj=e.ja;V.p=e.p}
   if(e.k==='meal'||e.k==='snack'){V.food=e.en;V.foodj=e.ja}
+  if(e.k==='zsell'&&e.kind==='music'){V.rec=e.en;V.recj=e.tn||e.ja}
   if(e.k==='zbuy'||e.k==='gift'){V.item=e.en;V.itemj=e.ja}
   if(e.k==='gift'){V.to=MIOT_NAME[e.to]||'someone';V.toj=e.toN||'だれか'}
   if(e.k==='meteor')V.coins=e.coins;

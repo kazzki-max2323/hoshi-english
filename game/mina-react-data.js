@@ -180,6 +180,11 @@ const MINA_REACT_LINES={
   ['smile','{n}を 売ったんだね。 英語で 売るは sell、 買うは buy。 セットで 覚えよう'],
   ['think','{n}、 手ばなしちゃったの？ 売るのも 英語の 練習に なるね'],
  ],
+ r_zk_sellRec:[
+  ['smile','レコードの 「{n}」を 売ったんだね。 また たなに ならんだら 買いもどせるよ'],
+  ['think','曲を 売ったの？ 英語では 「I sold my record.」。 sell の 過去形は sold だよ'],
+  ['happy','{n}、 いい 曲 だったよね。 つぎは どんな 曲を 聞くの？'],
+ ],
  r_zk_refund:[
   ['smile','返品も 英語で できたの？ "Can I return this?" 、 むずかしい 会話 なのに すごいよ'],
  ],

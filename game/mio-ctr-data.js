@@ -128,7 +128,10 @@ const MIOT=[
 {id:'zb_any',k:'zbuy',if:e=>!e.en,m:["You went to Nora's shop, right? Did Pip the parrot say anything funny?","ノラさんの お店、 行きました？ オウムの ピップ、 なにか おもしろい こと 言ってました？"],ex:'laugh',o:[
  ["He said \"Hello\" ten times.","「Hello」を 10回 言ってた。",["Ha ha! He only knows five words, but he uses them with confidence!","あはは！ 5つしか 単語 知らない のに、 自信 まんまん なんですよね！",'laugh']],
  ["He was sleeping.","ねてた。",["Even parrots need naps. Just like me after lunch. Ha ha.","オウムも お昼ね するんですね。 お昼の あとの わたしと 同じ。 あはは。",'wink']]],ph:["with confidence","自信を もって"]},
-{id:'zs_sell',k:'zsell',m:["I heard you sold something at Nora's. Cleaning out your bag?","ノラさんの お店で なにか 売ったって？ かばんの 整理？"],ex:'smile',o:[
+{id:'zs_rec',k:'zsell',if:e=>e.kind==='music'&&!!e.en,m:["Wait… did you sell the record \"{rec}\" at Nora's? I liked that one! …Just kidding. Let's find a new favorite song.","えっ… ノラさんの お店で レコード 「{recj}」 売っちゃったんですか？ あれ 好きだったのに！ …なんて ね。 新しい お気に入り、 さがしましょ。"],ex:'oops',o:[
+ ["Sorry! I needed coins.","ごめん！ コインが 必要で。",["It's OK, boss. Songs come and go… like customers! Ha ha.","いいんですよ、 店長。 曲も お客さんも、 来ては 行くもの！ あはは。",'laugh']],
+ ["What song do you want next?","つぎは どの 曲が いい？",["Something with a happy beat! Then I can dance behind the counter. Just a little.","ノリの いい 曲！ そしたら カウンターの うしろで おどれる。 ちょっとだけ。",'wink']]],ph:["come and go","来ては 去る"]},
+{id:'zs_sell',k:'zsell',if:e=>e.kind!=='music',m:["I heard you sold something at Nora's. Cleaning out your bag?","ノラさんの お店で なにか 売ったって？ かばんの 整理？"],ex:'smile',o:[
  ["I needed coins.","コインが 必要で。",["Coins for… more packs? Ha ha, a true card shop boss!","コインで… パック？ あはは、 さすが カードショップの 店長！",'laugh']],
  ["My bag was too full.","かばんが いっぱいで。",["I know that feeling. My bag is full of… sticky notes. Hundreds of them.","わかります。 わたしの かばんは… ふせんで いっぱい。 何百まいも。",'oops']]]},
 
