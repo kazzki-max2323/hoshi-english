@@ -91,7 +91,7 @@ function next(){P.i++;const A=$('msans');if(!A)return;
   $('msnx').onclick=()=>{sf('step');A.innerHTML='';them(pickL(TK.mid),'smile');later(ask,1100)}}
 
 function finish(){if(!live()||P.done)return;P.done=1;const S=SR(),d=today();if(S.d!==d){S.d=d;S.dn=0}
-  const paid=S.dn<PER_DAY;S.dn++;S.n++;
+  const paid=S.dn<PER_DAY;S.dn++;S.n++;try{RECENT.add('mio',{id:'study',how:'study',topics:P.qs.map(q=>q.id)})}catch(e){}
   const ones=P.qs.filter(q=>P.first[q.id]).length;
   const heart=paid&&window.MIOC?MIOC.gain(ones+1,'study'):'';
   const coins=paid?PAY:0;save();

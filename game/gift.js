@@ -197,6 +197,7 @@ function end(){if(!live())return;const {p,t,it,to}=C;
   const key=C.fun>=2?'fun':TIER[t][0],ek=to+':'+key,newEnd=!GF.end[ek];GF.end[ek]=1;
   const firstSeen=seen(to,it.key)==null;(GF.seen[to]=GF.seen[to]||{})[it.key]=t;
   GF.n++;GF.gave[to]=(GF.gave[to]||0)+1;if(C.fun)GF.fun+=C.fun;
+  try{RECENT.add('gift',{to,toN:(PP[to]||{}).n||'',en:it.w||'',ja:it.n||'',ico:it.ico||'',tier:t})}catch(e){}
   /* なかよし */
   let heart='';
   if(to==='mina'){const pts=it.lux?30:[1,3,6,10][t];try{MOTI.gain(pts)}catch(e){}heart=`❤️ ミナ先生と なかよし +${pts}`;try{const lh=window.LOVE?LOVE.gift(t,it):'';if(lh)heart+=`　${lh}`}catch(e){}}

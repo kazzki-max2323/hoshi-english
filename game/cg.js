@@ -412,7 +412,7 @@ function buyAsk(p){if(!buyLeft()){H.toast('きょうの 仕入れは おわり<s
     <button id="cgqk">🎁 仕入れる</button><button id="cgno" class="sub">やめる</button></div>`,'by');
   $('cgno').onclick=()=>{sf('back');closeOv()};
   $('cgqk').onclick=()=>{closeOv();if(!buyLeft()||!pay(p.p))return;const d=today();CG.buy=CG.buy&&CG.buy.d===d?CG.buy:{d,n:0};CG.buy.n++;save();deliver(p)}}
-function deliver(p){
+function deliver(p){try{RECENT.add('pack',{en:p.en||'',ja:p.n,ico:p.ico})}catch(e){}
   if(p.k==='kira')return reveal(kiraCards(packN()),p.n,packs);
   reveal(receive(packCards(p.k,p.arg)),p.n,packs)}
 

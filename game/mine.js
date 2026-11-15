@@ -241,9 +241,11 @@ function burst(){const L=layerOf(D.depth);for(let i=0;i<14;i++)D.parts.push({x:9
 /* ================================================================ back home */
 function finish(why){if(!D)return;const d=D;D.alive=false;D=null;keepHp(d.hp);const M=MN(),S=(()=>{try{return SHOP.rec()}catch(e){return {}}})();
   try{C.closeOv()}catch(e){}
+  const pb=M.best||0;
   if(d.depth>M.best)M.best=d.depth;if(d.depth>(S.best||0))S.best=d.depth;S.mined=(S.mined||0)+1;
   let mapN=null;try{if(d.depth>=8&&window.ADV&&!ADV.has()&&Math.random()<.2)mapN=ADV.give()}catch(e){}
   if(d.coins)H.addCoins(d.coins);C.save();
+  try{RECENT.add('mine',{depth:d.depth,best:pb,ok:d.ok,q:d.q,cards:d.got.map(x=>x.id),rare:d.got.some(x=>/^t:/.test(x.id)),coins:d.coins,hp:why==='hp'?'hp':''})}catch(e){}
   hand=null;   // つぎは また 苦手から えらびなおす
   const head=why==='hp'?'⛏️ つかれたので 帰ってきた':'🎒 もちかえった';
   const ws=Object.entries(d.words),S2=stageOf(d.st);

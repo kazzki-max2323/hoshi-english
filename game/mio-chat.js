@@ -100,7 +100,7 @@ function node(k){if(!live())return;const n=C.t.nodes[k];if(!n)return;
 
 const ENDN={good:['★','いい エンド','g'],ok:['🙂','ふつうの エンド',''],fun:['😂','おもしろ エンド','']};
 function finish(n,k){if(!live())return;const M=MR(),t=C.t,ek=t.id+':'+k,newEnd=!M.ends[ek],d=today(),s0=stage();
-  M.ends[ek]=1;M.n[t.id]=(M.n[t.id]||0)+1;
+  M.ends[ek]=1;M.n[t.id]=(M.n[t.id]||0)+1;try{RECENT.add('mio',{id:t.id,end:k,kind:n.end,how:'talk'})}catch(e){}
   const add=newEnd?Math.max(1,C.pts):M.day[t.id]!==d?1:0;M.day[t.id]=d;
   const heart=gain(add,'talk');
   if(n.lover)setLover();
