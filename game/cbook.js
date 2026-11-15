@@ -87,7 +87,7 @@ function tap(id,cl){const I=C.info(id);
   if(cl.contains('in'))return menu(id);
   if(cl.contains('can'))return put(id);
   if(cl.contains('fl')){sf('pop');H.toast('🏷️ 売り場に 出ている カードだよ<small>売り場から 下げると 入れられるよ</small>');return}
-  sf('pop');H.toast(`まだ もっていない カード<small>${I.k==='t'?'⛏️ 鉱山の 奥や 🎁宝箱くじで 見つかるよ':I.k==='w'?'⛏️ 鉱山や 仕入れで 見つかるよ':'仕入れの パックで 出るよ'}</small>`)}
+  sf('pop');H.toast(`まだ もっていない カード<small>${I.k==='t'?'⛏️ 鉱山の 奥や 💎きらきら宝パックで 見つかるよ':I.k==='w'?'⛏️ 鉱山や 仕入れで 見つかるよ':'仕入れの パックで 出るよ'}</small>`)}
 
 function put(id){if(!canIn(id))return;const p=pg[cur]||0;B()[id]=1;save();flash=id;sf('card');
   const full=pageFull(cur,p),done=list(cur).every(has);open();

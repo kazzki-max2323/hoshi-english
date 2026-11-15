@@ -2,9 +2,9 @@
    - カード: 単語帳の 6000語あまり（小・中・高・ハイレベル）＋ 宝箱の カード（宝カード）＋ 語源パーツ ＋ 文カード
    - 絵: 単語の 意味の 絵（2つの 絵の 組み合わせも）。 属性と レベルで 背景と わくが かわり、 もようは 単語ごとに ちがう（同じ 見た目の カードは ない）
    - おぼえた 度合い（正解で 育つ。 画面には 出さない）は 鉱山の カードの えらび方に つかう。 苦手（まちがいが 多い・まちがいノートの 単語）と わすれかけ（しばらく 見ていない）の しるし
-   - ショップ: パック（レベル・テーマ・パーツ・文）、 きょうの 1まい売り、 ねらいうち注文（1日1まい）、 ダブりの かけら・合成・交換、 デッキ、 図鑑、 コンボ図鑑
-   - 仕入れ（パック）は 問屋さんと 英語で やりとりすると おまけが つく
-   道場・ほかの 機能との 連動・ミナ先生の セリフは game/cg-more.js。 データは game/cg-data.js */
+   - お店で できる ことの うち カードを ふやすのは 仕入れ（パック）だけ。 段位（級）は ない。 パックは ぜんぶ さいしょから 買えて、 1パック 10まい前後
+   - 仕入れ（パック）は 英語で やりとりすると おまけが つく
+   ほかの 機能との 連動・ミナ先生の セリフは game/cg-more.js。 データは game/cg-data.js */
 (()=>{
 const {S:ST,sfx:SFX}=BEACH;
 const H=HE,esc=H.esc,$=id=>document.getElementById(id);
@@ -225,7 +225,6 @@ function closeOv(){const o=$('cardOv');if(o)o.remove()}
 /* the big card: tap 🔊, its combos, friends and opposites */
 function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0,x=stat(id),h=I.h;
   const cs=I.k==='w'?combosWith(h):[],known=cs.filter(c=>CG.combo[c.k]);
-  const R=rank();
   const o=ov(`<div class="cgdv">${face(id,{big:1,ja:own})}
     <div class="cgdi">
       <button class="cgsay" id="cgsay">🔊 ${esc(I.en)}</button>
@@ -237,9 +236,9 @@ function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0
         <p>コスト ${I.cost}${cstat(id)?`　⚔${cstat(id).a} 🛡${cstat(id).d} ❤${cstat(id).h}`:`　パワー ${power(id)}`}${x[2]+x[3]?`　⭕${x[2]} ❌${x[3]}`:''}</p>
         ${weak(id)?'<p>😣 苦手カード: 鉱山で 何度も 使って 取りもどそう</p>':''}${forgot(id)?'<p>💤 わすれかけ: そろそろ ふくしゅう</p>':''}
         ${cs.length?`<p>🔗 コンボ ${known.length}/${cs.length}: ${cs.map(c=>CG.combo[c.k]?`<b>${esc(c.p)}</b>`:'？？？').join('、 ')}</p>`:''}
-        ${R>=CG_RULE_AT.counter&&ANTO[h]?`<p>⚡ 反対語: ${esc([...ANTO[h]].join(', '))}</p>`:''}
-        ${R>=CG_RULE_AT.guard&&SYN[h]?`<p>🛡️ なかま: ${esc([...SYN[h]].join(', '))}</p>`:''}
-        ${R>=CG_RULE_AT.morph&&formsOf(I)?`<p>🔄 変身: ${esc(I.en)}</p>`:''}
+        ${ANTO[h]?`<p>⚡ 反対語: ${esc([...ANTO[h]].join(', '))}</p>`:''}
+        ${SYN[h]?`<p>🛡️ なかま: ${esc([...SYN[h]].join(', '))}</p>`:''}
+        ${formsOf(I)?`<p>🔄 変身: ${esc(I.en)}</p>`:''}
         ${I.k==='p'?`<p>🧩 できる 単語: ${DERIV.filter(d=>d.p===I.part).slice(0,12).map(d=>esc(d.d)).join(', ')}…</p>`:''}
         ${I.k==='s'?`<p>📜 文カード（あつめる カード）</p>`:''}
       </details>
@@ -255,30 +254,31 @@ function cleanDeck(){}
 function deckCombos(ids){const hs=[...new Set(ids.map(id=>(info(id)||{}).h).filter(Boolean))],out=[];
   for(let i=0;i<hs.length;i++)for(let j=i+1;j<hs.length;j++){const c=comboOf(hs[i],hs[j]);if(c)out.push(c)}return out}
 
-/* ================================================================ rank */
-function rank(){let r=0;CG_RANKS.forEach((x,i)=>{if((CG.rp||0)>=x[1])r=i});return r}
-const rankName=(r=rank())=>CG_RANKS[r][0];
-const ruleOn=k=>rank()>=CG_RULE_AT[k];
-/* the pack levels you can buy */
-const lvOpen=lv=>rank()>=({es:0,jh:1,hs:4,adv:6})[lv];
+/* 段位（級）は なくした: どの レベルも さいしょから ひらいている */
+const lvOpen=()=>true;
 
 /* ================================================================ getting cards */
 let fx=null;
-function packCards(kind,arg){const R=rank(),out=[];const lvs=LVK.filter(lvOpen);
+/* 1パック 10まい前後（9〜11まい） */
+const packN=()=>9+Math.floor(Math.random()*3);
+function packCards(kind,arg){const out=[],N=packN();
   const fresh=list=>{const f=list.filter(c=>!owns(c.id));return f.length&&Math.random()<.65?pickL(f):pickL(list)};
   if(kind==='lv'){const pool=W.filter(c=>c.lv===arg);
-    const wk=[...weakHeads()].map(cardOfHead).filter(c=>c&&c.lv===arg);if(wk.length)out.push(pickL(wk).id);
-    /* one pair that makes a combo, now and then */
-    if(Math.random()<.6){const cs=COMBO.filter(c=>cardOfHead(c.a).lv===arg||cardOfHead(c.b).lv===arg);const c=cs.length&&pickL(cs);if(c){out.push(cardOfHead(c.a).id,cardOfHead(c.b).id)}}
-    while(out.length<5)out.push(fresh(pool).id)}
-  else if(kind==='at'){const pool=W.filter(c=>c.a===arg&&lvs.includes(c.lv));while(out.length<5)out.push(fresh(pool).id)}
-  else if(kind==='part'){const ks=Object.keys(CG_PARTS);for(let i=0;i<3;i++){const k=pickL(ks);out.push('p:'+k);
-      const ds=DERIV.filter(d=>d.p===k&&lvs.includes(cardOfHead(d.b).lv));if(ds.length&&i<2)out.push(cardOfHead(pickL(ds).b).id)}
-    while(out.length<5)out.push(fresh(W.filter(c=>lvs.includes(c.lv))).id)}
-  else if(kind==='sent'){const ss=SENT.filter(s=>lvs.includes(s.lv));const s=pickL(ss.filter(s=>!owns('s:'+s.i)).length?ss.filter(s=>!owns('s:'+s.i)):ss);out.push('s:'+s.i);
-    sentWords(s).map(w=>cardOfHead(w.toLowerCase())).filter(Boolean).slice(0,4).forEach(c=>out.push(c.id));
-    while(out.length<5)out.push(fresh(W.filter(c=>c.lv===s.lv)).id)}
-  return out.slice(0,5)}
+    const wk=H.shuffle([...weakHeads()].map(cardOfHead).filter(c=>c&&c.lv===arg));wk.slice(0,2).forEach(c=>out.push(c.id));
+    /* a pair or two that make a combo */
+    const cs=COMBO.filter(c=>cardOfHead(c.a).lv===arg||cardOfHead(c.b).lv===arg);
+    for(let k=0;k<2;k++)if(cs.length&&Math.random()<.6){const c=pickL(cs);out.push(cardOfHead(c.a).id,cardOfHead(c.b).id)}
+    while(out.length<N)out.push(fresh(pool).id)}
+  else if(kind==='at'){const pool=W.filter(c=>c.a===arg);while(out.length<N)out.push(fresh(pool).id)}
+  else if(kind==='part'){const ks=Object.keys(CG_PARTS);for(let i=0;i<5;i++){const k=pickL(ks);out.push('p:'+k);
+      const ds=DERIV.filter(d=>d.p===k&&cardOfHead(d.b));if(ds.length&&i<4)out.push(cardOfHead(pickL(ds).b).id)}
+    while(out.length<N)out.push(fresh(W).id)}
+  else if(kind==='sent'){for(let k=0;k<2;k++){const nw=SENT.filter(s=>!owns('s:'+s.i)&&!out.includes('s:'+s.i)),s=pickL(nw.length?nw:SENT);out.push('s:'+s.i);
+      sentWords(s).map(w=>cardOfHead(w.toLowerCase().replace(/[^a-z'-]/g,''))).filter(Boolean).slice(0,3).forEach(c=>out.push(c.id))}
+    const lv=info(out[0]).lv;while(out.length<N)out.push(fresh(W.filter(c=>c.lv===lv)).id)}
+  return out.slice(0,N)}
+/* 💎 きらきら宝パック: 宝カードだけ（R以上・SR以上 1まい かくてい） */
+function kiraCards(n){if(!window.CARDS||!CARDS.pull)return [];return CARDS.pull(n,2).map(g=>({id:'t:'+g.c.e,isNew:g.isNew}))}
 /* put the cards in; returns [{id,isNew}] */
 function receive(ids){return ids.map(id=>{const isNew=!owns(id);give(id);return {id,isNew}})}
 /* open a pack on screen */
@@ -293,7 +293,7 @@ function reveal(got,title,back){save();cleanDeck();
       if(I.k==='w')setTimeout(()=>{try{H.say(I.lv,I.en)}catch(e){}},150);
       if(--left===0){$('cgall').hidden=true;$('cgok').hidden=false;
         const np=got.filter(g=>g.isNew).map(g=>info(g.id)).filter(I=>I.k==='w');const cs=deckCombos(Object.keys(CG.c)).filter(c=>np.some(I=>I.h===c.a||I.h===c.b)&&!CG.combo[c.k]);
-        if(cs.length)H.toast(`✨ コンボの なかまが そろったかも…？<small>コンボ道場で ためしてみよう</small>`,3200)}};
+        if(cs.length)H.toast(`✨ コンボの なかまが そろったかも…？<small>鉱山の あなうめで 見つかるよ</small>`,3200)}};
     slots.forEach(s=>s.onclick=()=>{if(s.classList.contains('open')){const I=info(got[+s.dataset.i].id);try{H.say(I.k==='t'?'cards':I.lv,I.en)}catch(e){}}else flip(s)});
     $('cgall').onclick=()=>slots.forEach((s,i)=>setTimeout(()=>flip(s),i*140));
     $('cgok').onclick=()=>{sf('back');closeOv();back&&back()};
@@ -353,42 +353,29 @@ function starter(){const pool=W.filter(c=>c.lv==='es');const ids=[];
   H.shuffle(COMBO.filter(c=>cardOfHead(c.a).lv==='es'&&cardOfHead(c.b).lv==='es')).slice(0,5).forEach(c=>ids.push(cardOfHead(c.a).id,cardOfHead(c.b).id));
   while(ids.length<15){const c=pickL(pool);if(!ids.includes(c.id))ids.push(c.id)}
   receive(ids);CG.deck=ids.slice();CG.met=1;save();return ids}
-/* the shop's front: big tiles */
-function open(){if(window.SHOP)return SHOP.open();cleanDeck();const first=!CG.met;
-  const g=first?CG_NAGI.first[0]:pickL(CG_NAGI.hi);
-  const tiles=[['battle','🏝️','島めぐり'],['pack','🎁','パック'],['one','🃏','1まい売り'],['snipe','🎯','ねらいうち'],['trade','♻️','交換・合成'],['book','📖','カード図鑑'],['combo','🔗','コンボ図鑑'],
-    ['dojo','🥋','コンボ道場'],['tour','🏆','カード大会'],['treasure','🎁','宝箱くじ']];
-  H.show('cg',`<section class="pnl cgp">
-    <div class="qtop"><button class="x" id="cgx" aria-label="もどる">←</button><b>🃏 カードショップ しおさい</b><span class="qn">${esc(rankName())}</span></div>
-    ${bubble(g[0],g[1])}
-    <div class="cgtiles">${tiles.map(([k,i,n])=>{const lock=k==='tour'&&!ruleOn('tour');const dot=k==='one'&&CG.d!==today()||k==='snipe'&&CG.snipe!==today()&&CG.met||k==='treasure'&&window.CARDS&&CARDS.freeOk();
-      return `<button data-t="${k}" class="${k==='battle'?'big':''} ${lock?'lk':''}"><span>${lock?'🔒':i}</span>${n}${dot?'<i class="dot"></i>':''}</button>`}).join('')}</div>
-  </section>`);
-  $('cgx').onclick=()=>{sf('back');H.home()};
-  bindBubble();speak(g[0]);
-  H.panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{sf('step');go(b.dataset.t)});
-  if(first)setTimeout(()=>{const ids=starter();reveal(ids.slice(0,5).map(id=>({id,isNew:true})),'スターターデッキ（15まい）',()=>{H.toast(`🗂️ ${esc(CG_NAGI.first[1])}`,3600);open()})},700)}
-function bindBubble(){const b=H.panel.querySelector('.cgnb');if(b)b.onclick=()=>{jaOn=!jaOn;b.querySelector('.ja').hidden=!jaOn;const t=b.querySelector('.en').textContent;window.MIO?MIO.say(t):speak(t)}}
-function go(t){({battle:()=>window.MINE?MINE.open():open(),mine:()=>window.MINE?MINE.open():open(),pack:packs,one:single,snipe,trade,book:()=>book(),combo:comboBook,
-  dojo:()=>window.CGM&&CGM.dojo(open),tour:()=>window.MINE?MINE.open():open(),
-  treasure:()=>window.CARDS&&CARDS.open(null,open)})[t]()}
+/* the shop's front is game/shop.js */
+function open(){if(window.SHOP)return SHOP.open();H.home()}
+/* 仕入れ と 鉱山 だけ（ほかの 売り場・図鑑・道場は なくした。 古い 呼び出しは お店の 入口へ） */
+function go(t){({pack:packs,mine:()=>window.MINE?MINE.open():open()}[t]||open)()}
 const top=(t,right='')=>`<div class="qtop"><button class="x" id="cgb" aria-label="もどる">←</button><b>${t}</b><span class="qn">${right}</span></div>`;
 const coinTxt=n=>`🪙${n}`;
 function pay(n){if(ST.coins<n){H.toast('🪙 コインが たりないよ');sf('wrong');return false}ST.coins-=n;save();H.head();sf('buy');return true}
 
-/* 🎁 packs */
-function packList(){const L=[];LVK.forEach(lv=>L.push({k:'lv',arg:lv,ico:'🎴',n:`${LV[lv].n}パック`,p:LV[lv].pack,open:lvOpen(lv),need:({es:0,jh:1,hs:4,adv:6})[lv],lv}));
-  CG_ATTR.forEach(a=>L.push({k:'at',arg:a[0],ico:a[1],n:`${a[2]}パック`,p:120,open:ruleOn('counter'),need:CG_RULE_AT.counter}));
-  L.push({k:'part',ico:'🧩',n:'語源パーツパック',p:160,open:ruleOn('parts'),need:CG_RULE_AT.parts});
-  L.push({k:'sent',ico:'📜',n:'文カードパック',p:200,open:ruleOn('sent'),need:CG_RULE_AT.sent});return L}
+/* 🎁 仕入れ（パック）: ぜんぶ さいしょから 買える */
+const PACK_P={part:350,sent:450,kira:1200,at:300};
+function packList(){const L=[];LVK.forEach(lv=>L.push({k:'lv',arg:lv,ico:'🎴',n:`${LV[lv].n}パック`,p:LV[lv].pack,lv}));
+  CG_ATTR.forEach(a=>L.push({k:'at',arg:a[0],ico:a[1],n:`${a[2]}パック`,p:PACK_P.at}));
+  L.push({k:'part',ico:'🧩',n:'語源パーツパック',p:PACK_P.part});
+  L.push({k:'sent',ico:'📜',n:'文カードパック',p:PACK_P.sent});
+  if(window.CARDS&&CARDS.pull)L.push({k:'kira',ico:'💎',n:'きらきら宝パック',p:PACK_P.kira});return L}
 function packs(){const L=packList(),free=CG.free!==today();
-  H.show('cg',`<section class="pnl cgp">${top('🎁 パック',coinTxt(ST.coins))}
+  H.show('cg',`<section class="pnl cgp">${top('🎁 仕入れ',coinTxt(ST.coins))}
     ${free?`<button class="cgfree" id="cgfree">🎁 きょうの むりょうパック（3まい）</button>`:''}
-    <div class="cgpl">${L.map((p,i)=>`<button data-i="${i}" class="${p.open?'':'lk'}"><span class="pi">${p.open?p.ico:'🔒'}</span><span class="pn">${esc(p.n)}</span><span class="pp">${p.open?coinTxt(p.p):esc(CG_RANKS[p.need][0])+'〜'}</span></button>`).join('')}</div>
-    <p class="note">1パック 5まい。 まだ もっていない カードが 出やすいよ</p></section>`);
+    <div class="cgpl">${L.map((p,i)=>`<button data-i="${i}"><span class="pi">${p.ico}</span><span class="pn">${esc(p.n)}</span><span class="pp">${coinTxt(p.p)}</span></button>`).join('')}</div>
+    <p class="note">1パック 10まい前後。 まだ もっていない カードが 出やすいよ</p></section>`);
   $('cgb').onclick=()=>{sf('back');open()};
-  if(free)$('cgfree').onclick=()=>{CG.free=today();const lv=LVK.filter(lvOpen).includes(myLv())?myLv():'es';const ids=packCards('lv',lv).slice(0,3);reveal(receive(ids),'きょうの むりょうパック',packs)};
-  H.panel.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const p=L[+b.dataset.i];if(!p.open){H.toast(`🔒 ${esc(p.n)}は <b>${esc(CG_RANKS[p.need][0])}</b> から<small>鉱山で 正解して 段位を 上げよう</small>`);return}buyAsk(p)})}
+  if(free)$('cgfree').onclick=()=>{CG.free=today();const ids=packCards('lv',myLv()).slice(0,3);reveal(receive(ids),'きょうの むりょうパック',packs)};
+  H.panel.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>buyAsk(L[+b.dataset.i]))}
 const myLv=()=>{try{return MINA.level()}catch(e){return 'es'}};
 /* buy: quickly, or in English (a bonus card) */
 function buyAsk(p){if(ST.coins<p.p){H.toast('🪙 コインが たりないよ');sf('wrong');return}
@@ -397,9 +384,10 @@ function buyAsk(p){if(ST.coins<p.p){H.toast('🪙 コインが たりないよ')
   $('cgno').onclick=()=>{sf('back');closeOv()};
   $('cgqk').onclick=()=>{closeOv();if(!pay(p.p))return;deliver(p,false)};
   $('cgen').onclick=()=>{closeOv();if(!pay(p.p))return;talkBuy(p,ok=>deliver(p,ok))}}
-function deliver(p,bonus){
-  let ids=packCards(p.k,p.arg);if(bonus){const lv=p.lv||LVK.filter(lvOpen).pop();ids.push(pickL(W.filter(c=>c.lv===lv&&!owns(c.id))).id)}
-  CG.talk=(CG.talk||0)+(bonus?1:0);reveal(receive(ids),p.n+(bonus?'＋おまけ':''),packs)}
+function deliver(p,bonus){CG.talk=(CG.talk||0)+(bonus?1:0);
+  if(p.k==='kira'){const got=kiraCards(packN()+(bonus?1:0));return reveal(got,p.n+(bonus?'＋おまけ':''),packs)}
+  let ids=packCards(p.k,p.arg);if(bonus){const lv=p.lv||'adv',nw=W.filter(c=>c.lv===lv&&!owns(c.id));ids.push(pickL(nw.length?nw:W.filter(c=>c.lv===lv)).id)}
+  reveal(receive(ids),p.n+(bonus?'＋おまけ':''),packs)}
 /* the English talk with Nagi: two lines at your level */
 function talkBuy(p,done){const lv=({es:'es',jh:'jh',hs:'hs',adv:'hs'})[myLv()]||'es';const T=H.shuffle(CG_BUY_TALK[lv]).slice(0,2);let i=0,good=0;
   const step=()=>{const t=T[i];const ch=H.shuffle(t[1].map((x,j)=>[x,j]));
@@ -412,43 +400,6 @@ function talkBuy(p,done){const lv=({es:'es',jh:'jh',hs:'hs',adv:'hs'})[myLv()]||
         const end=good===T.length?["Perfect English! Here's a little bonus card for you.","かんぺきな 英語！ おまけの カードを どうぞ。"]:["Thanks! Your English is getting better.","ありがとう！ 英語、 上手に なってるよ。"];
         H.toast(`📦 「${esc(end[0])}」<small>${esc(end[1])}</small>`,3200);speak(end[0]);done(good===T.length)}}})};
   step()}
-
-/* 🃏 today's single cards: 6, the same all day */
-function todays(){const d=today(),lvs=LVK.filter(lvOpen),out=[];let s=hash('one'+d);
-  const pool=W.filter(c=>lvs.includes(c.lv));
-  for(let i=0;out.length<6&&i<50;i++){s=hash(s+':'+i);const c=pool[s%pool.length];if(!out.includes(c.id))out.push(c.id)}
-  /* one card that makes a combo with something you have */
-  const mine=new Set(ownedWords().map(id=>BY[id].h));const cs=COMBO.filter(c=>mine.has(c.a)!==mine.has(c.b));
-  if(cs.length){const c=cs[hash('cmb'+d)%cs.length],h=mine.has(c.a)?c.b:c.a,cc=cardOfHead(h);if(cc&&lvs.includes(cc.lv))out[5]=cc.id}
-  return out}
-function single(){if(CG.d!==today()){CG.d=today();CG.bought=[];save()}const T=todays();
-  H.show('cg',`<section class="pnl cgp">${top('🃏 きょうの 1まい売り',coinTxt(ST.coins))}
-    ${bubble(...CG_NAGI.hi[2])}
-    <div class="cggrid g3">${T.map(id=>{const I=info(id),sold=CG.bought.includes(id);return `<div class="cgsale ${sold?'sold':''}">${face(id,{ja:1})}<button data-b="${esc(id)}" ${sold?'disabled':''}>${sold?'うりきれ':coinTxt(LV[I.lv].one)}</button></div>`}).join('')}</div>
-    <p class="note">あしたに なると 入れかわるよ</p></section>`);
-  $('cgb').onclick=()=>{sf('back');open()};bindBubble();
-  H.panel.querySelectorAll('.cgsale .cgc').forEach(el=>el.onclick=()=>{const I=info(el.dataset.id);try{H.say(I.lv,I.en)}catch(e){}});
-  H.panel.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const id=b.dataset.b,I=info(id);if(!pay(LV[I.lv].one))return;CG.bought.push(id);const r=receive([id]);save();
-    H.toast(`🃏 <b>${esc(I.en)}</b>（${esc(I.ja)}）${r[0].isNew?' NEW!':''}`);try{H.say(I.lv,I.en)}catch(e){}single()})}
-
-/* a search box over all word cards: returns matches */
-function search(q,lvs,limit=30){q=q.trim().toLowerCase();if(!q)return [];const out=[];
-  for(const c of W){if(lvs&&!lvs.includes(c.lv))continue;if(c.h.startsWith(q)||c.ja.includes(q))out.push(c);if(out.length>=limit*3)break}
-  return out.sort((a,b)=>(a.h.startsWith(q)?0:1)-(b.h.startsWith(q)?0:1)||a.h.length-b.h.length).slice(0,limit)}
-/* 🎯 order any one card, once a day */
-function snipe(){const used=CG.snipe===today(),lvs=LVK.filter(lvOpen);
-  const sug=[];[...weakHeads()].map(cardOfHead).filter(c=>c&&lvs.includes(c.lv)&&!owns(c.id)).slice(0,3).forEach(c=>sug.push([c.id,'😣 まちがいノートの 単語']));
-  const mine=new Set(ownedWords().map(id=>BY[id].h));COMBO.filter(c=>mine.has(c.a)!==mine.has(c.b)).slice(0,40).forEach(c=>{const h=mine.has(c.a)?c.b:c.a,cc=cardOfHead(h);if(cc&&lvs.includes(cc.lv)&&sug.length<6&&!sug.some(s=>s[0]===cc.id))sug.push([cc.id,`🔗 ${mine.has(c.a)?c.a:c.b} の コンボなかま`])});
-  H.show('cg',`<section class="pnl cgp">${top('🎯 ねらいうち注文',coinTxt(ST.coins))}
-    ${bubble(...CG_NAGI.snipe)}
-    ${used?'<p class="note">きょうの 注文は おわり。 また あしたね</p>':`<input id="cgq" class="cgin" placeholder="英語か 日本語で さがす" autocomplete="off">
-    <div id="cgsr" class="cgsr">${sug.map(([id,why])=>row(id,why)).join('')}</div>
-    <p class="note">ねだんは 1まい売りの 2ばい</p>`}</section>`);
-  $('cgb').onclick=()=>{sf('back');open()};bindBubble();if(used)return;
-  const q=$('cgq'),bind=()=>H.panel.querySelectorAll('[data-sn]').forEach(b=>b.onclick=()=>{const id=b.dataset.sn,I=info(id);
-    if(!pay(LV[I.lv].one*2))return;CG.snipe=today();const r=receive([id]);save();reveal(r,'ねらいうち注文',open)});
-  q.oninput=()=>{$('cgsr').innerHTML=search(q.value,lvs).map(c=>row(c.id)).join('')||'<p class="note">みつからないよ</p>';bind()};bind();
-  function row(id,why){const I=info(id);return `<div class="cgrow"><span class="ri">${art(I)[0]}</span><span class="rn"><b>${esc(I.en)}</b><small>${esc(I.ja)}${why?'　'+why:''}</small></span><span class="rl">${LV[I.lv].k}</span><button data-sn="${esc(id)}">${owns(id)?'もってる ':''}${coinTxt(LV[I.lv].one*2)}</button></div>`}}
 
 /* ♻️ 交換（かけら）は なくした。 ダブった カードは カードショップの 売り場で 売る。 前の かけらは コインに かえる */
 function trade(){try{SHOP.floor()}catch(e){open()}}
@@ -484,41 +435,6 @@ function pickBattle(F,go,back){let cand=cands(),sel=[],rr=false,last=null;const 
     $('pkgo').onclick=()=>{if(sel.length<need)return;go(sel.slice())}};
   draw()}
 
-/* 📖 the card book: by level (and treasure / parts / sentences), 60 at a time */
-let bkLv='es',bkA='all',bkPage=0;
-function book(lv){if(lv){bkLv=lv;bkPage=0}
-  const tabs=[...LVK.map(l=>[l,LV[l].k]),['pt','🧩'],['st','📜'],['tr','🎁']];
-  let list;if(bkLv==='pt')list=Object.keys(CG_PARTS).map(k=>'p:'+k);else if(bkLv==='st')list=SENT.map(s=>'s:'+s.i);else if(bkLv==='tr')list=TR().map(t=>'t:'+t.e);
-  else list=W.filter(c=>c.lv===bkLv&&(bkA==='all'||c.a===bkA)).map(c=>c.id);
-  const got=list.filter(owns).length,per=60,pages=Math.ceil(list.length/per);if(bkPage>=pages)bkPage=0;const shown=list.slice(bkPage*per,bkPage*per+per);
-  H.show('cg',`<section class="pnl cgp">${top('📖 カード図鑑',`${got}/${list.length}`)}
-    <div class="seg cgsg">${tabs.map(([k,n])=>`<button data-l="${k}" class="${bkLv===k?'on':''}">${n}</button>`).join('')}</div>
-    ${LVK.includes(bkLv)?`<div class="cgchips">${[['all','ぜんぶ'],...CG_ATTR.map(a=>[a[0],a[1]])].map(([k,n])=>`<button data-a="${k}" class="${bkA===k?'on':''}">${n}</button>`).join('')}</div>`:''}
-    ${bkLv==='tr'?'<button id="cgtr" class="sub">🎁 宝箱くじ・宝カード図鑑を ひらく</button>':''}
-    <div class="cggrid g4">${shown.map(id=>face(id,{ja:owns(id),lock:!owns(id),n:count(id),marks:owns(id)})).join('')}</div>
-    ${pages>1?`<div class="row cgpg"><button class="sub" data-p="-1" ${bkPage?'':'disabled'}>◀</button><span>${bkPage+1}/${pages}</span><button class="sub" data-p="1" ${bkPage<pages-1?'':'disabled'}>▶</button></div>`:''}
-  </section>`);
-  $('cgb').onclick=()=>{sf('back');open()};
-  H.panel.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{bkLv=b.dataset.l;bkPage=0;sf('step');book()});
-  H.panel.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{bkA=b.dataset.a;bkPage=0;sf('step');book()});
-  H.panel.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{bkPage+=+b.dataset.p;sf('flip');book();H.panel.scrollTop=0});
-  if($('cgtr'))$('cgtr').onclick=()=>{sf('card');CARDS.open(null,()=>book())};
-  H.panel.querySelectorAll('.cggrid .cgc').forEach(el=>el.onclick=()=>{const id=el.dataset.id;if(!owns(id)){const I=info(id);sf('pop');H.toast(`まだ もっていない カード<small>${I.k==='w'?esc(LV[I.lv].n)+'「'+esc(I.bt)+'」の 単語':'パックで 出るよ'}</small>`);return}sf('flip');detail(id,book)})}
-
-/* 🔗 the combo book: found ones, ??? for the rest; the mistakes you met */
-let cbLv='es';
-function comboBook(){const lvOf=c=>{const a=cardOfHead(c.a).lv,b=cardOfHead(c.b).lv;return LVK[Math.max(LVK.indexOf(a),LVK.indexOf(b))]};
-  const list=COMBO.filter(c=>lvOf(c)===cbLv),found=COMBO.filter(c=>CG.combo[c.k]).length,mine=new Set(ownedWords().map(id=>BY[id].h));
-  const wr=WRONG.filter(w=>CG.wrong[w.k]);
-  H.show('cg',`<section class="pnl cgp">${top('🔗 コンボ図鑑',`${found}/${COMBO.length}`)}
-    <div class="seg cgsg">${LVK.map(l=>`<button data-l="${l}" class="${cbLv===l?'on':''}">${LV[l].k} ${COMBO.filter(c=>lvOf(c)===l&&CG.combo[c.k]).length}/${COMBO.filter(c=>lvOf(c)===l).length}</button>`).join('')}</div>
-    <div class="cgsr">${list.map(c=>CG.combo[c.k]?`<div class="cgrow cb"><span class="rn"><b>${esc(c.p)}</b><small>${esc(c.j)}</small></span><button data-say="${esc(c.p)}" class="sub">🔊</button></div>`
-      :`<div class="cgrow cb lk"><span class="rn"><b>${mine.has(c.a)?esc(c.a):'？？？'} ＋ ${mine.has(c.b)?esc(c.b):'？？？'}</b><small>${mine.has(c.a)||mine.has(c.b)?'ヒント: '+esc(c.j.replace(/[ぁ-ん]/g,'○').slice(0,8)):'まだ 見つけていない'}</small></span></div>`).join('')}</div>
-    ${wr.length?`<details class="cgfold"><summary>⚠️ まちがいコンボ ノート（${wr.length}）</summary>${wr.map(w=>`<p class="cgwr"><s>${esc(w.a)} ${esc(w.b)}</s> → <b>${esc(w.ok)}</b><br><small>${esc(w.why)}</small></p>`).join('')}</details>`:''}
-    <p class="note">鉱山の あなうめや 🥋 コンボ道場で 見つけると のるよ</p></section>`);
-  $('cgb').onclick=()=>{sf('back');open()};
-  H.panel.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{cbLv=b.dataset.l;sf('step');comboBook()});
-  H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>speak(b.dataset.say))}
 /* a combo is found (battle / dojo): coins the first time */
 function foundCombo(c){if(CG.combo[c.k])return false;CG.combo[c.k]=dnum();save();return true}
 function metWrong(w){if(CG.wrong[w.k])return false;CG.wrong[w.k]=dnum();save();return true}
@@ -528,8 +444,8 @@ function sayCard(id){const I=info(id);if(!I||!I.en)return;try{H.say(I.k==='t'?'c
 document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('.cgc.big');if(!c||c.classList.contains('lock')||!c.dataset.id)return;
   sayCard(c.dataset.id);c.classList.remove('tapsay');void c.offsetWidth;c.classList.add('tapsay')});
 window.CG={open,sayCard,go,starter,info,face,art,quiz,formQuiz,formsOf,ask,ov,closeOv,detail,count,owns,give,take,receive,reveal,record,star,kira,weak,forgot,power,
-  rank,rankName,ruleOn,lvOpen,deckCombos,cleanDeck,comboOf,combosWith,wrongOf:(a,b)=>WRG[a+'|'+b]||null,anto:h=>ANTO[h]?[...ANTO[h]]:[],syn:h=>SYN[h]?[...SYN[h]]:[],
+  lvOpen,deckCombos,cleanDeck,comboOf,combosWith,wrongOf:(a,b)=>WRG[a+'|'+b]||null,anto:h=>ANTO[h]?[...ANTO[h]]:[],syn:h=>SYN[h]?[...SYN[h]]:[],
   derivOf,sentWords,cardOfHead,foundCombo,metWrong,pickL,hash,dnum,today,speak,bubble,
   W,BY,COMBO,WRONG,DERIV,SENT,LV,ATTR,DECK_N,rec:()=>CG,save:()=>save(),pay,myLv,hut,
-  cstat,trait,traitTxt,traitIco,SUP,wind,pickBattle,BATTLE_N,packs,book,comboBook,single,snipe,trade};
+  cstat,trait,traitTxt,traitIco,SUP,wind,pickBattle,BATTLE_N,packs,trade};
 })();

@@ -180,8 +180,7 @@ function skip(all){if(!D||D.busy)return;D.busy=true;sf('step');
 function after(id,ok){if(!D||D.busy)return;D.busy=true;D.q++;D.hp--;keepHp(D.hp);C.record(id,ok);const w=D.words[id]||(D.words[id]=[0,0]);w[ok?0:1]++;
   const M=MN();M.q++;if(ok)M.ok++;
   if(!ok&&!D.redone[D.cur]&&!D.redo.includes(D.cur))D.redo.push(D.cur);
-  if(ok){D.ok++;D.swing=6;sf('tap');setTimeout(()=>{if(!D)return;D.crack=0;D.depth++;burst();sf('knock');const big=find();C.save();hud();if(!big)setTimeout(()=>next(),D.pop?650:450)},420);
-    const r=R();r.rpq=(r.rpq||0)+1;if(r.rpq%6===0){const b=C.rank();r.rp=(r.rp||0)+1;if(C.rank()>b)setTimeout(()=>{sf('done');H.toast(`🎖️ 段位が <b>${esc(C.rankName())}</b> に 上がった！`,3200)},900)}}
+  if(ok){D.ok++;D.swing=6;sf('tap');setTimeout(()=>{if(!D)return;D.crack=0;D.depth++;burst();sf('knock');const big=find();C.save();hud();if(!big)setTimeout(()=>next(),D.pop?650:450)},420);}
   else{D.swing=6;D.crack=Math.min(2,D.crack+1);setTimeout(()=>{sf('tap')},300);C.save();hud();setTimeout(()=>next(),200)}}
 /* what you find. カードは めったに 出ない（出たら 大きな お祝い）。 true を かえすと お祝いの あとで つぎへ */
 function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.luck>0)D.luck--;
@@ -269,7 +268,7 @@ H.on('home',()=>{if(D){D.alive=false;keepHp(D.hp);if(D.coins)H.addCoins(D.coins)
 Object.assign(MINA_LINES,{
  mn_course:[['smile','5まいを 左から じゅんばんに 練習するよ。 さいしょは 和訳、 2周目は スペルの ならべかえ、 つぎは 英語で… と 1周ごとに 形が かわるの'],['point','まちがえた カードは その 周の さいごに もう一回 出るよ。 苦手な 単語ほど たくさん 練習できるんだ'],['smile','スマホで 打つのが 大変な ときは 「書く 問題」を 出さない ように できるよ。 つづりは ならべかえでも しっかり 練習できるから'],['happy','同じ 5まいを 形を かえて 何回も。 さいごには 聞いて 書けるように なってるはず！']],
  mn_card:[['wow','すごい！ 「{w}」の カードを 見つけたね！ めったに 出ないんだよ'],['love','カードが 出た！ 練習を がんばった ごほうびだね'],['smile','カードを タップすると 「{w}」って 読むよ。 声に 出して まねしてみてね']],
- mn_treasure:[['wow','🎁 宝カード！？ 鉱山の 奥で 見つかるなんて… すごい 運だね！'],['love','宝カードだ！ 図鑑に のるよ。 ダブったら お店で 売れるからね']],
+ mn_treasure:[['wow','🎁 宝カード！？ 鉱山の 奥で 見つかるなんて… すごい 運だね！'],['love','宝カードだ！ カードブックに 入れられるよ。 ダブったら お店で 売れるからね']],
  x_mnType:[['think','鉱山の 「つづりを 書く」は むずかしい？ ヒントで さいしょの 字が わかるよ'],['smile','聞いて 書けたら、 もう その 単語は きみの もの']]
 });
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(

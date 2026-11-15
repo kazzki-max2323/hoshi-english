@@ -10,8 +10,10 @@
 .shbig .c3{background:linear-gradient(#ff8a7a,#d8504a)!important;border-color:#ffd6d0!important}
 .shbig .c4{background:linear-gradient(#8ac08a,#4a8a5a)!important;border-color:#d6f0d6!important}
 .shbig .dot{position:absolute;top:6px;right:8px;width:9px;height:9px;border-radius:50%;background:#ff5a7a;box-shadow:0 0 6px #ff5a7a}
-.shmore summary{cursor:pointer;font-size:.8rem;color:#bfe9ff;padding:4px 2px}
-.shmore[open] summary{margin-bottom:6px}
+/* 🎁 仕入れ（パック）: カードブックの すぐ 下 */
+.shpack{position:relative;display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;padding:10px 14px!important;background:linear-gradient(#a8562c,#7a3416)!important;border-color:#ffd27a!important;box-shadow:inset 0 0 0 2px #ffffff14}
+.shpack .dot{position:absolute;top:6px;right:8px;width:9px;height:9px;border-radius:50%;background:#ff5a7a;box-shadow:0 0 6px #ff5a7a}
+.shpack span{font-size:1.7rem;line-height:1}.shpack b{flex:1;text-align:left;font-size:.95rem}.shpack small{font-size:.72rem;color:#ffe7a8;font-weight:700}
 .shsum{font-size:.72rem;color:#cbd2ff;text-align:center;margin:0}
 .shintro{width:150px;height:150px;margin:0 auto;border-radius:50%;overflow:hidden;box-shadow:0 0 0 3px #e8b84a,0 4px 14px #0008}
 .shintro svg{width:100%;height:100%;display:block}

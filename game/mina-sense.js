@@ -20,7 +20,8 @@ const goShop=tab=>['🏚️ 雑貨屋へ 行く',()=>window.ZAKKA?ZAKKA.open(tab
 const shelf=k=>{try{return window.ZAKKA?ZAKKA.lineup()[k]:[]}catch(e){return []}};
 const goLesson=id=>['📖 授業を ひらく',()=>LESSON.open(id,back)];
 const goSay=(lv,en)=>['🔊 きいてみる',()=>H.say(lv,en)];
-const goCards=s=>['🃏 カード図鑑を 見る',()=>CARDS.open(s)];
+/* 宝カードは カードショップの 📖カードブックと 💎きらきら宝パックで（宝箱くじの 入口は なくした） */
+const goCards=s=>['🃏 カードショップへ',()=>window.CG?CG.open():H.home()];
 const goKaiwa=()=>['💬 会話を ひらく',()=>KAIWA.open()];
 const goTalk=id=>['💬 話しに 行く',()=>KAIWA.play(id)];
 const goSensei=()=>['🗣️ 先生と 話す',()=>SENSEI.open()];
@@ -228,7 +229,6 @@ const R=[
 ['x_cardCount',1,F=>F.cards.length?{n:F.cards.length,tot:F.cardsTot,pct:Math.round(F.cards.length/F.cardsTot*100)}:null,()=>goCards()],
 ['x_cardSeries',2,F=>{if(!F.cards.length)return null;const a=CARDS.series.map(s=>{const all=CARDS.book.filter(c=>c.s===s[0]);return {s,n:all.filter(c=>CARDS.has(c)).length,tot:all.length}}).filter(x=>x.n>0&&x.n<x.tot);
   if(!a.length)return null;const x=a.sort((p,q)=>q.n/q.tot-p.n/p.tot)[0];return {ser:x.s[2],ico:x.s[1],n:x.n,tot:x.tot,left:x.tot-x.n,_s:x.s[0]}},v=>goCards(v._s)],
-['x_cardFree',3,F=>window.CARDS&&CARDS.freeOk()?{}:null,()=>goCards()],
 ['x_cardWord',4,F=>{const a=F.cards.filter(c=>{const w=F.word[c.en.toLowerCase()];return w&&!ST.learned[w.lv+':'+w.en]});if(!a.length)return null;const c=pickL(a),w=F.word[c.en.toLowerCase()];
   return {en:c.en,ja:c.ja,ico:c.e,book:w.t,lvn:LVN[w.lv],_w:w}},v=>goBook(v._w.lv,v._w.bi,false)],
 ['x_cardLearned',2,F=>{const a=F.cards.filter(c=>{const w=F.word[c.en.toLowerCase()];return w&&ST.learned[w.lv+':'+w.en]});if(!a.length)return null;const c=pickL(a);return {en:c.en,ja:c.ja,ico:c.e,_s:c.s}},v=>goCards(v._s)],
@@ -241,8 +241,6 @@ const R=[
 ['x_coinRich',2,F=>F.coins>=500?{c:F.coins}:null,()=>goShop('music')],
 ['x_coinPoor',2,F=>F.coins<30?{c:F.coins}:null,null],
 ['x_coinMid',1,F=>F.coins>=30&&F.coins<500?{c:F.coins}:null,null],
-['x_coinCard',2,F=>F.coins>=80&&F.coins<720?{c:F.coins}:null,()=>goCards()],
-['x_coinTen',2,F=>F.coins>=720?{c:F.coins}:null,()=>goCards()],
 
 
 /* ===== 宝の地図（手に入れたら 宝探し。game/adventure.js） ===== */
