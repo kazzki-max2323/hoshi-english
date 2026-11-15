@@ -113,16 +113,23 @@ function store(f){if(typeof f==='string')stF=f;const F=[['all','ぜんぶ'],['es
   let ids=storeCards().filter(id=>{const I=C.info(id);if(!I)return false;if(stF==='all')return true;if(stF==='t')return I.k==='t';if(stF==='weak')return I.k==='w'&&C.weak(id);if(stF==='unk')return UNK.cardHas(I);
 return I.k==='w'&&I.lv===stF});
   ids.sort((a,b)=>(C.info(a).lv||'').localeCompare(C.info(b).lv||'')||C.star(a)-C.star(b));
+  /* 📖 ブックに まだ 入っていない カードは 「📖＋」で そのまま 入れられる */
+  const BK=window.CBOOK,canN=BK?BK.addable().length:0;
   const shown=ids.slice(0,240);
   H.show('cg',`<section class="pnl cgp shp">${top('📦 倉庫',`${ids.length}しゅるい`)}
     <div class="shf">${F.map(([k,n])=>`<button data-f="${k}" class="${stF===k?'on':''}">${n}</button>`).join('')}</div>
+    ${canN?`<button class="shtobk" id="shtobk">📖 ブックに 入れられる カード ${canN}まい ▶</button>`:''}
     <div class="shgrid">${shown.map(id=>{
-      return `<div class="shcell" data-id="${esc(id)}">${C.face(id,{mini:1,n:stock(id)})}${onFloor(id)?'<u>🏷️</u>':''}</div>`}).join('')||'<p class="note">カードが ないよ</p>'}</div>
+      return `<div class="shcell" data-id="${esc(id)}">${C.face(id,{mini:1,n:stock(id)})}${onFloor(id)?'<u>🏷️</u>':''}${BK&&BK.canIn(id)?'<button class="shbk" data-bk="1">📖＋</button>':''}</div>`}).join('')||'<p class="note">カードが ないよ</p>'}</div>
     ${Object.keys(BOOKR()).length?'<p class="note">📖 ブックに 入れた カードは カードブックで 見てね</p>':''}
     ${ids.length>shown.length?`<p class="note">ほか ${ids.length-shown.length}しゅるい（しぼりこんで 見てね）</p>`:''}</section>`);
   $('shb').onclick=()=>{sf('back');open()};
   H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{stF=b.dataset.f;sf('tap');store()});
-  H.panel.querySelectorAll('.shcell').forEach(c=>c.onclick=()=>{sf('card');C.detail(c.dataset.id)})}
+  H.panel.querySelectorAll('.shcell').forEach(c=>c.onclick=e=>{const id=c.dataset.id;
+    if(e.target.closest('[data-bk]')){const at=BK.putOne(id);if(!at)return;sf('card');const w=BK.nm(C.info(id));
+      store();H.toast(`📖 ${esc(w)} を ブックへ<small>${esc(at)}ばんの ポケットに 入ったよ</small>`,1800);BK.mina('sh_bookIn1',{w,p:at},.25);return}
+    sf('card');C.detail(id)});
+  if($('shtobk'))$('shtobk').onclick=()=>{sf('step');BK.open(null,'can')}}
 
 /* ================================================================ 🏷️ the sales floor */
 function floor(){cleanFloor();const S=SH();

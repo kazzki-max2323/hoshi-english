@@ -26,7 +26,7 @@
 .cbhd b{font-size:.88rem;color:#fff6d6}.cbhd span{font-size:.72rem;color:#ffe7a8}
 .cbpage{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;padding:9px;border-radius:8px;
   background:#f6f1e4;background-image:repeating-linear-gradient(0deg,transparent 0 11px,#ebe3cf 11px 12px);box-shadow:inset 0 0 0 1px #d8cdb0,inset 0 2px 6px #0002}
-.cbp{position:relative;aspect-ratio:5/7;border-radius:7px;cursor:pointer;background:linear-gradient(160deg,#ffffffb0,#e6edf2a0 60%,#ffffffc0);box-shadow:inset 0 0 0 1px #c9d3dc,0 1px 2px #0002}
+.cbp{text-shadow:none;position:relative;aspect-ratio:5/7;border-radius:7px;cursor:pointer;background:linear-gradient(160deg,#ffffffb0,#e6edf2a0 60%,#ffffffc0);box-shadow:inset 0 0 0 1px #c9d3dc,0 1px 2px #0002}
 .cbp::after{content:"";position:absolute;inset:0;border-radius:7px;background:linear-gradient(120deg,transparent 30%,#ffffff70 42%,transparent 54%);pointer-events:none}
 .cbp .cgc{width:100%;height:100%;border-radius:6px}
 .cbp.blank{background:none;box-shadow:inset 0 0 0 1px #e2d8c0;cursor:default}.cbp.blank::after{display:none}
@@ -60,3 +60,37 @@
 @keyframes cbfan{from{transform:translateX(-50%) translateY(30px) rotate(0);opacity:0}}
 .cbdp{margin:0;text-align:center;font-weight:800;color:#fff6d6}
 @media (prefers-reduced-motion:reduce){.cbp.can,.cbp.pop,.cbfan>div,.cbdone,.cbpage.shine::after{animation:none}}
+
+/* 🔍 さがす ・ しぼりこみ（PR: カードブックを 探しやすく） */
+.cbfind{display:flex;align-items:center;gap:6px;background:#ffffff14;border:1px solid #ffffff30;border-radius:12px;padding:4px 6px 4px 10px}
+.cbfind span{font-size:1rem}
+.cbfind input{flex:1;min-width:0;background:none;border:0;outline:0;color:#fff;font:700 1rem inherit;padding:6px 0}
+.cbfind input::placeholder{color:#ffffff70;font-weight:500;font-size:.85rem}
+.cbfind input::-webkit-search-cancel-button{display:none}
+.cbfind button{padding:3px 9px!important;font-size:.8rem}
+.cbmode{display:flex;gap:5px}
+.cbmode button{flex:1;min-width:0;padding:7px 2px!important;font-size:.74rem!important;font-weight:800;display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap}
+.cbmode button b{background:#0006;color:#ffe14a;border-radius:999px;padding:0 6px;font-size:.68rem}
+.cbmode button.on{color:#2a2340;background:linear-gradient(#fff6d6,#ffd88a)!important;border-color:#fff!important}
+.cbmode button.on b{background:#2a2340}
+.cbt em{position:absolute;top:1px;right:2px;font-style:normal;font-size:.56rem;font-weight:900;line-height:1;padding:2px 4px;border-radius:999px;background:#ffcf4a;color:#2a2340;box-shadow:0 0 6px #ffcf4a}
+.cbw{text-shadow:none;filter:none;position:absolute;left:3px;right:3px;bottom:16%;text-align:center;font-size:.66rem;font-weight:800;line-height:1.15;color:#8a96a2;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;word-break:break-word}
+.cbw small{display:block;font-size:.56rem;font-weight:700;color:#a0a8b0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cbw.s{font-size:.5rem;-webkit-line-clamp:3}
+.cbp.none .cbw{bottom:auto;top:40%;opacity:.75}
+.cbp.can .cbw{color:#7a5410;bottom:22%}
+.cbp.can .cbsil,.cbp.fl .cbsil{bottom:30%}
+.cbp.hl{outline:3px solid #ff7ac8;outline-offset:2px;animation:cbhl 1s ease-in-out 3}
+@keyframes cbhl{50%{outline-color:#ffe14a}}
+.cbls{--bc:#2a3a5a}
+.cbhd .cbsort{padding:2px 8px!important;font-size:.68rem!important}
+.cblist{align-items:start}
+.cbcell{display:flex;flex-direction:column;gap:3px;min-width:0}
+.cbgo{padding:2px 0!important;font-size:.62rem!important;font-weight:800;background:#e6dcc4!important;color:#5a4a2a!important;border:0!important;border-radius:6px;box-shadow:none!important}
+.cbls .cgnagi{margin:4px 0}
+.cbk{padding-bottom:64px}
+/* 📦 倉庫から そのまま ブックへ */
+.shcell .shbk{display:block;width:100%;margin-top:3px;padding:2px 0!important;font-size:.62rem!important;font-weight:900;white-space:nowrap;background:linear-gradient(#ffd23f,#e09a1a)!important;color:#2a2340!important;border:1px solid #fff3c4!important;border-radius:999px;box-shadow:0 1px 3px #0006}
+.shtobk{width:100%;padding:8px!important;font-size:.8rem!important;font-weight:800;background:linear-gradient(#2c4a8a,#1a2c5c)!important;border-color:#e8b84a!important}
+@media (prefers-reduced-motion:reduce){.cbp.hl{animation:none}}
+.cgbk{font-weight:800;background:linear-gradient(#2c4a8a,#1a2c5c)!important;border-color:#e8b84a!important;color:#fff}

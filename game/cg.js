@@ -279,6 +279,10 @@ function packCards(kind,arg){const out=[],N=packN();
   return out.slice(0,N)}
 /* 💎 きらきら宝パック: 宝カードだけ（R以上・SR以上 1まい かくてい） */
 function kiraCards(n){if(!window.CARDS||!CARDS.pull)return [];return CARDS.pull(n,2).map(g=>({id:'t:'+g.c.e,isNew:g.isNew}))}
+/* 📖 パックから そのまま カードブックへ（まだ ブックに ない 分だけ） */
+function bookBtn(got){const B=window.CBOOK,b=$('cgbk');if(!B||!b)return;const ids=[...new Set(got.map(g=>g.id))].filter(B.canIn);if(!ids.length)return;
+  b.hidden=false;b.textContent=`📖 ブックに 入れる（${ids.length}）`;
+  b.onclick=()=>{const n=ids.filter(id=>B.putOne(id)).length;b.hidden=true;sf('card');H.toast(`📖 ${n}まい ブックに 入れたよ<small>カードショップの カードブックで 見られるよ</small>`,2200);B.mina('sh_bookIn1',{w:B.nm(info(ids[0])),p:B.label(ids[0])},.2)}}
 /* put the cards in; returns [{id,isNew}] */
 function receive(ids){return ids.map(id=>{const isNew=!owns(id);give(id);return {id,isNew}})}
 /* open a pack on screen */
@@ -287,11 +291,11 @@ function reveal(got,title,back){save();cleanDeck();
   setTimeout(()=>{if(!o.isConnected)return;sf('done');o.querySelector('.cgopen').classList.add('burst')},800);
   setTimeout(()=>{if(!o.isConnected)return;
     o.innerHTML=`<div class="cgres">${got.map((g,i)=>`<div class="cgslot" data-i="${i}"><div class="cgback">✦</div>${face(g.id,{ja:1})}${g.isNew?'<em class="cgnew">NEW!</em>':''}</div>`).join('')}</div>
-      <div class="cgresb"><button id="cgall">ぜんぶ めくる</button><button id="cgok" class="sub" hidden>OK</button></div>`;
+      <div class="cgresb"><button id="cgall">ぜんぶ めくる</button><button id="cgbk" class="cgbk" hidden></button><button id="cgok" class="sub" hidden>OK</button></div>`;
     const slots=[...o.querySelectorAll('.cgslot')];let left=slots.length;
     const flip=s=>{if(s.classList.contains('open'))return;s.classList.add('open');const g=got[+s.dataset.i],I=info(g.id);sf('flip');
       if(I.k==='w')setTimeout(()=>{try{H.say(I.lv,I.en)}catch(e){}},150);
-      if(--left===0){$('cgall').hidden=true;$('cgok').hidden=false;
+      if(--left===0){$('cgall').hidden=true;$('cgok').hidden=false;bookBtn(got);
         const np=got.filter(g=>g.isNew).map(g=>info(g.id)).filter(I=>I.k==='w');const cs=deckCombos(Object.keys(CG.c)).filter(c=>np.some(I=>I.h===c.a||I.h===c.b)&&!CG.combo[c.k]);
         if(cs.length)H.toast(`✨ コンボの なかまが そろったかも…？<small>鉱山の あなうめで 見つかるよ</small>`,3200)}};
     slots.forEach(s=>s.onclick=()=>{if(s.classList.contains('open')){const I=info(got[+s.dataset.i].id);try{H.say(I.k==='t'?'cards':I.lv,I.en)}catch(e){}}else flip(s)});
