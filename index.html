@@ -145,6 +145,12 @@ button{touch-action:manipulation}
 <script src="game/mio-study.js"></script>
 <script src="game/unchiku-data.js"></script>
 <script src="game/unchiku.js"></script>
+<script src="game/winfo.js"></script>
+<script src="game/winfo-ex.js"></script>
+<script src="game/winfo-data.js"></script>
+<script src="game/winfo-data-tr.js"></script>
+<script src="game/winfo-data-jh.js"></script>
+<script src="game/winfo-data-jh2.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});
