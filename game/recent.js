@@ -29,7 +29,8 @@
    kaiwa  浜辺の 会話を おえた     {id, c(キャラ), good}
    mio    ミオと 話した           {id, end, how:'talk'|'tap'|'study'}
    bgm    お店の BGMを かえた     {id, en, ja}（id が null なら とめた）
-   bev    浜辺の イベントが 見えた  {id, ico, en, ja, cat}（このファイルが 自動で 記録）
+   bev    浜辺の イベントが 見えた  {name(イベントの 名前), ico, en, ja, cat}（このファイルが 自動で 記録。 id は 記録の id で 上書きされる）
+   visit  動物が 浜辺に 来た     {name, ja}（game/mina-react.js が 記録）
    ──────────────────────────────────────────────────────
    保存は localStorage の 'hoshi_recent'（さいごの 100こまで・同じ 種類は 15こまで） */
 (()=>{
@@ -102,7 +103,7 @@ let seen=new Set();
 setInterval(()=>{if(document.hidden)return;const cur=new Set();
   try{const c=SCENE.curEv();if(c)cur.add(c)}catch(e){}
   try{SCENE.showing().forEach(n=>cur.add(n))}catch(e){}
-  cur.forEach(n=>{if(!seen.has(n)){const b=bev(n);if(b)add('bev',b)}});seen=cur},3000);
+  cur.forEach(n=>{if(!seen.has(n)){const b=bev(n);if(b)add('bev',Object.assign({name:n},b))}});seen=cur},3000);
 
 /* 授業の おわり（game/lesson.js の LESSON_AFTER） */
 window.LESSON_AFTER=window.LESSON_AFTER||[];

@@ -107,7 +107,7 @@ function quiz(l,back){let k=0,miss=0;
     /* この授業の 文法を 文法テストで ためす（game/gram-link.js） */
     let gk=null;try{gk=window.GRAMLINK&&GRAMLINK.afterLesson(l)}catch(e){console.error(e)}
     H.show('lesson',`<section class="pnl lsn">
-      <div class="lsay by-m big"><span class="lface">${MINA.face('m','proud')}</span><div class="lbody"><p>「${esc(l.t)}」 おつかれさま！ ${miss?`${l.quiz.length-miss}/${l.quiz.length} せいかい。 また ふくしゅう しようね`:'ぜんもん せいかい！'}${pay?`<br>ごほうびに 🪙<b>${pay}</b>まい`:''}</p></div></div>
+      <div class="lsay by-m big"><span class="lface">${MINA.face('m','proud')}</span><div class="lbody"><p>${MINA_LINES.les_endP?MINA.line(miss?'les_endM':'les_endP',{t:l.t,ok:l.quiz.length-miss,n:l.quiz.length})[1]:`「${esc(l.t)}」 おつかれさま！ ${miss?`${l.quiz.length-miss}/${l.quiz.length} せいかい。 また ふくしゅう しようね`:'ぜんもん せいかい！'}`}${pay?`<br>ごほうびに 🪙<b>${pay}</b>まい`:''}</p></div></div>
       ${gk?gk.html:''}
       ${ext.length?`<div class="bwin"><b class="bt">🎁 ごほうび</b>${ext.map(x=>`<div class="brow">${x.html}</div>`).join('')}</div>`:''}
       ${nx?`<p class="note">つぎの 授業も やってみる？</p>${row(nx)}`:''}

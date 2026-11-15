@@ -231,7 +231,7 @@ function prove(){if(!live())return;
 function judge(){go(S.pts>=3?'confess':S.clues.includes('S')?'cat':'eEscape')}
 
 /* 🏁 an end */
-function ending(id,n){const good=!!n.end.good,first=!PD.end[id];PD.end[id]=(PD.end[id]||0)+1;save();
+function ending(id,n){const good=!!n.end.good,first=!PD.end[id];PD.end[id]=(PD.end[id]||0)+1;save();try{RECENT.add('pension',{ja:n.end.t,good,first})}catch(e){}
   const coins=first?(good?30:10):0;
   let k=good?(id==='eTrueG'?'pn_endGhost':id==='eCat'?'pn_endCat':'pn_endTrue'):id==='eEscape'?'pn_endEscape':id==='eSleep'||id==='eSwim'?'pn_endEarly':'pn_endFun';
   const v={t:n.end.t,n:endsN(),tot:ENDS.length};

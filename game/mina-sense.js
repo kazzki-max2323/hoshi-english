@@ -297,7 +297,8 @@ const R=[
 const keyOf=(r,F)=>typeof r[0]==='function'?r[0](F):r[0];
 
 /* ---------- choosing ---------- */
-const recent=[];
+/* 直近 8この 場面は セーブに のこす（ひらきなおしても 同じ 場面が つづかない） */
+const recent=(()=>{try{const m=MINA.rec();if(!Array.isArray(m.sk))m.sk=[];return m.sk}catch(e){return []}})();
 /* every scene that fits now: [key, values, null, go] like ミナ先生's advice */
 function all(){const F=facts(),out=[];
   R.forEach(r=>{const k=keyOf(r,F);if(!MINA_LINES[k]||!MINA_LINES[k].length)return;let v=null;try{v=r[2](F)}catch(e){console.error(k,e)}

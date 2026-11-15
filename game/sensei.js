@@ -314,6 +314,8 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
   if(perfect)SD.best=(SD.best||0)+1;save();
   if(s.kind==='tok')try{window.CGM&&CGM.reward('tok')}catch(e){}   // a reward card (game/cg-more.js)
   const E=s.kind?[]:endsOf(s),got=s.kind?0:endsGot(s),tot=E.length;
+  try{const gs0=Object.entries(st.g),gm=gs0.filter(([,r])=>r.miss).map(([id])=>gName(id)),gh=gs0.filter(([,r])=>r.hint).map(([id])=>gName(id)),ga=gs0.map(([id])=>gName(id));
+    RECENT.add(s.kind==='tok'?'tokkun':'sensei',{id:s.id,ja:s.t||'',end:title,g:gm[0]||gh[0]||ga[0]||'',miss:st.miss,hint:st.hint,ok:st.ok,perfect:!!perfect,good:!!good})}catch(e){}
   /* Mina's word on how it went */
   let k='sn_endGood',v={t:title,n:st.ok,h:st.hint,m:st.miss,f:st.free,got,tot};
   const gs=Object.entries(st.g),missG=gs.filter(([,r])=>r.miss).map(([id])=>id),hintG=gs.filter(([,r])=>r.hint&&!r.miss).map(([id])=>id),okG=gs.filter(([,r])=>r.ok&&!r.miss&&!r.hint).map(([id])=>id);
