@@ -126,8 +126,15 @@
 .mngot{position:absolute;top:6px;right:6px;display:flex;flex-direction:column;align-items:flex-end;gap:4px;pointer-events:none}
 .mngt{display:flex;align-items:center;gap:6px;padding:4px 10px 4px 6px;border-radius:999px;background:rgba(12,10,30,.85);border:2px solid #ffe14a;color:#fff;font-size:.9rem;font-weight:700;box-shadow:0 2px 8px #0009;animation:mngt 1.8s ease forwards}
 .mngt .gi{font-size:1.35rem;line-height:1}.mngt b{color:#ffe14a}
+.mncard{position:absolute;left:6px;bottom:6px;max-width:calc(100% - 12px)}
+.mncd{display:flex;align-items:center;gap:8px;padding:5px 10px 5px 6px;border-radius:12px;background:linear-gradient(135deg,#3a2f7a,#1f2a5c);border:2px solid #ffd23f;color:#fff;text-align:left;box-shadow:0 0 0 2px #0006,0 0 16px #ffd23f88;animation:mnpop .45s cubic-bezier(.2,1.6,.4,1);cursor:pointer;font:inherit;transition:opacity .4s}
+.mncd.out{opacity:0}
+.mncd .gi{font-size:1.6rem;line-height:1}.mncd .cn{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.mncd small{font-size:.72rem;color:#ffe9a8}.mncd em{font-style:normal;color:#1f2a5c;background:#ffd23f;border-radius:6px;padding:0 4px;font-weight:800}
+.mncd b{font-size:1.05rem;color:#fff}.mncd i{font-style:normal;font-size:.78rem;color:#dfe6ff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mncd .tp{font-size:1.1rem;margin-left:2px}
 @keyframes mngt{0%{opacity:0;transform:translateY(6px) scale(.8)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-4px)}}
-@media (prefers-reduced-motion:reduce){.mngt{animation:none}}
+@media (prefers-reduced-motion:reduce){.mngt,.mncd{animation:none}}
 .mnloot{margin:6px 0 0;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:1rem;color:#fff;text-shadow:none}
 .mnloot button{font:inherit;font-weight:800;color:#fff;text-shadow:none;display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:999px;border:2px solid rgba(255,225,74,.55);background:rgba(12,10,30,.6);cursor:pointer;line-height:1.2}
 .mnloot button:active{transform:scale(.95)}
