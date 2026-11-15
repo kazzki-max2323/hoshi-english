@@ -206,8 +206,9 @@ function celebrate(id,isNew,treasure){const M=MN();M.cards=(M.cards||0)+1;C.save
   const o=C.ov(`<div class="mnfind"><p class="mnfh">✨ ${treasure?'🎁 宝カードを 見つけた！':'カードを 見つけた！'}</p>
     <div class="mnfc">${C.face(id,{big:1,ja:1})}</div>${isNew?'<p class="mnnew">NEW!</p>':''}<p class="mntap">🔊 カードを タップすると 読むよ</p>
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
+    ${I&&C.moreClosed?`<div class="mnwi">${C.moreClosed(I)}</div>`:''}
     <button class="big" id="mnyay">やった！ ほりつづける</button></div>`,'by');
-  o.dataset.stay=1;
+  o.dataset.stay=1;if(C.bindMore)C.bindMore(o);
   o.querySelector('#mnyay').onclick=()=>{sf('step');C.closeOv();if(D)next()};
   return true}
 

@@ -395,3 +395,11 @@
 .wisub{opacity:.85}
 .witip{background:rgba(255,210,63,.09);border-radius:8px;padding:2px 8px;margin-top:6px}
 .witip p{font-size:.76rem;line-height:1.5}
+/* 📖 くわしく を 鉱山の 「見つけた！」と 仕入れの 画面にも */
+.mnfind{max-height:94vh;overflow-y:auto}
+.mnwi{width:100%;text-align:left}
+.cgwi{width:min(92vw,380px);text-align:left;margin-top:8px}
+.cgwi:empty{display:none}
+.cgwih{margin:0 0 4px;font-size:.85rem}
+.cgwit{font-size:.75rem;opacity:.8;margin:6px 0 0;text-align:center}
+.cgslot.sel .cgc{box-shadow:0 0 0 3px #6fc3ff}
