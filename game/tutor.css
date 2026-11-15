@@ -47,3 +47,6 @@
 .tulb{display:block;width:100%;padding:10px!important;font-size:.9rem;background:rgba(255,210,63,.14)!important;border-color:#ffd23f!important}
 .tulb small{font-size:.7rem;color:#ffe7a8;margin-left:4px}
 .tuletter .bmEn{padding-right:52px;font-family:"Libre Baskerville",Georgia,serif;line-height:1.7}
+/* 第2弾: ケン・ママ・ポチの ふきだし */
+.tu .tuken .lbody>small,.tu .tufar .lbody>small{display:block;font-size:.72em;opacity:.7;margin-bottom:.1em}
+.tu .tufar p{font-style:italic}
