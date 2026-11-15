@@ -1,5 +1,5 @@
 /* ⛏️ 単語の 鉱山: 5まいの 単語カードを 左から じゅんばんに 練習して ほりすすむ（カードを えらんだり 持ちかえたり しない）
-   - 練習の 形は コースで きまっている: 和訳 → スペルの ならべかえ → 英語で 2周 → 聞きとり → 正しい つづり → ならべかえ 2周 → ぬけた 文字 → 例文 あなうめ → 書く 2周 → 聞いて 書く → そのあとは まぜて ずっと
+   - 練習の 形は コースで きまっている（どれも 1周ずつで つぎの 形へ）: 和訳 → スペルの ならべかえ → 英語で → 聞きとり → 正しい つづり → ならべかえ → ぬけた 文字 → 例文 あなうめ → 書く → 聞いて 書く → そのあとは まぜて ずっと
      1周 = 5まいを 左から 1回ずつ。 まちがえた カードは その 周の さいごに もう一回 出る（苦手ほど たくさん 練習）
    - 体力（❤）が あるのは 自分だけ。 1問で 1 へる。 0に なっても 見つけた 物は ぜんぶ 持ち帰れる
      体力は 鉱山の 外でも のこり、 時間で 少しずつ もどる。 食べると たくさん もどる（game/food.js の FOOD）
@@ -24,13 +24,13 @@ const P_EVENT=.04,P_WORD=.018,P_TREASURE=.008,P_GEM=.2;
 const COURSE=[
  {t:'mean',n:'和訳',ico:'🇯🇵',laps:1},
  {t:'scramble',n:'ならべかえ',ico:'🧩',laps:1},
- {t:'rev',n:'英語で',ico:'🔤',laps:2},
+ {t:'rev',n:'英語で',ico:'🔤',laps:1},
  {t:'listen',n:'聞きとり',ico:'👂',laps:1,snd:1},
  {t:'spell',n:'正しい つづり',ico:'🔍',laps:1},
- {t:'scramble',n:'ならべかえ',ico:'🧩',laps:2},
+ {t:'scramble',n:'ならべかえ',ico:'🧩',laps:1},
  {t:'miss',n:'ぬけた 文字',ico:'🕳️',laps:1},
  {t:'fill',n:'例文 あなうめ',ico:'📝',laps:1},
- {t:'type',n:'つづりを 書く',ico:'✍️',laps:2},
+ {t:'type',n:'つづりを 書く',ico:'✍️',laps:1},
  {t:'dict',n:'聞いて 書く',ico:'🎧',laps:1,snd:1}];
 const MIX={t:'mix',n:'まぜて 復習',ico:'🌀',laps:99};
 const course=()=>COURSE.filter(s=>!s.snd||ST.sound);
@@ -52,8 +52,8 @@ function open(){const M=MN();if(!hand||hand.some(id=>!C.owns(id)))hand=autoHand(
     <div class="mnhand">${hand.map(id=>`<div class="mnt" data-id="${esc(id)}">${C.face(id,{mini:1,marks:false})}</div>`).join('')}${'<div class="mnt empty"></div>'.repeat(Math.max(0,HAND-hand.length))}</div>
     <button id="mnre" class="sub">🔀 ほかの 5まいに する</button>
     <details class="shmore"><summary>練習の コース（${course().length}つの 形）</summary>
-      <ol class="mncs">${course().map(s=>`<li>${s.ico} ${esc(s.n)}<small>${s.laps}周</small></li>`).join('')}<li>${MIX.ico} ${MIX.n}<small>ずっと</small></li></ol>
-      <p class="note">1周 ＝ 5まいを 左から 1回ずつ。 まちがえた カードは その 周の さいごに もう一回。 ❤は 最大 ${ME_HP}（1問で 1 へる・2分で 1 もどる・食べると たくさん もどる）</p></details>
+      <ol class="mncs">${course().map(s=>`<li>${s.ico} ${esc(s.n)}</li>`).join('')}<li>${MIX.ico} ${MIX.n}<small>ずっと</small></li></ol>
+      <p class="note">1周 ＝ 5まいを 左から 1回ずつ。 1周ごとに つぎの 形へ。 まちがえた カードは その 周の さいごに もう一回。 ❤は 最大 ${ME_HP}（1問で 1 へる・2分で 1 もどる・食べると たくさん もどる）</p></details>
     <button id="mngo" class="big" ${hand.length&&myHp()>0?'':'disabled'}>⛏️ ほりに いく${myHp()<ME_HP?` <small>❤${myHp()}</small>`:''}</button>
   </section>`);
   $('mnb').onclick=()=>{sf('back');SHOP.open()};
@@ -85,7 +85,7 @@ function dive(cards){try{SHOP.leave()}catch(e){}
 function startLap(){D.queue=D.hand.map((_,i)=>i);D.redo=[];D.redone={}}
 function hud(){if(!D)return;const L=layerOf(D.depth),S=stageOf(D.st);$('mnl').textContent=`⛏️ ${D.depth}m ・ ${L.n}`;
   $('mnh').innerHTML=`<span class="mnme"><b style="width:${D.hp/ME_HP*100}%"></b></span> ❤${D.hp}`;
-  $('mnst').innerHTML=`${S.ico} <b>${esc(S.n)}</b> ${S===MIX?'':`<small>${D.lap+1}/${S.laps}周</small>`}${D.inRedo?' <em>もう一回</em>':''}`;
+  $('mnst').innerHTML=`${S.ico} <b>${esc(S.n)}</b>${D.inRedo?' <em>もう一回</em>':''}`;
   $('mnhd').innerHTML=D.hand.map((id,i)=>`<div class="mnt ${i===D.cur?'on':''} ${D.queue.includes(i)||D.redo.includes(i)||i===D.cur?'':'done'}">${C.face(id,{mini:1,marks:false})}</div>`).join('')}
 /* つぎの 問題: 左から じゅんばん → まちがえた カード → つぎの 周 → つぎの 形 */
 function next(){if(!D)return;
@@ -250,7 +250,7 @@ H.on('home',()=>{if(D){D.alive=false;keepHp(D.hp);if(D.coins)H.addCoins(D.coins)
 
 /* ================================================================ ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
- mn_course:[['smile','5まいを 左から じゅんばんに 練習するよ。 さいしょは 和訳、 2周目は スペルの ならべかえ、 なれたら 英語で… と 形が かわるの'],['point','まちがえた カードは その 周の さいごに もう一回 出るよ。 苦手な 単語ほど たくさん 練習できるんだ'],['happy','同じ 5まいを 形を かえて 何回も。 さいごには 聞いて 書けるように なってるはず！']],
+ mn_course:[['smile','5まいを 左から じゅんばんに 練習するよ。 さいしょは 和訳、 2周目は スペルの ならべかえ、 つぎは 英語で… と 1周ごとに 形が かわるの'],['point','まちがえた カードは その 周の さいごに もう一回 出るよ。 苦手な 単語ほど たくさん 練習できるんだ'],['happy','同じ 5まいを 形を かえて 何回も。 さいごには 聞いて 書けるように なってるはず！']],
  mn_card:[['wow','すごい！ 「{w}」の カードを 見つけたね！ めったに 出ないんだよ'],['love','カードが 出た！ 練習を がんばった ごほうびだね']],
  mn_treasure:[['wow','🎁 宝カード！？ 鉱山の 奥で 見つかるなんて… すごい 運だね！'],['love','宝カードだ！ 図鑑に のるよ。 ダブったら お店で 売れるからね']],
  x_mnType:[['think','鉱山の 「つづりを 書く」は むずかしい？ ヒントで さいしょの 字が わかるよ'],['smile','聞いて 書けたら、 もう その 単語は きみの もの']]
