@@ -197,6 +197,7 @@ function greet(){
   if(ZD.gift.length)g.push(["Did you give your present yet? I'm sure they'll love it.","プレゼント、 もう わたした？ きっと よろこぶわ。"]);
   if(Z.tgs().length)g.push(["Did Riku give you something nice? I'd love to see it.","リクから なにか すてきな もの もらった？ 見てみたいわ。"]);
   if(bottles()>0)g.push(["If you find empty bottles, bring them to me. I buy them!","からの びんが あったら もってきてね。 買いとるわよ！"]);
+  if(ST.music.some(id=>GD.music[id]))g.push(["Tired of a record? I buy records, too. Tap \"Sell\" and pick one.","あきちゃった レコード ある？ レコードも 買いとるわよ。 「売る」から えらんでね。"]);
   if(new Date().getHours()>=21||new Date().getHours()<5)g.push(["It's late! I'm almost closing, but come in.","おそい 時間ね！ もうすぐ 閉店だけど、 どうぞ。"]);
   return pickL(g)}
 function noraLine(en,ja){const on=jaOn();
@@ -243,7 +244,7 @@ function shop(tab){hush();pvDone(false);if(typeof tab==='string'&&TABS.some(t=>t
   H.panel.querySelectorAll('[data-zt]').forEach(b=>b.onclick=()=>{SFX.pop();tabNow=b.dataset.zt;shop()});
   H.panel.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.g.split(':'),it=good(k,id);if(!it)return;SFX.talk();play(gScene(it),{it})});
   H.panel.querySelectorAll('[data-pl]').forEach(b=>b.onclick=()=>{const id=b.dataset.pl;if(H.playing===id)H.stopMusic();else H.playTrack(id);SFX.pop();setTimeout(()=>shop(),80)});
-  H.panel.querySelectorAll('[data-sm]').forEach(b=>b.onclick=()=>{const it=good('music',b.dataset.sm);if(!it)return;SFX.talk();play('gOwn',{it})});
+  H.panel.querySelectorAll('[data-sm]').forEach(b=>b.onclick=()=>{const it=good('music',b.dataset.sm);if(!it)return;SFX.talk();play('sell',{at:'p0',from:'list',pk:'g',it,bgm:H.shopSongId===it.id?1:0})});
   {const jk=H.panel.querySelector('.zkjuke');if(jk)jk.ontoggle=()=>{jukeOpen=jk.open}}
   H.panel.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const it=item(b.dataset.i);
     if(ZD.own[it.id]&&it.k==='book'){SFX.book();return reader(it.id,shop)}
@@ -254,7 +255,7 @@ function shop(tab){hush();pvDone(false);if(typeof tab==='string'&&TABS.some(t=>t
     if(it.k==='pc'&&pcDone()){SFX.wrong();return H.toast('📮 絵はがきは ぜんぶ そろったよ！ <small>🎒 もちもの から 見られるよ</small>')}
     SFX.talk();play('buy',{it})});
   $('zkrec').onclick=()=>{SFX.talk();play('rec')};
-  $('zksell').onclick=()=>{SFX.talk();play('sell')};
+  $('zksell').onclick=()=>{SFX.open();sellList()};
   $('zkret').onclick=()=>{SFX.talk();play('ret')};
   $('zkbag').onclick=()=>{SFX.open();bag()};
   if(window.GIFT)GIFT.bindBtn('nora','zkgv',()=>shop());
@@ -262,11 +263,49 @@ function shop(tab){hush();pvDone(false);if(typeof tab==='string'&&TABS.some(t=>t
   const ub=$('zkunk');if(ub)ub.onclick=()=>{SFX.book();hush();UNK.list('zakka',shop)};
   $('zkja').onchange=e=>{ZD.ja=e.target.checked?1:0;save()}}
 
+/* ================================================================ 💰 売る ものを 一覧から えらぶ
+   もっている ものを ぜんぶ ならべて、 タップした ものを ノラさんに 英語で 売る（会話は zakka-talk.js の sell:p0 から）。
+   🎵 宝の地図の ごほうびの 曲（雑貨屋の たなに 出ない 曲）は 買いもどせないので 売れない */
+let sellTab='all';
+const SELL_TABS=[['all','🎒','ぜんぶ'],['zakka','🧺','雑貨'],['radio','📻','ラジオ'],['music','🎵','レコード']];
+function sellItems(){const L=[],yen=n=>'🪙'+n.toLocaleString();
+  ownBooks().forEach(b=>L.push({cat:'zakka',pk:'bk',it:b,ico:b.ico,n:b.title,sub:b.n,paid:paid(b.id),get:half(b)}));
+  if(ZD.own.note){const it=item('note');L.push({cat:'zakka',pk:'bk',it,ico:it.ico,n:it.n,sub:'言えた フレーズの 記録も 手ばなすよ',paid:paid('note'),get:half(it)})}
+  ZD.gift.forEach((g,i)=>{const it=item(g.id);if(it)L.push({cat:'zakka',pk:'gf',gi:i,it,ico:it.ico,n:it.n+(g.w?' 🎀':''),sub:'プレゼント',paid:it.p,get:half(it)})});
+  Z.tgs().forEach(it=>L.push({cat:'zakka',pk:'tg',it,ico:it.ico,n:it.n,sub:'リクからの お礼',get:it.p}));
+  {const n=bottles();if(n)L.push({cat:'zakka',pk:'bot',ico:'🍾',n:`からの びん ${n}本`,sub:'1本 2まい',get:n*2})}
+  ST.radios.forEach(r=>{const it=good('radio',r.lv);if(it)L.push({cat:'radio',pk:'g',it,ico:it.ico,n:it.n,sub:it.p?'':'むりょうで もらった ラジオ',paid:it.p,get:half(it)})});
+  ST.music.forEach(id=>{if(typeof TRACKS==='undefined'||!TRACKS[id])return;const it=good('music',id),bgm=H.shopSongId===id;
+    if(it)L.push({cat:'music',pk:'g',it,ico:it.ico,n:it.n,sub:bgm?'🎵 お店で ながしている 曲':'',paid:it.p,get:half(it),bgm});
+    else{const m=CATALOG.music.find(x=>x[0]===id)||[id,0,'🎵'];L.push({cat:'music',lock:1,ico:m[2],n:trackShort(id),sub:'🔒 ごほうびの 曲は 売れないよ（もう 手に 入らないから）'})}});
+  L.forEach(x=>{if(x.lock)return;x.line=x.paid?`買った ねだん ${yen(x.paid)}`:'';x.btn=x.get?`売る <b>${yen(x.get)}</b>`:'ひきとり'});
+  return L}
+const SELL_HI=[["What would you like to sell, dear? Show me.","なにを 売りたいの？ 見せてちょうだい。"],
+  ["Cleaning out your bag? Let's see what you have.","かばんの 整理？ なにが あるか 見せて。"],
+  ["I buy used things, too. Pick one, and let's talk.","中古の ものも 買いとるわよ。 1つ えらんで、 話しましょ。"],
+  ["Records, radios, books… I'll take a look at anything.","レコード、 ラジオ、 本… なんでも 見るわよ。"]];
+function sellList(tab){hush();pvDone(false);if(tab)sellTab=tab;const all=sellItems(),cnt=k=>all.filter(x=>!x.lock&&(k==='all'||x.cat===k)).length;
+  if(sellTab!=='all'&&!all.some(x=>x.cat===sellTab))sellTab='all';
+  const [en,ja]=Z.pickV('sellHi',SELL_HI),list=all.filter(x=>sellTab==='all'||x.cat===sellTab);
+  const row=(x,i)=>`<div class="ritem zkbi zksl ${x.lock?'off':''} ${x.bgm?'has':''}"><span class="ri">${x.ico}</span><span class="rn"><b>${esc(x.n)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}${x.line?`<small class="zkslp">${x.line}</small>`:''}</span><span class="rbtn">${x.lock?'':`<button data-sl="${all.indexOf(x)}">${x.btn}</button>`}</span></div>`;
+  H.show('zakka',`<section class="pnl zk">
+    <div class="qtop"><button class="x" id="zkx" aria-label="もどる">←</button><b>💰 売る ものを えらぶ</b><span class="qn"></span></div>
+    <div id="zkhi">${noraLine(en,ja)}</div>
+    <div class="seg tabs zktabs">${SELL_TABS.filter(([k])=>k==='all'||all.some(x=>x.cat===k)).map(([k,i,n])=>`<button data-st="${k}" class="${sellTab===k?'on':''}">${i?`<span>${i}</span>`:''}${n} <small>${cnt(k)}</small></button>`).join('')}</div>
+    <div class="zkbag">${list.map(row).join('')||'<p class="note">売れる ものが まだ ないよ。 雑貨屋で 買った ものや、 からの びんを 売れるよ</p>'}</div>
+    <p class="note zkrot">売った ものは、 たなに ならんだら また 買えるよ</p>
+  </section>`);
+  bindLine($('zkhi'));talk(en,NORA);
+  $('zkx').onclick=()=>{SFX.back();hush();shop()};
+  H.panel.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{SFX.pop();sellList(b.dataset.st)});
+  H.panel.querySelectorAll('[data-sl]').forEach(b=>b.onclick=()=>{const x=all[+b.dataset.sl];if(!x)return;SFX.talk();
+    play('sell',{at:'p0',from:'list',pk:x.pk,it:x.it||null,gi:x.gi,bgm:x.bgm?1:0})})}
+
 /* ================================================================ one talk */
 let P=null;
 const live=()=>P&&$('zklog');
 function play(sid,init){const s=SC[sid];if(!s)return shop();
-  P={sid,s,at:s.start,step:0,c:Object.assign({seed:Math.random()*1e6|0},init||{}),fun:0,newPh:[],usedPh:[],typed:0};
+  P={sid,s,at:(init&&init.at&&s.nodes[init.at])?init.at:s.start,step:0,c:Object.assign({seed:Math.random()*1e6|0},init||{}),fun:0,newPh:[],usedPh:[],typed:0};
   H.show('zakka',`<section class="pnl lsn kw zk" data-stay>
     <div class="qtop"><button class="x" id="zkx" aria-label="会話を やめる">←</button><b>${NORA.ico} ノラさんの お店</b><span class="qn" id="zkq"></span></div>
     <div class="lslog kwlog" id="zklog"></div>
@@ -343,14 +382,15 @@ function deal(N){const c=P.c,it=c.it,R={};
   case 'sellBottles':{const n=bottles(),got=n*(c.per||2);ZD.bsold=(ZD.bsold||0)+n;R.got=got;R.sold=`🍾 からの びん ${n}本`;break}
   case 'sellTg':{R.got=c.sellP||it.p;R.sold=it.ico+' '+it.n;try{TUTOR.take(it.tg)}catch(e){}break}
   case 'sell':{R.got=c.sellP||half(it);R.sold=it.ico+' '+it.n;forget(it.id);break}
+  case 'sellGift':{const i=ZD.gift.findIndex((g,j)=>j===c.gi&&g.id===it.id),k=i>=0?i:ZD.gift.findIndex(g=>g.id===it.id);if(k<0)break;ZD.gift.splice(k,1);R.got=c.sellP||half(it);R.sold=it.ico+' '+it.n;R.gift=it;break}
   case 'refund':{R.got=paid(it.id);R.sold=it.ico+' '+it.n;R.ret=1;forget(it.id);break}
   case 'buyback':{R.got=half(it);R.sold=it.ico+' '+it.n;R.ret=1;forget(it.id);break}
   /* 📻🎵🎆 */
   case 'gbuy':{const p=Z.price(c);if(ST.coins<p){R.short=1;break}pay(p);R.paid=p;R.good=it;if(it.kind==='event')pendEv.push(it);else if(it.kind==='food'){try{FOOD.add(it.id)}catch(e){}}else H.goods.buy(it);break}
-  case 'gsell':{R.got=c.sellP||0;R.sold=it.ico+' '+it.n;R.gsold=it;H.goods.sell(it);break}
+  case 'gsell':{R.got=c.sellP||0;R.sold=it.ico+' '+it.n;R.gsold=it;const was=H.shopSongId;H.goods.sell(it);if(it.kind==='music'&&was===it.id)R.bgm=H.shopSongId||'off';break}
   case 'exch':{const d=Z.diff(c),pd=paid(it.id),rc=ZD.rcpt[it.id];if(d)pay(d);forget(it.id);ZD.own[c.to2.id]=1;ZD.paid[c.to2.id]=pd+d;if(rc)ZD.rcpt[c.to2.id]=1;R.ex=c.to2;break}}
   save();
-  try{const x=R.it||R.good;if(x&&R.paid)RECENT.add('zbuy',{id:x.id,en:x.w||x.en||'',ja:x.n||x.name||'',ico:x.ico||'',kind:x.k||x.kind||''});else if(R.sold)RECENT.add('zsell',{ja:R.sold,ret:R.ret||0})}catch(e){}
+  try{const x=R.it||R.good;if(x&&R.paid)RECENT.add('zbuy',{id:x.id,en:x.w||x.en||'',ja:x.n||x.name||'',ico:x.ico||'',kind:x.k||x.kind||''});else if(R.sold)RECENT.add('zsell',{ja:R.sold,ret:R.ret||0,kind:R.gsold?R.gsold.kind:R.gift?'gift':'',en:R.gsold?(R.gsold.en||''):'',tn:R.gsold?R.gsold.n:''})}catch(e){}
   return R}
 function forget(id){if(ZD.rareBuy&&ZD.rareBuy.id===id)delete ZD.rareBuy;delete ZD.own[id];delete ZD.rcpt[id];delete ZD.paid[id];delete ZD.read[id]}
 
@@ -379,6 +419,7 @@ function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!
     if(R.good.kind==='food'){more+=`<button data-go="eat">😋 いま 食べる</button>`;if(window.GIFT)more+=`<button data-go="fgive" class="sub">🎁 だれかに あげる</button>`}}
   else if(R.gsold&&!R.got)res=`🤲 ${esc(R.sold)} を ノラさんに かえした`;
   else if(R.got)res=`💰 ${esc(R.sold)} を ${R.ret?'返して':'売って'} <b>${R.got}まい</b> もらった`;
+  if(R.bgm)res+=`<br><small>🎵 お店の BGMは ${R.bgm==='off'?'とまったよ（ほかの 曲が ないから）':`「${esc(trackShort(R.bgm))}」に かわったよ`}</small>`;
   else if(R.ex)res=`🔄 ${R.ex.ico} <b>${esc(R.ex.n)}</b> に 交換した`;
   else if(N.act==='hold')res=`🔖 ${c.it.ico} ${esc(c.it.n)} を とっておいて もらった`;
   /* Mina */
@@ -394,7 +435,8 @@ function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!
   if(R.good||/^g(Es|Jh|Hs)$/.test(sid)){
     if(R.good){k=R.good.kind==='radio'?'zk_endRadio':R.good.kind==='music'?'zk_endSong':R.good.kind==='food'?'zk_endFood':'zk_endEvent';v={t:R.good.n,lv:GLV[R.good.lv]}}
     else if(good)k='zk_'+sid}
-  if(R.gsold){k='zk_endGoodSell';v={t:R.gsold.n}}
+  if(R.gsold){k=R.gsold.kind==='music'?(R.bgm?'zk_endRecSellBgm':'zk_endRecSell'):'zk_endGoodSell';v={t:R.gsold.n}}
+  if(R.gift){k='zk_endGiftSell';v={t:R.gift.n}}
   /* 💰 お会計で 出た 言い方の ひとこと（お会計は 毎回 かわる） */
   if((R.it||R.good)&&c.tips&&c.tips.length&&Math.random()<.4){k='zk_endCk';v={tip:pickL(c.tips)}}
   if(P.newPh.length&&Math.random()<.5){k='zk_endPhrase';v.p=PH[P.newPh[0]][0];v.pj=PH[P.newPh[0]][1]}
@@ -419,7 +461,7 @@ function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!
     $('zkans').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const g=b.dataset.go;hush();P=null;
       if(g==='read'){SFX.book();reader(R.it.id,shop)}else if(g==='pc'){SFX.book();postcard(+b.dataset.n,shop)}else if(g==='fort'){fortune(shop)}else if(g==='give'){window.GIFT?GIFT.who('z'+(ZD.gift.length-1),shop):give(ZD.gift.length-1,shop)}else if(g==='note'){SFX.book();notebook(shop)}else if(g==='crystal'){crystal(shop)}else if(g==='moon'){SFX.talk();play('moon')}else if(g==='ev'||g==='beach'){SFX.back();H.home()}else if(g==='eat'){FOOD.eat(R.good.id,shop)}else if(g==='fgive'){SFX.open();GIFT.who('f:'+R.good.id,shop)}});
     const sid0=c.it&&c.it.kind?[gScene(c.it),{it:c.it}]:sid==='buy'&&c.it?['buy',{it:c.it}]:[sid==='hello'?'rec':sid==='moon'?'moon':sid];
-    $('zkagain').onclick=()=>{SFX.step();play(...sid0)};
+    if(c.from==='list'){$('zkagain').textContent='💰 ほかの ものも 売る';$('zkagain').onclick=()=>{SFX.open();hush();P=null;sellList()}}else $('zkagain').onclick=()=>{SFX.step();play(...sid0)};
     $('zkback').onclick=()=>{SFX.back();hush();P=null;shop()};
     setTimeout(()=>$('zkans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1500)}
 
@@ -659,6 +701,9 @@ Object.assign(MINA_LINES,{
  zk_endRadio:[['wow','{t}、 浜辺に おいたよ！ さっそく 英語を つぶやきはじめるね'],['proud','ラジオも 英語で 買えたね。 {lv}の マークの 英語、 ばっちりだったよ'],['happy','{t}が ふえると 聞こえる 英語が ふえるよ。 毎日 ちょっとずつ ね']],
  zk_endSong:[['love','「{t}」、 いい 曲だね。 カードショップの BGMに どうぞ'],['happy','レコードを 英語で 買えたね。 先に 聞いてから 買うのは かしこい やり方だよ'],['smile','「{t}」は カードショップの 中で ながれるよ。 お店の 🎵 BGMで えらんでね']],
  zk_endEvent:[['wow','{t}、 浜辺に もどったら はじまるよ！ 見に 行こう'],['happy','イベントも 英語で 買えたね。 {lv}の マークの 会話、 よく できました'],['smile','{t}を 見ながら、 ノラさんの 説明を 思い出してみて']],
+ zk_endRecSell:[['smile','{t}を 売ったんだね。 たなに また ならんだら 買いもどせるよ。 「I\'d like to sell it back.」も 覚えておこう'],['think','レコードは record。 「売る」は sell で、 過去形は sold だよ。 「I sold my record.」って 言えるね'],['happy','曲を 入れかえるのも 楽しいよね。 つぎは どんな 曲に しようか']],
+ zk_endRecSellBgm:[['smile','お店で ながしていた 曲だったんだね。 BGMは かわったよ。 カウンターの 🎵BGMで いつでも えらびなおせるよ'],['wink','ミオちゃん、 曲が かわったの 気づくかな？ 「Did you change the music?」って 聞かれるかもね']],
+ zk_endGiftSell:[['think','{t}、 売っちゃったんだね。 「I changed my mind.」は 「気が かわった」。 よく つかう 言い方だよ'],['smile','プレゼントは また 雑貨屋で 買えるよ。 だれかに あげたく なったら いつでもね']],
  zk_endGoodSell:[['smile','{t}を 売ったんだね。 「I\'d like to sell it back.」は 本当の お店でも つかえるよ'],['think','売るのも 英語で できたね。 半分の 値段に なるのは どこの 中古屋さんでも 同じなんだ']],
  zk_endCk:[['smile','{tip}'],['happy','{tip}'],['think','{tip}']],
  zk_gEs:[['smile','小の 会話、 「Can I listen?」「How much is it?」が 言えたら もう だいじょうぶ'],['happy','みじかい 英語でも お店では ちゃんと つたわるよ']],
@@ -710,5 +755,5 @@ setTimeout(function daily(){if(ZD.daily)return;const m=window.MINA;if(!m||!m.can
 setTimeout(function first(){if(ZD.met||ZD.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
   ZD.told=1;save();const [ex,tx]=mline('zk_first');m.say('m',ex,tx,9000,null,['🏚️ のぞいてみる',open])},45000);
 
-window.ZAKKA={talk:en=>talk(en,NORA),lineup,today,good,GLV,nextMin,open,shop,play,bag,reader,notebook,rec:()=>ZD,items:IT,scenes:SC,endsN,endsAll,_hut:hut};
+window.ZAKKA={talk:en=>talk(en,NORA),sellList,lineup,today,good,GLV,nextMin,open,shop,play,bag,reader,notebook,rec:()=>ZD,items:IT,scenes:SC,endsN,endsAll,_hut:hut};
 })();

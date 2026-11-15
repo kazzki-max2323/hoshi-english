@@ -588,7 +588,9 @@ const goods={
   buy(it){if(it.kind==='radio'){if(ST.radios.some(r=>r.lv===it.id))return;const [x,y]=freeSpot();ST.radios.push({lv:it.id,on:true,x,y});save();drawRadios()}
     else if(it.kind==='music'){if(!ST.music.includes(it.id))ST.music.push(it.id);if(!songOk(ST.shopSong))ST.shopSong=it.id;save();playTrack(it.id)}},
   sell(it){if(it.kind==='radio'){let idx=-1;ST.radios.forEach((r,i)=>{if(r.lv===it.id)idx=i});if(idx>=0)ST.radios.splice(idx,1);save();drawRadios()}
-    else if(it.kind==='music'){if(MUS.on&&MUS.id===it.id)stopMusic(true);ST.music=ST.music.filter(m=>m!==it.id);if(ST.shopSong===it.id)ST.shopSong=null;save()}},
+    else if(it.kind==='music'){if(MUS.on&&MUS.id===it.id)stopMusic(true);ST.music=ST.music.filter(m=>m!==it.id);
+      /* 売った 曲が お店の BGMなら、 のこっている ほかの 曲に かわる（なければ とまる） */
+      const nx=()=>ST.music.find(m=>songOk(m))||null;if(ST.shopSong===it.id)ST.shopSong=nx();if(ST.shopLast===it.id)ST.shopLast=ST.shopSong||nx();save()}},
   /* an event plays on the beach (the radio keeps going while it plays) */
   event(it){radioWake();toast(`${it.ico} <b>${it.n}</b>`,2200);setTimeout(()=>{try{it.k==='show'?SC.show(it.id,it.sec):SC.play(it.id)}catch(e){}},500)}};
 /* old callers (H.shop / H.gramShop) open the shop on the beach now */

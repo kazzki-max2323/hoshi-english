@@ -121,3 +121,11 @@
 .zkrare .zkit{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px!important;min-width:0;background:rgba(255,231,168,.12)!important;border-color:rgba(255,215,120,.6)!important}
 @keyframes zkRare{50%{box-shadow:0 0 12px rgba(255,215,120,.35)}}
 .pnl.zk:not([data-stay]){padding-bottom:78px}
+/* 💰 売る ものを えらぶ 一覧 */
+.zksl .rn small{display:block}
+.zksl .zkslp{color:var(--mute)}
+
+.zksl.has .rn small:first-of-type{color:#55e0b4}
+.zktabs small{font-size:.62rem;opacity:.8}
+.zksl .rbtn button{white-space:nowrap;padding:7px 10px!important;font-size:.8rem}
+.zksl .rbtn button b{color:#ffe7a8}
