@@ -70,13 +70,23 @@ $('toast').addEventListener('click',()=>$('toast').classList.remove('on'));
 function head(){$('coins').textContent=ST.coins.toLocaleString();const ph=phaseOf(GH());$('clock').textContent=ph[2]+' '+clockStr();$('snd').textContent=ST.sound?'🔊':'🔇'}
 setInterval(head,1000);
 $('gear').onclick=()=>{SFX.pop();screen==='settings'?home():settings()};
-$('snd').onclick=()=>{ST.sound=!ST.sound;ST.waves=ST.sound;ambient();if(!ST.sound){try{stopMusic(true)}catch(e){}stopClip()}else SFX.snd();save();head()};
+$('snd').onclick=()=>{ST.sound=!ST.sound;ST.waves=ST.sound;ambient();if(!ST.sound){try{stopMusic(true)}catch(e){}stopClip()}else{SFX.snd();musAt()}save();head()};
 function addCoins(n){ST.coins+=n;save();head();const c=document.querySelector('.coin');c.classList.remove('bump');void c.offsetWidth;c.classList.add('bump')}
 function flyCoin(x,y,n,quick){const d=document.createElement('div');d.className='fly'+(quick?' quick':'');d.innerHTML=(quick?'<small>はやい！</small>':'')+'+'+n;d.style.left=x+'px';d.style.top=y+'px';document.body.appendChild(d);setTimeout(()=>d.remove(),1000)}
 
 /* ---------- screens ---------- */
 let screen='home';
-function show(name,html){screen=name;window.GRAMSEE&&GRAMSEE.hidePop();panel.innerHTML=html;panel.scrollTop=0;if(name!=='home')radioQuiet()}
+function show(name,html){screen=name;window.GRAMSEE&&GRAMSEE.hidePop();panel.innerHTML=html;panel.scrollTop=0;if(name!=='home')radioQuiet();musAt()}
+/* 🎵 レコードは カードショップ「しおさい」の 中だけで ながれる（店の BGM = ST.shopSong）。
+   鉱山に 出ると とまり、 お店に もどると また ながれる。 雑貨屋の 試聴や 先生の リクエストは その 画面に いる あいだだけ */
+let musWhere=null;   // 'shop' = お店の BGM ／ ほかは その曲を かけた 画面の 名前
+const inShop=()=>screen==='cg'&&!panel.querySelector('.mnp');
+const songOk=id=>!!id&&typeof TRACKS!=='undefined'&&!!TRACKS[id]&&ST.music.includes(id);
+function musAt(){const shopNow=inShop();
+  if(MUS.on&&musWhere!==(shopNow?'shop':screen)){try{stopMusic(true)}catch(e){}musWhere=null}
+  if(shopNow&&ST.sound&&songOk(ST.shopSong)&&!(MUS.on&&MUS.id===ST.shopSong)){try{startMusic(ST.shopSong,36000);musWhere='shop'}catch(e){}}}
+/* お店の BGMを えらぶ（null で とめる） */
+function shopSong(id){ST.shopSong=songOk(id)?id:null;save();if(MUS.on&&musWhere==='shop'){try{stopMusic(true)}catch(e){}musWhere=null}musAt()}
 
 function home(){const back=screen!=='home';   // coming back from a word book, the shop, settings…
   show('home',`<section class="pnl home">
@@ -86,14 +96,12 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
       <button id="bagOpen" class="sub"><span>🎒</span>もちもの</button>
       <button id="kaiwaOpen" class="sub"><span>💬</span>浜辺の 会話</button>
     </div>
-    ${MUS.on&&MUS.id?`<div class="np"><span>🎵 ${esc(TRACKS[MUS.id].name)}</span><button id="npStop" class="sub">■ とめる</button></div>`:''}
     ${ST.radios.length?`<label class="gap"><span>📻 つぶやき</span><input id="gapR" type="range" min="3" max="30" step="1" value="${ST.radioGap}"><output id="gapV">${ST.radioGap}秒ごと</output></label>`:''}
   </section>`);
   /* 単語帳は 1つの ボタン。ひらくと 小学生〜ハイレベルを 上の タブで えらぶ（さいごに 見た レベルから） */
   $('bookOpen').onclick=()=>{SFX.book();books()};
   $('bagOpen').onclick=()=>{SFX.open();window.ZAKKA&&ZAKKA.bag(home)};
   $('kaiwaOpen').onclick=()=>{if(!window.KAIWA)return;SFX.talk();KAIWA.open()};
-  const ns=$('npStop');if(ns)ns.onclick=()=>{stopMusic(true);SFX.pop();home()};
   const g=$('gapR');if(g)g.oninput=()=>{ST.radioGap=+g.value;$('gapV').textContent=g.value+'秒ごと';save();if(nextAt>performance.now()+ST.radioGap*1000)nextAt=performance.now()+ST.radioGap*1000};
   rqIdle();emit('home',back);if(back)nextAt=Math.max(nextAt,performance.now()+RADIO_REST);else radioWake();
 }
@@ -549,17 +557,19 @@ function timeBadge(t){const k=t.join(',');return ({'night':'🌙 夜専用','sun
 /* ---------- the shop: moved into ながれぎ雑貨店 (game/zakka.js). What the shop used to do on the beach happens here ---------- */
 const goods={
   buy(it){if(it.kind==='radio'){if(ST.radios.some(r=>r.lv===it.id))return;const [x,y]=freeSpot();ST.radios.push({lv:it.id,on:true,x,y});save();drawRadios()}
-    else if(it.kind==='music'){if(!ST.music.includes(it.id))ST.music.push(it.id);save();playTrack(it.id)}},
+    else if(it.kind==='music'){if(!ST.music.includes(it.id))ST.music.push(it.id);if(!songOk(ST.shopSong))ST.shopSong=it.id;save();playTrack(it.id)}},
   sell(it){if(it.kind==='radio'){let idx=-1;ST.radios.forEach((r,i)=>{if(r.lv===it.id)idx=i});if(idx>=0)ST.radios.splice(idx,1);save();drawRadios()}
-    else if(it.kind==='music'){if(MUS.on&&MUS.id===it.id)stopMusic(true);ST.music=ST.music.filter(m=>m!==it.id);save()}},
+    else if(it.kind==='music'){if(MUS.on&&MUS.id===it.id)stopMusic(true);ST.music=ST.music.filter(m=>m!==it.id);if(ST.shopSong===it.id)ST.shopSong=null;save()}},
   /* an event plays on the beach (the radio keeps going while it plays) */
   event(it){radioWake();toast(`${it.ico} <b>${it.n}</b>`,2200);setTimeout(()=>{try{it.k==='show'?SC.show(it.id,it.sec):SC.play(it.id)}catch(e){}},500)}};
 /* old callers (H.shop / H.gramShop) open the shop on the beach now */
 function shop(tab,glv='es'){if(tab==='gram'){gramList(glv);return}if(window.ZAKKA)ZAKKA.open(tab)}
-function playTrack(id){if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,3600)}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
+/* その場で 1曲 ながす。 お店の 中なら お店の BGMに なる。 ほかの 画面では その 画面を 出ると とまる */
+function playTrack(id){if(inShop()&&songOk(id)){ST.shopSong=id;save()}
+  if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,inShop()?36000:3600);musWhere=inShop()?'shop':screen}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={goods,stopMusic:()=>stopMusic(true),books,gramFrom:(lv,back)=>gramList(lv,back||null),book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramTry,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
+window.HE={goods,stopMusic:()=>stopMusic(true),books,gramFrom:(lv,back)=>gramList(lv,back||null),book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},shopSong,get shopSongId(){return songOk(ST.shopSong)?ST.shopSong:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramTry,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();

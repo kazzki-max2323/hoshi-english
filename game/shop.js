@@ -63,14 +63,36 @@ function open(){cleanFloor();const S=SH(),first=!S.met;
     ${window.CBOOK?(()=>{const [g,t]=CBOOK.stat();return `<button data-t="book" class="shbook"><span>📖</span><b>カードブック</b><small>${g} / ${t}</small></button>`})():''}
     <button data-g="pack" class="shpack"><span>🎁</span><b>仕入れ</b><small>${C.buyLeft()?`きょう あと ${C.buyLeft()}回`:'また あした'}</small>${R().free!==C.today()?'<i class="dot"></i>':''}</button>
     <div class="row shmio"><button id="shtalk">💬 ミオと 話す${window.MIOC&&MIOC.newN()?'<i class="dot"></i>':''}</button><button id="shgift" class="sub">🎁 プレゼント</button></div>
+    ${bgmBtn()}
     <p class="shsum">これまでに ${S.sold}まい 売れた・ 売り上げ 🪙${S.earn}${S.best?` ・ 鉱山 最高 ${S.best}m`:''}</p>
   </section>`);
   $('cgx').onclick=()=>{sf('back');H.home()};
   bindBubble();speak(g[0]);
   $('shtalk').onclick=()=>{sf('step');MIOC.open(open)};
   $('shgift').onclick=()=>{sf('step');GIFT.pick({to:'mio',back:open})};
+  $('shbgm').onclick=()=>{sf('step');bgm()};
   H.panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{sf('step');({counter,mine:()=>MINE.open(),floor,store,book:()=>CBOOK.open()})[b.dataset.t]()});
   H.panel.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{sf('step');C.go(b.dataset.g)})}
+
+/* ================================================================ 🎵 お店の BGM（レコードは お店の 中だけで ながれる。 game/game.js の musAt） */
+const songs=()=>(ST.music||[]).filter(id=>typeof TRACKS!=='undefined'&&TRACKS[id]);
+const songName=id=>{const n=(TRACKS[id]||{}).name||id,m=n.match(/「(.+)」/);return m?m[1]:n};
+function bgmBtn(){const id=H.shopSongId;return `<button id="shbgm" class="shbgm sub"><span>🎵</span><b>${id?esc(songName(id)):'BGM なし'}</b><small>${songs().length?'えらぶ':'レコードは 雑貨店で'}</small></button>`}
+const MIO_BGM={
+  none:[["Want some music in the shop, boss? Records from Nora's shop play right here.","お店に 音楽、 かけませんか？ ノラさんの お店の レコードが ここで ながせますよ。"]],
+  empty:[["We don't have any records yet. Nora's shop on the beach sells them!","まだ レコードが ないですね。 浜辺の ノラさんの お店で 売ってますよ！"]],
+  on:[["Good choice! Music makes the shop feel cozy.","いい えらび方！ 音楽が あると お店が ほっこりしますね。"],["I love this song. I might start dancing behind the counter!","この曲 大好き。 カウンターの うしろで おどっちゃうかも！"],["Customers stay longer when there's music. Maybe!","音楽が あると お客さんが 長く いてくれるんです。 たぶん！"]],
+  off:[["Quiet is nice too. I can hear the waves.","しずかなのも いいですね。 波の 音が 聞こえる。"]]};
+function bgm(say){const own=songs(),cur=H.shopSongId,ln=say||pickL(MIO_BGM[!own.length?'empty':cur?'on':'none']);
+  H.show('cg',`<section class="pnl cgp shp shbg">${top('🎵 お店の BGM',own.length?`${own.length}曲`:'')}
+    ${bubble(ln[0],ln[1],cur?'laugh':'smile',cur?'peace':'')}
+    ${own.length?`<div class="zkbag">${own.map(id=>{const m=CATALOG.music.find(x=>x[0]===id)||[id,0,'🎵'],on=cur===id;
+      return `<div class="ritem ${on?'has':''}"><span class="ri">${m[2]}</span><span class="rn"><b>${esc(songName(id))}</b>${on?'<small>🎵 いま ながれているよ</small>':''}</span><span class="rbtn"><button class="play ${on?'on':''}" data-bg="${on?'':id}">${on?'■ とめる':'▶ ながす'}</button></span></div>`}).join('')}</div>`
+      :`<p class="note">🎵 レコードは 浜辺の 右はしの ながれぎ雑貨店で 買えるよ</p>`}
+    <p class="note">レコードは お店の 中だけで ながれるよ（鉱山や 浜辺では とまる）</p>
+  </section>`);
+  bindBubble();speak(ln[0]);$('shb').onclick=()=>{sf('back');open()};
+  H.panel.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{const id=b.dataset.bg||null;sf('pop');H.shopSong(id);bgm(pickL(MIO_BGM[id?'on':'off']))})}
 
 /* the first visit: Mio says hello, and the starter cards */
 function intro(){const S=SH();let i=0;
@@ -322,6 +344,7 @@ function talk(T,id,p,done){const g=T.g,I=C.info(id),box=$('shact');const lv=({es
       try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<.4){const [ex,tx]=ML(ok?'sh_talkGood':'sh_talkMiss');MINA.say('m',ex,tx,6000)}}catch(er){}}})}
 
 /* ================================================================ Ms. Mina points the way */
+const goBgm=()=>['🎵 お店の BGMへ',()=>{CG.open();setTimeout(()=>{if(SH().met&&!SH().away)bgm()},60)}];
 const goShop=t=>()=>['🃏 カードショップへ',()=>{CG.open();if(t)setTimeout(()=>({counter,floor,store,mine:()=>MINE.open()})[t](),60)}];
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_shMine',4,()=>SH().met?{}:null,goShop('mine')],
@@ -330,10 +353,21 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_shCounter',2,()=>SH().met?{}:null,goShop('counter')],
  ['x_shReport',2,()=>SH().sold?{n:SH().sold}:null,goShop()],
  ['x_shMio',1,()=>SH().met?{}:null,goShop()],
- ['x_shMutter',2,()=>SH().met&&MU().day?{}:null,goShop('counter')]);
+ ['x_shMutter',2,()=>SH().met&&MU().day?{}:null,goShop('counter')],
+ ['x_shBgm',2,()=>songs().length&&!H.shopSongId?{}:null,goBgm],
+ ['x_shBgmOn',1,()=>H.shopSongId?{song:songName(H.shopSongId)}:null,goBgm]);
+/* 🎵 お店の BGM の ミナ先生の セリフ */
+Object.assign(MINA_LINES,{
+ x_shBgm:[['smile','レコード、 もってるよね。 カードショップの 🎵 BGMで えらぶと、 お店の 中で ながれるよ'],['happy','お店で 曲を ながすと、 ミオさんも ごきげんに なるんだって']],
+ x_shBgmOn:[['happy','カードショップで 「{song}」を ながしてるんだね。 店長さんの センス、 いいね'],['smile','「{song}」は お店に 入ると ながれるよ。 浜辺では 波の 音を 聞こうね']],
+ sh_bgmNew:[['wow','お知らせ！ レコードは カードショップの 中だけで ながれるように なったよ。 お店の 🎵 BGMで 曲を えらんでね'],['smile','曲は カードショップの 中だけで ながれるように なったんだ。 浜辺に 出ると 止まって、 お店に もどると また ながれるよ']]});
 /* the shop changed: Mina tells you once */
 setTimeout(function first(){const S=SH();if(S.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,15000);
   S.told=1;save();const [ex,tx]=ML('sh_first');m.say('m',ex,tx,10000,null,['🃏 お店へ',()=>CG.open()])},12000);
+
+/* records play only in the shop now: Mina tells you once（レコードを もっている 人だけ） */
+setTimeout(function first4(){const S=SH();if(S.bgmTold||!songs().length)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first4,20000);
+  S.bgmTold=1;save();const [ex,tx]=ML('sh_bgmNew');m.say('m',ex,tx,10000,null,goBgm())},26000);
 
 /* the bubbles are new: Mina tells you once（もう お店を 知っている 人だけ） */
 setTimeout(function first3(){const S=SH();if(S.mutTold||!S.met||!MU().day)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first3,20000);

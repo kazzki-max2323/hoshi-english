@@ -525,11 +525,11 @@ const MINA_TALK={
 
 /* ===== 音楽 ===== */
  x_songOwn:[
-  ['smile','{song}、 かったよね。 いま ながしてみる？'],
-  ['happy','{song}を 聞きながら 単語帳、 いいよね'],
+  ['smile','{song}、 かったよね。 カードショップで ながしてみる？'],
+  ['happy','{song}を 聞きながら お店番、 いいよね'],
   ['love','{song}、 先生も すきな 曲だよ'],
-  ['think','{song}を ながすと 集中 できるかも'],
-  ['smile','勉強の BGMに {song}は どう？'],
+  ['think','カードショップの BGMを {song}に すると、 お店の ふんいきが かわるかも'],
+  ['smile','お店の BGMに {song}は どう？'],
  ],
  x_songPlaying:[
   ['happy','いま {song}が ながれてるね。 いい音'],
@@ -540,16 +540,16 @@ const MINA_TALK={
  x_songNone:[
   ['smile','雑貨屋の 🎵 レコードで 曲が かえるよ。 {song}は {price}まい'],
   ['happy','{song}、 「{d}」だって。 {price}まいだよ'],
-  ['think','曲を ながすと 浜辺の ふんいきが かわるよ'],
+  ['think','曲を 買うと カードショップの 中で ながせるよ'],
  ],
  x_songNext:[
   ['happy','{song}（{price}まい）、 いまの コインで かえるよ'],
   ['smile','{song}は 「{d}」。 気になる？'],
   ['think','つぎの 1曲、 {song}は どうかな'],
-  ['wow','{song}… {price}まいで 浜辺に 新しい 音が ふえるよ'],
+  ['wow','{song}… {price}まいで お店に 新しい 音が ふえるよ'],
  ],
  x_songMany:[
-  ['proud','曲が {n}曲も！ 浜辺の DJ だね'],
+  ['proud','曲が {n}曲も！ カードショップの DJ だね'],
   ['happy','{tot}曲中 {n}曲 もってるよ'],
   ['love','{n}曲の なかで どれが いちばん すき？'],
  ],
