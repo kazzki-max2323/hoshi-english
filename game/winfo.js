@@ -66,7 +66,7 @@ function hand(){if(HAND)return HAND;HAND={};
   return HAND}
 /* k==='t'（宝カード）なら @見出し を 先に */
 const get=(h,k)=>{h=String(h||'').toLowerCase();const H=hand();return (k==='t'&&H['@'+h])||H[h]||null};
-const exOf=(h,k)=>{const x=get(h,k);if(x&&x.ex)return x.ex;const a=window.WINFO_EX&&WINFO_EX[String(h||'').toLowerCase()];return a||null};
+const exOf=(h,k)=>{const x=get(h,k);if(x&&x.ex)return x.ex;const a=typeof WINFO_EX!=='undefined'&&WINFO_EX[String(h||'').toLowerCase()];return a||null};
 
 /* ---------------------------------------------------------------- 品詞 */
 const POSN={n:'名詞',nu:'名詞',np:'名詞',v:'動詞',a:'形容詞',ad:'副詞',p:'前置詞',c:'接続詞',pr:'代名詞',i:'あいさつ',ph:'熟語',x:''};
