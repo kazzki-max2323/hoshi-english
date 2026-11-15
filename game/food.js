@@ -29,7 +29,7 @@ const today=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+
 /* ================================================================ ❤ 体力 */
 function hp(){const now=Date.now();if(FD.hp>=MAX){FD.hp=MAX;FD.t=now;return MAX}
   const g=Math.floor((now-(FD.t||now))/REGEN);if(g>0){FD.hp=Math.min(MAX,FD.hp+g);FD.t+=g*REGEN;if(FD.hp>=MAX)FD.t=now}return FD.hp}
-function setHp(n){hp();FD.hp=Math.max(0,Math.min(MAX,Math.round(n)));FD.t=Date.now();save()}
+function setHp(n){hp();FD.hp=Math.max(0,Math.min(MAX,Math.round(n)));FD.t=Date.now();save();chipUpd()}
 function gain(n){const a=hp();setHp(a+n);return [a,hp()]}
 /* 分 until the next ❤ / until full */
 const nextMin=()=>{const h=hp();if(h>=MAX)return 0;return Math.max(1,Math.ceil((REGEN-(Date.now()-FD.t))/60000))};
@@ -491,8 +491,15 @@ Object.assign(MINA_LINES,{
  x_fdTrivia:[['think','{d}の うんちく、 おぼえてる？ 「{t}」'],['smile','マルコさんの 話、 おもしろかったね。 {d}… 「{t}」']],
  x_fdSnack:[['smile','もちものに {n}が あるよ。 鉱山の おともに どうぞ'],['happy','{n}、 だれかに あげても いいね。 ミオちゃんは あまい ものが 大好きなんだって']],
  x_fdFruit:[['smile','{n}、 もちものに あるよ。 英語で なんて 言うか おぼえてる？ 「{w}」だよ'],['happy','{n}、 だれかに あげても よろこばれそう。 人に よって 好きな 食べ物が ちがうんだ']],
+ hp_full:[['happy','❤ まんたん！ いまなら 鉱山で 思いっきり ほれるよ'],['smile','元気 いっぱいだね。 ❤ {h}。 鉱山で 単語を ほりに 行く？']],
+ hp_high:[['smile','❤ {h}。 まだまだ 元気！ あと {f}分で まんたんだよ'],['point','❤は 2分で 1ずつ もどるよ。 いまは {h}。 じゅうぶん ほれるね']],
+ hp_mid:[['think','❤ {h}。 ちょっと つかれてきた？ あと {m}分で 1 もどるよ'],['smile','❤は 時間でも もどるけど、 食べ物を 食べると いっきに もどるよ']],
+ hp_low:[['worry','❤が {h}しか ないよ。 なにか 食べて ひと休み しよう'],['think','へとへと だね。 しおかぜ食堂の ごはんや、 雑貨屋の 食べ物で たくさん もどるよ']],
+ hp_zero:[['worry','❤が 0… がんばったね！ 時間でも もどるし、 食べると すぐ 元気に なるよ'],['smile','きょうは もう じゅうぶん ほったね。 ごはんに しよう。 「I\'d like ～, please.」で 注文してみて']],
+ x_hpChip:[['point','右上の ❤は 自分の 体力だよ。 タップすると いまの ようすが わかるの'],['smile','右上に ❤が ついたの、 気づいた？ 鉱山で へって、 時間と 食べ物で もどるよ']],
  x_fdShop:[['smile','雑貨屋の 🥪食べ物の たなは 毎日 かわるよ。 パンや くだもの、 おかしも あるの。 鉱山の おともに 1つ どう？'],['point','ノラさんの お店で 食べ物が 買えるよ。 持ち帰って あとで 食べたり、 プレゼントしたり できるの']]});
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
+ ['x_hpChip',2,()=>{try{return MINE.rec().dives>0&&!FD.chipTap?{}:null}catch(e){return null}},()=>['⛏️ 鉱山へ',()=>{try{CG.open();setTimeout(()=>MINE.open(),60)}catch(e){}}]],
  ['x_fdNew',3,()=>!FD.v?{}:null,()=>['🍽️ 食堂を のぞく',open]],
  ['x_fdTired',3,()=>{const h=hp();try{return h<30&&MINE.rec().dives>0?{n:h}:null}catch(e){return null}},()=>['🍽️ 食堂へ',open]],
  ['x_fdMenu',2,()=>{if(!FD.v)return null;const M=menu();return {b:BANDS[M.b][1],d:M.sp.n}},()=>['🍽️ お品書きを 見る',open]],
@@ -520,6 +527,36 @@ try{Object.keys(SN).forEach(id=>{GIFT_TAGS['f:'+id]=SN[id].tg});
 try{MIO_HI.push(["Boss, have you tried the new diner? The chef was a ship's cook!","店長、 新しい 食堂 行きました？ コックさん、 むかし 船の コックだったんですって！"],
   ["I had pancakes at Seabreeze Diner this morning. Fluffy!","けさ しおかぜ食堂で パンケーキ 食べました。 ふわっふわ！"],
   ["If you get hungry in the mine, eat something, OK? Don't push yourself!","鉱山で おなか すいたら、 なにか 食べてくださいね。 むりは だめですよ！"])}catch(e){}
+
+/* ================================================================ ❤ 右上の 体力（いつも 見える）
+   上の列（コイン・🔊・⚙️）の すぐ 下。 時間で もどる・食べる・鉱山で へる と その場で かわる
+   タップで ミナ先生の ひとこと（つぎに もどるまで・食べ物で たくさん もどる） */
+let chip=null;
+function chipUpd(){if(!chip)return;const h=hp(),p=Math.round(h/MAX*100);
+  if(chip._h===h)return;const up=chip._h!=null&&h>chip._h;chip._h=h;
+  chip.querySelector('b').textContent=h;chip.querySelector('i').style.width=p+'%';
+  chip.classList.toggle('low',h<20);chip.classList.toggle('full',h>=MAX);
+  chip.setAttribute('aria-label',`体力 ${h} / ${MAX}`);
+  if(up){chip.classList.remove('bump');void chip.offsetWidth;chip.classList.add('bump')}}
+function chipPop(){let pop=$('hpPop');if(pop){pop.remove();return}
+  const h=hp(),k=h>=MAX?'hp_full':h<=0?'hp_zero':h<20?'hp_low':h<50?'hp_mid':'hp_high';
+  const [ex,tx]=ML(k,{h,m:nextMin(),f:fullMin()});
+  const has=count()>0,btn=h>=MAX?['⛏️ 鉱山へ',()=>{try{CG.open();setTimeout(()=>MINE.open(),60)}catch(e){}}]
+    :has?['🍪 食べる',()=>eatPick(H.home)]:h<50?['🍽️ 食堂へ',open]:null;
+  pop=document.createElement('div');pop.id='hpPop';
+  pop.innerHTML=`<span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p>${btn?`<button>${btn[0]}</button>`:''}`;
+  chip.parentNode.appendChild(pop);sf('tap');if(!FD.chipTap){FD.chipTap=1;save()}
+  if(btn)pop.querySelector('button').onclick=e=>{e.stopPropagation();pop.remove();sf('open');btn[1]()};
+  clearTimeout(chip._t);chip._t=setTimeout(()=>pop.isConnected&&pop.remove(),7000)}
+document.addEventListener('pointerdown',e=>{const pop=$('hpPop');if(pop&&!e.target.closest('#hpPop,#hpChip'))pop.remove()},true);
+(function chipInit(){const hd=document.querySelector('header');if(!hd)return;
+  chip=document.createElement('button');chip.id='hpChip';chip.className='hpchip';
+  chip.innerHTML='<span class="hh">❤</span><span class="hb"><i></i></span><b>0</b>';
+  hd.appendChild(chip);chip.onclick=chipPop;chipUpd();setInterval(chipUpd,1000);
+  /* a tall screen reaches up to the top: the ❤ steps aside so it never sits on the screen's own title row */
+  const pn=$('panel'),fit=()=>{const cb=hd.getBoundingClientRect().bottom+32,q=pn&&pn.firstElementChild?pn.getBoundingClientRect():null;
+    const hide=!!q&&q.height>0&&q.top<cb;if(chip.hidden!==hide){chip.hidden=hide;if(hide){const pop=$('hpPop');if(pop)pop.remove()}}};
+  setInterval(fit,250);fit()})();
 
 window.FOOD={hp,setHp,gain,MAX,nextMin,fullMin,hpLine,add,take,count,bagList,bagRows,eat,eatPick,giftItems,giftUse,open,book,menu,band,mineBox,mineBind,rec:()=>FD,dishes:DISH};
 })();
