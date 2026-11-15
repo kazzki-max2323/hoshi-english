@@ -50,7 +50,7 @@ const top=(t,right='',id='shb')=>`<div class="qtop"><button class="x" id="${id}"
 function open(){cleanFloor();const S=SH(),first=!S.met;
   if(first)return intro();
   if(S.away)return report();
-  const g=night()>.6?pickL(MIO_NIGHT):pickL(MIO_HI),ex=pickL(['smile','laugh','wink']),pose=pickL(['wave','peace','','thumb']);
+  const g=(window.MIOCT&&Math.random()<.85&&MIOCT.hello())||(night()>.6?pickL(MIO_NIGHT):pickL(MIO_HI)),ex=pickL(['smile','laugh','wink']),pose=pickL(['wave','peace','','thumb']);
     H.show('cg',`<section class="pnl cgp shp">
     ${top('🃏 カードショップ しおさい','','cgx')}
     ${bubble(g[0],g[1],ex,pose)}
@@ -246,6 +246,7 @@ function mutTick(T,t){const m=T.mu,e=$('shmut'),now=Date.now();if(!e)return;
   /* Mio, by herself: every 15〜25 s when no guest and no question is open */
   if(T.g||m.q.length||now<m.next)return;const box=$('shact');if(box&&box.innerHTML&&!box.querySelector('.svx'))return;
   m.next=now+15000+Math.random()*10000;
+  if(window.MIOCT&&T.mio.pose!=='doze'&&Math.random()<.6){const rx=MIOCT.mutter();if(rx){mut(T,'m',rx);return}}
   const S=SH(),r=Math.random(),mp=T.mio.pose;let k;
   if(mp==='doze')k='doze';else if(!S.floor.length&&r<.45)k='empty';else if(S.floor.length&&S.floor.length<3&&r<.3)k='few';else if(mp==='sweep'&&r<.5)k='sweep';else k=r<.55?t:'any';
   mut(T,'m',ML2(k))}
@@ -256,7 +257,7 @@ function counter(){if(CT)CT.alive=false;const S=SH();cleanFloor();
     <div class="shstage"><canvas id="shcv" width="${W}" height="${HH}"></canvas><div class="shmut" id="shmut" hidden><b class="en"></b><small class="ja"></small></div></div>
     <p class="shst" id="shst">お店を あけたよ。 お客さんを まとう</p>
     <div id="shact" class="shact"></div>
-    <div class="row"><button id="shcall" class="sub">📣 よびこみ</button><button id="shfl" class="sub">🏷️ 売り場（${S.floor.length}）</button></div></section>`);
+    <div class="row shcrow"><button id="shcall" class="sub">📣 よびこみ</button>${window.MIOCT?'<button id="shmio" class="sub">💬 話す</button>':''}<button id="shfl" class="sub">🏷️ 売り場（${S.floor.length}）</button></div></section>`);
   const cv=$('shcv'),c=cv.getContext('2d');c.imageSmoothingEnabled=false;
   const T=CT={alive:true,f:0,g:null,next:Date.now()+4000+Math.random()*4000,mio:{x:150,y:44,pose:'stand',until:0,walk:null},visits:0,busy:false,mu:{who:'',until:0,q:[],next:Date.now()+2500,last:{}}};
   $('shmut').onclick=()=>{const m=T.mu;if(!m.who||!m.line)return;(m.who==='m'?speak:gspeak)(m.line[0])};
@@ -265,6 +266,12 @@ function counter(){if(CT)CT.alive=false;const S=SH();cleanFloor();
   $('shcall').onclick=()=>{if(T.g||Date.now()<T.callOk){H.toast(T.g?'いまは お客さんが いるよ':'少し まってから よびこもう');return}T.next=Date.now()+1500;T.callOk=Date.now()+20000;sf('hey');
     status('📣 「いらっしゃいませー！」 ミオと いっしょに よびこみ');T.mio.pose='wave';T.mio.until=Date.now()+2500};
   const status=t=>{const e=$('shst');if(e)e.innerHTML=t};T.status=status;
+  /* 💬 ミオを タップ（または ボタン）で 話しかける（game/mio-ctr.js） */
+  T.mut=line=>mut(T,'m',line,3200,1);
+  if(window.MIOCT){const tapMio=()=>MIOCT.tap(T,$('shact'));$('shmio').onclick=()=>{sf('step');tapMio()};
+    cv.onclick=ev=>{const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*W,y=(ev.clientY-r.top)/r.height*HH,m=T.mio;
+      if(x>m.x-8&&x<m.x+22&&y>m.y-6&&y<m.y+36){sf('tap');tapMio()}};
+    cv.style.cursor='pointer'}
   let last=0;
   const tick=now=>{if(!T.alive||!cv.isConnected){T.alive=false;return}requestAnimationFrame(tick);if(now-last<140)return;last=now;T.f++;step(T);
     const d=night(),t=d>.6?'night':d>.25?'dusk':'day';
@@ -280,14 +287,14 @@ function counter(){if(CT)CT.alive=false;const S=SH();cleanFloor();
   requestAnimationFrame(tick);
   if(!S.floor.length)setTimeout(()=>status('🏷️ 売り場が からっぽ… お客さんが 来ても 買えないよ。 カードを ならべよう'),1200)}
 /* Mio's little life between guests */
-function mioIdle(T){const m=T.mio,now=Date.now();if(now<m.until||m.walk)return;const d=night();
+function mioIdle(T){const m=T.mio,now=Date.now();if(now<m.until||m.walk)return;if(T.talk){m.pose='stand';m.until=now+2000;return}const d=night();
   const r=Math.random();
   if(d>.6&&r<.5){m.pose='doze';m.until=now+6000;return}
   if(r<.35){m.walk=pickL([142,152,164,172]);m.pose=pickL(['sweep','stand']);m.until=now+5000}
   else{m.pose=pickL(['stand','stand','sweep','wave']);m.until=now+3000+Math.random()*4000}}
 /* the guest walks: door → shelf → table → (counter) → door */
 function step(T){const now=Date.now();mioIdle(T);
-  if(!T.g){if(now>=T.next&&!T.busy){const G=pickL(GUESTS);T.g={G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],[56,46],[56,46,'look',2500],[92,58],[92,58,'think',2600]],bub:'',st:0,wait:0};
+  if(!T.g){if(T.talk)T.next=Math.max(T.next,now+8000);if(now>=T.next&&!T.busy&&!T.talk){const G=pickL(GUESTS);T.g={G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],[56,46],[56,46,'look',2500],[92,58],[92,58,'think',2600]],bub:'',st:0,wait:0};
       T.status(`🔔 ${esc(T.g.G.n)}が 来た！`);sf('knock');setTimeout(()=>{if(T.g)T.g.bub=''},1500);T.g.bub='!';
       if(T.mio.y<60){T.mio.pose='wave';T.mio.until=now+2500}
       const nt=night()>.6;if(Math.random()<.5)mut(T,'m',ML2(nt?'helloNight':'hello'),2600);mut(T,'g',gLine(T.g,nt?'g_enterNight':'g_enter',.3))}return}
