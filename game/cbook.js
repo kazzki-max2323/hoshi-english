@@ -69,7 +69,8 @@ function pocket(id,i){const no=i+1,cls=`${flash===id?'pop':''} ${hl===id?'hl':''
   /* まだ もっていない 宝カードは ないしょ。 単語は うすく 書いておく（さがしやすく） */
   const w=I.k==='t'&&!own?'':`<span class="cbw ${I.k==='s'?'s':''}">${esc(nm(I))}${I.k==='w'?`<small>${esc(I.ja.split(/[、，,；;]/)[0])}</small>`:''}</span>`;
   if(!own)return `<div class="cbp none ${cls}" data-id="${esc(id)}"><span class="cbno">${no}</span>${w}</div>`;
-  return `<div class="cbp ${ok?'can':'fl'} ${cls}" data-id="${esc(id)}"><span class="cbno">${no}</span><span class="cbsil">${C.art(I)[0]}</span>${w}<b>${ok?'＋':'🏷️'}</b></div>`}
+  /* もっている カードは 色つきの カードの まま 見せて、 ＋（入れられる）か 🏷️（売り場）の しるしを つける */
+  return `<div class="cbp ${ok?'can':'fl'} ${cls}" data-id="${esc(id)}">${C.face(id,{mini:1,marks:false})}<b>${ok?'＋':'🏷️'}</b></div>`}
 function pageFull(k,p){const l=list(k).slice(p*PER,p*PER+PER);return l.length&&l.every(has)}
 /* その分けの 中で、 いまの ページの つぎに 入れられる カードが ある ページ（なければ 前に もどって さがす） */
 function nextCan(k,p){const L=list(k);let f=L.findIndex((id,i)=>i>=(p+1)*PER&&addSet.has(id));if(f<0)f=L.findIndex(id=>addSet.has(id));const np=f<0?-1:Math.floor(f/PER);return np===p?-1:np}
