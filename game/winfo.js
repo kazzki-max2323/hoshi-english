@@ -64,8 +64,9 @@ function hand(){if(HAND)return HAND;HAND={};
     const h=f[0].toLowerCase();if(!h)return;const o=HAND[h]||{};
     if(f[1])o.pos=f[1];if(f[2])o.d=f[2];if(f[3])o.ex=[f[3],f[4]||''];if(f[5])o.tip=f[5];HAND[h]=o}));
   return HAND}
-const get=h=>hand()[String(h||'').toLowerCase()]||null;
-const exOf=h=>{const x=get(h);if(x&&x.ex)return x.ex;const a=window.WINFO_EX&&WINFO_EX[String(h||'').toLowerCase()];return a||null};
+/* k==='t'（宝カード）なら @見出し を 先に */
+const get=(h,k)=>{h=String(h||'').toLowerCase();const H=hand();return (k==='t'&&H['@'+h])||H[h]||null};
+const exOf=(h,k)=>{const x=get(h,k);if(x&&x.ex)return x.ex;const a=window.WINFO_EX&&WINFO_EX[String(h||'').toLowerCase()];return a||null};
 
 /* ---------------------------------------------------------------- 品詞 */
 const POSN={n:'名詞',nu:'名詞',np:'名詞',v:'動詞',a:'形容詞',ad:'副詞',p:'前置詞',c:'接続詞',pr:'代名詞',i:'あいさつ',ph:'熟語',x:''};
@@ -82,7 +83,7 @@ const SING_S=new Set('bus gas lens atlas canvas chaos news series species means 
 const VERB_JA=/(する|る|う|く|す|つ|む|ぶ|ぐ|ぬ)$/;
 const jaCore=ja=>String(ja||'').replace(/（.*?）|\(.*?\)/g,'').split(/[・、,／/]/)[0].trim();
 /* I: cg.js の info()。 bt＝単語帳の 本の 名前 */
-function pos(I){const x=get(I.h);if(x&&x.pos)return x.pos;
+function pos(I){const x=get(I.h,I.k);if(x&&x.pos)return x.pos;
   if(I.k==='t')return 'n';if(I.k!=='w')return 'x';
   const bt=I.bt||'',ja=jaCore(I.ja),en=I.h;
   if(/不規則に変わる動詞/.test(bt))return 'v';
@@ -148,7 +149,7 @@ function compare(w){w=w.toLowerCase();if(CMP_IRR[w])return CMP_IRR[w];if(NOCMP.h
 function forms(I){const p=pos(I),en=String(I.en||''),h=I.h,out={p,rows:[],tips:[]};
   if(p==='v'){const given=/^[a-z]+, [a-z/]+, [a-z/]+$/i.test(en)?en.split(', '):null,w=given?given[0]:h;const f=verb(w,I.ja);if(!f)return out;
     if(given){f.past=given[1];f.pp=given[2];f.irr=true}
-    out.rows=[[f.s,'3人称単数（he / she が 主語）'],[f.ing,'〜している（進行形）'],[f.past,'過去形（〜した）'],[f.pp,'過去分詞（〜された・have ＋）']];
+    out.rows=[[f.s,'he / she が 主語のとき'],[f.ing,'〜している（ing形）'],[f.past,'〜した（過去形）'],[f.pp,'過去分詞（have ＋ / 〜される）']];
     if(f.irr)out.tips.push(`不規則動詞。 <b>${f.base} – ${f.past} – ${f.pp}</b> と 3つ セットで 声に 出して おぼえよう`);
     else if(f.ing!==f.base+'ing'&&f.ing.slice(-4,-3)===f.ing.slice(-5,-4)&&!/e$/.test(f.base))out.tips.push(`つづりに 注意: 最後の 字を 重ねて <b>${f.ing}</b> / <b>${f.past}</b>`);
     else if(/[^aeiou]y$/.test(f.base))out.tips.push(`y で おわる 動詞は y を i に かえて <b>${f.past}</b>・<b>${f.s}</b>（ing は <b>${f.ing}</b> の まま）`);
@@ -158,12 +159,12 @@ function forms(I){const p=pos(I),en=String(I.en||''),h=I.h,out={p,rows:[],tips:[
   if(p==='ph'){const m=h.match(/^([a-z]+)( .+)$/);if(!m||m[1]==='be')return out;const f=verb(m[1]);if(!f)return out;
     /* 動詞で はじまる 熟語だけ（日本語が 動詞の 形の とき） */
     if(/\//.test(h)||!(isVerb(m[1])&&VERB_JA.test(jaCore(I.ja))&&(I.k!=='w'||PH_BOOK.test(I.bt||''))))return out;if(/^(a|an|the|in|on|at|by|for|of|to|with|as|so|no|not|all|at|out|up|from|after|before|each|every|one|how|what|why|this|that|very|too|more|most|less|first|last|once|long|right|just|even|ever|never|kind|sort|thank|thanks|excuse)$/.test(m[1]))return out;
-    out.rows=[[f.s+m[2],'3人称単数'],[f.ing+m[2],'〜している'],[f.past+m[2],'過去形']];return out}
+    out.rows=[[f.s+m[2],'he / she が 主語のとき'],[f.ing+m[2],'〜している（ing形）'],[f.past+m[2],'〜した（過去形）']];return out}
   if((p==='n'||p==='np'||p==='nu')&&/^[a-z-]+$/.test(h)){if(/^[A-Z]/.test(en)||NOPL_BOOK.test(I.bt||''))return out;
     if(I.k==='t'){const t=(window.CARDS_DATA||[]).find(c=>c[1]===en);if(!t||!/^(land|bird|sea|bug|myth|job|ride|wear|item|plant|place)$/.test(t[3]))return out}
     const pl=plural(h),irr=!!PLU_IRR[h];
     if(p==='np'){out.tips.push(`ふつう 複数形の <b>${h}</b> で 使う ことば（${/^(pants|jeans|shorts|glasses|scissors|pajamas|trousers|chopsticks)$/.test(h)?'1つでも '+h+'。 数えるときは a pair of '+h:'s が ついた 形が 基本'}）`);return out}
-    const hp=(get(h)||{}).pos;
+    const hp=(get(h,I.k)||{}).pos;
     if(p==='nu'||hp!=='n'&&(UNC.has(h)||/ness$/.test(h)||/ing$/.test(h)&&!ING_C.test(h))&&!irr)return Object.assign(out,{unc:1});
     if(irr||I.lv==='es'||I.lv==='jh'||I.k==='t'){out.rows=[[`${article(h)} ${h}`,'1つ'],[pl,'2つ以上']];
       if(irr)out.tips.push(pl===h?`複数でも 形が かわらない: <b>one ${h} / two ${pl}</b>`:`複数形は 形が かわる: <b>${h} → ${pl}</b>`);

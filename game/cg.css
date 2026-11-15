@@ -384,9 +384,9 @@
 .wipos{display:inline-block;font-style:normal;font-size:.68rem;font-weight:800;padding:1px 7px;margin-right:6px;border-radius:99px;background:rgba(255,210,63,.18);color:#ffd23f;vertical-align:1px}
 .wiex{background:rgba(255,255,255,.06);border-left:3px solid #6fc3ff;border-radius:6px;padding:5px 8px;margin:6px 0}
 .wiex p{margin:2px 0}.wiex .en{font-size:.86rem;font-weight:700}.wiex .ja{font-size:.74rem;opacity:.8}
-.wiex .ksay{font-size:.75rem;padding:1px 6px;margin-left:2px;min-height:0}
-.wifm{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}
-.wifm span{display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.07);border-radius:8px;padding:3px 8px;min-width:64px}
+.wiex .wisay{font-size:.8rem;padding:1px 7px;margin-left:4px;min-height:0;width:auto;display:inline-block;vertical-align:1px;border-radius:99px}
+.wifm{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:6px 0}
+.wifm span{display:flex;flex-direction:column;align-items:center;background:rgba(255,255,255,.07);border-radius:8px;padding:3px 6px;min-width:0}
 .wifm b{font-size:.84rem}.wifm small{font-size:.6rem;opacity:.7;line-height:1.2;text-align:center}
 .wisub{opacity:.85}
 .witip{background:rgba(255,210,63,.09);border-radius:8px;padding:2px 8px;margin-top:6px}

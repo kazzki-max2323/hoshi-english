@@ -226,12 +226,13 @@ function closeOv(){const o=$('cardOv');if(o)o.remove()}
 function more(I){const h=I.h,WI=window.WI,out=[];
   if(I.k==='p')return `<details class="cgfold wif"><summary>📖 くわしく</summary><p class="wid">${esc(I.en)} は「${esc(I.ja)}」を あらわす 部品。 ほかの ことばに くっついて 意味を かえるよ</p>
     <p>🧩 できる 単語: ${DERIV.filter(d=>d.p===I.part).slice(0,12).map(d=>`<b>${esc(d.d)}</b>`).join(', ')}</p></details>`;
-  if(I.k==='s')return `<details class="cgfold wif"><summary>📖 くわしく</summary><div class="wiex"><p class="en">${esc(I.en)} <button class="ksay" data-wisay="${esc(I.en)}" aria-label="英語を 聞く">🔊</button></p><p class="ja">${esc(I.ja)}</p></div>
+  if(I.k==='s')return `<details class="cgfold wif"><summary>📖 くわしく</summary><div class="wiex"><p class="en">${esc(I.en)} <button class="wisay" data-wisay="${esc(I.en)}" aria-label="英語を 聞く">🔊</button></p><p class="ja">${esc(I.ja)}</p></div>
     <p class="witip">💡 声に 出して 3回 読むと、 文の リズムが 体に 入るよ</p></details>`;
   if(!WI)return '';
-  const x=WI.get(h)||{},f=WI.forms(I),pn=WI.POSN[f.p]||'',ex=WI.exOf(h);
+  const x=Object.assign({},WI.get(h,I.k)||{}),f=WI.forms(I),pn=WI.POSN[f.p]||'',ex=WI.exOf(h,I.k);
+  const jn=t=>String(t||'').replace(/[（）()・、\s]/g,'');if(x.d&&(jn(x.d)===jn(I.ja)||jn(I.ja).includes(jn(x.d))))x.d='';
   if(x.d||pn)out.push(`<p class="wid">${pn?`<i class="wipos">${pn}</i>`:''}${x.d?esc(x.d):''}</p>`);
-  if(ex)out.push(`<div class="wiex"><p class="en">${esc(ex[0])} <button class="ksay" data-wisay="${esc(ex[0])}" aria-label="例文を 聞く">🔊</button></p><p class="ja">${esc(ex[1])}</p></div>`);
+  if(ex)out.push(`<div class="wiex"><p class="en">${esc(ex[0])} <button class="wisay" data-wisay="${esc(ex[0])}" aria-label="例文を 聞く">🔊</button></p><p class="ja">${esc(ex[1])}</p></div>`);
   if(f.rows.length)out.push(`<div class="wifm">${f.rows.map(r=>`<span><b>${esc(r[0])}</b><small>${esc(r[1])}</small></span>`).join('')}</div>`);
   if(f.unc)out.push(`<p class="wisub">🫗 数えられない 名詞: a を つけず、 s も つけない（${/^(water|milk|juice|tea|coffee)$/.test(h)?'a glass of '+h:/^(bread|cake|cheese|meat|paper)$/.test(h)?'a piece of '+h:/^(rice|sugar|salt|flour)$/.test(h)?'a bowl of / a lot of '+h:'much '+h+' / a lot of '+h}）</p>`);
   const cs=I.k==='w'||I.k==='t'?combosWith(h):[];
@@ -243,6 +244,7 @@ function more(I){const h=I.h,WI=window.WI,out=[];
   else if(fam.length)out.push(`<p>🧩 なかまの ことば: ${fam.map(d=>`<b>${esc(d.d)}</b>`).join(', ')}</p>`);
   const tips=[];if(x.tip)tips.push(esc(x.tip));
   const wr=WRONG.find(w=>w.a===h||w.b===h);if(wr&&tips.length<2)tips.push(`×「${esc(wr.a)} ${esc(wr.b)}」→ ⭕「${esc(wr.ok)}」 ${esc(wr.why)}`);
+  if(x.tip&&f.rows.some(r=>x.tip.includes(String(r[0]).split(/[ /]/).pop())))f.tips=[];
   f.tips.slice(0,x.tip?1:2).slice(0,Math.max(0,3-tips.length)).forEach(t=>tips.push(t));
   if(tips.length)out.push(`<div class="witip">${tips.map(t=>`<p>💡 ${t}</p>`).join('')}</div>`);
   if(!out.length)return '';
