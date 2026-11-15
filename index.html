@@ -162,6 +162,8 @@ button{touch-action:manipulation}
 <script src="game/winfo-data-fill.js"></script>
 <script src="game/mina-react-data.js"></script>
 <script src="game/mina-react.js"></script>
+<script src="game/mina-chat-data.js"></script>
+<script src="game/mina-chat.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});
