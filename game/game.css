@@ -229,3 +229,27 @@ mark.gmk{background:none;color:inherit;border-bottom:2px solid #7fc4ff;box-shado
   background:radial-gradient(circle at 35% 30%,#ffb07a,#e0503a);border:3px solid #ffe0c8;box-shadow:0 4px 12px #000a;display:flex;align-items:center;justify-content:center}
 .backfab[hidden]{display:none}.backfab:active{transform:scale(.92)}
 body.fab-on #panel>.pnl{padding-bottom:78px}
+
+/* ---------- ホームの パネルを ひくく（浜辺の 店・たき火・キャラが かくれないように --dock の 250px に おさめる） ---------- */
+.pnl.home{padding:7px 9px;gap:6px}
+.pnl.home .mrow{gap:6px}
+.pnl.home .mface{width:40px;height:40px}
+.pnl.home .mbub{min-height:40px}
+.pnl.home .msay{font-size:.8rem;line-height:1.4;padding:4px 10px;max-height:calc(2 * 1.4em + 1.05rem + 8px);overflow-y:auto;overscroll-behavior:contain}
+.pnl.home .msay>b:first-child{display:inline;margin-right:6px}
+.pnl.home .msay .mgo{margin-top:0}
+.pnl.home #rq{font-size:.76rem;line-height:1.35}
+.pnl.home #mchips{gap:4px}
+.pnl.home .bchip{padding:4px 12px!important;font-size:.76rem!important}
+.pnl.home .lcard2{margin-top:0;padding:3px;gap:3px}
+.pnl.home .lcard2 .lcgo{padding:5px 8px!important;gap:8px}
+.pnl.home .lcard2 .lcico{width:30px;height:30px;font-size:1.05rem;border-radius:8px;box-shadow:0 2px 0 #1b1740}
+.pnl.home .lcard2 .lctx small{font-size:.62rem;line-height:1.3}
+.pnl.home .lcard2 .lctx b{font-size:.86rem;line-height:1.25;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.pnl.home .lcard2 .lcplay{padding:5px 8px;font-size:.74rem}
+.pnl.home .lcard2 .lchot{padding:2px 8px;font-size:.7rem}
+.pnl.home .row{gap:5px}
+.pnl.home .row button{padding:4px 2px!important;gap:0;font-size:.72rem;white-space:nowrap;letter-spacing:-.02em;line-height:1.25}
+.pnl.home .row button span{font-size:1.05rem;line-height:1.15}
+.pnl.home .gap{font-size:.74rem;line-height:1.2}
+.pnl.home .gap input{height:14px;margin:0}
