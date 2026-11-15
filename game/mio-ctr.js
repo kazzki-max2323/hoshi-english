@@ -40,7 +40,7 @@ function vals(e,N){const M=mem(),V={};e=e||{};
 const fill=(s,V)=>String(s).replace(/\{(\w+)\}/g,(m,k)=>V[k]!=null&&V[k]!==''?V[k]:m);
 const ok=(s,V)=>!/\{\w+\}/.test(fill(s,V));
 /* every line of a talk can be filled（入らない ことばが あれば その 話は 出さない） */
-function fits(t,V){const L=[];const walk=o=>o.forEach(x=>{L.push(x[0]);if(Array.isArray(x[2]))L.push(x[2][0]);else{L.push(x[2].m[0]);walk(x[2].o)}});L.push(t.m[0]);walk(t.o);return L.every(s=>ok(s,V))}
+function fits(t,V){if(t.nodes)return true;const L=[];const walk=o=>o.forEach(x=>{L.push(x[0]);if(Array.isArray(x[2]))L.push(x[2][0]);else{L.push(x[2].m[0]);walk(x[2].o)}});L.push(t.m[0]);walk(t.o);return L.every(s=>ok(s,V))}
 
 /* ================================================================ いまの ようす の きっかけ */
 function stateKinds(N){const k=[],S=(()=>{try{return SHOP.rec()}catch(e){return {floor:[1]}}})(),h=new Date().getHours();
@@ -72,7 +72,9 @@ function pickAny(N,s){const V=vals(null,N),M=mem();
   const st=stateKinds(N).map(k=>cands(k,null,N,V,s)).flat().filter(t=>!recent(t.id,6));
   const mm=cands('mem',null,N,V,s).filter(t=>!recent(t.id,10));
   const an=cands('any',null,N,V,s).filter(t=>!recent(t.id,14));
-  const G=[[st,st.length?2.2:0],[mm,mm.length?1.2:0],[an,an.length?3:0]].filter(x=>x[1]);
+  /* 長い 会話: まだ 見て いない エンドが ある ものを 先に */
+  const lg=cands('long',null,N,V,s).filter(t=>!recent(t.id,8)),lgNew=lg.filter(t=>longNew(t));
+  const G=[[st,st.length?2.2:0],[mm,mm.length?1.2:0],[an,an.length?3:0],[lgNew.length?lgNew:lg,lgNew.length?2.6:lg.length?.7:0]].filter(x=>x[1]);
   if(!G.length){const all=cands('any',null,N,V,s);return {t:pickL(all),e:null,V}}
   let r=Math.random()*G.reduce((a,x)=>a+x[1],0);const g=G.find(x=>(r-=x[1])<0)||G[0];
   /* 新しい 段階の 話を 先に */
@@ -82,8 +84,11 @@ function pickAny(N,s){const V=vals(null,N),M=mem();
 /* ================================================================ 会話（カウンターの 下の 箱で） */
 let TK=null;
 const speak=en=>{try{MIO.say(en.replace(/[「」]/g,''))}catch(e){}};
-function talk(T,box,again){if(TK&&TK.alive&&TK.T===T&&T.alive&&!again)return;if(TK)TK.alive=false;
-  const pk=choose();if(!pk||!pk.t)return;const {t,e,V}=pk;
+const endsOf=t=>Object.keys(t.nodes).filter(k=>t.nodes[k].end);
+const gotEnd=(t,k)=>!!(MR().ends||{})['c_'+t.id+':'+k];
+const longNew=t=>endsOf(t).some(k=>!gotEnd(t,k));
+function talk(T,box,again,force){if(TK&&TK.alive&&TK.T===T&&T.alive&&!again)return;if(TK)TK.alive=false;
+  const pk=force?{t:MIOT.find(x=>x.id===force),e:null,V:vals(null,RC()&&RC().now())}:choose();if(!pk||!pk.t)return;const {t,e,V}=pk;
   markSeen(t.id);if(e)try{RECENT.used('mioTap',e)}catch(er){}
   const K=TK={alive:true,T,t};T.talk=K;
   const m=T.mio;m.walk=150;m.pose='wave';m.until=Date.now()+3000;
@@ -104,12 +109,22 @@ function talk(T,box,again){if(TK&&TK.alive&&TK.T===T&&T.alive&&!again)return;if(
         const x=o[3]||(Array.isArray(o[2])&&o[2][3])||null;
         if(x&&x.mem){const [k,v]=x.mem.split('=');mem()[k]=v;save()}
         if(x&&x.go)go=x.go;
+        if(t.nodes&&typeof o[2]==='string'){pts+=o[3]||0;const nx=t.nodes[o[2]];setTimeout(()=>{if(!live())return;nx.end?endL(nx,o[2]):node(nx)},650);return}
         setTimeout(()=>{if(!live())return;if(Array.isArray(o[2]))end(o[2]);else node(o[2])},650)})},700)};
-  const end=r=>{add('m',r,r[2]);setPose(r[2]||'smile');
+  let pts=0;
+  /* 長い 会話の おわり: 新しい エンドなら ♥（答えの 合計）と コイン */
+  const ENDN={good:['★','いい エンド'],ok:['🙂','ふつうの エンド'],fun:['😂','おもしろ エンド']};
+  const endL=(n,k)=>{const M=MR();if(!M.ends)M.ends={};const ek='c_'+t.id+':'+k,isNew=!M.ends[ek];M.ends[ek]=1;
+    const E=ENDN[n.end]||ENDN.ok,all=endsOf(t),got=all.filter(x=>gotEnd(t,x)).length;
+    end([n.m[0],n.m[1],n.ex],{endTxt:`${E[0]} 「${E[1]}」${isNew?' NEW!':''}　${got}/${all.length}`,isNew,coins:isNew?(n.end==='fun'?3:5):0,pts:Math.max(1,pts)})};
+  const end=(r,X)=>{add('m',r,r[2]);setPose(r[2]||'smile');X=X||{};
     let heart='';const M=MR(),d=today();if(!M.tap||M.tap.d!==d)M.tap={d,n:0};
-    if(M.tap.n<TAP_HEART){M.tap.n++;heart=MIOC.gain(1,'talk');heartOk=1}save();
+    if(X.isNew){heart=MIOC.gain(X.pts,'talk');heartOk=1}
+    else if(M.tap.n<TAP_HEART){M.tap.n++;heart=MIOC.gain(1,'talk');heartOk=1}save();
+    if(X.coins){try{const rr=box.getBoundingClientRect();H.coinBurst(rr.left+rr.width/2,rr.top+20,X.coins)}catch(er){H.addCoins(X.coins)}}
     try{RECENT.add('mio',{id:t.id,how:'tap'})}catch(er){}
     setTimeout(()=>{if(!live())return;
+      if(X.endTxt)add('nt',[X.endTxt+(X.coins?`　🪙${X.coins}`:'')]);
       if(t.ph)add('nt',[`📌 ${t.ph[0]} ＝ ${t.ph[1]}`]);
       if(heart)add('nt',[heart]);
       const gl=go==='gift'?'🎁 プレゼントを えらぶ':go==='floor'?'🏷️ 売り場へ':'';
@@ -122,7 +137,7 @@ function talk(T,box,again){if(TK&&TK.alive&&TK.T===T&&T.alive&&!again)return;if(
       try{if(Math.random()<.25&&window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()){const [ex,tx]=MINA.line(t.ph?'mt_phrase':'mt_talk',{ph:t.ph?t.ph[0]:''});MINA.say('m',ex,tx,6000)}}catch(er){}},900)};
   const close=()=>{K.alive=false;if(T.talk===K)T.talk=null;if(box.isConnected&&box.contains(logE))box.innerHTML='';T.next=Math.max(T.next,Date.now()+6000)};
   K.close=close;
-  sf('talk');node(t)}
+  sf('talk');if(t.nodes)add('nt',[`${t.ico} ${t.t}`]);node(t.nodes?t.nodes.s:t)}
 
 /* カウンターで ミオを タップ・💬 を おした */
 function tap(T,box){if(!T||!box)return;
