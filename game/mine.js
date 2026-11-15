@@ -33,7 +33,10 @@ const COURSE=[
  {t:'type',n:'つづりを 書く',ico:'✍️',laps:1},
  {t:'dict',n:'聞いて 書く',ico:'🎧',laps:1,snd:1}];
 const MIX={t:'mix',n:'まぜて 復習',ico:'🌀',laps:99};
-const course=()=>COURSE.filter(s=>!s.snd||ST.sound);
+/* 書く 問題（打ちこむ 形）は 出さない ことも できる（スマホで 打つのが 大変な とき。 MN().noType に 覚える） */
+const TYPING=['type','dict'];
+const noType=()=>!!MN().noType;
+const course=()=>COURSE.filter(s=>(!s.snd||ST.sound)&&!(noType()&&TYPING.includes(s.t)));
 const QN={mean:'いみは？',rev:'英語で いうと？',listen:'聞こえた ことばは？',spell:'正しい つづりは？',scramble:'つづりを ならべて',miss:'ぬけた 文字は？',fill:'あなうめ',type:'つづりを 書こう',dict:'聞こえた 単語を 書こう'};
 
 /* ================================================================ 5まいを えらぶ（自動）: 苦手 → わすれかけ → まだ おぼえていない */
@@ -51,12 +54,14 @@ function open(){const M=MN();if(!hand||hand.some(id=>!C.owns(id)))hand=autoHand(
     <p class="mnlbl">きょうの 5まい（左から じゅんばん）</p>
     <div class="mnhand">${hand.map(id=>`<div class="mnt" data-id="${esc(id)}">${C.face(id,{mini:1,marks:false})}</div>`).join('')}${'<div class="mnt empty"></div>'.repeat(Math.max(0,HAND-hand.length))}</div>
     <button id="mnre" class="sub">🔀 ほかの 5まいに する</button>
+    <button id="mnty" class="sub">✍️ 書く 問題: <b>${noType()?'出さない':'出す'}</b></button>
     <details class="shmore"><summary>練習の コース（${course().length}つの 形）</summary>
       <ol class="mncs">${course().map(s=>`<li>${s.ico} ${esc(s.n)}</li>`).join('')}<li>${MIX.ico} ${MIX.n}<small>ずっと</small></li></ol>
       <p class="note">1周 ＝ 5まいを 左から 1回ずつ。 1周ごとに つぎの 形へ。 まちがえた カードは その 周の さいごに もう一回。 ❤は 最大 ${ME_HP}（1問で 1 へる・2分で 1 もどる・食べると たくさん もどる）</p></details>
     <button id="mngo" class="big" ${hand.length&&myHp()>0?'':'disabled'}>⛏️ ほりに いく${myHp()<ME_HP?` <small>❤${myHp()}</small>`:''}</button>
   </section>`);
   $('mnb').onclick=()=>{sf('back');SHOP.open()};
+  $('mnty').onclick=()=>{sf('tap');const M=MN();M.noType=!M.noType;C.save();H.toast(M.noType?'✍️ 書く 問題は 出さないよ<small>また 書きたく なったら ここで もどせるよ</small>':'✍️ 書く 問題も 出すよ',2400);open()};
   $('mnre').onclick=()=>{sf('flip'in SFX?'flip':'tap');const old=hand.slice();let k=0;do{hand=autoHand()}while(k++<5&&hand.join()===old.join());open()};
   H.panel.querySelectorAll('.mnt[data-id]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id)});
   if(window.FOOD)FOOD.mineBind(open);
@@ -129,11 +134,12 @@ function typeQ(I,dict){const w=I.h;return (box,done,tag)=>{let hint=0,over=false
   box.innerHTML=`<div class="cgq"><div class="cgqt">${QN[dict?'dict':'type']}<em>${esc(tag)}</em></div>
     <div class="cgqq">${dict?'<button class="qplay" id="mnpl">🔊 もう いちど</button>':`<span class="qja">${esc(I.ja)}</span>`}</div><div class="cgqh" hidden></div>
     <div class="mnty"><input id="mnin" autocomplete="off" autocapitalize="off" spellcheck="false" inputmode="latin" placeholder="${'＿'.repeat(w.length)}（${w.length}文字）"><button id="mnok">OK</button></div>
-    <div class="cgqf"><button class="sub" data-h="1">💡 ヒント</button></div><div class="cgqx" hidden></div></div>`;
+    <div class="cgqf"><button class="sub" data-h="1">💡 ヒント</button><button class="sub" data-sk="1">⏭️ とばす</button><button class="sub" data-sk="all">✍️ もう 出さない</button></div><div class="cgqx" hidden></div></div>`;
   const inp=$('mnin');if(dict){setTimeout(()=>sayW(I),250);$('mnpl').onclick=()=>sayW(I)}
   setTimeout(()=>{try{inp.focus({preventScroll:true})}catch(e){}},300);
   box.querySelector('[data-h]').onclick=()=>{if(over)return;hint++;sf('pickup');const el=box.querySelector('.cgqh');el.hidden=false;
     el.innerHTML=hint===1?`💡 さいしょは <b>${esc(w[0])}</b>${dict?`、 いみは「${esc(I.ja)}」`:''}`:`💡 <b>${esc(w.slice(0,Math.ceil(w.length/2)))}</b>…`;if(hint>=2)box.querySelector('[data-h]').disabled=true};
+  box.querySelectorAll('[data-sk]').forEach(b=>b.onclick=()=>{if(over)return;over=true;skip(b.dataset.sk==='all')});
   const check=()=>{if(over)return;const v=inp.value.trim().toLowerCase();if(!v)return;over=true;inp.disabled=true;$('mnok').disabled=true;
     if(v===w){inp.classList.add('ok');sf('correct');sayW(I);setTimeout(()=>done({ok:true}),750)}
     else{inp.classList.add('ng');sf('wrong');const e=box.querySelector('.cgqx');e.hidden=false;
@@ -164,6 +170,10 @@ function sentQ(I){const h=I.h;if(!/^[a-z]+$/.test(h))return null;const re=new Re
   return {t:'fill',I,q:`<span class="qen">${esc(blank)}</span><span class="qja">${esc(s.ja)}</span>`,ch,ans:ch.indexOf(h),hint:`いみは「${esc(I.ja)}」`,
     tip:`<b>${esc(s.en)}</b><br>${esc(s.ja)}<br><small>${esc(I.en)} ＝ ${esc(I.ja)}。 文ごと 声に 出すと おぼえやすいよ</small>`,say:[s.lv,s.en]}}
 /* after an answer */
+/* 書く 問題を とばす: 体力も へらさず、 まちがいにも しない。 all なら このあとも 出さない */
+function skip(all){if(!D||D.busy)return;D.busy=true;sf('step');
+  if(all){const M=MN();M.noType=true;C.save();D.lap=0;startLap();H.toast('✍️ 書く 問題は 出さないよ<small>鉱山の 入口で もどせるよ</small>',2600)}
+  setTimeout(()=>next(),150)}
 function after(id,ok){if(!D||D.busy)return;D.busy=true;D.q++;D.hp--;keepHp(D.hp);C.record(id,ok);const w=D.words[id]||(D.words[id]=[0,0]);w[ok?0:1]++;
   const M=MN();M.q++;if(ok)M.ok++;
   if(!ok&&!D.redone[D.cur]&&!D.redo.includes(D.cur))D.redo.push(D.cur);
@@ -250,7 +260,7 @@ H.on('home',()=>{if(D){D.alive=false;keepHp(D.hp);if(D.coins)H.addCoins(D.coins)
 
 /* ================================================================ ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
- mn_course:[['smile','5まいを 左から じゅんばんに 練習するよ。 さいしょは 和訳、 2周目は スペルの ならべかえ、 つぎは 英語で… と 1周ごとに 形が かわるの'],['point','まちがえた カードは その 周の さいごに もう一回 出るよ。 苦手な 単語ほど たくさん 練習できるんだ'],['happy','同じ 5まいを 形を かえて 何回も。 さいごには 聞いて 書けるように なってるはず！']],
+ mn_course:[['smile','5まいを 左から じゅんばんに 練習するよ。 さいしょは 和訳、 2周目は スペルの ならべかえ、 つぎは 英語で… と 1周ごとに 形が かわるの'],['point','まちがえた カードは その 周の さいごに もう一回 出るよ。 苦手な 単語ほど たくさん 練習できるんだ'],['smile','スマホで 打つのが 大変な ときは 「書く 問題」を 出さない ように できるよ。 つづりは ならべかえでも しっかり 練習できるから'],['happy','同じ 5まいを 形を かえて 何回も。 さいごには 聞いて 書けるように なってるはず！']],
  mn_card:[['wow','すごい！ 「{w}」の カードを 見つけたね！ めったに 出ないんだよ'],['love','カードが 出た！ 練習を がんばった ごほうびだね'],['smile','カードを タップすると 「{w}」って 読むよ。 声に 出して まねしてみてね']],
  mn_treasure:[['wow','🎁 宝カード！？ 鉱山の 奥で 見つかるなんて… すごい 運だね！'],['love','宝カードだ！ 図鑑に のるよ。 ダブったら お店で 売れるからね']],
  x_mnType:[['think','鉱山の 「つづりを 書く」は むずかしい？ ヒントで さいしょの 字が わかるよ'],['smile','聞いて 書けたら、 もう その 単語は きみの もの']]
