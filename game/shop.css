@@ -156,3 +156,7 @@
 .svcd{height:6px;border-radius:3px;background:#0006;overflow:hidden;margin-top:6px}.svcd i{display:block;height:100%;width:100%;background:#ffcf6a}
 .svcn{margin:2px 0 0;font-size:.72rem;text-align:center;color:#ffe7a8}
 .svfast,.svx{width:100%}
+/* 🎶 カウンターの レコードプレイヤーから のぼる 音符 */
+.shnotes{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+.shnotes i{position:absolute;font-style:normal;font-weight:700;line-height:1;text-shadow:none;animation:shnote 2.6s ease-out forwards}
+@keyframes shnote{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:1}50%{transform:translate(var(--sx,6px),calc(var(--up,60px)*-.5)) scale(1)}100%{opacity:0;transform:translate(calc(var(--sx,6px)*-1),calc(var(--up,60px)*-1)) scale(1.05)}}
