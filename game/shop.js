@@ -259,7 +259,19 @@ const MIO_REC={
   empty:[["We have a record player, but no records yet! Nora's shop on the beach sells them.","プレイヤーは あるけど、 レコードが まだ ないんです！ 浜辺の ノラさんの お店で 売ってますよ。"],["The player is hungry for records. Let's buy one at Nora's shop!","プレイヤーが レコードを まってます。 ノラさんの お店で 買いましょう！"]],
   mute:[["The record is spinning, but the sound is off. Try the speaker button at the top!","レコードは 回ってるけど、 音が オフみたい。 右上の 🔊 ボタンを 見てみて！"]],
   play:[["La la la… Oh! Did you hear me singing?","ラララ♪ …あっ！ 歌ってるの 聞こえました？"],["I tap my foot when I work. It's the music's fault!","仕事しながら 足で リズムを とっちゃう。 音楽の せいです！"],["Customers walk slower when music plays. I think they like it.","音楽が かかってると、 お客さんが ゆっくり 歩くんです。 気に入ってるのかな。"],["This part is my favorite! Listen!","ここの ところが いちばん 好き！ 聞いて！"],["When I study English, I listen to songs too. The words stay in my head!","英語の 勉強の ときも 歌を 聞くんです。 ことばが 頭に のこるの！"],["Again? I'm not tired of this song. Not at all!","また 「{song}」？ あきてませんよ。 ぜんぜん！"]]};
-const recLine=k=>{const x=pickL(MIO_REC[k]),n=H.shopSongId?songName(H.shopSongId):'';return [x[0],x[1].replace('{song}',n)]};
+/* スローな ローファイ（game/music-lofi.js）を かけた ときの ミオの ひとこと。 曲ごとに ちがう */
+const MIO_SONG={
+  lofi_nap:[["I can hear the waves in the song AND outside. Double waves!","曲の 中にも 外にも 波の 音。 波が 2ばいです！"],["This one makes me want to nap behind the counter… just kidding!","これ、 カウンターの うしろで おひるね したくなる… じょうだんです！"]],
+  lofi_cat:[["A music box and a guitar. It sounds like a cat stretching in the sun.","オルゴールと ギター。 日なたで のびを する ねこみたいな 音。"],["Did you hear the little birds? Tweet tweet!","小鳥、 聞こえました？ チュンチュン！"]],
+  lofi_moon:[["It goes one-two-three, one-two-three. A lullaby for the cards.","いち・に・さん、 いち・に・さん。 カードたちの 子守歌ですね。"],["Shh… the cards are falling asleep.","しーっ… カードたちが ねむっちゃう。"]],
+  lofi_rain:[["Rain sounds plus hot cocoa. I'd buy that combo!","雨の 音に ホットココア。 その セット、 買います！"],["It's sunny outside, but it's raining in the shop. Cozy!","外は 晴れなのに、 お店の 中は 雨。 ぬくぬく！"]],
+  lofi_tape:[["The piano is wobbling! Is the tape okay? …Oh, it's on purpose.","ピアノが ゆれてる！ テープ 大丈夫？ …あ、 わざとなんだ。"],["My dad had a box full of cassette tapes. This smells like that box.","父が カセットテープを 箱いっぱい もってたんです。 これ、 あの 箱の においが する。"]],
+  lofi_train:[["Clickety-clack, clickety-clack. Next stop, card shop!","ガタン ゴトン、 ガタン ゴトン。 つぎは カードショップ駅〜！"],["I like trains at night. Everyone is quiet and the windows glow.","夜の 汽車って 好き。 みんな しずかで、 窓が 光ってて。"]],
+  lofi_lamp:[["Was that a foghorn? Bwooo… Ships, be careful!","いまの 霧笛？ ボーッ… 船の みなさん、 気を つけて！"],["Guitar and waves… it feels like the shop is a little lighthouse.","ギターと 波… お店が 小さな 灯台に なったみたい。"]],
+  lofi_snow:[["Snow? On our beach? Only in the song, but I'll take it.","雪？ この 浜辺に？ 曲の 中だけでも うれしい。"],["The wind sounds cold, but the piano feels warm. Nice mix.","風は 冷たそうなのに、 ピアノは あったかい。 いい 組み合わせ。"]],
+  lofi_library:[["Did someone just turn a page? It sounds like a library in here.","いま だれか ページ めくった？ お店が 図書館みたい。"],["I study English best with this one. Walking bass, walking words!","英語の 勉強は これが いちばん はかどるんです。 ベースも ことばも てくてく！"]],
+  lofi_tide:[["This is the slowest song we have. Even my breathing slowed down.","うちで いちばん ゆっくりな 曲。 わたしの 息まで ゆっくりに なりました。"],["Slow… slow… like the tide coming in. Ahh, peaceful.","ゆっくり… ゆっくり… 満ちてくる 潮みたい。 はぁ、 おだやか。"]]};
+const recLine=k=>{const id=H.shopSongId,n=id?songName(id):'';if((k==='on'||k==='play')&&MIO_SONG[id]&&Math.random()<.6)return pickL(MIO_SONG[id]).slice();const x=pickL(MIO_REC[k]);return [x[0],x[1].replace('{song}',n)]};
 /* タップ: オンなら とめる、 オフなら 前に えらんだ 曲（なければ もっている 曲から 1つ） */
 function recTap(T){const own=songs();
   if(!own.length){sf('tap');T.mut(recLine('empty'));T.status('🎶 レコードは 浜辺の 右はしの ながれぎ雑貨店で 買えるよ');return}
@@ -420,7 +432,24 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_shBgm',2,()=>songs().length&&!H.shopSongId?{}:null,goBgm],
  ['x_shBgmOn',1,()=>H.shopSongId?{song:songName(H.shopSongId)}:null,goBgm],
  ['x_shRec',2,()=>SH().met&&songs().length?{}:null,goShop('counter')],
- ['x_shServe',3,()=>SH().met&&window.SHSV?{}:null,goShop('counter')]);
+ ['x_shServe',3,()=>SH().met&&window.SHSV?{}:null,goShop('counter')],
+ /* スローな ローファイ（game/music-lofi.js） */
+ ['x_lfBuy',2,()=>{const a=LF_NEW.filter(id=>TRACKS[id]&&!ST.music.includes(id));return a.length>=LF_NEW.length-2?{n:a.length}:null},()=>['🏚️ 雑貨屋の レコードへ',()=>{window.ZAKKA?ZAKKA.open('music'):H.home()}]],
+ ['x_lfOwn',2,()=>{const a=LF_NEW.filter(id=>ST.music.includes(id));return a.length?{song:songName(pickL(a))}:null},goBgm],
+ ['x_lfOn',3,()=>{const id=H.shopSongId;return LF_SAY[id]?{say:pickL(LF_SAY[id])}:null},null]);
+/* 曲ごとに ミナ先生が ひとこと（お店で ながれて いるとき） */
+const LF_NEW=['lofi_nap','lofi_cat','lofi_moon','lofi_rain','lofi_tape','lofi_train','lofi_lamp','lofi_snow','lofi_library','lofi_tide'];
+const LF_SAY={
+ lofi_nap:['「おひるねビーチ」、 波の 音が 入ってるの。 聞いてると まぶたが おもく なるね…ふぁ','ゆっくりな 曲は 頭を 休ませてくれるよ。 休んだ あとの 単語は よく 入るんだ'],
+ lofi_cat:['「ねこと ひなたぼっこ」、 小鳥の 声が ときどき 聞こえるの、 気づいた？','cat の 「ひなたぼっこ」は 英語で sunbathe って いうんだよ。 sun（太陽）＋ bathe（あびる）'],
+ lofi_moon:['「おやすみ お月さま」は 3拍子なんだ。 いち・に・さん…子守歌の リズムだね','英語の 子守歌は lullaby。 「ララバイ」って 聞いた ことあるかな？'],
+ lofi_rain:['雨の 音って 集中できるよね。 「雨音と ホットココア」で 単語、 もう 1つ いこう','rain の ほかに drizzle（こぬか雨）、 downpour（どしゃぶり）も あるよ。 雨にも いろいろ'],
+ lofi_tape:['「古い カセットテープ」は わざと 音を ゆらしてるの。 なつかしい 感じが するね','rewind は 「巻きもどす」。 授業の ふくしゅうも rewind だね'],
+ lofi_train:['ガタン ゴトン… 「夜行列車の 窓」、 どこかへ 旅してる 気分に なるね','英語では 汽車の 音を clickety-clack って いうんだよ。 おもしろいでしょ'],
+ lofi_lamp:['「灯台の あかり」の 霧笛、 聞こえた？ 英語で foghorn って いうの','lighthouse は light（光）＋ house（家）。 光の 家って すてきな ことばだね'],
+ lofi_snow:['「しずかな 雪の 夜」、 風の 音まで 入ってるの。 あったかく して 聞いてね','雪の 結晶は snowflake。 flake は 「うすい かけら」って いみだよ'],
+ lofi_library:['「図書館の 窓ぎわ」は ページを めくる 音が 入ってるんだ。 わたしも 本を 読みたく なっちゃう','library は ラテン語の liber（本）から。 本が たくさん ある 場所、 だね'],
+ lofi_tide:['「満ち潮の ゆりかご」は いちばん ゆっくりな 曲。 深呼吸して、 ゆっくり いこう','満ち潮は high tide、 引き潮は low tide。 月が 海を 引っぱってるんだよ']};
 /* 🎵 お店の BGM の ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
  x_shBgm:[['smile','レコード、 もってるよね。 カードショップの 🎵 BGMで えらぶと、 お店の 中で ながれるよ'],['happy','お店で 曲を ながすと、 ミオさんも ごきげんに なるんだって']],
@@ -428,6 +457,10 @@ Object.assign(MINA_LINES,{
  x_shRec:[['smile','カードショップの カウンターの 前に レコードプレイヤーが あるよ。 タップすると 曲が かかって、 音符が ふわふわ 出てくるんだ'],['happy','ミオさん、 レコードプレイヤーで 曲を かけると ごきげんに なるんだって。 カウンターで ためしてみてね']],
  sh_recOn:[['happy','あ、 お店から 「{song}」が 聞こえる。 いい曲だね'],['smile','レコードの 音って あったかいよね。 お仕事 がんばってね、 店長さん']],
  sh_recNew:[['wow','お知らせ！ カードショップの カウンターの 前に レコードプレイヤーを おいたよ。 タップで 音楽の オン・オフが できて、 曲が ながれると 音符が ふわふわ 出てくるよ'],['smile','カウンターに レコードプレイヤーが 来たよ。 タップすると 曲が かかるんだ。 ミオさんも よろこんでたよ']],
+ x_lfBuy:[['smile','ノラさんの 雑貨屋に スローな ローファイの レコードが 入ったよ。 まだ {n}まい 残ってるみたい'],['happy','勉強の BGMには ゆっくりな ローファイが おすすめ。 雑貨屋の レコードの たなを 見てみてね']],
+ x_lfOwn:[['smile','「{song}」、 もってるよね。 お店の 🎵 BGMで かけると、 ゆったり 勉強できるよ'],['happy','ゆっくりな 曲を 聞くと、 気持ちが おちついて 集中しやすく なるんだって。 「{song}」 どうかな']],
+ x_lfOn:[['smile','{say}']],
+ sh_lofiNew:[['wow','お知らせ！ ノラさんの 雑貨屋に スローな ローファイの レコードが 10まい 入ったよ。 雨・波・雪・汽車の 音が 入った、 ゆっくりな 曲ばかり。 たなは 毎日 かわるから のぞいてみてね'],['happy','新しい レコードの お知らせ！ ゆっくりな ローファイが 10まい ふえたよ。 小・中・高の どの マークも あるから、 雑貨屋で 英語で 買ってみてね']],
  sh_bgmNew:[['wow','お知らせ！ レコードは カードショップの 中だけで ながれるように なったよ。 お店の 🎵 BGMで 曲を えらんでね'],['smile','曲は カードショップの 中だけで ながれるように なったんだ。 浜辺に 出ると 止まって、 お店に もどると また ながれるよ']]});
 /* the shop changed: Mina tells you once */
 setTimeout(function first(){const S=SH();if(S.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,15000);
@@ -440,6 +473,10 @@ setTimeout(function first4(){const S=SH();if(S.bgmTold||!songs().length)return;c
 /* the record player is new: Mina tells you once（もう お店を 知っている 人だけ） */
 setTimeout(function first5(){const S=SH();if(S.recTold||!S.met)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first5,20000);
   S.recTold=1;save();const [ex,tx]=ML('sh_recNew');m.say('m',ex,tx,10000,null,goShop('counter')())},40000);
+
+/* slow lo-fi records are new（2026-11-15）: Mina tells you once */
+setTimeout(function first6(){const S=SH();if(S.lofiTold||!(S.met||ST.music.length))return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first6,20000);
+  S.lofiTold=1;save();const [ex,tx]=ML('sh_lofiNew');m.say('m',ex,tx,11000,null,['🏚️ 雑貨屋の レコードへ',()=>{window.ZAKKA?ZAKKA.open('music'):H.home()}])},52000);
 
 /* the bubbles are new: Mina tells you once（もう お店を 知っている 人だけ） */
 setTimeout(function first3(){const S=SH();if(S.mutTold||!S.met||!MU().day)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first3,20000);

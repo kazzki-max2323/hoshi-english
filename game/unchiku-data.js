@@ -147,7 +147,17 @@ const UNK_ZAKKA={
  'mu:gymno':["Erik Satie wrote his three \"Gymnopédies\" in 1888 in Paris. They are slow and calm, like this sea.","エリック・サティは 1888年、 パリで 3つの 「ジムノペディ」を 作ったの。 この 海みたいに ゆっくりで しずかなのよ。"],
  'mu:nocturne':["\"Nocturne\" means \"a piece of the night.\" Chopin wrote 21 of them, but an Irish composer, John Field, wrote them first.","「nocturne」は 「夜の 曲」。 ショパンが 21曲 作ったけど、 さいしょに 作ったのは アイルランドの ジョン・フィールドなの。"],
  'mu:canon':["In a canon, the same melody starts again and again, a little later each time — like singing \"Row, Row, Row Your Boat\" in a round.","カノンは 同じ メロディーが 少しずつ おくれて 何度も はじまるの。 かえる の うた の 輪唱みたいにね。"],
- 'mu:aria':["\"Aria\" is Italian for \"air.\" In an opera, it's a song that one singer sings alone.","「aria」は イタリア語で 「空気」。 オペラでは、 ひとりの 歌手が うたう 歌の ことなの。"]
+ 'mu:aria':["\"Aria\" is Italian for \"air.\" In an opera, it's a song that one singer sings alone.","「aria」は イタリア語で 「空気」。 オペラでは、 ひとりの 歌手が うたう 歌の ことなの。"],
+ 'mu:lofi_nap':["A short nap of 10 to 20 minutes after lunch can help your brain remember what you studied.","お昼の あとの 10〜20分の みじかい おひるねは、 勉強した ことを 頭が おぼえる 手伝いを してくれるの。"],
+ 'mu:lofi_cat':["Cats sleep about 12 to 16 hours a day. They love warm, sunny spots.","ねこは 1日に 12〜16時間くらい ねるの。 あったかい 日なたが 大すき。"],
+ 'mu:lofi_moon':["Most lullabies around the world are slow and in three: one-two-three, like rocking a baby.","世界中の 子守歌の 多くは ゆっくりで 3拍子。 いち・に・さんって、 赤ちゃんを ゆらす リズムなの。"],
+ 'mu:lofi_rain':["Cocoa comes from cacao beans. The Maya people in Central America drank it thousands of years ago.","ココアは カカオ豆から できるの。 中央アメリカの マヤの 人たちは 何千年も 前に 飲んでいたのよ。"],
+ 'mu:lofi_tape':["The cassette tape came out in 1963. In English, \"rewind\" first meant winding the tape back.","カセットテープが 出たのは 1963年。 英語の 「rewind（巻きもどす）」は、 もともと テープを 巻きもどす ことだったの。"],
+ 'mu:lofi_train':["\"Clickety-clack\" is the English sound for a train on the tracks. In Japanese, it's \"gatan goton.\"","汽車が 線路を 走る 音は、 英語で 「clickety-clack」。 日本語だと 「ガタン ゴトン」ね。"],
+ 'mu:lofi_lamp':["Each lighthouse flashes in its own pattern, so sailors can tell which one they are looking at.","灯台は それぞれ ちがう 光り方を するの。 だから 船の 人は どの 灯台か わかるのよ。"],
+ 'mu:lofi_snow':["Almost every snowflake has six sides. That's because of the way water freezes.","雪の 結晶は ほとんど 六角形。 水が こおる ときの 形の せいなの。"],
+ 'mu:lofi_library':["The word \"library\" comes from the Latin \"liber,\" which means \"book.\"","「library（図書館）」は ラテン語の 「liber（本）」から 来たことばなの。"],
+ 'mu:lofi_tide':["Most beaches have two high tides and two low tides every day, because the Moon pulls on the sea.","たいていの 浜辺では、 満ち潮と 引き潮が 1日に 2回ずつ あるの。 月が 海を 引っぱるからよ。"],
 };
 
 const UNK_WORD={
