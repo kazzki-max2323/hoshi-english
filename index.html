@@ -150,6 +150,7 @@ button{touch-action:manipulation}
 <script src="game/winfo-data.js"></script>
 <script src="game/winfo-data-tr.js"></script>
 <script src="game/winfo-data-jh.js"></script>
+<script src="game/winfo-data-jh2.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});
