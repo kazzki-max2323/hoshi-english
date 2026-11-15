@@ -198,7 +198,8 @@
 
 /* ☕ おしゃべり（game/mina-chat.js） */
 .mmrow{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
-.mcph{display:flex;flex-direction:column;align-items:center;gap:2px;margin:4px auto 8px;padding:8px 12px;border-radius:12px;background:#fff8e6;color:#3a2a10;text-align:center}
+.mcph{text-shadow:none;display:flex;flex-direction:column;align-items:center;gap:2px;margin:4px auto 8px;padding:8px 12px;border-radius:12px;background:#fff8e6;color:#3a2a10;text-align:center}
 .mcph small{font-size:.7rem;color:#9a7a3a}
+.mcph b,.mcph small,.mcph span{text-shadow:none}
 .mcph b{font-family:"Libre Baskerville",Georgia,serif;font-size:.95rem}
 .mcph span{font-size:.78rem}
