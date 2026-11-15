@@ -37,7 +37,7 @@
 .cbp.can{box-shadow:inset 0 0 0 2px #ffcf4a,0 0 8px #ffcf4a99;animation:cbcan 1.6s ease-in-out infinite}
 .cbp.can .cbsil{opacity:.5;filter:grayscale(.6) brightness(.8)}
 .cbp.fl>b{font-size:.75rem}
-.cbp.pop{animation:cbpop .45s cubic-bezier(.2,1.6,.4,1)}
+.cbp.cbnew{animation:cbpop .45s cubic-bezier(.2,1.6,.4,1)}
 @keyframes cbcan{50%{box-shadow:inset 0 0 0 2px #ffcf4a,0 0 14px #ffcf4a}}
 @keyframes cbpop{from{transform:scale(1.35) rotate(-6deg);opacity:.3}to{transform:none;opacity:1}}
 .cbpage.full{box-shadow:inset 0 0 0 2px #e8b84a,inset 0 2px 6px #0002}
@@ -59,7 +59,7 @@
 .cbfan>div{position:absolute;left:50%;top:6px;width:64px;transform-origin:50% 160%;transform:translateX(-50%) rotate(calc((var(--i) - (var(--n) - 1)/2)*11deg));animation:cbfan .5s calc(var(--i)*70ms) cubic-bezier(.2,1.4,.5,1) both}
 @keyframes cbfan{from{transform:translateX(-50%) translateY(30px) rotate(0);opacity:0}}
 .cbdp{margin:0;text-align:center;font-weight:800;color:#fff6d6}
-@media (prefers-reduced-motion:reduce){.cbp.can,.cbp.pop,.cbfan>div,.cbdone,.cbpage.shine::after{animation:none}}
+@media (prefers-reduced-motion:reduce){.cbp.can,.cbp.cbnew,.cbfan>div,.cbdone,.cbpage.shine::after{animation:none}}
 
 /* 🔍 さがす ・ しぼりこみ（PR: カードブックを 探しやすく） */
 .cbfind{display:flex;align-items:center;gap:6px;background:#ffffff14;border:1px solid #ffffff30;border-radius:12px;padding:4px 6px 4px 10px}
