@@ -141,6 +141,8 @@ button{touch-action:manipulation}
 <script src="game/food.js"></script>
 <script src="game/mio-study-data.js"></script>
 <script src="game/mio-study.js"></script>
+<script src="game/unchiku-data.js"></script>
+<script src="game/unchiku.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});

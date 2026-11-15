@@ -230,6 +230,7 @@ function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0
     <div class="cgdi">
       <button class="cgsay" id="cgsay">🔊 ${esc(I.en)}</button>
       <p class="cgdj">${esc(I.ja)}</p>
+      ${window.UNK?UNK.cardBox(I,own):''}
       ${I.k==='w'||I.k==='t'?`<p class="cgds">${own?`もっている かず ×${n}`:'まだ もっていない'}</p>`:''}
       <details class="cgfold"><summary>くわしく</summary>
         ${I.k==='w'?`<p>📕 ${esc(LV[I.lv].n)}「${esc(I.bt)}」　${ATTR[I.a][1]} ${ATTR[I.a][2]}</p>`:''}
@@ -244,6 +245,7 @@ function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0
       </details>
             <button class="sub" id="cgclose">とじる</button></div></div>`,'dv');
   const say=()=>{try{H.say(I.k==='t'?'cards':I.lv,I.k==='s'?I.en:I.en)}catch(e){}};say();
+  if(window.UNK)UNK.bind(o);
   $('cgsay').onclick=say;$('cgclose').onclick=()=>{sf('back');closeOv();back&&back()};
 }
 

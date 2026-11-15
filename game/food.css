@@ -76,3 +76,23 @@
 /* the snack shelf at the zakka shop */
 .zkit .zkfn{position:absolute;top:3px;right:3px;font-style:normal;font-size:.56rem;line-height:1;padding:2px 3px;border-radius:5px;background:rgba(0,0,0,.35)}
 .zkit .zkhp{font-size:.56rem;color:#ff9ab0;line-height:1}
+/* 📜 うんちく（game/unchiku.js） */
+.unkf .fdtri{margin:4px 8px 8px}
+.unkt>b{display:block;font-size:.76rem;color:#ffd27a;margin-bottom:3px}
+.unkt .row{margin-top:8px}
+.unkpl{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}
+.unkpl button{display:flex;flex-direction:column;align-items:center;gap:2px;padding:12px 6px;border-radius:12px}
+.unkpl button span{font-size:1.6rem}
+.unkpl button b{font-size:.86rem}
+.unkpl button small{font-size:.7rem;opacity:.8}
+.unkls{display:flex;flex-direction:column;gap:6px;padding:4px 8px 8px}
+.unkr{border-radius:10px;background:rgba(255,255,255,.05)}
+.unkr summary{padding:8px 10px;cursor:pointer;font-size:.86rem}
+.unkr summary b{font-family:"Libre Baskerville",Georgia,serif}
+.unkr .fdtri{background:none;padding-top:0}
+.mina-unk{margin-top:8px}
+.mina-unk summary small{margin-left:6px;opacity:.8}
+.unkno{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin:2px 0 0;font-size:1.05rem}
+.unkno span{opacity:.35;filter:grayscale(.7)}
+.unkno small{font-size:.7rem;color:var(--mute);margin-left:4px}
+.cgdi .unkf{text-align:left}
