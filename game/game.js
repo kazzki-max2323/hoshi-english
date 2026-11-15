@@ -89,7 +89,8 @@ addEventListener('resize',()=>setTimeout(fitDock,80));
 /* 🎵 レコードは カードショップ「しおさい」の 中だけで ながれる（店の BGM = ST.shopSong）。
    鉱山に 出ると とまり、 お店に もどると また ながれる。 雑貨屋の 試聴や 先生の リクエストは その 画面に いる あいだだけ */
 let musWhere=null;   // 'shop' = お店の BGM ／ ほかは その曲を かけた 画面の 名前
-const inShop=()=>screen==='cg'&&!panel.querySelector('.mnp');
+/* お店の 中＝カードショップの 画面（鉱山と、 ホームから 開いた カードブック .cbout は のぞく） */
+const inShop=()=>screen==='cg'&&!panel.querySelector('.mnp,.cbout');
 const songOk=id=>!!id&&typeof TRACKS!=='undefined'&&!!TRACKS[id]&&ST.music.includes(id);
 function musAt(){const shopNow=inShop();
   if(MUS.on&&musWhere!==(shopNow?'shop':screen)){try{stopMusic(true)}catch(e){}musWhere=null}
