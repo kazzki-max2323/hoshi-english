@@ -128,7 +128,21 @@
 .mngt .gi{font-size:1.35rem;line-height:1}.mngt b{color:#ffe14a}
 @keyframes mngt{0%{opacity:0;transform:translateY(6px) scale(.8)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0;transform:translateY(-4px)}}
 @media (prefers-reduced-motion:reduce){.mngt{animation:none}}
-.mnloot{margin:6px 0 0;text-align:center;font-size:.82rem;color:#e8f4ff}.mnloot b{color:#ffe14a}.mnloot span{margin-left:6px}
+.mnloot{margin:6px 0 0;display:flex;flex-wrap:wrap;justify-content:center;gap:6px;font-size:1rem;color:#fff;text-shadow:none}
+.mnloot button{font:inherit;font-weight:800;color:#fff;text-shadow:none;display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:999px;border:2px solid rgba(255,225,74,.55);background:rgba(12,10,30,.6);cursor:pointer;line-height:1.2}
+.mnloot button:active{transform:scale(.95)}
+.mnloot b{color:#ffe14a;font-size:1.05rem;font-family:system-ui,sans-serif;text-shadow:none;-webkit-font-smoothing:antialiased}.mnnone{font-size:.85rem;color:#cfd8ef}
+.mndep{position:absolute;top:6px;left:8px;padding:1px 8px;border-radius:6px;background:rgba(0,0,0,.45);color:#fff;font:800 .85rem/1.4 system-ui,sans-serif;text-shadow:none;pointer-events:none}
+.mnlo{box-sizing:border-box;width:min(92vw,360px);margin:auto;padding:16px;border-radius:16px;background:#1d1a3a;border:3px solid #ffe14a;text-shadow:none;text-align:center;display:flex;flex-direction:column;gap:10px}
+.mnlobig{font-size:3.6rem;line-height:1}.mnlon{margin:0;font-size:1.1rem;font-weight:800}.mnlon b,.mnlov b{color:#ffe14a}
+.mnloen{margin:0;font-size:1.05rem;color:#9fe3ff;font-weight:700}.mnlod{margin:0;font-size:.9rem;color:#e8ecff;line-height:1.55}
+.mnlov{margin:0;font-size:1rem}.mnlov small{display:block;font-size:.75rem;color:#bfc6e6}
+.mnlot{margin:0;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.08);font-size:.85rem;line-height:1.5;text-align:left}.mnlot b{color:#ffd0e6;margin-right:4px}
+.mnlol{display:flex;flex-direction:column;gap:6px}
+.mnlor{display:flex;align-items:center;gap:8px;padding:6px 10px!important;border-radius:10px;background:rgba(255,255,255,.08);text-align:left;font-size:.92rem}
+.mnlor .gi{font-size:1.5rem}.mnlor>span:nth-child(2){flex:1}.mnlor small{display:block;font-size:.75rem;color:#cfd6f2;font-weight:400}.mnlor .v{color:#ffe14a}
+.mnloc{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.mnloci{position:relative;display:block;width:100%;padding:0!important;border:0!important;background:none!important}.mnloci em{position:absolute;top:-6px;right:-6px;font-style:normal;font-size:.65rem;background:#ff5a7a;color:#fff;border-radius:99px;padding:1px 5px}
+.mnlob{margin-top:4px}
 /* 🎵 お店の BGM（レコードは お店の 中だけで ながれる） */
 .shbgm{display:flex;align-items:center;gap:8px;width:100%;margin-top:8px;padding:8px 12px!important;font-size:.82rem}
 .shbgm b{flex:1;min-width:0;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
