@@ -250,6 +250,11 @@ function more(I){const h=I.h,WI=window.WI,out=[];
   if(tips.length)out.push(`<div class="witip">${tips.map(t=>`<p>💡 ${t}</p>`).join('')}</div>`);
   if(!out.length)return '';
   return `<details class="cgfold wif" open><summary>📖 くわしく</summary>${out.join('')}</details>`}
+/* くわしくの 中の 🔊 と、 ひらいた 回数 */
+function bindMore(o){o.querySelectorAll('[data-wisay]').forEach(b=>b.onclick=e=>{e.stopPropagation();sf('pickup');window.WI?WI.speak(b.dataset.wisay):speak(b.dataset.wisay)});
+  o.querySelectorAll('.wif').forEach(fd=>fd.addEventListener('toggle',()=>{if(fd.open){CG.wiSeen=(CG.wiSeen||0)+1;save()}}))}
+/* ほかの 画面（鉱山で 見つけた・仕入れ）に うめこむ くわしく: さいしょは とじておき、 タップで ひらく */
+const moreClosed=I=>more(I).replace('<details class="cgfold wif" open>','<details class="cgfold wif">');
 /* the big card: tap 🔊, its combos, friends and opposites */
 function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0,x=stat(id),h=I.h;
   const cs=I.k==='w'?combosWith(h):[],known=cs.filter(c=>CG.combo[c.k]);
@@ -263,8 +268,7 @@ function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0
             <button class="sub" id="cgclose">とじる</button></div></div>`,'dv');
   const say=()=>{try{H.say(I.k==='t'?'cards':I.lv,I.k==='s'?I.en:I.en)}catch(e){}};say();
   if(window.UNK)UNK.bind(o);
-  o.querySelectorAll('[data-wisay]').forEach(b=>b.onclick=e=>{e.stopPropagation();sf('pickup');window.WI?WI.speak(b.dataset.wisay):speak(b.dataset.wisay)});
-  const fd=o.querySelector('.wif');if(fd)fd.addEventListener('toggle',()=>{if(fd.open){CG.wiSeen=(CG.wiSeen||0)+1;save()}});
+  bindMore(o);
   $('cgsay').onclick=say;$('cgclose').onclick=()=>{sf('back');closeOv();back&&back()};
 }
 
@@ -311,14 +315,17 @@ function reveal(got,title,back){save();cleanDeck();
   setTimeout(()=>{if(!o.isConnected)return;sf('done');o.querySelector('.cgopen').classList.add('burst')},800);
   setTimeout(()=>{if(!o.isConnected)return;
     o.innerHTML=`<div class="cgres">${got.map((g,i)=>`<div class="cgslot" data-i="${i}"><div class="cgback">✦</div>${face(g.id,{ja:1})}${g.isNew?'<em class="cgnew">NEW!</em>':''}</div>`).join('')}</div>
+      <div class="cgwi" id="cgwi"></div><p class="cgwit" id="cgwit" hidden>📖 めくった カードを タップすると くわしく 見られるよ</p>
       <div class="cgresb"><button id="cgall">ぜんぶ めくる</button><button id="cgbk" class="cgbk" hidden></button><button id="cgok" class="sub" hidden>OK</button></div>`;
     const slots=[...o.querySelectorAll('.cgslot')];let left=slots.length;
     const flip=s=>{if(s.classList.contains('open'))return;s.classList.add('open');const g=got[+s.dataset.i],I=info(g.id);sf('flip');
       if(I.k==='w')setTimeout(()=>{try{H.say(I.lv,I.en)}catch(e){}},150);
-      if(--left===0){$('cgall').hidden=true;$('cgok').hidden=false;bookBtn(got);
+      if(--left===0){$('cgall').hidden=true;$('cgok').hidden=false;bookBtn(got);if(window.WI&&$('cgwit'))$('cgwit').hidden=false;
         const np=got.filter(g=>g.isNew).map(g=>info(g.id)).filter(I=>I.k==='w');const cs=deckCombos(Object.keys(CG.c)).filter(c=>np.some(I=>I.h===c.a||I.h===c.b)&&!CG.combo[c.k]);
         if(cs.length)H.toast(`✨ コンボの なかまが そろったかも…？<small>鉱山の あなうめで 見つかるよ</small>`,3200)}};
-    slots.forEach(s=>s.onclick=()=>{if(s.classList.contains('open')){const I=info(got[+s.dataset.i].id);try{H.say(I.k==='t'?'cards':I.lv,I.en)}catch(e){}}else flip(s)});
+    const showMore=I=>{const w=$('cgwi');if(!w||!I)return;const m=more(I);w.innerHTML=m?`<p class="cgwih"><b>${esc(I.en)}</b> ${esc(I.ja)}</p>`+m:'';bindMore(w)};
+    slots.forEach(s=>s.onclick=()=>{if(s.classList.contains('open')){const I=info(got[+s.dataset.i].id);try{H.say(I.k==='t'?'cards':I.lv,I.en)}catch(e){}
+      slots.forEach(x=>x.classList.toggle('sel',x===s));showMore(I)}else flip(s)});
     $('cgall').onclick=()=>slots.forEach((s,i)=>setTimeout(()=>flip(s),i*140));
     $('cgok').onclick=()=>{sf('back');closeOv();back&&back()};
     setTimeout(()=>slots[0]&&flip(slots[0]),300)},1400)}
@@ -458,7 +465,7 @@ function metWrong(w){if(CG.wrong[w.k])return false;CG.wrong[w.k]=dnum();save();r
 function sayCard(id){const I=info(id);if(!I||!I.en)return;try{H.say(I.k==='t'?'cards':I.k==='p'?'es':I.lv,I.en)}catch(e){}}
 document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('.cgc.big');if(!c||c.classList.contains('lock')||!c.dataset.id)return;
   sayCard(c.dataset.id);c.classList.remove('tapsay');void c.offsetWidth;c.classList.add('tapsay')});
-window.CG={open,sayCard,go,starter,info,face,art,quiz,formQuiz,formsOf,ask,ov,closeOv,detail,count,owns,give,take,receive,reveal,record,star,kira,weak,forgot,power,
+window.CG={more,moreClosed,bindMore,open,sayCard,go,starter,info,face,art,quiz,formQuiz,formsOf,ask,ov,closeOv,detail,count,owns,give,take,receive,reveal,record,star,kira,weak,forgot,power,
   lvOpen,deckCombos,cleanDeck,comboOf,combosWith,wrongOf:(a,b)=>WRG[a+'|'+b]||null,anto:h=>ANTO[h]?[...ANTO[h]]:[],syn:h=>SYN[h]?[...SYN[h]]:[],
   derivOf,sentWords,cardOfHead,foundCombo,metWrong,pickL,hash,dnum,today,speak,bubble,
   W,BY,COMBO,WRONG,DERIV,SENT,LV,ATTR,DECK_N,rec:()=>CG,save:()=>save(),pay,myLv,hut,
