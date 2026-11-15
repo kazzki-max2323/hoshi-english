@@ -77,6 +77,15 @@ function flyCoin(x,y,n,quick){const d=document.createElement('div');d.className=
 /* ---------- screens ---------- */
 let screen='home';
 function show(name,html){screen=name;window.GRAMSEE&&GRAMSEE.hidePop();panel.innerHTML=html;panel.scrollTop=0;if(name!=='home')radioQuiet();musAt()}
+/* the beach reaches down to the top of the home panel (a little gap), so the campfire and the shops sit lower on the sand.
+   --dock only grows while the screen size stays the same (no jumping when Mina's line gets longer or shorter); it never goes past 250px */
+const DOCK={w:0,h:0,v:0};
+function fitDock(){if(screen!=='home')return;const wn=$('window'),pr=panel.getBoundingClientRect();if(!wn||!pr.height)return;
+  if(DOCK.w!==innerWidth||DOCK.h!==innerHeight){DOCK.w=innerWidth;DOCK.h=innerHeight;DOCK.v=0}
+  const cur=parseFloat(getComputedStyle(wn).marginBottom)||250,want=Math.round(Math.min(250,Math.max(120,cur+wn.getBoundingClientRect().bottom-(pr.top-10))));
+  const v=Math.max(DOCK.v,want);if(Math.abs(v-cur)>=2){DOCK.v=v;document.documentElement.style.setProperty('--dock',v+'px')}else DOCK.v=Math.max(DOCK.v,cur)}
+if(window.ResizeObserver)new ResizeObserver(()=>fitDock()).observe(panel);
+addEventListener('resize',()=>setTimeout(fitDock,80));
 /* 🎵 レコードは カードショップ「しおさい」の 中だけで ながれる（店の BGM = ST.shopSong）。
    鉱山に 出ると とまり、 お店に もどると また ながれる。 雑貨屋の 試聴や 先生の リクエストは その 画面に いる あいだだけ */
 let musWhere=null;   // 'shop' = お店の BGM ／ ほかは その曲を かけた 画面の 名前
