@@ -129,8 +129,8 @@ function talk(T,box,again,force){if(TK&&TK.alive&&TK.T===T&&T.alive&&!again)retu
       if(heart)add('nt',[heart]);
       const gl=go==='gift'?'🎁 プレゼントを えらぶ':go==='floor'?'🏷️ 売り場へ':'';
       optE.innerHTML=`<div class="row">${gl?`<button id="mtgo">${gl}</button>`:''}<button id="mtmore" class="sub">💬 もっと 話す</button><button id="mtx" class="sub">とじる</button></div>`;
-      const g=optE.querySelector('#mtgo');if(g)g.onclick=()=>{sf('step');close();T.alive=false;
-        if(go==='gift')GIFT.pick({to:'mio',back:()=>SHOP.counter()});else SHOP.floor()};
+      const g=optE.querySelector('#mtgo');if(g)g.onclick=()=>{sf('step');close();
+        if(go==='gift'){SHOP.pause();GIFT.pick({to:'mio',back:()=>SHOP.counter(true)})}else SHOP.toFloor()};
       optE.querySelector('#mtmore').onclick=()=>{sf('step');K.alive=false;talk(T,box,true)};
       optE.querySelector('#mtx').onclick=()=>{sf('tap');close()};
       if(heartOk)sf('heart');

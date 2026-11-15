@@ -160,3 +160,4 @@
 .shnotes{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
 .shnotes i{position:absolute;font-style:normal;font-weight:700;line-height:1;text-shadow:none;animation:shnote 2.6s ease-out forwards}
 @keyframes shnote{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:1}50%{transform:translate(var(--sx,6px),calc(var(--up,60px)*-.5)) scale(1)}100%{opacity:0;transform:translate(calc(var(--sx,6px)*-1),calc(var(--up,60px)*-1)) scale(1.05)}}
+.shtoc{display:block;width:100%;margin-top:8px}
