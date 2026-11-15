@@ -73,11 +73,12 @@ const layerOf=d=>{let L=MINE_LAYERS[0];MINE_LAYERS.forEach(x=>{if(d>=x.at)L=x});
 const stageOf=i=>course()[i]||MIX;
 function dive(cards){try{SHOP.leave()}catch(e){}
   const M=MN();M.dives++;C.save();
-  D={hand:cards,st:0,lap:0,queue:[],redo:[],redone:{},cur:-1,depth:0,hp:myHp(),q:0,ok:0,got:[],coins:0,events:[],words:{},crack:0,luck:0,alive:true,f:0,parts:[],pop:null,swing:0};
+  D={hand:cards,st:0,lap:0,queue:[],redo:[],redone:{},cur:-1,depth:0,hp:myHp(),q:0,ok:0,got:[],coins:0,events:[],words:{},crack:0,luck:0,alive:true,f:0,parts:[],pop:null,swing:0,loot:{}};
   startLap();
   H.show('cg',`<section class="pnl cgp mnp mnd" data-stay>
     <div class="qtop"><button class="x" id="mnx" aria-label="もちかえる">←</button><b id="mnl">⛏️ 0m</b><span class="qn" id="mnh"></span></div>
-    <div class="mnstage"><canvas id="mncv" width="160" height="80"></canvas></div>
+    <div class="mnstage"><canvas id="mncv" width="160" height="80"></canvas><div class="mngot" id="mngot"></div></div>
+    <p class="mnloot" id="mnloot"></p>
     <p class="mnst" id="mnst"></p>
     <div class="mnhand sm" id="mnhd"></div>
     <div id="mnq"></div>
@@ -90,6 +91,8 @@ function dive(cards){try{SHOP.leave()}catch(e){}
 function startLap(){D.queue=D.hand.map((_,i)=>i);D.redo=[];D.redone={}}
 function hud(){if(!D)return;const L=layerOf(D.depth),S=stageOf(D.st);$('mnl').textContent=`⛏️ ${D.depth}m ・ ${L.n}`;
   $('mnh').innerHTML=`<span class="mnme"><b style="width:${D.hp/ME_HP*100}%"></b></span> ❤${D.hp}`;
+  const lo=Object.entries(D.loot).map(([ico,n])=>`${ico}${n>1?`×${n}`:''}`).join(' '),cd=D.got.length;
+  $('mnloot').innerHTML=D.coins||cd||lo?`🎒 <b>${D.coins}枚</b>${lo?` <span>${lo}</span>`:''}${cd?` <span>🎴×${cd}</span>`:''}`:'🎒 まだ なにも ない';
   $('mnst').innerHTML=`${S.ico} <b>${esc(S.n)}</b>${D.inRedo?' <em>もう一回</em>':''}`;
   $('mnhd').innerHTML=D.hand.map((id,i)=>`<div class="mnt ${i===D.cur?'on':''} ${D.queue.includes(i)||D.redo.includes(i)||i===D.cur?'':'done'}">${C.face(id,{mini:1,marks:false})}</div>`).join('')}
 /* つぎの 問題: 左から じゅんばん → まちがえた カード → つぎの 周 → つぎの 形 */
@@ -188,10 +191,14 @@ function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.
     const isNew=!C.owns(c.id);C.give(c.id);D.got.push({id:c.id,isNew});return celebrate(c.id,isNew,false)}
   if(r<P_TREASURE+P_WORD+deep+P_EVENT){const E=pickL(MINE_EVENT);D.events.push(E);
     if(E.hp){D.hp=Math.min(ME_HP,D.hp+E.hp);keepHp(D.hp)}if(E.deep)D.depth+=E.deep;if(E.luck)D.luck+=E.luck;if(E.coin)D.coins+=E.coin;
-    D.pop={ico:E.ico,t:0,big:1};sf('hey');H.toast(`${E.ico} <b>${esc(E.n)}</b><small>${esc(E.t)}</small>`,3600);return false}
+    D.pop={ico:E.ico,t:0,big:1};gotTag(E.ico,E.n,E.coin?`+${E.coin}枚`:'');sf('hey');H.toast(`${E.ico} <b>${esc(E.n)}</b><small>${esc(E.t)}</small>`,3600);return false}
   if(r<P_TREASURE+P_WORD+deep+P_EVENT+P_GEM+lk){const gi=Math.min(MINE_GEM.length-1,Math.floor(Math.random()*(2+D.depth/12))),G=MINE_GEM[gi];const v=G[2]+Math.floor(D.depth/5);
-    D.coins+=v;D.pop={ico:G[0],t:0};sf('coinIn');return false}
+    D.coins+=v;D.loot[G[0]]=(D.loot[G[0]]||0)+1;D.pop={ico:G[0],t:0};gotTag(G[0],G[1],`+${v}枚`);sf('coinIn');return false}
   D.pop=null;return false}
+/* 手に 入れた 物を ドット絵の 上に はっきり 出す（すぐ 消える） */
+function gotTag(ico,name,val){const el=$('mngot');if(!el)return;const t=document.createElement('div');t.className='mngt';
+  t.innerHTML=`<span class="gi">${ico}</span><span class="gn">${esc(name)}</span>${val?`<b>${esc(val)}</b>`:''}`;
+  el.appendChild(t);while(el.children.length>2)el.firstChild.remove();setTimeout(()=>t.remove(),1800)}
 /* カードを 見つけた！（めったに ない ので 大きな お祝い） */
 function celebrate(id,isNew,treasure){const M=MN();M.cards=(M.cards||0)+1;C.save();D.pop={ico:treasure?'🎁':'🎴',t:0,big:1};
   try{SFX.fanfare(treasure?3:2)}catch(e){sf('done')}
@@ -228,7 +235,7 @@ function draw(c){const L=layerOf(D.depth),[a,b,k]=L.col;
   else{PR(c,x+10,y+8,3,5,'#e86a4a');PR(c,x+10,y+6,2,2,'#ffe0cc');for(let i=0;i<10;i++)PR(c,x+10-Math.floor(i/4),y+5-i,1,1,'#a8743e');PR(c,x+3,y-6,10,2,'#9aa0b0');PR(c,x+2,y-5,2,2,'#9aa0b0')}
   if(sw&&D.swing===2){PR(c,rx-2,40,2,2,'#fff8c0');PR(c,rx-4,36,1,1,'#fff8c0');PR(c,rx-1,46,1,1,'#fff8c0')}
   D.parts=D.parts.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.5;p.l--;PR(c,p.x,p.y,2,2,p.c);return p.l>0});
-  if(D.pop){const p=D.pop;p.t++;const yy=40-Math.min(18,p.t*2);c.font='12px sans-serif';c.textAlign='center';c.fillText(p.ico,99,yy);c.textAlign='left';if(p.big&&p.t%4<2){PR(c,92,yy-14,1,1,'#fff');PR(c,107,yy-10,1,1,'#fff')}if(p.t>22)D.pop=null}
+  if(D.pop){const p=D.pop;p.t++;const yy=40-Math.min(18,p.t*2);if(p.big&&p.t%4<2){PR(c,92,yy-14,1,1,'#fff');PR(c,107,yy-10,1,1,'#fff')}if(p.t>22)D.pop=null}
   c.fillStyle='#fff';c.font='bold 7px monospace';c.fillText(D.depth+'m',134,10)}
 function burst(){const L=layerOf(D.depth);for(let i=0;i<14;i++)D.parts.push({x:96,y:44,vx:(Math.random()-.3)*3.2,vy:-Math.random()*3.5,l:12+Math.random()*8,c:pickL(L.col)})}
 
