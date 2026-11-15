@@ -73,12 +73,12 @@ const layerOf=d=>{let L=MINE_LAYERS[0];MINE_LAYERS.forEach(x=>{if(d>=x.at)L=x});
 const stageOf=i=>course()[i]||MIX;
 function dive(cards){try{SHOP.leave()}catch(e){}
   const M=MN();M.dives++;C.save();
-  D={hand:cards,st:0,lap:0,queue:[],redo:[],redone:{},cur:-1,depth:0,hp:myHp(),q:0,ok:0,got:[],coins:0,events:[],words:{},crack:0,luck:0,alive:true,f:0,parts:[],pop:null,swing:0,loot:{}};
+  D={hand:cards,st:0,lap:0,queue:[],redo:[],redone:{},cur:-1,depth:0,hp:myHp(),q:0,ok:0,got:[],coins:0,events:[],words:{},crack:0,luck:0,alive:true,f:0,parts:[],pop:null,swing:0,loot:{},lootV:{}};
   startLap();
   H.show('cg',`<section class="pnl cgp mnp mnd" data-stay>
     <div class="qtop"><button class="x" id="mnx" aria-label="もちかえる">←</button><b id="mnl">⛏️ 0m</b><span class="qn" id="mnh"></span></div>
-    <div class="mnstage"><canvas id="mncv" width="160" height="80"></canvas><div class="mngot" id="mngot"></div></div>
-    <p class="mnloot" id="mnloot"></p>
+    <div class="mnstage"><canvas id="mncv" width="160" height="80"></canvas><span class="mndep" id="mndep">0m</span><div class="mngot" id="mngot"></div></div>
+    <div class="mnloot" id="mnloot"></div>
     <p class="mnst" id="mnst"></p>
     <div class="mnhand sm" id="mnhd"></div>
     <div id="mnq"></div>
@@ -92,7 +92,10 @@ function startLap(){D.queue=D.hand.map((_,i)=>i);D.redo=[];D.redone={}}
 function hud(){if(!D)return;const L=layerOf(D.depth),S=stageOf(D.st);$('mnl').textContent=`⛏️ ${D.depth}m ・ ${L.n}`;
   $('mnh').innerHTML=`<span class="mnme"><b style="width:${D.hp/ME_HP*100}%"></b></span> ❤${D.hp}`;
   const lo=Object.entries(D.loot).map(([ico,n])=>`${ico}${n>1?`×${n}`:''}`).join(' '),cd=D.got.length;
-  $('mnloot').innerHTML=D.coins||cd||lo?`🎒 <b>${D.coins}枚</b>${lo?` <span>${lo}</span>`:''}${cd?` <span>🎴×${cd}</span>`:''}`:'🎒 まだ なにも ない';
+  const dp=$('mndep');if(dp)dp.textContent=D.depth+'m';void lo;
+  const lb=$('mnloot');lb.innerHTML=D.coins||cd||D.events.length||Object.keys(D.loot).length?`<button data-lo="coin">🎒 <b>${D.coins}枚</b></button>${Object.entries(D.loot).map(([ico,n])=>`<button data-lo="g" data-ico="${ico}">${ico}${n>1?`<b>×${n}</b>`:''}</button>`).join('')}${cd?`<button data-lo="cards">🎴<b>×${cd}</b></button>`:''}${D.events.length?`<button data-lo="ev">✨<b>×${D.events.length}</b></button>`:''}`:'<span class="mnnone">🎒 まだ なにも ない</span>';
+  lb.querySelectorAll('[data-lo]').forEach(b=>b.onclick=()=>lootInfo(b.dataset.lo,b.dataset.ico));
+  if(lb.querySelector('[data-lo]')&&!MN().lootTold){MN().lootTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_lootTap');H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},2200)}
   $('mnst').innerHTML=`${S.ico} <b>${esc(S.n)}</b>${D.inRedo?' <em>もう一回</em>':''}`;
   $('mnhd').innerHTML=D.hand.map((id,i)=>`<div class="mnt ${i===D.cur?'on':''} ${D.queue.includes(i)||D.redo.includes(i)||i===D.cur?'':'done'}">${C.face(id,{mini:1,marks:false})}</div>`).join('')}
 /* つぎの 問題: 左から じゅんばん → まちがえた カード → つぎの 周 → つぎの 形 */
@@ -192,8 +195,35 @@ function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.
     if(E.hp){D.hp=Math.min(ME_HP,D.hp+E.hp);keepHp(D.hp)}if(E.deep)D.depth+=E.deep;if(E.luck)D.luck+=E.luck;if(E.coin)D.coins+=E.coin;
     D.pop={ico:E.ico,t:0,big:1};gotTag(E.ico,E.n,E.coin?`+${E.coin}枚`:'');sf('hey');H.toast(`${E.ico} <b>${esc(E.n)}</b><small>${esc(E.t)}</small>`,3600);return false}
   if(r<P_TREASURE+P_WORD+deep+P_EVENT+P_GEM+lk){const gi=Math.min(MINE_GEM.length-1,Math.floor(Math.random()*(2+D.depth/12))),G=MINE_GEM[gi];const v=G[2]+Math.floor(D.depth/5);
-    D.coins+=v;D.loot[G[0]]=(D.loot[G[0]]||0)+1;D.pop={ico:G[0],t:0};gotTag(G[0],G[1],`+${v}枚`);sf('coinIn');return false}
+    D.coins+=v;D.loot[G[0]]=(D.loot[G[0]]||0)+1;D.lootV[G[0]]=(D.lootV[G[0]]||0)+v;D.pop={ico:G[0],t:0};gotTag(G[0],G[1],`+${v}枚`);sf('coinIn');return false}
   D.pop=null;return false}
+/* 🎒 手に 入れた 物を タップすると くわしく（鉱山の つづきは そのまま。 閉じると もどる） */
+const GEM_INFO={'🪨':['a pretty stone','川や 鉱山で ひろえる、 つるつるの 石。 ながめるだけで 落ちつくよ','Mio','「きれいな 石、 お店の レジの よこに かざりたいな〜」'],
+ '🔶':['amber','大むかしの 木の やにが 固まった 石。 中に 虫が 入っていることも あるよ','Mina','amber は「こはく色」という 色の 名前にも なるの。 信号の 黄色も amber って いうんだよ'],
+ '💎':['diamond','いちばん かたい 石。 光を あてると にじ色に キラキラ','Mina','diamond は トランプの ♦（ダイヤ）も 同じ ことばだよ'],
+ '🔮':['crystal','すきとおった 水晶。 のぞくと 向こうが ふしぎに 見える','Mio','「crystal clear（すごく はっきり）って 言い方、 授業で ならいました！」'],
+ '🌠':['meteorite','空から 落ちてきた 流れ星の 石。 宇宙を 旅してきたんだね','Mina','meteor が 流れ星、 meteorite が 地面に 落ちた 石。 -ite は「石」の しるしだよ'],
+ '🪙':['an old gold coin','むかしの 人が 使っていた 金貨。 どんな 買い物を したのかな','Mio','「coin は 1まい、 coins は 2まい いじょう。 店長、 お会計の 英語で 使えますね！」']};
+function lootInfo(kind,ico){if(!D)return;sf('card');const back='<button class="mnlob" data-x>⛏️ つづきを ほる</button>';let h='';
+  const gemRow=([i,n])=>{const G=MINE_GEM.find(g=>g[0]===i)||[i,'?'];return `<button class="mnlor" data-ico="${i}"><span class="gi">${i}</span><span>${esc(G[1])} <b>×${n}</b></span><b class="v">+${D.lootV[i]||0}枚</b></button>`};
+  if(kind==='g'){const G=MINE_GEM.find(g=>g[0]===ico),I=GEM_INFO[ico]||['','','',''],n=D.loot[ico]||0;if(!G)return;
+    h=`<div class="mnlo"><div class="mnlobig">${ico}</div><p class="mnlon">${esc(G[1])} <b>×${n}</b></p>${I[0]?`<p class="mnloen">${esc(I[0])}</p>`:''}
+      <p class="mnlod">${esc(I[1])}</p><p class="mnlov">💰 <b>+${D.lootV[ico]||0}枚</b><small>（1こ ${G[2]}枚＋深さ ぶん）</small></p>
+      ${I[3]?`<p class="mnlot"><b>${I[2]==='Mio'?'🧑‍🎓 ミオ':'👩‍🏫 ミナ先生'}</b> ${esc(I[3])}</p>`:''}${back}</div>`}
+  else if(kind==='coin'){const ev=D.events.reduce((a,e)=>a+(e.coin||0),0);
+    h=`<div class="mnlo"><p class="mnlon">🎒 もちかえる コイン <b>${D.coins}枚</b></p>
+      <div class="mnlol">${Object.entries(D.loot).map(gemRow).join('')||'<p class="mnlod">石や 宝石は まだ ないよ</p>'}
+      ${ev?`<div class="mnlor"><span class="gi">✨</span><span>できごと</span><b class="v">+${ev}枚</b></div>`:''}</div>
+      <p class="mnlod">もちかえると ぜんぶ もらえるよ（❤が 0でも だいじょうぶ）。 石を タップすると くわしく 見られるよ</p>${back}</div>`}
+  else if(kind==='cards'){h=`<div class="mnlo"><p class="mnlon">🎴 見つけた カード <b>${D.got.length}まい</b></p>
+      <div class="mnloc">${D.got.map(g=>`<button class="mnloci" data-id="${esc(g.id)}">${C.face(g.id,{mini:1,marks:false})}${g.isNew?'<em>NEW</em>':''}</button>`).join('')}</div>
+      <p class="mnlod">カードを タップすると 📖 くわしく 見られるよ</p>${back}</div>`}
+  else if(kind==='ev'){h=`<div class="mnlo"><p class="mnlon">✨ 鉱山の できごと <b>${D.events.length}</b></p>
+      <div class="mnlol">${D.events.map(e=>`<div class="mnlor"><span class="gi">${e.ico}</span><span><b>${esc(e.n)}</b><small>${esc(e.t)}</small></span></div>`).join('')}</div>${back}</div>`}
+  const o=C.ov(h,'mnlov');
+  o.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{sf('back');C.closeOv()});
+  o.querySelectorAll('.mnlor[data-ico]').forEach(b=>b.onclick=()=>lootInfo('g',b.dataset.ico));
+  o.querySelectorAll('.mnloci').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id,()=>lootInfo('cards'))})}
 /* 手に 入れた 物を ドット絵の 上に はっきり 出す（すぐ 消える） */
 function gotTag(ico,name,val){const el=$('mngot');if(!el)return;const t=document.createElement('div');t.className='mngt';
   t.innerHTML=`<span class="gi">${ico}</span><span class="gn">${esc(name)}</span>${val?`<b>${esc(val)}</b>`:''}`;
@@ -236,7 +266,7 @@ function draw(c){const L=layerOf(D.depth),[a,b,k]=L.col;
   if(sw&&D.swing===2){PR(c,rx-2,40,2,2,'#fff8c0');PR(c,rx-4,36,1,1,'#fff8c0');PR(c,rx-1,46,1,1,'#fff8c0')}
   D.parts=D.parts.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.5;p.l--;PR(c,p.x,p.y,2,2,p.c);return p.l>0});
   if(D.pop){const p=D.pop;p.t++;const yy=40-Math.min(18,p.t*2);if(p.big&&p.t%4<2){PR(c,92,yy-14,1,1,'#fff');PR(c,107,yy-10,1,1,'#fff')}if(p.t>22)D.pop=null}
-  c.fillStyle='#fff';c.font='bold 7px monospace';c.fillText(D.depth+'m',134,10)}
+}
 function burst(){const L=layerOf(D.depth);for(let i=0;i<14;i++)D.parts.push({x:96,y:44,vx:(Math.random()-.3)*3.2,vy:-Math.random()*3.5,l:12+Math.random()*8,c:pickL(L.col)})}
 
 /* ================================================================ back home */
@@ -272,6 +302,7 @@ Object.assign(MINA_LINES,{
  mn_course:[['smile','5まいを 左から じゅんばんに 練習するよ。 さいしょは 和訳、 2周目は スペルの ならべかえ、 つぎは 英語で… と 1周ごとに 形が かわるの'],['point','まちがえた カードは その 周の さいごに もう一回 出るよ。 苦手な 単語ほど たくさん 練習できるんだ'],['smile','スマホで 打つのが 大変な ときは 「書く 問題」を 出さない ように できるよ。 つづりは ならべかえでも しっかり 練習できるから'],['happy','同じ 5まいを 形を かえて 何回も。 さいごには 聞いて 書けるように なってるはず！']],
  mn_card:[['wow','すごい！ 「{w}」の カードを 見つけたね！ めったに 出ないんだよ'],['love','カードが 出た！ 練習を がんばった ごほうびだね'],['smile','カードを タップすると 「{w}」って 読むよ。 声に 出して まねしてみてね']],
  mn_treasure:[['wow','🎁 宝カード！？ 鉱山の 奥で 見つかるなんて… すごい 運だね！'],['love','宝カードだ！ カードブックに 入れられるよ。 ダブったら お店で 売れるからね']],
+ mn_lootTap:[['smile','🎒の ところに ならんだ 物は、 タップすると くわしく 見られるよ。 宝石の 英語の 名前も わかるの'],['happy','手に 入れた 石や カードは、 タップで くわしく！ ほっている とちゅうでも だいじょうぶ']],
  x_mnType:[['think','鉱山の 「つづりを 書く」は むずかしい？ ヒントで さいしょの 字が わかるよ'],['smile','聞いて 書けたら、 もう その 単語は きみの もの']]
 });
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
