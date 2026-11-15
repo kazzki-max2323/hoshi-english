@@ -96,6 +96,9 @@ item,coins:()=>ST.coins,visits:()=>ZD.v||0,tgs:()=>{try{return window.TUTOR?TUTO
   altGift:id=>{const t=today().all.filter(i=>i.k==='gift'),g=t.length>1?t:IT.filter(i=>i.k==='gift'&&loveOk(i)&&!i.rare);return g[(g.findIndex(i=>i.id===id)+1)%g.length]},
   bonusW:()=>pcDone()?'fortune cookie':'postcard',bonusJ:()=>pcDone()?'おみくじ クッキー':'絵はがき',
   rcpt:id=>!!ZD.rcpt[id],
+  /* お会計の 聞き方: 同じ ものが つづけて 出ないように、 前回の ものを おぼえておく */
+  pickV:(k,a)=>{const m=ZD.ck=ZD.ck||{},p=a.length>1?a.filter(x=>x!==m[k]):a,x=p[Math.random()*p.length|0];m[k]=x;return x},
+  sameShape:(k,ks)=>{const m=ZD.ck=ZD.ck||{},s=ks.slice().sort().join(',');if(m['sh_'+k]===s)return true;m['sh_'+k]=s;return false},
   exList:c=>books().filter(b=>!ZD.own[b.id]&&b.id!==c.it.id),
   diff:c=>Math.max(0,c.to2.p-paid(c.it.id))};
 const SC=Object.assign(ZAKKA_TALK(Z),typeof ZAKKA_GOODS_TALK==='function'?ZAKKA_GOODS_TALK(Z):{});
@@ -375,7 +378,7 @@ function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!
   else if(sid==='moon')k='zk_endMoon';
   else if(R.it&&R.it.lux){k='zk_endLux';v.t=R.it.n}
   else if(R.it&&R.it.rare){k='zk_endRare';v.t=R.it.n}
-  else if(R.it)k=c.disc>=.2?'zk_endHaggle':c.disc?'zk_endDeal':R.it.k==='gift'?'zk_endGift':R.it.k==='book'?'zk_endBook':'zk_endBuy';
+  else if(R.it)k=c.disc>=.2?'zk_endHaggle':c.disc?'zk_endDeal':R.it.k==='gift'&&c.wrap?'zk_endGift':R.it.k==='book'?'zk_endBook':'zk_endBuy';
   else if(R.got&&R.ret)k='zk_endReturn';else if(R.got)k='zk_endSell';else if(R.ex)k='zk_endReturn';
   else if(N.act==='hold')k='zk_endHold';else if(!good)k='zk_endFun';
   if(N.act==='sellTg'){k='tu_sold';v.g=c.it.n}
@@ -383,6 +386,8 @@ function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!
     if(R.good){k=R.good.kind==='radio'?'zk_endRadio':R.good.kind==='music'?'zk_endSong':R.good.kind==='food'?'zk_endFood':'zk_endEvent';v={t:R.good.n,lv:GLV[R.good.lv]}}
     else if(good)k='zk_'+sid}
   if(R.gsold){k='zk_endGoodSell';v={t:R.gsold.n}}
+  /* 💰 お会計で 出た 言い方の ひとこと（お会計は 毎回 かわる） */
+  if((R.it||R.good)&&c.tips&&c.tips.length&&Math.random()<.4){k='zk_endCk';v={tip:pickL(c.tips)}}
   if(P.newPh.length&&Math.random()<.5){k='zk_endPhrase';v.p=PH[P.newPh[0]][0];v.pj=PH[P.newPh[0]][1]}
   if(P.typed>=2)k='zk_endTyped';
   if(unew){k='zk_endUnchiku';v={t:(R.it||R.good).n}}
@@ -645,6 +650,7 @@ Object.assign(MINA_LINES,{
  zk_endSong:[['love','「{t}」、 いい 曲だね。 勉強の BGMに どうぞ'],['happy','レコードを 英語で 買えたね。 先に 聞いてから 買うのは かしこい やり方だよ'],['smile','「{t}」は 🎵 レコードの たなの 「もってる 曲」から いつでも ながせるよ']],
  zk_endEvent:[['wow','{t}、 浜辺に もどったら はじまるよ！ 見に 行こう'],['happy','イベントも 英語で 買えたね。 {lv}の マークの 会話、 よく できました'],['smile','{t}を 見ながら、 ノラさんの 説明を 思い出してみて']],
  zk_endGoodSell:[['smile','{t}を 売ったんだね。 「I\'d like to sell it back.」は 本当の お店でも つかえるよ'],['think','売るのも 英語で できたね。 半分の 値段に なるのは どこの 中古屋さんでも 同じなんだ']],
+ zk_endCk:[['smile','{tip}'],['happy','{tip}'],['think','{tip}']],
  zk_gEs:[['smile','小の 会話、 「Can I listen?」「How much is it?」が 言えたら もう だいじょうぶ'],['happy','みじかい 英語でも お店では ちゃんと つたわるよ']],
  zk_gJh:[['smile','中の 会話は 「Could I 〜?」で ていねいに たのむのが ポイントだよ'],['think','「Do you have anything cheaper?」で 安い ほうを 教えて もらえたかな？']],
  zk_gHs:[['proud','高の 会話、 「I was wondering if 〜」は 大人の ていねいな 言い方だよ'],['think','「I\'m torn between 〜」で まよってる ことを つたえられたら、 もう 上級者だね']],
@@ -653,6 +659,7 @@ Object.assign(MINA_LINES,{
  x_zkShelfEvent:[['wow','いま 雑貨屋で {ico} {ev}が 買えるよ。 {lv}の 英語で たのんでみよう'],['smile','{ico} {ev}、 {price}まいで 浜辺に よべるよ。 ノラさんに くわしく 聞いてみて']],
  x_zkRotate:[['think','雑貨屋の レコードと イベント、 あと {min}分くらいで 入れかわるよ'],['smile','雑貨屋の たなは 日替わりで、 時間帯でも かわるんだ。 のぞくたびに ちがう 品物に 会えるよ']],
  x_zkLvMark:[['smile','雑貨屋の 品物には 小・中・高の マークが あるよ。 マークの レベルの 英語で 話せるんだ'],['think','いまの あなたには {lv}の マークの 品物が ちょうど いいかも。 ノラさんと 話してみて'],['happy','小の マークは みじかい 英語、 高の マークは 大人の ていねいな 英語だよ']],
+ x_zkCheckout:[['smile','ノラさんの お会計、 毎回 ちょっとずつ ちがうんだ。 「Cash or card?」「Will that be all?」… なんて 聞かれても あわてないでね'],['think','お会計で 「Do you need a bag?」が 出る ときと 出ない ときが あるよ。 ほんとの お店も そうなんだ'],['happy','「Here\'s your change.」は 「おつりです」。 雑貨屋の お会計で 聞けるかも']],
  x_zkJuke:[['smile','もってる 曲は 雑貨屋の 🎵 レコードの たなから いつでも ながせるよ'],['happy','曲を {n}曲 もってるね。 気分で かえてみよう']],
 });
 const whoN=to=>((typeof GIFT_PEOPLE!=='undefined'&&GIFT_PEOPLE[to])||(window.KAIWA&&KAIWA.chars[to])||{n:'浜辺の だれか'}).n;
@@ -680,6 +687,7 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_zkShelfEvent',2,()=>{if(!ZD.met)return null;const a=lineup().event.filter(it=>it.p<=ST.coins);if(!a.length)return null;const it=pickL(a);return {ico:it.ico,ev:it.n,lv:GLV[it.lv],price:it.p}},goTab('event')],
  ['x_zkRotate',1,()=>ZD.met?{min:nextMin()}:null,goTab('music')],
  ['x_zkLvMark',2,()=>ZD.met?{lv:GLV[{es:'es',jh:'jh',hs:'hs',adv:'hs'}[myLv()]||'es']}:null,goTab('music')],
+ ['x_zkCheckout',1,()=>ZD.met&&ZD.ck?{}:null,goShop],
  ['x_zkJuke',1,()=>ST.music.length?{n:ST.music.length}:null,goTab('music')]);
 /* the shop button left the home screen (2026-11): Mina tells once that everything moved into the hut */
 setTimeout(function moved(){if(ZD.moved)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(moved,15000);
