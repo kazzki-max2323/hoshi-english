@@ -1,7 +1,7 @@
 /* 📖 カードブック（カードショップ「しおさい」の コレクション）
    - カードごとに 入る ポケットが 決まっている（図鑑のように 番号つき。 まだの ところは 空き）
    - ページは 9ポケット。 🎁おたから（UR・SSR・SR・R・N）と 🔤単語（小・中・高・ハイ）と 🧩📜 で 分かれる
-   - 入れた カードは 1まい ブックに とっておく（売り場に 出せない）。 出すと また 売れる。 鉱山の 練習には そのまま つかえる
+   - 入れた カードは 1まい 倉庫から ブックへ うつる（倉庫の 一覧・しゅるいの 数に 入らない・売り場に 出せない）。 出すと 倉庫に もどって また 売れる。 鉱山の 練習には そのまま つかえる
    - 「ぜんぶ 入れる」: もっていて まだ ブックに ない カードを 1まいずつ（売り場に 出ている 分は 動かさない）
    保存は SHOP.rec().book（{id:1}）。 game/shop.js の inBook / free と いっしょに つかう */
 (()=>{
@@ -102,7 +102,7 @@ function cheer(done){const el=H.panel.querySelector('.cbpage');if(el){el.classLi
 function menu(id){const o=C.ov(`<div class="cgdv cbmenu">${C.face(id,{big:1,ja:1})}
     <button id="cbout">📤 ブックから 出す</button><button id="cbdet" class="sub">🔍 くわしく 見る</button><button id="cbcl" class="sub">とじる</button></div>`,'by');
   sf('flip');
-  o.querySelector('#cbout').onclick=()=>{delete B()[id];save();sf('back');C.closeOv();open();H.toast('📤 倉庫に もどしたよ<small>売り場にも 出せるよ</small>')};
+  o.querySelector('#cbout').onclick=()=>{delete B()[id];save();sf('back');C.closeOv();open();H.toast('📤 倉庫に もどしたよ<small>また 売り場に 出せるよ</small>')};
   o.querySelector('#cbdet').onclick=()=>{sf('step');C.closeOv();C.detail(id,()=>open())};
   o.querySelector('#cbcl').onclick=()=>{sf('back');C.closeOv()}}
 
@@ -121,7 +121,7 @@ function putAll(){const ids=addable();if(!ids.length)return;
     ${mio(L,'laugh','guts')}<button id="cbok">やったー！</button></div>`,'by');
   o.dataset.stay=1;bindMio(o);say(L[0]);
   o.querySelector('#cbok').onclick=()=>{sf('step');C.closeOv();open()};
-  mina(secs.length?'sh_bookDone':'sh_bookAll',{n:ids.length,t:secs[0]||''},.6)}
+  mina(secs.length?'sh_bookDone':Math.random()<.5?'sh_bookMove':'sh_bookAll',{n:ids.length,t:secs[0]||''},.6)}
 
 function mina(k,v,p){try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<p){const [ex,tx]=ML(k,v);setTimeout(()=>MINA.say('m',ex,tx,6000),1800)}}catch(e){}}
 
@@ -138,12 +138,14 @@ const CB_MIO={
   ["Oh, new cards! The pockets are waiting for them.","あ、 新しい カード！ ポケットが 待ってますよ。"]],
  page:[["Yay! This page is complete!","やったー！ この ページ、 コンプリート！"],["A full page! It looks so neat.","ページが うまった！ すっごく きれい。"],["Nine cards in a row… perfect!","9まい そろった… かんぺき！"]],
  secDone:[["No way… You completed the whole section! Amazing!","うそ… ぜんぶ そろっちゃった！ すごすぎます！"],["Complete! I'm going to show this to all the customers!","コンプリート！ お客さん みんなに 見せちゃおう！"]],
- all:[["All in! The book got heavier.","ぜんぶ 入りました！ ブックが ずっしり。"],["Wow, so many new cards! Let's look at them later.","わあ、 新しい カードが いっぱい！ あとで ゆっくり 見ましょう。"],["Done! Each pocket has its card now.","できた！ どの カードも 自分の ポケットに おさまりました。"]]};
+ all:[["All in! The book got heavier.","ぜんぶ 入りました！ ブックが ずっしり。"],
+  ["All in! The storeroom looks so tidy now. Only the extras are left.","ぜんぶ 入りました！ 倉庫が すっきり。 のこってるのは あまりの カードだけです。"],["Wow, so many new cards! Let's look at them later.","わあ、 新しい カードが いっぱい！ あとで ゆっくり 見ましょう。"],["Done! Each pocket has its card now.","できた！ どの カードも 自分の ポケットに おさまりました。"]]};
 
 Object.assign(MINA_LINES,{
  sh_bookNew:[['wow','カードショップに 📖カードブックが できたよ！ カードごとに 入る ポケットが 決まってて、 図鑑みたいに うめていけるの'],['happy','お店の カードブック、 見た？ 🎁おたからは レアごと、 単語は 小・中・高で ページが 分かれてるよ']],
  sh_bookPage:[['happy','ページが うまったね！ その ページの 単語、 ぜんぶ 言えるかな？'],['proud','9まい そろった！ ならべて 見ると、 覚えた 単語が 目で わかるね']],
  sh_bookDone:[['wow','「{t}」が コンプリート！ ほんとに すごいよ'],['proud','{t}、 ぜんぶ そろったね。 先生も うれしい！']],
+ sh_bookMove:[['smile','ブックに 入れた カードは 倉庫から ブックへ おひっこし。 でも 鉱山の 練習には ちゃんと 使えるよ'],['think','倉庫に のこっているのは、 ブックに 入れていない あまりの カード。 売り場に 出すなら そこから えらんでね']],
  sh_bookAll:[['happy','{n}まい ブックに 入ったね。 タップすると 例文も 見られるよ'],['smile','ブックが にぎやかに なったね。 知らない 単語が あったら 鉱山で 練習しよう']],
  x_shBook:[['smile','まだ ブックに 入れていない カードが {n}まい あるよ。 「ぜんぶ 入れる」で 一気に 入るよ'],['think','カードブック、 空いてる ポケットが 光ってるよ。 入れに 行こう？']],
  x_shBookGot:[['proud','カードブック、 もう {n}まい！ 1まい ずつが きみの 覚えた しるしだね'],['happy','ブックの {n}まい、 ときどき めくって 声に 出して 読んでみてね']]});
