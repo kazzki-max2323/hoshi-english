@@ -55,7 +55,7 @@ const NOCMP=new Set(`dead alive pregnant wooden golden plastic metal main only w
  japanese english american chinese french korean british german italian spanish digital electric electronic nuclear solar lunar medical legal
  physical chemical biological global national international local public private official social political economic cultural historical
  male female human animal vegetarian free asleep awake alone afraid aware unable able favorite ready okay ok open closed
- square round dear unknown`.trim().split(/\s+/));
+ square round dear unknown red blue yellow green black white pink purple brown gray grey orange gold silver`.trim().split(/\s+/));
 
 /* ---------------------------------------------------------------- 手書きデータ */
 let HAND=null;

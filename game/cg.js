@@ -224,9 +224,9 @@ function closeOv(){const o=$('cardOv');if(o)o.remove()}
 
 /* 📖 くわしく: その ことばの 説明・例文・形の かわり方・いっしょに 使う ことば・ワンポイント（データと 規則は game/winfo.js） */
 function more(I){const h=I.h,WI=window.WI,out=[];
-  if(I.k==='p')return `<details class="cgfold wif"><summary>📖 くわしく</summary><p class="wid">${esc(I.en)} は「${esc(I.ja)}」を あらわす 部品。 ほかの ことばに くっついて 意味を かえるよ</p>
+  if(I.k==='p')return `<details class="cgfold wif" open><summary>📖 くわしく</summary><p class="wid">${esc(I.en)} は「${esc(I.ja)}」を あらわす 部品。 ほかの ことばに くっついて 意味を かえるよ</p>
     <p>🧩 できる 単語: ${DERIV.filter(d=>d.p===I.part).slice(0,12).map(d=>`<b>${esc(d.d)}</b>`).join(', ')}</p></details>`;
-  if(I.k==='s')return `<details class="cgfold wif"><summary>📖 くわしく</summary><div class="wiex"><p class="en">${esc(I.en)} <button class="wisay" data-wisay="${esc(I.en)}" aria-label="英語を 聞く">🔊</button></p><p class="ja">${esc(I.ja)}</p></div>
+  if(I.k==='s')return `<details class="cgfold wif" open><summary>📖 くわしく</summary><div class="wiex"><p class="en">${esc(I.en)} <button class="wisay" data-wisay="${esc(I.en)}" aria-label="英語を 聞く">🔊</button></p><p class="ja">${esc(I.ja)}</p></div>
     <p class="witip">💡 声に 出して 3回 読むと、 文の リズムが 体に 入るよ</p></details>`;
   if(!WI)return '';
   const x=Object.assign({},WI.get(h,I.k)||{}),f=WI.forms(I),pn=WI.POSN[f.p]||'',ex=WI.exOf(h,I.k);
@@ -249,7 +249,7 @@ function more(I){const h=I.h,WI=window.WI,out=[];
   f.tips.slice(0,x.tip?1:2).slice(0,Math.max(0,3-tips.length)).forEach(t=>tips.push(t));
   if(tips.length)out.push(`<div class="witip">${tips.map(t=>`<p>💡 ${t}</p>`).join('')}</div>`);
   if(!out.length)return '';
-  return `<details class="cgfold wif"><summary>📖 くわしく</summary>${out.join('')}</details>`}
+  return `<details class="cgfold wif" open><summary>📖 くわしく</summary>${out.join('')}</details>`}
 /* the big card: tap 🔊, its combos, friends and opposites */
 function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0,x=stat(id),h=I.h;
   const cs=I.k==='w'?combosWith(h):[],known=cs.filter(c=>CG.combo[c.k]);
