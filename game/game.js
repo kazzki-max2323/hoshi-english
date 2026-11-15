@@ -291,7 +291,17 @@ FX.meteor=()=>{let night=false;try{night=SC.dbg().dark>.6}catch(e){}if(night&&!$
  [window.AudioContext,window.webkitAudioContext].forEach(C=>{const P=C&&C.prototype;if(!P||!P.resume||P.resume._bg)return;const r=P.resume;
    P.resume=function(){if(off()){try{this.state==='running'&&this.suspend()}catch(e){}return Promise.resolve()}return r.apply(this,arguments)};P.resume._bg=1});
  if(window.speechSynthesis&&speechSynthesis.speak){const sp=speechSynthesis.speak.bind(speechSynthesis);
-   speechSynthesis.speak=u=>{if(off()){try{u&&u.onend&&setTimeout(()=>u.onend(),0)}catch(e){}return}return sp(u)}}}
+   speechSynthesis.speak=u=>{if(off()){try{u&&u.onend&&setTimeout(()=>u.onend(),0)}catch(e){}return}
+     /* 英語の 声で 読む ときは 日本語の ところ（「あれは 新しい カードです」など）を 読まない */
+     try{if(u&&(!u.lang||/^en/i.test(u.lang))&&JPC.test(u.text)){const t=enOnly(u.text);if(!t){u.onend&&setTimeout(()=>u.onend(),0);return}u.text=t}}catch(e){}
+     return sp(u)}}}
+/* 日本語の 文字 */
+const JPC=/[\u3040-\u30ff\u3400-\u9fff\uff01-\uff9f\u3000-\u303f]/;
+/* 英文から 日本語の ところを 取る: 日本語の 入った かっこ・引用は まるごと、 のこった 日本語の 文字も けす */
+function enOnly(t){return String(t)
+  .replace(/[「『（(“"][^「」『』（）()“”"]*[\u3040-\u30ff\u3400-\u9fff][^「」『』（）()“”"]*[」』）)”"]/g,' ')
+  .replace(/[\u3040-\u30ff\u3400-\u9fff\uff01-\uff9f\u3000-\u303f]+/g,' ')
+  .replace(/[(（]\s*[)）]/g,' ').replace(/\s+([.,!?;:])/g,'$1').replace(/([.,!?;:])\1+/g,'$1').replace(/\s{2,}/g,' ').replace(/^[\s.,!?;:]+/,'').trim().replace(/^[^A-Za-z0-9]*$/,'')}
 function bgSound(){const hide=document.hidden;try{if(ac){if(hide)ac.suspend();else if(ST.sound)ac.resume()}}catch(e){}
   if(hide){try{speechSynthesis.cancel()}catch(e){}}}
 document.addEventListener('visibilitychange',bgSound);addEventListener('pagehide',()=>{try{ac&&ac.suspend()}catch(e){}try{speechSynthesis.cancel()}catch(e){}});
