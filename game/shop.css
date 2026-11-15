@@ -42,8 +42,13 @@
 .shslot em{display:block;font-style:normal;font-size:.6rem;color:#ffb0b0}
 .shpick{background:#1f2a5c;border-radius:14px;padding:12px;max-height:80vh;overflow:auto;width:min(92vw,520px);display:flex;flex-direction:column;gap:8px}
 /* counter */
-.shstage{border-radius:10px;overflow:hidden;box-shadow:0 0 0 3px #e8b84a,0 4px 14px #0008;background:#000}
+.shstage{position:relative;border-radius:10px;overflow:hidden;box-shadow:0 0 0 3px #e8b84a,0 4px 14px #0008;background:#000}
 .shstage canvas{display:block;width:100%;height:auto;image-rendering:pixelated}
+.shmut{position:absolute;text-shadow:none;max-width:62%;padding:4px 9px 5px;background:#fffdf6;color:#2a2340;border-radius:10px;box-shadow:0 1px 0 #0003;cursor:pointer;line-height:1.25;animation:shmutIn .25s ease-out;z-index:2}
+.shmut::after{content:"";position:absolute;bottom:-6px;left:var(--tx,50%);margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:#fffdf6}
+.shmut.mio{background:#fff7e0}.shmut.mio::after{border-top-color:#fff7e0}
+.shmut .en{display:block;font-size:.8rem;font-weight:700}.shmut .ja{display:block;font-size:.66rem;color:#5a5070}
+@keyframes shmutIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
 .shst{margin:0;font-size:.82rem;min-height:1.3em;text-align:center}
 .shact:empty{display:none}
 .shask{display:flex;gap:10px;align-items:center;background:#ffffff14;border-radius:12px;padding:8px}
