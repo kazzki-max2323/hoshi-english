@@ -80,7 +80,7 @@ function claim(){const ok=active()||(BD.r&&BD.inL&&Date.now()<BD.inL+GRACE);if(!
   const r=BD.r;BD.r=null;BD.until=0;BD.inL=0;let html='',after=()=>{};const M=window.MOTI;
   if(r.k==='coin'){html=`⏰ 授業タイム： 🪙 <b>${r.amt}まい</b>`;M?M.coins(r.amt):after=()=>setTimeout(()=>H.addCoins(r.amt),700)}
   else if(r.k==='music'){const s=newSongs();if(s.length){const [id,,ico]=pickL(s);ST.music.push(id);
-      html=`⏰ 授業タイム： ${ico} 新しい 曲 「<b>${esc(TRACKS[id].name)}</b>」<small>雑貨屋の 🎵 レコード から いつでも ながせるよ</small>`;after=()=>setTimeout(()=>H.playTrack(id),900)}
+      html=`⏰ 授業タイム： ${ico} 新しい 曲 「<b>${esc(TRACKS[id].name)}</b>」<small>カードショップの 🎵 BGMで ながせるよ</small>`;after=()=>{try{if(!H.shopSongId)H.shopSong(id)}catch(e){}}}
     else{html='⏰ 授業タイム： 🪙 <b>50まい</b>';M?M.coins(50):after=()=>setTimeout(()=>H.addCoins(50),700)}}
   else if(r.k==='event'){let e=evOf(r.id);if(!e||!H.onSale(e))e=pickL(bigEvents())||evOf('dolphins');M&&M.pendShow(e.id);
     html=`⏰ 授業タイム： 浜辺で ${e.ico} <b>${esc(e.n)}</b>`}

@@ -213,8 +213,8 @@ function goodsShelf(kind){const L=lineup(),list=L[kind]||[];
   if(kind==='food')h+=`<p class="note zkrot">🔄 食べ物は 毎日 入れかわるよ ・ 持ち帰り用。 🎒 もちものから 食べたり、 プレゼントしたり できる${window.FOOD?`<br>❤ ${FOOD.hp()}/${FOOD.MAX}`:''}</p>`;
   else if(kind!=='radio')h+=`<p class="note zkrot">🔄 あと やく${nextMin()}分で たなが 入れかわるよ</p>`;
   if(kind==='music'){const mine=ST.music.filter(id=>typeof TRACKS!=='undefined'&&TRACKS[id]);
-    if(mine.length)h+=`<details class="mfold zkjuke" ${jukeOpen?'open':''}><summary>🎵 もってる 曲 ${mine.length}</summary><div class="zkbag">${mine.map(id=>{const m=CATALOG.music.find(x=>x[0]===id)||[id,0,'🎵'],on=H.playing===id;
-      return `<div class="ritem zkbi ${on?'has':''}"><span class="ri">${m[2]}</span><span class="rn"><b>${esc(trackShort(id))}</b>${on?'<small>🎵 いま ながれているよ</small>':''}</span><span class="rbtn"><button class="play ${on?'on':''}" data-pl="${id}">${on?'■ とめる':'▶ ながす'}</button>${GD.music[id]?`<button class="sub" data-sm="${id}">売る</button>`:''}</span></div>`}).join('')}</div></details>`}
+    if(mine.length)h+=`<details class="mfold zkjuke" ${jukeOpen?'open':''}><summary>🎵 もってる 曲 ${mine.length}</summary><p class="note">曲は カードショップの 中で ながれるよ（ここでは 試聴だけ）</p><div class="zkbag">${mine.map(id=>{const m=CATALOG.music.find(x=>x[0]===id)||[id,0,'🎵'],on=H.playing===id;
+      return `<div class="ritem zkbi ${on?'has':''}"><span class="ri">${m[2]}</span><span class="rn"><b>${esc(trackShort(id))}</b>${on?'<small>🎵 試聴中</small>':''}</span><span class="rbtn"><button class="play ${on?'on':''}" data-pl="${id}">${on?'■ とめる':'▶ 試聴'}</button>${GD.music[id]?`<button class="sub" data-sm="${id}">売る</button>`:''}</span></div>`}).join('')}</div></details>`}
   return h}
 function shop(tab){hush();pvDone(false);if(typeof tab==='string'&&TABS.some(t=>t[0]===tab))tabNow=tab;const [en,ja]=greet(),TD=today();
   if(TD.rare&&tabNow==='zakka'&&!(ZD.rareSeen||{})[TD.rare.id]){ZD.rareSeen=Object.assign(ZD.rareSeen||{},{[TD.rare.id]:1});save()}
@@ -647,7 +647,7 @@ Object.assign(MINA_LINES,{
  zk_moved:[['wow','お知らせ！ ショップは 浜辺の 右はしの 雑貨屋に ひっこしたよ。 ラジオも 曲も イベントも、 ノラさんと 英語で 買えるんだ'],['smile','ショップの ボタンは なくなって、 ぜんぶ 雑貨屋で 買えるように なったよ。 品物の 小・中・高の マークを 見てね']],
  /* 📻🎵🎆 ラジオ・レコード・イベント（むかしの ショップ）を 雑貨屋で 買ったとき */
  zk_endRadio:[['wow','{t}、 浜辺に おいたよ！ さっそく 英語を つぶやきはじめるね'],['proud','ラジオも 英語で 買えたね。 {lv}の マークの 英語、 ばっちりだったよ'],['happy','{t}が ふえると 聞こえる 英語が ふえるよ。 毎日 ちょっとずつ ね']],
- zk_endSong:[['love','「{t}」、 いい 曲だね。 勉強の BGMに どうぞ'],['happy','レコードを 英語で 買えたね。 先に 聞いてから 買うのは かしこい やり方だよ'],['smile','「{t}」は 🎵 レコードの たなの 「もってる 曲」から いつでも ながせるよ']],
+ zk_endSong:[['love','「{t}」、 いい 曲だね。 カードショップの BGMに どうぞ'],['happy','レコードを 英語で 買えたね。 先に 聞いてから 買うのは かしこい やり方だよ'],['smile','「{t}」は カードショップの 中で ながれるよ。 お店の 🎵 BGMで えらんでね']],
  zk_endEvent:[['wow','{t}、 浜辺に もどったら はじまるよ！ 見に 行こう'],['happy','イベントも 英語で 買えたね。 {lv}の マークの 会話、 よく できました'],['smile','{t}を 見ながら、 ノラさんの 説明を 思い出してみて']],
  zk_endGoodSell:[['smile','{t}を 売ったんだね。 「I\'d like to sell it back.」は 本当の お店でも つかえるよ'],['think','売るのも 英語で できたね。 半分の 値段に なるのは どこの 中古屋さんでも 同じなんだ']],
  zk_endCk:[['smile','{tip}'],['happy','{tip}'],['think','{tip}']],
@@ -660,7 +660,7 @@ Object.assign(MINA_LINES,{
  x_zkRotate:[['think','雑貨屋の レコードと イベント、 あと {min}分くらいで 入れかわるよ'],['smile','雑貨屋の たなは 日替わりで、 時間帯でも かわるんだ。 のぞくたびに ちがう 品物に 会えるよ']],
  x_zkLvMark:[['smile','雑貨屋の 品物には 小・中・高の マークが あるよ。 マークの レベルの 英語で 話せるんだ'],['think','いまの あなたには {lv}の マークの 品物が ちょうど いいかも。 ノラさんと 話してみて'],['happy','小の マークは みじかい 英語、 高の マークは 大人の ていねいな 英語だよ']],
  x_zkCheckout:[['smile','ノラさんの お会計、 毎回 ちょっとずつ ちがうんだ。 「Cash or card?」「Will that be all?」… なんて 聞かれても あわてないでね'],['think','お会計で 「Do you need a bag?」が 出る ときと 出ない ときが あるよ。 ほんとの お店も そうなんだ'],['happy','「Here\'s your change.」は 「おつりです」。 雑貨屋の お会計で 聞けるかも']],
- x_zkJuke:[['smile','もってる 曲は 雑貨屋の 🎵 レコードの たなから いつでも ながせるよ'],['happy','曲を {n}曲 もってるね。 気分で かえてみよう']],
+ x_zkJuke:[['smile','もってる 曲は 雑貨屋の 🎵 レコードの たなで 試聴できるよ。 ながすのは カードショップの 中だけ'],['happy','曲を {n}曲 もってるね。 カードショップの BGM、 気分で かえてみよう']],
 });
 const whoN=to=>((typeof GIFT_PEOPLE!=='undefined'&&GIFT_PEOPLE[to])||(window.KAIWA&&KAIWA.chars[to])||{n:'浜辺の だれか'}).n;
 /* the rules Mina reads on the home screen and on her page */

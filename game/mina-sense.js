@@ -146,14 +146,14 @@ const R=[
 ['x_starBuy',2,F=>LEVELS.star&&!ST.radios.some(r=>r.lv==='star')&&F.coins>=LEVELS.star.price?{price:LEVELS.star.price}:null,()=>goShop('radio')],
 
 /* ===== 音楽（雑貨屋の レコード。日替わり・時間帯で 入れかわるので、いま たなに ある 曲だけ すすめる） ===== */
-['x_songOwn',2,F=>{const a=ST.music.filter(id=>typeof TRACKS!=='undefined'&&TRACKS[id]);if(!a.length)return null;const id=pickL(a);return {song:trackName(id),_id:id}},v=>['🎵 ながす',()=>{H.playTrack(v._id);H.home()}]],
+['x_songOwn',2,F=>{const a=ST.music.filter(id=>typeof TRACKS!=='undefined'&&TRACKS[id]);if(!a.length)return null;const id=pickL(a);return {song:trackName(id),_id:id}},v=>['🃏 お店で ながす',()=>{H.shopSong(v._id);window.CG?CG.open():H.home()}]],
 ['x_songPlaying',3,F=>{const id=H.playing;return id?{song:trackName(id)}:null},null],
 ['x_songNone',2,F=>{if(ST.music.length)return null;const it=shelf('music').filter(it=>it.p<=F.coins)[0];if(!it)return null;const c=music().find(m=>m[0]===it.id);return {song:trackName(it.id),price:it.p,d:c?c[3]:''}},()=>goShop('music')],
 ['x_songNext',2,F=>{const ids=shelf('music').map(it=>it.id),a=music().filter(([id,p])=>ids.includes(id)&&p<=F.coins);if(!a.length)return null;const c=pickL(a);return {song:trackName(c[0]),price:c[1],d:c[3]}},()=>goShop('music')],
 ['x_songMany',1,F=>ST.music.length>=5?{n:ST.music.length,tot:music().length}:null,()=>goShop('music')],
-['x_songTimeOwn',2,F=>{const id=pickL(TIME_SONG[F.part].filter(id=>ST.music.includes(id)&&typeof TRACKS!=='undefined'&&TRACKS[id]));return id?{song:trackName(id),_id:id}:null},v=>['🎵 ながす',()=>{H.playTrack(v._id);H.home()}]],
+['x_songTimeOwn',2,F=>{const id=pickL(TIME_SONG[F.part].filter(id=>ST.music.includes(id)&&typeof TRACKS!=='undefined'&&TRACKS[id]));return id?{song:trackName(id),_id:id}:null},v=>['🃏 お店で ながす',()=>{H.shopSong(v._id);window.CG?CG.open():H.home()}]],
 ['x_songTimeShop',1,F=>{const ids=shelf('music').map(it=>it.id),id=pickL(TIME_SONG[F.part].filter(id=>ids.includes(id)&&typeof TRACKS!=='undefined'&&TRACKS[id]));return id?{song:trackName(id)}:null},()=>goShop('music')],
-['x_songRare',1,F=>ST.music.includes('orch')?{song:trackName('orch')}:null,v=>['🎵 ながす',()=>{H.playTrack('orch');H.home()}]],
+['x_songRare',1,F=>ST.music.includes('orch')?{song:trackName('orch')}:null,v=>['🃏 お店で ながす',()=>{H.shopSong('orch');window.CG?CG.open():H.home()}]],
 
 ['x_eventShop',1,F=>{const ids=shelf('event').map(it=>it.id),a=CATALOG.event.filter(e=>ids.includes(e.id)&&e.p<=F.coins);if(!a.length)return null;const e=pickL(a);return {ico:e.ico,ev:e.n,price:e.p,d:e.d}},()=>goShop('event')],
 

@@ -41,8 +41,8 @@ function coins(n){if(inLesson)inLesson.coins+=n;else{H.addCoins(n);SFX.coin()}}
 function give([k,n]){
   if(k==='coin'){coins(n);return `🪙${n}まい`}
   if(k==='card'){pendCard(n);return `🃏 ${RAR_N[n]}以上の カード`}
-  if(k==='song'){const s=newSongs();if(!s.length){coins(60);return '🪙60まい'}const [id,,ico]=pickL(s);ST.music.push(id);save();
-    setTimeout(()=>H.playTrack(id),inLesson?1200:300);return `${ico} 新しい 曲「${esc(TRACKS[id].name)}」`}
+  if(k==='song'){const s=newSongs();if(!s.length){coins(60);return '🪙60まい'}const [id,,ico]=pickL(s);ST.music.push(id);if(!H.shopSongId)H.shopSong(id);save();
+    return `${ico} 新しい 曲「${esc(TRACKS[id].name)}」<small>カードショップで ながれるよ</small>`}
   if(k==='show'){const e=pickL(bigEvents())||evOf('dolphins');pendShow(e.id);return `${e.ico} 浜辺で ${esc(e.n)}`}
   if(k==='fw'){pendShow('grandfw',1);return '🎇 夜空に ミナ先生の 超特大スターマイン（夜に なったら）'}
   return ''}
