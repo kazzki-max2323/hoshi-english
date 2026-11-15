@@ -1,5 +1,5 @@
 /* ⛏️ 単語の 鉱山: 5まいの 単語カードを 左から じゅんばんに 練習して ほりすすむ（カードを えらんだり 持ちかえたり しない）
-   - 練習の 形は コースで きまっている: 和訳を 2周 → ○✕ → 英語で 2周 → 聞きとり → 正しい つづり → ならべかえ 2周 → ぬけた 文字 → 例文 あなうめ → 書く 2周 → 聞いて 書く → そのあとは まぜて ずっと
+   - 練習の 形は コースで きまっている: 和訳を 2周 → 英語で 2周 → 聞きとり → 正しい つづり → ならべかえ 2周 → ぬけた 文字 → 例文 あなうめ → 書く 2周 → 聞いて 書く → そのあとは まぜて ずっと
      1周 = 5まいを 左から 1回ずつ。 まちがえた カードは その 周の さいごに もう一回 出る（苦手ほど たくさん 練習）
    - 体力（❤）が あるのは 自分だけ。 1問で 1 へる。 0に なっても 見つけた 物は ぜんぶ 持ち帰れる
      体力は 鉱山の 外でも のこり、 時間で 少しずつ もどる。 食べると たくさん もどる（game/food.js の FOOD）
@@ -23,7 +23,6 @@ const P_EVENT=.04,P_WORD=.018,P_TREASURE=.008,P_GEM=.2;
 /* ================================================================ コース（練習の 形の じゅんばん） */
 const COURSE=[
  {t:'mean',n:'和訳',ico:'🇯🇵',laps:2},
- {t:'tf',n:'○✕ チェック',ico:'⭕',laps:1},
  {t:'rev',n:'英語で',ico:'🔤',laps:2},
  {t:'listen',n:'聞きとり',ico:'👂',laps:1,snd:1},
  {t:'spell',n:'正しい つづり',ico:'🔍',laps:1},
@@ -34,7 +33,7 @@ const COURSE=[
  {t:'dict',n:'聞いて 書く',ico:'🎧',laps:1,snd:1}];
 const MIX={t:'mix',n:'まぜて 復習',ico:'🌀',laps:99};
 const course=()=>COURSE.filter(s=>!s.snd||ST.sound);
-const QN={mean:'いみは？',rev:'英語で いうと？',tf:'あってる？',listen:'聞こえた ことばは？',spell:'正しい つづりは？',scramble:'つづりを ならべて',miss:'ぬけた 文字は？',fill:'あなうめ',type:'つづりを 書こう',dict:'聞こえた 単語を 書こう'};
+const QN={mean:'いみは？',rev:'英語で いうと？',listen:'聞こえた ことばは？',spell:'正しい つづりは？',scramble:'つづりを ならべて',miss:'ぬけた 文字は？',fill:'あなうめ',type:'つづりを 書こう',dict:'聞こえた 単語を 書こう'};
 
 /* ================================================================ 5まいを えらぶ（自動）: 苦手 → わすれかけ → まだ おぼえていない */
 const tools=()=>{try{return SHOP.allCards().filter(id=>{const I=C.info(id);return I&&I.k==='w'})}catch(e){return []}};
@@ -107,7 +106,6 @@ function next(){if(!D)return;
   C.ask(box,q,done,{tag})}
 /* 形ごとの 問題を つくる（できない 単語は にた 形に） */
 function make(t,I){const h=I.h,plain=/^[a-z]{3,12}$/.test(h);
-  if(t==='tf')return tfQ(I);
   if(t==='scramble'&&plain)return scramble(I);
   if(t==='miss'&&plain&&h.length>=4)return missQ(I);
   if((t==='type'||t==='dict')&&plain)return typeQ(I,t==='dict');
@@ -118,12 +116,6 @@ function make(t,I){const h=I.h,plain=/^[a-z]{3,12}$/.test(h);
   return C.quiz(I.id,{type:'rev'})}
 const sayW=I=>{try{H.say(I.lv,I.en)}catch(e){}};
 const head1=I=>I.en.split(',')[0];
-/* ○✕: 英語と 日本語の 組が あってる？ */
-function tfQ(I){const right=Math.random()<.5;let ja=I.ja;
-  if(!right){const o=H.shuffle(C.W.filter(c=>c.lv===I.lv&&c.ja!==I.ja))[0];if(o)ja=o.ja}
-  const ok=ja===I.ja,ch=['⭕ あってる','❌ ちがう'];
-  return {t:'tf',I,q:`<span class="qen">${esc(head1(I))}</span><span class="qja">＝ ${esc(ja)} ？</span>`,ch,ans:ok?0:1,hint:`${esc(head1(I))} の さいしょの 字は「${esc(I.ja[0])}」`,
-    tip:`<b>${esc(I.en)}</b> ＝ ${esc(I.ja)}`,say:[I.lv,I.en]}}
 /* ぬけた 文字: 1〜2文字 ぬけた つづりの ぬけた 所を えらぶ */
 function missQ(I){const w=I.h,n=w.length>=7?2:1;const at=1+Math.floor(Math.random()*(w.length-n-1));const ans=w.slice(at,at+n);
   const AB='abcdefghijklmnopqrstuvwxyz',V='aeiou';const wr=new Set();
