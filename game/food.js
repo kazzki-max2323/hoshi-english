@@ -138,7 +138,7 @@ function open(){gen++;P=null;FD.v=(FD.v||0)+1;save();const M=menu(),[en,ja]=gree
   const row=d=>{const p=d.p,short=ST.coins<p,ate=FD.eaten[d.id];
     return `<button class="fdrow ${short?'short':''} ${d===M.sp?'sp':''}" data-d="${d.id}"><span class="fdi">${d.ico}</span><span class="fdn"><b>${esc(d.n)}${ate?' <i class="fdate">✓</i>':''}</b><small>${d.fl} ${esc(d.c)}${d===M.sp?' ・ <em>★ おすすめ</em>':''}</small></span><span class="fdlv zlv zlv-${d.lv}">${LVJ[d.lv]}</span><span class="fdp">🪙${p}<small>❤+${d.hp}</small></span></button>`};
   H.show('food',`<section class="pnl fd">
-    <div class="qtop"><button class="x" id="fdx" aria-label="もどる">←</button><b>🍽️ しおかぜ食堂</b><span class="qn">❤${h}</span></div>
+    <div class="qtop"><button class="x" id="fdx" aria-label="もどる">←</button><b>🍽️ しおかぜ食堂</b><span class="qn">❤${h}</span>${window.GIFT?GIFT.btn('marco','fdgv'):''}</div>
     <div id="fdhi">${marcoLine(en,ja)}</div>
     <div class="fdboard"><p class="fdbh">${B[0]} ${B[1]}の お品書き</p>${M.list.map(row).join('')}
       <p class="fdrot">🔄 あと やく${menuMin()}分で ${BANDS[NEXT_B[M.b]][1]}の お品書きに。 あしたは べつの 料理だよ</p></div>
@@ -152,6 +152,7 @@ function open(){gen++;P=null;FD.v=(FD.v||0)+1;save();const M=menu(),[en,ja]=gree
   $('fdbook').onclick=()=>{sf('book');book(open)};
   if($('fdbag'))$('fdbag').onclick=()=>{sf('open');window.ZAKKA?ZAKKA.bag(open):eatPick(open)};
   $('fdja').onchange=e=>{FD.ja=e.target.checked?1:0;save()};
+  if(window.GIFT)GIFT.bindBtn('marco','fdgv',open);
   H.panel.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{const d=dish(b.dataset.d);if(!d)return;
     if(ST.coins<d.p){sf('wrong');H.toast(`🪙 コインが たりないよ <small>あと ${d.p-ST.coins}まい</small>`);return}
     sf('talk');order(d,M)})}
@@ -385,8 +386,9 @@ function book(back){const ate=DISH.filter(d=>FD.eaten[d.id]),cs=countries();
     <div class="qtop"><button class="x" id="fdx" aria-label="もどる">←</button><b>📜 うんちく図鑑</b><span class="qn">${ate.length}/${DISH.length}</span></div>
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     <p class="note">🌍 味わった 国 ${cs.length} ・ タップで うんちくを 読みかえせるよ</p>
-    ${byB}</section>`);
+    ${byB}${window.UNK?'<div class="row"><button id="fdunk" class="sub">📜 ほかの 場所の うんちく</button></div>':''}</section>`);
   $('fdx').onclick=()=>{sf('back');back()};
+  const uk=$('fdunk');if(uk)uk.onclick=()=>{sf('book');UNK.book(()=>book(back))};
   H.panel.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{sf('book');page(b.dataset.b,()=>book(back))})}
 function page(id,back){const d=dish(id),tr=FD.tri[id]||[0,0];if(!d)return back();
   H.show('food',`<section class="pnl fd">

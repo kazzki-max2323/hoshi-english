@@ -109,8 +109,8 @@ function leave(){SH().away=Date.now();save()}
 
 /* ================================================================ 📦 the storeroom */
 let stF='all';
-function store(){const F=[['all','ぜんぶ'],['es','小'],['jh','中'],['hs','高'],['adv','H'],['t','宝'],['weak','😣苦手']];
-  let ids=allCards().filter(id=>{const I=C.info(id);if(!I)return false;if(stF==='all')return true;if(stF==='t')return I.k==='t';if(stF==='weak')return I.k==='w'&&C.weak(id);
+function store(f){if(typeof f==='string')stF=f;const F=[['all','ぜんぶ'],['es','小'],['jh','中'],['hs','高'],['adv','H'],['t','宝'],['weak','😣苦手'],...(window.UNK?[['unk','📜']]:[])];
+  let ids=allCards().filter(id=>{const I=C.info(id);if(!I)return false;if(stF==='all')return true;if(stF==='t')return I.k==='t';if(stF==='weak')return I.k==='w'&&C.weak(id);if(stF==='unk')return UNK.cardHas(I);
 return I.k==='w'&&I.lv===stF});
   ids.sort((a,b)=>(C.info(a).lv||'').localeCompare(C.info(b).lv||'')||C.star(a)-C.star(b));
   const shown=ids.slice(0,240);

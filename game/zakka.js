@@ -218,14 +218,14 @@ function shop(tab){hush();pvDone(false);if(typeof tab==='string'&&TABS.some(t=>t
   const tile=it=>{const own=UNIQ.includes(it.k)?ZD.own[it.id]:0,out=it.k==='pc'&&pcDone(),held=ZD.hold===it.id;
     return `<button class="zkit ${own?'own':''} ${out?'out':''}" data-i="${it.id}"><span class="zi">${it.ico}</span><span class="zn">${esc(it.n.replace(/^絵本/,''))}</span><span class="zp">${own?'✓ もってる':out?'うりきれ':held?'🔖 とりおき':'🪙'+it.p}</span></button>`};
   H.show('zakka',`<section class="pnl zk">
-    <div class="qtop"><button class="x" id="zkx" aria-label="もどる">←</button><b>🏚️ ながれぎ雑貨店</b><span class="qn"></span></div>
+    <div class="qtop"><button class="x" id="zkx" aria-label="もどる">←</button><b>🏚️ ながれぎ雑貨店</b>${window.GIFT?GIFT.btn('nora','zkgv'):'<span class="qn"></span>'}</div>
     <div id="zkhi">${noraLine(en,ja)}</div>
     <div class="seg tabs zktabs">${TABS.map(([k,i,n])=>`<button data-zt="${k}" class="${tabNow===k?'on':''}"><span>${i}</span>${n}</button>`).join('')}</div>
     ${tabNow==='zakka'?`${TD.rare?`<div class="zkrare"><small>✨ きょうだけの めずらしい 品</small><div>${tile(TD.rare)}</div></div>`:''}<div class="zkshelf">${[...TD.day,...TD.fixed].map(tile).join('')}</div>
     <p class="note zkrot">🔄 あしたは べつの 品物が ならぶよ${ownBooks().length?'　<small>📖 買った 絵本は 🎒 もちもの に あるよ</small>':''}</p>
     <div class="zkcase"><small>🔒 ガラスケース</small><div>${IT.filter(i=>i.lux&&loveOk(i)).map(tile).join('')}</div></div>`:goodsShelf(tabNow)}
     <div class="row zkrow"><button id="zkrec" class="sub">💬 おすすめ</button><button id="zksell" class="sub">💰 売る</button><button id="zkret" class="sub" ${sellable().length?'':'disabled'}>↩️ 返品</button></div>
-    <div class="row zkrow"><button id="zkbag" class="sub">🎒 もちもの ${bagN()?`<small>${bagN()}</small>`:''}</button>${ZD.own.note?'<button id="zknote" class="sub">📒 フレーズ手帳</button>':''}</div>
+    <div class="row zkrow"><button id="zkbag" class="sub">🎒 もちもの ${bagN()?`<small>${bagN()}</small>`:''}</button>${ZD.own.note?'<button id="zknote" class="sub">📒 フレーズ手帳</button>':''}${window.UNK?'<button id="zkunk" class="sub">📜 うんちく</button>':''}</div>
     <details class="mfold"><summary>📊 きろく</summary><div class="zkrec"><span>🏁 見つけた エンド <b>${endsN()}/${endsAll()}</b></span><span>📒 言えた フレーズ <b>${phN()}/${PHK.length}</b></span><span>📮 絵はがき <b>${ZD.pc.length}/${PCS.length}</b></span><span>✨ 会えた めずらしい 品 <b>${Object.keys(ZD.rareSeen||{}).length}/${rareAll().length}</b></span>
       <label class="kjat"><input type="checkbox" id="zkja" ${ZD.ja?'checked':''}> 日本語訳を いつも 出す</label></div></details>
   </section>`);
@@ -248,7 +248,9 @@ function shop(tab){hush();pvDone(false);if(typeof tab==='string'&&TABS.some(t=>t
   $('zksell').onclick=()=>{SFX.talk();play('sell')};
   $('zkret').onclick=()=>{SFX.talk();play('ret')};
   $('zkbag').onclick=()=>{SFX.open();bag()};
+  if(window.GIFT)GIFT.bindBtn('nora','zkgv',()=>shop());
   const nb=$('zknote');if(nb)nb.onclick=()=>{SFX.book();notebook(shop)};
+  const ub=$('zkunk');if(ub)ub.onclick=()=>{SFX.book();hush();UNK.list('zakka',shop)};
   $('zkja').onchange=e=>{ZD.ja=e.target.checked?1:0;save()}}
 
 /* ================================================================ one talk */
@@ -342,7 +344,10 @@ function forget(id){delete ZD.own[id];delete ZD.rcpt[id];delete ZD.paid[id];dele
 
 function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!N.good,newEnd=!ZD.end[key];
   them(val(N.s,c),val(N.j,c),N.fx||(good?'🌟':'😂'),good?'k-good':'k-oops');
-  ZD.end[key]=1;const R=N.act?deal(N):{};pvDone(!!(R.good&&R.good.kind==='music'));if(sid==='hello')ZD.met=1;ZD.last=Date.now();save();
+  ZD.end[key]=1;const R=N.act?deal(N):{};
+  /* 📜 ノラさんの うんちく（買った 品物の 本当の 話。 game/unchiku.js） */
+  const uk=window.UNK?(R.it?R.it.id:R.good?({food:'f:',event:'ev:',music:'mu:'}[R.good.kind]||'x:')+R.good.id:null):null,ut=uk&&UNK.get('zakka',uk),unew=!!ut&&UNK.hear('zakka',uk);
+  if(ut)afterTalk(()=>them(pickL(["Oh, here's a little fun fact. ","Did you know? ","Here's a little story, dear. "])+ut[0],ut[1],'💡','',NORA),300,700);pvDone(!!(R.good&&R.good.kind==='music'));if(sid==='hello')ZD.met=1;ZD.last=Date.now();save();
   const E=Object.entries(P.s.nodes).filter(([,n])=>n.end),got=E.filter(([k])=>ZD.end[sid+':'+k]).length;
   /* what happened */
   let res='',more='';
@@ -380,12 +385,14 @@ function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!
   if(R.gsold){k='zk_endGoodSell';v={t:R.gsold.n}}
   if(P.newPh.length&&Math.random()<.5){k='zk_endPhrase';v.p=PH[P.newPh[0]][0];v.pj=PH[P.newPh[0]][1]}
   if(P.typed>=2)k='zk_endTyped';
+  if(unew){k='zk_endUnchiku';v={t:(R.it||R.good).n}}
   const phs=P.usedPh.map(id=>`<button data-ph="${id}" class="${P.newPh.includes(id)?'new':''}">${P.newPh.includes(id)?'<i>NEW</i>':''}${esc(PH[id][0])}<small>${esc(PH[id][1])}</small></button>`).join('');
   setTimeout(()=>{if(!live())return;$('zkq').textContent=good?'★':'🏁';
     $('zkans').innerHTML=`<div class="kres">
       <p class="kend ${good?'good':'fun'}">${good?'★':'😂'} エンド「${esc(N.t)}」${newEnd?' <small>NEW!</small>':''}</p>
       ${res?`<p class="zkres">${res}</p>`:''}
       ${more?`<div class="row zkmore">${more}</div>`:''}
+      ${ut?UNK.box('zakka',uk,{title:'ノラさんの うんちく',isNew:unew}):''}
       ${phs?`<details class="mfold zkphf"><summary>📒 言えた フレーズ ${P.usedPh.length}こ${P.newPh.length?` <i class="zknew">NEW ${P.newPh.length}</i>`:''}</summary><div class="kwords zkph"><div>${phs}</div>${ZD.own.note?'':'<p class="zknote">📒 フレーズ手帳を 買うと、 言った フレーズを いつでも 見かえせるよ</p>'}</div></details>`:''}
       <div class="kends">${E.map(([k2,n])=>ZD.end[sid+':'+k2]?`<span class="${n.good?'g':''} ${k2===P.at?'now':''}">${n.good?'★':'😂'} ${esc(n.t)}</span>`:`<span class="no">${n.good?'★':'？'} ？？？</span>`).join('')}</div>
       <p class="kendn">🏁 ${esc(P.s.t)}の エンド ${got}/${E.length}</p>
@@ -394,6 +401,7 @@ function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!
     </div>`;
     good?SFX.done():(SFX.tease?SFX.tease():SFX.pop());if(R.got)addCoins(R.got);
     $('zkans').querySelectorAll('[data-ph]').forEach(b=>b.onclick=()=>talk(PH[b.dataset.ph][0],NORA));
+    if(ut)UNK.bind($('zkans'));
     $('zkans').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const g=b.dataset.go;hush();P=null;
       if(g==='read'){SFX.book();reader(R.it.id,shop)}else if(g==='pc'){SFX.book();postcard(+b.dataset.n,shop)}else if(g==='fort'){fortune(shop)}else if(g==='give'){window.GIFT?GIFT.who('z'+(ZD.gift.length-1),shop):give(ZD.gift.length-1,shop)}else if(g==='note'){SFX.book();notebook(shop)}else if(g==='crystal'){crystal(shop)}else if(g==='moon'){SFX.talk();play('moon')}else if(g==='ev'||g==='beach'){SFX.back();H.home()}else if(g==='eat'){FOOD.eat(R.good.id,shop)}else if(g==='fgive'){SFX.open();GIFT.who('f:'+R.good.id,shop)}});
     const sid0=c.it&&c.it.kind?[gScene(c.it),{it:c.it}]:sid==='buy'&&c.it?['buy',{it:c.it}]:[sid==='hello'?'rec':sid==='moon'?'moon':sid];
@@ -683,5 +691,5 @@ setTimeout(function daily(){if(ZD.daily)return;const m=window.MINA;if(!m||!m.can
 setTimeout(function first(){if(ZD.met||ZD.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
   ZD.told=1;save();const [ex,tx]=mline('zk_first');m.say('m',ex,tx,9000,null,['🏚️ のぞいてみる',open])},45000);
 
-window.ZAKKA={lineup,today,good,GLV,nextMin,open,shop,play,bag,reader,notebook,rec:()=>ZD,items:IT,scenes:SC,endsN,endsAll,_hut:hut};
+window.ZAKKA={talk:en=>talk(en,NORA),lineup,today,good,GLV,nextMin,open,shop,play,bag,reader,notebook,rec:()=>ZD,items:IT,scenes:SC,endsN,endsAll,_hut:hut};
 })();

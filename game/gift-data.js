@@ -194,7 +194,18 @@ const GIFT_PEOPLE={
   ask:["Hoo. Where did you get it? Every object has a story.","ホー。 どこで 手に 入れた？ どんな ものにも 物語が ある。"],why:["Tell me, why did you choose this?","おしえて おくれ、 なぜ これを えらんだ？"],
   hint:["I like books and words, of course. And rare things from nature.","もちろん 本と ことばが 好きだよ。 それと 自然の めずらしい もの。",'book'],
   bye:[["Hoo. You have a kind heart. That is the best knowledge.","ホー。 きみは やさしい 心を もっている。 それが いちばんの 知恵だ。"],["Thank you. A gift is a kind of letter, you know.","ありがとう。 プレゼントは 一種の 手紙 なんだよ。"]],
-  fun:["Hoo? Hoo hoo! A riddle! I like riddles.","ホー？ ホーホー！ なぞなぞだね！ なぞなぞは 好きだ。"]}
+  fun:["Hoo? Hoo hoo! A riddle! I like riddles.","ホー？ ホーホー！ なぞなぞだね！ なぞなぞは 好きだ。"]},
+ /* しおかぜ食堂の マルコさん（元・船の コック）。 食堂で 会ったら あげられる */
+ marco:{n:'マルコさん',ico:'👨‍🍳',v:{p:.7,r:.9},love:['z:g_tea','z:g_syrup','z:r_ship','t:map','t:fish'],like:['food','fish','adventure','handmade','nature'],no:['cute','toy'],
+  hi:["Hm? You're not here to eat? What's that in your hand?","ん？ 食べに 来たんじゃ ないのかい？ その 手の ものは なんだ？"],
+  r:{3:[["A {w}! Ha ha! You know the way to a cook's heart!","{n}！ はっは！ コックの 心を よく わかってるな！"],["For me? Well, well... This old sailor is touched. Thank you.","おれに？ いやあ… この 年よりの 船乗り、 じーんと きたよ。 ありがとう。"]],
+   2:[["A {w}! Thank you, friend. I'll put it in my kitchen.","{n}か！ ありがとうよ。 台所に おいておくよ。"],["Now that's a nice present. Thank you!","こいつは いい プレゼントだ。 ありがとう！"]],
+   1:[["Thank you. A {w}, eh? Interesting.","ありがとう。 {n}かい？ おもしろいな。"],["Oh, thank you. I'll find a good spot for it.","おお、 ありがとう。 いい 場所を さがして おくよ。"]],
+   0:[["A {w}? Ha ha... It's a bit cute for a big old cook like me.","{n}？ はは… でっかい おじさんコックには ちと かわいすぎるな。"],["Hmm... Thank you. Can I cook it? No? Ha ha.","うーむ… ありがとう。 料理 できるかい？ できない？ はっは。"]]},
+  ask:["Where did you find this? I've sailed all over the world and never seen one like it.","どこで 見つけた？ 世界中を 船で まわったが、 こんなのは 見たこと ないぞ。"],why:["Thank you. Why did you pick this for me?","ありがとう。 なんで おれに これを えらんだんだい？"],
+  hint:["Me? I like good food, of course. And anything from the sea. Fish, maps, old ships...","おれかい？ もちろん うまい 食べもの。 それと 海の もの なら なんでも。 魚、 地図、 古い 船…",'food'],
+  bye:[["Thank you, friend. Next time, dessert is on me!","ありがとうよ。 こんど デザートは おれの おごりだ！"],["Thanks. It's the thought that counts, as we say at sea.","ありがとう。 気持ちが いちばん、 って 海でも 言うのさ。"]],
+  fun:["Ha ha ha! You'd make a great sailor. Sailors love bad jokes!","はっはっは！ いい 船乗りに なれるぞ。 船乗りは へたな じょうだんが 大好きなんだ！"]}
 };
 
 /* わたす ことば（小・中・高）と へんな ことば */

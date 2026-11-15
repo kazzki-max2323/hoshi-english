@@ -313,12 +313,13 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   const first=opts.length&&Math.random()<.5?opts[0]:(sense()||opts[0]||null),T0=talkBox(first);
   const accToday=D.a?Math.round(D.o/D.a*100):null;
   H.show('mina',`<section class="pnl minap">
-    <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b><span></span></div>
+    <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b>${window.GIFT?GIFT.btn('mina','mgift'):'<span></span>'}</div>
     <div class="mtalk" id="mtalk">${T0.html}</div>
     ${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}
     ${window.LESSON?`${LESSON.card('mina')}
     <div class="mtiles"><button id="mall" class="mvc mt-all"><span>📖 ぜんぶの 授業</span><b>${LESSON.count().join('/')}</b></button>${typeof GRAMMAR!=='undefined'?`<button id="mgl" class="mvc mt-gram"><span>📚 文法ノート</span><b>${(ST.gram.cleared||[]).length}/${['es','jh','hs'].reduce((a,k)=>a+(GRAMMAR[k]?GRAMMAR[k].notes.length:0),0)}</b></button>`:''}${menuTiles()}</div>`:''}
     <button id="msensei" class="msensei">🗣️ ミナ先生と 英語で 話す</button>
+    ${window.UNK?UNK.minaBox():''}
     ${window.LOVE?LOVE.btn():''}
     <details class="mfold mrec"><summary>📊 きろく・ごほうび<small>${D.a?`きょう ${D.a}問`:''}</small></summary><div class="mfbody">
     <div class="mstats"><div><b>${D.a}</b><small>きょう 答えた</small></div><div><b>${accToday==null?'-':accToday+'%'}</b><small>正解率</small></div><div><b>${D.l}</b><small>おぼえた</small></div><div><b>${MD.best}</b><small>れんぞく</small></div></div>
@@ -343,6 +344,8 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   const mt=$('mtok');if(mt)mt.onclick=()=>{SFX.step();SENSEI.tokkun(null,0,'mina')};
   const md=$('mdeep');if(md)md.onclick=()=>{SFX.step();DEEP.pick()};
   if(window.LOVE)LOVE.bind(panelOpen);
+  if(window.GIFT)GIFT.bindBtn('mina','mgift',panelOpen);
+  if(window.UNK)UNK.minaBind(panelOpen);
   const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.talk();window.SENSEI?SENSEI.open():null};
   const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.book();H.gramNote(wg.lv,wg.i)}}
 /* the face lives in the home row; tap = talk */

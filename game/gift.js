@@ -39,6 +39,7 @@ function useUp(it){if(it.src==='c'){try{CGM.giftUse(it)}catch(e){}return}if(it.s
 function people(){const out=['mina'];const T=TR(),Z=ZR();
   if(T&&T.met)out.push('riku');if(Z&&Z.met)out.push('nora');
   try{if(window.MIOC&&SHOP.rec().met)out.push('mio')}catch(e){}
+  try{if(window.FOOD&&FOOD.rec().v)out.push('marco')}catch(e){}
   try{const K=KAIWA.rec();Object.keys(PP).forEach(k=>{if(KAIWA.chars[k]&&K.heart[k]>0)out.push(k)})}catch(e){}
   return out}
 const pName=to=>PP[to].n;
@@ -72,7 +73,7 @@ function pick(o){o=o||{};hush();const back=o.back||H.home,to=o.to,L=items();
   if(!L.length){H.toast('🎒 あげられる 品が まだ ないよ <small>雑貨屋の プレゼントや リクからの お礼を あげられるよ</small>',3800);return back()}
   H.show('gift',`<section class="pnl zk gf">
     <div class="qtop"><button class="x" id="gfx" aria-label="もどる">←</button><b>🎁 ${to?esc(pName(to))+'に ':''}なにを あげる？</b><span class="qn"></span></div>
-    ${minaBox(to?'gf_pickTo':'gf_pick',to?{c:pName(to)}:{})}
+    ${minaBox(to==='marco'&&Math.random()<.6?'gf_pickMarco':to?'gf_pickTo':'gf_pick',to?{c:pName(to)}:{})}
     <div class="gfitems">${L.map(it=>{const k=to&&seen(to,it.key)!=null?tierIco(seen(to,it.key)):'';
       return `<button data-r="${it.ref}"><span class="ri">${it.ico}</span><b>${esc(it.n)}${it.wrap?' 🎀':''}</b>${it.cnt>1?`<small>×${it.cnt}</small>`:''}${k?`<i class="gfk">${k}</i>`:''}</button>`}).join('')}</div>
     ${GF.n||Object.keys(GF.hint).length?'<div class="row"><button id="gfnote" class="sub">📔 好きな物ノート</button></div>':''}
@@ -260,13 +261,23 @@ Object.assign(MINA_LINES,{
  x_gfHave:[['smile','{n}、 だれかに あげてみない？ 「This is for you.」で わたせるよ'],['happy','もちものに {n}が あるよ。 プレゼントすると 英語の 会話が はじまるんだ']],
  x_gfHint:[['think','{c}は {like}が 好き なんだって。 なにか あげてみたら？'],['smile','好きな物ノートに よると、 {c}は {like}が 好きみたい']],
  x_gfRiku:[['smile','リクくんの お礼、 売る だけじゃ なくて だれかに あげても いいんだよ'],['happy','リクくんに もらった {n}、 よろこぶ 人が いるかも。 だれに あげる？']],
+ x_gfBtn:[['smile','わたしや リクくん、 ノラさん、 マルコさんの 画面の 右上に 🎁あげる が あるよ。 会いに 行った ついでに わたせるんだ'],['happy','もちものを 開かなくても、 相手の 画面の 🎁から すぐ プレゼント できるよ']],
+ x_gfMarco:[['think','食堂の マルコさん、 むかしは 船の コック さん だったんだって。 海の ものや 食べものが 好きそう…'],['smile','マルコさんに なにか あげてみたら？ 食堂の 右上の 🎁から わたせるよ。 「This is for you.」 だよ']],
+ gf_pickMarco:[['smile','マルコさんは 料理の プロ。 食べものを あげるなら 「I hope you like it.」って そえて みて'],['think','元・船の コックさん だから、 海や 旅に かんけいの ある ものが いいかも？']],
  x_gfMina:[['love','ねえ… わたしにも なにか くれるの？ …なんてね。 えへへ'],['smile','プレゼントを わたす 英語、 3つ 言える？ 「This is for you.」「I got this for you.」「I saw this and thought of you.」']]
 });
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_gfHave',4,()=>{const L=items();if(!L.length)return null;const it=pickL(L);return {n:it.n,_r:it.ref}},v=>['🎁 あげる',()=>who(v._r,H.home)]],
  ['x_gfHint',2,()=>{const P=people().filter(to=>GF.hint[to]&&to!=='mina');if(!P.length||!has())return null;const to=pickL(P);return {c:pName(to),like:TAGN[GF.hint[to]],_to:to}},v=>['🎁 あげる',()=>pick({to:v._to})]],
  ['x_gfRiku',2,()=>{const L=items().filter(x=>x.src==='t');if(!L.length||GF.n>2)return null;return {n:pickL(L).n}},()=>['🎁 あげる',()=>pick()]],
- ['x_gfMina',1,()=>has()&&!GF.gave.mina?{}:null,()=>['🎁 あげる',()=>pick({to:'mina'})]]);
+ ['x_gfMina',1,()=>has()&&!GF.gave.mina?{}:null,()=>['🎁 あげる',()=>pick({to:'mina'})]],
+ ['x_gfBtn',2,()=>has()&&GF.n<6?{}:null,()=>['🎁 あげる',()=>pick()]],
+ ['x_gfMarco',2,()=>has()&&people().includes('marco')&&!GF.gave.marco?{}:null,()=>['🎁 あげる',()=>pick({to:'marco'})]]);
 
-window.GIFT={pick,who,play,note,items,has,people,tier,rec:()=>GF};
+/* ---------- 🎁 キャラの 画面に つける 小さな ボタン（ミナ先生・リク・ノラさん・マルコさん） ---------- */
+const btn=(to,id)=>PP[to]?`<button class="gfqt" id="${id}" aria-label="${esc(pName(to))}に プレゼント">🎁<small>あげる</small></button>`:'';
+function bindBtn(to,id,back){const b=$(id);if(!b)return;b.onclick=e=>{e.stopPropagation();
+  if(!has()){sf('tap');H.toast(`🎒 ${esc(pName(to))}に あげられる 品が まだ ないよ <small>雑貨屋の プレゼントや 食べ物、 リクからの お礼を あげられるよ</small>`,3800);return}
+  sf('open');pick({to,back})}}
+window.GIFT={pick,who,play,note,items,has,people,tier,btn,bindBtn,rec:()=>GF};
 })();
