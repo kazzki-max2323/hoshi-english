@@ -94,3 +94,7 @@
 .shtobk{width:100%;padding:8px!important;font-size:.8rem!important;font-weight:800;background:linear-gradient(#2c4a8a,#1a2c5c)!important;border-color:#e8b84a!important}
 @media (prefers-reduced-motion:reduce){.cbp.hl{animation:none}}
 .cgbk{font-weight:800;background:linear-gradient(#2c4a8a,#1a2c5c)!important;border-color:#e8b84a!important;color:#fff}
+/* もっている（入れられる・売り場）カードは 色つきで */
+.cbp.can>b,.cbp.fl>b{right:3px;bottom:3px;z-index:2;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#ffcf4a;color:#2a2340;font-size:.9rem;box-shadow:0 1px 4px #0008;text-shadow:none}
+.cbp.fl>b{background:#fff;font-size:.7rem}
+.cbp.fl .cgc{filter:saturate(.6) brightness(.85)}
