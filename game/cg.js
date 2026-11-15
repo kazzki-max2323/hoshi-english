@@ -222,6 +222,31 @@ function ov(html,cls=''){closeOv();const o=document.createElement('div');o.id='c
   o.addEventListener('click',e=>{if(e.target===o&&!o.dataset.stay){sf('back');closeOv()}});return o}
 function closeOv(){const o=$('cardOv');if(o)o.remove()}
 
+/* 📖 くわしく: その ことばの 説明・例文・形の かわり方・いっしょに 使う ことば・ワンポイント（データと 規則は game/winfo.js） */
+function more(I){const h=I.h,WI=window.WI,out=[];
+  if(I.k==='p')return `<details class="cgfold wif"><summary>📖 くわしく</summary><p class="wid">${esc(I.en)} は「${esc(I.ja)}」を あらわす 部品。 ほかの ことばに くっついて 意味を かえるよ</p>
+    <p>🧩 できる 単語: ${DERIV.filter(d=>d.p===I.part).slice(0,12).map(d=>`<b>${esc(d.d)}</b>`).join(', ')}</p></details>`;
+  if(I.k==='s')return `<details class="cgfold wif"><summary>📖 くわしく</summary><div class="wiex"><p class="en">${esc(I.en)} <button class="ksay" data-wisay="${esc(I.en)}" aria-label="英語を 聞く">🔊</button></p><p class="ja">${esc(I.ja)}</p></div>
+    <p class="witip">💡 声に 出して 3回 読むと、 文の リズムが 体に 入るよ</p></details>`;
+  if(!WI)return '';
+  const x=WI.get(h)||{},f=WI.forms(I),pn=WI.POSN[f.p]||'',ex=WI.exOf(h);
+  if(x.d||pn)out.push(`<p class="wid">${pn?`<i class="wipos">${pn}</i>`:''}${x.d?esc(x.d):''}</p>`);
+  if(ex)out.push(`<div class="wiex"><p class="en">${esc(ex[0])} <button class="ksay" data-wisay="${esc(ex[0])}" aria-label="例文を 聞く">🔊</button></p><p class="ja">${esc(ex[1])}</p></div>`);
+  if(f.rows.length)out.push(`<div class="wifm">${f.rows.map(r=>`<span><b>${esc(r[0])}</b><small>${esc(r[1])}</small></span>`).join('')}</div>`);
+  if(f.unc)out.push(`<p class="wisub">🫗 数えられない 名詞: a を つけず、 s も つけない（${/^(water|milk|juice|tea|coffee)$/.test(h)?'a glass of '+h:/^(bread|cake|cheese|meat|paper)$/.test(h)?'a piece of '+h:/^(rice|sugar|salt|flour)$/.test(h)?'a bowl of / a lot of '+h:'much '+h+' / a lot of '+h}）</p>`);
+  const cs=I.k==='w'||I.k==='t'?combosWith(h):[];
+  if(cs.length)out.push(`<p>🔗 いっしょに: ${cs.slice(0,3).map(c=>`<b>${esc(c.p)}</b>（${esc(c.j)}）`).join('、 ')}</p>`);
+  const ant=ANTO[h]?[...ANTO[h]].slice(0,3):[],syn=SYN[h]?[...SYN[h]].slice(0,4):[];
+  if(ant.length||syn.length)out.push(`<p>${ant.length?`⚡ 反対: <b>${esc(ant.join(', '))}</b>`:''}${ant.length&&syn.length?'　':''}${syn.length?`🛡️ にた ことば: ${esc(syn.join(', '))}`:''}</p>`);
+  const dv=DERIV.find(d=>d.d===h),fam=DERIV.filter(d=>d.b===h).slice(0,4);
+  if(dv)out.push(`<p>🧩 なりたち: <b>${esc(dv.b)}</b> ＋ ${esc(CG_PARTS[dv.p][0])}（${esc(CG_PARTS[dv.p][1])}）</p>`);
+  else if(fam.length)out.push(`<p>🧩 なかまの ことば: ${fam.map(d=>`<b>${esc(d.d)}</b>`).join(', ')}</p>`);
+  const tips=[];if(x.tip)tips.push(esc(x.tip));
+  const wr=WRONG.find(w=>w.a===h||w.b===h);if(wr&&tips.length<2)tips.push(`×「${esc(wr.a)} ${esc(wr.b)}」→ ⭕「${esc(wr.ok)}」 ${esc(wr.why)}`);
+  f.tips.slice(0,Math.max(0,3-tips.length)).forEach(t=>tips.push(t));
+  if(tips.length)out.push(`<div class="witip">${tips.map(t=>`<p>💡 ${t}</p>`).join('')}</div>`);
+  if(!out.length)return '';
+  return `<details class="cgfold wif"><summary>📖 くわしく</summary>${out.join('')}</details>`}
 /* the big card: tap 🔊, its combos, friends and opposites */
 function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0,x=stat(id),h=I.h;
   const cs=I.k==='w'?combosWith(h):[],known=cs.filter(c=>CG.combo[c.k]);
@@ -231,20 +256,12 @@ function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0
       <p class="cgdj">${esc(I.ja)}</p>
       ${window.UNK?UNK.cardBox(I,own):''}
       ${I.k==='w'||I.k==='t'?`<p class="cgds">${own?`もっている かず ×${n}`:'まだ もっていない'}</p>`:''}
-      <details class="cgfold"><summary>くわしく</summary>
-        ${I.k==='w'?`<p>📕 ${esc(LV[I.lv].n)}「${esc(I.bt)}」　${ATTR[I.a][1]} ${ATTR[I.a][2]}</p>`:''}
-        <p>コスト ${I.cost}${cstat(id)?`　⚔${cstat(id).a} 🛡${cstat(id).d} ❤${cstat(id).h}`:`　パワー ${power(id)}`}${x[2]+x[3]?`　⭕${x[2]} ❌${x[3]}`:''}</p>
-        ${weak(id)?'<p>😣 苦手カード: 鉱山で 何度も 使って 取りもどそう</p>':''}${forgot(id)?'<p>💤 わすれかけ: そろそろ ふくしゅう</p>':''}
-        ${cs.length?`<p>🔗 コンボ ${known.length}/${cs.length}: ${cs.map(c=>CG.combo[c.k]?`<b>${esc(c.p)}</b>`:'？？？').join('、 ')}</p>`:''}
-        ${ANTO[h]?`<p>⚡ 反対語: ${esc([...ANTO[h]].join(', '))}</p>`:''}
-        ${SYN[h]?`<p>🛡️ なかま: ${esc([...SYN[h]].join(', '))}</p>`:''}
-        ${formsOf(I)?`<p>🔄 変身: ${esc(I.en)}</p>`:''}
-        ${I.k==='p'?`<p>🧩 できる 単語: ${DERIV.filter(d=>d.p===I.part).slice(0,12).map(d=>esc(d.d)).join(', ')}…</p>`:''}
-        ${I.k==='s'?`<p>📜 文カード（あつめる カード）</p>`:''}
-      </details>
+      ${more(I)}
             <button class="sub" id="cgclose">とじる</button></div></div>`,'dv');
   const say=()=>{try{H.say(I.k==='t'?'cards':I.lv,I.k==='s'?I.en:I.en)}catch(e){}};say();
   if(window.UNK)UNK.bind(o);
+  o.querySelectorAll('[data-wisay]').forEach(b=>b.onclick=e=>{e.stopPropagation();sf('pickup');window.WI?WI.speak(b.dataset.wisay):speak(b.dataset.wisay)});
+  const fd=o.querySelector('.wif');if(fd)fd.addEventListener('toggle',()=>{if(fd.open){CG.wiSeen=(CG.wiSeen||0)+1;save()}});
   $('cgsay').onclick=say;$('cgclose').onclick=()=>{sf('back');closeOv();back&&back()};
 }
 
