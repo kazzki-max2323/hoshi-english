@@ -218,7 +218,7 @@ function shop(tab){hush();pvDone(false);if(typeof tab==='string'&&TABS.some(t=>t
   const tile=it=>{const own=UNIQ.includes(it.k)?ZD.own[it.id]:0,out=it.k==='pc'&&pcDone(),held=ZD.hold===it.id;
     return `<button class="zkit ${own?'own':''} ${out?'out':''}" data-i="${it.id}"><span class="zi">${it.ico}</span><span class="zn">${esc(it.n.replace(/^絵本/,''))}</span><span class="zp">${own?'✓ もってる':out?'うりきれ':held?'🔖 とりおき':'🪙'+it.p}</span></button>`};
   H.show('zakka',`<section class="pnl zk">
-    <div class="qtop"><button class="x" id="zkx" aria-label="もどる">←</button><b>🏚️ ながれぎ雑貨店</b><span class="qn"></span></div>
+    <div class="qtop"><button class="x" id="zkx" aria-label="もどる">←</button><b>🏚️ ながれぎ雑貨店</b>${window.GIFT?GIFT.btn('nora','zkgv'):'<span class="qn"></span>'}</div>
     <div id="zkhi">${noraLine(en,ja)}</div>
     <div class="seg tabs zktabs">${TABS.map(([k,i,n])=>`<button data-zt="${k}" class="${tabNow===k?'on':''}"><span>${i}</span>${n}</button>`).join('')}</div>
     ${tabNow==='zakka'?`${TD.rare?`<div class="zkrare"><small>✨ きょうだけの めずらしい 品</small><div>${tile(TD.rare)}</div></div>`:''}<div class="zkshelf">${[...TD.day,...TD.fixed].map(tile).join('')}</div>
@@ -248,6 +248,7 @@ function shop(tab){hush();pvDone(false);if(typeof tab==='string'&&TABS.some(t=>t
   $('zksell').onclick=()=>{SFX.talk();play('sell')};
   $('zkret').onclick=()=>{SFX.talk();play('ret')};
   $('zkbag').onclick=()=>{SFX.open();bag()};
+  if(window.GIFT)GIFT.bindBtn('nora','zkgv',()=>shop());
   const nb=$('zknote');if(nb)nb.onclick=()=>{SFX.book();notebook(shop)};
   $('zkja').onchange=e=>{ZD.ja=e.target.checked?1:0;save()}}
 

@@ -313,7 +313,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   const first=opts.length&&Math.random()<.5?opts[0]:(sense()||opts[0]||null),T0=talkBox(first);
   const accToday=D.a?Math.round(D.o/D.a*100):null;
   H.show('mina',`<section class="pnl minap">
-    <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b><span></span></div>
+    <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b>${window.GIFT?GIFT.btn('mina','mgift'):'<span></span>'}</div>
     <div class="mtalk" id="mtalk">${T0.html}</div>
     ${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}
     ${window.LESSON?`${LESSON.card('mina')}
@@ -343,6 +343,7 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
   const mt=$('mtok');if(mt)mt.onclick=()=>{SFX.step();SENSEI.tokkun(null,0,'mina')};
   const md=$('mdeep');if(md)md.onclick=()=>{SFX.step();DEEP.pick()};
   if(window.LOVE)LOVE.bind(panelOpen);
+  if(window.GIFT)GIFT.bindBtn('mina','mgift',panelOpen);
   const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.talk();window.SENSEI?SENSEI.open():null};
   const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.book();H.gramNote(wg.lv,wg.i)}}
 /* the face lives in the home row; tap = talk */

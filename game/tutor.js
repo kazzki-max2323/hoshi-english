@@ -143,7 +143,7 @@ function bindSay(root){root.querySelectorAll('[data-say]').forEach(b=>b.onclick=
 function open(){if(!TD.met){TD.met=1;save();return top(K.hello[0])}top()}
 function top(first){hush();const left=paidLeft(),line=first||pickL(left?K.top:K.topDone);
   H.show('tutor',`<section class="pnl tu">
-    <div class="qtop"><button class="x" id="tux" aria-label="もどる">←</button><b>👦 家庭教師の バイト</b><span class="qn"></span></div>
+    <div class="qtop"><button class="x" id="tux" aria-label="もどる">←</button><b>👦 家庭教師の バイト</b>${window.GIFT?GIFT.btn('riku','tugv'):'<span class="qn"></span>'}</div>
     <div id="tuhi">${kidLine(line)}</div>
     <button id="tugo" class="tubig"><b>📒 リクに 教える</b><small>${left?`質問 ${NQ}つ・きょうの バイト代 あと ${left}回`:'きょうの バイト代は おしまい・教えるのは できるよ'}</small></button>
     <div class="row tur"><button id="tunote" class="sub">📒 教えた こと ${taughtN()?`<small>${taughtN()}</small>`:''}</button><button id="tufun" class="sub">😂 へんな英文 ${funN()?`<small>${funN()}</small>`:''}</button><button id="tugift" class="sub">🎁 お礼 ${giftN()?`<small>${giftN()}</small>`:''}</button></div>
@@ -155,7 +155,8 @@ function top(first){hush();const left=paidLeft(),line=first||pickL(left?K.top:K.
   $('tugo').onclick=()=>{SFX.lesson?SFX.lesson():SFX.step();play()};
   $('tunote').onclick=()=>{SFX.book();notebook(top)};
   $('tufun').onclick=()=>{SFX.book();funBook(top)};
-  $('tugift').onclick=()=>{SFX.open();gifts(top)}}
+  $('tugift').onclick=()=>{SFX.open();gifts(top)};
+  if(window.GIFT)GIFT.bindBtn('riku','tugv',()=>top())}
 
 /* ================================================================ one visit */
 let P=null;
