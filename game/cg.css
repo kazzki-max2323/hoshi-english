@@ -134,6 +134,10 @@
 .cgresb{display:flex;gap:8px;margin-top:12px}
 .cgbuy{display:flex;flex-direction:column;gap:8px;width:min(86vw,320px);background:rgba(20,24,56,.95);border:2px solid var(--gold,#ffd23f);border-radius:14px;padding:14px;text-align:center}
 .cgbuy small{display:block;font-size:.7rem;font-weight:500;opacity:.85}
+/* 仕入れは 1日 2回まで */
+.cgleft{text-align:center;font-size:.8rem;color:#ffe7a8;margin:4px 0 8px}.cgleft b{font-size:1.05rem;color:#ffd23f}.cgleft.end{color:#bfe9ff}
+.cgpl button:disabled{opacity:.45;filter:grayscale(.6)}
+.cgbuy .cgbl{color:#ffe7a8;margin-top:-4px}
 .cgnote p{margin:4px 0}.cgnote .cgcmbp{font-family:"Libre Baskerville",Georgia,serif;font-size:1.3rem;color:#ffe14a}
 .cgtalk{display:flex;flex-direction:column;gap:10px;width:min(92vw,380px)}
 .cgtc{display:flex;flex-direction:column;gap:6px}

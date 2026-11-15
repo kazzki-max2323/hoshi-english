@@ -54,7 +54,7 @@
 .fdmeal{position:relative;display:flex;flex-direction:column;gap:4px;padding:8px;border-radius:12px;background:rgba(255,246,224,.06)}
 .fddrink{position:absolute;right:calc(50% - 82px);top:44px;font-size:1.5rem}
 /* the talk */
-.fdx{display:block;margin-top:4px;font-size:.7rem;color:#2a5a46;background:#e6fff4;border-radius:7px;padding:3px 7px;line-height:1.45}
+.fdx{display:block;margin-top:4px;font-size:.74rem;font-weight:700;color:#14432f;text-shadow:none;background:#e6fff4;border-radius:7px;padding:3px 7px;line-height:1.45}
 .fdhb{align-self:flex-start;margin-top:6px;padding:5px 12px!important;font-size:.78rem}
 .fdopts button small{display:block;font-size:.68rem;opacity:.8}
 .fdtris{display:flex;flex-direction:column;gap:6px;padding:4px 8px 8px}

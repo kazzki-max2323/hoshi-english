@@ -3,7 +3,7 @@
    - 絵: 単語の 意味の 絵（2つの 絵の 組み合わせも）。 属性と レベルで 背景と わくが かわり、 もようは 単語ごとに ちがう（同じ 見た目の カードは ない）
    - おぼえた 度合い（正解で 育つ。 画面には 出さない）は 鉱山の カードの えらび方に つかう。 苦手（まちがいが 多い・まちがいノートの 単語）と わすれかけ（しばらく 見ていない）の しるし
    - お店で できる ことの うち カードを ふやすのは 仕入れ（パック）だけ。 段位（級）は ない。 パックは ぜんぶ さいしょから 買えて、 1パック 10まい前後
-   - 仕入れ（パック）は 英語で やりとりすると おまけが つく
+   - 仕入れ（パック）は 1日 2回まで（きょうの むりょうパックは べつ）。 買うときの 会話は ない
    ほかの 機能との 連動・ミナ先生の セリフは game/cg-more.js。 データは game/cg-data.js */
 (()=>{
 const {S:ST,sfx:SFX}=BEACH;
@@ -299,6 +299,10 @@ function packCards(kind,arg){const out=[],N=packN();
   return out.slice(0,N)}
 /* 💎 きらきら宝パック: 宝カードだけ（R以上・SR以上 1まい かくてい） */
 function kiraCards(n){if(!window.CARDS||!CARDS.pull)return [];return CARDS.pull(n,2).map(g=>({id:'t:'+g.c.e,isNew:g.isNew}))}
+/* 📖 パックから そのまま カードブックへ（まだ ブックに ない 分だけ） */
+function bookBtn(got){const B=window.CBOOK,b=$('cgbk');if(!B||!b)return;const ids=[...new Set(got.map(g=>g.id))].filter(B.canIn);if(!ids.length)return;
+  b.hidden=false;b.textContent=`📖 ブックに 入れる（${ids.length}）`;
+  b.onclick=()=>{const n=ids.filter(id=>B.putOne(id)).length;b.hidden=true;sf('card');H.toast(`📖 ${n}まい ブックに 入れたよ<small>カードショップの カードブックで 見られるよ</small>`,2200);B.mina('sh_bookIn1',{w:B.nm(info(ids[0])),p:B.label(ids[0])},.2)}}
 /* put the cards in; returns [{id,isNew}] */
 function receive(ids){return ids.map(id=>{const isNew=!owns(id);give(id);return {id,isNew}})}
 /* open a pack on screen */
@@ -307,11 +311,11 @@ function reveal(got,title,back){save();cleanDeck();
   setTimeout(()=>{if(!o.isConnected)return;sf('done');o.querySelector('.cgopen').classList.add('burst')},800);
   setTimeout(()=>{if(!o.isConnected)return;
     o.innerHTML=`<div class="cgres">${got.map((g,i)=>`<div class="cgslot" data-i="${i}"><div class="cgback">✦</div>${face(g.id,{ja:1})}${g.isNew?'<em class="cgnew">NEW!</em>':''}</div>`).join('')}</div>
-      <div class="cgresb"><button id="cgall">ぜんぶ めくる</button><button id="cgok" class="sub" hidden>OK</button></div>`;
+      <div class="cgresb"><button id="cgall">ぜんぶ めくる</button><button id="cgbk" class="cgbk" hidden></button><button id="cgok" class="sub" hidden>OK</button></div>`;
     const slots=[...o.querySelectorAll('.cgslot')];let left=slots.length;
     const flip=s=>{if(s.classList.contains('open'))return;s.classList.add('open');const g=got[+s.dataset.i],I=info(g.id);sf('flip');
       if(I.k==='w')setTimeout(()=>{try{H.say(I.lv,I.en)}catch(e){}},150);
-      if(--left===0){$('cgall').hidden=true;$('cgok').hidden=false;
+      if(--left===0){$('cgall').hidden=true;$('cgok').hidden=false;bookBtn(got);
         const np=got.filter(g=>g.isNew).map(g=>info(g.id)).filter(I=>I.k==='w');const cs=deckCombos(Object.keys(CG.c)).filter(c=>np.some(I=>I.h===c.a||I.h===c.b)&&!CG.combo[c.k]);
         if(cs.length)H.toast(`✨ コンボの なかまが そろったかも…？<small>鉱山の あなうめで 見つかるよ</small>`,3200)}};
     slots.forEach(s=>s.onclick=()=>{if(s.classList.contains('open')){const I=info(got[+s.dataset.i].id);try{H.say(I.k==='t'?'cards':I.lv,I.en)}catch(e){}}else flip(s)});
@@ -388,38 +392,29 @@ function packList(){const L=[];LVK.forEach(lv=>L.push({k:'lv',arg:lv,ico:'🎴',
   L.push({k:'part',ico:'🧩',n:'語源パーツパック',p:PACK_P.part});
   L.push({k:'sent',ico:'📜',n:'文カードパック',p:PACK_P.sent});
   if(window.CARDS&&CARDS.pull)L.push({k:'kira',ico:'💎',n:'きらきら宝パック',p:PACK_P.kira});return L}
-function packs(){const L=packList(),free=CG.free!==today();
+/* 仕入れは 1日 2回まで（パックの しゅるいは 関係なく あわせて 2つ） */
+const BUY_N=2;
+const buyLeft=()=>Math.max(0,BUY_N-(CG.buy&&CG.buy.d===today()?CG.buy.n:0));
+function packs(){const L=packList(),free=CG.free!==today(),left=buyLeft();
   H.show('cg',`<section class="pnl cgp">${top('🎁 仕入れ',coinTxt(ST.coins))}
     ${free?`<button class="cgfree" id="cgfree">🎁 きょうの むりょうパック（3まい）</button>`:''}
-    <div class="cgpl">${L.map((p,i)=>`<button data-i="${i}"><span class="pi">${p.ico}</span><span class="pn">${esc(p.n)}</span><span class="pp">${coinTxt(p.p)}</span></button>`).join('')}</div>
-    <p class="note">1パック 10まい前後。 まだ もっていない カードが 出やすいよ</p></section>`);
+    <p class="cgleft ${left?'':'end'}">${left?`きょうの 仕入れ あと <b>${left}</b>回`:'きょうの 仕入れは おわり。 また あしたね'}</p>
+    <div class="cgpl">${L.map((p,i)=>`<button data-i="${i}" ${left?'':'disabled'}><span class="pi">${p.ico}</span><span class="pn">${esc(p.n)}</span><span class="pp">${coinTxt(p.p)}</span></button>`).join('')}</div>
+    <p class="note">1パック 10まい前後。 仕入れは 1日 ${BUY_N}回まで。 まだ もっていない カードが 出やすいよ</p></section>`);
   $('cgb').onclick=()=>{sf('back');open()};
   if(free)$('cgfree').onclick=()=>{CG.free=today();const ids=packCards('lv',myLv()).slice(0,3);reveal(receive(ids),'きょうの むりょうパック',packs)};
   H.panel.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>buyAsk(L[+b.dataset.i]))}
 const myLv=()=>{try{return MINA.level()}catch(e){return 'es'}};
-/* buy: quickly, or in English (a bonus card) */
-function buyAsk(p){if(ST.coins<p.p){H.toast('🪙 コインが たりないよ');sf('wrong');return}
-  const o=ov(`<div class="cgbuy"><b>${p.ico} ${esc(p.n)}　${coinTxt(p.p)}</b>
-    <button id="cgen">🗣️ 英語で 買う<small>ぜんぶ 正しいと おまけ 1まい</small></button><button id="cgqk" class="sub">すぐ 買う</button><button id="cgno" class="sub">やめる</button></div>`,'by');
+/* buy: 買う / やめる だけ（会話なし） */
+function buyAsk(p){if(!buyLeft()){H.toast('きょうの 仕入れは おわり<small>また あしたね</small>');sf('wrong');return}
+  if(ST.coins<p.p){H.toast('🪙 コインが たりないよ');sf('wrong');return}
+  const o=ov(`<div class="cgbuy"><b>${p.ico} ${esc(p.n)}　${coinTxt(p.p)}</b><small class="cgbl">きょうの 仕入れ あと ${buyLeft()}回</small>
+    <button id="cgqk">🎁 仕入れる</button><button id="cgno" class="sub">やめる</button></div>`,'by');
   $('cgno').onclick=()=>{sf('back');closeOv()};
-  $('cgqk').onclick=()=>{closeOv();if(!pay(p.p))return;deliver(p,false)};
-  $('cgen').onclick=()=>{closeOv();if(!pay(p.p))return;talkBuy(p,ok=>deliver(p,ok))}}
-function deliver(p,bonus){CG.talk=(CG.talk||0)+(bonus?1:0);
-  if(p.k==='kira'){const got=kiraCards(packN()+(bonus?1:0));return reveal(got,p.n+(bonus?'＋おまけ':''),packs)}
-  let ids=packCards(p.k,p.arg);if(bonus){const lv=p.lv||'adv',nw=W.filter(c=>c.lv===lv&&!owns(c.id));ids.push(pickL(nw.length?nw:W.filter(c=>c.lv===lv)).id)}
-  reveal(receive(ids),p.n+(bonus?'＋おまけ':''),packs)}
-/* the English talk with Nagi: two lines at your level */
-function talkBuy(p,done){const lv=({es:'es',jh:'jh',hs:'hs',adv:'hs'})[myLv()]||'es';const T=H.shuffle(CG_BUY_TALK[lv]).slice(0,2);let i=0,good=0;
-  const step=()=>{const t=T[i];const ch=H.shuffle(t[1].map((x,j)=>[x,j]));
-    const o=ov(`<div class="cgtalk">${bubble(t[0][0],t[0][1])}<div class="cgtc">${ch.map(([x,j])=>`<button data-j="${j}">${esc(x)}</button>`).join('')}</div><div class="cgtx" hidden></div></div>`,'tk');o.dataset.stay=1;
-    const ms=x=>window.MIO?MIO.say(x):speak(x);ms(t[0][0]);o.querySelector('.cgnb').onclick=()=>{jaOn=!jaOn;o.querySelector('.ja').hidden=!jaOn;ms(t[0][0])};
-    o.querySelectorAll('[data-j]').forEach(b=>b.onclick=()=>{const ok=b.dataset.j==='0';o.querySelectorAll('[data-j]').forEach(x=>{x.disabled=true;if(x.dataset.j==='0')x.classList.add('ok')});
-      if(ok){good++;b.classList.add('ok');sf('correct');speak(t[1][0])}else{b.classList.add('ng');sf('wrong')}
-      const x=o.querySelector('.cgtx');x.hidden=false;x.innerHTML=`<p>${ok?'⭕ ':'💡 '}${esc(t[2])}</p><button class="nx">つぎへ ▶</button>`;
-      x.querySelector('.nx').onclick=()=>{sf('step');i++;if(i<T.length)step();else{closeOv();
-        const end=good===T.length?["Perfect English! Here's a little bonus card for you.","かんぺきな 英語！ おまけの カードを どうぞ。"]:["Thanks! Your English is getting better.","ありがとう！ 英語、 上手に なってるよ。"];
-        H.toast(`📦 「${esc(end[0])}」<small>${esc(end[1])}</small>`,3200);speak(end[0]);done(good===T.length)}}})};
-  step()}
+  $('cgqk').onclick=()=>{closeOv();if(!buyLeft()||!pay(p.p))return;const d=today();CG.buy=CG.buy&&CG.buy.d===d?CG.buy:{d,n:0};CG.buy.n++;save();deliver(p)}}
+function deliver(p){
+  if(p.k==='kira')return reveal(kiraCards(packN()),p.n,packs);
+  reveal(receive(packCards(p.k,p.arg)),p.n,packs)}
 
 /* ♻️ 交換（かけら）は なくした。 ダブった カードは カードショップの 売り場で 売る。 前の かけらは コインに かえる */
 function trade(){try{SHOP.floor()}catch(e){open()}}
@@ -467,5 +462,5 @@ window.CG={open,sayCard,go,starter,info,face,art,quiz,formQuiz,formsOf,ask,ov,cl
   lvOpen,deckCombos,cleanDeck,comboOf,combosWith,wrongOf:(a,b)=>WRG[a+'|'+b]||null,anto:h=>ANTO[h]?[...ANTO[h]]:[],syn:h=>SYN[h]?[...SYN[h]]:[],
   derivOf,sentWords,cardOfHead,foundCombo,metWrong,pickL,hash,dnum,today,speak,bubble,
   W,BY,COMBO,WRONG,DERIV,SENT,LV,ATTR,DECK_N,rec:()=>CG,save:()=>save(),pay,myLv,hut,
-  cstat,trait,traitTxt,traitIco,SUP,wind,pickBattle,BATTLE_N,packs,trade};
+  cstat,trait,traitTxt,traitIco,SUP,wind,pickBattle,BATTLE_N,packs,buyLeft,BUY_N,trade};
 })();
