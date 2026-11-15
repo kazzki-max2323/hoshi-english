@@ -14,7 +14,7 @@ const R=()=>window.RECENT;
 const pickL=a=>a[Math.random()*a.length|0];
 const has=k=>MINA_LINES[k]&&MINA_LINES[k].length;
 const MIN=60000;
-const ACT=['lesson','review','tokkun','sensei','deep','kaiwa','tutor','meal','snack','zbuy','zsell','bottle','map','treasure','gift','pension','mine','pack','book','meteor','mio','sell'];
+const ACT=['lesson','review','tokkun','sensei','deep','kaiwa','tutor','meal','snack','zbuy','zsell','bottle','map','treasure','gift','pension','mine','pack','book','meteor','mio','sell','buyin'];
 const LES=id=>(typeof LESSONS!=='undefined'?LESSONS:[]).find(l=>l.id===id);
 const back=()=>MINA.open();
 const kwName=c=>{try{return KAIWA.chars[c].n}catch(e){return c||''}};
@@ -58,6 +58,7 @@ function react(e){const v={};let k=null,go=null;
   case 'pack':Object.assign(v,{p:e.ja||'パック',ico:e.ico||'🃏'});k='r_pk';break;
   case 'book':Object.assign(v,{en:e.en,ja:e.ja});k=e.en?'r_book':null;break;
   case 'sell':Object.assign(v,{en:e.en,p:e.p|0});k=e.by==='mio'?'r_sell_mio':'r_sell';break;
+  case 'buyin':Object.assign(v,{en:e.en,ja:e.ja||'',p:e.p|0});k=e.by==='mio'?'r_buyin_mio':e.isNew&&Math.random()<.6?'r_buyin_new':'r_buyin';break;
   case 'mio':k=e.how==='study'?'r_mio_study':'r_mio';break;
   case 'meteor':v.c=e.coins|0;k=e.gold?'r_met_gold':'r_met';break;
   case 'bev':{const id=e.name||'';if(e.cat==='show'&&/^f|fw|senko/.test(id))k='r_show_fw';else if(has('r_ev_'+id))k='r_ev_'+id;
@@ -75,12 +76,12 @@ function desc(e){try{switch(e.k){
   case 'zbuy':return `雑貨屋で ${e.ja}を 買った`;case 'zsell':return '雑貨屋で 売り買い した';case 'bottle':return 'ボトルメールを 読んだ';
   case 'map':return '宝の地図を 見つけた';case 'treasure':return '宝箱を あけた';case 'gift':return `${e.toN||'だれか'}に プレゼントした`;
   case 'pension':return 'ペンションの なぞに いどんだ';case 'mine':return `鉱山で ${e.depth|0}m まで ほった`;case 'pack':return 'カードを 仕入れた';
-  case 'book':return 'カードブックに カードを 入れた';case 'sell':return 'お店で カードを 売った';case 'mio':return 'ミオちゃんと 話した';case 'meteor':return '流れ星を つかまえた'}}catch(er){}return ''}
+  case 'book':return 'カードブックに カードを 入れた';case 'sell':return 'お店で カードを 売った';case 'buyin':return 'お店で カードを 買い取った';case 'mio':return 'ミオちゃんと 話した';case 'meteor':return '流れ星を つかまえた'}}catch(er){}return ''}
 const descList=a=>a.map(desc).filter(Boolean);
 
 /* ---------- わたしが すすめた こと（タップされた ボタン）→ その すぐあとの できごと ---------- */
 const SUG=[[/授業を ひらく|授業を 見る|もう一度|つぎの 授業/,['lesson']],[/とっくん|5問/,['tokkun']],[/とことん|たしかめ|くわしく/,['deep']],[/先生と 話す|もう一度 話す|🗣️/,['sensei']],
-  [/💬/,['kaiwa']],[/ふくしゅう|まちがいノート/,['review','lesson']],[/宝探し/,['treasure','map']],[/雑貨屋/,['zbuy','zsell']],[/カードショップ|お店/,['pack','mine','book','sell']],[/食堂/,['meal']],[/食べる/,['snack']]];
+  [/💬/,['kaiwa']],[/ふくしゅう|まちがいノート/,['review','lesson']],[/宝探し/,['treasure','map']],[/雑貨屋/,['zbuy','zsell']],[/カードショップ|お店/,['pack','mine','book','sell','buyin']],[/食堂/,['meal']],[/食べる/,['snack']]];
 function sugFor(e){const s=MINA.rec().sug;if(!s||e.t<s.t||e.t-s.t>40*MIN)return false;const m=SUG.find(([re])=>re.test(s.g));return !!m&&m[1].includes(e.k)}
 function noteSug(go){if(!go)return;MINA.rec().sug={t:Date.now(),g:String(go[0]||'')}}
 

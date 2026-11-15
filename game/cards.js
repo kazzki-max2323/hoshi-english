@@ -169,9 +169,11 @@ function checkSeries(newCards){const done=[...new Set(newCards.map(c=>c.s))].fil
 /* a free draw given as a reward (Mina's lesson time): n cards, each at least rarity min */
 /* 鉱山で 見つかる 1まい（演出なし）: {c,isNew} */
 function find1(){const r=Math.random()<.7?1:Math.random()<.75?2:Math.random()<.8?3:4;const c=pick(r),isNew=!has(c);if(isNew)CD.own[c.e]=1;else CD.own[c.e]++;save();return {c,isNew}}
+/* カウンターで 買い取った 宝カードを 1まい 足す（NEW なら true） */
+function give1(e){const c=BOOK.find(x=>x.e===e);if(!c)return false;const isNew=!has(c);CD.own[e]=(CD.own[e]||0)+1;save();return isNew}
 function takeOne(e){if(CD.own[e]>0){CD.own[e]--;if(!CD.own[e])delete CD.own[e];save()}}
 /* 前の 版の 星のかけらは コインに かえる */
 setTimeout(function cash(){if(!(CD.shards>0))return;if(!H.addCoins)return setTimeout(cash,3000);const v=CD.shards*2;CD.shards=0;save();H.addCoins(v);H.toast(`✦ 星のかけらは なくなったので、 コイン 🪙${v} に かえたよ`,4200)},6000);
-window.CARDS={find1,take:takeOne,open,count:()=>[ownedN(),BOOK.length],freeOk,pull,gift:(n=1,min=1)=>draw(n,min),face,has,book:BOOK,series:TABS,rar:RAR,shards:()=>CD.shards,n:c=>CD.own[c.e]||0};
+window.CARDS={find1,give1,take:takeOne,open,count:()=>[ownedN(),BOOK.length],freeOk,pull,gift:(n=1,min=1)=>draw(n,min),face,has,book:BOOK,series:TABS,rar:RAR,shards:()=>CD.shards,n:c=>CD.own[c.e]||0};
 if(H.screen==='home')H.home();   // show the free-draw dot on the home button
 })();

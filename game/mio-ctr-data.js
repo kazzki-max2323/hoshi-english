@@ -83,6 +83,18 @@ const MIOT=[
  ["You get two gold stars.","金の 星 2つ。",["Two?! I'm putting them on my forehead. Ha ha.","2つも？！ おでこに はっちゃいます。 あはは。",'laugh']],
  ["You were great.","すごかったよ。",["Thank you! I practiced \"Have a nice day\" fifty times last night.","ありがとう！ きのうの 夜 「Have a nice day」を 50回 練習 したんです。",'wink']],
  ["You forgot to smile.","笑顔を わすれてたよ。",["What? No way! …Was I too serious? I'll smile twice as much next time!","え？ うそ！ …まじめ すぎました？ 次は 2倍 笑います！",'oops']]]},
+{id:'bi_new',k:'buyin',if:e=>e.isNew,m:["Boss, \"{w}\" is a brand-new card for us! I'll make a little sign: \"NEW!\"","店長、 「{w}」って うちに はじめての カードですよ！ 「NEW!」の 札、 作っちゃおう。"],ex:'laugh',p:'peace',o:[
+ ["Let's put it on the shelf.","売り場に ならべよう。",["Good idea! A new card makes the shelf shine. Or… keep it in your book first?","いいですね！ 新しい カードで 売り場が かがやく。 それとも… 先に ブックに とっておく？",'wink']],
+ ["I'll learn the word first.","先に 単語を 覚える。",["\"{w}\" means \"{wj}.\" See? I learned it too. We're a study team!","「{w}」は 「{wj}」。 ほら、 わたしも 覚えた。 勉強チームですね！",'smile']]],ph:["brand-new","まっさらの・新品の"]},
+{id:'bi_me',k:'buyin',if:e=>e.by==='me',m:["You bought \"{w}\" for {p} coins. If we sell it on the shelf, we'll make a little profit!","「{w}」を {p}コインで 買い取りましたね。 売り場で 売れば、 ちょっと もうかりますよ！"],ex:'smile',p:'thumb',o:[
+ ["A little profit is enough.","ちょっとで いいよ。",["Little by little! That's the way of a good shop.","少しずつ！ それが いい お店の やりかたです。",'smile']],
+ ["Maybe I'll keep it.","とっておこうかな。",["That's OK too! A shopkeeper can have favorites. Shh, it's a secret.","それも あり！ 店長にも お気に入りが あって いいんです。 しーっ、 ひみつ。",'wink']]],ph:["make a profit","もうける"]},
+{id:'bi_mio',k:'buyin',if:e=>e.by==='mio',m:["Did you see me bargain? \"How about…?\" I felt like a real merchant!","わたしの 値段の 相談、 見てました？ 「How about…?」って。 本物の 商人 みたいでしょ！"],ex:'laugh',o:[
+ ["You were tough!","手ごわかったよ！",["Ha ha! But I always smile. Tough and kind, that's my style.","あはは！ でも いつも 笑顔。 手ごわくて やさしい、 それが わたし。",'laugh']],
+ ["Did you pay too much?","高く 買いすぎて ない？",["W-what? No! …Maybe a little. But we didn't lose any coins! Probably.","え、 えっ？ ないです！ …ちょっとだけ かも。 でも 損は してない！ たぶん。",'oops']]],ph:["How about ~?","〜は どう？"]},
+{id:'bi_deal',k:'buyin',if:e=>e.kind==='deal'&&e.by==='me',m:["Your price talk was so smooth, boss. \"Let's meet in the middle\" — I'm going to use that!","店長の 値段の 相談、 なめらか だったなあ。 「あいだを とろう」って、 わたしも 使おう！"],ex:'smile',o:[
+ ["Ms. Mina taught me.","ミナ先生に 教わったんだ。",["Ms. Mina? No wonder! Her English is perfect.","ミナ先生？ どうりで！ 先生の 英語は 完ぺき だもん。",'smile']],
+ ["Try it at the bakery.","パン屋さんで ためしてみて。",["At Mei's bakery? She'll say, \"Nice try, Mio!\" Ha ha.","メイさんの パン屋で？ 「いい ちょうせん、 ミオちゃん！」って 言われそう。 あはは。",'laugh']]],ph:["meet in the middle","あいだを とる（ゆずりあう）"]},
 {id:'aw_memo',k:'away',if:e=>e.sold>0,m:["Did you read my memo, boss? Was my English OK?","わたしの メモ、 読みました？ 英語、 だいじょうぶ でした？"],ex:'smile',o:[
  ["It was perfect.","かんぺきだった。",["Yay! I checked the dictionary three times. Worth it!","やった！ 辞書で 3回 たしかめたんです。 かいが あった！",'laugh']],
  ["There was one small mistake.","小さい まちがいが 1つ あった。",{m:["Oh no! Where? …No, wait. Don't tell me. I'll find it myself!","えっ！ どこ？ …いや、 待って。 言わないで。 自分で 見つけます！"],ex:'oops',o:[
@@ -403,6 +415,7 @@ const MIOT_MUT={
  mine:[["{d} meters today! Amazing, boss.","きょうは {d}メートル！ 店長 すごい。"],["Welcome back from the mine!","鉱山から おかえりなさい！"]],
  pack:[["New cards! I can smell them!","新しい カード！ においで わかる！"],["What was in the pack?","パック、 なにが 出たのかな？"]],
  sell:[["We sold \"{w}\"! Yay!","「{w}」 売れた！ やった！"]],
+ buyin:[["A new card, \"{w}\"! Welcome!","新しい カード 「{w}」！ ようこそ！"],["Where shall we put \"{w}\"?","「{w}」、 どこに おこうかな？"]],
  meal:[["How was the {food}?","{foodj}、 おいしかった？"],["You smell like Marco's diner!","マルコさんの 食堂の におい！"]],
  snack:[["How was the {food}?","{foodj}、 おいしかった？"]],
  zbuy:[["What did you buy at Nora's?","ノラさんの 店で なに 買ったのかな？"]],
