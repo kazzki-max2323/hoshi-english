@@ -386,8 +386,9 @@ function book(back){const ate=DISH.filter(d=>FD.eaten[d.id]),cs=countries();
     <div class="qtop"><button class="x" id="fdx" aria-label="もどる">←</button><b>📜 うんちく図鑑</b><span class="qn">${ate.length}/${DISH.length}</span></div>
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     <p class="note">🌍 味わった 国 ${cs.length} ・ タップで うんちくを 読みかえせるよ</p>
-    ${byB}</section>`);
+    ${byB}${window.UNK?'<div class="row"><button id="fdunk" class="sub">📜 ほかの 場所の うんちく</button></div>':''}</section>`);
   $('fdx').onclick=()=>{sf('back');back()};
+  const uk=$('fdunk');if(uk)uk.onclick=()=>{sf('book');UNK.book(()=>book(back))};
   H.panel.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{sf('book');page(b.dataset.b,()=>book(back))})}
 function page(id,back){const d=dish(id),tr=FD.tri[id]||[0,0];if(!d)return back();
   H.show('food',`<section class="pnl fd">
