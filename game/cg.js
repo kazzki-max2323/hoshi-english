@@ -3,7 +3,8 @@
    - 絵: 単語の 意味の 絵（2つの 絵の 組み合わせも）。 属性と レベルで 背景と わくが かわり、 もようは 単語ごとに ちがう（同じ 見た目の カードは ない）
    - おぼえた 度合い（正解で 育つ。 画面には 出さない）は 鉱山の カードの えらび方に つかう。 苦手（まちがいが 多い・まちがいノートの 単語）と わすれかけ（しばらく 見ていない）の しるし
    - お店で できる ことの うち カードを ふやすのは 仕入れ（パック）だけ。 段位（級）は ない。 パックは ぜんぶ さいしょから 買えて、 1パック 10まい前後
-   - 仕入れ（パック）は 1日 2回まで（きょうの むりょうパックは べつ）。 買うときの 会話は ない
+   - 仕入れ（パック）は 何回でも。 ただし パックに 入るのは 小・中・高の 単語・パーツ・文の カードだけ。
+     いい カード（🎁宝カード・ハイレベルの 単語）は ⛏️鉱山でしか 見つからない（11/16）。 買うときの 会話は ない
    ほかの 機能との 連動・ミナ先生の セリフは game/cg-more.js。 データは game/cg-data.js */
 (()=>{
 const {S:ST,sfx:SFX}=BEACH;
@@ -285,23 +286,27 @@ const lvOpen=()=>true;
 let fx=null;
 /* 1パック 10まい前後（9〜11まい） */
 const packN=()=>9+Math.floor(Math.random()*3);
-function packCards(kind,arg){const out=[],N=packN();
+/* パックに 入る 単語（ハイレベルは 入れない） */
+let PW=null;const packW=()=>PW||(PW=W.filter(c=>c.lv!=='adv'));
+const packHead=h=>{const c=cardOfHead(h);return c&&c.lv!=='adv'?c:null};
+function packCards(kind,arg){const out=[],N=packN();if(arg==='adv')arg='hs';
+  const W=packW(),cardOfHead=packHead;   // ハイレベルは 鉱山だけ
   const fresh=list=>{const f=list.filter(c=>!owns(c.id));return f.length&&Math.random()<.65?pickL(f):pickL(list)};
   if(kind==='lv'){const pool=W.filter(c=>c.lv===arg);
     const wk=H.shuffle([...weakHeads()].map(cardOfHead).filter(c=>c&&c.lv===arg));wk.slice(0,2).forEach(c=>out.push(c.id));
     /* a pair or two that make a combo */
-    const cs=COMBO.filter(c=>cardOfHead(c.a).lv===arg||cardOfHead(c.b).lv===arg);
+    const cs=COMBO.filter(c=>cardOfHead(c.a)&&cardOfHead(c.b)&&(cardOfHead(c.a).lv===arg||cardOfHead(c.b).lv===arg));
     for(let k=0;k<2;k++)if(cs.length&&Math.random()<.6){const c=pickL(cs);out.push(cardOfHead(c.a).id,cardOfHead(c.b).id)}
     while(out.length<N)out.push(fresh(pool).id)}
-  else if(kind==='at'){const pool=W.filter(c=>c.a===arg);while(out.length<N)out.push(fresh(pool).id)}
+  else if(kind==='at'){let pool=W.filter(c=>c.a===arg);if(!pool.length)pool=W;while(out.length<N)out.push(fresh(pool).id)}
   else if(kind==='part'){const ks=Object.keys(CG_PARTS);for(let i=0;i<5;i++){const k=pickL(ks);out.push('p:'+k);
       const ds=DERIV.filter(d=>d.p===k&&cardOfHead(d.b));if(ds.length&&i<4)out.push(cardOfHead(pickL(ds).b).id)}
     while(out.length<N)out.push(fresh(W).id)}
   else if(kind==='sent'){for(let k=0;k<2;k++){const nw=SENT.filter(s=>!owns('s:'+s.i)&&!out.includes('s:'+s.i)),s=pickL(nw.length?nw:SENT);out.push('s:'+s.i);
       sentWords(s).map(w=>cardOfHead(w.toLowerCase().replace(/[^a-z'-]/g,''))).filter(Boolean).slice(0,3).forEach(c=>out.push(c.id))}
-    const lv=info(out[0]).lv;while(out.length<N)out.push(fresh(W.filter(c=>c.lv===lv)).id)}
+    const lv=info(out[0]).lv,sp=W.filter(c=>c.lv===lv);while(out.length<N)out.push(fresh(sp.length?sp:W).id)}
   return out.slice(0,N)}
-/* 💎 きらきら宝パック: 宝カードだけ（R以上・SR以上 1まい かくてい） */
+/* 💎 きらきら宝パック（もう 売っていない。 いい カードは 鉱山だけ） */
 function kiraCards(n){if(!window.CARDS||!CARDS.pull)return [];return CARDS.pull(n,2).map(g=>({id:'t:'+g.c.e,isNew:g.isNew}))}
 /* 📖 パックから そのまま カードブックへ（まだ ブックに ない 分だけ） */
 function bookBtn(got){const B=window.CBOOK,b=$('cgbk');if(!B||!b)return;const ids=[...new Set(got.map(g=>g.id))].filter(B.canIn);if(!ids.length)return;
@@ -394,33 +399,32 @@ function pay(n){if(ST.coins<n){H.toast('🪙 コインが たりないよ');sf('
 
 /* 🎁 仕入れ（パック）: ぜんぶ さいしょから 買える */
 const PACK_P={part:350,sent:450,kira:1200,at:300};
-function packList(){const L=[];LVK.forEach(lv=>L.push({k:'lv',arg:lv,ico:'🎴',n:`${LV[lv].n}パック`,p:LV[lv].pack,lv}));
+function packList(){const L=[];LVK.filter(lv=>lv!=='adv').forEach(lv=>L.push({k:'lv',arg:lv,ico:'🎴',n:`${LV[lv].n}パック`,p:LV[lv].pack,lv}));
   CG_ATTR.forEach(a=>L.push({k:'at',arg:a[0],ico:a[1],n:`${a[2]}パック`,p:PACK_P.at}));
   L.push({k:'part',ico:'🧩',n:'語源パーツパック',p:PACK_P.part});
-  L.push({k:'sent',ico:'📜',n:'文カードパック',p:PACK_P.sent});
-  if(window.CARDS&&CARDS.pull)L.push({k:'kira',ico:'💎',n:'きらきら宝パック',p:PACK_P.kira});return L}
-/* 仕入れは 1日 2回まで（パックの しゅるいは 関係なく あわせて 2つ） */
-const BUY_N=2;
-const buyLeft=()=>Math.max(0,BUY_N-(CG.buy&&CG.buy.d===today()?CG.buy.n:0));
-function packs(){const L=packList(),free=CG.free!==today(),left=buyLeft();
+  L.push({k:'sent',ico:'📜',n:'文カードパック',p:PACK_P.sent});return L}   // 💎きらきら宝パック・ハイレベルパックは なくした（いい カードは 鉱山だけ）
+/* 仕入れは 何回でも（11/16）。 CG.buy は きょう 何パック あけたか だけ 数える（ミオの 会話用） */
+const BUY_N=Infinity;
+const buyLeft=()=>1;
+const buyToday=()=>CG.buy&&CG.buy.d===today()?CG.buy.n:0;
+function packs(){const L=packList(),free=CG.free!==today();
   H.show('cg',`<section class="pnl cgp">${top('🎁 仕入れ',coinTxt(ST.coins))}
     ${free?`<button class="cgfree" id="cgfree">🎁 きょうの むりょうパック（3まい）</button>`:''}
-    <p class="cgleft ${left?'':'end'}">${left?`きょうの 仕入れ あと <b>${left}</b>回`:'きょうの 仕入れは おわり。 また あしたね'}</p>
-    <div class="cgpl">${L.map((p,i)=>`<button data-i="${i}" ${left?'':'disabled'}><span class="pi">${p.ico}</span><span class="pn">${esc(p.n)}</span><span class="pp">${coinTxt(p.p)}</span></button>`).join('')}</div>
-    <p class="note">1パック 10まい前後。 仕入れは 1日 ${BUY_N}回まで。 まだ もっていない カードが 出やすいよ</p></section>`);
+    <p class="cgleft">仕入れは 何回でも OK</p>
+    <div class="cgpl">${L.map((p,i)=>`<button data-i="${i}"><span class="pi">${p.ico}</span><span class="pn">${esc(p.n)}</span><span class="pp">${coinTxt(p.p)}</span></button>`).join('')}</div>
+    <p class="note">1パック 10まい前後。 まだ もっていない カードが 出やすいよ。<br>🎁宝カードと ハイレベルの 単語は ⛏️鉱山でしか 見つからないよ</p></section>`);
   $('cgb').onclick=()=>{sf('back');open()};
   if(free)$('cgfree').onclick=()=>{CG.free=today();const ids=packCards('lv',myLv()).slice(0,3);reveal(receive(ids),'きょうの むりょうパック',packs)};
   H.panel.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>buyAsk(L[+b.dataset.i]))}
 const myLv=()=>{try{return MINA.level()}catch(e){return 'es'}};
 /* buy: 買う / やめる だけ（会話なし） */
-function buyAsk(p){if(!buyLeft()){H.toast('きょうの 仕入れは おわり<small>また あしたね</small>');sf('wrong');return}
+function buyAsk(p){
   if(ST.coins<p.p){H.toast('🪙 コインが たりないよ');sf('wrong');return}
-  const o=ov(`<div class="cgbuy"><b>${p.ico} ${esc(p.n)}　${coinTxt(p.p)}</b><small class="cgbl">きょうの 仕入れ あと ${buyLeft()}回</small>
+  const o=ov(`<div class="cgbuy"><b>${p.ico} ${esc(p.n)}　${coinTxt(p.p)}</b>
     <button id="cgqk">🎁 仕入れる</button><button id="cgno" class="sub">やめる</button></div>`,'by');
   $('cgno').onclick=()=>{sf('back');closeOv()};
-  $('cgqk').onclick=()=>{closeOv();if(!buyLeft()||!pay(p.p))return;const d=today();CG.buy=CG.buy&&CG.buy.d===d?CG.buy:{d,n:0};CG.buy.n++;save();deliver(p)}}
+  $('cgqk').onclick=()=>{closeOv();if(!pay(p.p))return;const d=today();CG.buy=CG.buy&&CG.buy.d===d?CG.buy:{d,n:0};CG.buy.n++;save();deliver(p)}}
 function deliver(p){try{RECENT.add('pack',{en:p.en||'',ja:p.n,ico:p.ico})}catch(e){}
-  if(p.k==='kira')return reveal(kiraCards(packN()),p.n,packs);
   reveal(receive(packCards(p.k,p.arg)),p.n,packs)}
 
 /* ♻️ 交換（かけら）は なくした。 ダブった カードは カードショップの 売り場で 売る。 前の かけらは コインに かえる */
@@ -469,5 +473,5 @@ window.CG={more,moreClosed,bindMore,open,sayCard,go,starter,info,face,art,quiz,f
   lvOpen,deckCombos,cleanDeck,comboOf,combosWith,wrongOf:(a,b)=>WRG[a+'|'+b]||null,anto:h=>ANTO[h]?[...ANTO[h]]:[],syn:h=>SYN[h]?[...SYN[h]]:[],
   derivOf,sentWords,cardOfHead,foundCombo,metWrong,pickL,hash,dnum,today,speak,bubble,
   W,BY,COMBO,WRONG,DERIV,SENT,LV,ATTR,DECK_N,rec:()=>CG,save:()=>save(),pay,myLv,hut,
-  cstat,trait,traitTxt,traitIco,SUP,wind,pickBattle,BATTLE_N,packs,buyLeft,BUY_N,trade};
+  cstat,trait,traitTxt,traitIco,SUP,wind,pickBattle,BATTLE_N,packs,buyLeft,buyToday,BUY_N,trade};
 })();

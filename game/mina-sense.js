@@ -20,7 +20,7 @@ const goShop=tab=>['🏚️ 雑貨屋へ 行く',()=>window.ZAKKA?ZAKKA.open(tab
 const shelf=k=>{try{return window.ZAKKA?ZAKKA.lineup()[k]:[]}catch(e){return []}};
 const goLesson=id=>['📖 授業を ひらく',()=>LESSON.open(id,back)];
 const goSay=(lv,en)=>['🔊 きいてみる',()=>H.say(lv,en)];
-/* 宝カードは カードショップの 📖カードブックと 💎きらきら宝パックで（宝箱くじの 入口は なくした） */
+/* 宝カードは カードショップの 📖カードブックと ⛏️鉱山で（宝箱くじ・きらきら宝パックは なくした） */
 const goCards=s=>['🃏 カードショップへ',()=>window.CG?CG.open():H.home()];
 const goKaiwa=()=>['💬 会話を ひらく',()=>KAIWA.open()];
 const goTalk=id=>['💬 話しに 行く',()=>KAIWA.play(id)];
