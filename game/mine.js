@@ -60,9 +60,16 @@ const QN={mean:'いみは？',rev:'英語で いうと？',listen:'聞こえた 
 
 /* ================================================================ 5まいを えらぶ（自動）: 苦手 → わすれかけ → まだ おぼえていない */
 const tools=()=>{try{return SHOP.allCards().filter(id=>{const I=C.info(id);return I&&I.k==='w'})}catch(e){return []}};
-function autoHand(){const all=tools();
-  const score=id=>(C.weak(id)?100:0)+(C.forgot(id)?50:0)+(6-C.star(id))*10+Math.random()*12;
-  return all.sort((a,b)=>score(b)-score(a)).slice(0,HAND)}
+/* 11/16 ユーザー「5まいが 同じのばかり」: 苦手の 点を 小さく・くじ運を 大きく、 さいきん 鉱山で 使った カードは 出にくく、 苦手は 5まい中 2まいまで */
+const usedRecently=()=>{const M=MN();return M.hands||(M.hands=[])};
+function noteHand(h){const L=usedRecently();L.unshift(h.slice());L.splice(6);C.save()}
+function pickHand(all,extraNot=[]){const L=usedRecently(),pen=id=>{const i=L.findIndex(h=>h.includes(id));return i<0?0:i<2?90:i<4?50:25};
+  const score=id=>(C.weak(id)?30:0)+(C.forgot(id)?20:0)+(6-C.star(id))*4+Math.random()*60-pen(id)-(extraNot.includes(id)?200:0);
+  const sorted=all.slice().sort((a,b)=>score(b)-score(a)),out=[];let wk=0;
+  for(const id of sorted){if(out.length>=HAND)break;const w=C.weak(id);if(w&&wk>=2)continue;if(w)wk++;out.push(id)}
+  for(const id of sorted){if(out.length>=HAND)break;if(!out.includes(id))out.push(id)}
+  return out}
+function autoHand(){return pickHand(tools())}
 let hand=null;
 function open(){const M=MN();if(!hand||hand.some(id=>!C.owns(id)))hand=autoHand();
   const TLs=toolList();let mk=myHp()<20&&window.FOOD?'fd_tired':'mn_course';
@@ -94,7 +101,7 @@ let D=null;
 const layerOf=d=>{let L=MINE_LAYERS[0];MINE_LAYERS.forEach(x=>{if(d>=x.at)L=x});return L};
 const stageOf=i=>course()[i]||MIX;
 function dive(cards){try{SHOP.leave()}catch(e){}
-  const M=MN();M.dives++;C.save();
+  const M=MN();M.dives++;noteHand(cards);C.save();
   D={hand:cards,st:0,lap:0,queue:[],redo:[],redone:{},cur:-1,depth:0,hp:myHp(),q:0,ok:0,got:[],coins:0,events:[],words:{},crack:0,luck:0,alive:true,f:0,parts:[],pop:null,swing:0,loot:{},lootV:{},
     fx:{mag:0,comp:0,gold:0,guard:0},hard:0,dark:0,chests:0,bads:[],used:[],swaps:0,lowTold:0,badTold:0};
   startLap();
@@ -230,9 +237,9 @@ function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.
   if(r<P_TREASURE+P_WORD+deep+mg+P_EVENT+(D.fx.comp>0?.02:0)){const E=pickL(MINE_EVENT);D.events.push(E);
     if(E.hp){D.hp=Math.min(ME_HP,D.hp+E.hp);keepHp(D.hp)}if(E.deep)D.depth+=E.deep;if(E.luck)D.luck+=E.luck;if(E.coin)D.coins+=E.coin;
     let tx=E.t;if(E.tool){const id=pickL(['lamp','lamp','rope','rope','helmet','mag','comp']);addTool(id);tx+=` ${MINE_TOOLS[id].ico} ${MINE_TOOLS[id].n}`}
-    D.pop={ico:E.ico,t:0,big:1};gotTag(E.ico,E.n,E.coin?`+${E.coin}枚`:'');sf('hey');H.toast(`${E.ico} <b>${esc(E.n)}</b><small>${esc(tx)}</small>`,3600);hud();return false}
+    D.pop={ico:E.ico,t:0,big:1};fly(E.ico);gotTag(E.ico,E.n,E.coin?`+${E.coin}枚`:'');sf('hey');H.toast(`${E.ico} <b>${esc(E.n)}</b><small>${esc(tx)}</small>`,3600);hud();return false}
   if(!dk&&r<P_TREASURE+P_WORD+deep+mg+P_EVENT+P_GEM+lk){const gi=Math.min(MINE_GEM.length-1,Math.floor(Math.random()*(2+D.depth/12))),G=MINE_GEM[gi];const v=G[2]+Math.floor(D.depth/5);
-    D.coins+=v;D.loot[G[0]]=(D.loot[G[0]]||0)+1;D.lootV[G[0]]=(D.lootV[G[0]]||0)+v;D.pop={ico:G[0],t:0};gotTag(G[0],G[1],`+${v}枚`);sf('coinIn');return false}
+    D.coins+=v;D.loot[G[0]]=(D.loot[G[0]]||0)+1;D.lootV[G[0]]=(D.lootV[G[0]]||0)+v;D.pop={ico:G[0],t:0};fly(G[0],v>=40?'big':'');gotTag(G[0],G[1],`+${v}枚`);sf('coinIn');return false}
   D.pop=null;return false}
 /* 🎒 手に 入れた 物を タップすると くわしく（鉱山の つづきは そのまま。 閉じると もどる） */
 const GEM_INFO={'🪨':['a pretty stone','川や 鉱山で ひろえる、 つるつるの 石。 ながめるだけで 落ちつくよ','Mio','「きれいな 石、 お店の レジの よこに かざりたいな〜」'],
@@ -267,7 +274,7 @@ function gotTag(ico,name,val){const el=$('mngot');if(!el)return;const t=document
   el.appendChild(t);while(el.children.length>2)el.firstChild.remove();setTimeout(()=>t.remove(),1800)}
 /* 単語カードを 見つけた: よく 出るので ほる テンポを 止めない。 ドット絵の 上に カードの 札（タップで 📖 くわしく＋読む）。
    ほりつづけても 🎒🎴 から あとで 見られる。 さいしょの 1まいの あとで 1回だけ ミナ先生が 教えてくれる（札に かさならないよう 札が 消えてから） */
-function cardTag(id,isNew){const M=MN();M.cards=(M.cards||0)+1;C.save();D.pop={ico:'🎴',t:0,big:1};
+function cardTag(id,isNew){const M=MN();M.cards=(M.cards||0)+1;C.save();D.pop={ico:'🎴',t:0,big:1};fly('🎴','big');
   try{SFX.fanfare(1)}catch(e){sf('done')}
   try{const r=$('mncv').getBoundingClientRect();FX.firework(r.left+r.width*(.3+Math.random()*.4),r.top+r.height*.4)}catch(e){}
   const el=$('mncard');if(!el)return;const I=C.info(id);if(!I)return;
@@ -279,6 +286,8 @@ function cardTag(id,isNew){const M=MN();M.cards=(M.cards||0)+1;C.save();D.pop={i
 function celebrate(id,isNew,treasure){const M=MN();M.cards=(M.cards||0)+1;C.save();D.pop={ico:treasure?'🎁':'🎴',t:0,big:1};
   try{SFX.fanfare(treasure?3:2)}catch(e){sf('done')}
   try{const r=$('mncv').getBoundingClientRect();[0,350,700].forEach(t=>setTimeout(()=>FX.firework(r.left+r.width*(.3+Math.random()*.4),r.top+r.height*.4),t))}catch(e){}
+  fly(treasure?'🎁':'🎴','big');setTimeout(()=>{if(D)celebrateOv(id,isNew,treasure)},950);return true}
+function celebrateOv(id,isNew,treasure){
   const I=C.info(id),[ex,tx]=ML(treasure?'mn_treasure':'mn_card',{w:I?head1(I):''});
   const o=C.ov(`<div class="mnfind"><p class="mnfh">✨ ${treasure?'🎁 宝カードを 見つけた！':'カードを 見つけた！'}</p>
     <div class="mnfc">${C.face(id,{big:1,ja:1})}</div>${isNew?'<p class="mnnew">NEW!</p>':''}<p class="mntap">🔊 カードを タップすると 読むよ</p>
@@ -286,8 +295,17 @@ function celebrate(id,isNew,treasure){const M=MN();M.cards=(M.cards||0)+1;C.save
     ${I&&C.moreClosed?`<div class="mnwi">${C.moreClosed(I)}</div>`:''}
     <button class="big" id="mnyay">やった！ ほりつづける</button></div>`,'by');
   o.dataset.stay=1;if(C.bindMore)C.bindMore(o);
-  o.querySelector('#mnyay').onclick=()=>{sf('step');C.closeOv();if(D)next()};
-  return true}
+  o.querySelector('#mnyay').onclick=()=>{sf('step');C.closeOv();if(D)next()}}
+
+/* ================================================================ ✨ 見つけた ときの アニメーション（11/16 ユーザー「何か見つけた時は アニメーションが ほしい」）
+   岩から 物が ポンと とび出して 光り、 はねてから 🎒 へ 入る。 big＝カード・宝箱（大きく 金色に 光る）/ bad＝悪い できごと（赤く ゆれる） */
+function fly(ico,kind=''){const st=document.querySelector('.mnstage');if(!st||!D)return;D.flash=kind==='bad'?0:kind==='big'?5:3;
+  const el=document.createElement('div');el.className='mnfly '+kind;el.setAttribute('aria-hidden','true');
+  el.innerHTML=`<b class="glow"></b>${kind==='bad'?'':Array.from({length:kind==='big'?12:8},(_,i)=>`<i style="--a:${i*(360/(kind==='big'?12:8))+Math.random()*15}deg;--d:${kind==='big'?62:44}px"></i>`).join('')}<span>${ico}</span>`;
+  st.appendChild(el);
+  if(kind==='bad'){st.classList.remove('mnshake');void st.offsetWidth;st.classList.add('mnshake')}
+  else{const bag=$('mnloot');if(bag){setTimeout(()=>{bag.classList.remove('mnbump');void bag.offsetWidth;bag.classList.add('mnbump')},kind==='big'?1250:900)}}
+  setTimeout(()=>el.remove(),kind==='big'?1500:1200)}
 
 /* ================================================================ 🎒 とちゅうで つかう（食べ物・道具） */
 const foods=()=>window.FOOD?FOOD.bagList():[];
@@ -315,10 +333,7 @@ function useTool(id){const t=MINE_TOOLS[id];if(!D||!t||t.ef==='key'||!takeTool(i
   const [,tx]=ML('mn_useTool',{t:t.n,en:t.en});H.toast(`${t.ico} <b>${esc(t.n)}</b><small>${esc(t.s)}<br>👩‍🏫 ${esc(tx)}</small>`,3400);hud()}
 
 /* ================================================================ 🔀 5まいを ぜんぶ 入れかえる */
-function freshHand(not){const all=tools(),out=all.filter(id=>!not.includes(id));
-  const score=id=>(C.weak(id)?100:0)+(C.forgot(id)?50:0)+(6-C.star(id))*10+Math.random()*30;
-  const h=out.sort((a,b)=>score(b)-score(a)).slice(0,HAND);
-  return h.length>=HAND?h:h.concat(H.shuffle(all.filter(id=>!h.includes(id))).slice(0,HAND-h.length))}
+function freshHand(not){return pickHand(tools(),not)}
 function swapAsk(nh){if(!D)return;nh=nh||freshHand(D.hand);
   const o=C.ov(`<div class="mnlo"><p class="mnlon">🔀 5まいを ぜんぶ 入れかえる？</p>
     <p class="mnlod">いまの 5まい</p><div class="mnhand sm mnsw old">${D.hand.map(id=>`<div class="mnt">${C.face(id,{mini:1,marks:false})}</div>`).join('')}</div>
@@ -328,12 +343,14 @@ function swapAsk(nh){if(!D)return;nh=nh||freshHand(D.hand);
   o.querySelectorAll('.mnsw [data-id]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id,()=>swapAsk(nh))});
   o.querySelector('[data-re]').onclick=()=>{sf('flip'in SFX?'flip':'tap');swapAsk(freshHand(D.hand.concat(nh)))};
   o.querySelector('[data-x]').onclick=()=>{sf('back');C.closeOv()};
-  o.querySelector('[data-ok]').onclick=()=>{if(!D)return;sf('flip'in SFX?'flip':'card');C.closeOv();D.hand=nh;hand=nh.slice();D.swaps++;D.st=0;D.lap=0;startLap();D.cur=-1;
+  o.querySelector('[data-ok]').onclick=()=>{if(!D)return;sf('flip'in SFX?'flip':'card');C.closeOv();D.hand=nh;hand=nh.slice();D.swaps++;noteHand(nh);D.st=0;D.lap=0;startLap();D.cur=-1;
     const [,tx]=ML('mn_swap');H.toast(`🔀 <b>5まい 入れかえた！</b><small>👩‍🏫 ${esc(tx)}</small>`,3000);if(D.busy)hud();else next()}}
 
 /* ================================================================ 📦 宝箱 */
 const SNACK_POOL=()=>typeof FOOD_SNACKS==='undefined'?[]:Object.keys(FOOD_SNACKS).filter(id=>FOOD_SNACKS[id].lv!=='hs');
 function chest(){D.chests++;D.pop={ico:'📦',t:0,big:1};sf('hey');try{SFX.fanfare(1)}catch(e){}
+  fly('📦','big');setTimeout(()=>{if(D)chestOv()},950);return true}
+function chestOv(){
   const id=pickL(D.hand),I=C.info(id),keyN=toolN('key'),[ex,tx]=ML('mn_chest');
   const o=C.ov(`<div class="mnfind mnchest"><p class="mnfh">📦 宝箱を 見つけた！</p><div class="mnchb">📦</div>
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
@@ -342,8 +359,7 @@ function chest(){D.chests++;D.pop={ico:'📦',t:0,big:1};sf('hey');try{SFX.fanfa
   o.dataset.stay=1;
   const kb=o.querySelector('[data-k]');if(kb)kb.onclick=()=>{if(!takeTool('key'))return;D.used.push('🗝️');sf('pickup');reveal(o,2,I)};
   o.querySelector('[data-pw]').onclick=()=>{o.querySelector('.mnchbtn').remove();const q=C.quiz(id,{type:'rev'});
-    C.ask(o.querySelector('#mnchq'),q,r=>{C.record(id,r.ok);reveal(o,r.ok?1:0,I)},{tag:'🔒 合言葉'})};
-  return true}
+    C.ask(o.querySelector('#mnchq'),q,r=>{C.record(id,r.ok);reveal(o,r.ok?1:0,I)},{tag:'🔒 合言葉'})}}
 function reveal(o,tier,I){if(!D)return;const dp=D.depth,got=[];
   const coin=tier===2?60+dp*2:tier===1?25+dp:10+Math.floor(dp/3);D.coins+=coin;got.push(['🪙',`コイン ${coin}枚`]);
   const sp=SNACK_POOL();
@@ -369,7 +385,7 @@ function bad(){const ok=MINE_BAD.filter(b=>!b.min||D.depth>=b.min),B=pickL(ok);
   if(B.hard)D.hard+=B.hard;
   if(B.dark){D.dark=Math.max(D.dark,B.dark);D.luck=0}
   if(B.hp){D.hp=Math.max(1,D.hp-B.hp);keepHp(D.hp)}
-  D.pop={ico:B.ico,t:0,big:1};D.crack=2;sf('wrong');gotTag(B.ico,B.n,B.back?`-${B.back}m`:B.hp?`❤-${B.hp}`:'');
+  D.pop={ico:B.ico,t:0,big:1};D.crack=2;sf('wrong');fly(B.ico,'bad');gotTag(B.ico,B.n,B.back?`-${B.back}m`:B.hp?`❤-${B.hp}`:'');
   try{H.say('jh',B.en)}catch(e){}
   H.toast(`${B.ico} <b>${esc(B.n)}</b><small>「${esc(B.en)}」 ${esc(B.ja)}<br>${esc(B.t)}</small>`,4200);
   const M=MN();if(!D.badTold&&(M.badTold||0)<4){D.badTold=1;M.badTold=(M.badTold||0)+1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_bad',{t:B.n});H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},4600)}
@@ -398,6 +414,7 @@ function draw(c){const L=layerOf(D.depth),[a,b,k]=L.col;
   else{PR(c,x+10,y+8,3,5,'#e86a4a');PR(c,x+10,y+6,2,2,'#ffe0cc');for(let i=0;i<10;i++)PR(c,x+10-Math.floor(i/4),y+5-i,1,1,'#a8743e');PR(c,x+3,y-6,10,2,'#9aa0b0');PR(c,x+2,y-5,2,2,'#9aa0b0')}
   if(sw&&D.swing===2){PR(c,rx-2,40,2,2,'#fff8c0');PR(c,rx-4,36,1,1,'#fff8c0');PR(c,rx-1,46,1,1,'#fff8c0')}
   D.parts=D.parts.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.5;p.l--;PR(c,p.x,p.y,2,2,p.c);return p.l>0});
+  if(D.flash>0){c.fillStyle=`rgba(255,246,200,${(D.flash*.09).toFixed(2)})`;c.fillRect(0,0,160,80);D.flash--}
   if(D.pop){const p=D.pop;p.t++;const yy=40-Math.min(18,p.t*2);if(p.big&&p.t%4<2){PR(c,92,yy-14,1,1,'#fff');PR(c,107,yy-10,1,1,'#fff')}if(p.t>22)D.pop=null}
 }
 function burst(){const L=layerOf(D.depth);for(let i=0;i<14;i++)D.parts.push({x:96,y:44,vx:(Math.random()-.3)*3.2,vy:-Math.random()*3.5,l:12+Math.random()*8,c:pickL(L.col)})}
