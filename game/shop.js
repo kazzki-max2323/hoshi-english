@@ -364,6 +364,7 @@ function mutTick(T,t){const m=T.mu,e=$('shmut'),now=Date.now();if(!e)return;
   m.next=now+15000+Math.random()*10000;
   if(H.playing&&T.mio.pose!=='doze'&&Math.random()<.3){mut(T,'m',recLine('play'));return}
   if(window.MIOCT&&T.mio.pose!=='doze'&&Math.random()<.6){const rx=MIOCT.mutter();if(rx){mut(T,'m',rx);return}}
+  if(window.SHDECO&&T.mio.pose!=='doze'&&(T.decoSay||Math.random()<.1)){T.decoSay=0;mut(T,'m',SHDECO.idle());return}
   if(T.mio.pose!=='doze'&&Math.random()<.12&&MU().caseIdle){mut(T,'m',ML2(caseN()?'caseIdle':'caseEmpty'));return}
   const S=SH(),r=Math.random(),mp=T.mio.pose;let k;
   if(mp==='doze')k='doze';else if(!S.floor.length&&r<.45)k='empty';else if(S.floor.length&&S.floor.length<3&&r<.3)k='few';else if(mp==='sweep'&&r<.5)k='sweep';else k=r<.55?t:'any';
@@ -384,6 +385,8 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
   const cv=$('shcv'),c=cv.getContext('2d');c.imageSmoothingEnabled=false;
   const T=CT=old||{alive:true,f:0,g:null,next:Date.now()+4000+Math.random()*4000,mio:{x:150,y:44,pose:'stand',until:0,walk:null},visits:0,busy:false,mu:{who:'',until:0,q:[],next:Date.now()+2500,last:{}}};
   T.alive=true;T.paused=0;
+  /* 🪴 もようがえ（ミオが 2〜4日ごとに かえる。 game/shop-deco.js） */
+  const dc=!old&&window.SHDECO?SHDECO.pick(S):null;if(dc){save();if(dc.changed)setTimeout(()=>{if(!T.alive)return;T.mu.until=0;mut(T,'m',SHDECO.hello(),4600,1);T.mio.pose='wave';T.mio.until=Date.now()+2600;const e=$('shst');if(e)e.innerHTML=`🪴 ミオが お店を もようがえ！ きょうは 「${esc(SHDECO.name())}」`},1600);else if(Math.random()<.3)T.mu.next=Date.now()+1500,T.decoSay=1}
   $('shmut').onclick=()=>{const m=T.mu;if(!m.who||!m.line)return;(m.who==='m'?speak:gspeak)(m.line[0])};
   $('shb').onclick=()=>{T.alive=false;sf('back');open()};
   $('shfl').onclick=()=>{sf('step');pause(T);floor()};
@@ -401,16 +404,16 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
   let last=0;
   const tick=now=>{if(!T.alive||!cv.isConnected){T.alive=false;return}requestAnimationFrame(tick);if(now-last<140)return;last=now;T.f++;step(T);
     const d=night(),t=d>.6?'night':d>.25?'dusk':'day';
-    room(c,t,T.f);table(c,SH().floor.length);
+    room(c,t,T.f);if(window.SHDECO)SHDECO.back(c,t,T.f);table(c,SH().floor.length);
     /* Mio: behind the counter, or out on the floor sweeping */
     const m=T.mio;if(m.walk){const dx=m.walk-m.x;if(Math.abs(dx)<1){m.x=m.walk;m.walk=null}else m.x+=Math.sign(dx)}
     const behind=m.y<60;
     const g=T.g;if(g&&g.y+32<=m.y+32){guest(c,g.x,g.y,g.L,g.pose,T.f>>1)}
     if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1)}
     if(g&&g.y+32>m.y+32)guest(c,g.x,g.y,g.L,g.pose,T.f>>1);
-    showcase(c,T.f);const on=!!H.shopSongId;player(c,on,T.f);
+    showcase(c,T.f);const on=!!H.shopSongId;player(c,on,T.f);if(window.SHDECO)SHDECO.front(c,t,T.f);
     if(g&&g.bub&&!(T.mu.who==='g'&&T.mu.until>Date.now()))bub(c,g.x+11,g.y-9,g.bub);
-    lights(c,t);if(t!=='day'){if(on)glow(c,182,93,12,t==='night'?.28:.18);PR(c,173,97,2,1,on?'#7aff9a':'#5a4a3a')}
+    lights(c,t);if(window.SHDECO)SHDECO.lit(c,t,T.f);if(t!=='day'){if(on)glow(c,182,93,12,t==='night'?.28:.18);PR(c,173,97,2,1,on?'#7aff9a':'#5a4a3a')}
     if(H.playing&&now>=(T.noteAt||0)){T.noteAt=now+500+Math.random()*400;note()}
     caseArt();mutTick(T,t)};
   requestAnimationFrame(tick);
@@ -577,6 +580,7 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_shRec',2,()=>SH().met&&songs().length?{}:null,goShop('counter')],
  ['x_shServe',3,()=>SH().met&&window.SHSV?{}:null,goShop('counter')],
  ['x_shCase',3,()=>SH().met&&!caseN()&&allCards().some(id=>rank(id)>=9&&free(id)>0)?{}:null,goShop('case')],
+ ['x_shDeco',2,()=>SH().met&&SH().deco&&window.SHDECO?{deco:SHDECO.name()}:null,goShop('counter')],
  ['x_shCaseOn',2,()=>{const a=CASER().filter(Boolean);if(!a.length)return null;const I=C.info(pickL(a));return I?{w:cnm(I),ja:I.ja||''}:null},goShop('counter')],
  ['x_shBuy',3,()=>SH().met&&window.SHSV&&SHSV.offer?{}:null,goShop('counter')],
  /* スローな ローファイ（game/music-lofi.js） */
@@ -601,6 +605,8 @@ Object.assign(MINA_LINES,{
  sh_caseNew:[['wow','お知らせ！ カードショップの 店内に ガラスの かざりだなが できたよ。 カウンターの 左下の ケースを タップして、 とっておきの カードを 3まい かざってね'],['happy','カードショップに かざりだなが 来たよ。 レアな カードを かざると、 お客さんが 立ちどまって 見てくれるんだって']],
  x_shCase:[['smile','レアな カード、 もってるよね。 カードショップの かざりだなに かざってみない？ お客さんが よろこぶよ'],['happy','「かざる」は 英語で display。 お店の ガラスケースは display case って いうんだよ。 3まい かざれるよ']],
  x_shCaseOn:[['happy','かざりだなの 「{w}」、 お客さんが 見とれてたって。 ミオさんが 言ってたよ'],['smile','「{w}」は 「{ja}」。 かざって おくと、 見るたびに おぼえられるね'],['wow','お店の ケースの 「{w}」、 キラッて 光ってたよ。 店長さん、 いい センスだね']],
+ sh_decoNew:[['wow','お知らせ！ カードショップの 店内を ミオさんが もようがえ するように なったよ。 カフェ風・ギャラリー・海の家・季節の かざり…2〜4日ごとに かわるんだって'],['happy','ミオさんが ときどき お店を もようがえ するんだって。 英語で もようがえは redecorate。 re（もう一度）＋ decorate（かざる）だよ']],
+ x_shDeco:[['smile','いまの カードショップは 「{deco}」。 ミオさん、 センス いいよね'],['happy','カードショップの もよう、 いまは 「{deco}」なんだって。 英語で かざりは decoration。 見に 行こう'],['wow','お店の 「{deco}」、 夜に 行くと 灯りが きれいなんだよ']],
  sh_caseSold:[['wow','ケースの 「{w}」、 お客さんに ゆずったんだね。 その お客さん、 きっと 大切に してくれるよ'],['smile','「ゆずる」は 英語で let someone have it。 Sure, you can have it! って 言えたら かっこいいね']],
  sh_caseKeep:[['happy','「{w}」は ゆずらなかったんだね。 お店の 宝物だもん。 No, sorry. It’s not for sale. で ことわれるよ'],['smile','ことわるのも 大事。 not for sale（売りものじゃない）って おぼえておこうね']],
  sh_casePut:[['happy','「{w}」を かざったんだね。 英語で show off は 「見せびらかす」。 ちょっとだけ 自まんしちゃおう'],['smile','「{w}」＝「{ja}」。 かざった カードは 毎日 目に 入るから、 自然に おぼえちゃうよ']],
@@ -643,6 +649,8 @@ setTimeout(function first6(){const S=SH();if(S.buyTold||!S.met||!window.SHSV||!S
   S.buyTold=1;save();const [ex,tx]=ML('sh_buyNew');m.say('m',ex,tx,10000,null,goShop('counter')())},30000);
 
 /* 🖼️ かざりだなが できた（2026-11-16）: Mina tells you once（もう お店を 知っている 人だけ） */
+setTimeout(function first8(){const S=SH();if(S.decoTold||!S.met||!window.SHDECO)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first8,20000);
+  S.decoTold=1;save();const [ex,tx]=ML('sh_decoNew');m.say('m',ex,tx,10000,null,goShop('counter')())},50000);
 setTimeout(function first7(){const S=SH();if(S.caseTold||!S.met)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first7,20000);
   S.caseTold=1;save();const [ex,tx]=ML('sh_caseNew');m.say('m',ex,tx,10000,null,goShop('case')())},44000);
 
