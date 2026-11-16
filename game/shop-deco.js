@@ -179,15 +179,122 @@ function D_lit(c,t,f,s){if(t==='day')return;const a=t==='night'?1:.6;
   if(s==='summer'){/* ほたるの ような 小さな ひかり */[[60,70],[120,40],[30,90]].forEach(([x,y],i)=>{if((f+i*3)%6<4){P2(c,x,y,'#e8ffa0');softGlow(c,x,y,4,.25*a,'220,255,160')}})}
   if(s==='spring'){PR(c,141,57,3,3,'#ffe2a0');softGlow(c,142,54,10,.18*a,'255,200,220')}}
 
+/* ================================================================ 🎎 行事の かざり（その 期間は ミオが 行事の かざりに する） */
+/* [名前, 開始 月,日, 終わり 月,日] */
+const EVENTS={
+ newyear:['お正月',1,1,1,7],setsubun:['節分',1,31,2,3],valentine:['バレンタイン',2,8,2,14],hina:['ひなまつり',2,25,3,3],
+ kodomo:['こどもの日',4,28,5,5],tanabata:['七夕',7,1,7,7],matsuri:['夏まつり',8,8,8,16],tsukimi:['お月見',9,14,9,24],
+ halloween:['ハロウィン',10,24,10,31],xmas:['クリスマス',12,18,12,25]};
+function eventNow(d=new Date()){const v=(d.getMonth()+1)*100+d.getDate();for(const k in EVENTS){const e=EVENTS[k];if(v>=e[1]*100+e[2]&&v<=e[3]*100+e[4])return k}return null}
+const lantern=(c,x,y,col)=>{PR(c,x,y+1,4,4,col);PR(c,x+1,y,2,6,col);PR(c,x+1,y-1,2,1,'#3a3a3a');PR(c,x+1,y+6,2,1,'#3a3a3a');P2(c,x+1,y+2,'#fff8')};
+function heart(c,x,y,col){PR(c,x,y,2,2,col);PR(c,x+3,y,2,2,col);PR(c,x,y+1,5,2,col);PR(c,x+1,y+3,3,1,col);P2(c,x+2,y+4,col)}
+function pumpkin(c,x,y,w,h){PR(c,x,y+1,w,h-2,'#ff8a2a');PR(c,x+1,y,w-2,h,'#ff8a2a');PR(c,x+Math.floor(w/3),y,1,h,'#e06a1a');PR(c,x+Math.floor(w*2/3),y,1,h,'#e06a1a');PR(c,x+Math.floor(w/2),y-2,2,2,'#6a8a3a')}
+function tree(c,x,y,n){PR(c,x+6,y+28,4,4,'#8a5a32');for(let r=0;r<5;r++){const w=4+r*3;PR(c,x+8-w/2,y+4+r*5,w,6,r%2?'#2e7a4a':'#3a8a5a')}star(c,x+6,y-1,'#ffd23f')}
+const EVD={
+ newyear:{back(c,t,f){
+   garland(c,['#e04a4a','#ffffff'],(x,y,col)=>{PR(c,x,y,4,3,col)});
+   /* しめかざり（ドア） */PR(c,13,18,16,3,'#e8c86a');PR(c,13,18,16,1,'#c8a64a');PR(c,19,21,4,4,'#ff9a2a');P2(c,20,20,'#5ab05a');[14,25].forEach(x=>{PR(c,x,21,2,2,'#fff');PR(c,x+1,23,2,2,'#fff')});for(let i=0;i<4;i++)PR(c,16+i*3,25,1,3,'#e8c86a');
+   /* 鏡もち（カウンター） */PR(c,139,66,9,2,'#e04a4a');PR(c,140,62,7,4,'#fff');PR(c,141,59,5,3,'#fff');PR(c,142,57,3,2,'#ff9a2a');P2(c,143,56,'#5ab05a');
+   /* 右かべに たこ */PR(c,180,36,14,16,'#fff4dc');PR(c,180,36,14,1,'#c8a878');PR(c,182,39,10,6,'#e04a4a');PR(c,185,41,4,2,'#fff');for(let i=0;i<5;i++)P2(c,186+(i%2),52+i,'#e04a4a')},
+  front(c,t,f){/* 門松 */const k=x=>{PR(c,x,107,12,9,'#c8a060');for(let i=0;i<4;i++)PR(c,x,108+i*2,12,1,'#a8804a');[[x+2,92],[x+5,88],[x+8,94]].forEach(([a,b])=>{PR(c,a,b,3,107-b,'#5ab05a');P2(c,a,b,'#9fe8a0');P2(c,a+2,b+1,'#3a8a3a')});PR(c,x-1,100,4,4,'#2e6a3a');PR(c,x+9,99,4,5,'#2e6a3a');P2(c,x+1,102,'#e04a4a')};k(132);k(154)},
+  lit(c,t,f,a){softGlow(c,143,60,10,.2*a);softGlow(c,149,100,14,.15*a)},
+  hello:[["Happy New Year! We have New Year decorations.","あけまして おめでとう！ お正月の かざりです。"],["Happy New Year! Let's make this year great.","あけまして おめでとう！ いい 1年に しましょう。"]],
+  idle:[["Mochi is rice cake in English.","おもちは 英語で rice cake。"],["A new year, a new start!","新しい 年、 新しい スタート！"],["I made a New Year's resolution: more English!","ことしの 目標は もっと 英語！ resolution は 「決意」。"]]},
+ setsubun:{back(c,t,f){
+   /* 鬼の お面 */PR(c,34,26,9,10,'#e04a4a');P2(c,34,25,'#ffd23f');P2(c,42,25,'#ffd23f');PR(c,35,24,1,2,'#ffd23f');PR(c,41,24,1,2,'#ffd23f');PR(c,36,29,2,1,'#222');PR(c,40,29,2,1,'#222');PR(c,36,33,6,1,'#fff');PR(c,34,24,9,2,'#3a3a3a');
+   /* ひいらぎ */PR(c,8,18,3,6,'#3a8a3a');PR(c,10,17,1,3,'#8a8a9a');
+   /* ます（カウンター） */PR(c,139,63,9,5,'#e0c080');PR(c,139,63,9,1,'#c8a060');[[140,62],[142,61],[144,62],[146,62]].forEach(([x,y])=>P2(c,x,y,'#f6e0a8'));
+   garland(c,['#e04a4a','#3a7ac0','#ffd23f'],(x,y,col)=>{PR(c,x,y,3,3,col)})},
+  front(c,t,f){[[134,110],[140,104],[147,112],[155,107],[162,111],[66,108],[100,112]].forEach(([x,y])=>PR(c,x,y,2,1,'#f6e0a8'))},
+  lit(){},
+  hello:[["Oni wa soto! Fuku wa uchi! Happy Setsubun!","鬼は外！ 福は内！ 節分です。"]],
+  idle:[["An oni is like an ogre in English.","鬼は 英語で ogre に にてるかな。"],["Throwing beans brings good luck!","豆まきで 福が 来る！"]]},
+ valentine:{back(c,t,f){
+   garland(c,['#ff6a8a','#ff9aa8','#e04a4a'],(x,y,col)=>heart(c,x,y,col));
+   /* チョコの はこ */PR(c,139,63,9,5,'#6a3a2a');PR(c,139,63,9,1,'#8a5a3a');PR(c,143,63,1,5,'#e04a4a');PR(c,141,61,5,2,'#e04a4a');
+   /* 右かべ: 大きな ハート */heart(c,183,40,'#ff6a8a');heart(c,190,46,'#ff9aa8');heart(c,180,48,'#e04a4a')},
+  front(c,t,f){const b=Math.round(Math.sin(f/4));PR(c,150,92+b,1,20,'#bbb');PR(c,146,85+b,9,7,'#ff6a8a');PR(c,147,84+b,3,1,'#ff6a8a');PR(c,151,84+b,3,1,'#ff6a8a');PR(c,148,92+b,5,1,'#ff6a8a');P2(c,150,93+b,'#ff6a8a');P2(c,147,86+b,'#fff');PR(c,145,112,10,4,'#c8a878')},
+  lit(c,t,f,a){softGlow(c,150,88,12,.18*a,'255,170,200')},
+  hello:[["Happy Valentine's Day! Hearts everywhere!","ハッピー バレンタイン！ ハートが いっぱい！"]],
+  idle:[["I love chocolate. Who doesn't?","チョコ 大好き。 きらいな 人 いる？"],["'Be mine' means 'be my Valentine'.","Be mine は 「わたしの バレンタインに なって」。"]]},
+ hina:{back(c,t,f){
+   garland(c,['#ffb0c8','#ffffff','#9fe0a0'],(x,y,col)=>{PR(c,x,y,3,3,col);P2(c,x+1,y+1,'#ffe066')});
+   /* ひなだん（右かべ） */PR(c,177,50,21,6,'#e04a4a');PR(c,180,44,15,6,'#e04a4a');PR(c,177,50,21,1,'#ff6a6a');PR(c,180,44,15,1,'#ff6a6a');
+   PR(c,182,38,4,6,'#2a2a5a');PR(c,183,36,2,2,'#ffe0cc');P2(c,183,35,'#222');PR(c,189,38,5,6,'#e04a6a');PR(c,190,36,2,2,'#ffe0cc');PR(c,189,35,4,1,'#222');P2(c,191,34,'#ffd23f');
+   [[179,46],[183,46],[187,46],[191,46],[195,46]].forEach(([x,y],i)=>{PR(c,x,y,2,4,['#ff9aa8','#9fe0a0','#fff','#9fe0a0','#ff9aa8'][i]);P2(c,x,y-1,'#ffe0cc')});
+   /* ひなあられ */PR(c,139,64,9,4,'#fff');[[140,63],[142,62],[144,63],[146,62],[141,61]].forEach(([x,y],i)=>P2(c,x,y,['#ffb0c8','#9fe0a0','#fff4a8','#ffb0c8','#fff'][i]))},
+  front(c,t,f){/* 桃の 花 */PR(c,146,104,8,12,'#fff');PR(c,146,104,8,1,'#e8eef4');PR(c,149,90,1,14,'#7a5a42');PR(c,147,95,2,1,'#7a5a42');PR(c,150,93,3,1,'#7a5a42');[[146,93],[151,91],[148,89],[153,95],[145,97],[150,97]].forEach(([x,y])=>{PR(c,x,y,2,2,'#ff8ab0');P2(c,x,y,'#ffd0e0')})},
+  lit(c,t,f,a){softGlow(c,188,44,12,.2*a)},
+  hello:[["It's Hinamatsuri, the Doll Festival!","ひなまつり、 英語で Doll Festival です！"]],
+  idle:[["Peach blossoms are so pretty.","桃の 花、 かわいい。"],["Doll is 'ningyo' in Japanese, right?","doll は 日本語で 「人形」 ですよね。"]]},
+ kodomo:{back(c,t,f){
+   /* こいのぼり（まどの 外） */PR(c,121,14,1,30,'#8a8a9a');P2(c,121,13,'#ffd23f');
+   [[16,'#2a2a3a',14],[23,'#e04a4a',12],[30,'#3a7ac0',10]].forEach(([y,col,L],i)=>{const w=(f+i*2)%4<2?0:1;for(let x=0;x<L;x++)PR(c,123+x,y+((x+f+i)%6<3?0:1)*w,1,4,col);P2(c,125,y+1,'#fff');P2(c,125,y+2,'#222');for(let x=4;x<L;x+=3)P2(c,123+x,y+2,'#fff8')});
+   garland(c,['#3a7ac0','#e04a4a','#ffd23f','#5ab05a'],(x,y,col)=>{PR(c,x,y,4,2,col)});
+   /* かぶと */PR(c,139,63,9,5,'#2a2a3a');PR(c,140,61,7,2,'#2a2a3a');PR(c,138,59,2,4,'#ffd23f');PR(c,147,59,2,4,'#ffd23f');PR(c,141,65,5,1,'#ffd23f')},
+  front(c,t,f){/* 風車 */const r=(f>>1)%2;PR(c,152,96,1,18,'#888');const cx=152,cy=95;if(r){PR(c,cx-3,cy,3,1,'#e04a4a');PR(c,cx+1,cy,3,1,'#3a7ac0');PR(c,cx,cy-3,1,3,'#ffd23f');PR(c,cx,cy+1,1,3,'#5ab05a')}else{PR(c,cx-2,cy-2,2,2,'#e04a4a');PR(c,cx+1,cy+1,2,2,'#3a7ac0');PR(c,cx+1,cy-2,2,2,'#ffd23f');PR(c,cx-2,cy+1,2,2,'#5ab05a')}PR(c,148,113,9,3,'#c8a878')},
+  lit(){},
+  hello:[["Happy Children's Day! Look at the carp streamers!","こどもの日！ こいのぼりを 見て！"]],
+  idle:[["Carp swim up waterfalls. So strong!","コイは たきを のぼるんだって。 つよい！"],["A carp streamer is 'koinobori'.","carp streamer が こいのぼり。"]]},
+ tanabata:{back(c,t,f){
+   /* ささ と たんざく */PR(c,38,12,1,46,'#5a9a4a');for(let i=0;i<8;i++){const y=14+i*5,o=i%2?1:-1;PR(c,38+o*2,y,3,1,'#5ab05a');PR(c,38+o*4,y+1,2,1,'#7ccf6a')}
+   [[35,20,'#ff7a8a'],[40,26,'#5ab4ff'],[35,32,'#ffd23f'],[40,38,'#c79ad6'],[35,44,'#7ad37a']].forEach(([x,y,col])=>PR(c,x,y,2,5,col));
+   garland(c,['#ffd23f','#fff4a8'],(x,y,col)=>star(c,x-1,y,col));
+   /* 天の川（まど） */if(t!=='day')for(let i=0;i<30;i++)P2(c,118+Math.floor(hash(i)*56),14+Math.floor((hash(i)*56)*.45+hash(i+7)*6),i%3?'#fff':'#bfe8ff')},
+  front(c,t,f){},
+  lit(c,t,f,a){for(let i=0;i<30;i++){if((f+i)%5)P2(c,118+Math.floor(hash(i)*56),14+Math.floor((hash(i)*56)*.45+hash(i+7)*6),i%3?'#fff':'#bfe8ff')}},
+  hello:[["It's Tanabata, the Star Festival! Make a wish!","七夕です！ Star Festival。 ねがいごとを しよう！"]],
+  idle:[["I wished for better English!","英語が もっと 上手に なりますように！"],["The Milky Way is 'amanogawa'.","the Milky Way が 天の川。"]]},
+ matsuri:{back(c,t,f){
+   /* ちょうちんの ガーランド */const g=(x0,x1,y0,d)=>{sag(x0,x1,y0,d,(x,y)=>P2(c,x,y,'#555'));for(let x=x0+3,i=0;x<x1-3;x+=8,i++){const u=(x-x0)/(x1-x0);lantern(c,x,Math.round(y0+d*4*u*(1-u))+2,i%2?'#ffffff':'#e04a4a')}};g(0,42,11,3);g(110,200,11,4);
+   /* うちわ */PR(c,35,28,7,7,'#fff');PR(c,36,29,5,5,'#5ab4ff');PR(c,37,30,3,2,'#fff');PR(c,38,35,1,7,'#c8a878');
+   /* ヨーヨー */[[140,64,'#ff6a8a'],[144,63,'#5ab4ff']].forEach(([x,y,col])=>{PR(c,x,y,4,4,col);P2(c,x+1,y+1,'#fff')})},
+  front(c,t,f){/* 金魚の おけ */PR(c,136,106,22,8,'#3a7ac0');PR(c,137,107,20,4,'#7ad3f0');[[140,108],[148,109],[153,107]].forEach(([x,y],i)=>{const o=(f+i*3)%4<2?0:1;PR(c,x+o,y,3,2,'#ff5a3a');P2(c,x+o+3,y,'#ff5a3a')})},
+  lit(c,t,f,a){[[5,15],[13,16],[21,16],[29,16],[37,14],[113,15],[121,17],[129,18],[137,19],[145,19],[153,19],[161,18],[169,17],[177,16],[185,14],[193,13]].forEach(([x,y],i)=>softGlow(c,x,y+3,6,.24*a));
+   if(t==='night'){c.save();c.beginPath();c.rect(118,14,56,30);c.clip();const ph=f%12;[[132,22,'#ff9aa8'],[160,20,'#ffe066']].forEach(([x,y,col],i)=>{const r=(ph+i*6)%12;if(r<6){for(let k=0;k<8;k++){const an=k/8*6.28;P2(c,Math.round(x+Math.cos(an)*r),Math.round(y+Math.sin(an)*r),col)}}});c.restore()}},
+  hello:[["Summer festival time! Look at the lanterns!","夏まつりです！ ちょうちん、 見て！"]],
+  idle:[["Fireworks are 'hanabi'. Beautiful!","fireworks が 花火。 きれい！"],["Goldfish scooping is so hard!","金魚すくい、 むずかしい！"],["A paper lantern is 'chochin'.","paper lantern が ちょうちん。"]]},
+ tsukimi:{back(c,t,f){
+   /* 大きな 月（まど） */PR(c,152,18,10,10,'#fff2b0');PR(c,153,17,8,12,'#fff2b0');PR(c,151,19,12,8,'#fff2b0');P2(c,155,21,'#e8d890');P2(c,158,24,'#e8d890');
+   /* うさぎ（右かべ） */PR(c,184,44,7,6,'#fff');PR(c,185,40,1,4,'#fff');PR(c,188,40,1,4,'#fff');P2(c,187,46,'#e04a6a');PR(c,183,50,9,2,'#e8eef4');
+   garland(c,['#e8d890','#c8a060'],(x,y,col)=>{PR(c,x,y,1,4,col);P2(c,x-1,y,col);P2(c,x+1,y+1,col)})},
+  front(c,t,f){/* だんごと ススキ */PR(c,138,108,14,3,'#c8a060');PR(c,140,111,10,5,'#a8804a');[[140,104],[144,104],[148,104],[142,100],[146,100],[144,96]].forEach(([x,y])=>{PR(c,x,y,3,3,'#fff');P2(c,x,y,'#e8eef4')});
+   PR(c,156,106,8,10,'#5a6a8a');[[157,90],[159,88],[161,91],[163,93]].forEach(([x,y],i)=>{PR(c,x,y+4,1,106-y-4,'#c8b080');PR(c,x-1,y,2,4,'#e8d8b0')})},
+  lit(c,t,f,a){softGlow(c,157,23,14,.3*a,'255,240,180')},
+  hello:[["Moon-viewing time! The full moon is so bright.","お月見です！ 満月が 明るい。"]],
+  idle:[["Japanese people see a rabbit in the moon.","日本では 月に うさぎが いるって 言うんです。"],["A full moon is round like a dango.","full moon（満月）は おだんごみたいに まるい。"]]},
+ halloween:{back(c,t,f){
+   garland(c,['#ff8a2a','#7a4ac0','#222'],(x,y,col,i)=>{if(col==='#222'){PR(c,x,y+1,5,1,col);P2(c,x+1,y,col);P2(c,x+3,y,col);P2(c,x+2,y+2,col)}else{PR(c,x,y,4,2,col);PR(c,x+1,y+2,2,1,col)}});
+   /* おばけ */const b=Math.round(Math.sin(f/3));PR(c,35,24+b,7,9,'#fff');PR(c,36,23+b,5,1,'#fff');P2(c,35,33+b,'#fff');P2(c,38,33+b,'#fff');P2(c,41,33+b,'#fff');P2(c,37,27+b,'#222');P2(c,40,27+b,'#222');PR(c,38,30+b,2,1,'#222');
+   /* こうもり（まど） */const w=(f>>1)%2;[[134,20],[160,28]].forEach(([x,y])=>{PR(c,x,y,3,2,'#222');PR(c,x-3,y-w,3,1,'#222');PR(c,x+3,y-w,3,1,'#222')});
+   /* キャンディ */PR(c,139,62,8,6,'#bfe8ff');PR(c,139,62,8,1,'#e8f6ff');[[140,65,'#ff6a8a'],[142,64,'#ffd23f'],[144,65,'#7ad37a'],[145,63,'#c79ad6']].forEach(([x,y,col])=>P2(c,x,y,col));
+   /* 右かべ: くも の す */for(let i=0;i<10;i++){P2(c,187+i,34,'#c8ccd8');P2(c,197,34+i,'#c8ccd8');P2(c,197-i,34+i,'#c8ccd8')}PR(c,190,38,2,2,'#222')},
+  front(c,t,f){pumpkin(c,138,103,13,11);PR(c,141,106,2,2,'#5a2a0a');PR(c,146,106,2,2,'#5a2a0a');PR(c,141,110,7,1,'#5a2a0a');pumpkin(c,154,107,9,8);PR(c,136,114,30,2,'#c8a878')},
+  lit(c,t,f,a){PR(c,141,106,2,2,'#ffd27a');PR(c,146,106,2,2,'#ffd27a');PR(c,141,110,7,1,'#ffd27a');softGlow(c,144,108,14,.32*a,'255,170,80')},
+  hello:[["Happy Halloween! Trick or treat!","ハッピー ハロウィン！ トリック・オア・トリート！"]],
+  idle:[["A jack-o'-lantern is a pumpkin lamp.","jack-o'-lantern は かぼちゃの ランプ。"],["Boo! Did I scare you?","ばぁ！ びっくりした？"],["Bats come out at night.","こうもりは 夜に 出てくるんです。"]]},
+ xmas:{back(c,t,f){
+   garland(c,['#e04a4a','#3a8a5a','#ffd23f'],(x,y,col)=>{PR(c,x,y,3,3,col);P2(c,x+1,y+1,'#fff8')});
+   /* リース（ドア） */for(let a=0;a<14;a++){const x=Math.round(20+Math.cos(a/14*6.28)*5),y=Math.round(30+Math.sin(a/14*6.28)*5);PR(c,x-1,y-1,3,3,a%2?'#2e7a4a':'#3a8a5a')}PR(c,18,35,5,2,'#e04a4a');[[16,27],[24,29],[19,25]].forEach(([x,y])=>P2(c,x,y,'#e04a4a'));
+   /* くつした（右かべ） */PR(c,181,38,5,9,'#e04a4a');PR(c,181,46,8,4,'#e04a4a');PR(c,181,37,5,2,'#fff');PR(c,190,40,5,9,'#3a8a5a');PR(c,190,48,8,4,'#3a8a5a');PR(c,190,39,5,2,'#fff');PR(c,180,36,19,1,'#c8a878');
+   /* 雪（まど） */PR(c,118,41,27,3,'#fff');PR(c,147,41,27,3,'#fff');petals(c,f,['#fff'],12,[118,14,56,27]);
+   /* ケーキ */PR(c,139,63,8,5,'#fff');PR(c,139,63,8,1,'#ffb0c8');PR(c,141,61,1,2,'#e04a4a');PR(c,144,61,1,2,'#e04a4a')},
+  front(c,t,f){tree(c,146,80);[[152,90,'#e04a4a'],[156,95,'#5ab4ff'],[150,100,'#ffd23f'],[157,104,'#e04a4a'],[149,107,'#fff'],[154,100,'#c79ad6'],[151,95,'#ffd23f']].forEach(([a,b,col])=>P2(c,a,b,col));
+   PR(c,136,108,8,7,'#e04a4a');PR(c,139,108,2,7,'#ffd23f');PR(c,136,110,8,1,'#ffd23f');PR(c,164,110,6,5,'#5ab4ff');PR(c,166,110,1,5,'#fff')},
+  lit(c,t,f,a){[[152,90],[156,95],[150,100],[157,104],[149,107],[154,100],[151,95]].forEach(([x,y],i)=>{if((f+i)%4){P2(c,x,y,['#ffe2a0','#ffb0a0','#bfe8ff'][i%3]);softGlow(c,x,y,5,.22*a)}});softGlow(c,152,80,9,.28*a)},
+  hello:[["Merry Christmas! I decorated the tree!","メリー クリスマス！ ツリーを かざりました！"]],
+  idle:[["Santa is coming tonight!","今夜 サンタさんが 来ますよ！"],["A stocking is a long sock for presents.","stocking は プレゼントを 入れる くつした。"],["Jingle bells, jingle bells…","ジングルベル、 ジングルベル…"]]}};
+
 /* ================================================================ どの もようか（ミオが ときどき かえる） */
 const KEYS=['A','B','C','D'];
 const NAME={A:'植物と 灯りの カフェ',B:'カードの ギャラリー',C:'海の家',D:'季節の かざり'};
 const SNAME={spring:'春',summer:'夏',autumn:'秋',winter:'冬'};
 const season=()=>{const m=new Date().getMonth()+1;return m>=3&&m<=5?'spring':m>=6&&m<=8?'summer':m>=9&&m<=11?'autumn':'winter'};
 const DAY=864e5;
-let K='A';
+let K='A',EV=null;
 /* S = お店の 記録（SHOP.rec()）。 もどり値: いまの もよう と かわったか */
-function pick(S){const now=Date.now();let d=S.deco;
+function pick(S){const now=Date.now();let d=S.deco;EV=eventNow();
+  if(EV&&d&&KEYS.includes(d.k)){K=d.k;const id=EV+new Date().getFullYear(),nw=d.ev!==id;d.ev=id;return {k:K,changed:nw,ev:EV}}
   if(!d||!KEYS.includes(d.k)){d=S.deco={k:'A',until:now+2*DAY+Math.random()*2*DAY,seen:0,n:0};K=d.k;return {k:K,changed:false,first:true}}
   if(now>=d.until){const o=KEYS.filter(k=>k!==d.k);d.k=o[Math.random()*o.length|0];d.until=now+2*DAY+Math.random()*2*DAY;d.seen=0;d.n=(d.n||0)+1}
   K=d.k;const changed=!d.seen;d.seen=1;return {k:K,changed:changed&&d.n>0,first:false}}
@@ -196,17 +303,17 @@ const X={
  B:{back:B_back,front:B_front,lit:B_lit},
  C:{floor:C_floor,back:C_back,front:C_front,lit:C_lit},
  D:{back:(c,t,f,s)=>{sky2(c,f,s);D_back(c,t,f,s)},front:D_front,lit:D_lit}};
-function back(c,t,f){const x=X[K];if(x.floor)x.floor(c);x.back(c,t,f,season())}
-function front(c,t,f){X[K].front(c,t,f,season())}
+function back(c,t,f){if(EV)return EVD[EV].back(c,t,f);const x=X[K];if(x.floor)x.floor(c);x.back(c,t,f,season())}
+function front(c,t,f){if(EV)return EVD[EV].front(c,t,f);X[K].front(c,t,f,season())}
 /* 夜と 夕方: lights() が まどの 空を かきなおすので、 まどに かかる かざりを 少し くらくして 重ねなおしてから 灯りを たす */
 const WINS=[[118,14,56,30],[8,20,24,26]],DARK={dusk:'rgba(120,60,90,.22)',night:'rgba(16,22,60,.55)'};
 let OC=null;
-function lit(c,t,f){if(t==='day')return;const x=X[K],s=season();
+function lit(c,t,f){if(t==='day')return;const x=EV?EVD[EV]:X[K],s=season();
   if(!OC){OC=document.createElement('canvas');OC.width=W;OC.height=HH}
   const o=OC.getContext('2d');o.globalCompositeOperation='source-over';o.clearRect(0,0,W,HH);x.back(o,t,f,s);
   o.globalCompositeOperation='source-atop';o.fillStyle=DARK[t];o.fillRect(0,0,W,HH);
-  c.save();c.beginPath();WINS.forEach(r=>c.rect(...r));c.clip();if(K==='D')sky2(c,f,s);c.drawImage(OC,0,0);c.restore();
-  x.lit(c,t,f,s)}
+  c.save();c.beginPath();WINS.forEach(r=>c.rect(...r));c.clip();if(K==='D'&&!EV)sky2(c,f,s);c.drawImage(OC,0,0);c.restore();
+  if(EV)x.lit(c,t,f,t==='night'?1:.6);else x.lit(c,t,f,s)}
 
 /* ミオの ひとこと（[英語, 日本語]） */
 const NEW={
@@ -226,8 +333,9 @@ const IDLE={
  autumn:[["Fall is another word for autumn.","fall も 「秋」って いみなんですよ。"],["These pumpkins are heavy!","この かぼちゃ、 おもい！"]],
  winter:[["It's cold, but the shop is warm.","さむいけど、 お店の 中は あったかい。"],["Hot cocoa is the best in winter.","冬は ホットココアが いちばん。"]]};
 const pk=a=>a[Math.random()*a.length|0];
-const key=()=>K==='D'?season():K;
+const key=()=>K==='D'?season():K,lines=k=>EV?EVD[EV][k]:(k==='hello'?NEW:IDLE)[key()];
 window.SHDECO={pick,back,front,lit,keys:KEYS,
-  cur:()=>K,name:()=>K==='D'?SNAME[season()]+'の かざり':NAME[K],season,
-  hello:()=>pk(NEW[key()]),idle:()=>pk(IDLE[key()])};
+  cur:()=>K,ev:()=>EV,events:EVENTS,eventNow,name:()=>EV?EVENTS[EV][0]+'の かざり':K==='D'?SNAME[season()]+'の かざり':NAME[K],season,
+  _force:(k,e)=>{K=k;EV=e},
+  hello:()=>pk(lines('hello')),idle:()=>pk(lines('idle'))};
 })();
