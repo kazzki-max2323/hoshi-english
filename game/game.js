@@ -160,7 +160,7 @@ function cards(lv,bi,onlyLeft=false){
   function draw(){const w=B.w[i],lr=isLearned(lv,bi,w);fc.classList.remove('flip');fc.classList.toggle('learned',lr);
     $('ff').innerHTML=`${lr?'<em class="lmark">✓ おぼえた</em>':''}${w[2]?`<span class="ce">${w[2]}</span>`:''}<span class="cw">${esc(w[0])}</span>`;
     $('fb').innerHTML=`<span class="cj">${esc(w[1])}</span><span class="cw2">${esc(w[0])}</span>`;
-    $('cn').textContent=`${i+1} / ${B.w.length}`;$('ln').textContent=left().length;$('ck').classList.toggle('on',lr);ST.bookPos[key]=i;save()}
+    $('cn').textContent=`${i+1} / ${B.w.length}`;$('ln').textContent=left().length;$('ck').classList.toggle('on',lr);ST.bookPos[key]=i;save();emit('cardShow',lv,bi,w)}
   /* read the card aloud as it appears (after its sound file loads, and only if it is still the card on screen) */
   function autoSay(){if(!ST.autoSay)return;const t=B.w[i][0];idxP.then(()=>loadAud(IDX[t]||lv)).then(()=>{if(screen==='cards'&&B.w[i]&&B.w[i][0]===t&&fc.isConnected)say(lv,t)})}
   /* the next card in direction d (skipping learned ones in のこりだけ); -1 when there is none */
@@ -202,7 +202,7 @@ function cards(lv,bi,onlyLeft=false){
   loadAud(bi==='season'?'season':lv);
   $('cx').onclick=()=>{SFX.back();books(lv)};
   cardKeys=e=>{if(e.key==='ArrowRight')go(1);if(e.key==='ArrowLeft')go(-1);if(e.key==='ArrowUp')mark()};
-  draw();autoSay();
+  emit('cardsOpen',lv,bi);draw();autoSay();
 }
 let cardKeys=null;
 /* ---------- settings: volumes and voice speed ---------- */
@@ -243,7 +243,7 @@ function wipeAll(){
 /* tapping anywhere outside the panel works like its ← button (and that tap does nothing else).
    Result screens without ← mark their "back" button with data-back. Mini games have neither, so they ignore it.
    A running long talk / the novel (data-stay) ignores it too, so a stray tap can't end it; once its ending shows (.kend/.kends) it closes like the rest */
-document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#meteor,#bbadge,#minaPop,#dpov,#bmPop'))return;
+document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#meteor,#bbadge,#minaPop,#dpov,#bmPop,.ttov'))return;
   if(panel.querySelector('[data-stay]')&&!panel.querySelector('.kend,.kends'))return;
   const x=panel.querySelector('.qtop .x')||panel.querySelector('[data-back]');if(!x)return;
   e.preventDefault();e.stopPropagation();x.click();
@@ -251,7 +251,7 @@ document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest
 /* a round ← at the bottom right on every screen but home: it works like the screen's ← (or its data-back button).
    Hidden where the outside tap is off too: mini games (no ← at all) and a running long talk / novel (data-stay) */
 const fab=document.createElement('button');fab.id='backFab';fab.className='backfab';fab.textContent='←';fab.setAttribute('aria-label','もどる');fab.hidden=true;document.body.appendChild(fab);
-const fabTarget=()=>{if(screen==='home'||$('cardOv')||$('dpov')||$('bmPop'))return null;   // popups over the panel have their own ✕
+const fabTarget=()=>{if(screen==='home'||$('cardOv')||$('dpov')||$('bmPop')||document.querySelector('.ttov'))return null;   // popups over the panel have their own ✕
   if(panel.querySelector('[data-stay]')&&!panel.querySelector('.kend,.kends'))return null;
   return panel.querySelector('.qtop .x')||panel.querySelector('[data-back]')};
 fab.onclick=e=>{e.stopPropagation();const x=fabTarget();if(x)x.click()};
@@ -266,7 +266,7 @@ document.addEventListener('pointerdown',e=>{if(e.button>0)return;let t=e.target.
   const gm=e.target.closest('.ab.line [data-gmk]');if(gm)t=gm;
   e.preventDefault();t.click();eatUntil=performance.now()+600},true);
 document.addEventListener('click',e=>{if(e.isTrusted&&performance.now()<eatUntil){eatUntil=0;e.stopPropagation();e.preventDefault()}},true);
-document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys)cardKeys(e)});
+document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys&&!document.querySelector('.ttov'))cardKeys(e)});
 
 /* ---------- beach shows on their own: about every 8 minutes of play, a random show that fits the time of day ----------
    fireworks (the poker's v306 engine, several programmes) and drones are the most likely at night */
