@@ -206,3 +206,23 @@
 .shcsl .row{gap:4px;flex-wrap:nowrap}.shcsl .row button{flex:1;min-width:0;padding:6px 2px;font-size:.75rem}
 .shcsl.empty>button{aspect-ratio:5/7;border:2px dashed #ffffff66;border-radius:10px;background:#7a2a4833;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:.8rem}
 .shcsl.empty>button b{font-size:1.6rem;opacity:.8}
+/* ✨ 鉱山で 見つけた ときの アニメーション（game/mine.js fly） */
+.mnfly{position:absolute;left:62%;top:46%;width:0;height:0;pointer-events:none;z-index:3}
+.mnfly span{position:absolute;left:0;top:0;font-size:2.4rem;line-height:1;transform:translate(-50%,-50%);animation:mnfly 1.15s cubic-bezier(.3,.8,.4,1) forwards}
+.mnfly.big span{font-size:3.4rem;animation-duration:1.45s}
+.mnfly .glow{position:absolute;left:0;top:0;width:90px;height:90px;margin:-45px 0 0 -45px;border-radius:50%;background:radial-gradient(circle,rgba(255,240,170,.85),rgba(255,210,80,.35) 45%,rgba(255,210,80,0) 70%);animation:mnglw 1s ease-out forwards}
+.mnfly.big .glow{width:150px;height:150px;margin:-75px 0 0 -75px;background:conic-gradient(from 0deg,rgba(255,225,74,0),rgba(255,225,74,.55),rgba(255,225,74,0) 20%,rgba(255,225,74,.55) 30%,rgba(255,225,74,0) 45%,rgba(255,225,74,.55) 55%,rgba(255,225,74,0) 70%,rgba(255,225,74,.55) 80%,rgba(255,225,74,0));animation:mnray 1.4s ease-out forwards}
+.mnfly i{position:absolute;left:-3px;top:-3px;width:6px;height:6px;background:#fff6c0;box-shadow:0 0 6px #ffd23f;transform:rotate(var(--a)) translateX(0);animation:mnspk .8s ease-out forwards}
+.mnfly.big i{background:#ffe14a}
+.mnfly.bad .glow{background:radial-gradient(circle,rgba(255,80,80,.6),rgba(255,80,80,0) 70%)}
+.mnfly.bad span{animation:mnbad 1.1s ease-out forwards}
+@keyframes mnfly{0%{transform:translate(-50%,-50%) scale(.1);opacity:0}15%{transform:translate(-50%,-110%) scale(1.45) rotate(-10deg);opacity:1}30%{transform:translate(-50%,-80%) scale(1.1) rotate(8deg)}45%{transform:translate(-50%,-95%) scale(1.2) rotate(-4deg)}62%{transform:translate(-50%,-85%) scale(1.15) rotate(0)}100%{transform:translate(-180%,230%) scale(.35);opacity:0}}
+@keyframes mnglw{0%{transform:scale(.2);opacity:0}25%{transform:scale(1);opacity:1}100%{transform:scale(1.4);opacity:0}}
+@keyframes mnray{0%{transform:scale(.2) rotate(0);opacity:0}20%{transform:scale(1) rotate(30deg);opacity:1}70%{opacity:.8}100%{transform:scale(1.2) rotate(120deg);opacity:0}}
+@keyframes mnspk{0%{transform:rotate(var(--a)) translateX(4px) scale(1);opacity:1}100%{transform:rotate(var(--a)) translateX(var(--d)) scale(.3);opacity:0}}
+@keyframes mnbad{0%{transform:translate(-50%,-50%) scale(.2);opacity:0}20%{transform:translate(-50%,-70%) scale(1.5);opacity:1}35%,55%{transform:translate(-62%,-70%) scale(1.4) rotate(-12deg)}45%,65%{transform:translate(-38%,-70%) scale(1.4) rotate(12deg)}100%{transform:translate(-50%,40%) scale(.8);opacity:0}}
+.mnshake{animation:mnshk .45s ease-in-out}
+@keyframes mnshk{0%,100%{transform:translate(0)}20%{transform:translate(-5px,2px)}40%{transform:translate(5px,-2px)}60%{transform:translate(-3px,1px)}80%{transform:translate(3px,0)}}
+.mnbump{animation:mnbmp .4s ease-out}
+@keyframes mnbmp{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+@media (prefers-reduced-motion:reduce){.mnfly span,.mnfly .glow,.mnfly i,.mnshake,.mnbump{animation-duration:.01s}}
