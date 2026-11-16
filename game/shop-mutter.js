@@ -126,6 +126,30 @@ const SHOP_MUTTER={
   ["Huh? No cards?","あれ？ カードが ない？"],
   ["The shelf is empty…","売り場が からっぽ…"]],
 
+/* 🖼️ かざりだな（ガラスケース）: お客さんが のぞいて ひとこと → ミオが こたえる。 {w}=カードの 名前 */
+ g_case:[
+  ["Wow! What's in the glass case?","わあ！ ガラスケースの 中、 なに？"],
+  ["That card is shining!","あの カード、 光ってる！"],
+  ["Is that one for sale?","あれは 売りもの？"],
+  ["I've never seen that card before.","あんな カード、 はじめて 見た。"],
+  ["So rare… I'm jealous!","めずらしい… うらやましい！"],
+  ["Can I take a picture?","写真 とっても いい？"],
+  ["Where did you find these?","これ、 どこで 見つけたの？"]],
+ caseMio:[
+  ["Sorry, those are not for sale!","ごめんなさい、 それは 売りものじゃ ないんです！"],
+  ["Our boss found them in the mine!","店長が 鉱山で 見つけたんですよ！"],
+  ["Those are our treasures.","あれは うちの お宝なんです。"],
+  ["Pretty, right? Just looking is free!","きれいでしょ？ 見るのは タダです！"],
+  ["Take your time. They don't bite!","ゆっくり どうぞ。 かみつきませんよ！"]],
+ caseIdle:[
+  ["Let me polish the glass… shine!","ガラスを みがこう… ピカピカ！"],
+  ["Our showcase looks great today.","きょうも かざりだなが きれい。"],
+  ["Good morning, treasure cards!","おはよう、 お宝カードたち！"],
+  ["No fingerprints on the glass. Perfect!","ガラスに 指のあと なし。 かんぺき！"]],
+ caseEmpty:[
+  ["The glass case is empty… so lonely.","ガラスケースが からっぽ… さみしい。"],
+  ["Let's show off our best cards, boss!","いちばんの カードを かざりましょうよ、 店長！"]],
+
 /* お客さん: その 人らしい ひとこと（GUESTS と 同じ じゅんばん） */
  who:[
   /* りょうしの ゲンさん */
