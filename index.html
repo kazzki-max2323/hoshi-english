@@ -42,6 +42,7 @@ button{touch-action:manipulation}
 <link rel="stylesheet" href="game/shop.css">
 <link rel="stylesheet" href="game/cbook.css">
 <link rel="stylesheet" href="game/food.css">
+<link rel="stylesheet" href="game/tango-talk.css">
 </head>
 <body>
 <canvas id="stars"></canvas>
@@ -169,6 +170,7 @@ button{touch-action:manipulation}
 <script src="game/mina-react.js"></script>
 <script src="game/mina-chat-data.js"></script>
 <script src="game/mina-chat.js"></script>
+<script src="game/tango-talk.js"></script>
 <script>
 if('serviceWorker' in navigator){addEventListener('load',()=>{
   navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{document.addEventListener('visibilitychange',()=>{if(!document.hidden)r.update().catch(()=>{})})}).catch(()=>{});
