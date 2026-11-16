@@ -197,3 +197,12 @@
 .mnsw{gap:4px}.mnsw.old .cgc{filter:saturate(.4) brightness(.7)}
 .zkhp.zktl{font-size:.62rem;line-height:1.2;white-space:normal}
 @media (prefers-reduced-motion:reduce){.mnchb{animation:none}}
+/* 🖼️ かざりだな: ケースの 中の 絵（キャンバスの 上に 重ねる）と かざる 画面 */
+.shcase{position:absolute;inset:0;pointer-events:none;z-index:1}
+.shcase i{position:absolute;font-style:normal;line-height:1;transform:translate(-50%,-50%);text-shadow:none}
+.shcsg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:start}
+.shcsl{display:flex;flex-direction:column;gap:6px;align-items:stretch;text-align:center}
+.shcsl .cgc{cursor:pointer}
+.shcsl .row{gap:4px;flex-wrap:nowrap}.shcsl .row button{flex:1;min-width:0;padding:6px 2px;font-size:.75rem}
+.shcsl.empty>button{aspect-ratio:5/7;border:2px dashed #ffffff66;border-radius:10px;background:#7a2a4833;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:.8rem}
+.shcsl.empty>button b{font-size:1.6rem;opacity:.8}
