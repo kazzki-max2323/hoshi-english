@@ -91,10 +91,10 @@ const longNew=t=>endsOf(t).some(k=>!gotEnd(t,k));
 function talk(T,box,again,force){if(TK&&TK.alive&&TK.T===T&&T.alive&&!again)return;if(TK)TK.alive=false;
   const pk=force?{t:MIOT.find(x=>x.id===force),e:null,V:vals(null,RC()&&RC().now())}:choose();if(!pk||!pk.t)return;const {t,e,V}=pk;
   markSeen(t.id);if(e)try{RECENT.used('mioTap',e)}catch(er){}
-  const K=TK={alive:true,T,t};T.talk=K;
+  const K=TK={alive:true,T,t,done:false,box:null};T.talk=K;
   const m=T.mio;m.walk=150;m.pose='wave';m.until=Date.now()+3000;
   box.innerHTML=`<div class="shsv mct"><div class="shlog" id="mtlog"></div><div class="shopt" id="mtop"></div></div>`;
-  const logE=box.querySelector('#mtlog'),optE=box.querySelector('#mtop');
+  const logE=box.querySelector('#mtlog'),optE=box.querySelector('#mtop');K.box=logE;
   const live=()=>K.alive&&T.alive&&box.isConnected&&box.contains(logE);
   const add=(r,line,ex)=>{if(!live())return;const en=fill(line[0],V),ja=fill(line[1]||'',V),d=document.createElement('div');d.className='svl '+r;
     if(r==='nt')d.innerHTML=`<p>${esc(en)}</p>`;
@@ -129,6 +129,7 @@ function talk(T,box,again,force){if(TK&&TK.alive&&TK.T===T&&T.alive&&!again)retu
       if(t.ph)add('nt',[`📌 ${t.ph[0]} ＝ ${t.ph[1]}`]);
       if(heart)add('nt',[heart]);
       const gl=go==='gift'?'🎁 プレゼントを えらぶ':go==='floor'?'🏷️ 売り場へ':go==='mine'?'⛏️ 鉱山へ':'';
+      K.done=true;
       optE.innerHTML=`<div class="row">${gl?`<button id="mtgo">${gl}</button>`:''}<button id="mtmore" class="sub">💬 もっと 話す</button><button id="mtx" class="sub">とじる</button></div>`;
       const g=optE.querySelector('#mtgo');if(g)g.onclick=()=>{sf('step');close();
         if(go==='gift'){SHOP.pause();GIFT.pick({to:'mio',back:()=>SHOP.counter(true)})}else if(go==='mine'){try{MINE.open()}catch(e){SHOP.toFloor()}}else SHOP.toFloor()};
@@ -142,7 +143,10 @@ function talk(T,box,again,force){if(TK&&TK.alive&&TK.T===T&&T.alive&&!again)retu
 
 /* カウンターで ミオを タップ・💬 を おした */
 function tap(T,box){if(!T||!box)return;
-  if(TK&&TK.alive&&T.talk===TK)return;
+  /* 前の 会話が もう おわっている（「もっと 話す／とじる」が 出ている）なら、 つぎの 話を はじめる */
+  const k=T.talk;
+  if(k&&k.alive&&!k.done&&k.box&&box.contains(k.box))return;
+  if(k){const was=k.box&&box.contains(k.box);k.alive=false;T.talk=null;if(was)box.innerHTML=''}
   if(T.g||(box.innerHTML&&!box.querySelector('.svx'))){T.mio.pose='wave';T.mio.until=Date.now()+1500;return T.mut&&T.mut(pickL(MIOT_BUSY))}
   talk(T,box)}
 

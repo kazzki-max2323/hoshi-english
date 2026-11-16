@@ -422,15 +422,17 @@ function resume(T){if(T.keep){const k=T.keep;T.keep=null;if(T.talk&&T.talk.alive
   if(g.out){if(g.st===9)watchOut(T,g);else out(T,300);return}
   if(g.caseWant&&g.st===2){T.status(`${esc(g.G.n)}が レジで まってるよ`);setTimeout(()=>{if(T.alive&&T.g===g)caseAsk(T)},400);return}
   if(g.st===2){T.status(`${esc(g.G.n)}が レジで まってるよ`);setTimeout(()=>{if(T.alive&&T.g===g)atCounter(T,true)},400)}}
+/* お客さんが カウンターに 来たら、 おわった ミオとの 会話（もっと 話す／とじる）は とじる */
+function endTalk(T){const k=T.talk;if(!k)return;if(k.close)k.close();k.alive=false;T.talk=null}
 /* Mio's little life between guests */
-function mioIdle(T){const m=T.mio,now=Date.now();if(now<m.until||m.walk)return;if(T.talk){m.pose='stand';m.until=now+2000;return}const d=night();
+function mioIdle(T){const m=T.mio,now=Date.now();if(now<m.until||m.walk)return;if(T.talk&&!T.talk.done){m.pose='stand';m.until=now+2000;return}const d=night();
   const r=Math.random();
   if(d>.6&&r<.5){m.pose='doze';m.until=now+6000;return}
   if(r<.35){m.walk=pickL([142,152,164,172]);m.pose=pickL(['sweep','stand']);m.until=now+5000}
   else{m.pose=pickL(['stand','stand','sweep','wave']);m.until=now+3000+Math.random()*4000}}
 /* the guest walks: door → shelf → table → (counter) → door */
 function step(T){const now=Date.now();mioIdle(T);
-  if(!T.g){if(T.talk)T.next=Math.max(T.next,now+8000);if(now>=T.next&&!T.busy&&!T.talk){const G=pickL(GUESTS);
+  if(!T.g){const tk=T.talk&&!T.talk.done;if(tk)T.next=Math.max(T.next,now+8000);if(now>=T.next&&!T.busy&&!tk){const G=pickL(GUESTS);
       /* 4〜5人に 1人くらいは カードを 売りに 来る お客さん（続けては 来ない。 そのあとの お客さんは 早めに 来る） */
       const seller=window.SHSV&&SHSV.offer&&typeof SB_OFFER!=='undefined'&&!T.lastSeller&&Math.random()<(SH().floor.length?.22:.4);T.lastSeller=seller;
       const offer=seller?SHSV.offer(G):null;
@@ -477,7 +479,7 @@ function watchOut(T,g){
   const fin=()=>{if(T.g===g&&!g.path.length){T.g=null;T.next=Date.now()+(g.seller?20000+Math.random()*25000:60000+Math.random()*60000);T.status('お客さんを まとう…（📣 よびこみも できるよ）');SH().guests++;save()}};
   const iv=setInterval(()=>{if(!T.alive){clearInterval(iv);return}if(T.g!==g||!g.path.length){clearInterval(iv);fin()}},300)}
 /* at the register: 自分で 対応 か ミオに まかせる（game/shop-serve.js） */
-function atCounter(T,again){const g=T.g,S=SH(),box=$('shact');if(!box)return;
+function atCounter(T,again){const g=T.g,S=SH(),box=$('shact');if(!box)return;endTalk(T);
   if(!again){T.visits++;S.talk=(S.talk||0)+1;save()}T.mu.q=[];T.mu.until=0;
   const minaSay=(k,pr)=>{try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<pr){const [ex,tx]=ML(k);MINA.say('m',ex,tx,6000)}}catch(er){}};
   const finish=(id,sold,pp,R)=>{R=R||{};const nm=id?SHSV.word(C.info(id)):'';
@@ -525,7 +527,7 @@ const CW_LINES={
   gone:[["Huh? The {w} card isn't in the case anymore…","あれ？ 「{w}」、 もう ケースに ない…"]]};
 const fillW=(x,I,p)=>x.map(t=>t.replace(/\{w\}/g,I?cnm(I):'').replace(/\{p\}/g,p||''));
 const casePrice=id=>Math.max(60,price(id)*3);
-function caseAsk(T){const g=T.g,S=SH(),box=$('shact'),id=g.caseWant,I=C.info(id);if(!box)return;T.mu.q=[];T.mu.until=0;
+function caseAsk(T){const g=T.g,S=SH(),box=$('shact'),id=g.caseWant,I=C.info(id);if(!box)return;endTalk(T);T.mu.q=[];T.mu.until=0;
   const minaSay=(k,pr)=>{try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<pr){const [ex,tx]=ML(k,{w:cnm(I),ja:I.ja||''});MINA.say('m',ex,tx,6000)}}catch(er){}};
   const slot=CASER().indexOf(id);
   if(!I||slot<0||C.count(id)<1){mut(T,'g',fillW(pickL(CW_LINES.gone),I));g.bub='…';T.status(`${esc(g.G.n)}は 帰っていった`);return out(T,1400)}
