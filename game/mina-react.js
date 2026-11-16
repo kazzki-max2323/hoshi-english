@@ -54,7 +54,10 @@ function react(e){const v={};let k=null,go=null;
   case 'pension':v.end=e.ja;k=e.good?'r_pn_good':'r_pn_fun';break;
   case 'mine':{Object.assign(v,{depth:e.depth|0,q:e.q|0,ok:e.ok|0});const cs=(e.cards||[]).map(cardEn).filter(Boolean);
     k=e.hp==='hp'&&Math.random()<.6?'r_mn_tired':e.depth>=20&&e.depth>(e.best|0)?'r_mn_deep':e.rare?'r_mn_rare':cs.length&&Math.random()<.5?'r_mn_card':'r_mn';if(cs.length)v.card=pickL(cs);
-    if(k==='r_mn_card'&&!v.card)k='r_mn';break}
+    if(k==='r_mn_card'&&!v.card)k='r_mn';
+    /* 📦 宝箱・悪い できごと・🎒 つかった 物・🔀 入れかえ（game/mine.js） */
+    if(k==='r_mn'||k==='r_mn_card'){const x=Math.random();if(e.chest&&x<.5)k='r_mn_chest';else if(e.bad&&x<.75)k='r_mn_bad';else if(e.used&&e.used.length&&x<.9){k='r_mn_item';v.ico=e.used.join('')}else if(e.swap&&x<.95)k='r_mn_swap'}
+    break}
   case 'pack':Object.assign(v,{p:e.ja||'パック',ico:e.ico||'🃏'});k='r_pk';break;
   case 'book':Object.assign(v,{en:e.en,ja:e.ja});k=e.en?'r_book':null;break;
   case 'sell':Object.assign(v,{en:e.en,p:e.p|0});k=e.by==='mio'?'r_sell_mio':'r_sell';break;

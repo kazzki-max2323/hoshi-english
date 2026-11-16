@@ -58,9 +58,9 @@ function minaBox(){const i=todayIdx(),t=UNK_MINA[i],nw=!heard('mina',i);
 function minaBind(back){const r=H.panel;bind(r);const b=r.querySelector('[data-unkbook]');if(b)b.onclick=()=>{sf('book');book(back)}}
 
 /* ================================================================ 📜 うんちく図鑑 */
-function zakkaList(){const G=[['🧺','雑貨',[]],['🍪','おかし',[]],['🎆','イベント',[]],['🎵','レコード',[]]];
+function zakkaList(){const G=[['🧺','雑貨',[]],['🍪','おかし',[]],['🎆','イベント',[]],['🎵','レコード',[]],['⛏️','鉱山の 道具',[]]];
   Object.keys(UNK_ZAKKA).forEach(id=>{let it=null,g=0;
-    try{if(id.startsWith('f:')){g=1;it=ZAKKA.good('food',id.slice(2))}else if(id.startsWith('ev:')){g=2;it=ZAKKA.good('event',id.slice(3))}else if(id.startsWith('mu:')){g=3;it=ZAKKA.good('music',id.slice(3))}else it=ZAKKA.items.find(x=>x.id===id)}catch(e){}
+    try{if(id.startsWith('f:')){g=1;it=ZAKKA.good('food',id.slice(2))}else if(id.startsWith('ev:')){g=2;it=ZAKKA.good('event',id.slice(3))}else if(id.startsWith('mu:')){g=3;it=ZAKKA.good('music',id.slice(3))}else if(id.startsWith('to:')){g=4;it=ZAKKA.good('tool',id.slice(3))}else it=ZAKKA.items.find(x=>x.id===id)}catch(e){}
     if(it)G[g][2].push({id,ico:it.ico,n:it.n})});return G}
 function counts(pl){if(pl==='food'){try{const D=FOOD.dishes,T=FOOD.rec().tri||{};return [D.reduce((a,d)=>a+(T[d.id]||[]).filter(Boolean).length,0),D.length*2]}catch(e){return [0,0]}}
   const all=pl==='zakka'?zakkaList().reduce((a,g)=>a+g[2].length,0):pl==='word'?Object.keys(UNK_WORD).length:UNK_MINA.length;

@@ -46,6 +46,19 @@ const MIOT=[
  ["I studied hard down there.","下で がんばって 勉強したからね。",["I can tell! More words, more cards. That's a fair trade.","わかります！ 単語が ふえると カードも ふえる。 いい 取引 ですね。",'smile']],
  ["Let's put some on the shelf.","何まいか 売り場に 出そう。",["Yes! But keep your favorites in the card book, OK? Ha ha.","はい！ でも お気に入りは カードブックに 入れて おいて くださいね。 あはは。",'laugh']]],ph:["generous","太っぱら・気前が いい"]},
 
+{id:'mn_chest',k:'mine',if:e=>e.chest>0,m:["Boss! I heard you found a treasure chest down there! What was in it? Gold? Jewels? Snacks?","店長！ 鉱山で 宝箱を 見つけたって！ 中身は？ 金？ 宝石？ おやつ？"],ex:'laugh',p:'wave',o:[
+ ["I opened it with a password!","合言葉で あけたよ！",["A password in English? That's so cool. Words really are keys, aren't they?","英語の 合言葉？ かっこいい！ ことばって ほんとに かぎ なんですね。",'laugh']],
+ ["There were snacks inside.","おやつが 入ってた。",{m:["Snacks in a treasure chest?! Who put them there? …Was it a hungry miner?","宝箱に おやつ？！ だれが 入れたんだろう？ …おなかを すかせた 鉱夫さん？"],ex:'oops',o:[
+  ["Maybe it was you, Mio.","ミオじゃ ないの？",["M-me? No way! …OK, I don't remember. But no way!","わ、 わたし？ まさか！ …おぼえてないけど。 でも まさか！",'oops']],
+  ["Let's share them.","いっしょに 食べよう。",["Really? Yay! Treasure tastes better when you share it.","ほんと？ やった！ 宝ものは わけると もっと おいしい。",'laugh']]]}],
+ ["Just a few coins.","コインが 少しだけ。",["Still, a chest is a chest! Next time, maybe the old key from Nora's shop will help.","それでも 宝箱は 宝箱！ 次は ノラさんの お店の 古い かぎが 役に 立つかも。",'smile']]],ph:["What was inside?","中には なにが 入ってた？"]},
+{id:'mn_bad',k:'mine',if:e=>e.bad>0,m:["Boss, you're covered in dust! What happened down there?","店長、 ほこりだらけ！ 下で なにが あったんですか？"],ex:'oops',o:[
+ ["Rocks fell from the ceiling!","天井から 石が 落ちてきた！",["Falling rocks?! Next time, please wear a helmet. I'm serious! …It'll look cute, too.","落石？！ 次は ヘルメット かぶって くださいね。 本気ですよ！ …かわいいと 思うし。",'oops']],
+ ["A hundred bats!","コウモリが 100匹！",["A hundred?! I would have screamed and run all the way back to the shop.","100匹？！ わたしなら さけんで お店まで 走って もどります。",'laugh']],
+ ["The rock was too hard.","岩が かたすぎて。",["Some rocks are like hard words. You hit them again and again, and one day — crack!","かたい 岩って むずかしい 単語みたい。 何回も たたくと、 ある日 パカッ！",'smile']]],ph:["Watch out!","あぶない！"]},
+{id:'mn_item',k:'mine',if:e=>e.used&&e.used.length,m:["Did you use your tools in the mine, boss? A good miner always comes prepared!","鉱山で 道具 つかいました？ いい 鉱夫は いつも じゅんび ばんたん！"],ex:'smile',o:[
+ ["I ate a snack halfway.","とちゅうで おやつを 食べた。",["Smart! A snack break is the secret of long digging. And long studying!","かしこい！ おやつ休けいは 長く ほる ひみつ。 長く 勉強する ひみつでも ありますね！",'laugh']],
+ ["The lamp was really bright.","ランプが すごく 明るかった。",["Lamps make gems sparkle. Maybe they make words sparkle, too!","ランプが あると 宝石が キラキラ。 単語も キラキラ するかも！",'smile']]],ph:["come prepared","じゅんびして 来る"]},
 {id:'mn_cards',k:'mine',if:e=>e.cards&&e.cards.length&&!e.rare,m:["You found a new card in the mine! Let's see… oh, \"{w}\"! I love that word.","鉱山で 新しい カード 見つけたんですね！ どれどれ… あ、 「{w}」！ その 単語 好き。"],ex:'laugh',o:[
  ["Do you know what it means?","意味 わかる？",["Of course! …It means \"{wj},\" right? I peeked at the back. Ha ha.","もちろん！ …「{wj}」 ですよね？ うらを 見ちゃった。 あはは。",'laugh']],
  ["I'll put it on the shelf.","売り場に 出そうかな。",["Good idea! A fresh card from the mine. Customers will love that story.","いいですね！ 鉱山から とれたての カード。 お客さん、 その 話 好きですよ。",'smile']]]},

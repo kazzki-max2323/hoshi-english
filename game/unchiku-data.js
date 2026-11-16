@@ -1,6 +1,6 @@
 /* 📜 うんちく（へえ！と なる 本当の 話）の データ。 しくみは game/unchiku.js
    - 本当の ことだけ。 はっきり しない 話は 「〜と 言われている」「はっきり わかっていない」と そのまま 書く。 作り話・俗説を 事実として 書かない
-   - UNK_ZAKKA: ながれぎ雑貨店で 買うと ノラさんが 話す。 キーは 品物の id（雑貨）・'f:'+id（おかし）・'ev:'+id（イベント）・'mu:'+id（レコード）
+   - UNK_ZAKKA: ながれぎ雑貨店で 買うと ノラさんが 話す。 キーは 品物の id（雑貨）・'f:'+id（おかし）・'ev:'+id（イベント）・'mu:'+id（レコード）・'to:'+id（鉱山の 道具）
    - UNK_WORD : ことばカードの 語源・使い方。 カードの 大きな 画面で ミオが 話す。 キーは カードの 見出し語（小文字）
    - UNK_MINA : ミナ先生の きょうの うんちく（英語と いう ことばの ひみつ）。 ミナ先生の ページで 1日 1つ
    どれも [英語, 日本語]。 UNK_MINA だけ [見出し, 英語, 日本語] */
@@ -46,6 +46,14 @@ const UNK_ZAKKA={
  'f:chips':["In Britain, potato chips are called \"crisps,\" and \"chips\" are French fries! Be careful when you order.","イギリスでは ポテトチップスは 「crisps」、 「chips」は フライドポテトの ことなの！ 注文の ときは 気を つけてね。"],
  'f:lolli':["In Britain and Australia, people say \"lolly\" for candy. An ice pop is an \"ice lolly.\"","イギリスや オーストラリアでは、 あめの ことを 「lolly」って 言うの。 アイスキャンディーは 「ice lolly」よ。"],
  'f:banana':["Here's a surprise: a banana is a berry, but a strawberry is not! That's how scientists sort fruits.","びっくりよ。 植物学では バナナは ベリーの なかまで、 いちごは ちがうの！"],
+ /* ⛏️ 鉱山の 道具（game/mine-items.js） */
+ 'to:lamp':["Miners once carried canaries into mines. If the little bird stopped singing, it meant the air was bad, and everyone hurried out.","むかしの 鉱夫は カナリアを 鉱山に つれて行ったの。 小鳥が 歌うのを やめたら 空気が わるい しるし。 みんな いそいで 外に 出たのよ。"],
+ 'to:rope':["Sailors have a special word for each rope on a ship. On a sailing ship, almost no rope is just called \"rope\"!","船乗りは 船の ロープ ひとつひとつに 特別な 名前を つけるの。 帆船では ただの 「ロープ」と よばれる ロープは ほとんど ないのよ！"],
+ 'to:helmet':["One of the first hard hats was made of steamed canvas, glue, and black paint. People called it the \"hard-boiled hat\"!","さいしょの ころの ヘルメットは、 むした 布と のりと 黒い ペンキで 作られていたの。 「かたゆで帽子」って よばれたのよ！"],
+ 'to:mag':["Long ago, monks used a smooth piece of glass called a \"reading stone\" to make letters bigger. That's the grandparent of the magnifying glass.","むかし、 お坊さんたちは 「読書石」と いう つるつるの ガラスで 文字を 大きく 見ていたの。 それが 虫めがねの ご先祖さまよ。"],
+ 'to:comp':["The earth itself is a giant magnet. That's why a compass needle points north — well, most compasses do.","地球 そのものが 大きな 磁石なの。 だから 方位磁石の はりは 北を さすのよ。 …ふつうの 方位磁石はね。"],
+ 'to:key':["The word \"key\" also means \"the most important part.\" A key point, a key word… Keys open more than doors!","key には 「いちばん 大事な ところ」と いう いみも あるの。 key point、 key word… かぎが あけるのは ドアだけじゃ ないのよ！"],
+ 'to:gold':["Gold is very soft. You can hammer one gram of it into a sheet about one meter wide! A pickaxe of pure gold would just bend.","金は とても やわらかいの。 1グラムを たたいて 1メートル四方くらいの うすい 板に できるのよ！ 純金の つるはしは ぐにゃっと まがっちゃうわ。"],
  'f:onigiri':["Rice balls are very old. In Ishikawa, people found a burnt rice ball about 2,000 years old!","おにぎりは とても 古いの。 石川県で、 2000年くらい 前の こげた おにぎりが 見つかったのよ！"],
  'f:popcorn':["Popcorn pops because of water. Inside each kernel is a little water. When it gets hot, it turns to steam and — pop!","ポップコーンが はじけるのは 水の せい。 つぶの 中に 少し 水が あって、 熱で 水じょうきに なると… ポン！"],
  'f:marsh':["Marshmallows are named after a plant, the marsh mallow. Long ago, people made the sweet from its root.","マシュマロは 「マーシュマロウ」と いう 植物の 名前から。 昔は その 根っこから 作っていたのよ。"],

@@ -7,7 +7,11 @@
    - 見つかる 物: 宝石（コイン）・イベント・単語カード（1回で 平均 5まい くらい。 ほりながら 上に 小さく 出て、 タップで 📖）・🎁宝カード（大きな お祝い）
    - いい カード（🎁宝カード・ハイレベルの 単語）は 鉱山でしか 見つからない。 仕入れの パックには 入らない（11/16）
      宝カードは 深いほど R・SR・SSR・UR が 出やすい（CARDS.find1(深さ)）
-   データは game/shop-data.js（MINE_LAYERS / MINE_EVENT / MINE_GEM） */
+   - 🎒 つかう: ほっている とちゅうに もちものの 食べ物（❤回復）と 鉱山の 道具（雑貨屋の ⛏️ たなで 買う）を つかえる
+   - 📦 宝箱: たまに 出る。 🗝️ かぎ か 英語の 合言葉（いまの 5まいの 単語）で あける。 まちがえても 少しは 入っている
+   - 悪い できごと: 8m より 深いと たまに（落石・かたい 岩盤・コウモリ…）。 もどされたり ほれなく なるだけで、 見つけた 物は 取られない。 ⛑️ ヘルメットで 1回 ふせげる
+   - 🔀 入れかえ: とちゅうで 5まいを ぜんぶ 入れかえられる（新しい 5まいは コースの はじめ＝和訳から）
+   データは game/shop-data.js（MINE_LAYERS / MINE_EVENT / MINE_GEM）と game/mine-items.js（MINE_TOOLS / MINE_BAD / MINE_MIO・セリフ） */
 (()=>{
 const {S:ST,sfx:SFX}=BEACH;
 const H=HE,esc=H.esc,$=id=>document.getElementById(id);
@@ -20,7 +24,20 @@ const ME_HP=80,HAND=5;
 const myHp=()=>window.FOOD?FOOD.hp():ME_HP;
 const keepHp=n=>{try{if(window.FOOD)FOOD.setHp(n)}catch(e){}};
 /* 見つかる 確率（正解 1回ごと） */
-const P_EVENT=.04,P_WORD=.029,P_TREASURE=.015,P_GEM=.2;   // 11/15 に 3倍 → 11/16 に 下げて 元の 約1.7倍（平均 2.9→8.5→約5まい/回）。 宝カードは 鉱山だけなので 少し 多め
+const P_EVENT=.04,P_WORD=.029,P_TREASURE=.015,P_GEM=.2,P_CHEST=.016;
+/* 悪い できごと: 8m から。 深いほど 少し ふえる（最大 約3%） */
+const pBad=d=>d<8?0:Math.min(.03,.008+d*.0003);
+
+/* ================================================================ 🎒 鉱山の 道具（雑貨屋で 買う。 MINE_TOOLS は game/mine-items.js） */
+const TL=()=>{const M=MN();return M.tools||(M.tools={})};
+const toolN=id=>TL()[id]||0;
+const toolList=()=>Object.keys(MINE_TOOLS).filter(id=>toolN(id)>0).map(id=>Object.assign({id},MINE_TOOLS[id]));
+function addTool(id,n=1){if(!MINE_TOOLS[id])return;TL()[id]=toolN(id)+n;C.save()}
+function takeTool(id){if(!toolN(id))return false;TL()[id]--;if(TL()[id]<=0)delete TL()[id];C.save();return true}
+/* rows for the 🎒 もちもの screen (game/zakka.js bag()) */
+function bagRows(row){const L=toolList();if(!L.length)return [];
+  return L.map(t=>row(t.ico,`${esc(t.n)} <small>×${toolN(t.id)}</small>`,`⛏️ 鉱山で つかう・${esc(t.s)}`,'<button data-mine="1">⛏️ 鉱山へ</button>'))}
+const goMine=()=>{try{CG.open();setTimeout(open,60)}catch(e){}};   // 11/15 に 3倍 → 11/16 に 下げて 元の 約1.7倍（平均 2.9→8.5→約5まい/回）。 宝カードは 鉱山だけなので 少し 多め
 
 /* ================================================================ コース（練習の 形の じゅんばん） */
 const COURSE=[
@@ -48,11 +65,14 @@ function autoHand(){const all=tools();
   return all.sort((a,b)=>score(b)-score(a)).slice(0,HAND)}
 let hand=null;
 function open(){const M=MN();if(!hand||hand.some(id=>!C.owns(id)))hand=autoHand();
-  const [ex,tx]=ML(myHp()<20&&window.FOOD?'fd_tired':'mn_course');
+  const TLs=toolList();let mk=myHp()<20&&window.FOOD?'fd_tired':'mn_course';
+  if(mk==='mn_course'){if(!M.itemTold){M.itemTold=1;C.save();mk='mn_itemsNew'}else if(Math.random()<.35)mk=TLs.length?'mn_tools':'mn_noTools'}
+  const [ex,tx]=ML(mk);
   H.show('cg',`<section class="pnl cgp shp mnp">
     <div class="qtop"><button class="x" id="mnb" aria-label="もどる">←</button><b>⛏️ 単語の 鉱山</b><span class="qn">${M.best?`最高 ${M.best}m`:''}</span></div>
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     ${window.FOOD?FOOD.mineBox():''}
+    ${TLs.length?`<p class="mntl">🎒 ${TLs.map(t=>`${t.ico}<b>×${toolN(t.id)}</b>`).join(' ')} <small>ほっている とちゅうに つかえる</small></p>`:''}
     <p class="mnlbl">きょうの 5まい（左から じゅんばん）</p>
     <div class="mnhand">${hand.map(id=>`<div class="mnt" data-id="${esc(id)}">${C.face(id,{mini:1,marks:false})}</div>`).join('')}${'<div class="mnt empty"></div>'.repeat(Math.max(0,HAND-hand.length))}</div>
     <button id="mnre" class="sub">🔀 ほかの 5まいに する</button>
@@ -75,7 +95,8 @@ const layerOf=d=>{let L=MINE_LAYERS[0];MINE_LAYERS.forEach(x=>{if(d>=x.at)L=x});
 const stageOf=i=>course()[i]||MIX;
 function dive(cards){try{SHOP.leave()}catch(e){}
   const M=MN();M.dives++;C.save();
-  D={hand:cards,st:0,lap:0,queue:[],redo:[],redone:{},cur:-1,depth:0,hp:myHp(),q:0,ok:0,got:[],coins:0,events:[],words:{},crack:0,luck:0,alive:true,f:0,parts:[],pop:null,swing:0,loot:{},lootV:{}};
+  D={hand:cards,st:0,lap:0,queue:[],redo:[],redone:{},cur:-1,depth:0,hp:myHp(),q:0,ok:0,got:[],coins:0,events:[],words:{},crack:0,luck:0,alive:true,f:0,parts:[],pop:null,swing:0,loot:{},lootV:{},
+    fx:{mag:0,comp:0,gold:0,guard:0},hard:0,dark:0,chests:0,bads:[],used:[],swaps:0,lowTold:0,badTold:0};
   startLap();
   H.show('cg',`<section class="pnl cgp mnp mnd" data-stay>
     <div class="qtop"><button class="x" id="mnx" aria-label="もちかえる">←</button><b id="mnl">⛏️ 0m</b><span class="qn" id="mnh"></span></div>
@@ -84,8 +105,10 @@ function dive(cards){try{SHOP.leave()}catch(e){}
     <p class="mnst" id="mnst"></p>
     <div class="mnhand sm" id="mnhd"></div>
     <div id="mnq"></div>
-    <button id="mnhome" class="sub">🎒 ここで もちかえる</button></section>`);
+    <div class="row mndrow"><button id="mnuse" class="sub">🎒 つかう</button><button id="mnswap" class="sub">🔀 入れかえ</button><button id="mnhome" class="sub">🏠 もちかえる</button></div></section>`);
   $('mnx').onclick=$('mnhome').onclick=()=>{sf('back');finish('home')};
+  $('mnuse').onclick=()=>{sf('open');useMenu()};
+  $('mnswap').onclick=()=>{sf('open');swapAsk()};
   const cv=$('mncv'),c=cv.getContext('2d');c.imageSmoothingEnabled=false;let last=0;
   const tick=now=>{if(!D||!D.alive||!cv.isConnected){if(D)D.alive=false;return}requestAnimationFrame(tick);if(now-last<90)return;last=now;D.f++;draw(c)};
   requestAnimationFrame(tick);
@@ -98,7 +121,9 @@ function hud(){if(!D)return;const L=layerOf(D.depth),S=stageOf(D.st);$('mnl').te
   const lb=$('mnloot');lb.innerHTML=D.coins||cd||D.events.length||Object.keys(D.loot).length?`<button data-lo="coin">🎒 <b>${D.coins}枚</b></button>${Object.entries(D.loot).map(([ico,n])=>`<button data-lo="g" data-ico="${ico}">${ico}${n>1?`<b>×${n}</b>`:''}</button>`).join('')}${cd?`<button data-lo="cards">🎴<b>×${cd}</b></button>`:''}${D.events.length?`<button data-lo="ev">✨<b>×${D.events.length}</b></button>`:''}`:'<span class="mnnone">🎒 まだ なにも ない</span>';
   lb.querySelectorAll('[data-lo]').forEach(b=>b.onclick=()=>lootInfo(b.dataset.lo,b.dataset.ico));
   if(lb.querySelector('[data-lo]')&&!MN().lootTold){MN().lootTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_lootTap');H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},2200)}
-  $('mnst').innerHTML=`${S.ico} <b>${esc(S.n)}</b>${D.inRedo?' <em>もう一回</em>':''}`;
+  const fx=[[D.luck>0,'🔦',D.luck],[D.fx.mag>0,'🔍',D.fx.mag],[D.fx.comp>0,'🧭',D.fx.comp],[D.fx.gold>0,'⛏️',D.fx.gold],[D.fx.guard>0,'⛑️',D.fx.guard],[D.hard>0,'🧱',D.hard],[D.dark>0,'🌑',D.dark]].filter(x=>x[0]);
+  $('mnst').innerHTML=`${S.ico} <b>${esc(S.n)}</b>${D.inRedo?' <em>もう一回</em>':''}${fx.length?`<span class="mnfx">${fx.map(x=>`<i>${x[1]}${x[2]}</i>`).join('')}</span>`:''}`;
+  const ub=$('mnuse');if(ub)ub.innerHTML=`🎒 つかう${useN()?` <small>${useN()}</small>`:''}`;
   $('mnhd').innerHTML=D.hand.map((id,i)=>`<div class="mnt ${i===D.cur?'on':''} ${D.queue.includes(i)||D.redo.includes(i)||i===D.cur?'':'done'}">${C.face(id,{mini:1,marks:false})}</div>`).join('')}
 /* つぎの 問題: 左から じゅんばん → まちがえた カード → つぎの 周 → つぎの 形 */
 function next(){if(!D)return;
@@ -185,18 +210,28 @@ function skip(all){if(!D||D.busy)return;D.busy=true;sf('step');
 function after(id,ok){if(!D||D.busy)return;D.busy=true;D.q++;D.hp--;keepHp(D.hp);C.record(id,ok);const w=D.words[id]||(D.words[id]=[0,0]);w[ok?0:1]++;
   const M=MN();M.q++;if(ok)M.ok++;
   if(!ok&&!D.redone[D.cur]&&!D.redo.includes(D.cur))D.redo.push(D.cur);
-  if(ok){D.ok++;D.swing=6;sf('tap');setTimeout(()=>{if(!D)return;D.crack=0;D.depth++;burst();sf('knock');const big=find();C.save();hud();if(!big)setTimeout(()=>next(),D.pop?650:450)},420);}
+  ['mag','comp'].forEach(k=>{if(D.fx[k]>0)D.fx[k]--});
+  if(D.hp>0&&D.hp<=12&&!D.lowTold&&window.FOOD&&FOOD.bagList().length){D.lowTold=1;setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_lowHp');H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},900)}
+  if(ok){D.ok++;D.swing=6;sf('tap');setTimeout(()=>{if(!D)return;D.crack=0;
+      if(D.hard>0){D.hard--;D.crack=2;sf('knock');gotTag('🧱','カチン！ ほれない',D.hard?`あと ${D.hard}`:'')}
+      else{const g=D.fx.gold>0;if(g)D.fx.gold--;D.depth+=g?2:1;burst();sf('knock')}
+      const big=find();C.save();hud();if(!big)setTimeout(()=>next(),D.pop?650:450)},420);}
   else{D.swing=6;D.crack=Math.min(2,D.crack+1);setTimeout(()=>{sf('tap')},300);C.save();hud();setTimeout(()=>next(),200)}}
 /* what you find. カードは めったに 出ない（出たら 大きな お祝い）。 true を かえすと お祝いの あとで つぎへ */
-function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.luck>0)D.luck--;
+function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.luck>0)D.luck--;const dk=D.dark>0;if(dk)D.dark--;
+  /* 📦 宝箱（🧭で 出やすい）と 悪い できごと（深いほど）は 先に きめる */
+  if(Math.random()<P_CHEST+(D.fx.comp>0?.035:0))return chest();
+  if(Math.random()<pBad(D.depth))return bad();
   const deep=Math.min(.02,D.depth*1.7/5000);   // 深いほど 少しだけ 出やすい
   if(r<P_TREASURE+deep/2&&window.CARDS&&CARDS.find1){const g=CARDS.find1(D.depth);const id='t:'+g.c.e;D.got.push({id,isNew:g.isNew});return celebrate(id,g.isNew,true)}
-  if(r<P_TREASURE+P_WORD+deep){const lv=pickL(L.lv),pool=C.W.filter(c=>c.lv===lv),fresh=pool.filter(c=>!C.owns(c.id));const c=pickL(fresh.length&&Math.random()<.85?fresh:pool);
+  const mg=D.fx.mag>0?P_WORD*1.5:0;   // 🔍 虫めがね: カードが 2.5倍
+  if(r<P_TREASURE+P_WORD+deep+mg){const lv=pickL(L.lv),pool=C.W.filter(c=>c.lv===lv),fresh=pool.filter(c=>!C.owns(c.id));const c=pickL(fresh.length&&Math.random()<.85?fresh:pool);
     const isNew=!C.owns(c.id);C.give(c.id);D.got.push({id:c.id,isNew});cardTag(c.id,isNew);return false}
-  if(r<P_TREASURE+P_WORD+deep+P_EVENT){const E=pickL(MINE_EVENT);D.events.push(E);
+  if(r<P_TREASURE+P_WORD+deep+mg+P_EVENT+(D.fx.comp>0?.02:0)){const E=pickL(MINE_EVENT);D.events.push(E);
     if(E.hp){D.hp=Math.min(ME_HP,D.hp+E.hp);keepHp(D.hp)}if(E.deep)D.depth+=E.deep;if(E.luck)D.luck+=E.luck;if(E.coin)D.coins+=E.coin;
-    D.pop={ico:E.ico,t:0,big:1};gotTag(E.ico,E.n,E.coin?`+${E.coin}枚`:'');sf('hey');H.toast(`${E.ico} <b>${esc(E.n)}</b><small>${esc(E.t)}</small>`,3600);return false}
-  if(r<P_TREASURE+P_WORD+deep+P_EVENT+P_GEM+lk){const gi=Math.min(MINE_GEM.length-1,Math.floor(Math.random()*(2+D.depth/12))),G=MINE_GEM[gi];const v=G[2]+Math.floor(D.depth/5);
+    let tx=E.t;if(E.tool){const id=pickL(['lamp','lamp','rope','rope','helmet','mag','comp']);addTool(id);tx+=` ${MINE_TOOLS[id].ico} ${MINE_TOOLS[id].n}`}
+    D.pop={ico:E.ico,t:0,big:1};gotTag(E.ico,E.n,E.coin?`+${E.coin}枚`:'');sf('hey');H.toast(`${E.ico} <b>${esc(E.n)}</b><small>${esc(tx)}</small>`,3600);hud();return false}
+  if(!dk&&r<P_TREASURE+P_WORD+deep+mg+P_EVENT+P_GEM+lk){const gi=Math.min(MINE_GEM.length-1,Math.floor(Math.random()*(2+D.depth/12))),G=MINE_GEM[gi];const v=G[2]+Math.floor(D.depth/5);
     D.coins+=v;D.loot[G[0]]=(D.loot[G[0]]||0)+1;D.lootV[G[0]]=(D.lootV[G[0]]||0)+v;D.pop={ico:G[0],t:0};gotTag(G[0],G[1],`+${v}枚`);sf('coinIn');return false}
   D.pop=null;return false}
 /* 🎒 手に 入れた 物を タップすると くわしく（鉱山の つづきは そのまま。 閉じると もどる） */
@@ -254,6 +289,92 @@ function celebrate(id,isNew,treasure){const M=MN();M.cards=(M.cards||0)+1;C.save
   o.querySelector('#mnyay').onclick=()=>{sf('step');C.closeOv();if(D)next()};
   return true}
 
+/* ================================================================ 🎒 とちゅうで つかう（食べ物・道具） */
+const foods=()=>window.FOOD?FOOD.bagList():[];
+const useN=()=>foods().reduce((a,s)=>a+(FOOD.rec().bag[s.id]||0),0)+toolList().filter(t=>t.ef!=='key').reduce((a,t)=>a+toolN(t.id),0);
+function useMenu(){if(!D)return;const F=foods(),T=toolList(),bag=window.FOOD?FOOD.rec().bag:{};const mo=pickL(MINE_MIO);
+  const row=(k,id,ico,name,n,sub,off)=>`<button class="mnlor mnuse" data-${k}="${id}" ${off?'disabled':''}><span class="gi">${ico}</span><span><b>${esc(name)}</b> <b class="n">×${n}</b><small>${sub}</small></span></button>`;
+  const o=C.ov(`<div class="mnlo"><p class="mnlon">🎒 なにを つかう？ <small class="mnhp">❤ ${D.hp}/${ME_HP}</small></p>
+    ${window.MIO?`<div class="kmina mnmio" data-say="${esc(mo[0])}"><span class="lface">${MIO.face('smile')}</span><p>${esc(mo[0])}<small>${esc(mo[1])}</small></p></div>`:''}
+    <div class="mnlol">${F.length?`<p class="mnuh">🍪 食べもの</p>${F.map(s=>row('f',s.id,s.ico,s.n,bag[s.id],`❤+${s.hp}${D.hp>=ME_HP?'（いまは まんたん）':''}`,D.hp>=ME_HP)).join('')}`:''}
+      ${T.length?`<p class="mnuh">⛏️ 道具</p>${T.map(t=>row('t',t.id,t.ico,t.n,toolN(t.id),esc(t.s)+(t.ef==='key'?'・宝箱が 出たら つかえる':''),t.ef==='key')).join('')}`:''}
+      ${!F.length&&!T.length?'<p class="mnlod">まだ なにも ないよ。 食べ物と 道具は ながれぎ雑貨店で 買えるよ（🥪 食べ物・⛏️ 鉱山 の たな）</p>':''}</div>
+    <button class="mnlob" data-x>⛏️ つづきを ほる</button></div>`,'mnlov');
+  o.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{sf('back');C.closeOv()});
+  const mb=o.querySelector('.mnmio');if(mb)mb.onclick=()=>{try{MIO.say(mb.dataset.say)}catch(e){}};
+  o.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>eatNow(b.dataset.f));
+  o.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>useTool(b.dataset.t))}
+function eatNow(id){if(!D||!FOOD.take(id))return;const s=FOOD_SNACKS[id];const a=D.hp;D.hp=Math.min(ME_HP,D.hp+(s.hp||0));keepHp(D.hp);D.used.push(s.ico);
+  try{RECENT.add('snack',{id,en:s.en,ja:s.n,ico:s.ico,mine:1})}catch(e){}
+  sf('eat');setTimeout(()=>sf('gulp'in SFX?'gulp':'pop'),450);C.closeOv();gotTag(s.ico,'もぐもぐ',`❤+${D.hp-a}`);
+  const [,tx]=ML('mn_useFood',{t:s.n});H.toast(`${s.ico} <b>${esc(s.n)}</b> ❤ ${a} → <b>${D.hp}</b><small>👩‍🏫 ${esc(tx)}</small>`,3200);hud()}
+function useTool(id){const t=MINE_TOOLS[id];if(!D||!t||t.ef==='key'||!takeTool(id))return;D.used.push(t.ico);C.closeOv();
+  if(t.ef==='lamp')D.luck+=t.v;else if(t.ef==='rope'){D.depth+=t.v;burst()}else if(t.ef==='guard')D.fx.guard+=t.v;else D.fx[t.ef]=(D.fx[t.ef]||0)+t.v;
+  if(t.ef==='lamp'&&D.dark){D.dark=0}
+  sf(t.ef==='rope'?'knock':'pickup');gotTag(t.ico,t.n,t.ef==='rope'?`+${t.v}m`:'');
+  const [,tx]=ML('mn_useTool',{t:t.n,en:t.en});H.toast(`${t.ico} <b>${esc(t.n)}</b><small>${esc(t.s)}<br>👩‍🏫 ${esc(tx)}</small>`,3400);hud()}
+
+/* ================================================================ 🔀 5まいを ぜんぶ 入れかえる */
+function freshHand(not){const all=tools(),out=all.filter(id=>!not.includes(id));
+  const score=id=>(C.weak(id)?100:0)+(C.forgot(id)?50:0)+(6-C.star(id))*10+Math.random()*30;
+  const h=out.sort((a,b)=>score(b)-score(a)).slice(0,HAND);
+  return h.length>=HAND?h:h.concat(H.shuffle(all.filter(id=>!h.includes(id))).slice(0,HAND-h.length))}
+function swapAsk(nh){if(!D)return;nh=nh||freshHand(D.hand);
+  const o=C.ov(`<div class="mnlo"><p class="mnlon">🔀 5まいを ぜんぶ 入れかえる？</p>
+    <p class="mnlod">いまの 5まい</p><div class="mnhand sm mnsw old">${D.hand.map(id=>`<div class="mnt">${C.face(id,{mini:1,marks:false})}</div>`).join('')}</div>
+    <p class="mnlod">⬇ あたらしい 5まい（タップで 📖）</p><div class="mnhand sm mnsw">${nh.map(id=>`<div class="mnt" data-id="${esc(id)}">${C.face(id,{mini:1,marks:false})}</div>`).join('')}</div>
+    <p class="mnlod"><small>新しい 5まいは 和訳から はじめるよ。 ほった 深さと 見つけた 物は そのまま</small></p>
+    <button class="big" data-ok>🔀 これに する</button><div class="row"><button class="sub" data-re>🔀 ほかの 5まい</button><button class="sub" data-x>やめる</button></div></div>`,'mnlov');
+  o.querySelectorAll('.mnsw [data-id]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id,()=>swapAsk(nh))});
+  o.querySelector('[data-re]').onclick=()=>{sf('flip'in SFX?'flip':'tap');swapAsk(freshHand(D.hand.concat(nh)))};
+  o.querySelector('[data-x]').onclick=()=>{sf('back');C.closeOv()};
+  o.querySelector('[data-ok]').onclick=()=>{if(!D)return;sf('flip'in SFX?'flip':'card');C.closeOv();D.hand=nh;hand=nh.slice();D.swaps++;D.st=0;D.lap=0;startLap();D.cur=-1;
+    const [,tx]=ML('mn_swap');H.toast(`🔀 <b>5まい 入れかえた！</b><small>👩‍🏫 ${esc(tx)}</small>`,3000);if(D.busy)hud();else next()}}
+
+/* ================================================================ 📦 宝箱 */
+const SNACK_POOL=()=>typeof FOOD_SNACKS==='undefined'?[]:Object.keys(FOOD_SNACKS).filter(id=>FOOD_SNACKS[id].lv!=='hs');
+function chest(){D.chests++;D.pop={ico:'📦',t:0,big:1};sf('hey');try{SFX.fanfare(1)}catch(e){}
+  const id=pickL(D.hand),I=C.info(id),keyN=toolN('key'),[ex,tx]=ML('mn_chest');
+  const o=C.ov(`<div class="mnfind mnchest"><p class="mnfh">📦 宝箱を 見つけた！</p><div class="mnchb">📦</div>
+    <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
+    <div class="mnchq" id="mnchq"></div>
+    <div class="mnchbtn">${keyN?`<button class="big" data-k>🗝️ かぎで あける <small>×${keyN}</small></button>`:''}<button class="${keyN?'sub':'big'}" data-pw>🔤 合言葉で あける</button></div></div>`,'by');
+  o.dataset.stay=1;
+  const kb=o.querySelector('[data-k]');if(kb)kb.onclick=()=>{if(!takeTool('key'))return;D.used.push('🗝️');sf('pickup');reveal(o,2,I)};
+  o.querySelector('[data-pw]').onclick=()=>{o.querySelector('.mnchbtn').remove();const q=C.quiz(id,{type:'rev'});
+    C.ask(o.querySelector('#mnchq'),q,r=>{C.record(id,r.ok);reveal(o,r.ok?1:0,I)},{tag:'🔒 合言葉'})};
+  return true}
+function reveal(o,tier,I){if(!D)return;const dp=D.depth,got=[];
+  const coin=tier===2?60+dp*2:tier===1?25+dp:10+Math.floor(dp/3);D.coins+=coin;got.push(['🪙',`コイン ${coin}枚`]);
+  const sp=SNACK_POOL();
+  if(window.FOOD&&sp.length&&Math.random()<(tier===2?.6:tier===1?.45:.15)){const f=pickL(sp);FOOD.add(f);got.push([FOOD_SNACKS[f].ico,FOOD_SNACKS[f].n])}
+  if(tier===2||(tier===1&&Math.random()<.25)){const t=pickL(tier===2?['lamp','helmet','mag','comp','gold','rope']:['lamp','rope','helmet','mag']);addTool(t);got.push([MINE_TOOLS[t].ico,MINE_TOOLS[t].n])}
+  if(tier===2&&Math.random()<.25){const L=layerOf(dp),lv=pickL(L.lv),pool=C.W.filter(c=>c.lv===lv),c=pickL(pool);if(c){const isNew=!C.owns(c.id);C.give(c.id);D.got.push({id:c.id,isNew});got.push(['🎴',`カード「${head1(C.info(c.id)||c)}」${isNew?' NEW':''}`])}}
+  D.events.push({ico:'📦',n:tier===2?'宝箱（かぎ）':tier===1?'宝箱（合言葉）':'宝箱（少しだけ）',t:got.map(g=>g[0]+' '+g[1]).join('・'),coin});
+  try{SFX.fanfare(tier===2?3:tier===1?2:1)}catch(e){sf('coinIn')}
+  try{const r=o.querySelector('.mnchb').getBoundingClientRect();FX.firework(r.left+r.width/2,r.top+r.height/2)}catch(e){}
+  const [ex,tx]=ML(tier===2?'mn_chestKey':tier===1?'mn_chestOk':'mn_chestMiss',{w:I?head1(I):''});
+  o.querySelector('.mnfind').innerHTML=`<p class="mnfh">${tier?'✨ 宝箱が あいた！':'📦 少しだけ あいた'}</p><div class="mnchb open">${tier===2?'🗝️':'📦'}</div>
+    <div class="mnlol">${got.map(g=>`<div class="mnlor"><span class="gi">${g[0]}</span><span><b>${esc(g[1])}</b></span></div>`).join('')}</div>
+    <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
+    <button class="big" id="mnyay">やった！ ほりつづける</button>`;
+  o.querySelector('#mnyay').onclick=()=>{sf('step');C.closeOv();if(D){hud();next()}}}
+
+/* ================================================================ 悪い できごと（見つけた 物は 取られない） */
+function bad(){const ok=MINE_BAD.filter(b=>!b.min||D.depth>=b.min),B=pickL(ok);
+  if(D.fx.guard>0){D.fx.guard--;D.bads.push('guard');sf('knock');gotTag('⛑️','ふせいだ！','');
+    const [,tx]=ML('mn_badGuard');H.toast(`⛑️ <b>ヘルメットで ふせいだ！</b><small>${B.ico} ${esc(B.n)}… でも へっちゃら！<br>👩‍🏫 ${esc(tx)}</small>`,3400);hud();return false}
+  D.bads.push(B.id);D.events.push({ico:B.ico,n:B.n,t:B.t});
+  if(B.back)D.depth=Math.max(0,D.depth-B.back);
+  if(B.hard)D.hard+=B.hard;
+  if(B.dark){D.dark=Math.max(D.dark,B.dark);D.luck=0}
+  if(B.hp){D.hp=Math.max(1,D.hp-B.hp);keepHp(D.hp)}
+  D.pop={ico:B.ico,t:0,big:1};D.crack=2;sf('wrong');gotTag(B.ico,B.n,B.back?`-${B.back}m`:B.hp?`❤-${B.hp}`:'');
+  try{H.say('jh',B.en)}catch(e){}
+  H.toast(`${B.ico} <b>${esc(B.n)}</b><small>「${esc(B.en)}」 ${esc(B.ja)}<br>${esc(B.t)}</small>`,4200);
+  const M=MN();if(!D.badTold&&(M.badTold||0)<4){D.badTold=1;M.badTold=(M.badTold||0)+1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_bad',{t:B.n});H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},4600)}
+  hud();return false}
+
 /* ================================================================ pixel art */
 const PR=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
 function hsh(n){n=Math.imul(n^n>>>16,0x45d9f3b);n=Math.imul(n^n>>>16,0x45d9f3b);return (n^n>>>16)>>>0}
@@ -288,7 +409,7 @@ function finish(why){if(!D)return;const d=D;D.alive=false;D=null;keepHp(d.hp);co
   if(d.depth>M.best)M.best=d.depth;if(d.depth>(S.best||0))S.best=d.depth;S.mined=(S.mined||0)+1;
   let mapN=null;try{if(d.depth>=8&&window.ADV&&!ADV.has()&&Math.random()<.2)mapN=ADV.give()}catch(e){}
   if(d.coins)H.addCoins(d.coins);C.save();
-  try{RECENT.add('mine',{depth:d.depth,best:pb,ok:d.ok,q:d.q,cards:d.got.map(x=>x.id),rare:d.got.some(x=>/^t:/.test(x.id)),coins:d.coins,hp:why==='hp'?'hp':''})}catch(e){}
+  try{RECENT.add('mine',{depth:d.depth,best:pb,ok:d.ok,q:d.q,cards:d.got.map(x=>x.id),rare:d.got.some(x=>/^t:/.test(x.id)),coins:d.coins,hp:why==='hp'?'hp':'',chest:d.chests,bad:d.bads.length,badN:d.bads[0]||'',used:d.used.slice(0,4),swap:d.swaps})}catch(e){}
   hand=null;   // つぎは また 苦手から えらびなおす
   const head=why==='hp'?'⛏️ つかれたので 帰ってきた':'🎒 もちかえった';
   const ws=Object.entries(d.words),S2=stageOf(d.st);
@@ -296,7 +417,7 @@ function finish(why){if(!D)return;const d=D;D.alive=false;D=null;keepHp(d.hp);co
     <div class="qtop"><button class="x" id="mnb" aria-label="もどる">←</button><b>${head}</b><span class="qn">${d.depth}m</span></div>
     <div class="mnres"><p><b>${d.depth}m</b> まで ほった ・ ${d.q}問中 <b>${d.ok}</b>問 正解</p>
       <p>${S2.ico} 「${esc(S2.n)}」まで すすんだ</p>
-      <p>${d.coins?`🪙 +${d.coins}（宝石）`:''} ${d.got.length?`✨ カード ${d.got.length}まい`:''} ${d.events.map(e=>e.ico).join('')}</p>${mapN?`<p class="mnmap">🗺️ 岩の すきまに 古い 宝の地図！「${esc(mapN)}」 <button id="mnmapgo" class="sub">宝探しに 行く</button></p>`:''}</div>
+      <p>${d.coins?`🪙 +${d.coins}`:''} ${d.got.length?`✨ カード ${d.got.length}まい`:''} ${d.events.map(e=>e.ico).join('')}</p>${mapN?`<p class="mnmap">🗺️ 岩の すきまに 古い 宝の地図！「${esc(mapN)}」 <button id="mnmapgo" class="sub">宝探しに 行く</button></p>`:''}</div>
     <p class="note">練習した 単語（○＝正解 ×＝まちがい）。 タップで カード</p>
     <div class="mnws">${ws.map(([id,w])=>{const I=C.info(id);return `<button data-id="${esc(id)}"><b>${esc(head1(I))}</b> ${esc(I.ja)} <span>${'○'.repeat(w[0])}${'×'.repeat(w[1])}</span></button>`}).join('')}</div>
     ${why==='hp'&&window.FOOD?`<p class="note">❤は 2分で 1 もどるよ。 🍽️ しおかぜ食堂か 🥪 もちものの 食べ物で いっきに 回復！</p><div class="row"><button id="mndin" class="sub">🍽️ 食堂へ</button></div>`:''}
@@ -318,7 +439,8 @@ Object.assign(MINA_LINES,{
  x_mnType:[['think','鉱山の 「つづりを 書く」は むずかしい？ ヒントで さいしょの 字が わかるよ'],['smile','聞いて 書けたら、 もう その 単語は きみの もの']]
 });
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
- ['x_mnType',1,()=>{try{return SHOP.rec().met&&MN().dives>0?{}:null}catch(e){return null}},()=>['⛏️ 鉱山へ',()=>{CG.open();setTimeout(open,60)}]]);
+ ['x_mnType',1,()=>{try{return SHOP.rec().met&&MN().dives>0?{}:null}catch(e){return null}},()=>['⛏️ 鉱山へ',()=>{CG.open();setTimeout(open,60)}]],
+ ['x_mnTool',1,()=>{try{return MN().dives>1&&!MN().toolBuy&&!toolList().length&&window.ZAKKA?{}:null}catch(e){return null}},()=>['🏚️ 雑貨屋へ',()=>ZAKKA.open('tool')]]);
 
-window.MINE={open,rec:MN,course,skip:n=>{if(D){D.st=n;D.lap=0;startLap()}}};
+window.MINE={open,rec:MN,course,addTool,toolN,toolList,bagRows,goMine,tools:MINE_TOOLS,skip:n=>{if(D){D.st=n;D.lap=0;startLap()}}};
 })();
