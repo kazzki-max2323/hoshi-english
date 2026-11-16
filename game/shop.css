@@ -183,3 +183,17 @@
 .shnotes i{position:absolute;font-style:normal;font-weight:700;line-height:1;text-shadow:none;animation:shnote 2.6s ease-out forwards}
 @keyframes shnote{0%{opacity:0;transform:translate(0,0) scale(.6)}15%{opacity:1}50%{transform:translate(var(--sx,6px),calc(var(--up,60px)*-.5)) scale(1)}100%{opacity:0;transform:translate(calc(var(--sx,6px)*-1),calc(var(--up,60px)*-1)) scale(1.05)}}
 .shtoc{display:block;width:100%;margin-top:8px}
+/* ⛏️ 鉱山の 🎒 つかう・🔀 入れかえ・📦 宝箱（game/mine.js）。 文字は 影なしで くっきり */
+.mntl{margin:0;font-size:.9rem;text-shadow:none}.mntl b{color:#ffe14a;margin-right:4px}.mntl small{color:#cbd2ff;font-size:.72rem}
+.mndrow{display:flex;gap:6px}.mndrow button{flex:1;padding:8px 4px!important;font-size:.85rem!important}.mndrow small{background:#ffe14a;color:#1d1a3a;border-radius:8px;padding:0 5px;font-weight:800;font-size:.7rem}
+.mnfx{display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle}.mnfx i{font-style:normal;font-size:.75rem;font-weight:800;background:rgba(0,0,0,.35);border-radius:8px;padding:1px 5px;color:#fff;text-shadow:none}
+.mnuse{width:100%;border:0;color:#fff;font:inherit;cursor:pointer}.mnuse:disabled{opacity:.45}.mnuse .n{color:#ffe14a}
+.mnuh{margin:4px 0 0;text-align:left;font-size:.8rem;color:#cbd2ff;font-weight:800}
+.mnmio{cursor:pointer;text-align:left;font-size:.85rem}.mnmio small{display:block;font-size:.75rem;color:#cfd6f2}
+.mnhp{font-size:.8rem;color:#ffb0b8;margin-left:6px}
+.mnchb{font-size:4rem;line-height:1;animation:mnchw 1.2s ease-in-out infinite}.mnchb.open{animation:none;transform:scale(1.1)}
+@keyframes mnchw{0%,100%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(0)}}
+.mnchest{box-sizing:border-box;max-width:calc(100vw - 16px)}.mnchq{width:100%}.mnchbtn{display:flex;flex-direction:column;gap:8px;width:100%}.mnchest .mnlol{width:100%}
+.mnsw{gap:4px}.mnsw.old .cgc{filter:saturate(.4) brightness(.7)}
+.zkhp.zktl{font-size:.62rem;line-height:1.2;white-space:normal}
+@media (prefers-reduced-motion:reduce){.mnchb{animation:none}}
