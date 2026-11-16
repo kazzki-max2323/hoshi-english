@@ -128,10 +128,10 @@ function talk(T,box,again,force){if(TK&&TK.alive&&TK.T===T&&T.alive&&!again)retu
       if(X.endTxt)add('nt',[X.endTxt+(X.coins?`　🪙${X.coins}`:'')]);
       if(t.ph)add('nt',[`📌 ${t.ph[0]} ＝ ${t.ph[1]}`]);
       if(heart)add('nt',[heart]);
-      const gl=go==='gift'?'🎁 プレゼントを えらぶ':go==='floor'?'🏷️ 売り場へ':'';
+      const gl=go==='gift'?'🎁 プレゼントを えらぶ':go==='floor'?'🏷️ 売り場へ':go==='mine'?'⛏️ 鉱山へ':'';
       optE.innerHTML=`<div class="row">${gl?`<button id="mtgo">${gl}</button>`:''}<button id="mtmore" class="sub">💬 もっと 話す</button><button id="mtx" class="sub">とじる</button></div>`;
       const g=optE.querySelector('#mtgo');if(g)g.onclick=()=>{sf('step');close();
-        if(go==='gift'){SHOP.pause();GIFT.pick({to:'mio',back:()=>SHOP.counter(true)})}else SHOP.toFloor()};
+        if(go==='gift'){SHOP.pause();GIFT.pick({to:'mio',back:()=>SHOP.counter(true)})}else if(go==='mine'){try{MINE.open()}catch(e){SHOP.toFloor()}}else SHOP.toFloor()};
       optE.querySelector('#mtmore').onclick=()=>{sf('step');K.alive=false;talk(T,box,true)};
       optE.querySelector('#mtx').onclick=()=>{sf('tap');close()};
       if(heartOk)sf('heart');

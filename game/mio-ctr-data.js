@@ -62,9 +62,12 @@ const MIOT=[
  ["Guess what was inside!","なにが 入ってたか 当てて！",{m:["Hmm… \"banana\"? \"dinosaur\"? \"happiness\"?","うーん… 「バナナ」？ 「恐竜」？ 「しあわせ」？"],ex:'smile',o:[
   ["Close!","おしい！",["Close? Which one?! Now I really want to know!","おしい？ どれが？！ もう 気に なって しかたない！",'oops']],
   ["Happiness. Every card is happiness.","しあわせ。 どの カードも しあわせ。",["Boss… that was so cool. I'm writing that down.","店長… いまの かっこよすぎ。 メモします。",'laugh']]]}]],ph:["New arrivals","新入荷"]},
-{id:'pk_two',k:'pack',if:()=>{try{return !CG.buyLeft()}catch(e){return false}},m:["That was our second pack today, boss. That's the limit! Patience, patience.","きょう 2つめの パックでしたね。 もう おしまい！ がまん、 がまん。"],ex:'wink',o:[
- ["I want more!","もっと ほしい！",["Me too! But tomorrow is another day. Literally!","わたしも！ でも あしたは あしたの 風が ふく。 ほんとに！",'laugh']],
+{id:'pk_many',k:'pack',if:()=>{try{return CG.buyToday()>=3}catch(e){return false}},m:["Another pack, boss? That's three today! There's no limit now, but… our wallet has one!","また パック？ きょう 3つめ！ せいげんは なくなったけど… おさいふには ありますよ！"],ex:'wink',o:[
+ ["I want more!","もっと ほしい！",["Ha ha! OK, but the really good cards aren't in packs. For those, you have to dig!","あはは！ いいですよ。 でも ほんとに いい カードは パックには ない。 それは ほらないと！",'laugh',{go:'mine'}]],
  ["Opening packs is the best.","パックを あけるのって 最高。",["Right? It's like opening a present every time.","ですよね？ 毎回 プレゼントを あける みたい。",'smile']]],ph:["Tomorrow is another day.","あしたは あしたの 風が ふく。"]},
+{id:'pk_noTreasure',k:'pack',m:["Boss, did you notice? Packs only have everyday cards now. Treasure cards hide in the mine!","店長、 気づきました？ パックに 入ってるのは ふだんの カードだけ。 宝カードは 鉱山に かくれてるんです！"],ex:'smile',p:'wave',o:[
+ ["Then I'll go digging.","じゃあ ほりに 行く。",["That's the spirit! The deeper you dig, the shinier the cards. That's the rumor.","その 意気！ 深く ほるほど キラキラの カード。 そういう うわさです。",'laugh',{go:'mine'}]],
+ ["Packs are for practice.","パックは 練習用だね。",["Exactly! Packs for practice, the mine for treasure. Easy to remember!","そのとおり！ パックは 練習、 鉱山は 宝さがし。 おぼえやすい！",'smile']]],ph:["hide","かくれる"]},
 {id:'bk_put',k:'book',m:["I saw you put \"{w}\" in the card book. Is it a special card?","「{w}」を カードブックに 入れてましたね。 特別な カード？"],ex:'smile',o:[
  ["It's my favorite.","お気に入りなんだ。",["Then it deserves a safe home. Favorites go in the book!","じゃあ 安全な おうちが ひつようですね。 お気に入りは ブックへ！",'smile']],
  ["I want to fill every page.","ぜんぶの ページを うめたい。",["Every page? That's a big goal! I'll cheer for you. Fight, boss!","ぜんぶ？ 大きな 目標！ おうえん します。 ファイト、 店長！",'laugh']]]},
@@ -286,7 +289,7 @@ const MIOT=[
  ["Let's just chat today.","きょうは おしゃべり しよう。",["A chatting day? I like it. …But tomorrow, cards!","おしゃべりの 日？ いいですね。 …でも あしたは カード！",'wink']]]},
 {id:'st_rich',k:'rich',m:["Boss, you have so many coins! Are you secretly rich?","店長、 コイン すごい！ じつは お金持ち？"],ex:'laugh',o:[
  ["I'm saving up.","ためてるんだ。",{m:["Saving up for what? Something big?","なにの ために？ 大きい もの？"],ex:'smile',o:[
-  ["A sparkly treasure pack.","きらきら宝パック。",["The super expensive one! Can I watch when you open it? Please?","あの すごく 高いの！ あける とき 見てても いい？ おねがい！",'laugh']],
+  ["A big pile of packs.","パックを どっさり。",["No limit on packs now, right? Can I help open them? Please?","パックは せいげん なし ですもんね？ あけるの 手伝っても いい？ おねがい！",'laugh']],
   ["It's a secret.","ひみつ。",["A secret again?! Boss, you're a mystery.","また ひみつ？！ 店長って なぞの 人。",'wink']]]}],
  ["Want a raise?","時給 上げようか？",["A raise?! …Boss, don't joke about that. My heart can't take it!","時給 アップ？！ …店長、 その じょうだんは だめ。 心臓が もちません！",'oops']]],ph:["save up","お金を ためる"]},
 

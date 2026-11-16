@@ -167,8 +167,10 @@ function checkSeries(newCards){const done=[...new Set(newCards.map(c=>c.s))].fil
   done.forEach((s,i)=>setTimeout(()=>{SFX.fanfare(3);H.toast(`🏆 <b>${SER[s][1]} ${SER[s][2]}</b> コンプリート！`,3600)},800+i*1600))}
 
 /* a free draw given as a reward (Mina's lesson time): n cards, each at least rarity min */
-/* 鉱山で 見つかる 1まい（演出なし）: {c,isNew} */
-function find1(){const r=Math.random()<.7?1:Math.random()<.75?2:Math.random()<.8?3:4;const c=pick(r),isNew=!has(c);if(isNew)CD.own[c.e]=1;else CD.own[c.e]++;save();return {c,isNew}}
+/* 鉱山で 見つかる 1まい（演出なし）: {c,isNew}。 宝カードは 鉱山だけ（11/16〜）なので UR も 出る。 深いほど いい カード
+   0m: N 60%・R 25%・SR 10%・SSR 4%・UR 1%　→　70m〜: N 50%・R 25%・SR 15%・SSR 7%・UR 3% */
+function find1(depth=0){const b=Math.min(1,Math.max(0,depth)/70),x=Math.random();
+  const r=x<.01+.02*b?5:x<.05+.05*b?4:x<.15+.10*b?3:x<.40+.10*b?2:1;const c=pick(r),isNew=!has(c);if(isNew)CD.own[c.e]=1;else CD.own[c.e]++;save();return {c,isNew}}
 /* カウンターで 買い取った 宝カードを 1まい 足す（NEW なら true） */
 function give1(e){const c=BOOK.find(x=>x.e===e);if(!c)return false;const isNew=!has(c);CD.own[e]=(CD.own[e]||0)+1;save();return isNew}
 function takeOne(e){if(CD.own[e]>0){CD.own[e]--;if(!CD.own[e])delete CD.own[e];save()}}

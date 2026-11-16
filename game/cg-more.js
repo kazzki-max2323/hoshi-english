@@ -58,9 +58,10 @@ Object.assign(MINA_LINES,{
  x_cgWeak:[['proud','苦手カードの {w}、 鉱山の 道具に すると 何回も 練習できるよ。 にげずに 使ってみて'],['think','{w} は まちがいノートの 単語。 カードで 出すと おぼえやすいよ']],
  x_cgForgot:[['think','💤 {w} の カード、 しばらく 見てないね。 鉱山で 使ってみて'],['smile','わすれかけた ころに 思い出すと、 いちばん 記憶に のこるんだ']],
  x_cgFree:[['happy','カードショップで きょうの むりょうパックが もらえるよ'],['smile','むりょうパック、 まだ あけてないよ']],
- x_cgPack:[['smile','カードショップの 仕入れ、 1パック 10まい前後 入ってるよ。 まだ もってない カードが 出やすいんだ'],['happy','仕入れの パックは ぜんぶ さいしょから 買えるよ。 小学生パックから ハイレベルまで、 すきな ところから'],['think','仕入れは ちょっと 高いけど、 1パックで 10まいくらい ふえるよ。 鉱山で ためた コインで どうぞ'],['smile','仕入れは 1日 2回まで。 どの パックに するか、 じっくり えらんでね'],['think','きょうの 仕入れ、 あと {n}回 できるよ。 ほしい カードの パックを えらぼう']],
+ x_cgPack:[['smile','カードショップの 仕入れ、 1パック 10まい前後 入ってるよ。 まだ もってない カードが 出やすいんだ'],['happy','仕入れの パックは ぜんぶ さいしょから 買えるよ。 小学生パックから ハイレベルまで、 すきな ところから'],['think','仕入れは ちょっと 高いけど、 1パックで 10まいくらい ふえるよ。 鉱山で ためた コインで どうぞ'],['smile','仕入れは 何回でも できるように なったよ。 コインが あれば すきなだけ どうぞ'],['think','仕入れの パックは 小・中・高の 単語。 毎日の 練習用の カードを ふやすのに ぴったり']],
  x_cgSent:[['smile','📜 文カードパックには 文カードが 2まい。 文に 出てくる 単語の カードも いっしょに 入ってるよ'],['proud','文カードの 英文、 声に 出して 読んでみて。 単語が 文の 中で どう 使われるか わかるよ']],
- x_cgKira:[['wow','コインが {c}まい！ 💎きらきら宝パック（🪙1200）が 買えるよ。 宝カードだけ 10まい前後、 SR以上 1まい かくてい'],['happy','きらきら宝パック、 いまなら 買えるね。 どんな 宝カードが 出るかな']]});
+ x_cgGood:[['point','🎁宝カードと ハイレベルの 単語カードは、 仕入れの パックには 入って ないの。 ⛏️鉱山でしか 見つからないよ'],['smile','いい カードが ほしいなら 鉱山へ！ 深く ほるほど SR や SSR、 UR まで 出やすく なるんだって'],['think','仕入れは 練習用、 鉱山は 宝さがし。 そう おぼえておくと わかりやすいよ'],['happy','鉱山の 「星の 層」まで 行くと、 ハイレベルの 単語カードが 見つかるよ。 むずかしいけど その ぶん 宝もの']],
+ sh_packFree:[['happy','カードショップの 仕入れ、 何回でも できるように なったよ！ ただし いい カードは 鉱山だけ'],['smile','仕入れが 何回でも OKに なったよ。 🎁宝カードは ⛏️鉱山で さがしてね']]});
 const goShop=()=>['🃏 カードショップへ',()=>C.open()];
 const goTab=t=>()=>['🃏 カードショップへ',()=>{C.open();setTimeout(()=>C.go(t),50)}];
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
@@ -68,9 +69,12 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_cgWeak',3,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.weak(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('mine')],
  ['x_cgForgot',2,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.forgot(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('mine')],
  ['x_cgFree',3,()=>R().met&&R().free!==C.today()?{}:null,goTab('pack')],
- ['x_cgPack',2,()=>R().met&&ST.coins>=150&&C.buyLeft()?{n:C.buyLeft()}:null,goTab('pack')],
- ['x_cgSent',1,()=>R().met&&ST.coins>=450&&C.buyLeft()?{}:null,goTab('pack')],
- ['x_cgKira',2,()=>R().met&&ST.coins>=1200&&C.buyLeft()&&window.CARDS&&CARDS.pull?{c:ST.coins}:null,goTab('pack')]);
+ ['x_cgPack',2,()=>R().met&&ST.coins>=150?{}:null,goTab('pack')],
+ ['x_cgSent',1,()=>R().met&&ST.coins>=450?{}:null,goTab('pack')],
+ ['x_cgGood',2,()=>R().met?{}:null,goTab('mine')]);
+/* 11/16 仕入れは 何回でも・いい カードは 鉱山だけ: 1回だけ ミナ先生が 知らせる */
+setTimeout(function pf(){const r=R();if(!r.met||r.packFree)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(pf,20000);
+  r.packFree=1;C.save();const [ex,tx]=ML('sh_packFree');m.say('m',ex,tx,9000,null,['🃏 カードショップへ',()=>C.open()])},14000);
 /* the card button left the home screen: Mina points at the hut once */
 setTimeout(function first(){if(R().told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,15000);
   R().told=1;C.save();const [ex,tx]=ML('cg_first');m.say('m',ex,tx,10000,null,['🃏 のぞいてみる',()=>C.open()])},9000);
