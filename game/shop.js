@@ -420,6 +420,7 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
 function resume(T){if(T.keep){const k=T.keep;T.keep=null;if(T.talk&&T.talk.alive)$('shact').replaceWith(k);else T.talk=null}
   const g=T.g;if(!g)return T.status('お店に もどったよ。 お客さんを まとう');
   if(g.out){if(g.st===9)watchOut(T,g);else out(T,300);return}
+  if(g.caseWant&&g.st===2){T.status(`${esc(g.G.n)}が レジで まってるよ`);setTimeout(()=>{if(T.alive&&T.g===g)caseAsk(T)},400);return}
   if(g.st===2){T.status(`${esc(g.G.n)}が レジで まってるよ`);setTimeout(()=>{if(T.alive&&T.g===g)atCounter(T,true)},400)}}
 /* Mio's little life between guests */
 function mioIdle(T){const m=T.mio,now=Date.now();if(now<m.until||m.walk)return;if(T.talk){m.pose='stand';m.until=now+2000;return}const d=night();
@@ -433,7 +434,10 @@ function step(T){const now=Date.now();mioIdle(T);
       /* 4〜5人に 1人くらいは カードを 売りに 来る お客さん（続けては 来ない。 そのあとの お客さんは 早めに 来る） */
       const seller=window.SHSV&&SHSV.offer&&typeof SB_OFFER!=='undefined'&&!T.lastSeller&&Math.random()<(SH().floor.length?.22:.4);T.lastSeller=seller;
       const offer=seller?SHSV.offer(G):null;
-      T.g=offer?{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],[60,52],[92,58],[120,62]],bub:'',st:0,wait:0,seller:1,offer}
+      /* 🖼️ たまーに ケースの カードが ほしい お客さん（続けては 来ない） */
+      const cw=!offer&&caseN()&&!T.lastCase&&Math.random()<.1?pickL(CASER().filter(Boolean)):null;T.lastCase=!!cw;
+      T.g=cw?{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],[34,56],[34,56,'case',3400],[60,52],[92,58],[120,62]],bub:'',st:0,wait:0,caseWant:cw}
+        :offer?{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],[60,52],[92,58],[120,62]],bub:'',st:0,wait:0,seller:1,offer}
         :{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],...(caseN()&&Math.random()<.45?[[34,56],[34,56,'case',2800]]:[]),[56,46],[56,46,'look',2500],[92,58],[92,58,'think',2600]],bub:'',st:0,wait:0};
       T.status(offer?`🔔 ${esc(T.g.G.n)}が カードを もって 来た！`:`🔔 ${esc(T.g.G.n)}が 来た！`);sf('knock');setTimeout(()=>{if(T.g)T.g.bub=offer?'🎴':''},1500);T.g.bub='!';
       if(T.mio.y<60){T.mio.pose='wave';T.mio.until=now+2500}
@@ -444,6 +448,7 @@ function step(T){const now=Date.now();mioIdle(T);
   const p=g.path[0];if(!p)return;
   const dx=p[0]-g.x,dy=p[1]-g.y;
   if(Math.abs(dx)<1.2&&Math.abs(dy)<1.2){g.x=p[0];g.y=p[1];
+    if(p[2]==='case'&&g.caseWant){g.pose='happy';g.bub='♥';g.wait=now+p[3];const I=C.info(g.caseWant);mut(T,'g',fillW(pickL(CW_LINES.look),I),p[3],1);T.status(`👀 ${esc(g.G.n)}が ケースの 「${esc(I?cnm(I):'')}」を じっと 見てる…`);return}
     if(p[2]==='case'){g.pose='stand';g.bub='!';g.wait=now+p[3];mut(T,'g',ML2('g_case'),p[3],1);if(Math.random()<.7)mut(T,'m',ML2('caseMio'));return}
     if(p[2]){g.pose=p[2]==='look'?'stand':'think';g.bub=p[2]==='think'?'?':'';g.wait=now+p[3];
       if(Math.random()<.75)mut(T,'g',gLine(g,p[2]==='look'?'g_shelf':'g_table',.45),p[3]+600,1);return}
@@ -453,6 +458,7 @@ function step(T){const now=Date.now();mioIdle(T);
 function decide(T){const g=T.g,S=SH();
   /* カードを 売りに 来た お客さんは まっすぐ レジへ */
   if(g.seller&&g.st<2){g.st=2;g.hold=1;g.pose='stand';T.status(`${esc(g.G.n)}が カードを 売りに 来たよ`);return atCounter(T)}
+  if(g.caseWant&&g.st<2){g.st=2;g.hold=1;g.pose='stand';return caseAsk(T)}
   if(g.st===0){g.st=1;
     if(!S.floor.length){g.bub='…';T.status(`${esc(g.G.n)}は 帰っていった`);mut(T,'g',ML2('g_none'));mut(T,'m',ML2('sorry'));return out(T,1600)}
     g.plan=window.SHSV?SHSV.plan(g,S.floor):{k:'quick'};
@@ -505,6 +511,39 @@ function atCounter(T,again){const g=T.g,S=SH(),box=$('shact');if(!box)return;
       if(R.close)R.close();else setTimeout(()=>{if(box.isConnected)box.innerHTML=''},1500);out(T,900)}};
   if(g.seller)return SHSV.serve({T,g,box,id:g.offer,price,rare,buy:1,offer:SHSV.offer,floor:()=>SH().floor.slice(),bought,mio:speak,gs:gspeak});
   SHSV.serve({T,g,box,id:g.want,price,rare,floor:()=>SH().floor.slice(),finish,mio:speak,gs:gspeak})}
+/* 🖼️ ケースの カードが ほしい お客さん: ゆずる（ふつうの 3ばい）か ことわる。 {w}=カードの 名前 {p}=値段 */
+const CW_LINES={
+  look:[["That {w} card… I love it!","あの 「{w}」の カード… すてき！"],["Wow, {w}! I've been looking for that!","わあ、 「{w}」！ ずっと さがしてたの！"]],
+  ask:[["I know it's not for sale, but… could you sell me the {w} card? I'll pay {p} coins!","売りものじゃ ないのは わかってる。 でも… 「{w}」の カード、 ゆずって もらえない？ {p}コイン はらうよ！"],
+    ["Please! I really want the {w} card in the glass case. How about {p} coins?","おねがい！ ガラスケースの 「{w}」が どうしても ほしいの。 {p}コインで どう？"],
+    ["My little sister loves {w}. Would you sell it to me for {p} coins?","妹が 「{w}」が 大すきなんだ。 {p}コインで 売って くれない？"],
+    ["I came back again for the {w} card. {p} coins… is that okay?","「{w}」の カードの ために また 来ちゃった。 {p}コイン… だめかな？"]],
+  yes:[["Really?! Thank you! I'll take good care of it!","ほんとに！？ ありがとう！ 大切に するね！"],["Yay! This is the best day ever!","やったー！ さいこうの 一日だ！"]],
+  no:[["I understand. It's your treasure. I'll come just to look!","わかった。 お店の お宝だもんね。 また 見に 来るね！"],["Okay… I'll find my own someday!","そっか… いつか 自分で 見つけるぞ！"]],
+  mioYes:[["Bye-bye, {w}! Be happy in your new home!","バイバイ、 「{w}」！ 新しい おうちで しあわせにね！"],["Wow, {p} coins! Boss, you're a great seller!","{p}コイン！ 店長、 商売 じょうず！"]],
+  mioNo:[["Sorry! That card is the face of our shop.","ごめんなさい！ あの カードは うちの お店の 顔なんです。"],["You can look at it anytime. Looking is free!","いつでも 見に 来てくださいね。 見るのは タダです！"]],
+  gone:[["Huh? The {w} card isn't in the case anymore…","あれ？ 「{w}」、 もう ケースに ない…"]]};
+const fillW=(x,I,p)=>x.map(t=>t.replace(/\{w\}/g,I?cnm(I):'').replace(/\{p\}/g,p||''));
+const casePrice=id=>Math.max(60,price(id)*3);
+function caseAsk(T){const g=T.g,S=SH(),box=$('shact'),id=g.caseWant,I=C.info(id);if(!box)return;T.mu.q=[];T.mu.until=0;
+  const minaSay=(k,pr)=>{try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<pr){const [ex,tx]=ML(k,{w:cnm(I),ja:I.ja||''});MINA.say('m',ex,tx,6000)}}catch(er){}};
+  const slot=CASER().indexOf(id);
+  if(!I||slot<0||C.count(id)<1){mut(T,'g',fillW(pickL(CW_LINES.gone),I));g.bub='…';T.status(`${esc(g.G.n)}は 帰っていった`);return out(T,1400)}
+  const pp=casePrice(id),ln=fillW(pickL(CW_LINES.ask),I,pp);
+  box.innerHTML=`<div class="shask shcw">${C.face(id,{mini:1,marks:false})}<div><p class="en"><b>${esc(g.G.n)}</b>「${esc(ln[0])}」</p><p class="ja">${esc(ln[1])}</p>
+    <div class="row"><button id="shcwy">🪙 ${pp} で ゆずる</button><button id="shcwn" class="sub">ことわる</button></div></div></div>`;
+  T.status(`🖼️ ${esc(g.G.n)}が ケースの カードを ほしがってる！`);sf('knock');gspeak(ln[0]);
+  box.querySelector('.en').onclick=()=>gspeak(ln[0]);
+  $('shcwy').onclick=()=>{const i=CASER().indexOf(id);if(i<0||C.count(id)<1){box.innerHTML='';return caseAsk(T)}
+    CASER()[i]=null;C.take(id);S.sold++;S.earn+=pp;S.caseSold=(S.caseSold||0)+1;const d=C.today();if(S.tday!==d){S.tday=d;S.tearn=0}S.tearn+=pp;cleanFloor();save();
+    g.pose='happy';g.bub='♥';sf('coinIn');T.mio.pose='cheer';T.mio.until=Date.now()+2500;
+    const r=cv0();try{if(r)H.coinBurst(r.x,r.y,pp,true);else H.addCoins(pp)}catch(e){H.addCoins(pp)}
+    try{RECENT.add('sell',{id,en:cnm(I),ja:I.ja||'',p:pp,by:'me',kind:'case',miss:0,tip:0,guest:g.G.n})}catch(e){}
+    T.status(`🪙 +${pp}　ケースの 「${esc(cnm(I))}」を ゆずったよ`);box.innerHTML='';
+    mut(T,'g',pickL(CW_LINES.yes));mut(T,'m',fillW(pickL(CW_LINES.mioYes),I,pp));minaSay('sh_caseSold',.4);out(T,1800)};
+  $('shcwn').onclick=()=>{sf('step');g.bub='👋';box.innerHTML='';S.caseKeep=(S.caseKeep||0)+1;save();
+    T.status(`${esc(g.G.n)}は 「また 見に 来るね」と 帰っていった`);
+    mut(T,'m',pickL(CW_LINES.mioNo));mut(T,'g',pickL(CW_LINES.no));minaSay('sh_caseKeep',.3);out(T,1600)}}
 /* 買い取った カード: 「カードを 見つけた！」と 同じ 見せかた（タップで 読む・📖 くわしく） */
 function gotCard(id,isNew,R){const I=C.info(id);if(!I)return;
   const w=SHSV.word(I),ja=SHSV.jaOf(I);let ex='happy',tx='';
@@ -560,6 +599,8 @@ Object.assign(MINA_LINES,{
  sh_caseNew:[['wow','お知らせ！ カードショップの 店内に ガラスの かざりだなが できたよ。 カウンターの 左下の ケースを タップして、 とっておきの カードを 3まい かざってね'],['happy','カードショップに かざりだなが 来たよ。 レアな カードを かざると、 お客さんが 立ちどまって 見てくれるんだって']],
  x_shCase:[['smile','レアな カード、 もってるよね。 カードショップの かざりだなに かざってみない？ お客さんが よろこぶよ'],['happy','「かざる」は 英語で display。 お店の ガラスケースは display case って いうんだよ。 3まい かざれるよ']],
  x_shCaseOn:[['happy','かざりだなの 「{w}」、 お客さんが 見とれてたって。 ミオさんが 言ってたよ'],['smile','「{w}」は 「{ja}」。 かざって おくと、 見るたびに おぼえられるね'],['wow','お店の ケースの 「{w}」、 キラッて 光ってたよ。 店長さん、 いい センスだね']],
+ sh_caseSold:[['wow','ケースの 「{w}」、 お客さんに ゆずったんだね。 その お客さん、 きっと 大切に してくれるよ'],['smile','「ゆずる」は 英語で let someone have it。 Sure, you can have it! って 言えたら かっこいいね']],
+ sh_caseKeep:[['happy','「{w}」は ゆずらなかったんだね。 お店の 宝物だもん。 No, sorry. It’s not for sale. で ことわれるよ'],['smile','ことわるのも 大事。 not for sale（売りものじゃない）って おぼえておこうね']],
  sh_casePut:[['happy','「{w}」を かざったんだね。 英語で show off は 「見せびらかす」。 ちょっとだけ 自まんしちゃおう'],['smile','「{w}」＝「{ja}」。 かざった カードは 毎日 目に 入るから、 自然に おぼえちゃうよ']],
  x_shBgm:[['smile','レコード、 もってるよね。 カードショップの 🎵 BGMで えらぶと、 お店の 中で ながれるよ'],['happy','お店で 曲を ながすと、 ミオさんも ごきげんに なるんだって']],
  x_shBgmOn:[['happy','カードショップで 「{song}」を ながしてるんだね。 店長さんの センス、 いいね'],['smile','「{song}」は お店に 入ると ながれるよ。 浜辺では 波の 音を 聞こうね']],
