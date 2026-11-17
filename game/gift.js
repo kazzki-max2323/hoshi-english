@@ -204,6 +204,7 @@ function end(){if(!live())return;const {p,t,it,to}=C;
   else if(to==='mio'&&window.MIOC){heart=MIOC.gain([1,1,2,3][t],'gift')}
   else if(window.KAIWA&&KAIWA.chars[to]){const K=KAIWA.rec(),add=t>=2?2:1;K.heart[to]=(K.heart[to]||0)+add;heart=`${KAIWA.chars[to].ico} ${esc(p.n)}と なかよし ${'♥'.repeat(add)}`}
   else heart=`${PP[to].ico} ${esc(p.n)}、 ${t>=2?'とても よろこんでた':'よろこんでた'}`;
+  try{window.MIOSP&&MIOSP.gift(to,it)}catch(e){}
   const coins=newEnd?(t>=2?5:3):0;
   save();
   const title=key==='fun'?'わらいの プレゼント':TIER[t][1],good=key!=='fun'&&t>=2;

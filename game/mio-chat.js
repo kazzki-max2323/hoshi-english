@@ -114,7 +114,7 @@ function finish(n,k){if(!live())return;const M=MR(),t=C.t,ek=t.id+':'+k,newEnd=!
   const coins=newEnd?(n.end==='fun'?3:5):0;save();
   const E=ENDN[n.end]||ENDN.ok,all=endsOf(t),got=gotN(t),s=stage();
   let mk=n.lover?'mc_lover':s>s0?'mc_up':['mc_good','mc_ok','mc_fun'][['good','ok','fun'].indexOf(n.end)]||'mc_ok';
-  if(Object.keys(M.ends).length===1)mk='mc_first';if(mk2)mk=mk2;
+  if(t.mk)mk=t.mk;if(Object.keys(M.ends).length===1)mk='mc_first';if(mk2)mk=mk2;
   $('mcans').innerHTML=`<div class="kres">
     <p class="kend ${n.end==='fun'?'fun':'good'}">${E[0]} 「${esc(E[1])}」${newEnd?' <small>NEW!</small>':''}</p>
     ${t.who?'':heart?`<p class="zkheart">${heart}</p>`:'<p class="kendn">きょうの ♥ は もう もらったよ</p>'}

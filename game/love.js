@@ -114,6 +114,7 @@ function open(back){hush();if(back)backTo=back;const B=backTo||(()=>MINA.open())
     ${promNote}
     <p class="lvmood">${title()?`🏅 ${esc(title())}　`:''}きょうの ミナ先生：<b>${t==='fight'?'😤 ちょっと すねてる':esc(M[1])}</b></p>
     ${alt()&&LV.st>=1&&!LV.bye?'<button id="lvbye" class="msensei lvgo event">🍂 先生の 気持ち<small>ミナ先生が 話したい ことが あるみたい</small></button>':''}
+    ${window.MIOSP&&MIOSP.minaOk()?'<button id="lvshy" class="sub">🙈 先生、 それは…</button>':''}
     <button id="lvgo" class="msensei lvgo ${t}" ${t==='done'?'disabled':''}>${btn}</button>
     <div class="row">${LV.st>=2&&t==='day'&&!alt()?'<button id="lvdate" class="sub">🌅 デートに さそう</button>':''}<button id="lvph" class="sub">📔 恋の フレーズ帳<small>${phN()}</small></button></div>
     <div class="row"><button id="lvalb" class="sub">📸 アルバム${newSecret()?'<i class="dot lvdot"></i>':''}</button>${LV.st>=3&&!alt()?'<button id="lvradio" class="sub">📻 曲を リクエスト</button>':''}</div>
@@ -130,6 +131,7 @@ function open(back){hush();if(back)backTo=back;const B=backTo||(()=>MINA.open())
   $('lvph').onclick=()=>{sf('book');phrases()};
   H.panel.querySelectorAll('.mfold').forEach(f=>f.ontoggle=()=>{if(f.open)sf('pop')});
   $('lvgo').onclick=()=>{if(t==='done')return;sf('talk');t==='fight'?fight():t==='event'?event():dayStart()};
+  const sb=$('lvshy');if(sb)sb.onclick=()=>{sf('talk');hush();MIOC.play(MIOSP.minaTalk(),()=>open())};
   const bb=$('lvbye');if(bb)bb.onclick=()=>{sf('talk');hush();MIOC.play(WED.byeTalk(),()=>open())};
   const db=$('lvdate');if(db)db.onclick=()=>{sf('step');datePick()};
   $('lvalb').onclick=()=>{sf('book');album()};const rb=$('lvradio');if(rb)rb.onclick=()=>{sf('step');radio()}}
