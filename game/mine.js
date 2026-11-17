@@ -36,7 +36,7 @@ function addTool(id,n=1){if(!MINE_TOOLS[id])return;TL()[id]=toolN(id)+n;C.save()
 function takeTool(id){if(!toolN(id))return false;TL()[id]--;if(TL()[id]<=0)delete TL()[id];C.save();return true}
 /* rows for the 🎒 もちもの screen (game/zakka.js bag()) */
 function bagRows(row){const L=toolList();if(!L.length)return [];
-  return L.map(t=>row(t.ico,`${esc(t.n)} <small>×${toolN(t.id)}</small>`,`⛏️ 鉱山で つかう・${esc(t.s)}`,'<button data-mine="1">⛏️ 鉱山へ</button>'))}
+  return L.map(t=>row(t.ico,`${esc(t.n)} <small>×${toolN(t.id)}</small>`,`${t.hr?'🌙':'⛏️ 鉱山で つかう・'}${esc(t.s)}`,'<button data-mine="1">⛏️ 鉱山へ</button>'))}
 const goMine=()=>{try{CG.open();setTimeout(open,60)}catch(e){}};   // 11/15 に 3倍 → 11/16 に 下げて 元の 約1.7倍（平均 2.9→8.5→約5まい/回）。 宝カードは 鉱山だけなので 少し 多め
 
 /* ================================================================ コース（練習の 形の じゅんばん） */
@@ -227,6 +227,8 @@ function after(id,ok){if(!D||D.busy)return;D.busy=true;D.q++;D.hp--;keepHp(D.hp)
 /* what you find. カードは めったに 出ない（出たら 大きな お祝い）。 true を かえすと お祝いの あとで つぎへ */
 function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.luck>0)D.luck--;const dk=D.dark>0;if(dk)D.dark--;
   /* 📦 宝箱（🧭で 出やすい）と 悪い できごと（深いほど）は 先に きめる */
+  /* 🌙 深夜（0〜4時）や 🕯️ ろうそくの とき: ふしぎな できごと（game/horror.js） */
+  if(window.HORROR){const h=HORROR.mine(D,{hud,next,addTool,burst,gotTag,fly,keepHp});if(h!=null)return h}
   if(Math.random()<P_CHEST+(D.fx.comp>0?.035:0))return chest();
   if(Math.random()<pBad(D.depth))return bad();
   const deep=Math.min(.02,D.depth*1.7/5000);   // 深いほど 少しだけ 出やすい
@@ -315,7 +317,7 @@ function useMenu(){if(!D)return;const F=foods(),T=toolList(),bag=window.FOOD?FOO
   const o=C.ov(`<div class="mnlo"><p class="mnlon">🎒 なにを つかう？ <small class="mnhp">❤ ${D.hp}/${ME_HP}</small></p>
     ${window.MIO?`<div class="kmina mnmio" data-say="${esc(mo[0])}"><span class="lface">${MIO.face('smile')}</span><p>${esc(mo[0])}<small>${esc(mo[1])}</small></p></div>`:''}
     <div class="mnlol">${F.length?`<p class="mnuh">🍪 食べもの</p>${F.map(s=>row('f',s.id,s.ico,s.n,bag[s.id],`❤+${s.hp}${D.hp>=ME_HP?'（いまは まんたん）':''}`,D.hp>=ME_HP)).join('')}`:''}
-      ${T.length?`<p class="mnuh">⛏️ 道具</p>${T.map(t=>row('t',t.id,t.ico,t.n,toolN(t.id),esc(t.s)+(t.ef==='key'?'・宝箱が 出たら つかえる':''),t.ef==='key')).join('')}`:''}
+      ${T.length?`<p class="mnuh">⛏️ 道具</p>${T.map(t=>row('t',t.id,t.ico,t.n,toolN(t.id),esc(t.s)+(t.ef==='key'?'・宝箱が 出たら つかえる':t.auto?'・その ときに 自動で つかう':''),t.ef==='key'||t.auto)).join('')}`:''}
       ${!F.length&&!T.length?'<p class="mnlod">まだ なにも ないよ。 食べ物と 道具は ながれぎ雑貨店で 買えるよ（🥪 食べ物・⛏️ 鉱山 の たな）</p>':''}</div>
     <button class="mnlob" data-x>⛏️ つづきを ほる</button></div>`,'mnlov');
   o.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{sf('back');C.closeOv()});
@@ -326,7 +328,7 @@ function eatNow(id){if(!D||!FOOD.take(id))return;const s=FOOD_SNACKS[id];const a
   try{RECENT.add('snack',{id,en:s.en,ja:s.n,ico:s.ico,mine:1})}catch(e){}
   sf('eat');setTimeout(()=>sf('gulp'in SFX?'gulp':'pop'),450);C.closeOv();gotTag(s.ico,'もぐもぐ',`❤+${D.hp-a}`);
   const [,tx]=ML('mn_useFood',{t:s.n});H.toast(`${s.ico} <b>${esc(s.n)}</b> ❤ ${a} → <b>${D.hp}</b><small>👩‍🏫 ${esc(tx)}</small>`,3200);hud()}
-function useTool(id){const t=MINE_TOOLS[id];if(!D||!t||t.ef==='key'||!takeTool(id))return;D.used.push(t.ico);C.closeOv();
+function useTool(id){const t=MINE_TOOLS[id];if(!D||!t||t.ef==='key'||t.auto||!takeTool(id))return;D.used.push(t.ico);C.closeOv();
   if(t.ef==='lamp')D.luck+=t.v;else if(t.ef==='rope'){D.depth+=t.v;burst()}else if(t.ef==='guard')D.fx.guard+=t.v;else D.fx[t.ef]=(D.fx[t.ef]||0)+t.v;
   if(t.ef==='lamp'&&D.dark){D.dark=0}
   sf(t.ef==='rope'?'knock':'pickup');gotTag(t.ico,t.n,t.ef==='rope'?`+${t.v}m`:'');
@@ -459,5 +461,5 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_mnType',1,()=>{try{return SHOP.rec().met&&MN().dives>0?{}:null}catch(e){return null}},()=>['⛏️ 鉱山へ',()=>{CG.open();setTimeout(open,60)}]],
  ['x_mnTool',1,()=>{try{return MN().dives>1&&!MN().toolBuy&&!toolList().length&&window.ZAKKA?{}:null}catch(e){return null}},()=>['🏚️ 雑貨屋へ',()=>ZAKKA.open('tool')]]);
 
-window.MINE={open,rec:MN,course,addTool,toolN,toolList,bagRows,goMine,tools:MINE_TOOLS,skip:n=>{if(D){D.st=n;D.lap=0;startLap()}}};
+window.MINE={takeTool,open,rec:MN,course,addTool,toolN,toolList,bagRows,goMine,tools:MINE_TOOLS,skip:n=>{if(D){D.st=n;D.lap=0;startLap()}}};
 })();

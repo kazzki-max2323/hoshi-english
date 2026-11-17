@@ -230,7 +230,7 @@ function goodsShelf(kind){const L=lineup(),list=L[kind]||[];
   const tile=it=>{const own=gOwned(it),fn=it.kind==='food'&&window.FOOD?(FOOD.rec().bag[it.id]||0):it.kind==='tool'&&window.MINE?MINE.toolN(it.id):0;return `<button class="zkit zkg ${own?'own':''}" data-g="${it.kind}:${it.id}"><i class="zlv zlv-${it.lv}">${GLV[it.lv]}</i>${fn?`<i class="zkfn">🎒${fn}</i>`:''}<span class="zi">${it.ico}</span><span class="zn">${esc(it.n)}</span><span class="zp">${own?'✓ もってる':it.p?'🪙'+it.p.toLocaleString():'むりょう'}</span>${it.kind==='food'?`<span class="zkhp">❤+${it.hp}</span>`:''}${it.kind==='tool'?`<span class="zkhp zktl">${esc(it.s)}</span>`:''}</button>`};
   let h=list.length?`<div class="zkshelf zkgs zkgs-${kind}">${list.map(tile).join('')}</div>`:`<p class="note">${kind==='music'?'🎵 レコードは ぜんぶ もってるよ！':'いまは なにも ないみたい'}</p>`;
   if(kind==='food')h+=`<p class="note zkrot">🔄 食べ物は 毎日 入れかわるよ ・ 持ち帰り用。 🎒 もちものから 食べたり、 プレゼントしたり できる${window.FOOD?`<br>❤ ${FOOD.hp()}/${FOOD.MAX}`:''}</p>`;
-  else if(kind==='tool')h+=`<p class="note zkrot">⛏️ 単語の 鉱山で ほっている とちゅうに 🎒 から つかえるよ（1回 つかうと なくなる）</p>`;
+  else if(kind==='tool')h+=`<p class="note zkrot">⛏️ 単語の 鉱山で ほっている とちゅうに 🎒 から つかえるよ（1回 つかうと なくなる）${list.some(it=>it.hr)?'<br>🌙 の 品は 深夜（0〜4時）の ふしぎな できごとに つかうよ':''}</p>`;
   else if(kind!=='radio')h+=`<p class="note zkrot">🔄 あと やく${nextMin()}分で たなが 入れかわるよ</p>`;
   if(kind==='music'){const mine=ST.music.filter(id=>typeof TRACKS!=='undefined'&&TRACKS[id]);
     {const nid=bgmSong(),ng=nid&&good('music',nid);if(ng){const own=gOwned(ng),pv=H.playing&&H.playing!==H.bgmOn;

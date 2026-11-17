@@ -76,12 +76,14 @@ const jaOn=()=>{try{return MINA.level()==='es'}catch(e){return true}};
 function scrollLog(){const l=$('mclog');if(l)l.scrollTo({top:l.scrollHeight,behavior:'smooth'})}
 function them(n){if(!live())return;const [en,ja]=n.m,on=jaOn(),d=document.createElement('div');
   d.className='lsay kth'+(n.ex==='oops'?' k-oops':n.ex==='laugh'?' k-good':'');
-  d.innerHTML=`<span class="lface kf mcf">${face(n.ex,n.p)}</span><div class="lbody"><p class="ken">${esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p><small class="kja ${on?'on':''}">${esc(ja)}</small>${on?'':'<button class="kjab">訳を 見る</button>'}</div>`;
+  d.innerHTML=`<span class="lface kf mcf">${n.f?`<span class="hrfc">${n.f}</span>`:face(n.ex,n.p)}</span><div class="lbody"><p class="ken">${esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p><small class="kja ${on?'on':''}">${esc(ja)}</small>${on?'':'<button class="kjab">訳を 見る</button>'}</div>`;
   $('mclog').appendChild(d);
   if(n.nt&&window.MIOL)d.querySelector('.lbody').insertAdjacentHTML('beforeend',MIOL.noteHTML(n));
-  d.querySelector('.ksay').onclick=e=>{e.stopPropagation();speak(en)};
+  /* n.f = ミオ・ミナ先生 いがいの 人（🌙 game/horror.js の おばけ など）。 声は ひくめの べつの 声 */
+  const say=n.f?()=>{try{HE.say('hs',en)}catch(e){}}:()=>speak(en);
+  d.querySelector('.ksay').onclick=e=>{e.stopPropagation();say()};
   const jb=d.querySelector('.kjab');if(jb)jb.onclick=()=>{sf('tap');jb.remove();d.querySelector('.kja').classList.add('on');scrollLog()};
-  speak(en);scrollLog()}
+  say();scrollLog()}
 function you(en){if(!live())return;const d=document.createElement('div');d.className='lsay by-h kyou-b';
   d.innerHTML=`<span class="lface kf you">⭐</span><div class="lbody"><p>${esc(en)}</p></div>`;$('mclog').appendChild(d);scrollLog()}
 
@@ -98,11 +100,13 @@ function node(k){if(!live())return;const n=C.t.nodes[k];if(!n)return;
   them(n);$('mcans').innerHTML='';
   if(n.end)return setTimeout(()=>finish(n,k),1400);
   setTimeout(()=>{if(!live())return;const on=jaOn();
-    $('mcans').innerHTML=`<div class="lopts kopts">${H.shuffle(n.o.map((o,i)=>[o,i])).map(([o,i])=>`<button data-i="${i}">${esc(o[0])}<small class="mcja" ${on?'':'hidden'}>${esc(o[1])}</small></button>`).join('')}</div>
+    /* 答えの 5番目（o[4]）は もちものの しるし。 もっている ときだけ 出す（🧿 お守り など。 game/horror.js） */
+    const okO=o=>!o[4]||(window.HORROR&&HORROR.has(o[4]));
+    $('mcans').innerHTML=`<div class="lopts kopts">${H.shuffle(n.o.map((o,i)=>[o,i]).filter(([o])=>okO(o))).map(([o,i])=>`<button data-i="${i}">${esc(o[0])}<small class="mcja" ${on?'':'hidden'}>${esc(o[1])}</small></button>`).join('')}</div>
       ${on?'':'<button class="kjab" id="mcja">答えの 訳を 見る</button>'}`;
     const jb=$('mcja');if(jb)jb.onclick=()=>{sf('tap');jb.remove();$('mcans').querySelectorAll('.mcja').forEach(x=>x.hidden=false)};
     $('mcans').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const o=n.o[+b.dataset.i];sf('tap');$('mcans').innerHTML='';
-      C.pts+=o[3]||0;you(o[0]);setTimeout(()=>node(o[2]),700)});
+      if(o[4]&&window.HORROR)HORROR.use(o[4]);C.pts+=o[3]||0;you(o[0]);setTimeout(()=>node(o[2]),700)});
     scrollLog()},700)}
 
 const ENDN={good:['★','いい エンド','g'],ok:['🙂','ふつうの エンド',''],fun:['😂','おもしろ エンド','']};
@@ -121,13 +125,15 @@ function finish(n,k){if(!live())return;const M=MR(),t=C.t,ek=t.id+':'+k,newEnd=!
     ${coins?`<p class="kpay">🪙 <b>${coins}まい</b> <small>新しい エンド</small></p>`:''}
     <details class="mfold"><summary>${t.ico} この 会話の エンド <small>${got}/${all.length}</small></summary><div class="kends" style="padding:0 10px 10px">${all.map(e=>{const x=t.nodes[e],N=ENDN[x.end]||ENDN.ok;return M.ends[t.id+':'+e]?`<span class="${N[2]} ${e===k?'now':''}">${N[0]} ${esc(N[1])}</span>`:'<span class="no">？ ？？？</span>'}).join('')}</div></details>
     ${t.who?'':minaBox(mk,{s:MIO_STG[s].n})}
-    <div class="row"><button id="mcagain" class="sub">🔁 もう一度</button><button id="mcok" data-back>ほかの 話</button></div>
+    ${t.fin?t.fin(n,k,newEnd,C.pts):''}
+    <div class="row"><button id="mcagain" class="sub">🔁 もう一度</button><button id="mcok" data-back>${esc(t.okL||'ほかの 話')}</button></div>
   </div>`;
   if(coins){const r=$('mcans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,coins)}
   if(!n.lover)n.end==='fun'?sf('pop'):sf('heart');
   const b=C.back;
   $('mcok').onclick=()=>{sf('back');hush();C=null;t.who?b():open(b)};
   $('mcagain').onclick=()=>{sf('step');play(t,b)};
+  if(t.bind)t.bind($('mcans'));
   setTimeout(()=>{const a=$('mcans');if(a)a.scrollIntoView({behavior:'smooth',block:'end'})},100)}
 
 /* ================================================================ ミオの あいさつ（段階ごと） */
