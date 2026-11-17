@@ -251,8 +251,10 @@ function room(c,t,f){
   PR(c,42,16,2,40,'#9ab4c8');PR(c,108,16,2,40,'#9ab4c8');
   PR(c,112,50,6,8,'#e0a070');PR(c,111,42,2,8,'#5ab05a');PR(c,114,40,2,10,'#4a9a4a');PR(c,117,43,2,7,'#5ab05a')}
 /* the sales table: the real cards on the floor */
-function table(c,n){PR(c,70,80,58,9,'#fff');PR(c,70,89,58,2,'#cfdbe4');PR(c,73,91,3,10,'#9ab4c8');PR(c,122,91,3,10,'#9ab4c8');
-  for(let i=0;i<n;i++)card(c,75+(i%5)*10+(i>4?3:0),80+(i>4?4:0),CC[(i*5)%6])}
+function table(c,n,t){PR(c,70,80,58,9,'#fff');PR(c,70,89,58,2,'#cfdbe4');PR(c,73,91,3,10,'#9ab4c8');PR(c,122,91,3,10,'#9ab4c8');
+  /* 台の 左はしの 小さな ランタン（夜は 灯る。 光の にじみは lights()） */
+  PR(c,73,77,1,1,'#5a6a7a');PR(c,72,78,1,1,'#5a6a7a');PR(c,74,78,1,1,'#5a6a7a');PR(c,71,79,5,1,'#3a5a8a');PR(c,71,80,5,5,'#d8eef8');PR(c,71,80,1,1,'#3a5a8a');PR(c,75,80,1,1,'#3a5a8a');PR(c,71,84,1,1,'#3a5a8a');PR(c,75,84,1,1,'#3a5a8a');PR(c,72,81,3,3,t&&t!=='day'?'#ffe2a0':'#f4ead2');PR(c,70,85,7,1,'#3a5a8a');PR(c,70,86,7,1,'#cfdbe4');
+  for(let i=0;i<n;i++)card(c,79+(i%5)*10+(i>4?3:0),80+(i>4?4:0),CC[(i*5)%6])}
 function desk(c){PR(c,138,68,60,4,'#fff');PR(c,138,72,60,20,'#e8eef4');PR(c,138,72,60,1,'#9ab4c8');PR(c,138,91,60,1,'#9ab4c8');for(let x=138;x<198;x+=12)PR(c,x,78,6,3,'#3a7ac0');
   PR(c,182,64,6,3,'#ffcf4a');PR(c,184,63,2,1,'#ffcf4a');PR(c,181,67,8,1,'#b08a3a');PR(c,146,62,12,6,'#a8784a');PR(c,147,63,10,2,'#fff2c8')}
 function lights(c,t){if(t==='day')return;c.fillStyle=t==='dusk'?'rgba(120,60,90,.22)':'rgba(16,22,60,.55)';c.fillRect(0,0,W,HH);
@@ -260,7 +262,7 @@ function lights(c,t){if(t==='day')return;c.fillStyle=t==='dusk'?'rgba(120,60,90,
   const a=t==='night'?1:.6;for(let x=5;x<W;x+=10){PR(c,x,11,2,2,'#ffe2a0');glow(c,x+1,12,6,.3*a)}
   PR(c,92,0,1,12,'#555');PR(c,88,12,9,3,'#3a7ac0');PR(c,90,15,5,3,'#ffe2a0');glow(c,92,18,26,.32*a);
   PR(c,186,58,5,6,'#ffe2a0');PR(c,185,57,7,1,'#3a5a8a');glow(c,188,61,20,.35*a);
-  if(caseN()){PR(c,11,87,50,1,'#ffe2a0');glow(c,36,94,24,.3*a)}PR(c,74,74,4,6,'#bfe8ff');PR(c,75,76,2,2,'#ffe2a0');glow(c,76,77,14,.3*a)}
+  if(caseN()){PR(c,11,87,50,1,'#ffe2a0');glow(c,36,94,24,.3*a)}glow(c,73,82,14,.3*a)}
 /* 🖼️ the glass showcase on the floor, front left（中の カードの 絵は DOMで くっきり。 caseArt） */
 const CX=[14,30,46],CY=89,CPX=[8,83,64,116];   // カードの 位置 ／ タップできる ところ（x1,y1,x2,y2）
 const TCOL=['','#9aa8bc','#c0c8d8','#ffd23f','#9fe8ff','#ff6ad5'];
@@ -411,7 +413,7 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
   let last=0;
   const tick=now=>{if(!T.alive||!cv.isConnected){T.alive=false;return}requestAnimationFrame(tick);if(now-last<140)return;last=now;T.f++;step(T);
     const d=night(),t=d>.6?'night':d>.25?'dusk':'day';
-    room(c,t,T.f);if(window.SHDECO)SHDECO.back(c,t,T.f);table(c,SH().floor.length);
+    room(c,t,T.f);if(window.SHDECO)SHDECO.back(c,t,T.f);table(c,SH().floor.length,t);
     /* Mio: behind the counter, or out on the floor sweeping */
     const m=T.mio;if(m.walk){const dx=m.walk-m.x;if(Math.abs(dx)<1){m.x=m.walk;m.walk=null}else m.x+=Math.sign(dx)}
     const behind=m.y<60;
@@ -420,7 +422,7 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
     if(g&&g.y+32>m.y+32)guest(c,g.x,g.y,g.L,g.pose,T.f>>1);
     showcase(c,T.f);const on=!!H.shopSongId;player(c,on,T.f);if(window.SHDECO)SHDECO.front(c,t,T.f);
     if(g&&g.bub&&!(T.mu.who==='g'&&T.mu.until>Date.now()))bub(c,g.x+11,g.y-9,g.bub);
-    lights(c,t);if(window.SHDECO)SHDECO.lit(c,t,T.f);if(window.HORROR)HORROR.draw(c,T,t);if(t!=='day'){if(on)glow(c,182,93,12,t==='night'?.28:.18);PR(c,173,97,2,1,on?'#7aff9a':'#5a4a3a')}
+    lights(c,t);if(t!=='day'&&!(g&&g.x<75&&g.x+14>72&&g.y<84&&g.y+32>81))PR(c,72,81,3,3,'#ffe2a0');if(window.SHDECO)SHDECO.lit(c,t,T.f);if(window.HORROR)HORROR.draw(c,T,t);if(t!=='day'){if(on)glow(c,182,93,12,t==='night'?.28:.18);PR(c,173,97,2,1,on?'#7aff9a':'#5a4a3a')}
     if(H.playing&&now>=(T.noteAt||0)){T.noteAt=now+500+Math.random()*400;note()}
     caseArt();mutTick(T,t)};
   requestAnimationFrame(tick);
