@@ -114,5 +114,10 @@ function say(en){try{const ST=BEACH.S;if(!ST.sound||!window.speechSynthesis||!en
   const t=(typeof sayNames==='function'?sayNames(String(en)):String(en)).replace(/[“”"]/g,'').replace(/\.\.\.|…/g,', ');
   const u=new SpeechSynthesisUtterance(t);u.lang='en-US';const v=voice();if(v)u.voice=v;
   u.pitch=v?1.2:1.45;u.rate=(ST.slow?.76:.98);u.volume=Math.min(1,(ST.vol&&ST.vol.voice!=null)?ST.vol.voice:1);speechSynthesis.speak(u)}catch(e){}}
-window.MIO={face,draw,say,voice,name:'ミオ'};
+/* ほかの 人の 声（カウンターの お客さんなど）: sex 'f' = 女の人・'m' = 男の人。 seed で 人ごとに ちがう 声。 女の人は ミオと べつの 声を 先に。 見つからなければ null */
+function vpick(sex,seed){if(!window.speechSynthesis)return null;const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));
+  let l=sex==='m'?vs.filter(v=>MALE.test(v.name)):vs.filter(v=>!MALE.test(v.name)&&FEM.test(v.name));
+  if(sex!=='m'){const mv=voice(),o=l.filter(v=>v!==mv);if(o.length)l=o}
+  return l.length?l[Math.abs(seed|0)%l.length]:null}
+window.MIO={face,draw,say,voice,vpick,name:'ミオ'};
 })();
