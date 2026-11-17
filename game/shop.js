@@ -47,7 +47,12 @@ function sell(id,p,fly){const S=SH(),i=S.floor.indexOf(id);if(i<0)return false;S
 /* ================================================================ the Mio bubble */
 let jaOn=true;
 function speak(en){try{MIO.say(en)}catch(e){}}
-const gspeak=en=>{try{C.speak(en)}catch(e){}};
+/* お客さんの 声: その 人の 女の人・男の人の 声で（GUESTS の v）。 デバイスに その 声が なければ 高さで 近づける */
+const gspeak=en=>{try{const G=CT&&CT.g&&CT.g.G,v=G&&G.v;if(!v||!window.speechSynthesis)return C.speak(en);if(!ST.sound||!en)return;
+  speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(sayNames(String(en)));u.lang='en-US';
+  const pv=window.MIO&&MIO.vpick?MIO.vpick(v.s,GUESTS.indexOf(G)>>1):null;if(pv)u.voice=pv;
+  u.pitch=Math.max(.1,Math.min(2,pv?v.p:v.p+(v.s==='m'?-.3:.35)));u.rate=(ST.slow?.75:.95)*(v.r||1);
+  u.volume=Math.min(1,(ST.vol&&ST.vol.voice!=null)?ST.vol.voice:1);speechSynthesis.speak(u)}catch(e){}};
 function bubble(en,ja,ex='smile',pose=''){return `<div class="cgnagi shm"><span class="cgnf cgm">${MIO.face(ex,pose)}</span><div class="cgnb"><b>ミオ</b><p class="en">${esc(en)}</p><p class="ja" ${jaOn?'':'hidden'}>${esc(ja)}</p></div></div>`}
 function bindBubble(root=H.panel){root.querySelectorAll('.shm .cgnb').forEach(b=>b.onclick=()=>{jaOn=!jaOn;b.querySelector('.ja').hidden=!jaOn;speak(b.querySelector('.en').textContent)})}
 const night=()=>{try{return SCENE.dark()}catch(e){return 0}};
