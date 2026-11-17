@@ -57,7 +57,7 @@ const LOVE_PROPOSE={t:'プロポーズ',ico:'💍',need:5,
 
 /* ================= 💒 結婚式（婚約で ハートが いっぱいに なると） ================= */
 LOVE_EVENTS[4]={t:'浜辺の 結婚式',ico:'💒',need:8,
- intro:'星降る 浜辺の 結婚式。 ハマ子、 ノラさん、 リク、 浜辺の みんなが 集まった…',
+ intro:'星降る 浜辺の 結婚式。 ハマ子、 ノラさん、 リク、 ミオ、 浜辺の みんなが 集まった…',
  ok:["I'm the happiest person in the whole world. ...Let's go home together, my love.","世界で いちばん しあわせ。 …いっしょに 帰ろう、 あなた。",'love'],
  ng:["You were so nervous! It's okay. Let's practice our vows and try again tomorrow.","すごく 緊張してたね！ だいじょうぶ。 誓いの ことばを 練習して、 あした もう一度。",'happy'],
  nodes:{
