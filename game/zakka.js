@@ -12,7 +12,7 @@
 const {S:ST,sfx:SFX}=BEACH;
 const H=HE,esc=H.esc,$=id=>document.getElementById(id);
 /* 恋人むけの 品（love: n）は ミナ先生との 段階が n に なったら ならぶ（game/love-more.js） */
-const loveOk=i=>!i.love||(window.LOVE&&(LOVE.lvl?LOVE.lvl():LOVE.rec().st)>=i.love);
+const loveOk=i=>!i.love||(window.LOVE&&(LOVE.lvl?LOVE.lvl():LOVE.rec().st)>=i.love&&!(i.id==='g_ring'&&window.WED&&WED.who()==='mio'))||(i.id==='g_ring'&&window.MIOL&&MIOL.ringFor());
 const IT=ZAKKA_ITEMS,PCS=ZAKKA_CARDS,FTS=ZAKKA_FORTUNES,PH=ZAKKA_PHRASES,PHK=Object.keys(PH);
 const item=id=>IT.find(i=>i.id===id);
 const pickL=a=>a[Math.random()*a.length|0];
@@ -493,7 +493,7 @@ function bag(bk){hush();const back=typeof bk==='function'?bk:shop,me=()=>bag(bac
     ZD.fortN||fs?row('🥠','英語おみくじ',`まだ わっていない ${ZD.fortN}こ・出た ことば ${new Set(ZD.fort).size}/${FTS.length}`,ZD.fortN?`<button data-ft="1">わる</button>`:`<button data-fl="1" class="sub">見る</button>`):'',
     ...G.map((g,i)=>{const it=item(g.id);return row(it.ico,esc(it.n)+(g.w?' 🎀':''),'プレゼント・だれにでも あげられるよ',`<button data-gv="${i}">あげる</button>`)}),
     ZD.own.crystal?row('🔮','水晶玉',`出た 言いまわし ${idiomSeen().length}/${ZAKKA_IDIOMS.length}`,`<button data-cr="1">${idiomToday()?'見る':'のぞく'}</button>`):'',
-    ZD.own.g_ring?row('💍','星の 指輪','プロポーズの ための 指輪',window.LOVE?`<button data-rg="1">💗 ミナ先生へ</button>`:''):'',
+    ZD.own.g_ring?row('💍','星の 指輪','プロポーズの ための 指輪',(window.LOVE&&!(window.WED&&WED.who()==='mio')?`<button data-rg="1">💗 ミナ先生へ</button>`:'')+(window.MIOL&&MIOL.ringFor()?`<button data-rgm="1">🙋‍♀️ ミオへ</button>`:'')):'',
     window.ADV&&ADV.has()?row('🗺️','宝の地図',`「${esc(ADV.name())}」・ 宝箱が ねむっている`,`<button data-adv="1">宝探しに 行く</button>`):'',
     ZD.own.moonmap?row('🗺️','月の 市場への 地図','ノラさんの ひみつの お話',`<button data-mm="1">聞く</button>`):'',
     Z.tgs().length?row('👦','リクからの お礼',Z.tgs().map(t=>t.ico).join(' ')+'・あげても 売っても いいよ',`${window.GIFT?'<button data-tgv="1">あげる</button>':''}<button data-tg="1" class="sub">売る</button>`):'',
@@ -519,6 +519,7 @@ function bag(bk){hush();const back=typeof bk==='function'?bk:shop,me=()=>bag(bac
   H.panel.querySelectorAll('[data-mine]').forEach(b=>b.onclick=()=>{SFX.open();MINE.goMine()});
   H.panel.querySelectorAll('[data-mm]').forEach(b=>b.onclick=()=>{SFX.talk();play('moon')});
   H.panel.querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>{SFX.talk();LOVE.open(me)});
+  H.panel.querySelectorAll('[data-rgm]').forEach(b=>b.onclick=()=>{SFX.talk();MIOC.open(me)});
   H.panel.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{SFX.talk();play('sell')});
   H.panel.querySelectorAll('[data-nt]').forEach(b=>b.onclick=()=>{SFX.book();notebook(me)});
   H.panel.querySelectorAll('[data-fe]').forEach(b=>b.onclick=()=>FOOD.eat(b.dataset.fe,me))}

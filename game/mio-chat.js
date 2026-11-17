@@ -11,10 +11,10 @@ const pickL=a=>a[Math.random()*a.length|0];
 const sf=k=>{try{SFX[k]&&SFX[k]()}catch(e){}};
 const today=()=>{try{return CG.today()}catch(e){return new Date().toDateString()}};
 const save=()=>{try{CG.save()}catch(e){}};
-const speak=en=>{try{MIO.say(en)}catch(e){}};
+const speak=en=>{try{C&&C.t&&C.t.who==='mina'?WED.say(en):MIO.say(en)}catch(e){}};
 const MR=()=>{const S=SHOP.rec();return S.mio||(S.mio={h:0,lover:0,ends:{},n:{},day:{},cday:'',cn:0})};
 const POSE={wave:'wave',peace:'peace',thumb:'thumb',guts:'guts',point:'thumb',there:'wave',look:'wave',pencil:'peace'};
-const face=(ex,p)=>MIO.face(ex||'smile',POSE[p]||'');
+const face=(ex,p)=>C&&C.t&&C.t.who==='mina'?MINA.face('m',ex||'smile',p||undefined):MIO.face(ex||'smile',POSE[p]||'');
 
 /* ================================================================ 段階 */
 function stage(){const M=MR();if(M.lover)return 5;let s=0;for(let i=0;i<5;i++)if(M.h>=MIO_STG[i].need)s=i;return s}
@@ -29,7 +29,8 @@ function gain(n,why){if(!(n>0))return '';const M=MR(),b=stage();
 function setLover(){const M=MR();if(M.lover)return;M.lover=1;save();up(5)}
 
 /* ================================================================ 会話の リスト */
-const open_=()=>MIO_TALKS.filter(t=>t.st<=stage());
+const ifOk=t=>{try{return !t.if||t.if(MR())}catch(e){return false}};
+const open_=()=>MIO_TALKS.filter(t=>t.st<=stage()&&ifOk(t));
 const endsOf=t=>Object.keys(t.nodes).filter(k=>t.nodes[k].end);
 const gotN=t=>endsOf(t).filter(k=>MR().ends[t.id+':'+k]).length;
 const isNew=t=>!MR().n[t.id];
@@ -39,23 +40,28 @@ const top=(t,right,id)=>`<div class="qtop"><button class="x" id="${id}" aria-lab
 
 function open(back){back=back||SHOP.open;hush();const M=MR(),s=stage(),g=MIO_STG[s],L=open_();
   const nx=s<4?MIO_STG[s+1]:null,base=g.need===999?0:g.need,pct=nx?Math.min(100,Math.round((M.h-base)/(nx.need-base)*100)):100;
-  const hi=MIO_CHAT_HI[s];
-  const lock=MIO_TALKS.filter(t=>t.st>s&&t.st<5).length;
+  const hi=(window.MIOL&&MIOL.hi())||MIO_CHAT_HI[s],hd=window.MIOL&&MIOL.head();
+  const lock=MIO_TALKS.filter(t=>t.st>s&&t.st<5&&ifOk(t)).length;
+  const cc=window.MIOL?MIOL.chap():-1,cur=t=>t.c!=null&&t.c===cc||t.top;
+  const now=(L.length>8?L.filter(t=>isNew(t)||gotN(t)<endsOf(t).length||cur(t)):L).slice().sort((a,b)=>(cur(b)?1:0)-(cur(a)?1:0)),old=L.filter(t=>!now.includes(t));
+  const li=t=>{const e=endsOf(t).length,n=gotN(t);return `<button data-k="${t.id}"><span>${t.ico}</span><b>${esc(t.t)}</b><i>${n>=e?'★':`${n}/${e}`}</i>${isNew(t)?'<u>NEW</u>':''}</button>`};
   H.show('cg',`<section class="pnl cgp shp mc">
     ${top('💬 ミオと 話す',`♥ ${M.h}`,'mcx')}
     <div class="cgnagi shm"><span class="cgnf cgm">${face(s>=4?'wink':'laugh',s>=5?'peace':'wave')}</span><div class="cgnb"><b>ミオ</b><p class="en">${esc(hi[0])}</p><p class="ja">${esc(hi[1])}</p></div></div>
-    <div class="mcst"><span>${g.ico}</span><div><b>${esc(g.n)}</b>${nx?`<span class="mcbar"><b style="width:${pct}%"></b></span><small>つぎ ？？？</small>`:s===4?'<small>つぎは… ？？？</small>':'<small>💞</small>'}</div></div>
+    ${hd?`<div class="mcst"><span>${hd.ico}</span><div><b>${esc(hd.n)}</b><small>${hd.hint?esc(hd.hint):'💞'}</small></div></div>`:`<div class="mcst"><span>${g.ico}</span><div><b>${esc(g.n)}</b>${nx?`<span class="mcbar"><b style="width:${pct}%"></b></span><small>つぎ ？？？</small>`:s===4?'<small>つぎは… ？？？</small>':'<small>💞</small>'}</div></div>`}
+    ${window.MIOL?MIOL.block():''}
     ${window.MIOS?`<button id="mcstudy" class="mcstudy"><span>📝</span><b>英語で おしゃべり<small>毎回 ちがう 話・いまの レベルで</small></b>${MIOS.rec().d!==CG.today()?'<i class="dot"></i>':''}</button>`:''}
     <p class="mchd">💬 ミオの 話</p>
-    <div class="mcls">${L.map(t=>{const e=endsOf(t).length,n=gotN(t);
-      return `<button data-k="${t.id}"><span>${t.ico}</span><b>${esc(t.t)}</b><i>${n>=e?'★':`${n}/${e}`}</i>${isNew(t)?'<u>NEW</u>':''}</button>`}).join('')}</div>
+    <div class="mcls">${now.map(li).join('')}</div>
+    ${old.length?`<details class="shmore"><summary>見おわった 話 ${old.length}</summary><div class="mcls">${old.map(li).join('')}</div></details>`:''}
     ${lock?`<p class="note">♥ が ふえると 話せる ことが ふえるよ（あと ${lock}こ）</p>`:''}
-    <details class="shmore"><summary>ふたりの 関係</summary><div class="mcstg">${MIO_STG.map((x,i)=>i<=s?`<span class="on">${x.ico} ${esc(x.n)}</span>`:'<span>？ ？？？</span>').join('')}</div></details>
+    <details class="shmore"><summary>ふたりの 関係</summary><div class="mcstg">${MIO_STG.slice(0,5).concat(window.MIO_CH&&MR().lover?(MR().alt?[MIO_ALT]:MIO_CH.slice(0,(MR().c||0)+1)):[MIO_STG[5]]).map((x,i)=>i<=s||i>5||MR().alt?`<span class="on">${x.ico} ${esc(x.n)}</span>`:'<span>？ ？？？</span>').join('')}${MR().lover&&!MR().alt&&window.MIO_CH&&(MR().c||0)<5?'<span>？ ？？？</span>':''}</div></details>
     <div class="row"><button id="mcgift" class="sub">🎁 プレゼント</button>${window.MIOS&&Object.keys(MIOS.rec().ok).length?'<button id="mcbook" class="sub">📒 まなんだ こと</button>':''}${(window.GIFT&&GIFT.rec().n)?'<button id="mcnote" class="sub">📔 好きな物ノート</button>':''}</div>
   </section>`);
   $('mcx').onclick=()=>{sf('back');hush();back()};
   H.panel.querySelector('.shm .cgnb').onclick=e=>{const j=e.currentTarget.querySelector('.ja');j.hidden=!j.hidden;speak(hi[0])};
-  H.panel.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{sf('step');play(MIO_TALKS.find(t=>t.id===b.dataset.k),back)});
+  H.panel.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{sf('step');const t=MIO_TALKS.find(t=>t.id===b.dataset.k);t.pre?t.pre(()=>play(t,back),()=>open(back)):play(t,back)});
+  if(window.MIOL)MIOL.bind(back);
   $('mcgift').onclick=()=>{sf('step');GIFT.pick({to:'mio',back:()=>open(back)})};
   const st=$('mcstudy');if(st)st.onclick=()=>{sf('step');MIOS.start(()=>open(back))};
   const bk=$('mcbook');if(bk)bk.onclick=()=>{sf('book');MIOS.book(()=>open(back))};
@@ -72,6 +78,7 @@ function them(n){if(!live())return;const [en,ja]=n.m,on=jaOn(),d=document.create
   d.className='lsay kth'+(n.ex==='oops'?' k-oops':n.ex==='laugh'?' k-good':'');
   d.innerHTML=`<span class="lface kf mcf">${face(n.ex,n.p)}</span><div class="lbody"><p class="ken">${esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p><small class="kja ${on?'on':''}">${esc(ja)}</small>${on?'':'<button class="kjab">訳を 見る</button>'}</div>`;
   $('mclog').appendChild(d);
+  if(n.nt&&window.MIOL)d.querySelector('.lbody').insertAdjacentHTML('beforeend',MIOL.noteHTML(n));
   d.querySelector('.ksay').onclick=e=>{e.stopPropagation();speak(en)};
   const jb=d.querySelector('.kjab');if(jb)jb.onclick=()=>{sf('tap');jb.remove();d.querySelector('.kja').classList.add('on');scrollLog()};
   speak(en);scrollLog()}
@@ -85,7 +92,7 @@ function play(t,back){if(!t)return open(back);hush();
     <div class="lslog kwlog" id="mclog"></div>
     <div id="mcans" class="kans"></div>
   </section>`);
-  $('mcx').onclick=()=>{sf('back');hush();C=null;open(back)};
+  $('mcx').onclick=()=>{sf('back');hush();C=null;t.who?back():open(back)};
   setTimeout(()=>node('s'),300)}
 function node(k){if(!live())return;const n=C.t.nodes[k];if(!n)return;
   them(n);$('mcans').innerHTML='';
@@ -100,26 +107,26 @@ function node(k){if(!live())return;const n=C.t.nodes[k];if(!n)return;
 
 const ENDN={good:['★','いい エンド','g'],ok:['🙂','ふつうの エンド',''],fun:['😂','おもしろ エンド','']};
 function finish(n,k){if(!live())return;const M=MR(),t=C.t,ek=t.id+':'+k,newEnd=!M.ends[ek],d=today(),s0=stage();
-  M.ends[ek]=1;M.n[t.id]=(M.n[t.id]||0)+1;try{RECENT.add('mio',{id:t.id,end:k,kind:n.end,how:'talk'})}catch(e){}
-  const add=newEnd?Math.max(1,C.pts):M.day[t.id]!==d?1:0;M.day[t.id]=d;
-  const heart=gain(add,'talk');
+  M.ends[ek]=1;M.n[t.id]=(M.n[t.id]||0)+1;if(!t.who)try{RECENT.add('mio',{id:t.id,end:k,kind:n.end,how:'talk'})}catch(e){}
+  const add=t.who?0:newEnd?Math.max(1,C.pts):M.day[t.id]!==d?1:0;M.day[t.id]=d;
+  const heart=gain(add,'talk'),mk2=window.MIOL?MIOL.onEnd(t,n):null;
   if(n.lover)setLover();
   const coins=newEnd?(n.end==='fun'?3:5):0;save();
   const E=ENDN[n.end]||ENDN.ok,all=endsOf(t),got=gotN(t),s=stage();
   let mk=n.lover?'mc_lover':s>s0?'mc_up':['mc_good','mc_ok','mc_fun'][['good','ok','fun'].indexOf(n.end)]||'mc_ok';
-  if(Object.keys(M.ends).length===1)mk='mc_first';
+  if(Object.keys(M.ends).length===1)mk='mc_first';if(mk2)mk=mk2;
   $('mcans').innerHTML=`<div class="kres">
     <p class="kend ${n.end==='fun'?'fun':'good'}">${E[0]} 「${esc(E[1])}」${newEnd?' <small>NEW!</small>':''}</p>
-    ${heart?`<p class="zkheart">${heart}</p>`:'<p class="kendn">きょうの ♥ は もう もらったよ</p>'}
+    ${t.who?'':heart?`<p class="zkheart">${heart}</p>`:'<p class="kendn">きょうの ♥ は もう もらったよ</p>'}
     ${coins?`<p class="kpay">🪙 <b>${coins}まい</b> <small>新しい エンド</small></p>`:''}
     <details class="mfold"><summary>${t.ico} この 会話の エンド <small>${got}/${all.length}</small></summary><div class="kends" style="padding:0 10px 10px">${all.map(e=>{const x=t.nodes[e],N=ENDN[x.end]||ENDN.ok;return M.ends[t.id+':'+e]?`<span class="${N[2]} ${e===k?'now':''}">${N[0]} ${esc(N[1])}</span>`:'<span class="no">？ ？？？</span>'}).join('')}</div></details>
-    ${minaBox(mk,{s:MIO_STG[s].n})}
+    ${t.who?'':minaBox(mk,{s:MIO_STG[s].n})}
     <div class="row"><button id="mcagain" class="sub">🔁 もう一度</button><button id="mcok" data-back>ほかの 話</button></div>
   </div>`;
   if(coins){const r=$('mcans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,coins)}
   if(!n.lover)n.end==='fun'?sf('pop'):sf('heart');
   const b=C.back;
-  $('mcok').onclick=()=>{sf('back');hush();C=null;open(b)};
+  $('mcok').onclick=()=>{sf('back');hush();C=null;t.who?b():open(b)};
   $('mcagain').onclick=()=>{sf('step');play(t,b)};
   setTimeout(()=>{const a=$('mcans');if(a)a.scrollIntoView({behavior:'smooth',block:'end'})},100)}
 
