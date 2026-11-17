@@ -71,6 +71,7 @@ function open(){cleanFloor();const S=SH(),first=!S.met;
     <button data-g="pack" class="shpack"><span>🎁</span><b>仕入れ</b><small>何回でも</small>${R().free!==C.today()?'<i class="dot"></i>':''}</button>
     <div class="row shmio"><button id="shtalk">💬 ミオと 話す${window.MIOC&&MIOC.newN()?'<i class="dot"></i>':''}</button><button id="shgift" class="sub">🎁 プレゼント</button></div>
     ${bgmBtn()}
+    ${window.HORROR?HORROR.frontBtn():''}
     <p class="shsum">これまでに ${S.sold}まい 売れた・ 売り上げ 🪙${S.earn}${S.best?` ・ 鉱山 最高 ${S.best}m`:''}</p>
   </section>`);
   $('cgx').onclick=()=>{sf('back');H.home()};
@@ -78,6 +79,7 @@ function open(){cleanFloor();const S=SH(),first=!S.met;
   $('shtalk').onclick=()=>{sf('step');MIOC.open(open)};
   $('shgift').onclick=()=>{sf('step');GIFT.pick({to:'mio',back:open})};
   $('shbgm').onclick=()=>{sf('step');bgm()};
+  if(window.HORROR)HORROR.frontBind(open);
   H.panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{sf('step');({counter,mine:()=>MINE.open(),floor,store,book:()=>CBOOK.open()})[b.dataset.t]()});
   H.panel.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{sf('step');C.go(b.dataset.g)})}
 
@@ -356,7 +358,7 @@ function mut(T,who,line,ms,free){if(!line||!T.mu)return;const m=T.mu;if(m.until>
 /* every frame: follow the speaker, end the bubble, and let Mio mutter when the shop is quiet */
 function mutTick(T,t){const m=T.mu,e=$('shmut'),now=Date.now();if(!e)return;
   if(m.who&&now>=m.until){m.who='';e.hidden=true;m.next=Math.max(m.next,now+1200);const n=m.q.shift();if(n){m.next=0;setTimeout(()=>{if(T.alive)mut(T,...n)},450)}}
-  if(m.who){const sp=m.who==='m'?T.mio:T.g;if(!sp){m.until=0;return}
+  if(m.who){const sp=m.who==='m'?T.mio:m.who==='h'?T.hrSp:T.g;if(!sp){m.until=0;return}
     const st=e.parentNode,sx=st.clientWidth/W,sy=st.clientHeight/HH,bw=e.offsetWidth,cx=(sp.x+7)*sx;
     const left=Math.max(4,Math.min(st.clientWidth-bw-4,cx-bw/2));e.style.left=left+'px';e.style.bottom=Math.round((HH-sp.y+2)*sy)+'px';e.style.setProperty('--tx',Math.round(cx-left)+'px');return}
   /* Mio, by herself: every 15〜25 s when no guest and no question is open */
@@ -387,7 +389,7 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
   T.alive=true;T.paused=0;
   /* 🪴 もようがえ（ミオが 2〜4日ごとに かえる。 game/shop-deco.js） */
   const dc=!old&&window.SHDECO?SHDECO.pick(S):null;if(dc){save();if(dc.changed)setTimeout(()=>{if(!T.alive)return;T.mu.until=0;mut(T,'m',SHDECO.hello(),4600,1);T.mio.pose='wave';T.mio.until=Date.now()+2600;const e=$('shst');if(e)e.innerHTML=`🪴 ミオが お店を もようがえ！ きょうは 「${esc(SHDECO.name())}」`},1600);else if(Math.random()<.3)T.mu.next=Date.now()+1500,T.decoSay=1}
-  $('shmut').onclick=()=>{const m=T.mu;if(!m.who||!m.line)return;(m.who==='m'?speak:gspeak)(m.line[0])};
+  $('shmut').onclick=()=>{const m=T.mu;if(!m.who||!m.line)return;m.who==='h'?H.say('hs',m.line[0]):(m.who==='m'?speak:gspeak)(m.line[0])};
   $('shb').onclick=()=>{T.alive=false;sf('back');open()};
   $('shfl').onclick=()=>{sf('step');pause(T);floor()};
   $('shcall').onclick=()=>{if(T.g||Date.now()<T.callOk){H.toast(T.g?'いまは お客さんが いるよ':'少し まってから よびこもう');return}T.next=Date.now()+1500;T.callOk=Date.now()+20000;sf('hey');
@@ -413,10 +415,11 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
     if(g&&g.y+32>m.y+32)guest(c,g.x,g.y,g.L,g.pose,T.f>>1);
     showcase(c,T.f);const on=!!H.shopSongId;player(c,on,T.f);if(window.SHDECO)SHDECO.front(c,t,T.f);
     if(g&&g.bub&&!(T.mu.who==='g'&&T.mu.until>Date.now()))bub(c,g.x+11,g.y-9,g.bub);
-    lights(c,t);if(window.SHDECO)SHDECO.lit(c,t,T.f);if(t!=='day'){if(on)glow(c,182,93,12,t==='night'?.28:.18);PR(c,173,97,2,1,on?'#7aff9a':'#5a4a3a')}
+    lights(c,t);if(window.SHDECO)SHDECO.lit(c,t,T.f);if(window.HORROR)HORROR.draw(c,T,t);if(t!=='day'){if(on)glow(c,182,93,12,t==='night'?.28:.18);PR(c,173,97,2,1,on?'#7aff9a':'#5a4a3a')}
     if(H.playing&&now>=(T.noteAt||0)){T.noteAt=now+500+Math.random()*400;note()}
     caseArt();mutTick(T,t)};
   requestAnimationFrame(tick);
+  if(window.HORROR)HORROR.open(T,!!old);
   if(old)resume(T);
   if(!S.floor.length)setTimeout(()=>status('🏷️ 売り場が からっぽ… お客さんが 来ても 買えないよ。 カードを ならべよう'),1200)}
 /* 売り場から もどったとき: さっきの つづき */
@@ -435,6 +438,7 @@ function mioIdle(T){const m=T.mio,now=Date.now();if(now<m.until||m.walk)return;i
   else{m.pose=pickL(['stand','stand','sweep','wave']);m.until=now+3000+Math.random()*4000}}
 /* the guest walks: door → shelf → table → (counter) → door */
 function step(T){const now=Date.now();mioIdle(T);
+  if(!T.g&&window.HORROR&&HORROR.step(T,now))return;
   if(!T.g){const tk=T.talk&&!T.talk.done;if(tk)T.next=Math.max(T.next,now+8000);if(now>=T.next&&!T.busy&&!tk){const G=pickL(GUESTS);
       /* 4〜5人に 1人くらいは カードを 売りに 来る お客さん（続けては 来ない。 そのあとの お客さんは 早めに 来る） */
       const seller=window.SHSV&&SHSV.offer&&typeof SB_OFFER!=='undefined'&&!T.lastSeller&&Math.random()<(SH().floor.length?.22:.4);T.lastSeller=seller;
@@ -657,5 +661,5 @@ setTimeout(function first7(){const S=SH();if(S.caseTold||!S.met)return;const m=w
   S.caseTold=1;save();const [ex,tx]=ML('sh_caseNew');m.say('m',ex,tx,10000,null,goShop('case')())},44000);
 
 H.on('home',()=>{if(CT){CT.alive=false;CT.paused=0}});
-window.SHOP={ct:()=>CT,open,leave,price,allCards,counter,floor,toFloor,pause:()=>pause(CT),store,rec:SH,inBook,free,stock,storeCards,bookRec:BOOKR,cleanFloor,rare,inCase,caseRec:CASER,caseScreen};
+window.SHOP={mut:(T,who,line,ms,free)=>mut(T,who,line,ms,free),ct:()=>CT,open,leave,price,allCards,counter,floor,toFloor,pause:()=>pause(CT),store,rec:SH,inBook,free,stock,storeCards,bookRec:BOOKR,cleanFloor,rare,inCase,caseRec:CASER,caseScreen};
 })();
