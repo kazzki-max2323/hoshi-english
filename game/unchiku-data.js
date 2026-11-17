@@ -6,6 +6,7 @@
    どれも [英語, 日本語]。 UNK_MINA だけ [見出し, 英語, 日本語] */
 const UNK_ZAKKA={
 /* ================================================================ 🧺 雑貨 */
+ g_rose:["The word \"perfume\" comes from Latin \"per fumum,\" which means \"through smoke.\" Long ago, people burned sweet woods and herbs to make the air smell nice.","「perfume」は ラテン語の 「per fumum（けむりを とおして）」から 来ているの。 むかしは あまい 木や ハーブを もやして、 いい かおりを ただよわせたのよ。"],
  pc:["The first official postcards were made in Austria in 1869. People loved them because they were cheap and quick to write.","さいしょの 公式の はがきは 1869年、 オーストリアで 作られたの。 安くて すぐ 書けるから 大人気に なったのよ。"],
  fortune:["Fortune cookies are popular in America, but they are rare in China. Many people think they came from a Japanese cracker called tsujiura senbei.","フォーチュンクッキーは アメリカで 人気だけど、 中国では めずらしいの。 日本の 「辻占せんべい」が もとだと 考える 人が 多いのよ。"],
  g_cookie:["The word \"cookie\" comes from Dutch \"koekje,\" which means \"little cake.\" In Britain, people usually say \"biscuit.\"","「cookie」は オランダ語の 「koekje（小さな ケーキ）」から 来たの。 イギリスでは ふつう 「biscuit」って 言うわ。"],
