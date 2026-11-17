@@ -45,10 +45,11 @@ const GUEST_LOOK=[
  {style:'long',hair:'#4a2a1a',skin:'#f0c8a0',shirt:'#8ac0ff',low:'#3a3a4a',shoe:'#a06a3a'},
  {style:'cap',acc:'#e85a4a',hair:'#3a3030',skin:'#d8a880',shirt:'#fff',low:'#3a5a8a',pants:1,shoe:'#e85a4a'},
  {style:'long',hair:'#e8d080',skin:'#ffe8d8',shirt:'#9ad89a',low:'#f0e0c0',shoe:'#c08a5a'}];
+/* v = 声: s 'f' 女の人・'m' 男の人、 p 高さ、 r 速さ（game/shop.js の gspeak） */
 const GUESTS=[
- {n:'りょうしの ゲンさん',l:0,a:['nat','food','ani']},{n:'旅行中の アンナ',l:1,a:['look','heart','nat']},{n:'学生の ケン',l:2,a:['learn','word','act']},
- {n:'あみものの ハルさん',l:3,a:['life','heart','food']},{n:'サーファーの ジョー',l:4,a:['act','nat','look']},{n:'画家の ルナ',l:5,a:['look','heart','ani']},
- {n:'カード集めの タク',l:6,a:['tr','learn','word']},{n:'パン屋の メイ',l:7,a:['food','life','heart']}];
+ {n:'りょうしの ゲンさん',l:0,v:{s:'m',p:.85,r:.9},a:['nat','food','ani']},{n:'旅行中の アンナ',l:1,v:{s:'f',p:1.1,r:1},a:['look','heart','nat']},{n:'学生の ケン',l:2,v:{s:'m',p:1.1,r:1.02},a:['learn','word','act']},
+ {n:'あみものの ハルさん',l:3,v:{s:'f',p:.95,r:.88},a:['life','heart','food']},{n:'サーファーの ジョー',l:4,v:{s:'m',p:.95,r:1},a:['act','nat','look']},{n:'画家の ルナ',l:5,v:{s:'f',p:1.05,r:.95},a:['look','heart','ani']},
+ {n:'カード集めの タク',l:6,v:{s:'m',p:1.05,r:1.05},a:['tr','learn','word']},{n:'パン屋の メイ',l:7,v:{s:'f',p:1.15,r:1},a:['food','life','heart']}];
 
 /* カウンターの 英語の 会話（5回に 1回くらい）。 種類: want（ほしい カード）・deal（ねぎる）・rare（レアに おどろく）・rumor（うわさ）・only（1まいだけ）
    [お客の 英語, 日本語, [正しい, まちがい, まちがい], 説明]。 {w} = カードの 単語、 {p} = 値段 */
