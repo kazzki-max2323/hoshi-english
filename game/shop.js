@@ -45,8 +45,8 @@ function cleanFloor(){cleanCase();const S=SH(),need={};S.floor=S.floor.filter(id
 const onFloor=id=>SH().floor.filter(x=>x===id).length;
 /* 売り場に 出せる まい数（ブックの 1まいと 売り場の 分を のぞく） */
 const free=id=>C.count(id)-onFloor(id)-inBook(id)-inCase(id);
-/* 倉庫に ある まい数（ブックに 入れた 1まいは 倉庫から 出ていく） */
-const stock=id=>C.count(id)-inBook(id)-inCase(id);
+/* 倉庫に ある まい数（ブックに 入れた 1まい・ケースの 1まい・売り場に ならべた 分は 倉庫から 出ていく） */
+const stock=id=>Math.max(0,C.count(id)-inBook(id)-inCase(id)-onFloor(id));
 const storeCards=()=>allCards().filter(id=>stock(id)>0);
 function sell(id,p,fly){const S=SH(),i=S.floor.indexOf(id);if(i<0)return false;S.floor.splice(i,1);C.take(id);S.sold++;S.earn+=p;
   const d=C.today();if(S.tday!==d){S.tday=d;S.tearn=0}S.tearn+=p;if(!fly)H.addCoins(p);save();return true}
@@ -154,7 +154,7 @@ function leave(){SH().away=Date.now();if(CT)CT.paused=0;save()}
 
 /* ================================================================ 📦 the storeroom */
 let stF='all';
-function store(f){if(typeof f==='string')stF=f;const F=[['all','ぜんぶ'],['es','小'],['jh','中'],['hs','高'],['adv','H'],['t','宝'],['weak','😣苦手'],...(window.UNK?[['unk','📜']]:[])];
+function store(f){cleanFloor();if(typeof f==='string')stF=f;const F=[['all','ぜんぶ'],['es','小'],['jh','中'],['hs','高'],['adv','H'],['t','宝'],['weak','😣苦手'],...(window.UNK?[['unk','📜']]:[])];
   let ids=storeCards().filter(id=>{const I=C.info(id);if(!I)return false;if(stF==='all')return true;if(stF==='t')return I.k==='t';if(stF==='weak')return I.k==='w'&&C.weak(id);if(stF==='unk')return UNK.cardHas(I);
 return I.k==='w'&&I.lv===stF});
   ids.sort((a,b)=>(C.info(a).lv||'').localeCompare(C.info(b).lv||'')||C.star(a)-C.star(b));
@@ -165,7 +165,8 @@ return I.k==='w'&&I.lv===stF});
     <div class="shf">${F.map(([k,n])=>`<button data-f="${k}" class="${stF===k?'on':''}">${n}</button>`).join('')}</div>
     ${canN?`<button class="shtobk" id="shtobk">📖 ブックに 入れられる カード ${canN}まい ▶</button>`:''}
     <div class="shgrid">${shown.map(id=>{
-      return `<div class="shcell" data-id="${esc(id)}">${C.face(id,{mini:1,n:stock(id)})}${onFloor(id)?'<u>🏷️</u>':''}${BK&&BK.canIn(id)?'<button class="shbk" data-bk="1">📖＋</button>':''}</div>`}).join('')||'<p class="note">カードが ないよ</p>'}</div>
+      return `<div class="shcell" data-id="${esc(id)}">${C.face(id,{mini:1,n:stock(id)})}${onFloor(id)?`<u title="売り場にも ${onFloor(id)}まい">🏷️</u>`:''}${BK&&BK.canIn(id)?'<button class="shbk" data-bk="1">📖＋</button>':''}</div>`}).join('')||'<p class="note">カードが ないよ</p>'}</div>
+    ${SH().floor.length?'<p class="note">🏷️ 売り場に ならべた カードは 売り場で 見てね（🏷️は 売り場にも ある しるし）</p>':''}
     ${Object.keys(BOOKR()).length?'<p class="note">📖 ブックに 入れた カードは カードブックで 見てね</p>':''}
     ${ids.length>shown.length?`<p class="note">ほか ${ids.length-shown.length}しゅるい（しぼりこんで 見てね）</p>`:''}</section>`);
   $('shb').onclick=()=>{sf('back');open()};
