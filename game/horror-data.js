@@ -161,7 +161,7 @@ const HR_TALKS=[
   nt:[["Are you lost?","「まいごですか？」。 道に まよった 人にも"]],o:[
   ["Where is your home?","おうちは どこ？",'home',3]]},
  home:{f:'🎎',m:["…The shrine… on the cape…","…みさきの… ほこら…"],
-  nt:[["shrine","「神社・ほこら」"],["cape","「岬」。 浜辺の 左はしの 岬にも ペンションが あるね"]],o:[
+  nt:[["shrine","「神社・ほこら」"],["cape","「岬」。 浜辺の 左はしにも 岬が あるね"]],o:[
   ["We'll take you back tomorrow.","あした つれて帰って あげるね。",'end1',4],["Tonight. Let's go now.","今夜。 いますぐ 行こう。",'end3',2]]},
  end1:{m:["The next morning, we took her to the little shrine on the cape. When we set her down, every wind chime rang at once. …I think she said thank you.","つぎの 朝、 岬の 小さな ほこらに つれて行ったの。 そっと 置いたら、 風鈴が いっせいに 鳴った。 …ありがとうって 言ったんだと 思う。"],ex:'smile',
   nt:[["wind chime","「風鈴」"],["at once","「いっせいに・同時に」"]],end:'good'},
