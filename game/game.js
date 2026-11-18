@@ -241,7 +241,7 @@ function wipeAll(){
 /* tapping anywhere outside the panel works like its ← button (and that tap does nothing else).
    Result screens without ← mark their "back" button with data-back. Mini games have neither, so they ignore it.
    A running long talk / the novel (data-stay) ignores it too, so a stray tap can't end it; once its ending shows (.kend/.kends) it closes like the rest */
-document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#cardTop,#meteor,#bbadge,#minaPop,#dpov,#bmPop,.ttov'))return;
+document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#cardTop,.cgdvback,#meteor,#bbadge,#minaPop,#dpov,#bmPop,.ttov'))return;
   if(panel.querySelector('[data-stay]')&&!panel.querySelector('.kend,.kends'))return;
   const x=panel.querySelector('.qtop .x')||panel.querySelector('[data-back]');if(!x)return;
   e.preventDefault();e.stopPropagation();x.click();
