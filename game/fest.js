@@ -62,6 +62,7 @@ function menu(){const t=title(),nt=nextTitle(),hd=FS.day===today()&&now();
   H.show('fest',`<section class="pnl fs">
     ${top('🏮 お祭り実行委員会','fsx')}
     <div class="kwnpc fsnora"><span class="fsico">👩‍🦳</span><p><b>ノラさん（委員長）</b>"Help us hold a festival on the beach! If you donate, the festival will be held today."<small>浜辺で お祭りを ひらく お手伝いを して！ 寄付して くれたら きょう ひらくよ</small></p></div>
+    <button id="fsev" class="mcstudy fssee"><span>🎇</span><b>すぐ はじまる イベント<small>寄付すると 浜辺で すぐ 見られる（カモメ〜ドローンショー ${CATALOG.event.length}こ）</small></b></button>
     <p class="mchd">きょう ひらく お祭りを えらぶ <small>1日 1つ・その日 だけ</small></p>
     <div class="mcls fsls">${FL.map(f=>`<button data-f="${f.id}"><span>${f.ico}</span><b>${esc(f.n)}<small>${esc(f.d)}</small></b><i>🪙${f.p.toLocaleString()}${FS.cnt[f.id]?`<br>${FS.cnt[f.id]}回`:''}</i></button>`).join('')}</div>
     ${FS.total?`<div class="fsrec"><span>${t[1]}</span><div><b>${esc(t[2])}</b><small>寄付の 合計 🪙${FS.total.toLocaleString()}${nt?`・つぎは ？？？（あと ${(nt[0]-FS.total).toLocaleString()}）`:''}</small></div></div>`:''}
@@ -70,7 +71,35 @@ function menu(){const t=title(),nt=nextTitle(),hd=FS.day===today()&&now();
   </section>`);
   $('fsx').onclick=()=>{sf('back');H.home()};
   H.panel.querySelector('.fsnora').onclick=()=>say('Help us hold a festival on the beach! If you donate, the festival will be held today.');
-  H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{sf('step');confirm_(fest(b.dataset.f))})}
+  H.panel.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{sf('step');confirm_(fest(b.dataset.f))});
+  $('fsev').onclick=()=>{sf('step');events(menu)}}
+
+/* ---------- 🎇 すぐ はじまる イベント（むかしの 雑貨屋の 🎆 イベントの たな。 寄付で その場で 浜辺に よぶ） ---------- */
+const evInfo=id=>{try{return (ZAKKA_GOODS.event||{})[id]||null}catch(e){return null}};
+function events(back){back=back||menu;const L=CATALOG.event.slice().sort((a,b)=>a.p-b.p),ok=L.filter(e=>H.onSale(e)),no=L.filter(e=>!H.onSale(e));
+  const li=(e,on)=>`<button data-e="${e.id}" ${on?'':'disabled'}><span>${e.ico}</span><b>${esc(e.n)}<small>${on?esc(e.d||''):esc(H.timeBadge(e.t))}</small></b><i>🪙${e.p.toLocaleString()}</i></button>`;
+  H.show('fest',`<section class="pnl fs">
+    ${top('🎇 すぐ はじまる イベント','fsx')}
+    <div class="kwnpc fsnora"><span class="fsico">👩‍🦳</span><p><b>ノラさん（委員長）</b>"Donate a few coins, and we'll make it happen on the beach right now!"<small>少し 寄付して くれたら、 いますぐ 浜辺で やるわよ！</small></p></div>
+    <p class="mchd">いま 見られる <small>${ok.length}こ・浜辺の 時間で かわる</small></p>
+    <div class="mcls fsls">${ok.map(e=>li(e,1)).join('')}</div>
+    ${no.length?`<details class="shmore"><summary>ほかの 時間の イベント ${no.length}</summary><div class="mcls fsls">${no.map(e=>li(e,0)).join('')}</div></details>`:''}
+    ${minaBox('fs_ev',{})}
+  </section>`);
+  $('fsx').onclick=()=>{sf('back');back()};
+  H.panel.querySelector('.fsnora').onclick=()=>say("Donate a few coins, and we'll make it happen on the beach right now!");
+  H.panel.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{if(b.disabled)return;sf('step');evGive(CATALOG.event.find(e=>e.id===b.dataset.e),back)})}
+function evGive(e,back){if(ST.coins<e.p){sf('no');H.toast(`🪙 コインが たりないよ <small>あと ${(e.p-ST.coins).toLocaleString()}まい</small>`,2600);return}
+  const g=evInfo(e.id),d=g&&g.d;
+  H.show('fest',`<section class="pnl fs">
+    ${top('🎇 寄付','fsx')}
+    <div class="dtpay"><p>${e.ico} ${esc(e.n)}${g&&g.en?`<br><small>${esc(g.en)}</small>`:''}</p>${d?`<p class="fsevd">"${esc(d[0])}"<small>${esc(d[1])}</small></p>`:''}<b>🪙 ${e.p.toLocaleString()}まい</b><small>のこり ${(ST.coins-e.p).toLocaleString()}まい・浜辺に もどると すぐ はじまるよ</small></div>
+    <div class="row"><button id="fsgo">🎇 寄付して 見る</button><button id="fsno" class="sub" data-back>やめる</button></div></section>`);
+  if(d)say(d[0]);
+  $('fsx').onclick=$('fsno').onclick=()=>{sf('back');events(back)};
+  $('fsgo').onclick=()=>{H.addCoins(-e.p);FS.total+=e.p;FS.ev=(FS.ev||0)+1;save();sf('coin');
+    try{RECENT.add('fest',{kind:'ev',id:e.id,ja:e.n,ico:e.ico,p:e.p})}catch(er){}
+    const it=Object.assign({kind:'event'},e);H.home();setTimeout(()=>{try{H.goods.event(it)}catch(er){}if(g&&g.e)setTimeout(()=>H.toast(`👩‍🦳 ${esc(g.e[0])}<small>${esc(g.e[1])}</small>`,3800),2400)},400)}}
 function souv(){const L=FEST_STALLS.filter(s=>FS.sv[s.id]);const W=FS.wish.length;if(!L.length&&!W)return '';
   return `<details class="shmore"><summary>🎐 お祭りの 思い出</summary><div class="fsmem">${L.map(s=>`<span>${s.sv.ico} ${esc(s.sv.n)} <small>${esc(s.sv.en)} ×${FS.sv[s.id]}</small></span>`).join('')}${FS.wish.slice(-5).reverse().map(w=>`<span>🕯️ ${esc(w[0])} <small>${esc(w[1])}</small></span>`).join('')}</div></details>`}
 function confirm_(f){if(ST.coins<f.p){sf('no');H.toast(`🪙 コインが たりないよ <small>${esc(f.n)}は ${f.p.toLocaleString()}まい（あと ${(f.p-ST.coins).toLocaleString()}まい）</small>`,3000);return}
@@ -99,10 +128,11 @@ function today_(fresh){const f=now();if(!f)return menu();
     ${f.stalls?`<p class="mchd">🏮 屋台</p><div class="fsst">${FEST_STALLS.map(s=>`<button data-s="${s.id}" ${done(s.id)?'disabled':''}><span>${s.ico}</span><b>${esc(s.n)}</b>${done(s.id)?'<small>✓</small>':''}</button>`).join('')}</div>`:''}
     ${f.wish?`<button id="fswish" class="mcstudy fswish" ${done('wish')?'disabled':''}><span>🕯️</span><b>灯ろうに ねがいを 書く<small>${done('wish')?'きょうは もう 流したよ':'英語で ねがいごと'}</small></b></button>`:''}
     ${minaBox(fresh?'fs_start':'fs_today',{n:f.n})}
-    <div class="row"><button id="fsmenu" class="sub">🏮 実行委員会</button></div>
+    <div class="row"><button id="fsmenu" class="sub">🏮 実行委員会</button><button id="fsev2" class="sub">🎇 イベント</button></div>
   </section>`);
   $('fsx').onclick=()=>{sf('back');H.home()};
   $('fsmenu').onclick=()=>{sf('step');menu()};
+  $('fsev2').onclick=()=>{sf('step');events(()=>today_())};
   $('fssee').onclick=()=>{sf('step');H.home();setTimeout(showNow,400)};
   H.panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{if(b.disabled)return;sf('step');talk(FEST_TALKS.find(t=>t.id===b.dataset.t))});
   H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{if(b.disabled)return;sf('step');stall(FEST_STALLS.find(s=>s.id===b.dataset.s))});
@@ -160,6 +190,7 @@ function wish(){const L=H.shuffle(FEST_WISHES.slice()).slice(0,4);
 /* ================================================================ ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
  fs_first:[['smile','お祭りに 寄付すると、 きょう いちにち 浜辺が お祭りに なるんだって。 「donate」は 寄付する'],['happy','花火・夏祭り・灯ろう流し… どれも 英語の 会話つき。 どれに する？']],
+ fs_ev:[['smile','カモメから ドローンショーまで、 寄付すると すぐ 浜辺で 見られるよ。 時間で 見られる ものが かわるの'],['happy','ノラさんの 英語も きいてね。 「Here comes …」は 「〜が 来るよ」']],
  fs_menu:[['smile','きょうは どの お祭りに する？ 「festival」は お祭り、 「fireworks」は 花火'],['happy','寄付の おかげで 浜辺が にぎやかに なるね']],
  fs_start:[['wow','きょうは 「{n}」！ 浜辺に もどると ショーが 見られるよ'],['happy','「{n}」の はじまり！ だれと すごすか えらんでね']],
  fs_today:[['smile','「{n}」、 楽しんでる？ 夜と 昼で 浜辺の ショーが かわるよ'],['happy','お祭りの 英語、 いくつ おぼえた？']],
@@ -168,6 +199,7 @@ Object.assign(MINA_LINES,{
  fs_stallOk:[['proud','かんぺき！ 屋台でも ちゃんと つたわる 英語だね'],['happy','その 言い方で ばっちり。 お祭りの 英語 マスター！']],
  fs_stallNg:[['think','おしい！ ここは 「{a}」が ぴったりだよ'],['smile','屋台の 人、 やさしかったね。 正解は 「{a}」']],
  r_fest:[['happy','きょうの 「{n}」、 楽しかった？'],['smile','浜辺が お祭りに なってるね。 「{n}」だよ']],
+ r_festEv:[['wow','{ico} {n}、 見えた？ 寄付の おかげだね'],['happy','{ico} {n}！ 浜辺が にぎやかに なったね']],
  r_festWish:[['smile','灯ろうに 「{en}」って 書いたんだね。 かなうと いいね'],['happy','「{en}」… すてきな ねがい']],
  x_festIdea:[['smile','コインが {c}まい！ お祭りに 寄付したら、 きょうは 浜辺が お祭りに なるよ'],['think','浜辺の 右の 掲示板、 見た？ 花火大会も ひらけるんだって']],
  x_festToday:[['happy','きょうは 「{n}」の 日！ 浜辺の 掲示板から 会いに 行こう'],['wow','「{n}」、 まだ だれとも すごしてないよ？']]
@@ -176,8 +208,8 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_festIdea',1,F=>!now()&&F.coins>=2500?{c:F.coins.toLocaleString()}:null,()=>['🏮 お祭りの 掲示板',()=>open()]],
  ['x_festToday',3,()=>{const f=now();return f&&f.talks.some(id=>!done(id))?{n:f.n}:null},()=>['🏮 お祭りへ',()=>open()]]);
 (window.MINA_REACT_EXT=window.MINA_REACT_EXT||{}).fest={
- act:e=>e.kind==='wish'?['r_festWish',{en:e.en||''}]:e.kind==='give'?['r_fest',{n:e.ja}]:null,
- desc:e=>e.kind==='give'?`「${e.ja}」に 寄付した`:e.kind==='wish'?'灯ろうに ねがいを 書いた':e.kind==='stall'?`屋台で ${e.ja}を した`:'お祭りで すごした'};
+ act:e=>e.kind==='ev'?['r_festEv',{n:e.ja,ico:e.ico}]:e.kind==='wish'?['r_festWish',{en:e.en||''}]:e.kind==='give'?['r_fest',{n:e.ja}]:null,
+ desc:e=>e.kind==='ev'?`${e.ja}を 浜辺に よんだ`:e.kind==='give'?`「${e.ja}」に 寄付した`:e.kind==='wish'?'灯ろうに ねがいを 書いた':e.kind==='stall'?`屋台で ${e.ja}を した`:'お祭りで すごした'};
 
-window.FEST={open,now,rec:()=>FS,show:showNow};
+window.FEST={open,now,events:()=>events(),rec:()=>FS,show:showNow};
 })();

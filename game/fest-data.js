@@ -11,6 +11,7 @@ const FEST_LIST=[
  {id:'toro',ico:'🕯️',n:'灯ろう流し',en:'a lantern festival',p:1200,d:'ねがいを 英語で 書いて、 海に 灯ろうを うかべる',night:['torofest','lanterns'],day:['fest'],talks:['ft_toro'],wish:1},
  {id:'kite',ico:'🪁',n:'たこあげ大会',en:'a kite festival',p:800,d:'空いっぱいの たこ。 リクくんと たこあげ',night:['lightparade'],day:['kitefest','odako'],talks:['ft_kite']},
  {id:'sand',ico:'🏰',n:'砂の お城コンテスト',en:'a sandcastle contest',p:1000,d:'ミオと チームで 砂の お城を 作る',night:['candlepath'],day:['fest'],ev:'sandcastle',talks:['ft_sand']},
+ {id:'drone',ico:'🛸',n:'ドローンショーの 夜',en:'a drone light show',p:1800,d:'夜空に 光の 絵。 ミオと いっしょに 見よう',night:['drones'],day:['airshow'],talks:['ft_drone']},
  {id:'live',ico:'🎶',n:'浜辺の コンサート',en:'a beach concert',p:1500,d:'ノラさんと ピップの ステージ。 英語の 歌',night:['laser','lightparade'],day:['bubbles','fest'],talks:['ft_live']}];
 
 /* 寄付の 合計で もらえる 称号 */
@@ -86,6 +87,15 @@ const FEST_TALKS=[
  g1:{f:'👩‍🦳',m:["Teamwork! I can see it in every corner. First prize goes to… Team Boss and Mio!","チームワーク！ すみずみまで わかるわ。 1位は… チーム 店長と ミオ！"],nt:[["first prize","「1位・優勝」。 win first prize（1位を とる）"]],end:'good'},
  g2:{m:["Boss! That's not true! You built the towers! … We're a team, so we share the prize. Half and half. Okay?","店長！ そんなこと ない！ 塔を 作ったのは 店長！ … チーム だから 賞は はんぶんこ。 いい？"],ex:'smile',end:'good'},
  f1:{f:'👩‍🦳',m:["'Rice Ball Castle'! Ha ha ha! Special prize for the funniest name! Pip loves it too. Don't you, Pip?","「おにぎり城」！ あはは！ いちばん おもしろい 名前で とくべつ賞！ ピップも 気に入ったって。 ね、 ピップ？"],end:'fun'}}},
+{id:'ft_drone',ico:'🛸',t:'ミオと ドローンショー',nodes:{
+ s:{m:["Boss, look up! Hundreds of little lights are flying! They're drones, right? They look like stars that can dance!","店長、 上 見て！ 小さい 光が 何百も 飛んでる！ ドローン ですよね？ おどれる 星 みたい！"],ex:'laugh',p:'wave',o:[
+  ["They're making a shape!","形を 作ってる！",'a',1],["How do they fly together?","どうやって いっしょに 飛んでるの？",'b',2]]},
+ b:{m:["A computer controls all of them at once. Every drone knows exactly where to go. … Like a team that never makes mistakes.","コンピューターが ぜんぶ いっぺんに うごかしてるの。 どの ドローンも 行く 場所が わかってる。 … まちがえない チーム みたい。"],ex:'smile',nt:[["at once","「いっぺんに・同時に」。 I can't do two things at once.（2つ 同時は むり）"]],o:[["Like us at the shop.","お店の ぼくたち みたいに。",'a',2],["We make lots of mistakes.","ぼくたちは まちがえて ばかり。",'a',1]]},
+ a:{m:["Look, it's a whale! Now it's turning into… a card! Our shop's card! … No way, did you ask them to do that?","見て、 クジラ！ こんどは… カード！ うちの お店の カード！ … うそ、 店長が たのんだの？"],ex:'oops',o:[
+  ["Maybe. It's a surprise.","かもね。 サプライズ。",'g1',2],["No, it's just a coincidence.","ちがうよ、 ぐうぜん。",'ok1',1],["Yes. It cost all my coins.","うん。 コイン ぜんぶ つかった。",'f1',1]]},
+ g1:{m:["Boss… you're the best. I'll remember this sky forever. … Hey, the last shape is a heart. That one's not a coincidence either, right?","店長… さいこう。 この 空、 ずっと おぼえておく。 … ねえ、 さいごの 形が ハート。 それも ぐうぜん じゃ ないよね？"],fr:["Boss… you're the best. I'll remember this sky forever. Our shop is famous in the sky now! Ha ha!","店長… さいこう。 この 空、 ずっと おぼえておく。 うちの お店、 空でも 有名に なったね！ あはは！"],ex:'smile',nt:[["a coincidence","「ぐうぜん」。 What a coincidence!（なんて ぐうぜん！）"]],end:'good'},
+ ok1:{m:["A coincidence? Then the sky likes our shop! … I'll take a picture and put it on the wall at the counter.","ぐうぜん？ じゃあ 空も うちの お店が 好きなんだ！ … 写真 とって カウンターの かべに かざろう。"],ex:'laugh',end:'ok'},
+ f1:{m:["All of them?! Boss! … Ha ha ha! Okay, tomorrow we sell a lot of cards. I'll work extra hard. Deal?","ぜんぶ！？ 店長！ … あはは！ よし、 あしたは カード たくさん 売ろう。 わたし、 いつもより がんばる。 きまり？"],ex:'laugh',p:'guts',end:'fun'}}},
 {id:'ft_live',ico:'🎶',t:'浜辺の コンサート',nodes:{
  s:{m:["Boss, the concert is starting! Nora-san is singing! And Pip is the backup singer! Ha ha!","店長、 コンサート はじまる！ ノラさんが 歌うの！ ピップは コーラス！ あはは！"],ex:'laugh',p:'wave',o:[["Let's get closer!","近くに 行こう！",'a',1],["Pip can sing?","ピップ、 歌えるの？",'b',1]]},
  b:{m:["He only knows one word: 'Hello!' But he says it in rhythm. It's actually pretty good!","ことばは 1つだけ。 「Hello!」。 でも リズムに のって 言うの。 けっこう うまいよ！"],ex:'wink',o:[["Ha ha, I can't wait.","あはは、 楽しみ。",'a',1]]},

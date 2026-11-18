@@ -192,7 +192,7 @@ function greet(){
   if(ZD.hold&&item(ZD.hold))g.push([`I'm still keeping the ${item(ZD.hold).w} for you.`,`${item(ZD.hold).n}、 まだ とっておいてるわよ。`]);
   {const lx=IT.filter(i=>i.lux&&loveOk(i)&&!ZD.own[i.id]&&ST.coins>=i.p);if(lx.length){const x=pickL(lx);g.push([`Would you like to see the glass case? The ${x.w} is something special.`,`ガラスケース、 見てみる？ ${x.n}は とくべつよ。`])}}
   {const L=lineup();if(L.music.length)g.push([`The records change every day. Today's records are here until the ${({dawn:'morning',morning:'afternoon',noon:'evening',evening:'sunset',sunset:'night',night:'dawn'})[L.ph]}.`,`レコードは 毎日 入れかわるの。 いまの たなは あと ${nextMin()}分くらいよ。`]);
-   const e=L.event[L.event.length-1];if(e)g.push([`Have you seen the events? The ${e.en} is on sale right now.`,`イベントは 見た？ いまは ${e.n}が 買えるのよ。`]);
+   const e=L.event[L.event.length-1];if(e)g.push([`Want to see the ${e.en}? Donate at the festival board on the beach. I'm the chair of the committee!`,`${e.n}を 見たい？ 浜辺の お祭りの 掲示板で 寄付してね。 わたし、 実行委員長 なのよ！`]);
    if(!ST.radios.length)g.push(["Look at the radios! The little one is free. Take it home!","ラジオを 見て！ 小さいのは ただよ。 もっていってね！"])}
   {const T=today();if(T.rare){const r=[`You're lucky today! I have a ${T.rare.w}. It doesn't come in often.`,`きょうは ついてるわね！ ${T.rare.n}が あるの。 めったに 入らないのよ。`];g.push(r,r,r)}
    if(T.sold){const w=T.sold.w,n=T.sold.n;g.push(
@@ -224,7 +224,7 @@ const bagN=()=>(window.FOOD?FOOD.count():0)+ownBooks().length+ZD.pc.length+ZD.fo
 function open(tab){if(!ZD.v){ZD.v=1;save();if(tab)tabNow=tab;return play('hello')}
   ZD.v++;save();shop(tab)}
 let tabNow='zakka',jukeOpen=false;
-const TABS=[['zakka','🧺','雑貨'],['food','🥪','食べ物'],['tool','⛏️','鉱山'],['radio','📻','ラジオ'],['music','🎵','レコード'],['event','🎆','イベント']];
+const TABS=[['zakka','🧺','雑貨'],['food','🥪','食べ物'],['tool','⛏️','鉱山'],['radio','📻','ラジオ'],['music','🎵','レコード']];  /* 🎆 イベントは お祭りの 掲示板の 寄付に うつした（game/fest.js） */
 /* 📻 / 🎵 / 🎆 tabs: the goods, each with its 小・中・高 mark */
 function goodsShelf(kind){const L=lineup(),list=L[kind]||[];
   const tile=it=>{const own=gOwned(it),fn=it.kind==='food'&&window.FOOD?(FOOD.rec().bag[it.id]||0):it.kind==='tool'&&window.MINE?MINE.toolN(it.id):0;return `<button class="zkit zkg ${own?'own':''}" data-g="${it.kind}:${it.id}"><i class="zlv zlv-${it.lv}">${GLV[it.lv]}</i>${fn?`<i class="zkfn">🎒${fn}</i>`:''}<span class="zi">${it.ico}</span><span class="zn">${esc(it.n)}</span><span class="zp">${own?'✓ もってる':it.p?'🪙'+it.p.toLocaleString():'むりょう'}</span>${it.kind==='food'?`<span class="zkhp">❤+${it.hp}</span>`:''}${it.kind==='tool'?`<span class="zkhp zktl">${esc(it.s)}</span>`:''}</button>`};
@@ -743,7 +743,7 @@ Object.assign(MINA_LINES,{
  /* ホーム・ミナ先生の ページ */
  x_zkShelfSong:[['smile','雑貨屋の たなに 「{song}」が 出てるよ。 {lv}の マークだから {lv}の 英語で 買えるよ'],['happy','きょうの レコードに 「{song}」が あるよ。 先に 聞かせて もらえるんだって'],['think','「{song}」、 {price}まい。 たなが 入れかわる 前に 見に 行く？']],
  x_zkShelfEvent:[['wow','いま 雑貨屋で {ico} {ev}が 買えるよ。 {lv}の 英語で たのんでみよう'],['smile','{ico} {ev}、 {price}まいで 浜辺に よべるよ。 ノラさんに くわしく 聞いてみて']],
- x_zkRotate:[['think','雑貨屋の レコードと イベント、 あと {min}分くらいで 入れかわるよ'],['smile','雑貨屋の たなは 日替わりで、 時間帯でも かわるんだ。 のぞくたびに ちがう 品物に 会えるよ']],
+ x_zkRotate:[['think','雑貨屋の レコード、 あと {min}分くらいで 入れかわるよ'],['smile','雑貨屋の たなは 日替わりで、 時間帯でも かわるんだ。 のぞくたびに ちがう 品物に 会えるよ']],
  x_zkLvMark:[['smile','雑貨屋の 品物には 小・中・高の マークが あるよ。 マークの レベルの 英語で 話せるんだ'],['think','いまの あなたには {lv}の マークの 品物が ちょうど いいかも。 ノラさんと 話してみて'],['happy','小の マークは みじかい 英語、 高の マークは 大人の ていねいな 英語だよ']],
  x_zkCheckout:[['smile','ノラさんの お会計、 毎回 ちょっとずつ ちがうんだ。 「Cash or card?」「Will that be all?」… なんて 聞かれても あわてないでね'],['think','お会計で 「Do you need a bag?」が 出る ときと 出ない ときが あるよ。 ほんとの お店も そうなんだ'],['happy','「Here\'s your change.」は 「おつりです」。 雑貨屋の お会計で 聞けるかも']],
  x_zkJuke:[['smile','もってる 曲は 雑貨屋の 🎵 レコードの たなで 試聴できるよ。 BGMに なるのは カードショップの 中'],['happy','曲を {n}曲 もってるね。 カードショップの BGM、 気分で かえてみよう']],
@@ -771,7 +771,6 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_zkHold',3,()=>ZD.hold&&item(ZD.hold)?{t:item(ZD.hold).n}:null,goShop],
  /* 📻🎵🎆 */
  ['x_zkShelfSong',2,()=>{if(!ZD.met)return null;const a=lineup().music.filter(it=>it.p<=ST.coins);if(!a.length)return null;const it=pickL(a);return {song:it.n,lv:GLV[it.lv],price:it.p}},goTab('music')],
- ['x_zkShelfEvent',2,()=>{if(!ZD.met)return null;const a=lineup().event.filter(it=>it.p<=ST.coins);if(!a.length)return null;const it=pickL(a);return {ico:it.ico,ev:it.n,lv:GLV[it.lv],price:it.p}},goTab('event')],
  ['x_zkRotate',1,()=>ZD.met?{min:nextMin()}:null,goTab('music')],
  ['x_zkLvMark',2,()=>ZD.met?{lv:GLV[{es:'es',jh:'jh',hs:'hs',adv:'hs'}[myLv()]||'es']}:null,goTab('music')],
  ['x_zkCheckout',1,()=>ZD.met&&ZD.ck?{}:null,goShop],

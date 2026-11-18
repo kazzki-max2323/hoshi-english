@@ -34,3 +34,5 @@
 #fsop button.ok{border-color:#7ae0a0!important;background:#3a8a5a55!important}
 #fsop button.ng{border-color:#ff8a8a!important;background:#8a3a3a55!important}
 @media (prefers-reduced-motion:reduce){#fsBoard.on .fsL{animation:none}}
+.fsevd{font-size:.86rem!important;background:#fff6e0;color:#2a2340;border-radius:10px;padding:6px 10px}
+.fsevd small{display:block;font-size:.7rem;color:#6a5a4a}

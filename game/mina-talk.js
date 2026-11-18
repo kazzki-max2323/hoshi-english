@@ -589,8 +589,8 @@ const MINA_TALK={
  ],
 
 x_eventShop:[
-  ['smile','{ico} {ev}、 いま 雑貨屋で {price}まい。 「{d}」'],
-  ['think','{ico} {ev}、 雑貨屋の たなは 入れかわるから、 見るなら いまの うちだよ'],
+  ['smile','{ico} {ev}、 お祭りの 掲示板で {price}まい 寄付すると 見られるよ。 「{d}」'],
+  ['think','{ico} {ev}、 時間で 見られる イベントが かわるから、 見るなら いまの うちだよ'],
   ['happy','浜辺に {ico} {ev}を よんでみない？ {price}まいだよ'],
   ['wow','{ico} {ev}… 見てみたいな'],
  ],
