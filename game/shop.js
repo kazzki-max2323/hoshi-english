@@ -73,7 +73,7 @@ function open(){cleanFloor();const S=SH(),first=!S.met;
       <button data-t="store" class="c4"><span>📦</span>倉庫<small>${storeCards().length}しゅるい</small></button>
     </div>
     ${window.CBOOK?(()=>{const [g,t]=CBOOK.stat();return `<button data-t="book" class="shbook"><span>📖</span><b>カードブック</b><small>${g} / ${t}</small></button>`})():''}
-    <button data-g="pack" class="shpack"><span>🎁</span><b>仕入れ</b><small>何回でも</small>${R().free!==C.today()?'<i class="dot"></i>':''}</button>
+    ${(()=>{const n=window.STOCK?STOCK.newN():0;return `<button data-g="pack" class="shpack ${n?'stkhas':''}"><span>📦</span><b>仕入れ</b><small>${n?`とどいた ${n}まい`:'勉強で とどく'}</small>${n?'<i class="dot"></i>':''}</button>`})()}
     <div class="row shmio"><button id="shtalk">💬 ミオと 話す${window.MIOC&&MIOC.newN()?'<i class="dot"></i>':''}</button><button id="shgift" class="sub">🎁 プレゼント</button></div>
     ${bgmBtn()}
     ${window.HORROR?HORROR.frontBtn():''}

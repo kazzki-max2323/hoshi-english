@@ -52,6 +52,9 @@ const course=()=>seq().map(t=>({t,n:QICO[t]}));
 /* ================================================================ 5まいを えらぶ: まだ 持っていない カードから。
    小学生（まだ ない カードが ある いちばん 下の レベル）から はじめて、 1〜2まいは 一つ上。 深い 層ほど 上の レベルが まざる */
 const LVK=['es','jh','hs','adv'];
+/* 📖 カードブックに 入っている カードは 鉱山で 出さない（11/18） */
+const inBook=id=>{try{return !!SHOP.inBook(id)}catch(e){return false}};
+const trNot=c=>inBook('t:'+c.e);
 const learned=id=>{try{return !!(ST.learned&&ST.learned[id])}catch(e){return false}};
 const baseLv=()=>{for(let i=0;i<LVK.length;i++)if(C.W.some(c=>c.lv===LVK[i]&&!C.owns(c.id)))return i;return 0};
 function lvMix(fl){const b=baseLv(),up=fl<=2?1+(Math.random()<.4?1:0):fl<=5?2:fl<=9?2+(Math.random()<.5?1:0):3,
@@ -61,7 +64,7 @@ function pickFloor(fl,not=[]){const out=[],used=new Set(not);
   lvMix(fl).forEach(li=>{let id=null;
     for(const d of [0,1,-1,2,-2,3,-3]){const j=li+d;if(j<0||j>=LVK.length)continue;
       const pool=C.W.filter(c=>c.lv===LVK[j]&&!C.owns(c.id)&&!used.has(c.id)&&!used.has('h:'+c.h));if(pool.length){id=pickL(pool).id;break}}
-    if(!id){const pool=C.W.filter(c=>c.lv===LVK[li]&&!used.has(c.id)&&!used.has('h:'+c.h));if(pool.length){pool.sort((a,b)=>(C.weak(b.id)?1:0)-(C.weak(a.id)?1:0)||C.star(a.id)-C.star(b.id)+Math.random()-.5);id=pool[0].id}}
+    if(!id){const pool=C.W.filter(c=>c.lv===LVK[li]&&!inBook(c.id)&&!used.has(c.id)&&!used.has('h:'+c.h));if(pool.length){pool.sort((a,b)=>(C.weak(b.id)?1:0)-(C.weak(a.id)?1:0)||C.star(a.id)-C.star(b.id)+Math.random()-.5);id=pool[0].id}}
     if(id){used.add(id);used.add('h:'+C.info(id).h);out.push(id)}});
   return out}
 /* 発掘に いる 回数（画面には 出さない）: よく おぼえている ことばは 2回、 はじめては 4回、 苦手は 5回。 まちがえると 1回 ふえる */
@@ -118,7 +121,20 @@ function diveScreen(){if(!D)return;D.alive=true;
   requestAnimationFrame(tick);
 }
 /* あたらしい 階: 5まいを えらんで 岩に うめる */
-function newFloor(){D.floor++;const ids=pickFloor(D.floor,D.trip);D.trip.push(...ids);D.hand=ids;
+function newFloor(){D.floor++;if(D.mapNext){D.mapNext=0;const a=pickFloor(D.floor,D.trip),b=pickFloor(D.floor,D.trip.concat(a)).slice(0,3),all=a.concat(b);if(all.length>HAND)return mapPick(all)}
+  floorWith(pickFloor(D.floor,D.trip))}
+/* 🗺️ 坑道の 地図: 8まいから ほる 5まいを えらぶ */
+function mapPick(all){const sel=new Set();const [ex,tx]=ML('mn_map');
+  const draw=()=>{H.show('cg',`<section class="pnl cgp mnp" data-stay>
+    <div class="qtop"><span></span><b>🗺️ 地下${D.floor}階の 地図</b><span class="qn">${sel.size} / ${HAND}</span></div>
+    <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
+    <p class="mnlbl">ほりたい カードを ${HAND}まい えらんでね</p>
+    <div class="mnhand mnmap">${all.map((id,i)=>`<button class="mnt ${sel.has(id)?'on':''}" data-i="${i}">${C.face(id,{mini:1,marks:false})}${sel.has(id)?'<em class="mngotb">✓</em>':''}</button>`).join('')}</div>
+    <button class="big" id="mnmpgo" ${sel.size===HAND?'':'disabled'}>⛏️ この ${HAND}まいを ほる</button></section>`);
+    H.panel.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const id=all[+b.dataset.i];sf('tap');if(sel.has(id))sel.delete(id);else if(sel.size<HAND){sel.add(id);try{const I=C.info(id);H.say(I.lv,I.en)}catch(e){}}draw()});
+    $('mnmpgo').onclick=()=>{if(sel.size!==HAND)return;sf('open');D.used.push('🗺️');diveScreen();floorWith([...sel])}};
+  draw()}
+function floorWith(ids){D.trip.push(...ids);D.hand=ids;
   D.cards=ids.map(id=>({id,need:needOf(id),hits:0,tries:0,met:false,dug:false,miss:0}));D.cur=-1;D.inFloor=0;
   const M=MN();if(D.floor>(M.bestF||0)){M.bestF=D.floor;C.save()}
   hud();
@@ -271,7 +287,7 @@ function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.
   /* 11/18 ユーザー「掘っていても カードは 見つけない。 掘って ゲットしたい」: とちゅうで カードが 見つかる しくみは なくした（カードは 岩の 5まいと お話の ごほうびだけ） */
   if(r<deep+P_EVENT+(D.fx.comp>0?.02:0)){const E=pickL(MINE_EVENT);D.events.push(E);
     if(E.hp){D.hp=Math.min(ME_HP,D.hp+E.hp);keepHp(D.hp)}if(E.deep)D.depth+=E.deep;if(E.luck)D.luck+=E.luck;if(E.coin)D.coins+=E.coin;
-    let tx=E.t;if(E.tool){const id=pickL(['lamp','lamp','rope','rope','helmet','mag','comp']);addTool(id);tx+=` ${MINE_TOOLS[id].ico} ${MINE_TOOLS[id].n}`}
+    let tx=E.t;if(E.tool){const id=pickL(['lamp','lamp','wood','wood','helmet','mag','batt']);addTool(id);tx+=` ${MINE_TOOLS[id].ico} ${MINE_TOOLS[id].n}`}
     D.pop={ico:E.ico,t:0,big:1};fly(E.ico);gotTag(E.ico,E.n,E.coin?`+${E.coin}枚`:'');sf('hey');H.toast(`${E.ico} <b>${esc(E.n)}</b><small>${esc(tx)}</small>`,3600);hud();return false}
   if(!dk&&r<deep+P_EVENT+P_GEM+lk){const gi=Math.min(MINE_GEM.length-1,Math.floor(Math.random()*(2+D.depth/12))),G=MINE_GEM[gi];const v=Math.round((G[2]+Math.floor(D.depth/5))*(D.fx.mag>0?1.5:1));
     D.coins+=v;D.loot[G[0]]=(D.loot[G[0]]||0)+1;D.lootV[G[0]]=(D.lootV[G[0]]||0)+v;D.pop={ico:G[0],t:0};fly(G[0],v>=40?'big':'');gotTag(G[0],G[1],`+${v}枚`);sf('coinIn');return false}
@@ -344,13 +360,13 @@ function fly(ico,kind=''){const st=document.querySelector('.mnstage');if(!st||!D
 
 /* ================================================================ 🎒 とちゅうで つかう（食べ物・道具） */
 const foods=()=>window.FOOD?FOOD.bagList():[];
-const useN=()=>foods().reduce((a,s)=>a+(FOOD.rec().bag[s.id]||0),0)+toolList().filter(t=>t.ef!=='key').reduce((a,t)=>a+toolN(t.id),0);
+const useN=()=>foods().reduce((a,s)=>a+(FOOD.rec().bag[s.id]||0),0)+toolList().filter(t=>t.ef!=='key'&&!t.rest&&!t.auto).reduce((a,t)=>a+toolN(t.id),0);
 function useMenu(){if(!D)return;const F=foods(),T=toolList(),bag=window.FOOD?FOOD.rec().bag:{};const mo=pickL(MINE_MIO);
   const row=(k,id,ico,name,n,sub,off)=>`<button class="mnlor mnuse" data-${k}="${id}" ${off?'disabled':''}><span class="gi">${ico}</span><span><b>${esc(name)}</b> <b class="n">×${n}</b><small>${sub}</small></span></button>`;
   const o=C.ov(`<div class="mnlo"><p class="mnlon">🎒 なにを つかう？ <small class="mnhp">❤ ${D.hp}/${ME_HP}</small></p>
     ${window.MIO?`<div class="kmina mnmio" data-say="${esc(mo[0])}"><span class="lface">${MIO.face('smile')}</span><p>${esc(mo[0])}<small>${esc(mo[1])}</small></p></div>`:''}
     <div class="mnlol">${F.length?`<p class="mnuh">🍪 食べもの</p>${F.map(s=>row('f',s.id,s.ico,s.n,bag[s.id],`❤+${s.hp}${D.hp>=ME_HP?'（いまは まんたん）':''}`,D.hp>=ME_HP)).join('')}`:''}
-      ${T.length?`<p class="mnuh">⛏️ 道具</p>${T.map(t=>row('t',t.id,t.ico,t.n,toolN(t.id),esc(t.s)+(t.ef==='key'?'・宝箱が 出たら つかえる':t.auto?'・その ときに 自動で つかう':''),t.ef==='key'||t.auto)).join('')}`:''}
+      ${T.length?`<p class="mnuh">⛏️ 道具</p>${T.map(t=>row('t',t.id,t.ico,t.n,toolN(t.id),esc(t.s)+(t.ef==='key'?'・宝箱が 出たら つかえる':t.rest?'（🏕️ 休憩所で つかう）':''),t.ef==='key'||t.auto||t.rest)).join('')}`:''}
       ${!F.length&&!T.length?'<p class="mnlod">まだ なにも ないよ。 食べ物と 道具は ながれぎ雑貨店で 買えるよ（🥪 食べ物・⛏️ 鉱山 の たな）</p>':''}</div>
     <button class="mnlob" data-x>⛏️ つづきを ほる</button></div>`,'mnlov');
   o.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{sf('back');C.closeOv()});
@@ -361,7 +377,7 @@ function eatNow(id){if(!D||!FOOD.take(id))return;const s=FOOD_SNACKS[id];const a
   try{RECENT.add('snack',{id,en:s.en,ja:s.n,ico:s.ico,mine:1})}catch(e){}
   sf('eat');setTimeout(()=>sf('gulp'in SFX?'gulp':'pop'),450);C.closeOv();gotTag(s.ico,'もぐもぐ',`❤+${D.hp-a}`);
   const [,tx]=ML('mn_useFood',{t:s.n});H.toast(`${s.ico} <b>${esc(s.n)}</b> ❤ ${a} → <b>${D.hp}</b><small>👩‍🏫 ${esc(tx)}</small>`,3200);hud()}
-function useTool(id){const t=MINE_TOOLS[id];if(!D||!t||t.ef==='key'||t.auto||!takeTool(id))return;D.used.push(t.ico);C.closeOv();
+function useTool(id){const t=MINE_TOOLS[id];if(!D||!t||t.ef==='key'||t.auto||t.rest||!takeTool(id))return;D.used.push(t.ico);C.closeOv();
   if(t.ef==='lamp')D.luck+=t.v;else if(t.ef==='rope'){D.depth+=t.v;burst()}else if(t.ef==='guard')D.fx.guard+=t.v;else D.fx[t.ef]=(D.fx[t.ef]||0)+t.v;
   if(t.ef==='lamp'&&D.dark){D.dark=0}
   sf(t.ef==='rope'?'knock':'pickup');gotTag(t.ico,t.n,t.ef==='rope'?`+${t.v}m`:'');
@@ -385,7 +401,7 @@ function reveal(o,tier,I){if(!D)return;const dp=D.depth,got=[];
   const coin=tier===2?60+dp*2:tier===1?25+dp:10+Math.floor(dp/3);D.coins+=coin;got.push(['🪙',`コイン ${coin}枚`]);
   const sp=SNACK_POOL();
   if(window.FOOD&&sp.length&&Math.random()<(tier===2?.6:tier===1?.45:.15)){const f=pickL(sp);FOOD.add(f);got.push([FOOD_SNACKS[f].ico,FOOD_SNACKS[f].n])}
-  if(tier===2||(tier===1&&Math.random()<.25)){const t=pickL(tier===2?['lamp','helmet','mag','comp','gold','rope']:['lamp','rope','helmet','mag']);addTool(t);got.push([MINE_TOOLS[t].ico,MINE_TOOLS[t].n])}
+  if(tier===2||(tier===1&&Math.random()<.25)){const t=pickL(tier===2?['lamp','helmet','mag','note','map','batt']:['lamp','wood','helmet','mag']);addTool(t);got.push([MINE_TOOLS[t].ico,MINE_TOOLS[t].n])}
   D.events.push({ico:'📦',n:tier===2?'宝箱（かぎ）':tier===1?'宝箱（合言葉）':'宝箱（少しだけ）',t:got.map(g=>g[0]+' '+g[1]).join('・'),coin});
   try{SFX.fanfare(tier===2?3:tier===1?2:1)}catch(e){sf('coinIn')}
   try{const r=o.querySelector('.mnchb').getBoundingClientRect();FX.firework(r.left+r.width/2,r.top+r.height/2)}catch(e){}
@@ -449,12 +465,13 @@ function floorClear(){if(!D||D.falling)return;D.falling=1;const ids=D.hand.slice
     if(window.MINE_STORY)MINE_STORY.run(ids,fl,(ok,S)=>bonus(ok,ids));else bonus(-1,ids)},1700)}
 function bonus(ok,ids){if(!D)return;const fl=D.floor,got=[];D.stories++;
   const M=MN();if(ok>=0){M.story=(M.story||0)+1;if(ok>=2)M.storyOk=(M.storyOk||0)+1}
-  const coin=ok>=2?30+fl*10:ok===1?20+fl*5:10+fl*2;D.coins+=coin;got.push(['🪙',`コイン ${coin}枚`]);
-  if(ok>=1){const gi=Math.min(MINE_GEM.length-1,Math.floor(Math.random()*(1+fl/2))+(ok>=2?1:0)),G=MINE_GEM[gi],v=G[2]+fl*3;
+  const nb=ok>=0&&toolN('note')>0&&takeTool('note');if(nb){D.used.push('📒');got.push(['📒','鉱夫の 手帳で ボーナス 2ばい！'])}
+  const coin=(ok>=2?30+fl*10:ok===1?20+fl*5:10+fl*2)*(nb?2:1);D.coins+=coin;got.push(['🪙',`コイン ${coin}枚`]);
+  if(ok>=1){const gi=Math.min(MINE_GEM.length-1,Math.floor(Math.random()*(1+fl/2))+(ok>=2?1:0)),G=MINE_GEM[gi],v=(G[2]+fl*3)*(nb?2:1);
     D.coins+=v;D.loot[G[0]]=(D.loot[G[0]]||0)+1;D.lootV[G[0]]=(D.lootV[G[0]]||0)+v;got.push([G[0],`${G[1]} +${v}枚`])}
-  let tr=null;if(window.CARDS&&CARDS.find1&&Math.random()<(ok>=2?.4:ok===1?.15:0)){const g=CARDS.find1(D.depth+fl*6);tr={id:'t:'+g.c.e,isNew:g.isNew};D.got.push(tr);M.cards=(M.cards||0)+1;got.push(['🎁','宝カード！'])}
+  let tr=null;if(window.CARDS&&CARDS.find1&&Math.random()<(ok>=2?.4:ok===1?.15:0)){const g=CARDS.find1(D.depth+fl*6,trNot);tr={id:'t:'+g.c.e,isNew:g.isNew};D.got.push(tr);M.cards=(M.cards||0)+1;got.push(['🎁','宝カード！'])}
   C.save();
-  const [ex,tx]=ML(ok>=2?'mn_storyOk':ok===1?'mn_storyHalf':'mn_storyMiss',{f:fl});
+  const [ex,tx]=ML(nb?'mn_note':ok>=2?'mn_storyOk':ok===1?'mn_storyHalf':'mn_storyMiss',{f:fl});
   H.show('cg',`<section class="pnl cgp mnp" data-stay>
     <div class="qtop"><span></span><b>${ok>=2?'✨ ぜんぶ 読めた！':ok===1?'📜 だいたい 読めた！':'📜 お話の ボーナス'}</b><span class="qn">地下${fl}階</span></div>
     <div class="mnlol">${got.map(g=>`<div class="mnlor"><span class="gi">${g[0]}</span><span><b>${esc(g[1])}</b></span></div>`).join('')}</div>
@@ -478,7 +495,7 @@ function fall(go){const p=H.panel&&H.panel.querySelector('section');if(p){p.clas
 function rest(ids){if(!D)return;D.falling=0;const nf=D.floor+1;const M=MN();if(nf>(M.bestF||0)){M.bestF=nf;C.save()}
   const api={floor:nf,ids,trip:D.got.filter(g=>!/^t:/.test(g.id)).map(g=>g.id),hp:()=>D.hp,setHp:n=>{D.hp=Math.max(0,Math.min(ME_HP,n));keepHp(D.hp)},max:ME_HP,layer:()=>{const f=D.floor;D.floor=nf;const L=layerOf();D.floor=f;return L},
     dig:()=>{if(!D)return;diveScreen();newFloor();const [,tx]=ML('mn_newFloor',{f:D.floor});setTimeout(()=>{if(D&&tx)H.toast(`🪜 <b>地下${D.floor}階</b><small>👩‍🏫 ${esc(tx)}</small>`,3200)},500)},
-    home:()=>{if(!D)return;D.floor=nf;finish('home')},used:ico=>D.used.push(ico)};
+    home:()=>{if(!D)return;D.floor=nf;finish('home')},used:ico=>D.used.push(ico),map:()=>{if(D)D.mapNext=1}};
   if(window.MINE_REST)MINE_REST.open(api);else api.dig()}
 /* ================================================================ back home: ミオが ほった ことばを 見て ひとこと・売り場に ならべるか えらぶ */
 function finish(why){if(!D)return;const d=D;D.alive=false;D=null;keepHp(d.hp);const M=MN(),S=(()=>{try{return SHOP.rec()}catch(e){return {}}})();

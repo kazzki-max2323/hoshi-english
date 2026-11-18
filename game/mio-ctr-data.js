@@ -69,18 +69,17 @@ const MIOT=[
   ["I'll try again tomorrow.","あした また やる。",["That's the way! A little every day. Like watering a plant.","それです！ 毎日 少しずつ。 植物に 水を やる みたいに。",'smile']],
   ["I forgot them already…","もう わすれた…",["Ha ha! That happens to me too. Then we just dig them up again!","あはは！ わたしも よく あります。 そしたら また ほりだせば いいんです！",'laugh']]]}]],ph:["a little every day","毎日 少しずつ"]},
 /* =============================================================== 🎁 仕入れ・📖 カードブック */
-{id:'pk_open',k:'pack',m:["Boss, you opened a new pack! What did we get? I'm so excited!","店長、 新しい パック あけたんですね！ なにが 出ました？ わくわく！"],ex:'laugh',p:'wave',o:[
- ["Lots of new cards!","新しい カードが いっぱい！",["Yay! I'll make a \"New arrivals\" corner. Customers love new things!","やった！ 「新入荷」 コーナー 作ります。 お客さんは 新しい ものが 大好き！",'laugh']],
- ["Nothing rare this time.","今回は レアなし。",["That's OK! Every card is somebody's favorite word. That's my motto.","だいじょうぶ！ どの カードも だれかの お気に入りの 単語。 わたしの モットーです。",'smile']],
- ["Guess what was inside!","なにが 入ってたか 当てて！",{m:["Hmm… \"banana\"? \"dinosaur\"? \"happiness\"?","うーん… 「バナナ」？ 「恐竜」？ 「しあわせ」？"],ex:'smile',o:[
-  ["Close!","おしい！",["Close? Which one?! Now I really want to know!","おしい？ どれが？！ もう 気に なって しかたない！",'oops']],
-  ["Happiness. Every card is happiness.","しあわせ。 どの カードも しあわせ。",["Boss… that was so cool. I'm writing that down.","店長… いまの かっこよすぎ。 メモします。",'laugh']]]}]],ph:["New arrivals","新入荷"]},
-{id:'pk_many',k:'pack',if:()=>{try{return CG.buyToday()>=3}catch(e){return false}},m:["Another pack, boss? That's three today! There's no limit now, but… our wallet has one!","また パック？ きょう 3つめ！ せいげんは なくなったけど… おさいふには ありますよ！"],ex:'wink',o:[
- ["I want more!","もっと ほしい！",["Ha ha! OK, but the really good cards aren't in packs. For those, you have to dig!","あはは！ いいですよ。 でも ほんとに いい カードは パックには ない。 それは ほらないと！",'laugh',{go:'mine'}]],
- ["Opening packs is the best.","パックを あけるのって 最高。",["Right? It's like opening a present every time.","ですよね？ 毎回 プレゼントを あける みたい。",'smile']]],ph:["Tomorrow is another day.","あしたは あしたの 風が ふく。"]},
-{id:'pk_noTreasure',k:'pack',m:["Boss, did you notice? Packs only have everyday cards now. Treasure cards hide in the mine!","店長、 気づきました？ パックに 入ってるのは ふだんの カードだけ。 宝カードは 鉱山に かくれてるんです！"],ex:'smile',p:'wave',o:[
- ["Then I'll go digging.","じゃあ ほりに 行く。",["That's the spirit! The deeper you dig, the shinier the cards. That's the rumor.","その 意気！ 深く ほるほど キラキラの カード。 そういう うわさです。",'laugh',{go:'mine'}]],
- ["Packs are for practice.","パックは 練習用だね。",["Exactly! Packs for practice, the mine for treasure. Easy to remember!","そのとおり！ パックは 練習、 鉱山は 宝さがし。 おぼえやすい！",'smile']]],ph:["hide","かくれる"]},
+{id:'pk_open',k:'pack',m:["Boss, the delivery you earned came in! \"{w}\" was in the box. You studied it, right?","店長、 勉強で とどいた 荷物！ 「{w}」が 入ってました。 勉強したんですよね？"],ex:'laugh',p:'wave',o:[
+ ["Yes, I practiced it today.","うん、 きょう 練習した。",["I knew it! Cards you studied sell better. I don't know why, but they do!","やっぱり！ 勉強した カードは よく 売れるんです。 なぜか わからないけど！",'laugh']],
+ ["Can you say it in a sentence?","文で 言える？",{m:["Hmm… \"I like {w}.\" Is that OK? Your turn next, boss!","うーん… 「I like {w}.」 これで いい？ つぎは 店長の 番！"],ex:'oops',o:[
+  ["Perfect!","かんぺき！",["Yay! A shop girl who can make sentences. Put that on my name tag!","やった！ 文が 作れる 店員。 名札に 書いておきます！",'laugh']],
+  ["Let's practice together.","いっしょに 練習しよう。",["Together? …OK! Study partners. I like that.","いっしょに？ …はい！ 勉強なかま。 いいですね。",'smile']]]}]],ph:["in stock","在庫あり"]},
+{id:'pk_many',k:'pack',if:()=>{try{return STOCK.todayN()>=6}catch(e){return false}},m:["Boss, so many boxes today! How much did you study? The storeroom is getting full!","店長、 きょうは 荷物が いっぱい！ どれだけ 勉強したんですか？ 倉庫が パンパン！"],ex:'wink',o:[
+ ["A lot!","いっぱい！",["Amazing. Our shop grows when you grow. That's the best kind of shop!","すごい。 店長が 成長すると お店も 成長する。 いちばん いい お店です！",'laugh']],
+ ["Let's put them on the floor.","売り場に ならべよう。",["Yes! Fresh cards on the shelves. The customers will line up!","はい！ 入荷したての カードを たなに。 お客さんが ならびますよ！",'smile',{go:'floor'}]]],ph:["fully stocked","在庫 たっぷり"]},
+{id:'pk_noTreasure',k:'pack',m:["Boss, did you know? Our supplier only sends cards from the card book. New cards come from the mine!","店長、 知ってました？ うちの 仕入れ先は カードブックの カードしか 送ってこないんです。 新しい カードは 鉱山から！"],ex:'smile',p:'wave',o:[
+ ["Then I'll go digging.","じゃあ ほりに 行く。",["That's the spirit! Dig it, put it in the book, study it, sell it. Our shop's four steps!","その 意気！ ほって、 ブックに 入れて、 勉強して、 売る。 うちの お店の 4ステップ！",'laugh',{go:'mine'}]],
+ ["Studying is our supply line.","勉強が 仕入れなんだね。",["Exactly! No coins needed. Just your brain. Very eco-friendly!","そのとおり！ コインは いらない。 店長の 頭だけ。 とっても エコ！",'laugh']]],ph:["supply","仕入れ・供給"]},
 {id:'bk_put',k:'book',m:["I saw you put \"{w}\" in the card book. Is it a special card?","「{w}」を カードブックに 入れてましたね。 特別な カード？"],ex:'smile',o:[
  ["It's my favorite.","お気に入りなんだ。",["Then it deserves a safe home. Favorites go in the book!","じゃあ 安全な おうちが ひつようですね。 お気に入りは ブックへ！",'smile']],
  ["I want to fill every page.","ぜんぶの ページを うめたい。",["Every page? That's a big goal! I'll cheer for you. Fight, boss!","ぜんぶ？ 大きな 目標！ おうえん します。 ファイト、 店長！",'laugh']]]},
