@@ -125,3 +125,5 @@ small.sten{font-size:.8em;color:#b45309;margin-left:4px}
 .stmin.big{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
 .stmin.big button{padding:12px 0!important;font-size:1rem!important;font-weight:900;border-width:2px!important;background:#2a2f6e!important;border-color:#ffd23f!important;color:#fff!important}
 .mtiles[hidden]{display:none!important}
+/* 明るい地の上の文字は 影なしで くっきり（パネルの text-shadow を 受けつがない） */
+.stsay p,.steasy .steb,.stwhy .stfix,.lcmp .lbody,.stcmpx span.now,.stbrkcard,.stgo .stico{text-shadow:none}
