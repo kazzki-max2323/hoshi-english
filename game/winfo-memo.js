@@ -11,7 +11,6 @@ please|「プリーズ」。 両手を 合わせる おねがいポーズで 言
 happy|「ハッピー」。 pp は ニコニコ顔の ふたつの ほっぺ
 sad|「サッド」。 なみだが 「サーッ」と ながれる かなしさ
 angry|「アングリー」。 口を 「あんぐり」 あけて どなる 顔
-sleepy|sleep（ねる）＋ y。 ねむりたい → ねむい
 hungry|「ハングリー」。 おなかが ペコペコで ハンガーみたいに ペラペラ
 tired|「タイアード」。 タイヤが パンクして ぐったり つかれた
 scared|scare（こわがらせる）＋ d。 おばけに こわがらされた → こわい
@@ -20,12 +19,9 @@ father|「ファーザー」。 th は 舌を かるく はさむ。 mother・br
 mother|「マザー」。 m は 「ママ」の m
 brother|b ＋ r ＋ other（ほかの）。 自分の ほかの 男の きょうだい
 sister|「シスター」。 s が 2つ、 ならんだ 2人の しまい
-grandfather|grand（大きい・1だん 上の）＋ father。 1だん 上の おとうさん
-grandmother|grand（1だん 上の）＋ mother。 1だん 上の おかあさん
 friend|fri ＋ end。 i を わすれやすい。 「友だちは end（さいご）まで 友だち」
 girl|「ガール」。 ir の つづり。 bird・first も ir
 woman|wo ＋ man。 2人 以上は women（ウィミン）
-teacher|teach（教える）＋ er（人）＝ 教える 人
 student|「スチューデント」。 study（勉強する）と なかま
 uncle|「アンクル」。 アンクル ＝ おじさん。 cle で おわる
 aunt|「アント」。 ant（あり）と 同じ 音。 「ありが 大すきな おばさん」
@@ -34,7 +30,6 @@ people|「ピープル」。 o を わすれない。 pe-o-ple と 区切って 
 child|「チャイルド」。 2人 以上は children（チルドレン）
 head|「ヘッド」。 ヘッドホンは 頭に つける
 face|「フェイス」。 フェイスタオルは 顔を ふく タオル
-eye|「アイ」。 e-y-e の 両はしの e が 目、 まんなかの y が 鼻
 ear|「イア」。 hear（聞く）の 中にも ear（耳）が ある
 nose|「ノーズ」。 鼻水 ズルズル、 ノーズ
 mouth|「マウス」。 mouse（ねずみ）と にている。 口は th で おわる
@@ -73,13 +68,9 @@ whale|「ホエール」。 ホエールウォッチング ＝ くじらを 見�
 shark|「シャーク」。 「シャーッ」と せまってくる さめ
 turtle|「タートル」。 タートルネックは かめが 首を すくめた 形
 crab|「クラブ」。 横歩きで クラブ活動に 行く かに
-octopus|octo（8）＋ pus（足）。 足が 8本
 penguin|pen ＋ guin。 ペンを 持った ペンギン
-snake|「スネイク」。 すね（脛）に からみつく へび
-fox|「フォックス」。 3文字。 x の 字は ふさふさの しっぽ
 wolf|「ウルフ」。 「ウ〜」と うなる おおかみ。 2ひき 以上は wolves
 deer|「ディア」。 dear（親愛なる）と 同じ 音。 2ひき 以上も deer
-owl|「アウル」。 o と w が まんまるの 大きな 目に 見える
 ant|「アント」。 aunt（おば）と 同じ 音。 小さな 3文字
 bee|「ビー」。 B と 同じ 音。 「ビーッ」と 飛ぶ はち
 butterfly|butter（バター）＋ fly（飛ぶ）。 バター色の 羽で 飛ぶ
@@ -105,7 +96,6 @@ cabbage|「キャベッジ」。 b が 2つ。 キャベツの ことば
 corn|「コーン」。 コーンスープ・ポップコーンの コーン
 cucumber|「キューカンバー」。 きゅうりと 同じ 「キュー」で はじまる
 mushroom|mush ＋ room（へや）。 森に ある 小さな へやみたいな かさ
-eggplant|egg（たまご）＋ plant（植物）。 白い たまご形の なすから
 lettuce|「レタス」。 t が 2つ。 「let us（レタス）食べよう」
 spinach|「スピナッチ」。 ポパイが 食べて 力もちに なる やさい
 sweet potato|sweet（あまい）＋ potato（いも）＝ あまい いも
@@ -117,7 +107,6 @@ ginger|「ジンジャー」。 ジンジャーエールは しょうがの 飲�
 water|「ウォーター」。 ミネラルウォーターの ウォーター
 milk|「ミルク」。 ミルクティーの ミルク
 tea|「ティー」。 アルファベットの T と 同じ 音
-honey|「ハニー」。 くまの 大すきな はちみつ
 sugar|「シュガー」。 s を 「シュ」と 読む めずらしい ことば
 salt|「ソルト」。 ソルト＆ペッパー ＝ しお と こしょう
 red|「レッド」。 サッカーの レッドカードは 赤
@@ -139,7 +128,6 @@ three|「スリー」。 tree（木）に h を 足すと 3
 four|for（〜のために）＋ u。 14・40 は fourteen・forty（u が 消える）
 five|「ファイブ」。 v は 下くちびるを かんで 「ヴ」
 eight|「エイト」。 gh は 読まない。 weight（重さ）と なかま
-nine|「ナイン」。 n で i と e を はさむ
 eleven|「イレブン」。 サッカーの 11人 ＝ イレブン
 twelve|「トゥエルブ」。 two と 同じ tw で はじまる
 thirteen|three → thir ＋ teen。 13〜19 は ぜんぶ teen
@@ -154,24 +142,17 @@ second|「セカンド」。 野球の セカンド ＝ 2るい。 「秒」の 
 third|three → thi ＋ rd。 野球の サード ＝ 3るい
 fifth|five → fif ＋ th。 4番目 以降は th が つく
 half|「ハーフ」。 l は 読まない。 ハーフタイム ＝ 試合の 半分
-Sunday|Sun（太陽）＋ day。 お日さまの 日
-Monday|Mon（moon 月）＋ day。 月の 日
 Tuesday|「チューズデイ」。 Tue と 書く。 短く すると Tue.
 Wednesday|「ウェンズデイ」。 書くときは 「ウェド・ネス・デイ」と 読んで d を わすれない
 Thursday|「サーズデイ」。 北欧の かみなりの 神 Thor（トール）の 日
 Friday|「フライデイ」。 金よう日は フライデー。 Fri. と 短く する
-Saturday|Saturn（土星）＋ day。 土星の 日 ＝ 土よう日
 week|「ウィーク」。 weak（よわい）と 同じ 音
 today|to ＋ day。 「この 日」 ＝ きょう
-tomorrow|to ＋ morrow（朝）。 m は 1つ、 r は 2つ
 yesterday|「イエスタデイ」。 ビートルズの 歌の 名前にも なっている
 morning|「モーニング」。 モーニングセットは 朝ごはん
-afternoon|after（あと）＋ noon（正午）。 お昼の あと ＝ 午後
 evening|「イブニング」。 クリスマスイブの イブ ＝ 前の 晩
 night|「ナイト」。 gh は 読まない。 ナイター ＝ 夜の 試合
 minute|mini（小さい）に にている。 時間の 小さい くぎり ＝ 分
-weekend|week（週）＋ end（おわり）＝ 週の おわり
-birthday|birth（生まれる こと）＋ day。 生まれた 日
 January|「ジャニュアリー」。 短く すると Jan.
 February|「フェブルアリー」。 Feb の あとの r を わすれやすい。 Feb-ru-ar-y
 March|「マーチ」。 マーチ（行進）と 同じ つづり。 春に むかって 行進
@@ -189,49 +170,35 @@ summer|「サマー」。 m が 2つ。 サマーキャンプ
 fall|「フォール」。 葉っぱが 落ちる（fall）季節 ＝ 秋
 winter|「ウィンター」。 ウィンタースポーツは 冬の スポーツ
 season|「シーズン」。 野球の シーズン ＝ 季節・時期
-month|moon（月）と なかま。 月が ひとまわり ＝ ひと月
 year|「イヤー」。 「1年って イヤー、 長い」
 sun|「サン」。 サンサンと 照る 太陽。 son（むすこ）と 同じ 音
 moon|「ムーン」。 oo は まんまるの 月が 2つ
 star|「スター」。 スターは 星のように かがやく 人
 sky|「スカイ」。 スカイツリーは 空に とどく 塔
-cloud|「クラウド」。 くもると 暗うど（くらうど）
 rain|「レイン」。 レインコートは 雨の 日の コート
 snow|「スノー」。 スノーボードは 雪の 上
 wind|「ウィンド」。 window（まど）は 風（wind）の 入り口
-rainbow|rain（雨）＋ bow（弓）。 雨の あとの 弓の 形
 sunny|sun ＋ ny。 n を 2つに して y
 cloudy|cloud（雲）＋ y ＝ 雲が いっぱい
 rainy|rain（雨）＋ y ＝ 雨ふりの
 sea|「シー」。 see（見る）と 同じ 音。 I see the sea.
 mountain|「マウンテン」。 マウンテンバイクは 山を 走る 自転車
-river|「リバー」。 r で はさむ 川
 tree|「ツリー」。 クリスマスツリーの ツリー
 flower|「フラワー」。 flour（小麦粉）と 同じ 音
 beach|「ビーチ」。 ビーチバレーは すなはまで
 island|「アイランド」。 s は 読まない！ is ＋ land と 書いて 「アイランド」
-lake|「レイク」。 冷く（れいく）つめたい みずうみ
 school|「スクール」。 sch は 「スク」。 oo は ならんだ 机
 classroom|class（クラス）＋ room（へや）
 library|「ライブラリー」。 r が 2つ。 li-bra-ry と 区切る
 gym|「ジム」。 y を 「イ」と 読む。 スポーツジムの ジム
-playground|play（遊ぶ）＋ ground（地面）
-school lunch|school（学校）＋ lunch（昼ごはん）
-homework|home（家）＋ work（仕事）＝ 家で する 仕事
 desk|「デスク」。 デスクトップ ＝ 机の 上
 chair|ch ＋ air（空気）。 「チェア」
-blackboard|black（黒）＋ board（板）
 principal|「プリンシパル」。 pal（なかま）の いちばん 上の 人
-textbook|text（文）＋ book（本）
-eraser|erase（消す）＋ r ＝ 消す もの
-ruler|rule（線・きまり）＋ r ＝ 線を 引く もの
 scissors|「シザーズ」。 ss が 2回、 2まいの 刃
-glue|「グルー」。 ぐるっと のりで くっつける
 pencil case|pencil（えんぴつ）＋ case（入れもの）
 house|「ハウス」。 ビニールハウスの ハウス
 room|「ルーム」。 ルームキー ＝ へやの かぎ
 door|「ドア」。 oo は 2まいの とびら
-window|wind（風）＋ ow（目）。 風が 入る 目 → まど
 kitchen|「キッチン」。 t を わすれない。 kit-chen
 bath|「バス」。 バスタオルは おふろの タオル
 garden|「ガーデン」。 ガーデニング ＝ にわ作り
@@ -240,14 +207,10 @@ dish|「ディッシュ」。 お皿に のった 料理も dish
 spoon|「スプーン」。 oo は スプーンの まるい ところ
 box|「ボックス」。 ティッシュボックスの ボックス
 park|「パーク」。 テーマパークの パーク
-station|「ステーション」。 止まる 場所 ＝ 駅
 hospital|「ホスピタル」。 ホテルと なかまの ことば（人を もてなす 場所）
 post office|post（郵便）＋ office（事務所）
-police station|police（警察）＋ station（署）
 fire station|fire（火事）＋ station（署）
-supermarket|super（すごい）＋ market（市場）
 convenience store|convenience（便利）＋ store（店）。 コンビニは これを 短く した 日本語
-bakery|bake（焼く）＋ ry（ところ）。 パンを 焼く 店
 zoo|「ズー」。 z と oo の 3文字
 aquarium|aqua（水）＋ rium（ところ）。 アクア ＝ 水
 museum|muse（ミューズ ＝ 芸術の 女神）の 場所
@@ -259,44 +222,27 @@ town|「タウン」。 ニュータウンの タウン
 car|「カー」。 カーナビの カー
 train|t ＋ rain（雨）。 「トレイン」
 bike|「バイク」。 英語では 自転車も bike
-airplane|air（空）＋ plane（平らな つばさ）
 ship|「シップ」。 sheep（ひつじ）より 短く 「シッ」
-subway|sub（下）＋ way（道）＝ 地下の 道
-helicopter|helico（うずまき）＋ pter（つばさ）。 くるくる回る つばさ
 unicycle|uni（1つ）＋ cycle（輪）。 ユニコーンは 角が 1本
 ambulance|「アンビュランス」。 サイレンの 音みたいに 「あんびゅ〜らんす」
-fire engine|fire（火）＋ engine（機械）
 motorcycle|motor（エンジン）＋ cycle（輪）
 road|「ロード」。 ロードマップ ＝ 道の 地図
 map|「マップ」。 地図アプリの マップ
 ticket|「チケット」。 ck の つづり
 table tennis|table（台）＋ tennis。 台の 上の テニス ＝ 卓球
-dodgeball|dodge（さっと よける）＋ ball
 win|「ウィン」。 ウィンウィン ＝ どっちも 勝ち。 過去は won
 song|sing（歌う）の 名詞。 i が o に かわる
-toy|「トイ」。 おもちゃ屋さんの 名前にも よく 出てくる トイ
 doll|「ドール」。 l が 2つ
 kite|「カイト」。 空に あげる たこ。 タコ（海）は octopus
 jump rope|jump（とぶ）＋ rope（なわ）
 tag|「タッグ」。 タッチ（tag）されたら おに
-hide-and-seek|hide（かくれる）＋ and ＋ seek（さがす）
-movie|move（動く）＋ ie。 動く 絵 → 映画
 picture|「ピクチャー」。 ピクチャーブック ＝ 絵本
 comic book|comic（まんがの）＋ book（本）
 doctor|「ドクター」。 ドクターヘリの ドクター
 nurse|「ナース」。 ナースコールで 看護師さんを よぶ
 cook|「クック」。 クッキング ＝ 料理。 料理人も cook（cooker は なべ）
-farmer|farm（農場）＋ er（人）
 police officer|police（警察）＋ officer（係の 人）
-firefighter|fire（火）＋ fight（たたかう）＋ er（人）
-singer|sing（歌う）＋ er（人）
 artist|art（芸術）＋ ist（人）
-scientist|science（科学）＋ ist（人）
-astronaut|astro（星）＋ naut（船乗り）＝ 星の 船乗り
-florist|flor（花）＋ ist（人）
-vet|veterinarian（じゅうい）を 短く した ことば
-zookeeper|zoo（動物園）＋ keeper（世話を する 人）
-dentist|dent（歯）＋ ist（人）
 carpenter|「カーペンター」。 carpet（じゅうたん）と にているけど、 木で 家を 作る 人
 go|「ゴー」。 ゴールに 向かって ゴー！ 過去は went
 come|「カム」。 カムバック ＝ もどって くる
@@ -317,7 +263,6 @@ play|「プレイ」。 プレイヤー ＝ 遊ぶ 人・選手
 study|「スタディ」。 student（生徒）と なかま
 read|「リード」。 過去形も read（でも 読みは 「レッド」）
 write|「ライト」。 w は 読まない。 right と 同じ 音
-draw|「ドロー」。 線を すーっと 引く → 絵を かく
 make|「メイク」。 メイク ＝ 顔を つくる
 wash|「ウォッシュ」。 洗たく機は washing machine
 clean|「クリーン」。 クリーニング屋さんの クリーン
@@ -345,7 +290,6 @@ carry|「キャリー」。 キャリーバッグは 運ぶ かばん
 cut|「カット」。 ヘアカット ＝ かみを 切る
 live|「リブ」。 ライブ（live）と 同じ つづり。 生きる・住む
 visit|「ビジット」。 i が 2つ。 vi-sit
-enjoy|en（〜に する）＋ joy（よろこび）。 よろこびで いっぱいに する
 try|「トライ」。 ラグビーの トライ。 やってみる
 think|「シンク」。 th の 音。 sink（流し）と ちがう
 remember|re（もう一度）＋ member（メンバー）。 なかまの 顔を もう一度 思いうかべる
@@ -357,7 +301,6 @@ big|「ビッグ」。 ビッグサイズ
 small|「スモール」。 S サイズの S
 long|「ロング」。 ロングヘア
 short|「ショート」。 ショートヘア
-tall|「トール」。 l が 2本、 高い 柱が 2本
 high|「ハイ」。 gh は 読まない。 ハイジャンプ
 low|「ロー」。 ローテーブル ＝ ひくい 机
 new|「ニュー」。 ニュース ＝ 新しい できごと
@@ -375,41 +318,31 @@ strong|「ストロング」。 strength（力）と なかま
 weak|「ウィーク」。 week（週）と 同じ 音
 good|「グッド」。 👍 の グッド
 bad|「バッド」。 バッドエンド ＝ わるい おわり
-beautiful|beauty（美しさ）＋ ful（いっぱい）。 美しさで いっぱい
 cute|「キュート」。 u を 「ユー」と 読む
 fun|「ファン」。 楽しい。 応えんする fan とは ちがう つづり
-interesting|interest（興味）＋ ing。 興味が わいて くる
 easy|「イージー」。 イージーモード ＝ かんたん
 difficult|「ディフィカルト」。 f が 2つ。 dif-fi-cult と 区切る
 delicious|「デリシャス」。 ほっぺを おさえて 「デリシャ〜ス」
 sweet|「スウィート」。 スイーツ ＝ あまい もの
 bitter|「ビター」。 ビターチョコ ＝ にがい チョコ
 sour|「サワー」。 サワークリーム ＝ すっぱい クリーム
-salty|salt（しお）＋ y
 spicy|spice（スパイス）＋ y
 busy|「ビジー」。 u を 「イ」と 読む めずらしい ことば
 kind|「カインド」。 名詞では 「種類」。 a kind of 〜 ＝ 〜の 一種
 brave|「ブレイブ」。 ゲームの 勇者（ブレイブ）
-famous|fame（名声）＋ ous。 名前が 知られている
 favorite|favor（好意）＋ ite。 「フェイバリット」
 pants|「パンツ」。 英語の pants は ズボン！ 下着じゃないよ
-sweater|sweat（あせ）＋ er。 あせが 出るほど あたたかい 服
 hat|「ハット」。 ふちが ぐるっと ある ぼうし。 つばだけは cap
 shoes|「シューズ」。 ランニングシューズ
 socks|「ソックス」。 ハイソックスの ソックス
 gloves|「グラブズ」。 野球の グローブも 同じ ことば
 scarf|「スカーフ」。 マフラーは 英語で scarf
 glasses|glass（ガラス）＋ es。 ガラス 2まいで めがね
-umbrella|umbr（かげ）＋ ella。 かげを 作る もの
 watch|「ウォッチ」。 「じっと 見る」の 意味も。 時計を 見る
-uniform|uni（1つ）＋ form（形）。 みんな 同じ 形の 服
 pajamas|「パジャマ」。 上下 セットなので s が つく
 China|「チャイナ」。 小文字の china は 陶磁器（せともの）
-the U.K.|United Kingdom（連合王国）の 頭文字
 Egypt|「イージプト」。 y を 「イ」と 読む
 festival|「フェスティバル」。 フェスは これを 短く した ことば
-fireworks|fire（火）＋ works（作品）＝ 火の 作品
-summer vacation|summer（夏）＋ vacation（休み）
 world|「ワールド」。 ワールドカップの ワールド
 country|「カントリー」。 ou を 「ア」と 読む
 what|「ワット」。 「わっ？ なに？」
@@ -420,7 +353,6 @@ why|「ワイ」。 Y の 字の 形で 首を かしげて 「なんで？」
 how|「ハウ」。 how many で いくつ、 how much で いくら
 which|「ウィッチ」。 witch（魔女）と 同じ 音。 「どっちの 魔女？」
 on|「オン」。 スイッチ オン。 くっついて 上に のっている
-in|「イン」。 イン ＝ 中
 under|「アンダー」。 アンダーシャツは 下に 着る シャツ
 by|「バイ」。 bye（さようなら）・buy（買う）と 同じ 音。 by は 「〜の そばに」
 near|「ニア」。 ニアミス ＝ 近すぎて あぶない
