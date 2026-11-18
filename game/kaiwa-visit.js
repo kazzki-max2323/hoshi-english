@@ -47,7 +47,7 @@ function pickScene(id){const SC=K().scenes;if(id){const s=SC.find(x=>x.id===id);
   return ok.length?pickL(ok):pickL(SC)}
 
 /* nothing else is open over the beach */
-const calm=()=>H.screen==='home'&&!document.hidden&&!K().live()&&!$('cardOv')&&!$('dpov')&&!$('bmPop')&&!$('minaPop')&&!document.querySelector('.ttov')&&!(window.HORROR&&HORROR.busy&&HORROR.busy());
+const calm=()=>H.screen==='home'&&!document.hidden&&!K().live()&&!$('cardOv')&&!$('cardTop')&&!$('dpov')&&!$('bmPop')&&!$('minaPop')&&!document.querySelector('.ttov')&&!(window.HORROR&&HORROR.busy&&HORROR.busy());
 const due=()=>Date.now()-t0>FIRST_WAIT&&Date.now()>nextOk&&Date.now()-Math.max(R().at,K().rec().last||0)>GAP;
 
 /* ---------- someone walks up ---------- */

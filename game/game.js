@@ -241,7 +241,7 @@ function wipeAll(){
 /* tapping anywhere outside the panel works like its ← button (and that tap does nothing else).
    Result screens without ← mark their "back" button with data-back. Mini games have neither, so they ignore it.
    A running long talk / the novel (data-stay) ignores it too, so a stray tap can't end it; once its ending shows (.kend/.kends) it closes like the rest */
-document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#meteor,#bbadge,#minaPop,#dpov,#bmPop,.ttov'))return;
+document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#cardTop,#meteor,#bbadge,#minaPop,#dpov,#bmPop,.ttov'))return;
   if(panel.querySelector('[data-stay]')&&!panel.querySelector('.kend,.kends'))return;
   const x=panel.querySelector('.qtop .x')||panel.querySelector('[data-back]');if(!x)return;
   e.preventDefault();e.stopPropagation();x.click();
@@ -249,7 +249,7 @@ document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest
 /* a round ← at the bottom right on every screen but home: it works like the screen's ← (or its data-back button).
    Hidden where the outside tap is off too: mini games (no ← at all) and a running long talk / novel (data-stay) */
 const fab=document.createElement('button');fab.id='backFab';fab.className='backfab';fab.textContent='←';fab.setAttribute('aria-label','もどる');fab.hidden=true;document.body.appendChild(fab);
-const fabTarget=()=>{if(screen==='home'||$('cardOv')||$('dpov')||$('bmPop')||document.querySelector('.ttov'))return null;   // popups over the panel have their own ✕
+const fabTarget=()=>{if(screen==='home'||$('cardOv')||$('cardTop')||$('dpov')||$('bmPop')||document.querySelector('.ttov'))return null;   // popups over the panel have their own ✕
   if(panel.querySelector('[data-stay]')&&!panel.querySelector('.kend,.kends'))return null;
   return panel.querySelector('.qtop .x')||panel.querySelector('[data-back]')};
 fab.onclick=e=>{e.stopPropagation();const x=fabTarget();if(x)x.click()};

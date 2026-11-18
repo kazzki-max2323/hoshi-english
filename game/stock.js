@@ -141,7 +141,7 @@ function draw(say0){const k=K(),nw=Object.keys(k.nw).filter(id=>C.info(id)),book
   if($('stmine'))$('stmine').onclick=()=>{sf('step');try{MINE.open()}catch(e){SHOP.open()}};
   if($('stmore'))$('stmore').onclick=()=>{sf('tap');shown+=SHOWN;draw(L)};
   H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{sf('tap');sort=b.dataset.s;shown=SHOWN;draw(L)});
-  H.panel.querySelectorAll('.stkc[data-id]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id)});
+  H.panel.querySelectorAll('.stkc[data-id]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id,null,{from:'stock'})});
   H.panel.querySelectorAll('.stkc[data-b]').forEach(b=>b.onclick=()=>{const id=b.dataset.b,i=sel.indexOf(id);
     if(i>=0){sel.splice(i,1);sf('tap')}else if(sel.length>=MAXSEL){sf('wrong');H.toast(`えらべるのは ${MAXSEL}まいまで<small>はずす ときは もう一度 タップ</small>`,1800);return}else{sel.push(id);sf('card')}
     b.classList.toggle('on',sel.includes(id));bar()});
@@ -157,15 +157,9 @@ function graph(k,src){const days=[],now=new Date();
     <div class="stkwk">${days.map(([,n,l],i)=>`<div class="${i===6?'td':''}"><b>${n||''}</b><i style="height:${Math.round(n/mx*100)}%"></i><small>${l}</small></div>`).join('')}</div>
     ${src.length?`<div class="stkby">${src.sort((a,b)=>b[1]-a[1]).map(([s0,n])=>`<p><span>${(SRC[s0]||['📦'])[0]} ${esc((SRC[s0]||['','その他'])[1])}</span><i><em style="width:${Math.round(n/sm*100)}%"></em></i><b>${n}</b></p>`).join('')}</div>`:''}</div>`}
 const ymd=d=>d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();   // CG.today() と 同じ 形
-/* 1まい えらんだ: ✏️ 3問 / 📖 くわしく */
+/* 1まい えらんだ: くわしく 画面の 下に ✏️ 3問で 仕入れる */
 function card(id){const I=C.info(id);if(!I)return;
-  const o=C.ov(`<div class="cgbuy stkov">${C.face(id,{big:1,ja:1})}
-    <p class="stkn">在庫 <b>${stockOf(id)}</b>まい</p>
-    <button id="stdr" class="big">✏️ 3問で 仕入れる</button>
-    <div class="row"><button id="stdt" class="sub">📖 くわしく</button><button id="stx" class="sub">とじる</button></div></div>`,'by');
-  $('stx').onclick=()=>{sf('back');C.closeOv()};
-  $('stdt').onclick=()=>{sf('card');C.closeOv();C.detail(id,()=>open())};
-  if($('stdr'))$('stdr').onclick=()=>{sf('open');drill(id)}}
+  C.detail(id,null,{from:'stock',btns:[[`✏️ 3問で 仕入れる <small>（在庫 ${stockOf(id)}まい）</small>`,()=>{sf('open');drill(id)}]]})}
 function drill(id){const I=C.info(id);let i=0,ok=0,last=null;
   const o=C.ov(`<div class="cgbuy stkdr"><p class="stkdh">✏️ 仕入れ練習 <b id="stdn">1 / 3</b></p><div id="stq"></div></div>`,'by');o.dataset.stay=1;
   const nx=()=>{if(i>=3)return end();$('stdn').textContent=`${i+1} / 3`;const q=C.quiz(id,{avoid:last});last=q.t;
@@ -176,7 +170,7 @@ function drill(id){const I=C.info(id);let i=0,ok=0,last=null;
       ${got?C.face(id,{mini:1,marks:false}):''}${mio(L,got?'laugh':'smile',got?'peace':'')}
       <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
       <div class="row"><button id="stag">${got?'✏️ もう 1まい':'もう一回'}</button><button id="stend" class="sub">仕入れに もどる</button></div>`;
-    bindMio(o);say(L[0]);if(got){sf('done');try{SFX.fanfare(1)}catch(e){}}else sf('step');
+    bindMio(o);C.peekIn(o.querySelector('.stkdr'),{from:'stock'});say(L[0]);if(got){sf('done');try{SFX.fanfare(1)}catch(e){}}else sf('step');
     delete o.dataset.stay;o.addEventListener('click',e=>{if(e.target===o)draw(L)});
     const ag=o.querySelector('#stag');if(ag)ag.onclick=()=>{sf('open');C.closeOv();drill(id)};
     o.querySelector('#stend').onclick=()=>{sf('back');C.closeOv();draw(L)}};
@@ -220,7 +214,7 @@ function batch(ids){ids=ids.filter(id=>C.info(id));if(!ids.length)return draw();
     bindMio(o);say(L[0]);if(got.length){sf('done');try{SFX.fanfare(all?2:1)}catch(e){}}else sf('step');
     delete o.dataset.stay;o.addEventListener('click',e=>{if(e.target===o)draw(L)});   // 結果は 外側タップで もどる
     try{RECENT.add('stkb',{en:got.length?head1(C.info(got[0])):'',ico:'📦',n:got.length,m:ids.length,p:'まとめて 仕入れ'})}catch(e){}
-    o.querySelectorAll('.stkr').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id,()=>{C.closeOv();draw(L)})});
+    o.querySelectorAll('.stkr').forEach(b=>b.onclick=()=>{sf('card');C.peek(b.dataset.id,{from:'stock'})});
     const re=o.querySelector('#stre');if(re)re.onclick=()=>{sf('open');C.closeOv();batch(miss)};
     o.querySelector('#stag').onclick=()=>{sf('open');C.closeOv();const nx5=pick(MAXSEL,ids);if(nx5.length)batch(nx5);else draw(L)};
     o.querySelector('#stend').onclick=()=>{sf('back');C.closeOv();draw(L)}};

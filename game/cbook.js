@@ -153,9 +153,10 @@ function go(id){const w=where(id);if(!w)return;cur=w[0];pg[cur]=Math.floor(w[1]/
 
 function tap(id,cl){const I=C.info(id);
   if(cl.contains('in'))return menu(id);
-  if(cl.contains('can'))return put(id);
-  if(cl.contains('fl')){sf('pop');H.toast('🏷️ 売り場に 出ている カードだよ<small>売り場から 下げると 入れられるよ</small>');return}
-  sf('pop');H.toast(`まだ もっていない カード<small>${I.k==='t'?'⛏️ 鉱山でしか 見つからないよ。 深いほど レアが 出やすい':I.k==='w'?(I.lv==='adv'?'⛏️ 鉱山の 深い ところで ほりだそう。 ほった カードは 自動で ブックに 入るよ':'⛏️ 鉱山で ほりだそう。 ほった カードは 自動で ブックに 入るよ'):'⛏️ 鉱山の お話の おまけ か、 カウンターに 売りに 来る お客さんから 手に 入るよ'}</small>`)}
+  if(cl.contains('can')){sf('card');return C.detail(id,null,{from:'book',btns:[['📖 ブックに 入れる',()=>put(id)]]})}
+  if(cl.contains('fl')){sf('card');C.detail(id,null,{from:'book'});H.toast('🏷️ 売り場に 出ている カードだよ<small>売り場から 下げると 入れられるよ</small>');return}
+  /* まだ もっていない 単語も くわしく 見られる（宝カードは ないしょ） */
+  if(I.k!=='t'){sf('card');C.detail(id,null,{from:'book'})}else sf('pop');H.toast(`まだ もっていない カード<small>${I.k==='t'?'⛏️ 鉱山でしか 見つからないよ。 深いほど レアが 出やすい':I.k==='w'?(I.lv==='adv'?'⛏️ 鉱山の 深い ところで ほりだそう。 ほった カードは 自動で ブックに 入るよ':'⛏️ 鉱山で ほりだそう。 ほった カードは 自動で ブックに 入るよ'):'⛏️ 鉱山の お話の おまけ か、 カウンターに 売りに 来る お客さんから 手に 入るよ'}</small>`)}
 
 function put(id){if(!canIn(id))return;const w=where(id);B()[id]=1;save();flash=id;sf('card');
   if(mode!=='page'||q){open();H.toast(`📖 ${esc(nm(C.info(id)))} を 入れたよ<small>${esc(SK[w[0]].t)} の ${w[1]+1}ばん</small>`,1800);
@@ -171,14 +172,10 @@ function cheer(done){const el=H.panel.querySelector('.cbpage');if(el){el.classLi
   setTimeout(()=>{const m=H.panel.querySelector('.cbm');if(m)m.remove();const b=H.panel.querySelector('.cbfind');if(b){b.insertAdjacentHTML('beforebegin',mio(L,'laugh','guts'));bindMio(H.panel);say(L[0])}},400);
   mina(done?'sh_bookDone':'sh_bookPage',{t:SK[cur].t},.5)}
 
+/* ブックの カードを タップ: そのまま くわしく 画面（下に 「ブックから 出す」「ページを 見る」） */
 function menu(id){const away=mode!=='page'||q;
-  const o=C.ov(`<div class="cgdv cbmenu">${C.face(id,{big:1,ja:1})}
-    <button id="cbout">📤 ブックから 出す</button>${away?`<button id="cbpg" class="sub">📍 ブックの ページを 見る（${esc(label(id))}）</button>`:''}<button id="cbdet" class="sub">🔍 くわしく 見る</button><button id="cbcl" class="sub">とじる</button></div>`,'by');
-  sf('flip');
-  o.querySelector('#cbout').onclick=()=>{delete B()[id];save();sf('back');C.closeOv();open();H.toast('📤 倉庫に もどしたよ<small>また 売り場に 出せるよ</small>')};
-  if(away)o.querySelector('#cbpg').onclick=()=>{sf('flip');C.closeOv();go(id)};
-  o.querySelector('#cbdet').onclick=()=>{sf('step');C.closeOv();C.detail(id,()=>open())};
-  o.querySelector('#cbcl').onclick=()=>{sf('back');C.closeOv()}}
+  C.detail(id,null,{from:'book',btns:[['📤 ブックから 出す',()=>{delete B()[id];save();sf('back');open();H.toast('📤 倉庫に もどしたよ<small>また 売り場に 出せるよ</small>')},'sub'],
+    away?[`📍 ブックの ページを 見る（${esc(label(id))}）`,()=>{sf('flip');go(id)},'sub']:null]})}
 
 function putAll(){const ids=addable();if(!ids.length)return;
   const before=new Set(SEC.flatMap(s=>{const l=list(s.k),n=Math.ceil(l.length/PER),f=[];for(let p=0;p<n;p++)if(pageFull(s.k,p))f.push(s.k+p);return f}));
@@ -193,7 +190,7 @@ function putAll(){const ids=addable();if(!ids.length)return;
     <div class="cbfan">${top.map((id,i)=>`<div style="--i:${i};--n:${top.length}">${C.face(id,{mini:1,marks:false})}</div>`).join('')}</div>
     ${pages?`<p class="cbdp">✨ うまった ページ ${pages}</p>`:''}${secs.map(t=>`<p class="cbdp">🏆 ${esc(t)} コンプリート！</p>`).join('')}
     ${mio(L,'laugh','guts')}<button id="cbok">やったー！</button></div>`,'by');
-  o.dataset.stay=1;bindMio(o);say(L[0]);
+  o.dataset.stay=1;bindMio(o);C.peekIn(o.querySelector('.cbfan'),{from:'book'});say(L[0]);
   o.querySelector('#cbok').onclick=()=>{sf('step');C.closeOv();open()};
   mina(secs.length?'sh_bookDone':Math.random()<.5?'sh_bookMove':'sh_bookAll',{n:ids.length,t:secs[0]||''},.6)}
 

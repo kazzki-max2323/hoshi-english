@@ -147,6 +147,7 @@ function report(){const S=SH(),min=Math.max(0,(Date.now()-S.away)/6e4);S.away=0;
       <p class="sg">${esc(M.sign[0])}</p><button class="sub" id="shsay">🔊 読む</button></div>
     <button id="shok" class="big">お店に もどる</button></section>`);
   if(r.sold.length){sf('coinIn');setTimeout(()=>sf('buy'),300)}else sf('talk');
+  C.peekIn(H.panel.querySelector('.shsold'),{from:'report'});
   $('shsay').onclick=()=>speak(memoEn+(M.ph?' '+M.ph[2]:''));$('shb').onclick=$('shok').onclick=()=>{sf('step');open()}}
 /* the mine calls this when you leave for it */
 function leave(){SH().away=Date.now();if(CT)CT.paused=0;save()}
@@ -172,20 +173,23 @@ return I.k==='w'&&I.lv===stF});
   H.panel.querySelectorAll('.shcell').forEach(c=>c.onclick=e=>{const id=c.dataset.id;
     if(e.target.closest('[data-bk]')){const at=BK.putOne(id);if(!at)return;sf('card');const w=BK.nm(C.info(id));
       store();H.toast(`📖 ${esc(w)} を ブックへ<small>${esc(at)}ばんの ポケットに 入ったよ</small>`,1800);BK.mina('sh_bookIn1',{w,p:at},.25);return}
-    sf('card');C.detail(id)});
+    sf('card');C.detail(id,null,{from:'store'})});
   if($('shtobk'))$('shtobk').onclick=()=>{sf('step');BK.open(null,'can')}}
 
 /* ================================================================ 🏷️ the sales floor */
 function floor(){cleanFloor();const S=SH();
   H.show('cg',`<section class="pnl cgp shp">${top('🏷️ 売り場',`${S.floor.length}/${FLOOR_N}`)}
-    <p class="note">ならべた カードを お客さんが 買っていくよ（るすの あいだは ミオが 売る）。 タップで 入れかえ</p>
+    <p class="note">ならべた カードを お客さんが 買っていくよ（るすの あいだは ミオが 売る）。 カードを タップで くわしく・下げる</p>
     <div class="shfloor">${Array.from({length:FLOOR_N},(_,i)=>{const id=S.floor[i];return id?`<div class="shslot" data-i="${i}">${C.face(id,{mini:1,marks:false})}<span>🪙${price(id)}</span>${C.count(id)-onFloor(id)<=0&&C.count(id)<=1?'<em>さいごの 1まい</em>':''}</div>`:`<div class="shslot empty" data-i="${i}"><b>＋</b></div>`}).join('')}</div>
     <div class="row"><button id="shauto">🃏 ダブりで おまかせ</button><button id="shclr" class="sub">ぜんぶ 下げる</button></div>
     <button id="shtoc" class="shtoc">🧑‍💼 カウンターへ</button></section>`);
   $('shb').onclick=()=>{sf('back');open()};
   /* 🧑‍💼 カウンターへ: カウンターから 来たときは さっきの つづき（お客さん・ミオの 会話）から */
   $('shtoc').onclick=()=>{sf('step');counter(true)};
-  H.panel.querySelectorAll('.shslot').forEach(s=>s.onclick=()=>{const i=+s.dataset.i;if(S.floor[i]){S.floor.splice(i,1);save();sf('back');floor()}else pick()});
+  /* ならべた カードは タップで くわしく 画面（その 下に 「下げる」「かえる」） */
+  H.panel.querySelectorAll('.shslot').forEach(s=>s.onclick=()=>{const i=+s.dataset.i,id=S.floor[i];if(!id)return pick();
+    const off=()=>{const j=S.floor.indexOf(id);if(j>=0)S.floor.splice(j,1);save()};
+    sf('card');C.detail(id,null,{from:'floor',btns:[['🏷️ 売り場から 下げる',()=>{off();sf('back');floor()},'sub'],['🔁 ほかの カードに かえる',()=>{off();floor();pick()},'sub']]})});
   $('shauto').onclick=()=>{const dup=allCards().filter(id=>free(id)>=(inBook(id)||inCase(id)?1:2)).sort((a,b)=>C.count(b)-C.count(a));let n=0;
     for(const id of dup){if(S.floor.length>=FLOOR_N)break;S.floor.push(id);n++}save();if(n){sf('card');H.toast(`🏷️ ${n}まい ならべたよ`)}else H.toast('ダブった カードが ないよ。 ＋から えらんでね');floor()};
   $('shclr').onclick=()=>{S.floor=[];save();sf('back');floor()}}
@@ -217,7 +221,7 @@ function caseScreen(back,ln){cleanFloor();back=back||open;const cs=CASER();
       :`<div class="shcsl empty" data-i="${i}"><button data-ch="${i}"><b>＋</b>かざる</button></div>`).join('')}</div>
     <p class="note">かざった カードは 売りものに ならないよ（倉庫から ケースへ おひっこし）</p></section>`);
   bindBubble();speak(say[0]);$('shb').onclick=()=>{sf('back');back()};
-  H.panel.querySelectorAll('.shcsl .cgc').forEach(e=>e.onclick=()=>{sf('tap');try{C.sayCard(e.dataset.id)}catch(er){}});
+  C.peekIn(H.panel.querySelector('.shcsg'),{from:'case'});
   H.panel.querySelectorAll('[data-off]').forEach(b=>b.onclick=()=>{cs[+b.dataset.off]=null;save();sf('back');caseScreen(back,caseLine('off'))});
   H.panel.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{sf('step');casePick(+b.dataset.ch,back)})}
 function casePick(i,back){const cs=CASER(),cur=cs[i];
@@ -517,7 +521,7 @@ function atCounter(T,again){const g=T.g,S=SH(),box=$('shact');if(!box)return;end
     else{if(sold)T.status('あれ？ その カードは もう ないみたい');else{g.bub='…';T.status(`${esc(g.G.n)}は 帰っていった`)}setTimeout(()=>{if(box.isConnected)box.innerHTML=''},1500);out(T,600)}};
   if(!window.SHSV){/* 予備: ボタンだけ */const id=g.want;if(!id)return finish(null,false,0);const p=price(id);
     box.innerHTML=`<div class="shask">${C.face(id,{mini:1,marks:false})}<div><p><b>${esc(g.G.n)}</b>「${esc(pickL(GUEST_SAY.buy))}」</p><div class="row"><button id="shsell">🪙 ${p} で 売る</button><button id="shno" class="sub">売らない</button></div></div></div>`;
-    $('shsell').onclick=()=>finish(id,true,p);$('shno').onclick=()=>finish(id,false,0);return}
+    C.peekIn(box,{from:'guest'});$('shsell').onclick=()=>finish(id,true,p);$('shno').onclick=()=>finish(id,false,0);return}
   /* カードを 売りに 来た お客さん: 買い取ると コインを はらって カードが 倉庫へ */
   const bought=(id,ok,pp,R)=>{R=R||{};const I=C.info(id),nm=I?SHSV.word(I):'';
     if(ok&&I&&ST.coins>=pp){ST.coins-=pp;H.head();sf('buy');
@@ -559,7 +563,7 @@ function caseAsk(T){const g=T.g,S=SH(),box=$('shact'),id=g.caseWant,I=C.info(id)
   box.innerHTML=`<div class="shask shcw">${C.face(id,{mini:1,marks:false})}<div><p class="en"><b>${esc(g.G.n)}</b>「${esc(ln[0])}」</p><p class="ja">${esc(ln[1])}</p>
     <div class="row"><button id="shcwy">🪙 ${pp} で ゆずる</button><button id="shcwn" class="sub">ことわる</button></div></div></div>`;
   T.status(`🖼️ ${esc(g.G.n)}が ケースの カードを ほしがってる！`);sf('knock');gspeak(ln[0]);
-  box.querySelector('.en').onclick=()=>gspeak(ln[0]);
+  box.querySelector('.en').onclick=()=>gspeak(ln[0]);C.peekIn(box,{from:'guest'});
   $('shcwy').onclick=()=>{const i=CASER().indexOf(id);if(i<0||C.count(id)<1){box.innerHTML='';return caseAsk(T)}
     CASER()[i]=null;C.take(id);S.sold++;S.earn+=pp;S.caseSold=(S.caseSold||0)+1;const d=C.today();if(S.tday!==d){S.tday=d;S.tearn=0}S.tearn+=pp;cleanFloor();save();
     g.pose='happy';g.bub='♥';sf('coinIn');T.mio.pose='cheer';T.mio.until=Date.now()+2500;
@@ -576,12 +580,12 @@ function gotCard(id,isNew,R){const I=C.info(id);if(!I)return;
   try{const k=R.mode==='mio'&&Math.random()<.5?'sh_buyMio':premium(id)?'sh_buyInPrem':I.k==='p'?'sh_buyInPart':I.k==='s'?'sh_buyInSent':isNew?'sh_buyInNew':'sh_buyIn';[ex,tx]=ML(k,{w,ja})}catch(e){}
   if(isNew){try{SFX.fanfare(1)}catch(e){sf('done')}}else sf('card');
   const o=C.ov(`<div class="mnfind"><p class="mnfh">🎴 カードを 買い取った！</p>
-    <div class="mnfc" id="shbic">${C.face(id,{big:1,ja:1})}</div>${isNew?'<p class="mnnew">NEW!</p>':''}${premium(id)?'<p class="mnnew">💎 めずらしい カード ・ 📖 ブックへ</p>':''}<p class="mntap">🔊 カードを タップすると 読むよ</p>
+    <div class="mnfc" id="shbic">${C.face(id,{big:1,ja:1})}</div>${isNew?'<p class="mnnew">NEW!</p>':''}${premium(id)?'<p class="mnnew">💎 めずらしい カード ・ 📖 ブックへ</p>':''}<p class="mntap">👆 カードを タップすると くわしく 見られるよ</p>
     ${tx?`<div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>`:''}
     ${C.moreClosed?`<div class="mnwi">${C.moreClosed(I)}</div>`:''}
     <button class="big" id="shbiok">OK</button></div>`,'by');
   if(C.bindMore)C.bindMore(o);
-  const fc=o.querySelector('#shbic');if(fc)fc.onclick=()=>{sf('tap');C.sayCard(id)};setTimeout(()=>{try{C.sayCard(id)}catch(e){}},400);
+  setTimeout(()=>{try{C.sayCard(id)}catch(e){}},400);
   o.querySelector('#shbiok').onclick=()=>{sf('step');C.closeOv()}}
 const cv0=()=>{const e=$('shcv');if(!e)return null;const r=e.getBoundingClientRect();return {x:r.left+r.width*.6,y:r.top+r.height*.6}};
 

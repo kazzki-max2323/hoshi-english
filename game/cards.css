@@ -70,8 +70,9 @@
 @keyframes kfloat{to{transform:translateY(-3cqw) scale(1.04)}}
 
 /* ---------- overlay ---------- */
-#cardOv{position:fixed;inset:0;z-index:60;background:rgba(5,6,20,.82);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;animation:kfade .2s}
+#cardOv,#cardTop{position:fixed;inset:0;z-index:60;background:rgba(5,6,20,.82);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;animation:kfade .2s}
 @keyframes kfade{from{opacity:0}}
+#cardTop{z-index:62}
 .kview{display:flex;flex-direction:column;align-items:center;gap:14px;width:100%;max-width:340px}
 .kview .tc{width:min(72vw,280px);transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .08s;touch-action:none}
 .kvinfo{display:flex;flex-direction:column;align-items:center;gap:6px;color:#fff;width:100%}
