@@ -16,8 +16,15 @@ const save=()=>C.save();
 
 /* ================================================================ prices（覚えた 度合いでは 変えない） */
 const PRICE={es:12,jh:20,hs:32,adv:48},TPRICE=[0,15,25,45,80,150];
-function price(id){const I=C.info(id);if(!I)return 0;if(I.k==='t')return TPRICE[I.r]||20;if(I.k==='p')return 10;if(I.k==='s')return 30;return PRICE[I.lv]||12}
-const rare=id=>{const I=C.info(id);return !!I&&(I.k==='t'&&I.r>=3||I.k==='w'&&I.lv==='adv'||C.kira(id))};
+/* 💎 めずらしい 文・パーツの カード（11/18 ユーザー案）: お客さんが ときどき 売りに 来る。 1500〜5000コイン。 コインを ためる 目標に。
+   買うと 自動で 📖ブックへ。 値切りなし・売り値も 同じ（もうけは 出ない） */
+const premium=id=>/^[sp]:/.test(id)&&C.hash('pm'+id)%5===0;
+const premP=id=>1500+(C.hash('pp'+id)%8)*500;
+const premList=()=>{const L=[];try{(C.SENT||[]).forEach(x=>{const id='s:'+x.i;if(premium(id))L.push(id)});Object.keys(CG_PARTS).forEach(k=>{if(premium('p:'+k))L.push('p:'+k)})}catch(e){}return L};
+/* ためている カード（コインが たりなくて 買えなかった 💎）。 SH().want={id,p,n:断った 回数} */
+const wantRec=()=>{const w=SH().want;return w&&C.info(w.id)&&!C.owns(w.id)?w:null};
+function price(id){const I=C.info(id);if(!I)return 0;if(premium(id))return premP(id);if(I.k==='t')return TPRICE[I.r]||20;if(I.k==='p')return 10;if(I.k==='s')return 30;return PRICE[I.lv]||12}
+const rare=id=>{const I=C.info(id);return !!I&&(I.k==='t'&&I.r>=3||I.k==='w'&&I.lv==='adv'||premium(id)||C.kira(id))};
 
 /* ================================================================ every card you have */
 function allCards(){const r=R(),out=Object.keys(r.c).filter(id=>r.c[id]>0&&C.BY[id]);
@@ -515,7 +522,9 @@ function atCounter(T,again){const g=T.g,S=SH(),box=$('shact');if(!box)return;end
   const bought=(id,ok,pp,R)=>{R=R||{};const I=C.info(id),nm=I?SHSV.word(I):'';
     if(ok&&I&&ST.coins>=pp){ST.coins-=pp;H.head();sf('buy');
       let isNew=!C.owns(id);if(id.startsWith('t:')){try{isNew=CARDS.give1(id.slice(2))}catch(e){}}else C.give(id);
-      S.buyIn=(S.buyIn||0)+1;S.buySpent=(S.buySpent||0)+pp;save();
+      S.buyIn=(S.buyIn||0)+1;S.buySpent=(S.buySpent||0)+pp;
+      if(premium(id)){if(S.want&&S.want.id===id)delete S.want;try{if(isNew&&CBOOK.canIn(id))BOOKR()[id]=1}catch(e){}S.prem=(S.prem||0)+1}
+      save();
       g.pose='happy';g.bub='♥';T.mio.pose='cheer';T.mio.until=Date.now()+2500;
       try{RECENT.add('buyin',{id,en:nm,ja:SHSV.jaOf(I),p:pp,by:R.mode||'me',kind:R.k||'',miss:R.miss||0,isNew,guest:g.G.n})}catch(e){}
       let hh='';if(R.mode==='me'&&R.talked&&!R.miss&&window.MIOC)hh=MIOC.gain(1,'ctr');
@@ -523,7 +532,8 @@ function atCounter(T,again){const g=T.g,S=SH(),box=$('shact');if(!box)return;end
       if(R.mode==='mio'){S.byMio=(S.byMio||0)+1;mut(T,'m',pickL(SB_MIO.done),4200,1)}else mut(T,'m',ML2('thanks'));
       if(R.close)R.close();else box.innerHTML='';out(T,1600);
       setTimeout(()=>gotCard(id,isNew,R),R.mode==='mio'?900:500)}
-    else{g.bub=R.poor?'👋':'…';T.status(R.poor?`${esc(g.G.n)}は 「また 来るね」と 帰っていった`:`${esc(g.G.n)}は カードを もって 帰っていった`);
+    else{if(R.poor&&premium(id)){const w=S.want&&S.want.id===id?S.want:{id,p:pp,n:0};w.p=pp;w.n=(w.n||0)+1;S.want=w;save();setTimeout(()=>{try{const [ex,tx]=ML('sh_premSave',{w:SHSV.word(C.info(id)),p:pp,n:Math.max(0,pp-ST.coins)});if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,5200)}catch(e){}},1800)}
+      g.bub=R.poor?'👋':'…';T.status(R.poor?`${esc(g.G.n)}は 「また 来るね」と 帰っていった`:`${esc(g.G.n)}は カードを もって 帰っていった`);
       if(R.close)R.close();else setTimeout(()=>{if(box.isConnected)box.innerHTML=''},1500);out(T,900)}};
   if(g.seller)return SHSV.serve({T,g,box,id:g.offer,price,rare,buy:1,offer:SHSV.offer,floor:()=>SH().floor.slice(),bought,mio:speak,gs:gspeak});
   SHSV.serve({T,g,box,id:g.want,price,rare,floor:()=>SH().floor.slice(),finish,mio:speak,gs:gspeak})}
@@ -563,10 +573,10 @@ function caseAsk(T){const g=T.g,S=SH(),box=$('shact'),id=g.caseWant,I=C.info(id)
 /* 買い取った カード: 「カードを 見つけた！」と 同じ 見せかた（タップで 読む・📖 くわしく） */
 function gotCard(id,isNew,R){const I=C.info(id);if(!I)return;
   const w=SHSV.word(I),ja=SHSV.jaOf(I);let ex='happy',tx='';
-  try{const k=R.mode==='mio'&&Math.random()<.5?'sh_buyMio':isNew?'sh_buyInNew':'sh_buyIn';[ex,tx]=ML(k,{w,ja})}catch(e){}
+  try{const k=R.mode==='mio'&&Math.random()<.5?'sh_buyMio':premium(id)?'sh_buyInPrem':I.k==='p'?'sh_buyInPart':I.k==='s'?'sh_buyInSent':isNew?'sh_buyInNew':'sh_buyIn';[ex,tx]=ML(k,{w,ja})}catch(e){}
   if(isNew){try{SFX.fanfare(1)}catch(e){sf('done')}}else sf('card');
   const o=C.ov(`<div class="mnfind"><p class="mnfh">🎴 カードを 買い取った！</p>
-    <div class="mnfc" id="shbic">${C.face(id,{big:1,ja:1})}</div>${isNew?'<p class="mnnew">NEW!</p>':''}<p class="mntap">🔊 カードを タップすると 読むよ</p>
+    <div class="mnfc" id="shbic">${C.face(id,{big:1,ja:1})}</div>${isNew?'<p class="mnnew">NEW!</p>':''}${premium(id)?'<p class="mnnew">💎 めずらしい カード ・ 📖 ブックへ</p>':''}<p class="mntap">🔊 カードを タップすると 読むよ</p>
     ${tx?`<div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>`:''}
     ${C.moreClosed?`<div class="mnwi">${C.moreClosed(I)}</div>`:''}
     <button class="big" id="shbiok">OK</button></div>`,'by');
@@ -594,6 +604,8 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_shEvent',4,()=>window.SHDECO&&SH().met&&SHDECO.eventNow()?{ev:SHDECO.events[SHDECO.eventNow()][0]}:null,goShop('counter')],
  ['x_shDeco',2,()=>SH().met&&SH().deco&&window.SHDECO?{deco:SHDECO.name()}:null,goShop('counter')],
  ['x_shCaseOn',2,()=>{const a=CASER().filter(Boolean);if(!a.length)return null;const I=C.info(pickL(a));return I?{w:cnm(I),ja:I.ja||''}:null},goShop('counter')],
+ ['x_shWant',2,()=>{const w=wantRec();if(!w||!SH().met)return null;const n=w.p-ST.coins;return n>0?{w:SHSV.word(C.info(w.id)),p:w.p,n}:null},goShop('counter')],
+ ['x_shWantOk',4,()=>{const w=wantRec();if(!w||!SH().met)return null;return ST.coins>=w.p?{w:SHSV.word(C.info(w.id)),p:w.p}:null},goShop('counter')],
  ['x_shBuy',3,()=>SH().met&&window.SHSV&&SHSV.offer?{}:null,goShop('counter')],
  /* スローな ローファイ（game/music-lofi.js） */
  ['x_lfBuy',2,()=>{const a=LF_NEW.filter(id=>TRACKS[id]&&!ST.music.includes(id));return a.length>=LF_NEW.length-2?{n:a.length}:null},()=>['🏚️ 雑貨屋の レコードへ',()=>{window.ZAKKA?ZAKKA.open('music'):H.home()}]],
@@ -668,5 +680,5 @@ setTimeout(function first7(){const S=SH();if(S.caseTold||!S.met)return;const m=w
   S.caseTold=1;save();const [ex,tx]=ML('sh_caseNew');m.say('m',ex,tx,10000,null,goShop('case')())},44000);
 
 H.on('home',()=>{if(CT){CT.alive=false;CT.paused=0}});
-window.SHOP={mut:(T,who,line,ms,free)=>mut(T,who,line,ms,free),ct:()=>CT,open,leave,price,allCards,counter,floor,toFloor,pause:()=>pause(CT),store,rec:SH,inBook,free,stock,storeCards,bookRec:BOOKR,cleanFloor,rare,inCase,caseRec:CASER,caseScreen};
+window.SHOP={premium,premList,wantRec,mut:(T,who,line,ms,free)=>mut(T,who,line,ms,free),ct:()=>CT,open,leave,price,allCards,counter,floor,toFloor,pause:()=>pause(CT),store,rec:SH,inBook,free,stock,storeCards,bookRec:BOOKR,cleanFloor,rare,inCase,caseRec:CASER,caseScreen};
 })();

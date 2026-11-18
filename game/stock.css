@@ -38,3 +38,20 @@
 .mrtl .mron{font-size:.72rem;padding:4px 10px;border-radius:999px;background:#ffd27a33;text-shadow:none}
 .stk .stkin .row .sub{color:#7a3416!important;background:#fff!important;border-color:#e8b84a!important}
 .stkdr>.cgc,.stkdr .cgc{max-width:92px;margin:4px auto}
+
+/* 📊 勉強で とどいた カード（11/18） */
+.stk .stkgr{background:#ffffff12;border-radius:12px;padding:8px 10px;margin:4px 0 10px}
+.stk .stkgh{margin:0 0 6px;font-size:.78rem;font-weight:800;text-shadow:none}
+.stk .stkwk{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;height:74px;align-items:end}
+.stk .stkwk div{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:2px}
+.stk .stkwk i{display:block;width:70%;min-height:3px;border-radius:4px 4px 1px 1px;background:#7fb6e8}
+.stk .stkwk .td i{background:#ffc94a}
+.stk .stkwk b{font-size:.68rem;line-height:1;text-shadow:none}
+.stk .stkwk small{font-size:.62rem;opacity:.8;text-shadow:none;white-space:nowrap}
+.stk .stkwk .td small{opacity:1;font-weight:800;color:#ffd76a}
+.stk .stkby{margin-top:8px;display:flex;flex-direction:column;gap:3px}
+.stk .stkby p{margin:0;display:grid;grid-template-columns:9.5em 1fr 1.6em;gap:6px;align-items:center;font-size:.7rem;text-shadow:none}
+.stk .stkby span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stk .stkby i{display:block;height:8px;border-radius:4px;background:#ffffff1a;overflow:hidden}
+.stk .stkby em{display:block;height:100%;background:#ffc94a;border-radius:4px}
+.stk .stkby b{text-align:right}
