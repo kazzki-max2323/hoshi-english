@@ -1,0 +1,52 @@
+/* 🏠 浜辺の 家（game/house.js） */
+#hsHut{position:absolute;z-index:1;pointer-events:auto;padding:0;margin:0;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#hsHut .hsBody{display:block;filter:drop-shadow(0 2px 2px #0007) brightness(calc(1 - var(--dk,0)*.38)) saturate(calc(1 - var(--dk,0)*.3));transition:filter 2s}
+#hsHut .hsGlow{position:absolute;inset:0;pointer-events:none;opacity:var(--dk,0);transition:opacity 2s}
+#hsHut svg{display:block;width:100%;height:auto;overflow:visible}
+#hsHut svg [fill^="var(--win"]{--win:color-mix(in srgb,#ffcf7a calc(var(--dk,0)*75%),#4a5a7b);transition:fill 2s}
+#hsHut.off{pointer-events:none}
+#hsHut:active{transform:translateY(1px)}
+
+.hs{display:flex;flex-direction:column;gap:10px}
+.hsroom{position:relative;width:100%;aspect-ratio:4/3;border-radius:14px;overflow:hidden;border:3px solid #6a4a32;box-shadow:inset 0 0 0 2px #0002;--rw:340px}
+.hswall{position:absolute;left:0;right:0;top:0;height:62%}
+.hsfloor{position:absolute;left:0;right:0;bottom:0;height:38%;box-shadow:inset 0 6px 0 #0002}
+.hswin{position:absolute;left:39%;top:9%;width:22%;height:24%;border:4px solid #fff;border-radius:6px;box-shadow:0 0 0 2px #8a6a4a;overflow:hidden}
+.hswin::after{content:'';position:absolute;left:50%;top:0;bottom:0;width:3px;margin-left:-1.5px;background:#fff}
+.hswin .hssea{position:absolute;left:0;right:0;bottom:0;height:38%;background:#3f8fc8}
+.hswin .hsmoon{position:absolute;right:16%;top:16%;width:18%;aspect-ratio:1;border-radius:50%;background:#fff6c8;box-shadow:0 0 8px #fff6c8}
+.hspair{position:absolute;left:30%;right:30%;top:40%;display:flex;justify-content:center;gap:2px;border-bottom:4px solid #8a6040;padding-bottom:1px;z-index:2}
+.hsroom .hspair button{background:none!important;border:none!important;padding:0!important;box-shadow:none!important;font-size:calc(var(--rw)*.045);line-height:1;min-height:0;cursor:pointer}
+.hsroom .hsit{position:absolute;transform:translate(-50%,-50%);font-size:calc(var(--rw)*var(--s));line-height:1;background:none!important;border:none!important;padding:0!important;box-shadow:none!important;min-height:0;cursor:pointer;filter:drop-shadow(0 2px 1px #0004)}
+.hsroom .hsit:active{transform:translate(-50%,-50%) scale(.94)}
+.hsroom .hsit.hop{animation:hshop .5s ease}
+@keyframes hshop{40%{transform:translate(-50%,-62%) scale(1.1)}}
+.hstable{position:absolute;width:20%;height:9%;transform:translate(-50%,-50%);background:linear-gradient(#a8743e 0 30%,transparent 30%),linear-gradient(90deg,transparent 8%,#7a4a2a 8% 14%,transparent 14% 86%,#7a4a2a 86% 92%,transparent 92%);z-index:3}
+.hsrug{position:absolute;left:52%;top:88%;width:46%;height:13%;transform:translate(-50%,-50%);border-radius:50%;opacity:.9;z-index:1}
+.hsladder{position:absolute;left:20%;top:40%;transform:translate(-50%,-50%);font-size:calc(var(--rw)*.09);z-index:2}
+.hsloft{position:absolute;left:0;top:29%;width:26%;height:3%;background:#8a6040;z-index:1}
+.hsbub{position:absolute;width:150px;z-index:9;background:#fff6e0;color:#2a2340;border-radius:12px;padding:6px 10px;text-align:center;box-shadow:0 3px 8px #0005;pointer-events:none}
+.hsbub b{display:block;font-size:.9rem}.hsbub small{font-size:.7rem;color:#6a5a4a}
+.hstip{margin:-4px 0 0;font-size:.7rem;color:#cbd2ff;text-align:center}
+.hsmenu{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hsmenu button{display:flex;align-items:center;gap:8px;text-align:left;padding:9px 10px!important}
+.hsmenu button>span{font-size:1.4rem;flex-shrink:0}
+.hsmenu .hsf{width:34px;height:34px;display:block}.hsmenu .hsf svg{width:100%;height:100%}
+.hsmenu b{display:flex;flex-direction:column;font-size:.84rem}.hsmenu small{font-size:.64rem;font-weight:600;opacity:.8}
+.hsmenu button[disabled]{opacity:.5}
+.hsup{display:flex;align-items:center;gap:10px;text-align:left;padding:11px 14px!important;background:linear-gradient(#7ad08a,#3f9a5a)!important;border-color:#c8f0d0!important}
+.hsup span{font-size:1.6rem}.hsup b{flex:1;display:flex;flex-direction:column;font-size:.95rem}.hsup small{font-size:.66rem;font-weight:600;opacity:.9}.hsup i{font-style:normal;font-weight:800;color:#fff6a8}
+.hslot{display:flex;align-items:center;gap:12px;background:#ffffff14;border-radius:14px;padding:10px 14px}
+.hslot svg{width:110px;flex-shrink:0}.hslot p{margin:0;display:flex;flex-direction:column}.hslot b{font-size:1.2rem;color:#ffe14a}.hslot small{font-size:.76rem;color:#cbd2ff}
+.hsen{margin:0;font-size:.9rem;line-height:1.5;background:#ffffff10;border-radius:12px;padding:8px 12px}
+.hsen small{display:block;font-size:.72rem;color:#cbd2ff;margin-top:2px}
+.hsbig{display:flex;justify-content:center}.hsbig svg{width:min(70%,260px);animation:hsrise .9s ease}
+@keyframes hsrise{from{transform:translateY(20px) scale(.9);opacity:0}}
+.hsgot{background:#fff6e0;color:#2a2340;border-radius:14px;padding:10px 14px;text-align:center}
+.hsgot>b{display:block;font-size:1.15rem}.hsgot>small{font-size:.74rem;color:#6a5a4a}
+.hsgot p{margin:6px 0 0;font-size:.88rem}.hsgot p small{display:block;font-size:.72rem;color:#6a5a4a}
+.hsgot .ksay{margin-left:6px;background:none!important;border:none!important;padding:0!important;box-shadow:none!important;min-height:0;font-size:1rem}
+.hscg summary{font-weight:700}
+.hson{font-style:normal;font-size:.72rem;color:#9ff0c0}
+.hswd .rn small{line-height:1.4}
+@media (prefers-reduced-motion:reduce){.hsroom .hsit.hop,.hsbig svg{animation:none}}
