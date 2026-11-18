@@ -212,7 +212,7 @@ if(typeof MINA_LINES!=='undefined')Object.assign(MINA_LINES,{
   ['happy','{n}回 くわしく を ひらいたね！ 例文を 1つ 声に 出して 読んでから 寝ると、 あしたも 覚えてるよ']],
  /* 🧩 なりたち（11/18） */
  sh_rootNew:[['wow','カードの 📖くわしく に 🧩なりたち が たくさん 入ったよ！ 部品に 分けると、 「なぜ その 意味に なるか」が わかるの'],
-  ['happy','単語の なりたち、 1400語より 多く 入れたよ。 discover は 「かぶせた 布を はずす → 見つける」。 ね、 わすれにくいでしょ？']],
+  ['happy','単語の なりたち、 4000語より 多く 入れたよ。 discover は 「かぶせた 布を はずす → 見つける」。 ね、 わすれにくいでしょ？']],
  wi_root:[['smile','なりたちが わかると、 つづりも 意味も いっしょに 覚えられるよ'],
   ['think','部品に 分けて、 → の 流れを 声に 出してみて。 頭に のこるんだ'],
   ['happy','ことばにも 生まれた 理由が あるの。 それを 知ると、 もう ただの 暗記じゃ なくなるよ'],
@@ -233,6 +233,19 @@ if(typeof MINA_LINES!=='undefined')Object.assign(MINA_LINES,{
  x_shRoot:[['think','{w} の なりたち、 知ってる？ {p}。 {s}'],
   ['smile','きょうの なりたち：{w} は {p}。 {s}'],
   ['happy','{w} って、 {p} なんだよ。 {s}。 カードの 📖くわしく にも のってるよ']],
+ /* 🧩 なりたち 全部の カードへ（11/18 ②） */
+ sh_rootAll:[['wow','🧩なりたち、 {n}語まで ふやしたよ！ 小学生の ことばから ハイレベル、 宝カードの 国の 名前や 星座まで 入ってるの'],
+  ['happy','なりたちが ある ことばには ぜんぶ 入れたよ。 いまは {n}語！ eleven は 「10を 数えて 1つ のこる」なんだって。 カードを ひらいてみてね']],
+ wi_rootName:[['wow','{w} は 人や 場所の 名前から 生まれた ことば！ お話ごと 覚えちゃおう'],
+  ['smile','{w} の うしろには、 本当に いた 人や 土地が あるんだよ。 地図や 歴史とも つながるね'],
+  ['think','名前から 生まれた ことばは、 その お話を 1回 聞くだけで わすれなくなるよ']],
+ wi_rootLoan:[['happy','{w} は 日本語から 英語に なった ことば！ 世界でも そのまま 通じるんだよ'],
+  ['proud','日本の ことばが 英語の 中に 入ってるって、 なんだか うれしいよね。 {w} は そのまま 使ってね']],
+ wi_rootPhrase:[['smile','{w} は 絵が うかぶ 言い方だね。 もとの 場面を 思いうかべると 意味が わかるよ'],
+  ['think','こういう 言い方は、 ことばの 中に 小さな お話が かくれてるの。 {w} の 場面、 想像できた？'],
+  ['happy','{w}、 会話で さらっと 言えたら かっこいいよ。 もとの 絵と セットで 覚えよう']],
+ wi_rootNum:[['wow','数の ことばにも なりたちが あるの！ {w} の teen や ty は 「10」の なごりだよ'],
+  ['smile','eleven と twelve だけ 形が ちがうのは、 「10を 数えて のこり 1つ・2つ」だから。 {w} も 同じ なかまで 覚えよう']],
  x_shRootMany:[['proud','🧩なりたちを もう {n}回 見たんだね。 部品が わかる 人は、 はじめての 単語にも 強いよ'],
   ['happy','なりたち {n}回！ そろそろ 知らない 単語の 意味も 部品から 当てられるんじゃない？']]});
 const goShop=()=>['🃏 カードショップへ',()=>{try{CG.open()}catch(e){}}];
@@ -248,6 +261,9 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
 /* 🧩 なりたちが 入ったことを 1回だけ */
 setTimeout(function rootFirst(){try{const S=SHOP.rec();if(S.rootTold||!S.met)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(rootFirst,25000);
   S.rootTold=1;CG.save();const [ex,tx]=ML('sh_rootNew');m.say('m',ex,tx,11000,null,goShop())}catch(e){}},70000);
+/* 🧩 なりたちを 全部の カードに 入れたことを 1回だけ（11/18 ②） */
+setTimeout(function rootAll(){try{const S=SHOP.rec();if(S.rootTold2||!S.met||!S.rootTold)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(rootAll,30000);
+  S.rootTold2=1;CG.save();const [ex,tx]=ML('sh_rootAll',{n:Math.floor(WI.rootCount()/100)*100});m.say('m',ex,tx,11000,null,goShop())}catch(e){}},95000);
 /* 新しく なったことを 1回だけ */
 setTimeout(function first(){try{const S=SHOP.rec();if(S.wiTold||!S.met)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
   S.wiTold=1;CG.save();const [ex,tx]=ML('sh_wiNew');m.say('m',ex,tx,10000,null,goShop())}catch(e){}},40000);
@@ -257,5 +273,9 @@ try{MIO_HI.push(["Boss, tap a card and open \"More\". There are example sentence
  ["When I don't know a word, I read the example sentence out loud. It really helps!","知らない 単語は、 くわしく の 例文を 声に 出して 読むんです。 けっこう 効きますよ！"],
  ["Boss, did you know? \"Discover\" means taking the cover off. That's why it means \"find\"!","店長、 知ってました？ discover って 「おおいを はずす」なんです。 だから 「見つける」！"],
  ["I love word roots. \"Tele\" means far, so a telescope sees far!","なりたち、 好きなんです。 tele は 「遠く」だから、 telescope は 遠くを 見る 道具！"],
- ["\"Breakfast\" is breaking your fast. I break mine with a big sandwich!","breakfast は 「断食を やぶる」。 わたしは 大きな サンドイッチで やぶります！"])}catch(e){}
+ ["\"Breakfast\" is breaking your fast. I break mine with a big sandwich!","breakfast は 「断食を やぶる」。 わたしは 大きな サンドイッチで やぶります！"],
+ ["Boss, \"hippo\" means \"river horse\" in Greek. A horse in the river!","店長、 hippo って ギリシャ語で 「川の 馬」なんですって。 川に いる 馬！"],
+ ["\"Eleven\" means \"one left over\" after ten. Numbers have stories too!","eleven は 「10を 数えて 1つ のこり」。 数にも お話が あるんですね！"],
+ ["\"An orange\" used to be \"a norange\"! People cut the word in the wrong place.","an orange って、 むかしは a norange だったんです！ 区切る ところを まちがえたんですって。"],
+ ["\"Dinner\" is like \"breakfast\" too. Both mean you stop not eating!","dinner も breakfast と 同じで 「食べない のを おわらせる」 食事なんです！"])}catch(e){}
 })();
