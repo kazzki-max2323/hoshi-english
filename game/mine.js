@@ -183,7 +183,8 @@ function next(){if(!D||D.falling)return;
   const S=seq();let t=S[Math.min(S.length-1,x.tries+(x.need<=2?1:0))];if(x.tries>=S.length)t=pickL(S.filter(y=>y!==D.lastT))||'mean';D.lastT=t;
   hud();
   const box=$('mnq');D.busy=false;
-  if(first&&fresh(x.id))return intro(box,x,I,()=>ask(t,x,I));
+  /* 11/18 ユーザー: はじめての ことばは 1周目は 見て おぼえるだけ（ほらずに つぎの ことばへ）。 2周目から 問題で ほる */
+  if(first&&fresh(x.id))return intro(box,x,I,()=>{if(!D)return;sf('flip'in SFX?'flip':'tap');next()});
   if(first){sf('knock');gotTag('🪨','岩の 中に カード！',head1(I))}
   ask(t,x,I)}
 function ask(t,x,I){const box=$('mnq');if(!D||!box)return;
@@ -195,7 +196,7 @@ function ask(t,x,I){const box=$('mnq');if(!D||!box)return;
 function intro(box,x,I,go){const lv=CG_LV[I.lv];
   box.innerHTML=`<div class="cgq mnintro"><div class="cgqt">✨ はじめての ことば<em>${lv?esc(lv.n):''}</em></div>
     <button class="mnin" id="mnsay"><b>${esc(I.en)}</b><span>${esc(I.ja)}</span><small>🔊 タップで もう一回</small></button>
-    <div class="row"><button class="sub" id="mnmore">📖 くわしく</button><button class="big" id="mngo2">⛏️ おぼえた！ ほる</button></div></div>`;
+    <div class="row"><button class="sub" id="mnmore">📖 くわしく</button><button class="big" id="mngo2">👀 おぼえた！ つぎへ</button></div><p class="mnin2">はじめての ことばは 見て おぼえるだけ。 2周目から ほるよ</p></div>`;
   setTimeout(()=>sayW(I),300);
   $('mnsay').onclick=()=>{sf('tap');sayW(I)};
   $('mnmore').onclick=()=>{sf('card');C.detail(I.id)};
@@ -553,7 +554,7 @@ Object.assign(MINA_LINES,{
  mn_v2:[['wow','鉱山が 新しく なったよ！ 岩の 中に まだ 持っていない カードが 5まい ねむってるの。 ぜんぶ ほりだしたら 床が くずれて 下の 階へ！'],['point','こんどの 鉱山は 一階ずつ 下りていくの。 5まい ほりだすと 小さな お話が 出てきて、 下の 階には 休憩所も あるよ']],
  mn_open:[['smile','岩の 中の 5まいは ランダムだよ。 どんな ことばに 会えるかな？'],['point','知っている ことばは すぐ ほれるし、 むずかしい ことばは 何回か かかるの。 あせらないでね'],['happy','下の 階ほど 上の レベルの ことばが まざるよ。 最高は 地下{f}階。 きょうは どこまで 行けるかな？'],['wink','まちがえても だいじょうぶ。 ほりだすまで 何回でも 出てくるから、 そのたびに おぼえられるよ'],['smile','5まい ほりだしたら 休憩所で ひと休み できるよ。 たき火、 あったかいんだ']],
  mn_digOnly:[['point','カードは ここで ほって ゲットする ものに なったよ。 授業や 単語帳では もう くばらないの。 そのぶん ほりだした 1まいは とくべつだよ'],['smile','カードが ほしく なったら 鉱山へ！ 岩の 中の 5まいを ほりだすと、 ちゃんと きみの ものに なるよ']],
- mn_intro:[['smile','はじめての ことばは さいしょに 見せるね。 声に 出して 読んでから ほろう'],['point','「{w}」は はじめて？ 🔊で 聞いて、 まねして 言ってみて。 それから ほりはじめよう']],
+ mn_intro:[['smile','はじめての ことばは、 1周目は 見て おぼえるだけで いいよ。 ほるのは 2周目から！'],['happy','まずは 5まいと あいさつ。 声に 出して 読んで おぼえたら つぎへ。 もう一度 会ったら 問題で ほるよ'],['point','「{w}」は はじめて？ 🔊で 聞いて、 まねして 言ってみて。 それから ほりはじめよう']],
  mn_dug:[['wow','「{w}」 ほりだした！ もう きみの カードだよ。 そのまま 📖カードブックに 入るの'],['happy','1まい ゲット！ のこりも この ちょうしで。 ほりだした カードは タップで 📖 くわしく 見られるよ']],
  mn_story:[['smile','岩の 奥から 文が 出てきたよ。 太字が さっき ほりだした ことば。 1行ずつ タップすると 読むね'],['point','わからない 行は 🇯🇵 で 日本語も 見ていいよ。 さっきの ことばが 文の 中で どう 使われてるか 見てみて'],['happy','ほりだした ことばが ぜんぶ 入った お話。 読めたら ボーナスだよ！']],
  mn_storyOk:[['proud','ぜんぶ 読めたね！ ことばを 文の 中で わかるのが ほんとうの 力だよ'],['wow','すごい！ さっき ほった ことばで もう 英文が 読めるなんて。 Great reading!'],['love','読めた！ 単語だけじゃなく 文で わかると、 ぐっと わすれにくく なるの']],
