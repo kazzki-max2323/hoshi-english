@@ -14,7 +14,7 @@ const R=()=>window.RECENT;
 const pickL=a=>a[Math.random()*a.length|0];
 const has=k=>MINA_LINES[k]&&MINA_LINES[k].length;
 const MIN=60000;
-const ACT=['lesson','review','tokkun','sensei','deep','kaiwa','tutor','meal','snack','zbuy','zsell','bottle','map','treasure','gift','pension','mine','pack','book','meteor','mio','sell','buyin'];
+const ACT=['lesson','review','tokkun','sensei','deep','kaiwa','tutor','meal','snack','zbuy','zsell','bottle','map','treasure','gift','mine','pack','book','meteor','mio','sell','buyin'];
 const LES=id=>(typeof LESSONS!=='undefined'?LESSONS:[]).find(l=>l.id===id);
 const back=()=>MINA.open();
 const kwName=c=>{try{return KAIWA.chars[c].n}catch(e){return c||''}};
@@ -51,7 +51,6 @@ function react(e){const v={};let k=null,go=null;
   case 'map':v.name=e.ja;k='r_map';if(window.ADV)go=['🗺️ 宝探しに 行く',()=>ADV.open()];break;
   case 'treasure':v.name=e.ja;k='r_tre';break;
   case 'gift':Object.assign(v,{who:e.toN||'',n:e.ja});k=e.to==='mina'?'r_gf_mina':e.tier>=2?'r_gf_good':'r_gf_meh';break;
-  case 'pension':v.end=e.ja;k=e.good?'r_pn_good':'r_pn_fun';break;
   case 'mine':{Object.assign(v,{depth:e.depth|0,q:e.q|0,ok:e.ok|0});const cs=(e.cards||[]).map(cardEn).filter(Boolean);
     k=e.hp==='hp'&&Math.random()<.6?'r_mn_tired':e.depth>=20&&e.depth>(e.best|0)?'r_mn_deep':e.rare?'r_mn_rare':cs.length&&Math.random()<.5?'r_mn_card':'r_mn';if(cs.length)v.card=pickL(cs);
     if(k==='r_mn_card'&&!v.card)k='r_mn';
@@ -79,7 +78,7 @@ function desc(e){try{switch(e.k){
   case 'tutor':return 'リクくんに 英語を 教えた';case 'meal':return `食堂で ${e.ja}を 食べた`;case 'snack':return `${e.ja}を 食べた`;
   case 'zbuy':return `雑貨屋で ${e.ja}を 買った`;case 'zsell':return '雑貨屋で 売り買い した';case 'bottle':return 'ボトルメールを 読んだ';
   case 'map':return '宝の地図を 見つけた';case 'treasure':return '宝箱を あけた';case 'gift':return `${e.toN||'だれか'}に プレゼントした`;
-  case 'pension':return 'ペンションの なぞに いどんだ';case 'mine':return `鉱山で ${e.depth|0}m まで ほった`;case 'pack':return '勉強で とどいた カードを 見た';
+  case 'mine':return `鉱山で ${e.depth|0}m まで ほった`;case 'pack':return '勉強で とどいた カードを 見た';
   case 'book':return 'カードブックに カードを 入れた';case 'sell':return 'お店で カードを 売った';case 'buyin':return 'お店で カードを 買い取った';case 'mio':return 'ミオちゃんと 話した';case 'meteor':return '流れ星を つかまえた'}}catch(er){}return ''}
 const descList=a=>a.map(desc).filter(Boolean);
 
@@ -162,7 +161,6 @@ function rules(){if(!window.MINA_SENSE)return setTimeout(rules,500);
   ['x_mineBest',2,F=>{try{const b=MINE.rec().best|0;return b?{d:b}:null}catch(e){return null}},()=>['🃏 カードショップへ',()=>CG.open()]],
   ['x_bottleN',1,F=>{try{const n=BOTTLE.rec().r.length;return n?{n,tot:BOTTLE.letters.length}:null}catch(e){return null}},null],
   ['x_cbookN',1,F=>{try{const [n,t]=CBOOK.stat();return n?{n,tot:t}:null}catch(e){return null}},()=>['🃏 カードショップへ',()=>CG.open()]],
-  ['x_pnEnds',1,F=>{try{const n=PENSION.endsN();return n?{n}:null}catch(e){return null}},null],
   ['x_mioHi',2,F=>window.MIO?{}:null,()=>['🃏 カードショップへ',()=>CG.open()]],
   ['x_rain',3,F=>(N().rain|0)>0?{}:null,null],
   ['x_lastDid',4,F=>{const e=R()&&R().list(3*3600e3,ACT)[0];if(!e||Date.now()-e.t<5*MIN)return null;const what=desc(e);return what?{what}:null},null],
