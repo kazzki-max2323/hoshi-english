@@ -150,7 +150,7 @@ function hud(){if(!D||!$("mnl"))return;const L=layerOf(),dug=D.cards.filter(x=>x
   $('mnst').innerHTML=`🎴 <b>${dug}</b> / ${HAND}まい ほりだした${D.inRedo?' <em>もう一回</em>':''}${fx.length?`<span class="mnfx">${fx.map(x=>`<i>${x[1]}${x[2]}</i>`).join('')}</span>`:''}`;
   const ub=$('mnuse');if(ub)ub.innerHTML=`🎒 つかう${useN()?` <small>${useN()}</small>`:''}`;
   /* 岩の 中の カード: まだ 会っていない＝？、 会った＝うっすら 見える（ひびは 正解の 数。 のこりの 回数は 見せない）、 ほりだした＝ぴかぴか */
-  $('mnhd').innerHTML=D.cards.map((x,i)=>`<div class="mnt ${i===D.cur?'on':''} ${x.dug?'got':x.met?'met':'hid'}" data-i="${i}">${x.met||x.dug?C.face(x.id,{mini:1,marks:false}):'<span class="mnrock">🪨<b>？</b></span>'}${x.dug?'<em class="mngotb">GET</em>':x.met?`<span class="mncrk c${Math.min(3,x.hits)}"></span>`:''}</div>`).join('');
+  $('mnhd').innerHTML=D.cards.map((x,i)=>`<div class="mnt ${i===D.cur?'on':''} ${x.dug?'dug':x.met?'met':'hid'}" data-i="${i}">${x.met||x.dug?C.face(x.id,{mini:1,marks:false}):'<span class="mnrock">🪨<b>？</b></span>'}${x.dug?'<em class="mngotb">GET</em>':x.met?`<span class="mncrk c${Math.min(3,x.hits)}"></span>`:''}</div>`).join('');
   $('mnhd').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>handLook(+b.dataset.i))}
 /* 📖 手もちの カードを タップで くわしく。 いま 出ている 問題の カードは 答えてから（答えが わかっちゃうから） */
 function answered(){const b=$("mnq");return !b||D.busy||!!b.querySelector(".mnintro")||!!b.querySelector('.cgqx:not([hidden]),.cgqc button.ok,.mnw.ok,.mnw.ng,.mnty input.ok,.mnty input.ng')}
