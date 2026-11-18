@@ -1,0 +1,36 @@
+/* 🏮 浜辺の お祭り（game/fest.js） */
+#fsBoard{position:absolute;z-index:1;pointer-events:auto;padding:0;margin:0;border:none;background:none;cursor:pointer;-webkit-tap-highlight-color:transparent;--lan:#8a6a5a}
+#fsBoard .fsBody{display:block;filter:drop-shadow(0 2px 2px #0007) brightness(calc(1 - var(--dk,0)*.38)) saturate(calc(1 - var(--dk,0)*.3));transition:filter 2s}
+#fsBoard .fsGlow{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 2s}
+#fsBoard svg{display:block;width:100%;height:auto;overflow:visible}
+#fsBoard .fsFlag{opacity:0}
+#fsBoard.on{--lan:#ff6a4a}#fsBoard.on .fsFlag{opacity:1}#fsBoard.on .fsGlow{opacity:calc(.35 + var(--dk,0)*.65)}
+#fsBoard.on .fsL{animation:fssway 3s ease-in-out infinite;transform-origin:24px 36px}
+@keyframes fssway{50%{transform:rotate(2deg)}}
+#fsBoard.off{pointer-events:none}
+#fsBoard:active{transform:translateY(1px)}
+.fs{display:flex;flex-direction:column;gap:10px}
+.fsnora{display:flex;gap:10px;align-items:flex-start;cursor:pointer}
+.fsnora .fsico{font-size:2rem;flex-shrink:0}
+.fsnora p{margin:0;flex:1;background:#fff6e0;color:#2a2340;border-radius:4px 14px 14px 14px;padding:8px 12px;font-size:.86rem;line-height:1.5}
+.fsnora b{display:block;font-size:.72rem;color:#c2410c}.fsnora small{display:block;font-size:.72rem;color:#6a5a4a;margin-top:2px}
+.fsls button b{display:flex;flex-direction:column;gap:1px}
+.fsls button b small{font-size:.66rem;font-weight:600;color:#cbd2ff}
+.fsls button i{text-align:right;line-height:1.35}
+.fsls button[disabled]{opacity:.5}
+.fsls .fsf{width:34px;height:34px;display:flex;align-items:center;justify-content:center;flex-shrink:0}.fsls .fsf svg{width:100%;height:100%}.fsls .fsf i{font-style:normal;font-size:1.5rem}
+.fsrec{display:flex;gap:10px;align-items:center;background:#ffffff14;border-radius:12px;padding:8px 12px}
+.fsrec>span{font-size:1.6rem}.fsrec div{display:flex;flex-direction:column}.fsrec small{font-size:.68rem;color:#cbd2ff}
+.fsmem{display:flex;flex-direction:column;gap:4px;padding:4px 10px 10px}.fsmem span{font-size:.82rem}.fsmem small{font-size:.68rem;color:#cbd2ff;margin-left:4px}
+.fshero{display:flex;flex-direction:column;align-items:center;gap:2px;background:linear-gradient(#3a2a5a,#5a2a4a);border-radius:14px;padding:12px}
+.fshero span{font-size:2.6rem}.fshero b{font-size:1.2rem;color:#ffe14a}.fshero small{font-size:.72rem;color:#ffd6e6}
+.fssee{background:linear-gradient(#7aa2ff,#4a6ad8)!important;border-color:#d6e0ff!important}
+.fswish{background:linear-gradient(#ffcf6b,#d9883a)!important;border-color:#ffe9b8!important}
+.fswish[disabled]{opacity:.55}
+.fsst{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fsst button{display:flex;align-items:center;gap:8px;padding:10px!important}
+.fsst span{font-size:1.5rem}.fsst b{flex:1;font-size:.86rem}.fsst small{color:#9ff0c0}
+.fsst button[disabled]{opacity:.5}
+#fsop button.ok{border-color:#7ae0a0!important;background:#3a8a5a55!important}
+#fsop button.ng{border-color:#ff8a8a!important;background:#8a3a3a55!important}
+@media (prefers-reduced-motion:reduce){#fsBoard.on .fsL{animation:none}}
