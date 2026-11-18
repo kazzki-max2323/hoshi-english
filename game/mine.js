@@ -119,7 +119,8 @@ function dive(cards){try{SHOP.leave()}catch(e){}
   const cv=$('mncv'),c=cv.getContext('2d');c.imageSmoothingEnabled=false;let last=0;
   const tick=now=>{if(!D||!D.alive||!cv.isConnected){if(D)D.alive=false;return}requestAnimationFrame(tick);if(now-last<90)return;last=now;D.f++;draw(c)};
   requestAnimationFrame(tick);
-  next()}
+  next();
+  if(!MN().handTold){MN().handTold=1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_handTap');H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},1600)}}
 function startLap(){D.queue=D.hand.map((_,i)=>i);D.redo=[];D.redone={}}
 function hud(){if(!D)return;const L=layerOf(D.depth),S=stageOf(D.st);$('mnl').textContent=`⛏️ ${D.depth}m ・ ${L.n}`;
   $('mnh').innerHTML=`<span class="mnme"><b style="width:${D.hp/ME_HP*100}%"></b></span> ❤${D.hp}`;
@@ -131,7 +132,22 @@ function hud(){if(!D)return;const L=layerOf(D.depth),S=stageOf(D.st);$('mnl').te
   const fx=[[D.luck>0,'🔦',D.luck],[D.fx.mag>0,'🔍',D.fx.mag],[D.fx.comp>0,'🧭',D.fx.comp],[D.fx.gold>0,'⛏️',D.fx.gold],[D.fx.guard>0,'⛑️',D.fx.guard],[D.hard>0,'🧱',D.hard],[D.dark>0,'🌑',D.dark]].filter(x=>x[0]);
   $('mnst').innerHTML=`${S.ico} <b>${esc(S.n)}</b>${D.inRedo?' <em>もう一回</em>':''}${fx.length?`<span class="mnfx">${fx.map(x=>`<i>${x[1]}${x[2]}</i>`).join('')}</span>`:''}`;
   const ub=$('mnuse');if(ub)ub.innerHTML=`🎒 つかう${useN()?` <small>${useN()}</small>`:''}`;
-  $('mnhd').innerHTML=D.hand.map((id,i)=>`<div class="mnt ${i===D.cur?'on':''} ${D.queue.includes(i)||D.redo.includes(i)||i===D.cur?'':'done'}">${C.face(id,{mini:1,marks:false})}</div>`).join('')}
+  $('mnhd').innerHTML=D.hand.map((id,i)=>`<div class="mnt ${i===D.cur?'on':''} ${D.queue.includes(i)||D.redo.includes(i)||i===D.cur?'':'done'}" data-i="${i}">${C.face(id,{mini:1,marks:false})}</div>`).join('');
+  $('mnhd').querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>handLook(+b.dataset.i))}
+/* 📖 手もちの カードを タップで くわしく。 いま 出ている 問題の カードは 答えてから（答えが わかっちゃうから） */
+function answered(){const b=$('mnq');return !b||D.busy||!!b.querySelector('.cgqx:not([hidden]),.cgqc button.ok,.mnw.ok,.mnw.ng,.mnty input.ok,.mnty input.ng')}
+function handLook(i){if(!D)return;const id=D.hand[i];if(!id)return;
+  if(i===D.cur&&!answered()){sf('tap');const [,tx]=ML('mn_handWait');H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,3000);return}
+  sf('card');C.detail(id);const M=MN();M.looks=(M.looks||0)+1;C.save();
+  if(M.looks===3||(M.looks>3&&Math.random()<.08))setTimeout(()=>{const [,tx]=ML('mn_handLook',{w:head1(C.info(id))});if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,3600)},600)}
+/* まちがえた あとの 「📖 しらべる」: 答えの カードと、 えらんだ・ならんでいた ことば */
+function lookIds(q,I){const out=[I.id];if(!q||q.t==='miss'||!q.ch)return out;
+  q.ch.forEach((s,i)=>{if(i===q.ans)return;const c=C.W.find(c=>c.lv===I.lv&&(c.en===s||c.h===s||c.ja===s))||C.W.find(c=>c.en===s||c.h===s);if(c&&!out.includes(c.id))out.push(c.id)});return out}
+function lookRow(x,ids){if(!x||!ids.length)return;const r=document.createElement('div');r.className='mnlook';
+  r.innerHTML=`<span>📖 しらべる</span>${ids.map(id=>{const I=C.info(id);return I?`<button data-look="${esc(id)}">${esc(head1(I))}</button>`:''}).join('')}`;
+  const nx=x.querySelector('.nx');x.insertBefore(r,nx||null);
+  r.querySelectorAll('[data-look]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.look)});
+  const M=MN();if(!M.lookTold){M.lookTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_lookRow');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4000)},700)}}
 /* つぎの 問題: 左から じゅんばん → まちがえた カード → つぎの 周 → つぎの 形 */
 function next(){if(!D)return;
   if(D.hp<=0)return finish('hp');
@@ -149,7 +165,7 @@ function next(){if(!D)return;
   const done=r=>after(id,r.ok);const tag=`${S.ico} ${S.n}`;
   const q=make(t,I);
   if(typeof q==='function')return q(box,done,tag);
-  C.ask(box,q,done,{tag})}
+  C.ask(box,q,done,{tag,onWrong:x=>lookRow(x,lookIds(q,I))})}
 /* 形ごとの 問題を つくる（できない 単語は にた 形に） */
 function make(t,I){const h=I.h,plain=/^[a-z]{3,12}$/.test(h);
   if(t==='scramble'&&plain)return scramble(I);
@@ -183,7 +199,7 @@ function typeQ(I,dict){const w=I.h;return (box,done,tag)=>{let hint=0,over=false
   const check=()=>{if(over)return;const v=inp.value.trim().toLowerCase();if(!v)return;over=true;inp.disabled=true;$('mnok').disabled=true;
     if(v===w){inp.classList.add('ok');sf('correct');sayW(I);setTimeout(()=>done({ok:true}),750)}
     else{inp.classList.add('ng');sf('wrong');const e=box.querySelector('.cgqx');e.hidden=false;
-      e.innerHTML=`<p>正しくは <b>${esc(w)}</b>（${esc(I.ja)}）<br><small>きみの 答え: ${esc(v)}　/　${esc(w.split('').join(' - '))}</small></p><button class="nx">つぎへ ▶</button>`;sayW(I);
+      e.innerHTML=`<p>正しくは <b>${esc(w)}</b>（${esc(I.ja)}）<br><small>きみの 答え: ${esc(v)}　/　${esc(w.split('').join(' - '))}</small></p><button class="nx">つぎへ ▶</button>`;sayW(I);lookRow(e,[I.id]);
       e.querySelector('.nx').onclick=()=>{sf('step');done({ok:false})}}};
   $('mnok').onclick=check;inp.onkeydown=e=>{if(e.key==='Enter')check()}}}
 /* つづりの ならべかえ */
@@ -199,7 +215,7 @@ function scramble(I){const w=I.h;
         if(got.length<w.length)return draw();over=true;const ok=got===w;draw();box.querySelectorAll('button').forEach(y=>y.disabled=true);
         if(ok){sf('correct');sayW(I);box.querySelector('.mnw').classList.add('ok');setTimeout(()=>done({ok:true}),750)}
         else{sf('wrong');box.querySelector('.mnw').classList.add('ng');const e=box.querySelector('.cgqx');e.hidden=false;
-          e.innerHTML=`<p>正しくは <b>${esc(w)}</b>（${esc(I.ja)}）<br><small>${esc(w.split('').join(' - '))} と 声に 出して おぼえよう</small></p><button class="nx">つぎへ ▶</button>`;sayW(I);
+          e.innerHTML=`<p>正しくは <b>${esc(w)}</b>（${esc(I.ja)}）<br><small>${esc(w.split('').join(' - '))} と 声に 出して おぼえよう</small></p><button class="nx">つぎへ ▶</button>`;sayW(I);lookRow(e,[I.id]);
           e.querySelector('.nx').onclick=()=>{sf('step');done({ok:false})}}})};
     draw()}}
 /* 例文の あなうめ（文カードの 例文から） */
@@ -455,6 +471,10 @@ Object.assign(MINA_LINES,{
  mn_card:[['wow','「{w}」の カード、 見つけたね！ 見つけた カードは 🎒の 🎴に たまるから、 タップで 読んで くわしく 見てね'],['smile','カードが 出たら 上に 札が 出るよ。 タップすると 「{w}」を 読んで くわしく 見られるの。 見のがしても 🎒の 🎴から 見られるからね']],
  mn_treasure:[['wow','🎁 宝カード！？ 鉱山の 奥で 見つかるなんて… すごい 運だね！'],['proud','宝カードは 仕入れでは 手に 入らない、 鉱山だけの 宝もの。 深く ほるほど いい カードが 出やすいよ'],['love','宝カードだ！ カードブックに 入れられるよ。 ダブったら お店で 売れるからね']],
  mn_lootTap:[['smile','🎒の ところに ならんだ 物は、 タップすると くわしく 見られるよ。 宝石の 英語の 名前も わかるの'],['happy','手に 入れた 石や カードは、 タップで くわしく！ ほっている とちゅうでも だいじょうぶ']],
+ mn_handTap:[['point','上に ならんだ 5まいの カードは、 タップすると 📖 くわしく 見られるよ。 いみ・例文・形の かわり方も！'],['smile','わからない ことばが あったら、 手もちの カードを タップしてね。 いま 出ている 問題の カードは 答えてからね']],
+ mn_handWait:[['wink','その カードは いま 問題に 出ているの。 答えてから 見ようね'],['smile','あっ、 それを 見たら 答えが わかっちゃう！ 答えたら すぐ 📖 で 見られるよ'],['think','まずは 自分で 考えて みよう。 まちがえても だいじょうぶ、 あとで くわしく 見られるから']],
+ mn_handLook:[['happy','「{w}」を くわしく 見たんだね。 例文を 声に 出すと もっと おぼえるよ'],['proud','気に なったら すぐ しらべる。 それ、 英語が のびる 人の くせなの'],['smile','📖 の 例文は 🔊 で 聞けるよ。 まねして 言ってみてね']],
+ mn_lookRow:[['point','まちがえた ときは 「📖 しらべる」で、 答えの ことばも まよった ことばも くわしく 見られるよ'],['smile','まちがえた ことばこそ チャンス！ 📖 で なかまの ことばや 例文も 見てみよう']],
  x_mnType:[['think','鉱山の 「つづりを 書く」は むずかしい？ ヒントで さいしょの 字が わかるよ'],['smile','聞いて 書けたら、 もう その 単語は きみの もの']]
 });
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
