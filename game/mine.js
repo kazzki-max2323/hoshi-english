@@ -86,12 +86,12 @@ function open(){const M=MN();
     ${window.FOOD?FOOD.mineBox():''}
     <div class="mnhand mnrocks">${'<div class="mnt"><span class="mnrock">🪨<b>？</b></span></div>'.repeat(HAND)}</div>
     <p class="mnlbl">岩の 中に まだ 持っていない カードが 5まい ねむっているよ</p>
+    <button id="mngo" class="mngo" ${myHp()>0?'':'disabled'}><span class="mngoi">⛏️</span><span class="mngot2">地下1階から ほる</span>${myHp()<ME_HP?`<small>❤${myHp()}</small>`:''}</button>
     ${TLs.length?`<p class="mntl">🎒 ${TLs.map(t=>`${t.ico}<b>×${toolN(t.id)}</b>`).join(' ')} <small>ほっている とちゅうに つかえる</small></p>`:''}
     <details class="shmore"><summary>鉱山の しくみ</summary>
       <ol class="mncs"><li>⛏️ 問題に 正解すると 岩が けずれて、 カードが 1まいずつ 自分の ものに なる</li><li>🪜 5まい ほりだすと 床が くずれて 一つ 下の 階へ。 下の 階ほど 上の レベルの ことばが まざる</li><li>📜 5まいの ことばの 小さな お話を 読むと ボーナス</li><li>🏠 いつ 帰っても 見つけた 物は ぜんぶ 持ち帰れる</li></ol>
       <p class="note">いまは ${CG_LV[lv]?CG_LV[lv].n:''}の ことばが 中心${nx!==lv&&CG_LV[nx]?`、 ${CG_LV[nx].n}も 少し`:''}。 ❤は 最大 ${ME_HP}（1問で 1 へる・2分で 1 もどる・食べると たくさん もどる）</p></details>
-    <button id="mnty" class="sub">✍️ 書く 問題: <b>${noType()?'出さない':'出す'}</b></button>
-    <button id="mngo" class="big" ${myHp()>0?'':'disabled'}>⛏️ 地下1階から ほる${myHp()<ME_HP?` <small>❤${myHp()}</small>`:''}</button>
+    <button id="mnty" class="sub mnty">✍️ 書く 問題: <b>${noType()?'出さない':'出す'}</b></button>
   </section>`);
   $('mnb').onclick=()=>{sf('back');SHOP.open()};
   $('mnty').onclick=()=>{sf('tap');const M=MN();M.noType=!M.noType;C.save();H.toast(M.noType?'✍️ 書く 問題は 出さないよ<small>また 書きたく なったら ここで もどせるよ</small>':'✍️ 書く 問題も 出すよ',2400);open()};
