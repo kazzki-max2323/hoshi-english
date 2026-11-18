@@ -313,9 +313,12 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
   if(!s.kind)SD.done[s.id]=(SD.done[s.id]||0)+1;SD.n++;SD.last=Date.now();if(s.kind==='tok')SD.tok++;
   if(perfect)SD.best=(SD.best||0)+1;save();
   if(s.kind==='tok')try{window.CGM&&CGM.reward('tok')}catch(e){}   // a reward card (game/cg-more.js)
+  const tkG=s.kind==='tok'?[...new Set(Object.values(s.nodes).map(n=>n.dr).filter(Boolean))]:[];
   const E=s.kind?[]:endsOf(s),got=s.kind?0:endsGot(s),tot=E.length;
   try{const gs0=Object.entries(st.g),gm=gs0.filter(([,r])=>r.miss).map(([id])=>gName(id)),gh=gs0.filter(([,r])=>r.hint).map(([id])=>gName(id)),ga=gs0.map(([id])=>gName(id));
-    RECENT.add(s.kind==='tok'?'tokkun':'sensei',{id:s.id,ja:s.t||'',end:title,g:gm[0]||gh[0]||ga[0]||'',miss:st.miss,hint:st.hint,ok:st.ok,perfect:!!perfect,good:!!good})}catch(e){}
+    RECENT.add(s.kind==='tok'?'tokkun':'sensei',{id:s.id,ja:s.t||'',end:title,g:gm[0]||gh[0]||ga[0]||'',gs:tkG,miss:st.miss,hint:st.hint,ok:st.ok,perfect:!!perfect,good:!!good})}catch(e){}
+  /* とっくんを さいごまで やった 文法（ミナ先生の 4ステップの 道の 🎯に つかう。 正解数は とわない） */
+  if(s.kind==='tok'){SD.tk=SD.tk||{};tkG.forEach(id=>SD.tk[id]=(SD.tk[id]||0)+1);save()}
   /* Mina's word on how it went */
   let k='sn_endGood',v={t:title,n:st.ok,h:st.hint,m:st.miss,f:st.free,got,tot};
   const gs=Object.entries(st.g),missG=gs.filter(([,r])=>r.miss).map(([id])=>id),hintG=gs.filter(([,r])=>r.hint&&!r.miss).map(([id])=>id),okG=gs.filter(([,r])=>r.ok&&!r.miss&&!r.hint).map(([id])=>id);
@@ -354,6 +357,8 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
 
 /* ---------- 🎯 苦手 とっくん: 5 grammar checks in a row ---------- */
 function tokkun(ids,again,from){const lv=LV.includes(myLv())?myLv():'es',lvl=GLV[lv];
+  /* ドリルの ない 文法（アルファベットなど）は とことん授業の 5問 たしかめを とっくんに する */
+  if(ids&&ids.length&&!ids.some(id=>DR[id])&&window.DEEP&&gById(ids[0])){DEEP.open(ids[0],{chk:1});return}
   let pool=(ids||weakAll()).filter(id=>DR[id]);
   if(!pool.length)pool=Object.keys(DR).filter(id=>id.startsWith(lvl)&&(owned(id)||Math.random()<.5));
   if(!pool.length)pool=Object.keys(DR).filter(id=>id.startsWith(lvl));
