@@ -110,14 +110,12 @@ function home(){const back=screen!=='home';   // coming back from a word book, t
     <div class="row">
       <button id="bookOpen" class="sub"><span>📕</span>単語帳</button>
       <button id="bagOpen" class="sub"><span>🎒</span>もちもの</button>
-      <button id="kaiwaOpen" class="sub"><span>💬</span>浜辺の 会話</button>
     </div>
     ${ST.radios.length?`<label class="gap"><span>📻 つぶやき</span><input id="gapR" type="range" min="3" max="30" step="1" value="${ST.radioGap}"><output id="gapV">${ST.radioGap}秒ごと</output></label>`:''}
   </section>`);
   /* 単語帳は 1つの ボタン。ひらくと 小学生〜ハイレベルを 上の タブで えらぶ（さいごに 見た レベルから） */
   $('bookOpen').onclick=()=>{SFX.book();books()};
   $('bagOpen').onclick=()=>{SFX.open();window.ZAKKA&&ZAKKA.bag(home)};
-  $('kaiwaOpen').onclick=()=>{if(!window.KAIWA)return;SFX.talk();KAIWA.open()};
   const g=$('gapR');if(g)g.oninput=()=>{ST.radioGap=+g.value;$('gapV').textContent=g.value+'秒ごと';save();if(nextAt>performance.now()+ST.radioGap*1000)nextAt=performance.now()+ST.radioGap*1000};
   rqIdle();emit('home',back);if(back)nextAt=Math.max(nextAt,performance.now()+RADIO_REST);else radioWake();
 }

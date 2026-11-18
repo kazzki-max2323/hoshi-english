@@ -5,6 +5,8 @@
    - レベルは ミナ先生の 見る「いまの 力」（MINA.level）。小学生は 日本語訳が いつも 出る
    - 自分で 書いた 英語は、えらぶ 答えの どれに いちばん 近いかを ことばの 重なりで 判定する（外部の AIは つかわない）
    - 声は 端末の 読み上げ（キャラごとに 高さと 速さを かえる）
+   - 入口の ボタンは ない（2026-11-18 ユーザーの 希望）。浜辺の だれかが 自分から 話しかけに 来て、自動で はじまる（game/kaiwa-visit.js）。
+     エンド・おもしろ図鑑は 🎒もちものの 「💬 浜辺の 会話の きろく」（list）
    中身は game/kaiwa-data.js（KAIWA_CHARS / KAIWA_SCENES）。ミナ先生の セリフは game/mina-talk.js の k_ / x_kw で はじまる 場面 */
 (()=>{
 const {S:ST,sfx:SFX}=BEACH;
@@ -94,7 +96,7 @@ function bookWords(lines){const M=wordMap(),seen={},out=[];
   lines.forEach(l=>String(l).toLowerCase().replace(/[^a-z' ]/g,' ').split(/\s+/).forEach(w=>{const e=M[w];if(e&&!seen[w]&&!STOP.has(w)){seen[w]=1;out.push(Object.assign({got:!!ST.learned[e.lv+':'+e.en]},e))}}));
   return out}
 
-/* ---------- Mina's line at the top of the list ---------- */
+/* ---------- Mina's line at the top of the record ---------- */
 function minaLine(){const lv=myLv(),todo=SC.filter(s=>s.lv===lv&&!KD.done[s.id]),story=todo.find(s=>s.story);let k,v={};
   if(!KD.n)k='k_intro';else if(KD.n<3&&Math.random()<.5)k='k_tips';
   else if(story&&Math.random()<.5){k='k_story';v={t:'「'+story.t+'」',c:CH[story.c].n}}
@@ -103,25 +105,27 @@ function minaLine(){const lv=myLv(),todo=SC.filter(s=>s.lv===lv&&!KD.done[s.id])
   else if(funN()&&Math.random()<.5){k='k_funList';v={n:funN(),tot:funTotal()}}else k='k_tips';
   return MINA.line(k,Object.assign({lvn:LVN[lv]},v))}
 
-/* ---------- the list: the long talks first ---------- */
-let listLv=null;
-function list(){listLv=listLv||myLv();const [ex,tx]=minaLine(),S=SC.filter(s=>s.lv===listLv).sort((a,b)=>(b.story?1:0)-(a.story?1:0));
+/* ---------- 📒 the record: who you talked with and the endings found (no list to start a talk from: the people come to you, game/kaiwa-visit.js) ---------- */
+let recBack=null;
+function list(back){if(typeof back==='function')recBack=back;const bk=recBack||H.home,[ex,tx]=minaLine();
+  const S=SC.filter(s=>KD.done[s.id]).sort((a,b)=>LV.indexOf(a.lv)-LV.indexOf(b.lv)||(b.story?1:0)-(a.story?1:0)),left=SC.length-S.length;
   H.show('kaiwa',`<section class="pnl kwp">
-    <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>💬 浜辺の 会話</b><span class="qn">🏁 ${endsN()}/${endsAll()}　😂 ${funN()}/${funTotal()}</span></div>
+    <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>📒 浜辺の 会話の きろく</b><span class="qn">🏁 ${endsN()}/${endsAll()}　😂 ${funN()}/${funTotal()}</span></div>
     <div class="kmina"><span class="lface">${MINA.face('m',ex,MINA.poseFor(ex,tx))}</span><p>${tx}</p></div>
-    <div class="seg">${LV.map(k=>`<button data-l="${k}" class="${k===listLv?'on':''}">${LVN[k]}</button>`).join('')}</div>
-    <div class="lslist klist">${S.map(row).join('')}</div>
-    <div class="row"><button id="kgo">🎲 おまかせで 話す</button><button id="kfun" class="sub">😂 おもしろ図鑑</button></div>
+    <div class="klist krec">${S.map(row).join('')||'<p class="note">浜辺の だれかが 話しかけて きたら、 ここに のこるよ</p>'}</div>
+    ${left?`<p class="note kleft">まだ 話していない 会話 ${left}本。 そのうち だれかが 話しかけに 来るよ</p>`:''}
+    <div class="row"><button id="kfun" class="sub">😂 おもしろ図鑑</button></div>
     <label class="kjat"><input type="checkbox" id="kja" ${KD.ja?'checked':''}> 日本語訳を いつも 出す <small>（小学生は いつも 出るよ）</small></label>
   </section>`);
-  $('kx').onclick=()=>{SFX.pop();H.home()};
-  H.panel.querySelectorAll('[data-l]').forEach(b=>b.onclick=()=>{SFX.pop();listLv=b.dataset.l;list()});
-  H.panel.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{SFX.talk();play(b.dataset.k)});
-  $('kgo').onclick=()=>{SFX.talk();const a=S.filter(s=>!KD.done[s.id]);play(pickL(a.length?a:S).id)};
+  $('kx').onclick=()=>{SFX.pop();recBack=null;bk()};
   $('kfun').onclick=()=>{SFX.book();funBook()};
   $('kja').onchange=e=>{KD.ja=e.target.checked?1:0;save()}}
-const row=s=>{const c=CH[s.c],n=KD.done[s.id]||0,g=endsGot(s),t=endsOf(s).length,star=endsOf(s).some(e=>e[1]&&KD.end[s.id+':'+e[0]]);
-  return `<button class="lsrow krow ${n?'clear':''} ${s.story?'kstory':''}" data-k="${s.id}"><span class="ci">${c.ico}</span><span class="lt"><b>${s.story?'📖 ':''}${esc(s.t)}</b><small>${s.story?'ながい 会話・エンド '+t+'こ・':''}${esc(c.n)}・${esc(c.d)}</small></span><span class="lp">${n?`${star?'★':'🏁'}${g}/${t}`:'🪙'+PAY[s.lv]*2}</span></button>`};
+/* one talk you had: tap to see its endings */
+const row=s=>{const c=CH[s.c],E=endsOf(s),g=endsGot(s),star=E.some(e=>e[1]&&KD.end[s.id+':'+e[0]]);
+  return `<details class="krow2 ${s.story?'kstory':''}"><summary><span class="ci">${c.ico}</span><span class="lt"><b>${s.story?'📖 ':''}${esc(s.t)}</b><small>${esc(c.n)}・${LVN[s.lv]}</small></span><span class="lp">${star?'★':'🏁'}${g}/${E.length}</span></summary>
+    <div class="kends">${E.map(e=>KD.end[s.id+':'+e[0]]?`<span class="${e[1]?'g':''}">${e[1]?'★':'😂'} ${esc(e[2])}</span>`:`<span class="no">${e[1]?'★':'？'} ？？？</span>`).join('')}</div></details>`};
+/* 🎒 もちもの (game/zakka.js bag): one row for the record */
+const bagRows=row=>KD.n?[row('💬','浜辺の 会話の きろく',`エンド ${endsN()}/${endsAll()}・おもしろ ${funN()}/${funTotal()}`,'<button data-kwr="1">見る</button>')]:[];
 
 /* ---------- the funny-reaction book ---------- */
 function funBook(){const items=[],F=facts();SC.forEach(s=>Object.entries(nodesOf(s)).forEach(([nk,n])=>{if(!n.o)return;val(n.o,F).forEach((x,oi)=>{if(KD.fun[s.id+':'+nk+':'+oi])items.push([s,x])})}));
@@ -143,7 +147,7 @@ function play(id,from){const s=sceneOf(id);if(!s)return list();const c=CH[s.c];
     <div class="lslog kwlog" id="klog"></div>
     <div id="kans" class="kans"></div>
   </section>`);
-  $('kx').onclick=()=>{SFX.pop();try{speechSynthesis.cancel()}catch(e){}const f=P&&P.from;P=null;f==='visit'?H.home():list()};
+  $('kx').onclick=()=>{SFX.pop();try{speechSynthesis.cancel()}catch(e){}const f=P&&P.from;P=null;f==='rec'?list():H.home()};
   setTimeout(turn,250)}
 const live=()=>P&&$('klog');
 function scrollLog(){const l=$('klog');if(l)l.scrollTo({top:l.scrollHeight,behavior:'smooth'})}
@@ -231,17 +235,17 @@ function end(N){if(!live())return;const s=P.s,c=P.c,first=!KD.done[s.id];
       ${GL.length||LK.length?`<div class="kwords kgl"><small>📘 この 会話に 出てきた 文法</small><div>${GL.map(g=>`<button data-kg="${g.id}" class="got">📘 ${esc(g.n.t)}<small>ノートを ひらく</small></button>`).join('')}</div></div>`:''}
       ${words.length?`<div class="kwords"><small>会話に 出てきた 単語帳の ことば（✓ おぼえた ${wgot}/${words.length}）</small><div>${words.map(w=>`<button data-w="${esc(w.en)}" data-lv="${w.lv}" class="${w.got?'got':''}">${w.got?'✓ ':''}${esc(w.en)}<small>${esc(w.ja)}</small></button>`).join('')}</div></div>`:''}
       ${window.GIFT&&GIFT.has()&&GIFT.people().includes(s.c)?`<div class="row"><button id="kgift" class="sub">🎁 ${esc(c.n)}に プレゼント</button></div>`:''}
-      <div class="row"><button id="kagain" class="${good?'sub':''}">🔁 さいしょから</button><button id="kmore" class="${good?'':'sub'}">${P.from==='visit'?'🏖️ 浜辺に もどる':'💬 ほかの 人と 話す'}</button></div>
+      <div class="row"><button id="kagain" class="${good?'sub':''}">🔁 さいしょから</button><button id="kmore" class="${good?'':'sub'}">${P.from==='rec'?'📒 きろくに もどる':'🏖️ 浜辺に もどる'}</button></div>
     </div>`;
     const r=$('kans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?SFX.done():(SFX.tease?SFX.tease():SFX.pop());
     $('kans').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.w));
-    $('kans').querySelectorAll('[data-kg]').forEach(b=>b.onclick=()=>{const g=GS().byId(b.dataset.kg),back=()=>{const f=P&&P.from;P=null;f==='visit'?H.home():list()};SFX.book();try{speechSynthesis.cancel()}catch(e){}
+    $('kans').querySelectorAll('[data-kg]').forEach(b=>b.onclick=()=>{const g=GS().byId(b.dataset.kg),back=()=>{const f=P&&P.from;P=null;f==='rec'?list():H.home()};SFX.book();try{speechSynthesis.cancel()}catch(e){}
       H.gramNote(g.lv,g.i)});
-    const kg=$('kgift');if(kg)kg.onclick=()=>{const f=P.from;SFX.open();try{speechSynthesis.cancel()}catch(e){}P=null;GIFT.pick({to:s.c,back:f==='visit'?H.home:list})};
-    const from=P.from;$('kagain').onclick=()=>{SFX.step();play(s.id,from)};$('kmore').onclick=()=>{SFX.back();from==='visit'?H.home():list()};
+    const kg=$('kgift');if(kg)kg.onclick=()=>{const f=P.from;SFX.open();try{speechSynthesis.cancel()}catch(e){}P=null;GIFT.pick({to:s.c,back:f==='rec'?list:H.home})};
+    const from=P.from;$('kagain').onclick=()=>{SFX.step();play(s.id,from)};$('kmore').onclick=()=>{SFX.back();from==='rec'?list():H.home()};
     setTimeout(()=>$('kans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1600)}
 
 /* every 文法の 答え in the talks: [{s, id}] (Mina tells about the ones you cannot pick yet) */
 const gramOpts=()=>{const out=[];SC.forEach(s=>s.nodes&&Object.values(s.nodes).forEach(n=>{if(Array.isArray(n.o))n.o.forEach(o=>{if(o.g)out.push({s,id:o.g})})}));return out};
-window.KAIWA={open:list,play,gramOpts,rec:()=>KD,scenes:SC,chars:CH,funN,funTotal,endsN,endsAll,endsOf,endsGot,met,match,_facts:facts};
+window.KAIWA={open:list,play,say:talk,bagRows,live:()=>!!live(),gramOpts,rec:()=>KD,scenes:SC,chars:CH,funN,funTotal,endsN,endsAll,endsOf,endsGot,met,match,_facts:facts};
 })();
