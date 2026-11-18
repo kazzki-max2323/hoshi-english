@@ -268,23 +268,49 @@ function bindMore(o){o.querySelectorAll('[data-wisay]').forEach(b=>b.onclick=e=>
   o.querySelectorAll('.wif').forEach(fd=>fd.addEventListener('toggle',()=>{if(fd.open){CG.wiSeen=(CG.wiSeen||0)+1;save()}}))}
 /* ほかの 画面（鉱山で 見つけた・仕入れ）に うめこむ くわしく: さいしょは とじておき、 タップで ひらく */
 const moreClosed=I=>more(I).replace('<details class="cgfold wif" open>','<details class="cgfold wif">');
-/* the big card: tap 🔊, its combos, friends and opposites */
-function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0,x=stat(id),h=I.h;
-  const cs=I.k==='w'?combosWith(h):[],known=cs.filter(c=>CG.combo[c.k]);
-  const o=ov(`<div class="cgdv">${face(id,{big:1,ja:own})}
+/* the big card: tap 🔊, its combos, friends and opposites
+   11/18 ユーザー「タップしたら この画面に」: カードを タップする 所は ぜんぶ この 画面（倉庫・売り場・ブック・仕入れ・鉱山・お客さんの 帯 など）。
+   opt.top: ほかの 画面（見つけた！ など）の 上に 重ねて ひらく（#cardTop。 とじると 下の 画面に もどる）
+   opt.btns: [[ラベル, fn]] その 場所での ボタン（売り場から 下げる・ブックから 出す・仕入れる など）。 押すと この 画面を とじてから fn
+   外側を タップ・とじる → back */
+function detail(id,back,opt={}){const I=info(id);if(!I)return;const n=count(id),own=n>0,x=stat(id),h=I.h;
+  const cs=I.k==='w'?combosWith(h):[],known=cs.filter(c=>CG.combo[c.k]);const top=!!opt.top;
+  const html=`<div class="cgdv">${face(id,{big:1,ja:own})}
     <div class="cgdi">
-      <button class="cgsay" id="cgsay">🔊 ${esc(I.en)}</button>
+      <button class="cgsay" data-dv="say">🔊 ${esc(I.en)}</button>
       <p class="cgdj">${esc(I.ja)}</p>
       ${window.UNK?UNK.cardBox(I,own):''}
       ${I.k==='w'||I.k==='t'?`<p class="cgds">${own?`もっている かず ×${n}`:'まだ もっていない'}</p>`:''}
       ${more(I)}
-            <button class="sub" id="cgclose">とじる</button></div></div>`,'dv');
-  const say=()=>{try{H.say(I.k==='t'?'cards':I.lv,I.k==='s'?I.en:I.en)}catch(e){}};say();
+      ${(opt.btns||[]).filter(Boolean).map((b,i)=>`<button data-dvb="${i}" class="${b[2]||''}">${b[0]}</button>`).join('')}
+      <button class="sub" data-dv="close">とじる</button></div></div>`;
+  let o;if(top){closeTop();o=document.createElement('div');o.id='cardTop';o.className='cgov dv';o.innerHTML=html;document.body.appendChild(o)}else o=ov(html,'dv');
+  const shut=()=>{if(top)o.remove();else closeOv()};
+  o.addEventListener('click',e=>{if(e.target!==o)return;if(top){sf('back');o.remove()}back&&back()});
+  const say=()=>{try{H.say(I.k==='t'?'cards':I.k==='p'?'es':I.lv,I.en)}catch(e){}};say();
   if(window.UNK)UNK.bind(o);
   bindMore(o);
-  if(I.k!=='p'&&I.k!=='s'&&window.WI&&WI.root&&WI.root(h)){CG.rootSeen=(CG.rootSeen||0)+1;save()}
-  $('cgsay').onclick=say;$('cgclose').onclick=()=>{sf('back');closeOv();back&&back()};
-}
+  if(I.k!=='p'&&I.k!=='s'&&window.WI&&WI.root&&WI.root(h)){CG.rootSeen=(CG.rootSeen||0)+1}
+  /* 見た 回数と さいきん 見た カード（ミナ先生の ひとこと 用） */
+  const L=CG.look=CG.look||{n:0,ids:[]};L.n++;L.at=Date.now();L.ids=[id,...L.ids.filter(x=>x!==id)].slice(0,12);save();
+  o.querySelector('[data-dv="say"]').onclick=say;
+  o.querySelector('[data-dv="close"]').onclick=()=>{sf('back');shut();back&&back()};
+  o.querySelectorAll('[data-dvb]').forEach(b=>b.onclick=()=>{const B=opt.btns.filter(Boolean)[+b.dataset.dvb];shut();B[1]()});
+  lookTalk(I,opt.from);
+  return o}
+function closeTop(){const o=$('cardTop');if(o)o.remove()}
+/* どこからでも: いまの 画面の 上に くわしく 画面を 重ねる（下に ポップアップが あれば その 上に） */
+function peek(id,opt={}){if(!info(id))return;sf('card');return detail(id,opt.back||null,{...opt,top:!!$('cardOv')})}
+/* root の 中の カードを タップで くわしく */
+function peekIn(root,opt={}){if(!root)return;root.querySelectorAll('.cgc[data-id]').forEach(c=>{if(c.classList.contains('lock'))return;c.style.cursor='pointer';
+  c.onclick=e=>{e.stopPropagation();peek(c.dataset.id,opt)}})}
+/* ミナ先生の ひとこと: はじめて・10・50・100・300まい目… と、 なりたち／ワンポイントが ある カードを ときどき */
+function lookTalk(I,from){const L=CG.look;let k='',v={w:(I.en||'').split(',')[0],ja:(I.ja||'').split(/[、,]/)[0],n:L.n};
+  if(!CG.lookTold){CG.lookTold=1;save();k='cg_lookFirst'}
+  else if([10,30,50,100,200,300,500,1000].includes(L.n))k='cg_lookN';
+  else if(from&&Math.random()<.12)k='cg_lookFrom_'+from;
+  else if(Math.random()<.04)k='cg_lookAny';
+  if(!k)return;setTimeout(()=>{try{const [,tx]=MINA.line(k,v);if(tx&&!/^cg_look/.test(tx))H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)}catch(e){}},900)}
 
 /* ================================================================ combos in a list of cards */
 const DECK_N=15;
@@ -480,9 +506,11 @@ function metWrong(w){if(CG.wrong[w.k])return false;CG.wrong[w.k]=dnum();save();r
 
 /* 大きな カードを タップすると その 英語を 読む（鉱山で 見つけた・くわしく 見る・カードブック など） */
 function sayCard(id){const I=info(id);if(!I||!I.en)return;try{H.say(I.k==='t'?'cards':I.k==='p'?'es':I.lv,I.en)}catch(e){}}
+/* 大きな カード: くわしく 画面の 中では タップで 読む。 ほかの 画面（見つけた！・買い取った！ など）では くわしく 画面を 上に ひらく */
 document.addEventListener('click',e=>{const c=e.target.closest&&e.target.closest('.cgc.big');if(!c||c.classList.contains('lock')||!c.dataset.id)return;
+  if(!c.closest('.cgdv')||c.closest('.cbmenu'))return peek(c.dataset.id,{from:'big'});
   sayCard(c.dataset.id);c.classList.remove('tapsay');void c.offsetWidth;c.classList.add('tapsay')});
-window.CG={more,moreClosed,bindMore,open,sayCard,go,starter,info,face,art,quiz,formQuiz,formsOf,ask,ov,closeOv,detail,count,owns,give,take,receive,reveal,record,star,kira,weak,forgot,power,
+window.CG={more,moreClosed,bindMore,open,sayCard,go,starter,info,face,art,quiz,formQuiz,formsOf,ask,ov,closeOv,detail,peek,peekIn,closeTop,count,owns,give,take,receive,reveal,record,star,kira,weak,forgot,power,
   lvOpen,deckCombos,cleanDeck,comboOf,combosWith,wrongOf:(a,b)=>WRG[a+'|'+b]||null,anto:h=>ANTO[h]?[...ANTO[h]]:[],syn:h=>SYN[h]?[...SYN[h]]:[],
   derivOf,sentWords,cardOfHead,foundCombo,metWrong,pickL,hash,dnum,today,speak,bubble,
   W,BY,COMBO,WRONG,DERIV,SENT,LV,ATTR,DECK_N,rec:()=>CG,save:()=>save(),pay,myLv,hut,

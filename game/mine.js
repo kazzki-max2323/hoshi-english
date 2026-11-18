@@ -163,7 +163,7 @@ function answered(){const b=$("mnq");return !b||D.busy||!!b.querySelector(".mnin
 function handLook(i){if(!D)return;const id=D.hand[i];if(!id)return;
   const x=D.cards[i];if(x&&!x.met&&!x.dug){sf('knock');gotTag('🪨','まだ 岩の 中…','');return}
   if(i===D.cur&&!answered()){sf('tap');const [,tx]=ML('mn_handWait');H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,3000);return}
-  sf('card');C.detail(id);const M=MN();M.looks=(M.looks||0)+1;C.save();
+  sf('card');C.detail(id,null,{from:'mine'});const M=MN();M.looks=(M.looks||0)+1;C.save();
   if(M.looks===3||(M.looks>3&&Math.random()<.08))setTimeout(()=>{const [,tx]=ML('mn_handLook',{w:head1(C.info(id))});if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,3600)},600)}
 /* まちがえた あとの 「📖 しらべる」: 答えの カードと、 えらんだ・ならんでいた ことば */
 function lookIds(q,I){const out=[I.id];if(!q||q.t==='miss'||!q.ch)return out;
@@ -171,7 +171,7 @@ function lookIds(q,I){const out=[I.id];if(!q||q.t==='miss'||!q.ch)return out;
 function lookRow(x,ids){if(!x||!ids.length)return;const r=document.createElement('div');r.className='mnlook';
   r.innerHTML=`<span>📖 しらべる</span>${ids.map(id=>{const I=C.info(id);return I?`<button data-look="${esc(id)}">${esc(head1(I))}</button>`:''}).join('')}`;
   const nx=x.querySelector('.nx');x.insertBefore(r,nx||null);
-  r.querySelectorAll('[data-look]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.look)});
+  r.querySelectorAll('[data-look]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.look,null,{from:'mine'})});
   const M=MN();if(!M.lookTold){M.lookTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_lookRow');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4000)},700)}}
 /* つぎの 問題: 左から じゅんばん → まちがえた カード → つぎの 周 → つぎの 形 */
 /* つぎの 問題: まだ ほりだして いない カードを 左から じゅんばんに。 はじめての ことばは さいしょに 1回 見せてから */
@@ -201,7 +201,7 @@ function intro(box,x,I,go){const lv=CG_LV[I.lv];
     <div class="row"><button class="sub" id="mnmore">📖 くわしく</button><button class="big" id="mngo2">👀 おぼえた！ つぎへ</button></div><p class="mnin2">はじめての ことばは 見て おぼえるだけ。 2周目から ほるよ</p></div>`;
   setTimeout(()=>sayW(I),300);
   $('mnsay').onclick=()=>{sf('tap');sayW(I)};
-  $('mnmore').onclick=()=>{sf('card');C.detail(I.id)};
+  $('mnmore').onclick=()=>{sf('card');C.detail(I.id,null,{from:'mine'})};
   $('mngo2').onclick=()=>{sf('step');go()};
   const M=MN();if(!M.introTold){M.introTold=1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_intro',{w:head1(I)});if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},900)}}
 function make(t,I){const h=I.h,plain=/^[a-z]{3,12}$/.test(h);
@@ -327,7 +327,7 @@ function lootInfo(kind,ico){if(!D)return;sf('card');const back='<button class="m
   const o=C.ov(h,'mnlov');
   o.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{sf('back');C.closeOv()});
   o.querySelectorAll('.mnlor[data-ico]').forEach(b=>b.onclick=()=>lootInfo('g',b.dataset.ico));
-  o.querySelectorAll('.mnloci').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id,()=>lootInfo('cards'))})}
+  o.querySelectorAll('.mnloci').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id,()=>lootInfo('cards'),{from:'mine'})})}
 /* 手に 入れた 物を ドット絵の 上に はっきり 出す（すぐ 消える） */
 function gotTag(ico,name,val){const el=$('mngot');if(!el)return;const t=document.createElement('div');t.className='mngt';
   t.innerHTML=`<span class="gi">${ico}</span><span class="gn">${esc(name)}</span>${val?`<b>${esc(val)}</b>`:''}`;
@@ -339,7 +339,7 @@ function cardTag(id,isNew,dg,bk){const M=MN();M.cards=(M.cards||0)+1;C.save();D.
   try{const r=$('mncv').getBoundingClientRect();FX.firework(r.left+r.width*(.3+Math.random()*.4),r.top+r.height*.4)}catch(e){}
   const el=$('mncard');if(!el)return;const I=C.info(id);if(!I)return;
   el.innerHTML=`<button class="mncd" data-id="${esc(id)}"><span class="gi">🎴</span><span class="cn"><small>${dg?'ほりだした！':'カードを 見つけた！'}${isNew?' <em>NEW</em>':''}${bk?' 📖ブックへ':''}</small><b>${esc(head1(I))}</b><i>${esc(I.ja)}</i></span><span class="tp">📖</span></button>`;
-  const b=el.firstChild;b.onclick=()=>{sf('card');C.detail(id)};
+  const b=el.firstChild;b.onclick=()=>{sf('card');C.detail(id,null,{from:'mine'})};
   clearTimeout(el._t);el._t=setTimeout(()=>{if(b.isConnected)b.classList.add('out');setTimeout(()=>{if(b.isConnected)b.remove()},400)},6500);
   if(!MN().cardTold){MN().cardTold=1;C.save();setTimeout(()=>{if(!D)return;try{const [,tx]=ML('mn_card',{w:head1(I)});H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)}catch(e){}},7200)}}
 /* 宝カードを 見つけた！（めったに ない ので 大きな お祝い） */
@@ -350,7 +350,7 @@ function celebrate(id,isNew,treasure){const M=MN();M.cards=(M.cards||0)+1;C.save
 function celebrateOv(id,isNew,treasure){
   const I=C.info(id),[ex,tx]=ML(treasure?'mn_treasure':'mn_card',{w:I?head1(I):''});
   const o=C.ov(`<div class="mnfind"><p class="mnfh">✨ ${treasure?'🎁 宝カードを 見つけた！':'カードを 見つけた！'}</p>
-    <div class="mnfc">${C.face(id,{big:1,ja:1})}</div>${isNew?'<p class="mnnew">NEW!</p>':''}<p class="mntap">🔊 カードを タップすると 読むよ</p>
+    <div class="mnfc">${C.face(id,{big:1,ja:1})}</div>${isNew?'<p class="mnnew">NEW!</p>':''}<p class="mntap">👆 カードを タップすると くわしく 見られるよ</p>
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     ${I&&C.moreClosed?`<div class="mnwi">${C.moreClosed(I)}</div>`:''}
     <button class="big" id="mnyay">やった！ ほりつづける</button></div>`,'by');
@@ -566,7 +566,7 @@ function bonus(ok,ids){if(!D)return;const fl=D.floor,got=[];D.stories++;
     <div class="row"><button class="sub" id="mnhm2">🏠 ここで 帰る</button></div></section>`);
   try{SFX.fanfare(ok>=2?3:1)}catch(e){}
   if(tr)try{const r=$('mntr').getBoundingClientRect();FX.firework(r.left+r.width/2,r.top+r.height/2)}catch(e){}
-  H.panel.querySelectorAll('.mnt[data-id]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id)});
+  H.panel.querySelectorAll('.mnt[data-id]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id,null,{from:'mine'})});
   $('mnhm2').onclick=()=>{sf('back');finish('home')};
   $('mndown').onclick=()=>{sf('knock');fall(()=>{D.depth+=3;rest(ids)})}}
 /* 床が くずれる 演出 */
@@ -607,7 +607,7 @@ function finish(why){if(!D)return;const d=D;D.alive=false;D=null;keepHp(d.hp);co
     $('mnb').onclick=$('mnshop').onclick=()=>{sf('step');SHOP.open()};
     if($('mnbook'))$('mnbook').onclick=()=>{sf('flip');try{CBOOK.open(null,null,()=>SHOP.open())}catch(e){SHOP.open()}};
     if($('mnmapgo'))$('mnmapgo').onclick=()=>{try{SFX.map()}catch(e){}ADV.open()};
-    H.panel.querySelectorAll('.mnseec,.mnt[data-id]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id)});
+    H.panel.querySelectorAll('.mnseec,.mnt[data-id]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id,null,{from:'mine'})});
     H.panel.querySelectorAll('.mnmio1').forEach(b=>b.onclick=()=>{try{MIO.say(b.dataset.en)}catch(e){}})};
   draw();
   sf(d.floor>pf&&d.floor>=2?'done':'step');

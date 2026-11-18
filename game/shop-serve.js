@@ -64,6 +64,10 @@ function serve(X){const {T,g,box}=X,BUY=!!X.buy,W=who(g),nm=short(g);
     e.innerHTML=!I?`<span class="q">❓</span><div><b>${esc(nm)}は カードを さがしてる</b><small>おすすめを 聞かれるかも</small></div>`
       :`${C.face(id,{mini:1,marks:false})}<div><small>${esc(nm)}が 買いたい カード</small><b class="en">${esc(word(I))}</b><small class="ja">${hideJa?'（意味は？）':esc(jaOf(I))}</small></div><span class="pr">${pp!==p?`<s>🪙${p}</s>`:''}🪙${pp}</span>`};
   want();
+  /* 帯の カードを タップで くわしく 画面（「意味は？」を 聞いている あいだは 読むだけ） */
+  {const e=$('#svw');if(e){e.style.cursor='pointer';e.onclick=ev=>{if(!ev.target.closest('.cgc')||!C.info(id))return;
+    if(hideJa){try{C.sayCard(id)}catch(er){}H.toast('🤫 意味は 答えてから 見てね',1600);return}
+    C.peek(id,{from:'guest'})}}}
 
   /* a line in the log: who = g（お客）/ m（ミオ）/ me（店長）/ nt（メモ） */
   const add=(r,line,ex)=>{if(!alive())throw STOP;const en=fill(line[0]),ja=line[1]?fill(line[1]):'';const d=document.createElement('div');d.className='svl '+r;

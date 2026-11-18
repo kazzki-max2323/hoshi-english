@@ -52,12 +52,12 @@ function tools(){const el=$('mrtl');if(!el||!A)return;const L=[['wood','🪵 た
     if(k==='wood'){A.wood=1;sf('knock');hpShow()}else if(k==='batt'){A.batt=1;A.batN=0;sf('pickup');if(RAD)radioOff();radioOn()}else{A.mapd=1;A.map&&A.map();sf('open')}
     const [,tx]=ML('mn_rest_'+k);if(tx)H.toast(`${MINE_TOOLS[k].ico} <b>${esc(MINE_TOOLS[k].n)}</b><small>👩‍🏫 ${esc(tx)}</small>`,3400);tools()})}
 
-/* たき火の そばに うかぶ 5まい: 1回目 タップで 読む・2回目で 📖 */
+/* たき火の そばに うかぶ 5まい: タップで 📖 くわしく */
 function floats(){const el=$('mrfl');if(!el)return;const P=[[3,4],[22,15],[41,3],[60,15],[79,4]];
   el.innerHTML=A.ids.map((id,i)=>{const I=C.info(id);if(!I)return '';const p=P[i%P.length];return `<button class="mrfc" data-id="${esc(id)}" style="left:${p[0]}%;top:${p[1]}%;--d:${(i*.7).toFixed(1)}s"><b>${esc(head1(I))}</b><small>${esc(I.ja)}</small></button>`}).join('');
   el.querySelectorAll('.mrfc').forEach(b=>b.onclick=()=>{const id=b.dataset.id,I=C.info(id);if(!I)return;
-    if(A.tap[id]){sf('card');C.detail(id);return}
-    A.tap[id]=1;sf('tap');b.classList.add('lit');try{H.say(I.lv,I.en)}catch(e){}
+    /* 11/18 ユーザー「タップしたら この画面に」: 1回目から くわしく 画面（ひらくと 読む） */
+    A.tap[id]=1;b.classList.add('lit');C.peek(id,{from:'mine'});
     const M=CG.rec().mn||{};if(!M.floatTold){M.floatTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_float');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,3600)},800)}})}
 
 /* 🍙 食べる */
@@ -198,7 +198,7 @@ Object.assign(MINA_LINES,{
  mn_restFirst:[['smile','ここは 休憩所。 たき火に あたると ❤が ゆっくり もどるよ。 さっきの 5まいが ふわっと うかんでるでしょ？ タップすると 読むの'],['point','休憩所では 食べたり、 単語ラジオを 流したり、 📡 トランシーバーで ミオちゃんと 話したり できるよ']],
  mn_rest:[['smile','ひと休みしよう。 うかんでいる カードを ながめるだけでも 復習に なるんだよ'],['happy','たき火、 あったかいね。 ❤が まんたんに なったら また ほりに 行こう'],['wink','ミオちゃんが 無線で まってるかもよ？ 📡 で よんでみたら？'],['point','📻 単語ラジオを つけると、 📖カードブックの ことばを ランダムに 流してくれるよ']],
  mn_restNight:[['smile','…しずかだね。 灯りが きれい。 こういう 時間に 聞いた ことばって、 ふしぎと おぼえてるの'],['love','深い ところの たき火って、 なんだか ほっと するね。 ゆっくり 休んでね'],['think','夜の 鉱山は ちょっと こわいけど… ランタンの 灯りが あるから だいじょうぶ']],
- mn_float:[['smile','もう一回 タップすると 📖 くわしく 見られるよ。 例文も 聞いてみて'],['happy','ながめて、 聞いて、 それだけで いいの。 ふわっと 頭に のこるからね']],
+ mn_float:[['smile','うかんでる カードを タップすると 📖 くわしく 見られるよ。 例文も 聞いてみて'],['happy','ながめて、 聞いて、 それだけで いいの。 ふわっと 頭に のこるからね']],
  mn_radio:[['smile','単語ラジオは 📖カードブックの ことばを ランダムに 流すよ。 英語の あとに 日本語が 出るから、 その 前に いみを 思いだせるかな？'],['point','聞きながし でも いいの。 前に ほった ことばに また 会えると、 わすれかけた ことばが よみがえるよ']],
  mn_radioBook:[['happy','ラジオ、 📖カードブックの 中から ランダムに 流れるように なったよ。 なつかしい ことばに 会えるかも'],['point','前に ほった ことばを ときどき 聞きなおすと、 ずっと わすれないの。 "spaced review" って いうんだよ']],
  mn_radioFew:[['smile','📖カードブックの カードが まだ 少ないから、 きょう ほった ことばを 流すね。 ブックが ふえると いろんな ことばが 流れるよ']],

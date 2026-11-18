@@ -157,7 +157,8 @@ function reveal(got){
     if(g.c.r>=3){const r=s.getBoundingClientRect();FX.ring(r.left+r.width/2,r.top+r.height/2,g.c.r>=5?'#ff6ad5':g.c.r>=4?'#9fe8ff':'#ffd23f');if(g.c.r>=4)FX.firework(r.left+r.width/2,r.top+r.height/2)}
     SFX.flip();s.querySelector('.tc').classList.add('live');
     if(--left===0){$('kall').hidden=true;$('kok').hidden=false;checkSeries(got.filter(g=>g.isNew).map(g=>g.c))}};
-  slots.forEach(s=>s.onclick=()=>{if(s.classList.contains('open')){const g=got[+s.dataset.i];H.say('es',g.c.en)}else flip(s)});
+  /* めくった カードを タップ: くわしく 画面を 上に ひらく（CG が なければ 読むだけ） */
+  slots.forEach(s=>s.onclick=()=>{if(s.classList.contains('open')){const g=got[+s.dataset.i];if(window.CG&&CG.peek&&CG.info('t:'+g.c.e))CG.peek('t:'+g.c.e,{from:'treasure'});else H.say('es',g.c.en)}else flip(s)});
   $('kall').onclick=()=>slots.forEach((s,i)=>setTimeout(()=>flip(s),i*110));
   $('kok').onclick=()=>{SFX.pop();closeOv()};
   if(got.length===1)setTimeout(()=>flip(slots[0]),350)}

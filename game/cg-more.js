@@ -33,7 +33,7 @@ function minaWin(){const r=R();r.mw=(r.mw||0)+1;let msg='';
   const [ex,tx]=ML('cg_minaGift',{n:r.mw});
   setTimeout(()=>{C.ov(`<div class="cgbuy cgnote"><div class="cgnagi"><span class="cgnf cgm">${mface(ex)}</span><div class="cgnb"><b>ミナ先生</b><p>${tx}</p></div></div>
     ${pick?`${C.face('s:'+pick.i,{ja:1,cls:'tprize'})}<p>📜 ミナ先生の 文カード<br><b>${esc(pick.en)}</b></p>`:''}${msg?`<p>${msg}</p>`:''}<button id="ntok">ありがとう！</button></div>`,'by').dataset.stay=1;
-    $('ntok').onclick=()=>{sf('step');C.closeOv()}},900)}
+    C.peekIn($('cardOv'),{from:'big'});$('ntok').onclick=()=>{sf('step');C.closeOv()}},900)}
 
 /* ================================================================ presents: spare cards (you keep one) */
 const TAGS={ani:['nature','cute'],food:['food'],nat:['nature'],heart:['cute','book'],act:['adventure','toy'],look:['art'],life:['handmade','toy'],learn:['book'],word:['book']};
@@ -56,13 +56,30 @@ Object.assign(MINA_LINES,{
  x_cgWeak:[['proud','苦手カードの {w}、 📦仕入れの ✏️3問で 練習してみて。 正解すると お店にも とどくよ'],['think','{w} は まちがいノートの 単語。 仕入れ練習で カードを 見ながら 答えると おぼえやすいよ']],
  x_cgForgot:[['think','💤 {w} の カード、 しばらく 見てないね。 📦仕入れの ✏️3問で 思い出してみて'],['smile','わすれかけた ころに 思い出すと、 いちばん 記憶に のこるんだ']],
  x_cgGood:[['point','新しい カードは ⛏️鉱山でしか 見つからないよ。 ほりだしたら 📖カードブックへ'],['smile','深く ほるほど SR や SSR、 UR まで 出やすく なるんだって'],['think','鉱山は 宝さがし、 仕入れは 勉強。 そう おぼえておくと わかりやすいよ'],['happy','ブックに 入れた カードは 📦仕入れで 5まいまで まとめて 問題に 答えると お店に とどくよ']]});
+/* 11/18 カードを タップすると どこでも 大きな くわしく 画面（cg.js の detail / peek）。 見た ときの ひとこと */
+Object.assign(MINA_LINES,{
+ cg_lookFirst:[['happy','カードは どこでも タップすると 大きく 見られるよ。 🔊で 読んで、 📖くわしく・🧩なりたちも のぞいてみてね'],['wow','カードを タップすると くわしく 画面！ 倉庫でも 売り場でも 鉱山でも、 同じように 見られるの']],
+ cg_lookN:[['proud','カードを じっくり 見たの、 もう {n}回目！ 見るたびに ことばが なじんでいくよ'],['happy','{n}回も カードを ながめたね。 集めて、 ながめて、 声に 出す。 それが いちばんの 単語の おぼえ方'],['love','{n}回目の くわしく！ カードを 見るのが 楽しいって、 先生 すごく うれしいな']],
+ cg_lookAny:[['smile','「{w}」、 いい カードだね。 例文を 1回 声に 出して 読んでみよう'],['think','「{w}」の 🧩なりたち、 もう 見た？ 部品が わかると 忘れにくいよ'],['happy','カードの 絵と 「{ja}」を いっしょに 思い出すと、 ぐっと おぼえやすく なるよ']],
+ cg_lookFrom_floor:[['smile','売り場の 「{w}」、 お客さんに 売る前に もう一回 読んでおこう'],['think','売る カードも ちゃんと 意味が 言えると、 りっぱな 店長だね']],
+ cg_lookFrom_case:[['love','かざりだなの 「{w}」、 きれいだね。 とっておきの カードは ことばも とっておきに しよう'],['happy','ケースの カードを ながめる 時間、 先生も 好きだな']],
+ cg_lookFrom_guest:[['smile','お客さんの ほしい 「{w}」、 意味を 確かめてから 話すと 会話が スムーズだよ'],['think','お客さんが 来た カードを しらべる。 それ、 本物の お店の 人も やってることだよ']],
+ cg_lookFrom_report:[['happy','ミオが 売った 「{w}」、 どんな カードか 見ておこう。 売れた カードは 人気の しるし'],['smile','るすばんで 売れた カード、 ひとつずつ 見ると おもしろいね']],
+ cg_lookFrom_book:[['proud','ブックの 「{w}」、 じっくり 見たね。 ページを めくる たびに 覚えた ことばが ふえていくよ'],['happy','カードブックは きみの 単語の 図鑑。 ながめるだけでも 復習に なるよ']],
+ cg_lookFrom_stock:[['smile','仕入れる 前に くわしく 見ると、 問題も 解きやすく なるよ'],['think','「{w}」の 例文、 仕入れの 問題にも 出るかも。 読んでおこう']],
+ cg_lookFrom_mine:[['happy','ほった 「{w}」、 くわしく 見たね。 自分で ほりだした ことばは よく のこるよ'],['proud','鉱山で 見つけた カードは きみの たからもの。 なりたちも 見てみて']],
+ cg_lookFrom_treasure:[['wow','宝カードの 「{w}」！ 大きく すると 絵も きれいでしょ'],['love','宝カードを ながめる 時間、 いいよね。 英語の 名前も 声に 出してみて']],
+ cg_lookFrom_big:[['happy','見つけた カード、 くわしく 見るの いいね！ 🔊で 何回でも 聞けるよ'],['smile','カードを タップして じっくり。 その ひと手間で 覚え方が ぜんぜん ちがうの']],
+ cg_lookFrom_store:[['smile','倉庫の 「{w}」、 久しぶりに 見たね。 意味、 言えた？'],['think','倉庫の カード、 ときどき タップして 見返すと 忘れないよ']],
+ x_cgLook:[['smile','さっき くわしく 見た 「{w}」、 意味を おぼえてる？ もう一回 見てみよう'],['think','「{w}」の カード、 覚えてるかな？ 思い出す ときが いちばん 頭に のこるんだよ']]});
 const goShop=()=>['🃏 カードショップへ',()=>C.open()];
 const goTab=t=>()=>['🃏 カードショップへ',()=>{C.open();setTimeout(()=>C.go(t),50)}];
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_cgOpen',4,()=>!R().met?{}:null,goShop],
  ['x_cgWeak',3,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.weak(id)&&SHOP.inBook(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('pack')],
  ['x_cgForgot',2,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.forgot(id)&&SHOP.inBook(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('pack')],
- ['x_cgGood',2,()=>R().met?{}:null,goTab('mine')]);
+ ['x_cgGood',2,()=>R().met?{}:null,goTab('mine')],
+ ['x_cgLook',2,()=>{const L=R().look;if(!L||!L.ids||!L.ids.length||Date.now()-(L.at||0)<36e5)return null;const id=L.ids.find(x=>C.info(x));if(!id)return null;return {w:C.info(id).en.split(',')[0],_id:id}},v=>['🃏 カードを 見る',()=>{if(C.info(v._id))C.detail(v._id,null,{from:'mina'})}]]);
 /* the card button left the home screen: Mina points at the hut once */
 setTimeout(function first(){if(R().told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,15000);
   R().told=1;C.save();const [ex,tx]=ML('cg_first');m.say('m',ex,tx,10000,null,['🃏 のぞいてみる',()=>C.open()])},9000);
