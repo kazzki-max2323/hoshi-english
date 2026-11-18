@@ -51,6 +51,7 @@ function open(back){back=back||SHOP.open;hush();const M=MR(),s=stage(),g=MIO_STG
     ${hd?`<div class="mcst"><span>${hd.ico}</span><div><b>${esc(hd.n)}</b><small>${hd.hint?esc(hd.hint):'💞'}</small></div></div>`:`<div class="mcst"><span>${g.ico}</span><div><b>${esc(g.n)}</b>${nx?`<span class="mcbar"><b style="width:${pct}%"></b></span><small>つぎ ？？？</small>`:s===4?'<small>つぎは… ？？？</small>':'<small>💞</small>'}</div></div>`}
     ${window.MIOL?MIOL.block():''}
     ${window.MIOS?`<button id="mcstudy" class="mcstudy"><span>📝</span><b>英語で おしゃべり<small>毎回 ちがう 話・いまの レベルで</small></b>${MIOS.rec().d!==CG.today()?'<i class="dot"></i>':''}</button>`:''}
+    ${window.DATE?DATE.btn():''}
     <p class="mchd">💬 ミオの 話</p>
     <div class="mcls">${now.map(li).join('')}</div>
     ${old.length?`<details class="shmore"><summary>見おわった 話 ${old.length}</summary><div class="mcls">${old.map(li).join('')}</div></details>`:''}
@@ -62,6 +63,7 @@ function open(back){back=back||SHOP.open;hush();const M=MR(),s=stage(),g=MIO_STG
   H.panel.querySelector('.shm .cgnb').onclick=e=>{const j=e.currentTarget.querySelector('.ja');j.hidden=!j.hidden;speak(hi[0])};
   H.panel.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{sf('step');const t=MIO_TALKS.find(t=>t.id===b.dataset.k);t.pre?t.pre(()=>play(t,back),()=>open(back)):play(t,back)});
   if(window.MIOL)MIOL.bind(back);
+  if(window.DATE)DATE.bind(()=>open(back));
   $('mcgift').onclick=()=>{sf('step');GIFT.pick({to:'mio',back:()=>open(back)})};
   const st=$('mcstudy');if(st)st.onclick=()=>{sf('step');MIOS.start(()=>open(back))};
   const bk=$('mcbook');if(bk)bk.onclick=()=>{sf('book');MIOS.book(()=>open(back))};

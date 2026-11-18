@@ -14,7 +14,10 @@ const R=()=>window.RECENT;
 const pickL=a=>a[Math.random()*a.length|0];
 const has=k=>MINA_LINES[k]&&MINA_LINES[k].length;
 const MIN=60000;
-const ACT=['lesson','review','tokkun','sensei','deep','kaiwa','tutor','meal','snack','zbuy','zsell','bottle','map','treasure','gift','mine','pack','book','meteor','mio','sell','buyin'];
+/* ほかの ファイルが 足す できごと（デート・浜辺の 家・お祭り など）: MINA_REACT_EXT[k]={act:e=>[キー,値,行き先]|null, desc:e=>'〜した'} */
+const EXT=window.MINA_REACT_EXT=window.MINA_REACT_EXT||{};
+const ACT0=['lesson','review','tokkun','sensei','deep','kaiwa','tutor','meal','snack','zbuy','zsell','bottle','map','treasure','gift','mine','pack','book','meteor','mio','sell','buyin'];
+const ACT=()=>ACT0.concat(Object.keys(EXT));
 const LES=id=>(typeof LESSONS!=='undefined'?LESSONS:[]).find(l=>l.id===id);
 const back=()=>MINA.open();
 const kwName=c=>{try{return KAIWA.chars[c].n}catch(e){return c||''}};
@@ -68,7 +71,8 @@ function react(e){const v={};let k=null,go=null;
     else{v.msg=(window.MINA_EV_MSG&&MINA_EV_MSG[id])||((e.ico||'')+' '+(e.ja||''));k=e.cat==='show'?'r_show_any':'r_ev_any'}break}
   case 'visit':{const id=e.name||'';if(has('r_vis_'+id))k='r_vis_'+id;else{v.msg=(window.MINA_EV_MSG&&MINA_EV_MSG[id])||'';k=v.msg?'r_vis_any':null}break}
   case 'sky':k='r_sky_'+e.to;break;
-  case 'radio':k=e.on?'r_radio_on':'r_radio_off';break}
+  case 'radio':k=e.on?'r_radio_on':'r_radio_off';break;
+  default:if(EXT[e.k]&&EXT[e.k].act){const x=EXT[e.k].act(e);if(x){k=x[0];Object.assign(v,x[1]||{});go=x[2]||null}}}
   return k&&has(k)?[k,v,go]:null}
 
 /* ---------- できごとを みじかく（「この前は 〜よね」「〜・〜… いそがしいね」） ---------- */
@@ -79,7 +83,7 @@ function desc(e){try{switch(e.k){
   case 'zbuy':return `雑貨屋で ${e.ja}を 買った`;case 'zsell':return '雑貨屋で 売り買い した';case 'bottle':return 'ボトルメールを 読んだ';
   case 'map':return '宝の地図を 見つけた';case 'treasure':return '宝箱を あけた';case 'gift':return `${e.toN||'だれか'}に プレゼントした`;
   case 'mine':return `鉱山で ${e.depth|0}m まで ほった`;case 'pack':return '勉強で とどいた カードを 見た';
-  case 'book':return 'カードブックに カードを 入れた';case 'sell':return 'お店で カードを 売った';case 'buyin':return 'お店で カードを 買い取った';case 'mio':return 'ミオちゃんと 話した';case 'meteor':return '流れ星を つかまえた'}}catch(er){}return ''}
+  case 'book':return 'カードブックに カードを 入れた';case 'sell':return 'お店で カードを 売った';case 'buyin':return 'お店で カードを 買い取った';case 'mio':return 'ミオちゃんと 話した';case 'meteor':return '流れ星を つかまえた';default:return EXT[e.k]&&EXT[e.k].desc?EXT[e.k].desc(e):''}}catch(er){}return ''}
 const descList=a=>a.map(desc).filter(Boolean);
 
 /* ---------- わたしが すすめた こと（タップされた ボタン）→ その すぐあとの できごと ---------- */
@@ -94,7 +98,7 @@ function speak(k,v,go,ms){const [ex,tx]=MINA.line(k,v);return MINA.say('m',ex,tx
 /* 2つ つづけて（1つめの あと 少し 待って） */
 function speak2(a,b){speak(...a);setTimeout(()=>{if(onHome()&&!(H.stage||{}).cheer)speak(...b)},6500)}
 /* まだ 反応していない、 さっきの できごと（新しい 順） */
-const pending=ms=>{const r=R();if(!r)return [];const u=(r._rec.u.mina||[]);return r.list(ms,ACT).filter(e=>!u.includes(e.id))};
+const pending=ms=>{const r=R();if(!r)return [];const u=(r._rec.u.mina||[]);return r.list(ms,ACT()).filter(e=>!u.includes(e.id))};
 const useAll=a=>a.forEach(e=>R().used('mina',e));
 /* ホームに もどって きた */
 let homeT=0;
@@ -140,7 +144,7 @@ function page(){if(!R())return null;
   const ev=R().last(['bev','visit'],90000);if(ev&&Math.random()<.5){const r=react(ev);if(r)return [r[0],r[1],null,r[2]]}
   return null}
 /* ---------- ひさしぶりに ひらいた とき ---------- */
-function hello(){if(!R())return null;const e=R().list(3*864e5,ACT)[0];if(!e||Date.now()-e.t<15*MIN||Math.random()>.55)return null;
+function hello(){if(!R())return null;const e=R().list(3*864e5,ACT())[0];if(!e||Date.now()-e.t<15*MIN||Math.random()>.55)return null;
   const what=desc(e);if(!what||!has('r_back'))return null;return MINA.line('r_back',{what})}
 
 /* ---------- もちもの・体力・ほかの 場所の 場面を MINA_SENSE に 足す ---------- */
@@ -163,7 +167,7 @@ function rules(){if(!window.MINA_SENSE)return setTimeout(rules,500);
   ['x_cbookN',1,F=>{try{const [n,t]=CBOOK.stat();return n?{n,tot:t}:null}catch(e){return null}},()=>['🃏 カードショップへ',()=>CG.open()]],
   ['x_mioHi',2,F=>window.MIO?{}:null,()=>['🃏 カードショップへ',()=>CG.open()]],
   ['x_rain',3,F=>(N().rain|0)>0?{}:null,null],
-  ['x_lastDid',4,F=>{const e=R()&&R().list(3*3600e3,ACT)[0];if(!e||Date.now()-e.t<5*MIN)return null;const what=desc(e);return what?{what}:null},null],
+  ['x_lastDid',4,F=>{const e=R()&&R().list(3*3600e3,ACT())[0];if(!e||Date.now()-e.t<5*MIN)return null;const what=desc(e);return what?{what}:null},null],
   ];
   add.forEach(r=>MINA_SENSE._rules.push(r))}
 rules();

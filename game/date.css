@@ -1,0 +1,18 @@
+/* 💑 ミオと デート（game/date.js） */
+.dtbtn{background:linear-gradient(#ffb36b,#e0705a)!important;border-color:#ffe0c4!important}
+.dtdin{background:linear-gradient(#ffcf6b,#d9883a)!important;border-color:#ffe9b8!important}
+.dtdin[disabled]{opacity:.6;filter:saturate(.5)}
+.dtls button b{display:flex;flex-direction:column;gap:1px}
+.dtls button b small{font-size:.66rem;font-weight:600;color:#cbd2ff}
+.dtls button i{text-align:right;line-height:1.35}
+.dtls button[disabled]{opacity:.55}
+.dtls .dtown{opacity:.8!important}
+.dtls .dtown small{color:#9ff0c0!important}
+.mchd small{font-size:.66rem;opacity:.8;margin-left:4px}
+.dtpay{display:flex;flex-direction:column;align-items:center;gap:6px;background:#ffffff14;border-radius:14px;padding:18px 12px;text-align:center}
+.dtpay p{margin:0;font-size:.95rem;line-height:1.5}
+.dtpay b{font-size:1.4rem;color:#ffe14a}
+.dtpay small{font-size:.72rem;color:#cbd2ff}
+.dtmem{display:flex;flex-direction:column;gap:4px;padding:4px 10px 10px}
+.dtmem span{font-size:.82rem}
+.dtmem small{font-size:.68rem;color:#cbd2ff;margin-left:4px}
