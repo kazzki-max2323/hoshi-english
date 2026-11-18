@@ -423,20 +423,17 @@ function run(pk){const {p,t,x,V}=pk,W=WHO[p];
 
 /* ================================================================ the word book */
 /* count every card that comes up (not the same one twice in a row) */
+/* 11/18 ユーザー「途中で 出てくる イベント いらない」「メーター（だれかが 来るまで）が わかりにくい」:
+   単語帳で 20語ごとに だれかが 割り込む おしゃべりと その メーターは なくした（会話の データは のこしてある） */
 let lastW='';
-H.on('cardShow',(lv,bi,w)=>{const k=lv+':'+w[0];if(k===lastW)return;lastW=k;
-  TT.r=TT.r.filter(r=>!(r.lv===lv&&r.en===w[0]));TT.r.push({lv,bi,en:w[0],ja:w[1],e:w[2]||''});if(TT.r.length>EVERY)TT.r=TT.r.slice(-EVERY);
-  TT.n++;if(TT.n>=EVERY)TT.pend=1;save();bar();
-  if(TT.pend&&!OV)setTimeout(()=>{if(H.screen==='cards'&&TT.pend&&!OV)knock()},650)});
-/* the little dots: how close the next visitor is (20 dots, quiet) */
-function bar(){const b=$('ttbar');if(!b)return;const n=Math.min(EVERY,TT.n);b.style.setProperty('--p',(n/EVERY*100)+'%');b.title=`だれかが 来るまで あと ${EVERY-n}語`}
-/* 🎵 BGM button + the dots, when the word book opens */
-H.on('cardsOpen',()=>{lastW='';const seg=H.panel.querySelector('.wb .seg.only');if(!seg)return;
+const bar=()=>{};
+/* 🎵 BGM button, when the word book opens */
+H.on('cardsOpen',()=>{lastW='';TT.pend=0;const seg=H.panel.querySelector('.wb .seg.only');if(!seg)return;
   const b=document.createElement('button');b.id='ttBgm';b.className='ttbgm'+(TT.bgm?' tton':'');b.setAttribute('aria-label','BGM オン・オフ');b.innerHTML=TT.bgm?'🎵 ON':'🎵 OFF';seg.appendChild(b);
   b.onclick=e=>{e.stopPropagation();TT.bgm=TT.bgm?0:1;if(TT.bgm)TT.song=nextSong();save();b.classList.toggle('tton',!!TT.bgm);b.innerHTML=TT.bgm?'🎵 ON':'🎵 OFF';sf('pop');
     if(TT.bgm&&!ST.sound)H.toast('🔇 音を オンにすると きこえるよ');else if(TT.bgm&&TRACKS[TT.song])H.toast(`🎵 ${TRACKS[TT.song].name}`,1800);
     H.musAt()};
-  const deck=H.panel.querySelector('.wb .deck');if(deck){const d=document.createElement('div');d.id='ttbar';d.className='ttbar';deck.after(d);bar()}});
+});
 /* slow lo-fi songs for the word book (a new one each time you turn it on) */
 const SONGS=()=>Object.keys(typeof TRACKS!=='undefined'?TRACKS:{}).filter(k=>/^lofi_/.test(k));
 function nextSong(){const L=SONGS().filter(k=>k!==TT.song);return pickL(L)||TT.song||''}
@@ -449,8 +446,8 @@ window.TANGO={rec:()=>TT,knock,talks:T,_choose:choose,_force:(id)=>{const t=T.fi
 /* ================================================================ ミナ先生の セリフ */
 const ML=(k,v)=>{try{return MINA.line(k,v||{})}catch(e){return ['smile','']}};
 Object.assign(MINA_LINES,{
- tt_new:[['wow','お知らせ！ 単語帳で 20語 めくるごとに、 浜辺の だれかが おしゃべりしに 来るように なったよ。 さっきの 単語の 話を するの'],
-  ['happy','単語帳、 のんびり やろうね。 20語ごとに わたしや ミオさん、 リクくんが 遊びに 行くよ。 上の 🎵 で ゆっくりな BGMも かけられるよ']],
+ tt_new:[['happy','単語帳、 のんびり やろうね。 上の 🎵 で ゆっくりな BGMも かけられるよ']],
+ x_ttQuiet:[['smile','単語帳は もう だれも 割り込まないよ。 じぶんの ペースで めくってね'],['happy','単語帳、 しずかに 集中できるように したよ。 🎵 BGMと 波の 音だけ どうぞ']],
  x_ttBgm:[['smile','単語帳の 上の 🎵 を おすと、 ゆっくりな ローファイが ながれるよ。 波の 音と いっしょに どうぞ'],['happy','のんびり 覚えたい 日は、 単語帳で 🎵 BGMを オンに してみて']],
  x_ttLast:[['happy','{who}と 「{w}」の 話を したんだって？ 「{jc}」、 もう 覚えたね'],['smile','さっき {who}が 「{w}」の 話を してたって。 だれかと 話した 単語は わすれにくいんだよ'],
   ['think','「{w}」って 「{jc}」だったよね。 {who}との おしゃべり、 楽しかった？']],
@@ -460,10 +457,8 @@ Object.assign(MINA_LINES,{
 const WN={mina:'先生',mio:'ミオさん',riku:'リクくん',nora:'ノラさん',pip:'ピップ',marco:'マルコさん'};
 const goTango=()=>['📕 単語帳を ひらく',()=>H.books()];
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
- ['x_ttBgm',1,()=>TT.talks>=1&&!TT.bgm?{}:null,goTango],
- ['x_ttLast',3,()=>{const L=TT.last;return L&&L.who!=='mina'&&Date.now()-L.t<6*3600e3?{who:WN[L.who],w:L.w,jc:L.jc}:null},goTango],
- ['x_ttLastMe',2,()=>{const L=TT.last;return L&&L.who==='mina'&&Date.now()-L.t<6*3600e3?{w:L.w}:null},goTango],
- ['x_ttNear',1,()=>{const n=EVERY-TT.n;return TT.n>=10&&n>0?{n}:null},goTango]);   // x_ttCards（おしゃべりで もらう カード）は 11/18 に なくした
+ ['x_ttBgm',1,()=>!TT.bgm?{}:null,goTango],
+ ['x_ttQuiet',2,()=>TT.talks>=1&&Date.now()<Date.UTC(2026,11,2)?{}:null,goTango]);   // 割り込みの おしゃべり（x_ttLast/x_ttNear/x_ttCards）は 11/18 に なくした
 /* 新しく できたことを 1回だけ */
 setTimeout(function first(){if(TT.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
   TT.told=1;save();const [ex,tx]=ML('tt_new');m.say('m',ex,tx,10000,null,goTango())},34000);
