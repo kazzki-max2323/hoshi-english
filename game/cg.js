@@ -250,6 +250,10 @@ function more(I){const h=I.h,WI=window.WI,out=[];
     const bp=`<b>${esc(dv.b)}</b>${bj?`（${esc(bj)}）`:''}`,pp=`<b>${esc(P[0])}</b>（${esc(P[1])}）`;
     out.push(`<div class="wirt"><p>🧩 なりたち: ${pre?pp+' ＋ '+bp:bp+' ＋ '+pp}</p><p class="wirs">${esc(bj||dv.b)} ＋ 「${esc(P[1])}」 → ${esc(I.ja)}</p></div>`)}
   else if(fam.length)out.push(`<p>🧩 なかまの ことば: ${fam.map(d=>`<b>${esc(d.d)}</b>`).join(', ')}</p>`);
+  /* 🧠 覚え方（データは game/winfo-memo.js） */
+  const mm=window.WMEMO?WMEMO.get(h):'';
+  if(mm){let ml='';try{if(window.MINA&&Math.random()<.35)ml=MINA.line('wi_memo',{w:h})[1]}catch(e){}
+    out.push(`<div class="wimm"><p>🧠 覚え方: ${esc(mm)}</p>${ml?`<p class="wirm">👩‍🏫 ${esc(ml)}</p>`:''}</div>`)}
   const tips=[];if(x.tip)tips.push(esc(x.tip));
   const wr=WRONG.find(w=>w.a===h||w.b===h);if(wr&&tips.length<2)tips.push(`×「${esc(wr.a)} ${esc(wr.b)}」→ ⭕「${esc(wr.ok)}」 ${esc(wr.why)}`);
   if(x.tip&&(f.p==='np'||f.rows.some(r=>x.tip.includes(String(r[0]).split(/[ /]/).pop()))))f.tips=[];
