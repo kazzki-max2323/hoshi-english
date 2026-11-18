@@ -37,9 +37,11 @@ const todayN=()=>Math.min(MAXQ,missN()+dueIds().filter(id=>!miss()[id]).length*2
 const stars=id=>{const r=rvOf(id);return Math.min(5,r.n)};
 
 /* ---------- build a drill ---------- */
-function build(mode){const out=[],seen=new Set(),add=(id,qi)=>{const k=id+'#'+qi;if(seen.has(k)||out.length>=MAXQ)return;const l=lesOf(id);if(!l||!l.quiz[qi])return;seen.add(k);out.push({l,qi})};
+function build(mode,max0){const max=max0||MAXQ;const out=[],seen=new Set(),add=(id,qi)=>{const k=id+'#'+qi;if(seen.has(k)||out.length>=max)return;const l=lesOf(id);if(!l||!l.quiz[qi])return;seen.add(k);out.push({l,qi})};
   /* 1. the mistakes, the ones missed most first */
   Object.entries(miss()).flatMap(([id,o])=>Object.entries(o).map(([qi,v])=>[id,+qi,v.c+Math.random()*.5])).sort((a,b)=>b[2]-a[2]).forEach(([id,qi])=>add(id,qi));
+  /* ミナ先生の 「もう1回 やろう？」は 5問: まちがえた 授業の ほかの 問題で うめる */
+  if(mode==='miss'&&max0&&out.length<max)Object.keys(miss()).forEach(id=>{const l=lesOf(id);if(l)shuffle(l.quiz.map((q,i)=>i)).forEach(qi=>add(id,qi))});
   if(mode==='miss')return out;
   /* 2. lessons whose day has come: two questions each, the most overdue first */
   const now=dayN(Date.now());
@@ -53,7 +55,7 @@ function point(l){const s=l.steps.find(x=>x[3])||l.steps.filter(x=>x[0]==='m').p
   return `<div class="rvpt"><b>💡 授業の ポイント</b><p>${s[2]}</p>${s[3]?`<div class="fz">${s[3]}</div>`:''}</div>`}
 
 /* ---------- the drill ---------- */
-function drill(mode,back){back=back||list;const Q=build(mode);if(!Q.length){H.toast('📚 いまは ふくしゅうする 授業が ないよ<small>ミニ授業を クリアすると ふえるよ</small>');return}
+function drill(mode,back,max){back=back||list;const Q=build(mode,max);if(!Q.length){H.toast('📚 いまは ふくしゅうする 授業が ないよ<small>ミニ授業を クリアすると ふえるよ</small>');return}
   let k=0,okN=0;const res={};   // lesson id -> all right?
   const ask=()=>{const {l,qi}=Q[k],q=l.quiz[qi],wasMiss=!!(miss()[l.id]||{})[qi];
     const order=q.order?null:shuffle(q.o.map((o,i)=>i));
@@ -150,5 +152,7 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
   MINA.announce('think',mn?`📚 ふくしゅうの 時間だよ。 まえに まちがえた 問題が <b>${mn}問</b> あるの。 いっしょに やっつけよう！ わたしの 顔を タップしてね`
     :`📚 そろそろ ふくしゅうの 日の 授業が あるよ。 <b>${n}問</b>だけ、 思い出してみよう！ わたしの 顔を タップしてね`,10000,()=>drill('today',H.home))},1000);
 
-window.REVIEW={list,drill,todayN,missN,dueIds,stars,nextDay,dayN,_test:{due:id=>{const R=MV();R.qz.rv[id]={n:0,t:Date.now()-864e5*2};save()},call:()=>{callAt=homeT}}};
+/* いちばん 新しい まちがい（ミナ先生の 「きのう まちがえた ○○、 もう1回 やろう？」 game/study.js） */
+function lastMiss(){let b=null;Object.entries(miss()).forEach(([id,o])=>Object.values(o).forEach(v=>{if(lesOf(id)&&(!b||v.t>b.t))b={id,t:v.t}}));return b}
+window.REVIEW={list,drill,lastMiss,todayN,missN,dueIds,stars,nextDay,dayN,_test:{due:id=>{const R=MV();R.qz.rv[id]={n:0,t:Date.now()-864e5*2};save()},call:()=>{callAt=homeT}}};
 })();

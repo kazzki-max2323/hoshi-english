@@ -98,17 +98,17 @@ function listLine(){const lv=listLv,w=weakAll(),gd=goodG(),todo=SC.filter(s=>s.l
   else if(w.length&&r<.35){k='sn_listWeak';v.g='「'+gName(w[0])+'」'}
   else if(gd.length&&r<.5){k='sn_listGood';v.g='「'+gName(gd[0])+'」'}
   else if(todo.length&&r<.7){k='sn_listTodo';v.t='「'+todo[0].t+'」'}
-  else if(r<.85){k='sn_listPat'}
+  /* パターンの 数は 📊 きろく へ（ふだんは 数字を 見せない） */
   else if(endsN()){k='sn_listEnds';v.n=endsN();v.tot=endsAll()}
   return ML(k,v)}
 function list(){listLv=listLv||(LV.includes(myLv())?myLv():'es');const [ex,tx]=listLine(),S=SC.filter(s=>s.lv===listLv),w=weakAll();
   H.show('sensei',`<section class="pnl kwp snp">
-    <div class="qtop"><button class="x" id="sx" aria-label="もどる">←</button><b>🗣️ ミナ先生と 英語で 話す</b><span class="qn">🏁 ${endsN()}/${endsAll()}</span></div>
+    <div class="qtop"><button class="x" id="sx" aria-label="もどる">←</button><b>🗣️ ミナ先生と 英語で 話す</b><span></span></div>
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     <div class="seg">${LV.map(k=>`<button data-l="${k}" class="${k===listLv?'on':''}">${LVN[k]}</button>`).join('')}</div>
     <div class="lslist klist">${S.map(row).join('')}</div>
     <div class="row"><button id="sgo">🎲 おまかせ</button><button id="skarte" class="sub">📋 文法カルテ</button></div>
-    <p class="snpat">会話の パターン：<b>約 ${patText()} とおり</b>（場面 ${SC.length}・エンド ${endsAll()}・文法チェック ${Object.values(DR).reduce((a,d)=>a+d.length,0)}しゅ）</p>
+    <!-- 会話の パターンの 数は ミナ先生の 📊 きろく へ -->
     <label class="kjat"><input type="checkbox" id="sja" ${SD.ja?'checked':''}> 日本語訳を いつも 出す <small>（小学生は いつも 出るよ）</small></label>
   </section>`);
   $('sx').onclick=()=>{SFX.pop();MINA.open()};

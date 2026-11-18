@@ -1,0 +1,127 @@
+/* ミナ先生の 勉強（game/study.js）: きょうの 1本・3つの 入口・4ステップの 道・授業の カード。 文字は 影なしで くっきり */
+.minap .stcard,.minap .st3,.stpath,.lcards,.lpre,.stbrk,.mrecp{text-shadow:none}
+/* ---------- きょうの 1本 ---------- */
+.stcard{display:flex;flex-direction:column;gap:8px;border-radius:16px;padding:10px;
+  background:linear-gradient(135deg,rgba(255,210,63,.24),rgba(255,122,89,.16) 55%,rgba(122,162,255,.16));border:2px solid #ffd23f;box-shadow:0 0 14px rgba(255,210,63,.3)}
+.stsay{display:flex;align-items:flex-start;gap:8px}
+.stsay .lface{width:56px;height:56px}
+.stsay p{margin:0;flex:1;background:#fff6e0;color:#2a2340;border-radius:4px 14px 14px 14px;padding:8px 12px;font-size:.9rem;line-height:1.55;font-weight:700}
+.stgo{display:grid!important;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px!important;border-radius:14px!important;
+  background:#2a2f6e!important;border:2px solid #ffd23f!important}
+.stgo .stico{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;background:#fff6e0;font-size:1.6rem}
+.stgo .sttx{min-width:0}
+.stgo .sttx small{display:block;font-size:.7rem;font-weight:800;color:#ffe7a8}
+.stgo .sttx b{display:block;font-size:1.06rem;line-height:1.35;color:#fff}
+.stgo .stplay{display:grid;place-items:center;min-width:46px;height:46px;border-radius:50%;background:linear-gradient(#ffe27a,#ffb04a);color:#3a2000;font-weight:900;font-size:1.1rem}
+.stgo .stplay.sub{border-radius:999px;padding:0 10px;font-size:.8rem}
+.stgo .stplay i{font-style:normal}
+.stcard.cd .stplay{animation:stpulse 1s ease-in-out infinite}
+@keyframes stpulse{50%{transform:scale(1.12)}}
+.stgo.done{border-color:#55e0b4!important}
+.stsub{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.stplan{display:flex;align-items:center;gap:3px;font-size:.8rem}
+.stplan i{font-style:normal;display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.1);opacity:.75}
+.stplan i.ok{background:#55e0b4;color:#0b3a2c;font-weight:900;opacity:1}
+.stplan i.now{background:#ffd23f;opacity:1;box-shadow:0 0 0 2px #fff6}
+.stplan b{color:var(--mute);font-weight:400}
+.stlater{margin-left:auto;padding:5px 14px!important;font-size:.8rem!important}
+.stmin{display:flex;align-items:center;gap:5px;flex-wrap:wrap;font-size:.76rem;color:#ffe7a8;font-weight:800}
+.stmin span{margin-right:2px}
+.stmin button{padding:3px 10px!important;font-size:.76rem!important;border-width:1px!important;background:rgba(255,255,255,.08)!important}
+.stmin button.on{background:#ffd23f!important;color:#3a2000!important;border-color:#ffd23f!important}
+/* ---------- 習う・ふくしゅう・話す ---------- */
+.st3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.st3 button{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px!important;border-radius:14px!important}
+.st3 button span{font-size:1.5rem;line-height:1.1}
+.st3 button b{font-size:.92rem}
+.st3 .dot,.stmore summary .dot{position:absolute;top:6px;right:8px;width:9px;height:9px;border-radius:50%;background:#ff5d73}
+.stmore summary{position:relative}
+.stmore summary .dot{position:static;display:inline-block}
+.stmore .mfbody{display:flex;flex-direction:column;gap:8px;padding:0 10px 10px}
+.stmore .mtiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+.stmore .mtiles .mvc.rv{display:none!important}
+.stmore .mtalk:empty{display:none}
+.mrecb{align-self:center;padding:5px 16px!important;font-size:.8rem!important}
+/* ---------- きろく ---------- */
+.sth{margin:2px 0 0;font-size:.9rem}
+.stcan{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:5px}
+.stcan li{background:rgba(255,255,255,.07);border-radius:10px;padding:7px 10px;font-size:.86rem;font-weight:700}
+.stcan li.full{background:rgba(85,224,180,.16);border:1px solid rgba(85,224,180,.5)}
+.stcan li.none{font-weight:400;color:var(--mute)}
+.stnums{display:flex;flex-direction:column;gap:4px;margin:6px 0}
+.stnums p{margin:0;display:flex;justify-content:space-between;gap:8px;font-size:.78rem}
+.stnums b{text-align:right}
+/* ---------- 「つぎへ」（おわった 画面に 出る） ---------- */
+.stnext{display:flex;justify-content:center;margin:10px 0 2px}
+.stnext button{background:linear-gradient(#ffe27a,#ffb04a)!important;color:#3a2000!important;border-color:#a8600f!important;font-weight:900;text-shadow:none}
+/* ---------- 4ステップの 道 ---------- */
+.stfocus{display:flex;flex-direction:column;gap:8px;border-radius:14px;padding:10px;background:rgba(255,210,63,.12);border:2px solid rgba(255,210,63,.6)}
+.stft{font-size:1rem}
+.stcmp{margin:0;font-size:.78rem;color:#ffe7a8}
+.stdots{display:inline-flex;align-items:center;gap:3px;flex-shrink:0}
+.stdots i{font-style:normal;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.1);font-size:.7rem}
+.stdots i.ok{background:#55e0b4;color:#0b3a2c;font-weight:900}
+.stdots i.now{background:#ffd23f;box-shadow:0 0 0 2px #fff6}
+.stdots.big{display:flex;justify-content:space-between;width:100%}
+.stdots.big i{width:auto;height:auto;flex:1;flex-direction:column;border-radius:12px;padding:8px 2px;font-size:1.3rem;cursor:pointer}
+.stdots.big i small{font-size:.7rem;font-weight:800}
+.stdots.big i.ok{font-size:1.1rem}
+.stdots .star{color:var(--mute);font-weight:400}
+.stgo2{background:linear-gradient(#ffe27a,#ffb04a)!important;color:#3a2000!important;border-color:#a8600f!important;font-weight:900;text-shadow:none}
+.stcan1{margin:0;font-weight:800;color:#9ff0d4}
+.stgrow{display:flex!important;align-items:center;gap:8px}
+.stgrow .lt{flex:1;min-width:0}
+.stgrow.on{border-color:#ffd23f!important}
+.stall{align-self:center;font-size:.78rem!important}
+/* ---------- 授業: 1まいずつ めくる カード ---------- */
+.lcdots{display:flex;gap:4px;justify-content:center}
+.lcdots i{width:18px;height:5px;border-radius:3px;background:rgba(255,255,255,.18)}
+.lcdots i.ok{background:#55e0b4}.lcdots i.now{background:#ffd23f}
+.lcd{min-height:min(42vh,340px);display:flex;align-items:center;cursor:pointer;touch-action:pan-y}
+.lcd .lsay{width:100%}
+.lcd .lbody>p{font-size:.98rem;line-height:1.7}
+.lcd.lflip{animation:lflip .3s ease-out}
+@keyframes lflip{from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:none}}
+.lcen{background:none!important;padding:0!important;margin:0 0 4px!important;font-size:.82rem!important;color:#ffe7a8}
+.lcnav{display:grid!important;grid-template-columns:auto auto 1fr;gap:8px}
+.lqbtn{width:46px;height:46px;padding:0!important;border-radius:50%!important;font-size:1.3rem!important;font-weight:900;background:#7aa2ff!important;color:#fff!important}
+.lqrow{justify-content:flex-end!important}
+.lhelp:empty,#lhint:empty{display:none}
+.steasy,.stwhy{display:flex;align-items:flex-start;gap:8px;background:rgba(122,162,255,.14);border:1px solid rgba(122,162,255,.5);border-radius:12px;padding:8px}
+.stwhy{background:rgba(255,154,168,.12);border-color:rgba(255,154,168,.5);margin-top:6px}
+.steasy p,.stwhy p{margin:0;font-size:.86rem;line-height:1.6}
+.steasy .steb,.stwhy .stfix{margin-top:4px;background:#fff6e0;color:#2a2340;border-radius:10px;padding:6px 10px;font-weight:700}
+.steb b{display:block;font-size:.72rem;color:#c2410c}
+.steb small{display:block;font-weight:400;font-size:.76rem;margin-top:2px}
+.sten{font-family:"Libre Baskerville",Georgia,serif;font-weight:700}
+.steb .sten{display:block;font-size:.95rem}
+small.sten{font-size:.8em;color:#b45309;margin-left:4px}
+.lcen small.sten{color:#ffe7a8}
+.stja{font-size:.8em;opacity:.85}
+.lopts button.gone{opacity:.25!important;text-decoration:line-through}
+.lcmp .lbody{background:#fff6e0;color:#2a2340;border-radius:4px 14px 14px 14px;padding:9px 12px}
+.lcmp .lbody p{margin:0 0 6px;background:none!important;padding:0!important;color:#2a2340}
+.stcmpt{background:none!important;padding:0!important;font-size:.86rem}
+.stcmpx{display:flex;align-items:center;gap:6px}
+.stcmpx span{flex:1;display:flex;flex-direction:column;gap:2px;background:#ece4d0;border-radius:10px;padding:6px 8px}
+.stcmpx span.now{background:#ffe7a8;border:2px solid #f0a020}
+.stcmpx small{font-size:.66rem;color:#6b5f80}
+.stcmpx b{font-family:"Libre Baskerville",Georgia,serif;font-size:.86rem}
+.stcmpx i{font-style:normal;color:#f0a020;font-weight:900}
+.lsug .lbody p{margin-bottom:6px}
+/* ---------- ひと休み ---------- */
+.stbrkcard{background:#fff6e0;color:#2a2340;border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.stbrkcard p{margin:0;font-size:1rem;line-height:1.6}
+.stbrkcard small{font-size:.84rem;line-height:1.55}
+.stbrkcard .ksay{padding:0 6px!important;font-size:.9rem!important;background:none!important;border:0!important}
+/* ---------- 文法ノート: 1行 → もっと 知りたい ---------- */
+.gview .gone{margin:0 0 8px;font-size:1rem;font-weight:800;line-height:1.6;background:#fff6e0;color:#2a2340;border-radius:12px;padding:9px 12px;text-shadow:none}
+.gmb{display:flex!important;align-items:center;gap:8px;margin:10px auto 4px;font-weight:800}
+.gmb small{font-weight:400;font-size:.74rem;color:var(--mute)}
+.gstep{animation:lflip .3s ease-out}
+.gwhy,.gqa{font-size:.86rem;line-height:1.65;margin:4px 0}
+.gqa b{display:block;color:#ffe7a8}
+.gwhyb{margin-top:8px}
+.stmin.big{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.stmin.big button{padding:12px 0!important;font-size:1rem!important;font-weight:900;border-width:2px!important;background:#2a2f6e!important;border-color:#ffd23f!important;color:#fff!important}
+.mtiles[hidden]{display:none!important}
