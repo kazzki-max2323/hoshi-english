@@ -156,7 +156,7 @@ const R=[
 ['x_songTimeShop',1,F=>{const ids=shelf('music').map(it=>it.id),id=pickL(TIME_SONG[F.part].filter(id=>ids.includes(id)&&typeof TRACKS!=='undefined'&&TRACKS[id]));return id?{song:trackName(id)}:null},()=>goShop('music')],
 ['x_songRare',1,F=>ST.music.includes('orch')?{song:trackName('orch')}:null,v=>['🃏 お店で ながす',()=>{H.shopSong('orch');window.CG?CG.open():H.home()}]],
 
-['x_eventShop',1,F=>{const ids=shelf('event').map(it=>it.id),a=CATALOG.event.filter(e=>ids.includes(e.id)&&e.p<=F.coins);if(!a.length)return null;const e=pickL(a);return {ico:e.ico,ev:e.n,price:e.p,d:e.d}},()=>goShop('event')],
+['x_eventShop',1,F=>{const a=CATALOG.event.filter(e=>H.onSale(e)&&e.p<=F.coins);if(!a.length)return null;const e=pickL(a);return {ico:e.ico,ev:e.n,price:e.p,d:e.d}},()=>['🏮 お祭りの 掲示板',()=>window.FEST?FEST.events():H.home()]],
 
 /* ===== 文法ノート ===== */
 ['x_gramUnread',3,F=>{const a=F.gram.filter(g=>g.own&&!g.clr);if(!a.length)return null;const g=pickL(a);return {g:g.n.t,_g:g}},v=>goGram(v._g.lv,v._g.i)],
