@@ -52,7 +52,8 @@ function note(h,cls=''){if(!live())return;const d=document.createElement('div');
 function opts(list,fn){if(!live())return;const A=$('msans');
   A.innerHTML=`<div class="lopts kopts">${list.map(([t,k])=>`<button data-k="${k}">${esc(t)}</button>`).join('')}</div>`;
   A.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{A.innerHTML='';fn(+b.dataset.k)});scrollLog()}
-const later=(fn,ms)=>setTimeout(()=>{if(live())fn()},ms);
+/* つぎの セリフは ミオが 読みおわってから（音が オフなら いままでと 同じ 間で） */
+const later=(fn,ms)=>H.afterTalk?H.afterTalk(fn,Math.min(ms,350),ms,live):setTimeout(()=>{if(live())fn()},ms);
 
 function start(back){hush();back=back||(()=>MIOC.open());
   const qs=pick3();P={qs,i:0,back,first:{},taught:0};

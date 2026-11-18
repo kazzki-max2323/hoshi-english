@@ -68,7 +68,9 @@ function serve(X){const {T,g,box}=X,BUY=!!X.buy,W=who(g),nm=short(g);
     logE.appendChild(d);logE.scrollTop=logE.scrollHeight;try{d.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}
     if(r==='g'){g.bub='';T.mu.until=0}
     return en};
-  const wait=ms=>new Promise(res=>{const t0=Date.now();const iv=setInterval(()=>{if(!alive()||fast||Date.now()-t0>=ms){clearInterval(iv);res()}},80)});
+  /* つぎの セリフは 前の セリフを 読みおわってから */
+  const busy=()=>{try{return !!(H.talkBusy&&H.talkBusy())}catch(e){return false}};
+  const wait=ms=>new Promise(res=>{const t0=Date.now();const iv=setInterval(()=>{if(!alive()||fast||(Date.now()-t0>=ms&&!busy())){clearInterval(iv);res()}},80)});
   const pace=s=>mode==='mio'?1100+Math.min(3200,String(s).length*62):mode==='me'?650:0;
   const G=async(line)=>{const s=add('g',line);await wait(pace(s))};
   const ME=async(line,ex)=>{const s=add(mode==='mio'?'m':'me',line,ex);await wait(pace(s)*(mode==='me'?.4:1))};

@@ -98,8 +98,10 @@ function play(t,back){if(!t)return open(back);hush();
   setTimeout(()=>node('s'),300)}
 function node(k){if(!live())return;const n=C.t.nodes[k];if(!n)return;
   them(n);$('mcans').innerHTML='';
-  if(n.end)return setTimeout(()=>finish(n,k),1400);
-  setTimeout(()=>{if(!live())return;const on=jaOn();
+  /* 答えと おわりは セリフを 読みおわってから */
+  const wait=(fn,ms)=>H.afterTalk?H.afterTalk(fn,300,ms,live):setTimeout(fn,ms);
+  if(n.end)return wait(()=>finish(n,k),1400);
+  wait(()=>{if(!live())return;const on=jaOn();
     /* 答えの 5番目（o[4]）は もちものの しるし。 もっている ときだけ 出す（🧿 お守り など。 game/horror.js） */
     const okO=o=>!o[4]||(window.HORROR&&HORROR.has(o[4]));
     $('mcans').innerHTML=`<div class="lopts kopts">${H.shuffle(n.o.map((o,i)=>[o,i]).filter(([o])=>okO(o))).map(([o,i])=>`<button data-i="${i}">${esc(o[0])}<small class="mcja" ${on?'':'hidden'}>${esc(o[1])}</small></button>`).join('')}</div>
