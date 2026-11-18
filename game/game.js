@@ -376,8 +376,8 @@ function clearOfFire(x,y){const [fx,fy]=fireSpot();return Math.abs(x-fx)>.17||Ma
 function sandSpots(){try{const d=SC.dbg(),k=d.k,F=(px,top,w,h)=>[px/d.WW,(top+h/2)/d.WH,w/2/d.WW,h/2/d.WH];
   const tw=60*k,cw=54*k,hw=50*k,fw=52*k,cx=Math.min(d.WW*.74,d.WW*.9-hw/2-cw/2-4);
   /* リク・カードショップ・雑貨屋・しおかぜ食堂（game/food.js hut()、 .4） */
-  return [F(Math.max(d.WW*.11,tw/2+4),d.shore-d.WT+62*k-tw*57.4/72,tw,tw*60/72),F(cx,d.shore-d.WT+42*k-cw*60.6/72,cw,cw*64/72),F(d.WW*.9,d.shore-d.WT+36*k-hw*53.4/64,hw,hw*56/64),F(d.WW*.4,d.shore-d.WT+40*k-fw*60.6/72,fw,fw*64/72),...(()=>{/* 🏠 浜辺の 家（game/house.js BOX） */const uw=60*k;return [F(d.WW*.22,d.shore-d.WT+96*k-uw*60/72,uw,uw*60/72)]})()]}
-  catch(e){return [[.11,.66,.075,.06],[.74,.64,.07,.055],[.9,.62,.06,.05],[.4,.64,.065,.055],[.22,.72,.08,.07]]}}
+  return [F(Math.max(d.WW*.11,tw/2+4),d.shore-d.WT+62*k-tw*57.4/72,tw,tw*60/72),F(cx,d.shore-d.WT+42*k-cw*60.6/72,cw,cw*64/72),F(d.WW*.9,d.shore-d.WT+36*k-hw*53.4/64,hw,hw*56/64),F(d.WW*.4,d.shore-d.WT+40*k-fw*60.6/72,fw,fw*64/72),...(()=>{/* 🏠 浜辺の 家（game/house.js BOX） */const uw=60*k;const bw=34*k;/* 🏮 お祭りの 掲示板（game/fest.js BOX） */return [F(d.WW*.22,d.shore-d.WT+96*k-uw*60/72,uw,uw*60/72),F(d.WW*.8,d.shore-d.WT+92*k-bw*50/48,bw,bw*50/48)]})()]}
+  catch(e){return [[.11,.66,.075,.06],[.74,.64,.07,.055],[.9,.62,.06,.05],[.4,.64,.065,.055],[.22,.72,.08,.07],[.8,.72,.05,.05]]}}
 function clearOfSpots(x,y){return sandSpots().every(([sx,sy,hw,hh])=>Math.abs(x-sx)>hw+.08||Math.abs(y-sy)>hh+.05)}
 const okSpot=(x,y)=>clearOfFire(x,y)&&clearOfSpots(x,y);
 /* radios keep clear of each other in pixels, not fractions: on a narrow phone two radios 10% apart would sit on top of each other */
