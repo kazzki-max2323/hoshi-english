@@ -1,8 +1,8 @@
 /* ⛏️ 単語の 鉱山（11/18 作りなおし）: 岩の 中に ねむる まだ 持っていない カード 5まいを ほりだして、 一階ずつ 下りていく
    - 5まいは ランダム。 小学生（まだ ない カードが ある いちばん 下の レベル）から はじめて、 1〜2まいは 一つ上。 深い 階ほど 上の レベルが まざる（pickFloor）
    - 1まいずつ 左から じゅんばんに 問題。 正解で 岩が けずれて、 何回か 正解すると ほりだせて 自分の ものに なる
-     いる 回数は おぼえぐあいで かわる（よく おぼえている 2回・はじめて 4回・苦手 5回・まちがえると +1）。 画面には 出さない（needOf）
-     はじめての ことばは さいしょに 1回 見せて 読む（intro）。 問題の 形は その カードを ほった 回数で すすむ（和訳 → 英語で → 聞きとり → ならべかえ …）
+     いる 回数は おぼえぐあいで かわる（よく おぼえている 3回・はじめて 5回・苦手 6回・まちがえると +1）。 画面には 出さない（needOf）
+     はじめての ことばは さいしょに 1回 見せて 読む（intro）。 問題の 形は その カードを ほった 回数で すすむ（和訳 → 英語で → 🧩ならべかえ → 聞きとり …。 ならべかえは 3問目）
    - 5まい ほりだしたら: 📜 5つの ことばの 小さな お話（game/mine-story.js。 読めたら ボーナス）→ 床が くずれて 一つ 下の 階 → 🏕️ 休憩所（game/mine-rest.js）
      休憩所で 食べる・単語ラジオ・❤回復・📡 トランシーバーで ミオと 話す（game/mine-walkie.js）・ほった 5まいを ながめる。 そこから つぎの 5まい か 帰る
    - ほりだした カードは そのまま 📖カードブックへ（toBook。 11/18: ブックに 入れずに 売ると「持っていない」に もどって また 鉱山に 出るのを ふせぐ。
@@ -47,7 +47,8 @@ const QICO={mean:'🇯🇵 和訳',rev:'🔤 英語で',listen:'👂 聞きと�
 /* 書く 問題（打ちこむ 形）は 出さない ことも できる（スマホで 打つのが 大変な とき。 MN().noType に 覚える） */
 const TYPING=['type','dict'];
 const noType=()=>!!MN().noType;
-const SEQ=['mean','rev','listen','scramble','miss','fill','spell','type','scramble','dict','rev','fill'];
+/* 11/18 ユーザー「並べかえが かなり 覚える。 3番目くらいに ほしい」: 3問目は かならず 🧩 ならべかえ。 そのあとも ときどき 出る */
+const SEQ=['mean','rev','scramble','listen','miss','scramble','fill','spell','type','scramble','dict','rev','fill'];
 const seq=()=>SEQ.filter(t=>(ST.sound||!['listen','dict'].includes(t))&&!(noType()&&TYPING.includes(t)));
 const course=()=>seq().map(t=>({t,n:QICO[t]}));
 
@@ -71,12 +72,13 @@ function pickFloor(fl,not=[]){const out=[],used=new Set(not);
     if(!id){const pool=C.W.filter(c=>c.lv===LVK[li]&&!inBook(c.id)&&!used.has(c.id)&&!used.has('h:'+c.h));if(pool.length){pool.sort((a,b)=>(C.weak(b.id)?1:0)-(C.weak(a.id)?1:0)||C.star(a.id)-C.star(b.id)+Math.random()-.5);id=pool[0].id}}
     if(id){used.add(id);used.add('h:'+C.info(id).h);out.push(id)}});
   return out}
-/* 発掘に いる 回数（画面には 出さない）: よく おぼえている ことばは 2回、 はじめては 4回、 苦手は 5回。 まちがえると 1回 ふえる */
+/* 発掘に いる 回数（画面には 出さない）: よく おぼえている ことばは 3回、 はじめては 5回、 苦手は 6回。 まちがえると 1回 ふえる
+   11/18 ユーザー「単語クイズは もっと 多く やりたい」で 1回ずつ ふやした（前は 2/3/4/5） */
 const fresh=id=>{const s=C.star(id);return s<=1&&!learned(id)&&!(R().x&&R().x[id])};
-function needOf(id){if(C.weak(id))return 5;const s=C.star(id);if(learned(id)||s>=4)return 2;if(s>=2)return 3;return fresh(id)?4:3}
+function needOf(id){if(C.weak(id))return 6;const s=C.star(id);if(learned(id)||s>=4)return 3;if(s>=2)return 4;return fresh(id)?5:4}
 
 function open(){const M=MN();
-  const TLs=toolList();let mk=myHp()<20&&window.FOOD?'fd_tired':!M.v2?'mn_v2':!M.digOnly?'mn_digOnly':'mn_open';if(mk==='mn_digOnly'){M.digOnly=1;C.save()}
+  const TLs=toolList();let mk=myHp()<20&&window.FOOD?'fd_tired':!M.v2?'mn_v2':!M.digOnly?'mn_digOnly':!M.moreQ?'mn_moreQ':'mn_open';if(mk==='mn_digOnly'){M.digOnly=1;C.save()}if(mk==='mn_moreQ'){M.moreQ=1;C.save()}
   if(mk==='mn_open'&&Math.random()<.35)mk=TLs.length?'mn_tools':'mn_noTools';
   const [ex,tx]=ML(mk,{f:M.bestF||0});
   const lv=LVK[baseLv()],nx=LVK[Math.min(3,baseLv()+1)];
@@ -180,7 +182,7 @@ function next(){if(!D||D.falling)return;
   let i=left.find(k=>k>D.cur);if(i==null)i=left[0];
   D.cur=i;const x=D.cards[i],I=C.info(x.id);D.inRedo=x.miss>0&&x.tries>0;
   const first=!x.met;x.met=true;
-  const S=seq();let t=S[Math.min(S.length-1,x.tries+(x.need<=2?1:0))];if(x.tries>=S.length)t=pickL(S.filter(y=>y!==D.lastT))||'mean';D.lastT=t;
+  const S=seq();let t=S[Math.min(S.length-1,x.tries+(x.need<=3?1:0))];if(x.tries>=S.length)t=pickL(S.filter(y=>y!==D.lastT))||'mean';D.lastT=t;
   hud();
   const box=$('mnq');D.busy=false;
   /* 11/18 ユーザー: はじめての ことばは 1周目は 見て おぼえるだけ（ほらずに つぎの ことばへ）。 2周目から 問題で ほる */
@@ -248,11 +250,13 @@ function scramble(I){const w=I.h;
       box.querySelector('[data-u]').onclick=()=>{if(over||!got.length)return;const x=ls.find(y=>y.used===got.length);if(x)x.used=0;got=got.slice(0,-1);sf('tap');draw()};
       box.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{if(over)return;const x=ls[+b.dataset.k];if(x.used)return;got+=x.ch;x.used=got.length;sf('tap');
         if(got.length<w.length)return draw();over=true;const ok=got===w;draw();box.querySelectorAll('button').forEach(y=>y.disabled=true);
-        if(ok){sf('correct');sayW(I);box.querySelector('.mnw').classList.add('ok');setTimeout(()=>done({ok:true}),750)}
+        if(ok){sf('correct');sayW(I);box.querySelector('.mnw').classList.add('ok');setTimeout(()=>done({ok:true}),750);
+          const M=MN();M.scrOk=(M.scrOk||0)+1;if(M.scrOk===5||M.scrOk%40===0)setTimeout(()=>{const [,tx]=ML('mn_scrOk',{w:w});if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,3600)},900)}
         else{sf('wrong');box.querySelector('.mnw').classList.add('ng');const e=box.querySelector('.cgqx');e.hidden=false;
           e.innerHTML=`<p>正しくは <b>${esc(w)}</b>（${esc(I.ja)}）<br><small>${esc(w.split('').join(' - '))} と 声に 出して おぼえよう</small></p><button class="nx">つぎへ ▶</button>`;sayW(I);lookRow(e,[I.id]);
           e.querySelector('.nx').onclick=()=>{sf('step');done({ok:false})}}})};
-    draw()}}
+    draw();
+    const M=MN();if(!M.scrTold){M.scrTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_scramble');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4400)},700)}}}
 /* 例文の あなうめ（文カードの 例文から） */
 function sentQ(I){const h=I.h;if(!/^[a-z]+$/.test(h))return null;const re=new RegExp('\\b'+h+'\\b','i');
   const ss=C.SENT.filter(s=>re.test(s.en));if(!ss.length)return null;const s=pickL(ss);
@@ -269,7 +273,7 @@ function skip(all){if(!D||D.busy)return;D.busy=true;sf('step');
   setTimeout(()=>next(),150)}
 function after(id,ok){if(!D||D.busy)return;D.busy=true;D.q++;D.hp--;keepHp(D.hp);C.record(id,ok);const w=D.words[id]||(D.words[id]=[0,0]);w[ok?0:1]++;
   const M=MN();M.q++;if(ok)M.ok++;
-  const x=D.cards[D.cur];if(x&&x.id===id){x.tries++;if(ok)x.hits++;else{x.miss++;x.need=Math.min(7,x.need+1)}}
+  const x=D.cards[D.cur];if(x&&x.id===id){x.tries++;if(ok)x.hits++;else{x.miss++;x.need=Math.min(8,x.need+1)}}
   ['mag','comp'].forEach(k=>{if(D.fx[k]>0)D.fx[k]--});
   if(D.hp>0&&D.hp<=12&&!D.lowTold&&window.FOOD&&FOOD.bagList().length){D.lowTold=1;setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_lowHp');H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},900)}
   if(ok){D.ok++;D.swing=6;sf('tap');setTimeout(()=>{if(!D)return;D.crack=0;
@@ -432,33 +436,93 @@ function bad(){const ok=MINE_BAD.filter(b=>!b.min||D.depth>=b.min),B=pickL(ok);
   const M=MN();if(!D.badTold&&(M.badTold||0)<4){D.badTold=1;M.badTold=(M.badTold||0)+1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_bad',{t:B.n});H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},4600)}
   hud();return false}
 
-/* ================================================================ pixel art */
+/* ================================================================ pixel art（11/18 描きなおし: 石づみの 坑道・はしらと はり・ランタン・トロッコ・大きな 岩・ヘッドランプ） */
 const PR=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
 function hsh(n){n=Math.imul(n^n>>>16,0x45d9f3b);n=Math.imul(n^n>>>16,0x45d9f3b);return (n^n>>>16)>>>0}
-function draw(c){const L=layerOf(D.depth),[a,b,k]=L.col;
-  PR(c,0,0,160,80,k);PR(c,0,12,160,56,a);
-  for(let i=0;i<60;i++){const h=hsh(i*977+D.depth*31),x=h%160,y=12+(h>>>8)%56;PR(c,x,y,2,1,b)}
-  for(let i=0;i<14;i++){const h=hsh(i*131+D.depth*7);PR(c,h%160,(h>>>8)%12,3,2,b);PR(c,(h>>>3)%160,68+(h>>>11)%12,3,2,b)}
-  if(D.depth>=45)for(let i=0;i<6;i++){const h=hsh(i*53+D.depth);if((D.f+i*3)%10<6)PR(c,h%160,14+(h>>>9)%50,1,1,'#bfe9ff')}
-  PR(c,0,62,160,6,b);PR(c,0,68,160,12,k);
-  PR(c,0,66,58,1,'#8a8a8a');for(let x=2;x<58;x+=6)PR(c,x,67,3,1,'#6a4a2a');
-  const g=c.createRadialGradient(44,34,0,44,34,46);g.addColorStop(0,'rgba(255,230,160,.35)');g.addColorStop(1,'rgba(255,230,160,0)');c.fillStyle=g;c.fillRect(0,0,160,80);
-  const rx=84;PR(c,rx,24,30,40,b);PR(c,rx+3,20,24,4,b);PR(c,rx+2,26,26,36,'#00000018');PR(c,rx+4,28,6,4,'#ffffff22');
-  if(D.crack>=1){PR(c,rx+10,30,1,10,k);PR(c,rx+11,40,1,6,k);PR(c,rx+12,46,4,1,k)}
-  if(D.crack>=2){PR(c,rx+18,26,1,12,k);PR(c,rx+17,38,1,8,k);PR(c,rx+6,48,8,1,k)}
-  const sw=D.swing>0;if(D.swing>0)D.swing--;const x=52,y=34,dn=sw&&D.swing<3;
-  PR(c,x+3,y+20,8,5,'#4a5a7a');PR(c,x+4,y+25,2,5,'#4a5a7a');PR(c,x+8,y+25,2,5,'#4a5a7a');PR(c,x+3,y+30,3,2,'#5a3a22');PR(c,x+8,y+30,3,2,'#5a3a22');
-  PR(c,x+3,y+11,8,9,'#e86a4a');PR(c,x+4,y+13,6,1,'#ffd23f');PR(c,x+6,y+10,2,1,'#ffe0cc');PR(c,x+3,y+2,8,8,'#ffe0cc');
-  PR(c,x+8,y+5,1,2,'#2a2340');PR(c,x+10,y+5,1,2,'#2a2340');PR(c,x+9,y+8,2,1,'#c06060');
-  PR(c,x+2,y,10,3,'#ffd23f');PR(c,x+3,y-1,8,1,'#ffd23f');PR(c,x+11,y+1,2,2,'#fff8c0');PR(c,x+2,y+3,1,4,'#6a3a2a');
-  if(dn){PR(c,x+10,y+14,3,2,'#e86a4a');PR(c,x+12,y+15,2,2,'#ffe0cc');for(let i=0;i<10;i++)PR(c,x+13+i,y+16+Math.floor(i/3),1,1,'#a8743e');PR(c,x+22,y+12,2,10,'#9aa0b0');PR(c,x+21,y+11,4,2,'#9aa0b0')}
-  else{PR(c,x+10,y+8,3,5,'#e86a4a');PR(c,x+10,y+6,2,2,'#ffe0cc');for(let i=0;i<10;i++)PR(c,x+10-Math.floor(i/4),y+5-i,1,1,'#a8743e');PR(c,x+3,y-6,10,2,'#9aa0b0');PR(c,x+2,y-5,2,2,'#9aa0b0')}
-  if(sw&&D.swing===2){PR(c,rx-2,40,2,2,'#fff8c0');PR(c,rx-4,36,1,1,'#fff8c0');PR(c,rx-1,46,1,1,'#fff8c0')}
+const shd=(hex,f)=>{const n=parseInt(hex.slice(1),16);let r=n>>16,g=n>>8&255,b=n&255;const t=f<0?0:255,p=Math.min(1,Math.abs(f));return `rgb(${Math.round(r+(t-r)*p)},${Math.round(g+(t-g)*p)},${Math.round(b+(t-b)*p)})`};
+function glow(c,x,y,r,col,a){c.globalCompositeOperation='lighter';const g=c.createRadialGradient(x,y,0,x,y,r);g.addColorStop(0,`rgba(${col},${a})`);g.addColorStop(1,`rgba(${col},0)`);c.fillStyle=g;c.fillRect(x-r,y-r,r*2,r*2);c.globalCompositeOperation='source-over'}
+/* 石づみの 壁（でこぼこの 石・上は 明るく 下は かげ） */
+function stones(c,x0,y0,w,h,col,seed){PR(c,x0,y0,w,h,shd(col,-.5));let y=y0,row=0;
+  while(y<y0+h){const rh=5+hsh(seed+row*7)%3;let x=x0-hsh(seed+row*13)%10,i=0;
+    while(x<x0+w){const bw=7+hsh(seed+row*31+i*17)%9,v=(hsh(seed+row*5+i*3)%100)/100*.18-.09,bx=Math.max(x0,x+1),be=Math.min(x0+w,x+bw),by=y+1,bh=Math.min(rh-1,y0+h-by);
+      if(be>bx&&bh>0){PR(c,bx,by,be-bx,bh,shd(col,v));PR(c,bx,by,be-bx,1,shd(col,v+.16));PR(c,bx,by+bh-1,be-bx,1,shd(col,v-.2));PR(c,be-1,by,1,bh,shd(col,v-.14));
+        if(hsh(i*99+row+seed)%3===0&&be-bx>4)PR(c,bx+2+hsh(i+row*3)%(be-bx-3),by+2,1,1,shd(col,v-.28))}
+      x+=bw;i++}y+=rh;row++}}
+function beamV(c,x,y,w,h){PR(c,x,y,w,h,'#6a4426');PR(c,x,y,1,h,'#8e5e34');PR(c,x+w-1,y,1,h,'#3e2614');for(let j=y+5;j<y+h;j+=9)PR(c,x+1,j,w-2,1,'#563620')}
+function beamH(c,x,y,w,h){PR(c,x,y,w,h,'#6a4426');PR(c,x,y,w,1,'#8e5e34');PR(c,x,y+h-1,w,1,'#3e2614');for(let i=x+4;i<x+w;i+=11)PR(c,i,y+1+(i%2),3,1,'#563620')}
+const ORE=['#ffd23f','#e8e8f0','#7ad8ff','#c49aff','#fff6b0'];
+let BG=null,BGK='';
+function digBg(L,li){const cv=document.createElement('canvas');cv.width=160;cv.height=80;const c=cv.getContext('2d');const [a,b,k]=L.col;
+  PR(c,0,0,160,80,k);stones(c,0,0,160,66,a,li*131+7);
+  /* 天井の かげと つらら石 */
+  for(let x=0;x<160;x++){const d=(x-80)/80,ch=Math.round(2+d*d*12+hsh(x*7+li)%2);PR(c,x,0,1,ch,shd(k,-.35));PR(c,x,ch,1,1,shd(a,-.4))}
+  for(let i=0;i<6;i++){const h=hsh(i*41+li*3),x=14+h%132,l=3+(h>>>8)%4,top=Math.round(2+((x-80)/80)**2*12);for(let j=0;j<l;j++){const w=Math.max(1,3-Math.floor(j*3/l));PR(c,x+Math.floor((3-w)/2),top+j,w,1,shd(k,-.05))}}
+  /* ゆか */
+  PR(c,0,64,160,16,b);PR(c,0,64,160,2,shd(b,-.35));
+  for(let i=0;i<50;i++){const h=hsh(i*313+li*11);PR(c,h%160,67+(h>>>8)%13,(h>>>16)%3+1,1,(h>>>20)%2?shd(b,.15):shd(b,-.2))}
+  /* レールと まくら木（左） */
+  for(let x=0;x<50;x+=5)PR(c,x,71,3,2,'#4a3020');PR(c,0,70,50,1,'#a8aeb8');PR(c,0,71,50,1,'#5a5e68');
+  /* トロッコ（ほった 石で いっぱい） */
+  const mx=8;PR(c,mx,59,24,9,'#4e5260');PR(c,mx,59,24,1,'#a0a6b4');PR(c,mx+1,60,22,1,'#6a6e7c');PR(c,mx,67,24,1,'#2e3038');for(let i=mx+5;i<mx+24;i+=6)PR(c,i,60,1,7,'#3e4250');
+  for(let i=0;i<10;i++){const h=hsh(i*17+li);PR(c,mx+1+i*2,56+(i%3===1?-1:i%2),3,3,shd(b,(h%24)/100-.04))}
+  PR(c,mx+6,56,1,1,ORE[li]||'#fff');PR(c,mx+14,55,1,1,ORE[li]||'#fff');PR(c,mx+19,57,1,1,'#ff9ab0');
+  [mx+3,mx+16].forEach(x=>{PR(c,x,67,5,4,'#1e1e24');PR(c,x+1,68,3,2,'#6a6a74');PR(c,x+2,68,1,1,'#aaa')});
+  /* はしらと はり */
+  beamV(c,40,6,4,58);beamV(c,148,6,4,58);beamH(c,36,4,120,4);PR(c,40,8,4,1,'#3e2614');PR(c,148,8,4,1,'#3e2614');
+  [[41,5],[149,5]].forEach(p=>PR(c,p[0],p[1],1,1,'#c8c8d0'));
+  /* かべに 立てかけた スコップ */
+  for(let i=0;i<16;i++)PR(c,138-Math.floor(i/4),48+i,1,1,'#8a5a32');PR(c,133,62,4,3,'#8a8e9a');PR(c,133,62,4,1,'#c0c4cc');
+  return cv}
+/* 大きな 岩: ほった カードが すこしずつ 見えてくる */
+function rock(c,L,li,cx,f){const [a,b,k]=L.col,base=shd(b,-.12),hi=shd(b,.18),lo=shd(b,-.34),dk=k;
+  for(let y=18;y<65;y++){const t=(y-41)/24,w=Math.round(19*Math.sqrt(Math.max(0,1-t*t*(t<0?1:.25)))+(hsh(y*5)%2));if(w<=0)continue;
+    PR(c,cx-w,y,w*2,1,base);PR(c,cx-w,y,2,1,hi);PR(c,cx+w-3,y,3,1,lo);if(y>50)PR(c,cx-w+2,y,w*2-5,1,shd(b,-.2));PR(c,cx-w-1,y,2,1,dk);PR(c,cx+w,y,2,1,dk)}
+  PR(c,cx-8,17,16,1,dk);
+  PR(c,cx-12,20,16,1,hi);PR(c,cx-16,24,4,6,hi);PR(c,cx+6,30,8,1,lo);PR(c,cx-4,46,12,1,lo);PR(c,cx-14,38,6,1,lo);PR(c,cx+10,52,6,1,lo);
+  /* 鉱石の すじ */
+  const oc=ORE[li]||'#fff';for(let i=0;i<9;i++){const h=hsh(i*71+li*5),x=cx-12+h%24,y=24+(h>>>8)%36;PR(c,x,y,1,1,(f+i*4)%14<2?'#fff':oc);if(i%3===0)PR(c,x+1,y+1,1,1,shd(oc.length===7?oc:'#ffffff',-.35))}
+  PR(c,cx-19,63,38,2,shd(b,-.4))}
+function draw(c){const L=layerOf(D.depth),li=Math.max(0,MINE_LAYERS.indexOf(L)),f=D.f,key=L.n;
+  if(!BG||BGK!==key){BG=digBg(L,li);BGK=key}c.drawImage(BG,0,0);
+  /* 深い 層の 水晶 */
+  if(li>=3)for(let i=0;i<8;i++){const h=hsh(i*53+li*7),x=48+h%96,y=14+(h>>>9)%40;PR(c,x,y,1,3,li>=4?'#c49aff':'#7ad8ff');PR(c,x+1,y+1,1,2,'#e8f8ff');if((f+i*3)%12<5)PR(c,x,y-1,1,1,'#fff')}
+  const sw=D.swing>0;if(D.swing>0)D.swing--;const shake=sw&&D.swing>=2&&D.swing<=3?(f%2?1:-1):0;
+  const cx=99+shake,x=52,y=34,dn=sw&&D.swing<3;
+  rock(c,L,li,cx,f);
+  /* 岩の 中の カード: 正解の 数だけ 見えてくる */
+  const cu=D.cards&&D.cards[D.cur],hv=cu&&cu.met&&!cu.dug?Math.min(3,cu.hits):0;
+  if(hv){const w=[0,3,5,7][hv],h=[0,4,7,10][hv],px=cx-2-Math.floor(w/2),py=40-Math.floor(h/2);PR(c,px-1,py-1,w+2,h+2,shd(L.col[2],-.3));PR(c,px,py,w,h,'#ffe9a8');PR(c,px+1,py+1,Math.max(1,w-2),Math.max(1,h-2),'#ffd23f');if(hv>=3){PR(c,px+2,py+3,3,1,'#c08a20');PR(c,px+2,py+5,3,1,'#c08a20')}
+    if(f%10<5)PR(c,px+w-1,py,1,1,'#fff')}
+  /* ひび（正解で ふえる・まちがいで 一瞬） */
+  const k=L.col[2],cr=Math.max(D.crack,hv);
+  if(cr>=1){PR(c,cx-10,28,1,8,k);PR(c,cx-9,36,1,6,k);PR(c,cx-8,42,4,1,k)}
+  if(cr>=2){PR(c,cx+6,24,1,10,k);PR(c,cx+5,34,1,8,k);PR(c,cx-6,50,8,1,k);PR(c,cx+7,42,4,1,k)}
+  if(cr>=3){PR(c,cx-14,46,1,8,k);PR(c,cx+12,32,1,7,k);PR(c,cx-2,24,1,6,k)}
+  /* ほる 人（ヘルメットに ランプ） */
+  PR(c,x+1,y+33,14,2,'rgba(0,0,0,.35)');
+  PR(c,x+3,y+20,8,5,'#3e5684');PR(c,x+4,y+25,2,5,'#3e5684');PR(c,x+8,y+25,2,5,'#3e5684');PR(c,x+3,y+30,3,2,'#5a3a22');PR(c,x+8,y+30,4,2,'#5a3a22');
+  PR(c,x+3,y+11,8,9,'#e86a4a');PR(c,x+3,y+11,1,9,'#c04a32');PR(c,x+4,y+13,6,1,'#ffd23f');PR(c,x+3,y+19,8,1,'#6a4426');PR(c,x+6,y+19,2,1,'#d8b040');
+  PR(c,x+6,y+10,2,1,'#f0c8b0');PR(c,x+3,y+2,8,8,'#ffe0cc');PR(c,x+3,y+2,2,6,'#7a4a2a');
+  const blink=f%46<2;PR(c,x+8,y+5,1,blink?1:2,'#2a2340');PR(c,x+10,y+5,1,blink?1:2,'#2a2340');PR(c,x+9,y+8,2,1,'#c06060');PR(c,x+7,y+7,1,1,'#ffb0a0');
+  PR(c,x+2,y,10,3,'#ffd23f');PR(c,x+3,y-1,8,1,'#ffd23f');PR(c,x+4,y-1,3,1,'#fff2a0');PR(c,x+2,y+2,11,1,'#d8a820');PR(c,x+11,y,2,2,'#fff8c0');
+  if(dn){PR(c,x+10,y+14,3,2,'#e86a4a');PR(c,x+12,y+15,2,2,'#ffe0cc');for(let i=0;i<11;i++)PR(c,x+13+i,y+16+Math.floor(i/3),1,1,i%4?'#a8743e':'#7a5028');PR(c,x+23,y+11,2,11,'#9aa0b0');PR(c,x+22,y+10,4,2,'#c8ccd8');PR(c,x+23,y+21,2,1,'#6a6e7c')}
+  else{PR(c,x+10,y+8,3,5,'#e86a4a');PR(c,x+10,y+6,2,2,'#ffe0cc');for(let i=0;i<11;i++)PR(c,x+10-Math.floor(i/4),y+5-i,1,1,i%4?'#a8743e':'#7a5028');PR(c,x+3,y-7,10,2,'#9aa0b0');PR(c,x+3,y-7,10,1,'#c8ccd8');PR(c,x+2,y-6,2,2,'#9aa0b0')}
+  /* 暗さ（深い 層ほど）: ランタンと ヘッドランプの まわりだけ 明るい */
+  const dk=.22+li*.09,g=c.createRadialGradient(78,40,16,78,40,108);g.addColorStop(0,'rgba(8,5,20,0)');g.addColorStop(1,`rgba(8,5,20,${dk.toFixed(2)})`);c.fillStyle=g;c.fillRect(0,0,160,80);
+  /* ランタン（はりに つるす） */
+  const lx=30,sw2=Math.round(Math.sin(f/10));PR(c,lx+sw2,8,1,6,'#3a2a1a');PR(c,lx-3+sw2,14,7,2,'#3a2a1a');PR(c,lx-3+sw2,16,7,7,'#ffd98a');PR(c,lx-2+sw2,17,5,5,f%7<3?'#fff2c0':'#ffe8a0');PR(c,lx-3+sw2,23,7,2,'#3a2a1a');
+  glow(c,lx+sw2,19,30+(f%5),'255,200,120',.32);
+  /* ヘッドランプの 光が 岩を てらす */
+  c.globalCompositeOperation='lighter';c.fillStyle='rgba(255,240,180,.06)';c.beginPath();c.moveTo(x+13,y+1);c.lineTo(cx-14,22);c.lineTo(cx-10,58);c.closePath();c.fill();c.globalCompositeOperation='source-over';
+  glow(c,cx-12,40,14,'255,240,180',.1);glow(c,x+12,y+1,5,'255,250,210',.5);
+  if(sw&&D.swing===2){PR(c,cx-21,40,2,2,'#fff8c0');PR(c,cx-23,36,1,1,'#fff8c0');PR(c,cx-20,46,1,1,'#fff8c0');PR(c,cx-24,43,1,1,'#ffd23f')}
   D.parts=D.parts.filter(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.5;p.l--;PR(c,p.x,p.y,2,2,p.c);return p.l>0});
+  /* ほこり */
+  if(sw&&D.swing===3)for(let i=0;i<3;i++)D.parts.push({x:cx-16,y:40+i*4,vx:-Math.random()*.8,vy:-.4-Math.random()*.4,l:8,c:'rgba(230,220,200,.5)'});
   if(D.flash>0){c.fillStyle=`rgba(255,246,200,${(D.flash*.09).toFixed(2)})`;c.fillRect(0,0,160,80);D.flash--}
   if(D.pop){const p=D.pop;p.t++;const yy=40-Math.min(18,p.t*2);if(p.big&&p.t%4<2){PR(c,92,yy-14,1,1,'#fff');PR(c,107,yy-10,1,1,'#fff')}if(p.t>22)D.pop=null}
 }
-function burst(){const L=layerOf(D.depth);for(let i=0;i<14;i++)D.parts.push({x:96,y:44,vx:(Math.random()-.3)*3.2,vy:-Math.random()*3.5,l:12+Math.random()*8,c:pickL(L.col)})}
+function burst(){const L=layerOf(D.depth);for(let i=0;i<14;i++)D.parts.push({x:84,y:42,vx:(Math.random()-.4)*3.2,vy:-Math.random()*3.5,l:12+Math.random()*8,c:pickL(L.col.slice(0,2).concat(['#e8dcc0']))})}
 
 /* ================================================================ 🪜 5まい ほりだした → 📜 お話 → ボーナス → 床が くずれて 休憩所へ */
 function floorClear(){if(!D||D.falling)return;D.falling=1;const ids=D.hand.slice(),fl=D.floor;
@@ -580,3 +644,9 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
 
 window.MINE={pick:pickFloor,need:needOf,takeTool,open,rec:MN,course,addTool,toolN,toolList,bagRows,goMine,tools:MINE_TOOLS,floor:()=>D?D.floor:0};
 })();
+
+/* 11/18 ほる 問題を ふやした・3問目は 🧩 ならべかえ */
+Object.assign(MINA_LINES,{
+ mn_moreQ:[['point','鉱山の 問題を 少し ふやしたよ。 1まいの カードと たくさん 会えるほど、 ちゃんと 頭に のこるの。 3問目は 🧩 ならべかえだよ'],['happy','おしらせ！ ほる 問題が ふえたよ。 和訳 → 英語で → 🧩 ならべかえ の じゅんばん。 ならべかえは いちばん つづりが 手に のこるんだ']],
+ mn_scramble:[['point','🧩 ならべかえ だよ。 声に 出しながら 1文字ずつ ならべると、 つづりと 音が いっしょに おぼえられるの'],['smile','ならべかえは 「音 → 文字」を 自分で 組み立てるから よく おぼえるんだよ。 こまったら 💡 で 1文字目が 見えるよ']],
+ mn_scrOk:[['proud','「{w}」 ならべられたね！ 自分で 組み立てた つづりは なかなか わすれないよ'],['happy','ならべかえ、 どんどん はやく なってるね。 "Practice makes perfect!"'],['wow','つづり、 ばっちり！ 指が おぼえてきたね']]});

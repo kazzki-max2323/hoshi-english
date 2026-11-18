@@ -84,7 +84,8 @@ const MINE_MIO=[
  ["Falling rocks? Bats? Don't worry, boss. Everything you found is still yours!","落石？ コウモリ？ だいじょうぶ、 店長。 見つけた 物は ぜんぶ 店長の ものです！"],
  ["Tired of these five cards? You can change them all at once. Fresh words, fresh start!","この 5まいに あきました？ いっぺんに 入れかえられますよ。 新しい 単語で 新しい スタート！"],
  ["A helmet looks good on you, boss. …I mean, it looks safe! Very safe!","ヘルメット、 にあってますよ 店長。 …あ、 安全そうって いみです！ とっても 安全！"],
- ["Got batteries for the radio? Then I can send words from our card book down to you!","ラジオの 電池、 もってます？ そしたら カードブックの ことばを 下まで 送れますよ！"],
+ ["The rest area radio plays words from our card book. With batteries, the words you hear come to the shop too!","休憩所の ラジオは カードブックの ことばを 流しますよ。 電池が あれば、 聞いた ことばが お店にも 入荷します！"],
+ ["Spelling puzzles are the best, boss. Put the letters in order and say it out loud!","店長、 ならべかえ問題が いちばん ききますよ。 文字を ならべて 声に 出して！"],
  ["If you have firewood, put it on the fire at the rest area. I'll be warm just thinking about it.","たきぎが あったら 休憩所の たき火に くべてくださいね。 想像するだけで あったかい。"]];
 
 /* ミナ先生の セリフ */
