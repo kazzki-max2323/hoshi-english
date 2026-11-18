@@ -177,6 +177,7 @@ function drill(id){const I=C.info(id);let i=0,ok=0,last=null;
       <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
       <div class="row"><button id="stag">${got?'✏️ もう 1まい':'もう一回'}</button><button id="stend" class="sub">仕入れに もどる</button></div>`;
     bindMio(o);say(L[0]);if(got){sf('done');try{SFX.fanfare(1)}catch(e){}}else sf('step');
+    delete o.dataset.stay;o.addEventListener('click',e=>{if(e.target===o)draw(L)});
     const ag=o.querySelector('#stag');if(ag)ag.onclick=()=>{sf('open');C.closeOv();drill(id)};
     o.querySelector('#stend').onclick=()=>{sf('back');C.closeOv();draw(L)}};
   nx()}
@@ -217,6 +218,7 @@ function batch(ids){ids=ids.filter(id=>C.info(id));if(!ids.length)return draw();
       <div class="row">${miss.length?`<button id="stre">🔁 まちがえた ${miss.length}まいで もう一回</button>`:''}<button id="stag">✏️ つぎの ${MAXSEL}まい</button></div>
       <div class="row"><button id="stend" class="sub">仕入れに もどる</button></div>`;
     bindMio(o);say(L[0]);if(got.length){sf('done');try{SFX.fanfare(all?2:1)}catch(e){}}else sf('step');
+    delete o.dataset.stay;o.addEventListener('click',e=>{if(e.target===o)draw(L)});   // 結果は 外側タップで もどる
     try{RECENT.add('stkb',{en:got.length?head1(C.info(got[0])):'',ico:'📦',n:got.length,m:ids.length,p:'まとめて 仕入れ'})}catch(e){}
     o.querySelectorAll('.stkr').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id,()=>{C.closeOv();draw(L)})});
     const re=o.querySelector('#stre');if(re)re.onclick=()=>{sf('open');C.closeOv();batch(miss)};
