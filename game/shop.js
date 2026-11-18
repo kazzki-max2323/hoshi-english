@@ -117,7 +117,7 @@ function intro(){const S=SH();let i=0;
     H.panel.querySelector('.shm .cgnf').hidden=true;
     bindBubble();speak(t[0]);$('cgx').onclick=()=>{sf('back');H.home()};
     $('shnx').onclick=()=>{sf('step');i++;if(i<MIO_FIRST.length)return step();
-      S.met=1;save();const had=R().met;if(!had){const ids=C.starter();C.reveal(ids.slice(0,5).map(id=>({id,isNew:true})),'はじめの カード（15まい）',open)}else open()}};
+      S.met=1;save();if(!R().met){R().met=1;C.save()}open()}};   // 11/18: はじめの 15まいは くばらない（カードは 鉱山で ほって ゲット）
   step()}
 
 /* ================================================================ back from the mine: Mio's report */

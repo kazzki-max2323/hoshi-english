@@ -7,7 +7,8 @@
      休憩所で 食べる・単語ラジオ・❤回復・📡 トランシーバーで ミオと 話す（game/mine-walkie.js）・ほった 5まいを ながめる。 そこから つぎの 5まい か 帰る
    - 帰ると ミオが ほった ことばを 見て ひとこと（MINE_MIO_SEE）・売り場に ならべるか えらべる
    - 体力（❤）は 1問で 1 へる。 0に なっても 見つけた 物は ぜんぶ 持ち帰れる（失敗なし）。 体力は game/food.js（鉱山の 外でも のこる・時間で もどる）
-   - ほかに 見つかる 物: 宝石（コイン）・イベント・🎁宝カード（めったに。 お話の ボーナスでも）・📦宝箱・悪い できごと（取られない）・🌙深夜の ふしぎ（game/horror.js）
+   - カードは 岩の 5まいを ほって ゲットする だけ（11/18 ユーザー。 とちゅうで 見つかる・宝箱から 出る しくみは なし）。 特別な 🎁宝カードは お話を 読めた ごほうびで たまに
+   - ほかに 見つかる 物: 宝石（コイン）・イベント・📦宝箱（コイン・食べ物・道具）・悪い できごと（取られない）・🌙深夜の ふしぎ（game/horror.js）
    - 🎒 つかう: ほっている とちゅうに もちものの 食べ物（❤回復）と 鉱山の 道具（雑貨屋の ⛏️ たなで 買う）
    記録: MN().bestF（いちばん 深い 階）・floors（ほりきった 階の 数）・best（m。 前の 版から）
    データは game/shop-data.js（MINE_LAYERS / MINE_EVENT / MINE_GEM）と game/mine-items.js（MINE_TOOLS / MINE_BAD / MINE_MIO・セリフ） */
@@ -23,7 +24,7 @@ const ME_HP=80,HAND=5;
 const myHp=()=>window.FOOD?FOOD.hp():ME_HP;
 const keepHp=n=>{try{if(window.FOOD)FOOD.setHp(n)}catch(e){}};
 /* 見つかる 確率（正解 1回ごと） */
-const P_EVENT=.04,P_TREASURE=.012,P_GEM=.2,P_CHEST=.016;
+const P_EVENT=.04,P_GEM=.2,P_CHEST=.016;
 /* 悪い できごと: 8m から。 深いほど 少し ふえる（最大 約3%） */
 const pBad=d=>d<8?0:Math.min(.03,.008+d*.0003);
 
@@ -68,7 +69,7 @@ const fresh=id=>{const s=C.star(id);return s<=1&&!learned(id)&&!(R().x&&R().x[id
 function needOf(id){if(C.weak(id))return 5;const s=C.star(id);if(learned(id)||s>=4)return 2;if(s>=2)return 3;return fresh(id)?4:3}
 
 function open(){const M=MN();
-  const TLs=toolList();let mk=myHp()<20&&window.FOOD?'fd_tired':!M.v2?'mn_v2':'mn_open';
+  const TLs=toolList();let mk=myHp()<20&&window.FOOD?'fd_tired':!M.v2?'mn_v2':!M.digOnly?'mn_digOnly':'mn_open';if(mk==='mn_digOnly'){M.digOnly=1;C.save()}
   if(mk==='mn_open'&&Math.random()<.35)mk=TLs.length?'mn_tools':'mn_noTools';
   const [ex,tx]=ML(mk,{f:M.bestF||0});
   const lv=LVK[baseLv()],nx=LVK[Math.min(3,baseLv()+1)];
@@ -267,13 +268,12 @@ function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.
   if(Math.random()<P_CHEST+(D.fx.comp>0?.035:0))return chest();
   if(Math.random()<pBad(D.depth))return bad();
   const deep=Math.min(.02,D.depth*1.7/5000);   // 深いほど 少しだけ 出やすい
-  const mg=D.fx.mag>0?P_TREASURE*1.5:0;   // 🔍 虫めがね: 宝カードが 2.5倍（単語カードは 岩の 5まいだけに なった）
-  if(r<P_TREASURE+deep/2+mg&&window.CARDS&&CARDS.find1){const g=CARDS.find1(D.depth+D.floor*6);const id='t:'+g.c.e;D.got.push({id,isNew:g.isNew});return celebrate(id,g.isNew,true)}
-  if(r<P_TREASURE+deep+mg+P_EVENT+(D.fx.comp>0?.02:0)){const E=pickL(MINE_EVENT);D.events.push(E);
+  /* 11/18 ユーザー「掘っていても カードは 見つけない。 掘って ゲットしたい」: とちゅうで カードが 見つかる しくみは なくした（カードは 岩の 5まいと お話の ごほうびだけ） */
+  if(r<deep+P_EVENT+(D.fx.comp>0?.02:0)){const E=pickL(MINE_EVENT);D.events.push(E);
     if(E.hp){D.hp=Math.min(ME_HP,D.hp+E.hp);keepHp(D.hp)}if(E.deep)D.depth+=E.deep;if(E.luck)D.luck+=E.luck;if(E.coin)D.coins+=E.coin;
     let tx=E.t;if(E.tool){const id=pickL(['lamp','lamp','rope','rope','helmet','mag','comp']);addTool(id);tx+=` ${MINE_TOOLS[id].ico} ${MINE_TOOLS[id].n}`}
     D.pop={ico:E.ico,t:0,big:1};fly(E.ico);gotTag(E.ico,E.n,E.coin?`+${E.coin}枚`:'');sf('hey');H.toast(`${E.ico} <b>${esc(E.n)}</b><small>${esc(tx)}</small>`,3600);hud();return false}
-  if(!dk&&r<P_TREASURE+deep+mg+P_EVENT+P_GEM+lk){const gi=Math.min(MINE_GEM.length-1,Math.floor(Math.random()*(2+D.depth/12))),G=MINE_GEM[gi];const v=G[2]+Math.floor(D.depth/5);
+  if(!dk&&r<deep+P_EVENT+P_GEM+lk){const gi=Math.min(MINE_GEM.length-1,Math.floor(Math.random()*(2+D.depth/12))),G=MINE_GEM[gi];const v=Math.round((G[2]+Math.floor(D.depth/5))*(D.fx.mag>0?1.5:1));
     D.coins+=v;D.loot[G[0]]=(D.loot[G[0]]||0)+1;D.lootV[G[0]]=(D.lootV[G[0]]||0)+v;D.pop={ico:G[0],t:0};fly(G[0],v>=40?'big':'');gotTag(G[0],G[1],`+${v}枚`);sf('coinIn');return false}
   D.pop=null;return false}
 /* 🎒 手に 入れた 物を タップすると くわしく（鉱山の つづきは そのまま。 閉じると もどる） */
@@ -386,7 +386,6 @@ function reveal(o,tier,I){if(!D)return;const dp=D.depth,got=[];
   const sp=SNACK_POOL();
   if(window.FOOD&&sp.length&&Math.random()<(tier===2?.6:tier===1?.45:.15)){const f=pickL(sp);FOOD.add(f);got.push([FOOD_SNACKS[f].ico,FOOD_SNACKS[f].n])}
   if(tier===2||(tier===1&&Math.random()<.25)){const t=pickL(tier===2?['lamp','helmet','mag','comp','gold','rope']:['lamp','rope','helmet','mag']);addTool(t);got.push([MINE_TOOLS[t].ico,MINE_TOOLS[t].n])}
-  if(tier===2&&Math.random()<.25){const L=layerOf(dp),lv=pickL(L.lv),pool=C.W.filter(c=>c.lv===lv),c=pickL(pool);if(c){const isNew=!C.owns(c.id);C.give(c.id);D.got.push({id:c.id,isNew});got.push(['🎴',`カード「${head1(C.info(c.id)||c)}」${isNew?' NEW':''}`])}}
   D.events.push({ico:'📦',n:tier===2?'宝箱（かぎ）':tier===1?'宝箱（合言葉）':'宝箱（少しだけ）',t:got.map(g=>g[0]+' '+g[1]).join('・'),coin});
   try{SFX.fanfare(tier===2?3:tier===1?2:1)}catch(e){sf('coinIn')}
   try{const r=o.querySelector('.mnchb').getBoundingClientRect();FX.firework(r.left+r.width/2,r.top+r.height/2)}catch(e){}
@@ -521,6 +520,7 @@ H.on('home',()=>{if(D){D.alive=false;keepHp(D.hp);if(D.coins)H.addCoins(D.coins)
 Object.assign(MINA_LINES,{
  mn_v2:[['wow','鉱山が 新しく なったよ！ 岩の 中に まだ 持っていない カードが 5まい ねむってるの。 ぜんぶ ほりだしたら 床が くずれて 下の 階へ！'],['point','こんどの 鉱山は 一階ずつ 下りていくの。 5まい ほりだすと 小さな お話が 出てきて、 下の 階には 休憩所も あるよ']],
  mn_open:[['smile','岩の 中の 5まいは ランダムだよ。 どんな ことばに 会えるかな？'],['point','知っている ことばは すぐ ほれるし、 むずかしい ことばは 何回か かかるの。 あせらないでね'],['happy','下の 階ほど 上の レベルの ことばが まざるよ。 最高は 地下{f}階。 きょうは どこまで 行けるかな？'],['wink','まちがえても だいじょうぶ。 ほりだすまで 何回でも 出てくるから、 そのたびに おぼえられるよ'],['smile','5まい ほりだしたら 休憩所で ひと休み できるよ。 たき火、 あったかいんだ']],
+ mn_digOnly:[['point','カードは ここで ほって ゲットする ものに なったよ。 授業や 単語帳では もう くばらないの。 そのぶん ほりだした 1まいは とくべつだよ'],['smile','カードが ほしく なったら 鉱山へ！ 岩の 中の 5まいを ほりだすと、 ちゃんと きみの ものに なるよ']],
  mn_intro:[['smile','はじめての ことばは さいしょに 見せるね。 声に 出して 読んでから ほろう'],['point','「{w}」は はじめて？ 🔊で 聞いて、 まねして 言ってみて。 それから ほりはじめよう']],
  mn_dug:[['wow','「{w}」 ほりだした！ もう きみの カードだよ。 カードブックにも 入れられるの'],['happy','1まい ゲット！ のこりも この ちょうしで。 ほりだした カードは タップで 📖 くわしく 見られるよ']],
  mn_story:[['smile','岩の 奥から 文が 出てきたよ。 太字が さっき ほりだした ことば。 1行ずつ タップすると 読むね'],['point','わからない 行は 🇯🇵 で 日本語も 見ていいよ。 さっきの ことばが 文の 中で どう 使われてるか 見てみて'],['happy','ほりだした ことばが ぜんぶ 入った お話。 読めたら ボーナスだよ！']],

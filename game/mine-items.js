@@ -1,7 +1,7 @@
 /* ⛏️ 単語の 鉱山の 道具・宝箱・できごと（しくみは game/mine.js）
    - 道具は ながれぎ雑貨店の 「⛏️ 鉱山」の たなで 英語で 買う（会話は game/zakka-goods-talk.js。 ZAKKA_GOODS.tool）
      もちものに 入り、 ほっている とちゅうに 🎒 から つかう。 1回 つかうと なくなる
-     ef: lamp=宝石が 出やすい / mag=カードが 出やすい / comp=宝箱と いい できごとが 出やすい（n問の あいだ）
+     ef: lamp=宝石が 出やすい / mag=宝石の ねだんが 1.5倍 / comp=宝箱と いい できごとが 出やすい（n問の あいだ）
          gold=正解で 2m ほれる（n問）/ guard=悪い できごとを 1回 ふせぐ / rope=すぐに n m 下りる / key=宝箱を かぎで あける（宝箱が 出た ときに つかう）
    - 宝箱（📦）: ほっていると たまに 出る。 かぎ か 英語の 合言葉（いまの 5まいの 単語）で あける。 まちがえても 少しは 入っている（失敗なし）
    - 悪い できごと: 8m より 深いと たまに。 深いほど 少し ふえる。 もどされる・ほれない・まっくら・つめたい 風。 見つけた 物は 取られない
@@ -23,8 +23,8 @@ const MINE_TOOLS={
   q:["Does it protect me from everything?","なんでも 守ってくれる？","It stops one bad thing. After that, it's too dented to use again.","悪い ことを 1回 止めるの。 そのあとは へこんで もう 使えないわ。"],
   f:["Will it make me smarter?","かぶると 頭が よくなる？","It protects your head. Making it smarter is your job!","頭を 守るだけ。 かしこく するのは あなたの しごとよ！","Smart! Smart!"],
   e:["Safety first! Come back safe.","安全 第一！ ぶじに 帰ってきてね。"]},
- mag:{lv:'jh',ico:'🔍',n:'虫めがね',en:'magnifying glass',p:60,ef:'mag',v:10,s:'10問 宝カードが 見つかりやすい',
-  d:["This is a magnifying glass. It helps you notice small things, like cards hidden in the rocks.","これは 虫めがね。 岩に かくれた カードみたいな 小さな ものに 気づけるの。"],
+ mag:{lv:'jh',ico:'🔍',n:'虫めがね',en:'magnifying glass',p:60,ef:'mag',v:10,s:'10問 宝石の ねだんが 1.5倍',
+  d:["This is a magnifying glass. It helps you see how good a gem really is.","これは 虫めがね。 宝石の ほんとうの よさが 見えるの。 高く 売れるわよ。"],
   q:["Have you ever found anything with it?","これで なにか 見つけたこと ある？","Once I found Pip's lost feather under the shelf. He was so happy.","一度、 たなの 下で ピップの なくした 羽を 見つけたわ。 すごく よろこんでた。"],
   f:["Can I burn ants with it?","アリを やけちゃう？","No! Be kind to the ants. They work harder than all of us.","だめ！ アリには やさしくね。 わたしたちより よく はたらいてるのよ。","Poor ants! Poor ants!"],
   e:["Look closely. Treasure loves to hide.","よーく 見てね。 宝ものは かくれるのが 好きなの。"]},
@@ -76,7 +76,7 @@ const MINE_MIO=[
 /* ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
  mn_itemsNew:[['wow','鉱山が 新しく なったよ！ ほっている とちゅうに 🎒で 食べ物や 道具が つかえるの。 宝箱や、 ちょっと こまった できごとも あるから 気を つけてね'],['happy','おしらせ！ 鉱山の とちゅうで 🔀 5まいを ぜんぶ 入れかえたり、 🎒で 食べたり できるように なったよ']],
- mn_tools:[['smile','道具を もってるね。 ほっている とちゅうに 🎒から つかえるよ。 ランプは 宝石、 虫めがねは カード！'],['point','⛑️ ヘルメットが あると、 落石や コウモリも こわくないよ'],['happy','🗝️ かぎが あれば、 宝箱の 中身が ごうかに なるよ']],
+ mn_tools:[['smile','道具を もってるね。 ほっている とちゅうに 🎒から つかえるよ。 ランプは 宝石が 出やすく、 虫めがねは 宝石が 高く なるよ！'],['point','⛑️ ヘルメットが あると、 落石や コウモリも こわくないよ'],['happy','🗝️ かぎが あれば、 宝箱の 中身が ごうかに なるよ']],
  mn_noTools:[['smile','雑貨屋の 「⛏️ 鉱山」の たなで 道具が 買えるよ。 英語で 買ってみてね'],['think','深く ほりたい ときは 🪢 ロープや ⛏️ 金の つるはしが べんり。 雑貨屋で 売ってるよ']],
  mn_useFood:[['happy','{t}で 元気 回復！ 英語で "I feel much better!"'],['smile','{t}、 おいしかった？ ひとやすみしたら また ほろう']],
  mn_useTool:[['happy','{t}を つかったね！ 英語では {en} だよ'],['point','{en}（{t}）、 いい 道具だね。 つかい どころが うまい！']],

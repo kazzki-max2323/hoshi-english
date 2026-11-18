@@ -1,5 +1,5 @@
 /* ことばカード の まわり: ほかの 機能との 連動・ミナ先生の セリフ
-   - 連動: 授業・苦手とっくんの ごほうびカード／まちがいノートの 単語は 苦手カード（game/cg.js）／ミナ先生に 勝つと ハートが すこし（ラブストーリー）と 特別な カード／ダブった カードを 浜辺の みんなに プレゼント */
+   - 連動: （授業・とっくんの ごほうびカードは 11/18 に なくした）／まちがいノートの 単語は 苦手カード（game/cg.js）／ミナ先生に 勝つと ハートが すこし（ラブストーリー）と 特別な カード／ダブった カードを 浜辺の みんなに プレゼント */
 (()=>{
 const {S:ST,sfx:SFX}=BEACH;
 const H=HE,esc=H.esc,$=id=>document.getElementById(id);
@@ -16,7 +16,8 @@ function rewardCard(){const lv=C.lvOpen(C.myLv())?C.myLv():'es',mine=new Set(Obj
   if(cs.length&&Math.random()<.6)return pickL(cs).id;
   const fresh=C.W.filter(c=>c.lv===lv&&!C.owns(c.id));return pickL(fresh.length?fresh:C.W.filter(c=>c.lv===lv)).id}
 /* up to 3 a day */
-function reward(kind){const r=R(),d=C.today();if(r.rw&&r.rw.d===d&&r.rw.n>=3)return null;r.rw=r.rw&&r.rw.d===d?r.rw:{d,n:0};r.rw.n++;
+function reward(kind){return null;   // 11/18 ユーザー「カードは 鉱山で ほって ゲット」: 授業・とっくんの ごほうびカードは なくした
+const r=R(),d=C.today();if(r.rw&&r.rw.d===d&&r.rw.n>=3)return null;r.rw=r.rw&&r.rw.d===d?r.rw:{d,n:0};r.rw.n++;
   const id=rewardCard();C.give(id);C.save();const I=C.info(id);
   if(kind==='tok')setTimeout(()=>H.toast(`🃏 ごほうびカード <b>${esc(I.en)}</b>（${esc(I.ja)}）<small>鉱山の 道具に 使えるよ</small>`,3600),1500);
   return I}
