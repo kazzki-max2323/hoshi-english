@@ -148,7 +148,7 @@ function face(id,opt={}){const I=typeof id==='string'?info(id):id;if(!I)return '
     <div class="cgart"><span class="cgm">${m}</span>${s?`<span class="cgs">${s}</span>`:''}</div>
     <div class="cgn"><b>${lock?'？？？':esc(nm)}</b>${opt.ja&&!lock?`<small>${esc(I.ja)}</small>`:''}</div>
     <div class="cgb"><span>${attrIco(I)}</span>${I.k==='p'||I.k==='w'||I.k==='t'?'':`<span class="cgpw">⚔${pw}</span>`}</div>
-    ${!lock&&opt.marks!==false&&I.k==='w'&&weak(I.id)?'<i class="cgmk wk" title="苦手">😣</i>':''}${!lock&&opt.marks!==false&&I.k!=='p'&&forgot(I.id)?'<i class="cgmk fg" title="わすれかけ">💤</i>':''}
+    ${!lock&&opt.marks!==false&&I.k!=='p'&&forgot(I.id)?'<i class="cgmk fg" title="わすれかけ">💤</i>':''}
     ${opt.n>1?`<i class="cgcnt">×${opt.n}</i>`:''}</div>`}
 
 /* ================================================================ quiz (used by the battle and the dojo) */
@@ -289,7 +289,11 @@ function detail(id,back,opt={}){const I=info(id);if(!I)return;const n=count(id),
       ${(opt.btns||[]).filter(Boolean).map((b,i)=>`<button data-dvb="${i}" class="${b[2]||''}">${b[0]}</button>`).join('')}
       <button class="sub" data-dv="close">とじる</button></div></div>`;
   let o;if(top){closeTop();o=document.createElement('div');o.id='cardTop';o.className='cgov dv';o.innerHTML=html;document.body.appendChild(o)}else o=ov(html,'dv');
-  const shut=()=>{if(top)o.remove();else closeOv()};
+  /* 右下の ←（オーバーレイの backdrop-filter の 中だと fixed が ずれるので body に 直接 置く） */
+  document.querySelectorAll('.cgdvback').forEach(x=>x.remove());
+  const bk=document.createElement('button');bk.className='backfab cgdvback';bk.setAttribute('aria-label','もどる');bk.textContent='←';document.body.appendChild(bk);
+  const gone=new MutationObserver(()=>{if(!o.isConnected){bk.remove();gone.disconnect()}});gone.observe(document.body,{childList:true});
+  const shut=()=>{bk.remove();if(top)o.remove();else closeOv()};
   o.addEventListener('click',e=>{if(e.target!==o)return;if(top){sf('back');o.remove()}back&&back()});
   const say=()=>{try{H.say(I.k==='t'?'cards':I.k==='p'?'es':I.lv,I.en)}catch(e){}};say();
   if(window.UNK)UNK.bind(o);
@@ -299,6 +303,7 @@ function detail(id,back,opt={}){const I=info(id);if(!I)return;const n=count(id),
   const L=CG.look=CG.look||{n:0,ids:[]};L.n++;L.at=Date.now();L.ids=[id,...L.ids.filter(x=>x!==id)].slice(0,12);save();
   o.querySelector('[data-dv="say"]').onclick=say;
   o.querySelector('[data-dv="close"]').onclick=()=>{sf('back');shut();back&&back()};
+  bk.onclick=()=>{sf('back');shut();back&&back()};
   o.querySelectorAll('[data-dvb]').forEach(b=>b.onclick=()=>{const B=opt.btns.filter(Boolean)[+b.dataset.dvb];shut();B[1]()});
   lookTalk(I,opt.from);
   return o}
