@@ -187,7 +187,7 @@ complimentary|compliment（ほめ言葉・好意）＋ ary。 好意で 出す �
 amenities|amen（気持ちいい）。 気持ちよく すごす 設備 ＝ アメニティ
 concierge|フランス語「門番」。 コンシェルジュ ＝ 案内係
 housekeeping|house（家）＋ keeping（保つ）。 部屋を 保つ ＝ 客室清掃
-suite|follow と 同じ 根っこ（続く）。 部屋が 続く ＝ スイートルーム（sweet ではない）
+suite|sequ（ついていく）。 sequence と なかま。 部屋が 続く ＝ スイートルーム（sweet ではない）
 banquet|banc（ベンチ）。 bank と なかま。 長いすを 並べる ＝ 宴会
 catering|cater（食べ物を 用意する）＋ ing ＝ 仕出し。 ケータリング
 appetizer|appetite（食欲）＋ izer。 食欲を そそる ＝ 前菜

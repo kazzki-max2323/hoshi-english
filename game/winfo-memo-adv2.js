@@ -8,7 +8,7 @@ conglomerate|con ＋ glomer（玉・かたまり）。 ひとかたまりに な
 cornerstone|corner（すみ）＋ stone（石）。 建物の すみに おく 大事な 石 ＝ 礎
 expedition|ex（外へ）＋ ped（足）。 足を 外へ 出す ＝ 遠征。 pedal と なかま
 haven|harbor（港）に 近い 古い ことば。 tax haven ＝ 税の ひなん所
-hostage|host（もてなす人）と 同じ 根っこ。 敵の 家に 置かれる 人 ＝ 人質
+hostage|host（主人）の 家に あずけられる 人 と おぼえる（ごろあわせ）＝ 人質
 immunity|im（ない）＋ mun（つとめ）。 つとめが 免除される → 免疫・免責
 jeopardy|古フランス語 jeu parti（五分五分の 勝負）。 どっちに 転ぶか わからない ＝ 危険
 omen|「オーメン」。 ホラー映画の タイトルにも なった 不吉な 前兆
@@ -20,7 +20,7 @@ pretext|pre（前に）＋ text（織る）。 前に 織りこんだ 言いわ�
 remnant|remain（残る）と 同じ 根っこ。 残った もの
 rivalry|rival（ライバル）＋ ry。 ライバル どうしの 争い
 antidote|anti（反して）＋ dote（与える もの）。 毒に 反して 与える ＝ 解毒剤
-blunder|blind（見えない）と 近い。 目を つぶって 大失敗
+blunder|古い 北欧語 blunda（目を つぶる）。 目を つぶって 大失敗
 bounty|bon（よい）。 bonus と なかま。 たっぷりの 恵み・懸賞金
 camouflage|「カモフラージュ」。 そのまま 日本語に なった 偽装
 conviction|convict（有罪に する）＋ ion。 確信 と 有罪判決。 convince（納得させる）と なかま
@@ -120,7 +120,7 @@ anathema|ギリシャ語「のろわれた もの」。 忌み 嫌うもの
 aplomb|a ＋ plomb（なまり＝おもり）。 おもりで まっすぐ ＝ 落ち着き。 plumber と なかま
 bigotry|bigot（頑固者）＋ ry。 偏狭
 cacophony|caco（悪い）＋ phony（音）。 悪い 音 ＝ 不協和音。 symphony と 同じ 部品
-chicanery|chicane（へりくつ）。 F1 の シケイン（ずる して 曲がる）＝ ごまかし
+chicanery|chicane（へりくつ）＋ ry。 F1 の シケイン と 同じ 語 ＝ ごまかし
 conundrum|「コナンドラム」。 コナンでも 解けない 難問（ごろあわせ）
 decorum|decor（ふさわしい）。 decorate と なかま ＝ 礼儀正しさ
 diatribe|dia（通して）＋ tribe（こする）。 こすり続ける ＝ 痛烈な 批判
@@ -240,7 +240,7 @@ voluntary|vol（意志）。 volunteer と なかま ＝ 自発的な
 widespread|wide（広く）＋ spread（広がる）＝ 広範囲の
 worthwhile|worth（価値）＋ while（時間）。 時間を かける 価値が ある
 bogus|「ボーガス」。 ぼーっと 見たら だまされる 偽物（ごろあわせ）
-brittle|break と 同じ 根っこ。 すぐ われる ＝ もろい
+brittle|古い 英語 breotan（くだく）から。 すぐ くだける ＝ もろい
 chaotic|chaos（カオス）＋ tic ＝ 混沌とした
 coarse|course（コース）と 発音が 同じ。 あらい・粗い
 colossal|colossus（巨大な 像）。 ロードス島の 巨像 ＝ 巨大な
