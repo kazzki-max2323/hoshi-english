@@ -259,6 +259,9 @@ function more(I){const h=I.h,WI=window.WI,out=[];
   return `<details class="cgfold wif" open><summary>📖 くわしく</summary>${out.join('')}</details>`}
 /* なりたちの 下の ミナ先生の ひとこと（おなじ 根っこの なかまが いれば その 話） */
 function rootMina(rt){try{if(!window.MINA||!MINA.line)return '';const f=rt.fam;
+  /* 名前から・日本語から・言い回し・数の ことばは ときどき その 話 */
+  const kind=/日本語から/.test(rt.story+rt.parts)?'wi_rootLoan':/^(teen|ty|lif)$/.test(rt.keys[0]||'')?'wi_rootNum':/：[^）]*名前|地名/.test(rt.parts)?'wi_rootName':/ /.test(rt.h)&&!f.length?'wi_rootPhrase':'';
+  if(kind&&Math.random()<.6){const [,k]=MINA.line(kind,{w:rt.h});if(k)return k}
   const [,tx]=f.length>=2&&Math.random()<.6?MINA.line('wi_rootFam',{w:rt.h,f:f[0],g:f[1]}):f.length===1&&Math.random()<.5?MINA.line('wi_rootFam1',{w:rt.h,f:f[0]}):MINA.line('wi_root',{w:rt.h});return tx||''}catch(e){return ''}}
 /* くわしくの 中の 🔊 と、 ひらいた 回数 */
 function bindMore(o){o.querySelectorAll('[data-wisay]').forEach(b=>b.onclick=e=>{e.stopPropagation();sf('pickup');window.WI?WI.speak(b.dataset.wisay):speak(b.dataset.wisay)});
