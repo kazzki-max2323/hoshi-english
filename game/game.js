@@ -543,7 +543,7 @@ let gBack=null;   // where ← goes: home, or Mina's page when opened there
 function gramList(lv='es',back){if(back!==undefined)gBack=back;
   const G=GRAMMAR[lv],clr=G.notes.filter(n=>gCleared(n.id)).length;
   show('gram',`<section class="pnl gram">
-    <div class="qtop"><button class="x" id="gx" aria-label="もどる">←</button><b>📚 文法ノート</b><span class="qn">✓ ${clr}/${G.notes.length}</span></div>
+    <div class="qtop"><button class="x" id="gx" aria-label="もどる">←</button><b>📚 文法ノート</b><span></span></div>
     <div class="seg">${GLV.map(k=>`<button data-gl="${k}" class="${lv===k?'on':''}">${GRAMMAR[k].ico} ${GRAMMAR[k].name}</button>`).join('')}</div>
     <div class="rlist glist">${G.notes.map((n,i)=>{const c=gCleared(n.id);
       return `<button class="gnote ${c?'clear':''}" data-gn="${i}"><span class="gi">${c?'✅':'📘'}</span><span class="gt">${i+1}. ${esc(n.t)}</span><small>${c?'クリア':'よめるよ'}</small></button>`}).join('')}</div>
@@ -551,19 +551,30 @@ function gramList(lv='es',back){if(back!==undefined)gBack=back;
   $('gx').onclick=()=>{SFX.back();(gBack||home)()};
   panel.querySelectorAll('[data-gl]').forEach(b=>b.onclick=()=>{SFX.pop();gramList(b.dataset.gl)});
   panel.querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{SFX.flip();gramNote(lv,+b.dataset.gn)})}
+/* 文法ノート: さいしょは 1行＋例文 1つ。 「もっと 知りたい ▸」で ルール → なんで？ → 気をつけて → うんちく と だんだん くわしく */
 function gramNote(lv,i){const G=GRAMMAR[lv],n=G.notes[i],seen=window.GRAMSEE?GRAMSEE.seenOf(n.id):[];loadAud('gram');emit('gramView',lv,i,n);
+  const D=typeof DEEP_DATA!=='undefined'?DEEP_DATA[n.id]:null,exb=(e,j)=>`<button class="gexr" data-ex="${j}"><span class="ge">🔊 ${esc(e[0])}</span><small>${esc(e[1])}</small></button>`;
+  const MORE=[
+    ['📌 ルール',`<ul class="grules">${n.r.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${n.ex.length>1?`<div class="gex">${n.ex.slice(1).map((e,j)=>exb(e,j+1)).join('')}</div>`:''}`],
+    D&&(D.why||D.fig)?['🤔 なんで そうなるの？',`${D.why?`<p class="gwhy">${D.why}</p>`:''}${D.fig?`<div class="fz">${D.fig}</div>`:''}`]:null,
+    D&&(D.vs||(D.qa&&D.qa[0]))?['⚠️ 気をつけて',`${D.vs?`<p class="gwhy">${D.vs[1]}</p>${D.vs[2]?`<div class="fz">${D.vs[2]}</div>`:''}`:''}${D.qa&&D.qa[0]?`<p class="gqa"><b>Q. ${D.qa[0][0]}</b>${D.qa[0][1]}</p>`:''}`]:null,
+    ['💡 覚え方・うんちく',`${D&&D.tip?`<p class="gwhy">${D.tip}</p>`:''}${D&&D.qa?D.qa.slice(1).map(x=>`<p class="gqa"><b>Q. ${x[0]}</b>${x[1]}</p>`).join(''):''}
+      ${seen.length?`<h4>🌊 浜辺で 見つけた この文法</h4><div class="gex gseen">${seen.map((e,j)=>`<button class="gexr" data-se="${j}"><span class="ge">🔊 ${window.GRAMSEE.mark(e)}</span></button>`).join('')}</div>`:`<p class="note gseen0">🌊 ラジオや 会話で この文法が 出てくると、英文の 中で 光るよ。見つけた 英文は ここに たまる</p>`}`]].filter(Boolean);
   show('gram',`<section class="pnl gram gview">
     <div class="qtop"><button class="x" id="gx" aria-label="ノートの 一覧に もどる">←</button><b>${esc(n.t)}</b><span class="qn">${G.ico}</span></div>
     <div class="gbody">
-      <h4>📌 ルール</h4><ul class="grules">${n.r.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>
-      <h4>💬 れいぶん</h4><div class="gex">${n.ex.map((e,j)=>`<button class="gexr" data-ex="${j}"><span class="ge">🔊 ${esc(e[0])}</span><small>${esc(e[1])}</small></button>`).join('')}</div>
-      ${seen.length?`<h4>🌊 浜辺で 見つけた この文法</h4><div class="gex gseen">${seen.map((e,j)=>`<button class="gexr" data-se="${j}"><span class="ge">🔊 ${window.GRAMSEE.mark(e)}</span></button>`).join('')}</div>`:`<p class="note gseen0">🌊 ラジオや 会話で この文法が 出てくると、英文の 中で 光るよ。見つけた 英文は ここに たまる</p>`}
+      <p class="gone">${D&&D.one?D.one:esc(n.r[0])}</p>
+      <div class="gex">${exb(n.ex[0],0)}</div>
+      <div id="gmore"></div>
+      <button id="gmb" class="sub gmb">もっと 知りたい ▸ <small>${MORE[0][0]}</small></button>
     </div>
     <div class="row"><button id="gq">✏️ れんしゅう ${gCleared(n.id)?'（クリアずみ）':`（クリアで 🪙${G.reward}）`}</button></div>
   </section>`);
+  let m=0;const bindEx=()=>{panel.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>say('gram',n.ex[+b.dataset.ex][0]));panel.querySelectorAll('[data-se]').forEach(b=>b.onclick=()=>say('gram',seen[+b.dataset.se]))};
+  $('gmb').onclick=()=>{SFX.flip();const [h,body]=MORE[m++],d=document.createElement('div');d.className='gstep';d.innerHTML=`<h4>${h}</h4>${body}`;$('gmore').appendChild(d);bindEx();
+    if(m>=MORE.length)$('gmb').remove();else $('gmb').querySelector('small').textContent=MORE[m][0];d.scrollIntoView({block:'start',behavior:'smooth'})};
   $('gx').onclick=()=>{SFX.back();gramList(lv)};
-  panel.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>say('gram',n.ex[+b.dataset.ex][0]));
-  panel.querySelectorAll('[data-se]').forEach(b=>b.onclick=()=>say('gram',seen[+b.dataset.se]));
+  bindEx();
   $('gq').onclick=()=>{SFX.deal();gramQuiz(lv,i)}}
 function gramQuiz(lv,i){const G=GRAMMAR[lv],n=G.notes[i];let k=0,miss=0;
   const ask=()=>{const q=n.q[k],[before,after]=q[0].split('___');
@@ -577,8 +588,13 @@ function gramQuiz(lv,i){const G=GRAMMAR[lv],n=G.notes[i];let k=0,miss=0;
     panel.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{const j=+b.dataset.go,ok=j===q[2];panel.querySelectorAll('[data-go]').forEach(x=>x.disabled=true);
       const right=panel.querySelector(`[data-go="${q[2]}"]`);right.classList.add('right');$('bl').textContent=q[1][q[2]];$('bl').classList.add(ok?'ok':'ng');
       emit('gram',lv,i,n,ok);if(ok)SFX.correct();else{miss++;b.classList.add('wrong');SFX.wrong()}
-      setTimeout(()=>{k++;k<n.q.length?ask():finish()},ok?800:1600)})};
+      const nx=()=>{k++;k<n.q.length?ask():finish()};
+      /* まちがえたら 「それは 〜と 思ったからかな？」（game/study.js）を 見てから つぎへ */
+      const wb=!ok&&window.STUDY?STUDY.whyBox(q[0],q[1][j],q[1][q[2]],{}):'';
+      if(wb){const d=document.createElement('div');d.className='gwhyb';d.innerHTML=wb+'<div class="row"><button id="gnx">つぎへ ▶</button></div>';panel.querySelector('.quizg').appendChild(d);$('gnx').onclick=()=>{SFX.pop();nx()};d.scrollIntoView({block:'nearest',behavior:'smooth'})}
+      else setTimeout(nx,ok?800:1600)})};
   const finish=()=>{const first=!miss&&!gCleared(n.id);if(!miss&&!gCleared(n.id)){ST.gram.cleared.push(n.id);save()}
+    try{RECENT.add('gram',{id:n.id,ok:!miss,miss})}catch(e){}
     /* ミナ先生が この文法の 授業を すすめる（game/gram-link.js） */
     let lk=null;try{lk=window.GRAMLINK&&GRAMLINK.afterTest(lv,i,miss,()=>gramNote(lv,i))}catch(e){console.error(e)}
     show('gram',`<section class="pnl gram chest">

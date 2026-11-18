@@ -97,7 +97,7 @@ function goTo(o){if(!o)return null;const [k,,x]=o;if(o[3])return o[3];
   if(k==='grammar'&&x&&(typeof GRAMMAR!=='undefined')&&GRAMMAR[x.lv])return ['📚 文法ノートを 見る',()=>H.gramNote(x.lv,x.i)];
   if((k==='weakBook'||k==='stepUp')&&x&&H.books)return ['📕 単語帳を ひらく',()=>H.books(k==='stepUp'?x.nlv:x.lv)];
   if(k==='weakWord'&&x)return ['🔊 きいてみる',()=>H.say(x.lv,x.en)];
-  if(k==='review')return ['🔁 苦手な ことばを 見る',()=>{const sc=()=>{const w=H.panel.querySelector('.mweak');if(w){const f=w.closest('details');if(f)f.open=true}if(w)w.scrollIntoView({behavior:'smooth',block:'center'})};if(H.screen==='mina')sc();else{panelOpen();setTimeout(sc,200)}}];
+  if(k==='review')return ['🔁 苦手な ことばを 見る',()=>{recOpen();setTimeout(()=>{const w=H.panel.querySelector('.mweak');if(w){const f=w.closest('details');if(f)f.open=true;w.scrollIntoView({behavior:'smooth',block:'center'})}},200)}];
   return null}
 
 /* ---------- face ---------- */
@@ -311,26 +311,67 @@ function talkBox(o){const [ex,tx]=o?line(o[0],o[1]):line('tap'),go=goTo(o);
   return {go,html:`<span class="mbig">${face('m',ex,poseFor(ex,tx))}</span>${go?`<button class="mline go" id="mgo">${tx}<small>${go[0]} ▶</small></button>`:`<p class="mline">${tx}</p>`}`}}
 function bindTalk(o,t){if(!t.go)return;$('mgo').onclick=()=>{SFX.step();if(window.MINA_REACT)MINA_REACT.noteSug(t.go);if(o[0]==='stepUp')MD.said.step=today();t.go[1]()};H.panel.querySelector('.mbig').onclick=()=>$('mgo').click()}
 /* 授業メニューの 🎯 苦手 とっくん と 🔎 とことん授業（中身は 先生と 話す 画面と 同じ。ここからも すぐ 行ける） */
+/* ほかも やる ▾ の 中の タイル（数字は 出さない。数字は 📊 きろく へ） */
 function menuTiles(){let h='';
-  if(window.SENSEI){const w=SENSEI.weak().length;h+=`<button id="mtok" class="mvc mt-tok${w?' hot':''}"><span>🎯 苦手 とっくん</span><b>${w?`🔥 苦手 ${w}こ`:'5問 ちょうせん'}</b></button>`}
-  if(window.DEEP){const R=DEEP.rec(),n=Object.keys(R).filter(id=>R[id].best>=3).length;h+=`<button id="mdeep" class="mvc mt-deep"><span>🔎 とことん授業</span><b>${n?`★3 ${n}こ`:'なんで？を 深く'}</b></button>`}
+  if(window.SENSEI){const w=SENSEI.weak().length;h+=`<button id="mtok" class="mvc mt-tok${w?' hot':''}"><span>🎯 苦手 とっくん</span><b>${w?'🔥 苦手を やっつける':'5問で きたえる'}</b></button>`}
+  if(window.DEEP)h+=`<button id="mdeep" class="mvc mt-deep"><span>🔎 とことん授業</span><b>なんで？を 深く</b></button>`;
   return h}
-function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advice(),ra=recentAcc(),wg=weakGram()||gramForSentences(),su=stepUp();
-  /* half the time the most useful advice, else something about what she sees now */
-  /* さっき したこと・いま 起きた ことが あれば、 まず それ（game/mina-react.js） */
-  const first=(window.MINA_REACT&&MINA_REACT.page())||(opts.length&&Math.random()<.5?opts[0]:(sense()||opts[0]||null)),T0=talkBox(first);
-  const accToday=D.a?Math.round(D.o/D.a*100):null;
+/* ミナ先生の ページ: 「きょうの 1本」（game/study.js）＋ 習う・ふくしゅう・話す の 3つ。ほかは 「ほかも やる ▾」に たたむ */
+function panelOpen(){const from=H.screen,S=window.STUDY,P=S?S.page(from):{html:'',cnt:false};
+  const love=window.LOVE?LOVE.btn():'',loveDot=/class="dot"/.test(love);
+  let revN=0;try{revN=window.REVIEW?REVIEW.todayN():0}catch(e){}
   H.show('mina',`<section class="pnl minap">
     <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b>${window.GIFT?GIFT.btn('mina','mgift'):'<span></span>'}</div>
-    <div class="mtalk" id="mtalk">${T0.html}</div>
-    <div class="mmrow">${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}${window.MCHAT?'<button id="mchat" class="sub mmore">☕ おしゃべり</button>':''}</div>
-    ${window.LESSON?`${LESSON.card('mina')}
-    <div class="mtiles"><button id="mall" class="mvc mt-all"><span>📖 ぜんぶの 授業</span><b>${LESSON.count().join('/')}</b></button>${typeof GRAMMAR!=='undefined'?`<button id="mgl" class="mvc mt-gram"><span>📚 文法ノート</span><b>${(ST.gram.cleared||[]).length}/${['es','jh','hs'].reduce((a,k)=>a+(GRAMMAR[k]?GRAMMAR[k].notes.length:0),0)}</b></button>`:''}${menuTiles()}</div>`:''}
-    <button id="msensei" class="msensei">🗣️ ミナ先生と 英語で 話す</button>
-    ${window.UNK?UNK.minaBox():''}
-    ${window.LOVE?LOVE.btn():''}
-    <details class="mfold mrec"><summary>📊 きろく・ごほうび<small>${D.a?`きょう ${D.a}問`:''}</small></summary><div class="mfbody">
+    ${P.html}
+    <div class="st3"><button id="st3l"><span>📖</span><b>習う</b></button><button id="st3r"><span>📚</span><b>ふくしゅう</b>${revN?'<i class="dot"></i>':''}</button><button id="st3t"><span>🗣️</span><b>話す</b></button></div>
+    <details class="mfold stmore"><summary>ほかも やる${loveDot?'<i class="dot"></i>':''}</summary><div class="mfbody">
+      <div class="mtalk" id="mtalk"></div>
+      <div class="mmrow">${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}${window.MCHAT?'<button id="mchat" class="sub mmore">☕ おしゃべり</button>':''}</div>
+      ${window.LESSON?`<div class="mtiles">${menuTiles()}<button id="mall" class="mvc mt-all"><span>📖 ぜんぶの 授業</span><b>図解・覚え方も</b></button>${typeof GRAMMAR!=='undefined'?`<button id="mgl" class="mvc mt-gram"><span>📚 文法ノート</span><b>ルールと テスト</b></button>`:''}</div>`:''}
+      ${window.UNK?UNK.minaBox():''}
+      ${love}
+    </div></details>
+    <button id="mrec" class="sub mrecb">📊 きろく</button>
+  </section>`);
+  if(S)S.bind(P);
+  /* 「ほかの 話」: 開いたときに ミナ先生の いつもの ひとこと（さっきの こと・アドバイス） */
+  const say=o=>{const t=talkBox(o);$('mtalk').innerHTML=t.html;bindTalk(o,t);const b=H.panel.querySelector('.mbig');if(b){b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew')}};
+  const fold=H.panel.querySelector('.stmore');let said=false;
+  fold.ontoggle=()=>{if(!fold.open)return;SFX.pop();if(said)return;said=true;const opts=advice();say((window.MINA_REACT&&MINA_REACT.page())||(opts.length&&Math.random()<.5?opts[0]:(sense()||opts[0]||null)))};
+  const mm=$('mmore');if(mm)mm.onclick=()=>{SFX.pop();const opts=advice();say(sense()||(opts.length?pickL(opts):null))};
+  const mc=$('mchat');if(mc)mc.onclick=()=>{SFX.talk();MCHAT.open(null,panelOpen)};
+  $('mx').onclick=()=>{SFX.pop();const [e2,t2]=line('bye');H.home();setTimeout(()=>sayRow('m',e2,t2,4000),150)};
+  $('st3l').onclick=()=>{SFX.lesson();S?S.path():LESSON.list()};
+  $('st3r').onclick=()=>{SFX.lesson();window.REVIEW?REVIEW.list():LESSON.list()};
+  $('st3t').onclick=()=>{SFX.talk();window.SENSEI&&SENSEI.open()};
+  $('mrec').onclick=()=>{SFX.book();recOpen()};
+  const ma=$('mall');if(ma)ma.onclick=()=>{SFX.lesson();LESSON.list()};
+  const gl=$('mgl');if(gl)gl.onclick=()=>{SFX.book();const lv=level();H.gramFrom(lv==='adv'?'hs':lv,panelOpen)};
+  const mt=$('mtok');if(mt)mt.onclick=()=>{SFX.step();SENSEI.tokkun(null,0,'mina')};
+  const md=$('mdeep');if(md)md.onclick=()=>{SFX.step();DEEP.pick()};
+  if(window.LOVE)LOVE.bind(panelOpen);
+  if(window.GIFT)GIFT.bindBtn('mina','mgift',panelOpen);
+  if(window.UNK)UNK.minaBind(panelOpen)}
+/* 📊 きろく: 数字・一覧は ふだん 見せず ここに。 いちばん上は 「できるように なった こと」（ことばで） */
+function recOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),wg=weakGram()||gramForSentences(),su=stepUp(),S=window.STUDY;
+  const accToday=D.a?Math.round(D.o/D.a*100):null,can=S?S.canList():[];
+  const gTot=typeof GRAMMAR!=='undefined'?['es','jh','hs'].reduce((a,k)=>a+(GRAMMAR[k]?GRAMMAR[k].notes.length:0),0):0;
+  const nums=[];
+  if(window.LESSON)nums.push(['📖','ミニ授業',LESSON.count().join(' / ')]);
+  if(gTot)nums.push(['📝','文法ノート',`${(ST.gram.cleared||[]).length} / ${gTot}`]);
+  if(S)nums.push(['🌱','しあがった 文法（4ステップ）',`${can.filter(c=>c.full).length} / ${gTot}`]);
+  try{if(window.REVIEW)nums.push(['📚','ふくしゅう',`きょう ${REVIEW.todayN()}問・まちがいノート ${REVIEW.missN()}問`])}catch(e){}
+  try{if(window.SENSEI)nums.push(['🗣️','会話の エンド',`${SENSEI.endsN()} / ${SENSEI.endsAll()}（パターン 約 ${SENSEI.patText()} とおり）`])}catch(e){}
+  try{if(window.DEEP){const R=DEEP.rec();nums.push(['🔎','とことん授業 ★3',`${Object.keys(R).filter(id=>R[id].best>=3).length}`])}}catch(e){}
+  const [ex,tx]=line(can.length?'st_rec':'st_recNone');
+  H.show('mina',`<section class="pnl minap mrecp">
+    <div class="qtop"><button class="x" id="mrx" aria-label="ミナ先生に もどる">←</button><b>📊 きろく</b><span></span></div>
+    <div class="kmina"><span class="lface">${face('m',ex)}</span><p>${tx}</p></div>
+    <h4 class="sth">🌱 できるように なった こと</h4>
+    <ul class="stcan">${can.slice().reverse().map(c=>`<li class="${c.full?'full':''}">${c.full?'🌟':'✔️'} ${esc(c.c)}</li>`).join('')||'<li class="none">授業や 文法ノートを おえると、 ここに ふえていくよ</li>'}</ul>
+    <details class="mfold mrec"><summary>🔢 数字で 見る<small>${D.a?`きょう ${D.a}問`:''}</small></summary><div class="mfbody">
     <div class="mstats"><div><b>${D.a}</b><small>きょう 答えた</small></div><div><b>${accToday==null?'-':accToday+'%'}</b><small>正解率</small></div><div><b>${D.l}</b><small>おぼえた</small></div><div><b>${MD.best}</b><small>れんぞく</small></div></div>
+    <div class="stnums">${nums.map(n=>`<p><span>${n[0]} ${n[1]}</span><b>${esc(n[2])}</b></p>`).join('')}</div>
     ${su?`<p class="msug">⬆️ ${esc(su.lv)}の 正解率 ${su.acc}%。<b>${esc(su.next)}</b>に ちょうせん してみよう</p>`:''}
     ${wg?`<button id="mgram" class="msug btn">📚 文法ノート「${esc(wg.title)}」を 見る</button>`:''}
     ${window.LESSON?`<p class="note">いまの 力：${LVN[level()]}くらい</p>`:''}
@@ -339,23 +380,11 @@ function panelOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),opts=advi
     <p class="note">${ww.length?'まちがえた（✗）・こたえなかった（💤）ことば。ラジオで ときどき 出すね。2回 つづけて 正解で 卒業':''}</p>
     <div class="mweak">${ww.map(w=>`<button data-say="${esc(w.en)}" data-lv="${w.lv}"><span class="en">${esc(w.en)}</span><span class="ja">${esc(w.ja||'')}</span><span class="mm">${w.m?'✗'+w.m:''}${w.m&&w.n?' ':''}${w.n?'💤'+w.n:''}</span></button>`).join('')||'<p class="note">ラジオで あそぶと、まちがえた ことばや こたえなかった ことばが ここに たまるよ</p>'}</div>
     </div></details>
+    <div class="mtiles" hidden></div>
   </section>`);
-  setTimeout(()=>{const b=H.panel.querySelector('.mbig');if(b)b.classList.add('mnew')},10);
-  bindTalk(first,T0);
-  const mm=$('mmore');if(mm)mm.onclick=()=>{SFX.pop();const o=sense()||(opts.length?pickL(opts):null),t=talkBox(o);$('mtalk').innerHTML=t.html;bindTalk(o,t);
-    const b=H.panel.querySelector('.mbig');if(b){b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew')}}
-  const mc=$('mchat');if(mc)mc.onclick=()=>{SFX.talk();MCHAT.open(null,panelOpen)};
-  $('mx').onclick=()=>{SFX.pop();const [e2,t2]=line('bye');H.home();setTimeout(()=>sayRow('m',e2,t2,4000),150)};
+  $('mrx').onclick=()=>{SFX.pop();panelOpen()};
   H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.say));
   H.panel.querySelectorAll('.mfold').forEach(f=>f.ontoggle=()=>{if(f.open)SFX.pop()});
-  if(window.LESSON){LESSON.bindCard(panelOpen);$('mall').onclick=()=>{SFX.lesson();LESSON.list()}}
-  const gl=$('mgl');if(gl)gl.onclick=()=>{SFX.book();const lv=level();H.gramFrom(lv==='adv'?'hs':lv,panelOpen)};
-  const mt=$('mtok');if(mt)mt.onclick=()=>{SFX.step();SENSEI.tokkun(null,0,'mina')};
-  const md=$('mdeep');if(md)md.onclick=()=>{SFX.step();DEEP.pick()};
-  if(window.LOVE)LOVE.bind(panelOpen);
-  if(window.GIFT)GIFT.bindBtn('mina','mgift',panelOpen);
-  if(window.UNK)UNK.minaBind(panelOpen);
-  const ms=$('msensei');if(ms)ms.onclick=()=>{SFX.talk();window.SENSEI?SENSEI.open():null};
   const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.book();H.gramNote(wg.lv,wg.i)}}
 /* the face lives in the home row; tap = talk */
 H.on('home',()=>{const f1=$('minaFace');if(f1)f1.innerHTML=face('m',minaEx,minaPoseNow);const f=$('minaFace');if(f)f.onclick=()=>{SFX.talk();panelOpen()};
@@ -365,6 +394,6 @@ setFace('smile');const f0=$('minaFace');if(f0)f0.onclick=()=>{SFX.talk();panelOp
 /* ---------- review words for the radio ---------- */
 function reviewPick(lv){if(Math.random()>.15)return null;const ww=weakWords(lv,null);return ww.length?pickL(ww.slice(0,8)).en:null}
 
-window.MINA={poseFor,busy,say:sayRow,canTalk,canAnnounce,announce,sinceAnn:()=>performance.now()-annAt,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,line,
+window.MINA={recOpen,poseFor,busy,say:sayRow,canTalk,canAnnounce,announce,sinceAnn:()=>performance.now()-annAt,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,line,
   _test:{say:()=>{talkAt=talkGap},hama:()=>{hamaAt=hamaGap;MD.hama={d:'',n:0}},hello:()=>{opened=false}}};
 })();
