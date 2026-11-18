@@ -463,8 +463,7 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_ttBgm',1,()=>TT.talks>=1&&!TT.bgm?{}:null,goTango],
  ['x_ttLast',3,()=>{const L=TT.last;return L&&L.who!=='mina'&&Date.now()-L.t<6*3600e3?{who:WN[L.who],w:L.w,jc:L.jc}:null},goTango],
  ['x_ttLastMe',2,()=>{const L=TT.last;return L&&L.who==='mina'&&Date.now()-L.t<6*3600e3?{w:L.w}:null},goTango],
- ['x_ttNear',1,()=>{const n=EVERY-TT.n;return TT.n>=10&&n>0?{n}:null},goTango],
- ['x_ttCards',1,()=>TT.cards>=3?{n:TT.cards}:null,null]);
+ ['x_ttNear',1,()=>{const n=EVERY-TT.n;return TT.n>=10&&n>0?{n}:null},goTango]);   // x_ttCards（おしゃべりで もらう カード）は 11/18 に なくした
 /* 新しく できたことを 1回だけ */
 setTimeout(function first(){if(TT.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
   TT.told=1;save();const [ex,tx]=ML('tt_new');m.say('m',ex,tx,10000,null,goTango())},34000);

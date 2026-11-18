@@ -150,7 +150,7 @@ const MIOT=[
  ["Sorry! I needed coins.","ごめん！ コインが 必要で。",["It's OK, boss. Songs come and go… like customers! Ha ha.","いいんですよ、 店長。 曲も お客さんも、 来ては 行くもの！ あはは。",'laugh']],
  ["What song do you want next?","つぎは どの 曲が いい？",["Something with a happy beat! Then I can dance behind the counter. Just a little.","ノリの いい 曲！ そしたら カウンターの うしろで おどれる。 ちょっとだけ。",'wink']]],ph:["come and go","来ては 去る"]},
 {id:'zs_sell',k:'zsell',if:e=>e.kind!=='music',m:["I heard you sold something at Nora's. Cleaning out your bag?","ノラさんの お店で なにか 売ったって？ かばんの 整理？"],ex:'smile',o:[
- ["I needed coins.","コインが 必要で。",["Coins for… more packs? Ha ha, a true card shop boss!","コインで… パック？ あはは、 さすが カードショップの 店長！",'laugh']],
+ ["I needed coins.","コインが 必要で。",["Coins for… mine tools? Ha ha, a true card shop boss!","コインで… 鉱山の 道具？ あはは、 さすが カードショップの 店長！",'laugh']],
  ["My bag was too full.","かばんが いっぱいで。",["I know that feeling. My bag is full of… sticky notes. Hundreds of them.","わかります。 わたしの かばんは… ふせんで いっぱい。 何百まいも。",'oops']]]},
 
 /* =============================================================== 🎁 プレゼント */
@@ -301,7 +301,7 @@ const MIOT=[
  ["Let's just chat today.","きょうは おしゃべり しよう。",["A chatting day? I like it. …But tomorrow, cards!","おしゃべりの 日？ いいですね。 …でも あしたは カード！",'wink']]]},
 {id:'st_rich',k:'rich',m:["Boss, you have so many coins! Are you secretly rich?","店長、 コイン すごい！ じつは お金持ち？"],ex:'laugh',o:[
  ["I'm saving up.","ためてるんだ。",{m:["Saving up for what? Something big?","なにの ために？ 大きい もの？"],ex:'smile',o:[
-  ["A big pile of packs.","パックを どっさり。",["No limit on packs now, right? Can I help open them? Please?","パックは せいげん なし ですもんね？ あけるの 手伝っても いい？ おねがい！",'laugh']],
+  ["A big pile of mine tools.","鉱山の 道具を どっさり。",["Lamps, firewood, batteries… Can I carry some? I'll be your assistant miner!","ランプに たきぎに 電池… 少し もっても いい？ 鉱山の 助手に なります！",'laugh']],
   ["It's a secret.","ひみつ。",["A secret again?! Boss, you're a mystery.","また ひみつ？！ 店長って なぞの 人。",'wink']]]}],
  ["Want a raise?","時給 上げようか？",["A raise?! …Boss, don't joke about that. My heart can't take it!","時給 アップ？！ …店長、 その じょうだんは だめ。 心臓が もちません！",'oops']]],ph:["save up","お金を ためる"]},
 
@@ -434,7 +434,7 @@ const MIOT_MUT={
  magic:[["Wait… {ev}?! Am I dreaming?","まって… {evj}？！ 夢？"],["Is that really {ev}?!","あれ ほんとに {evj}？！"]],
  weather:[["Oh, {ev}…","あ、 {evj}…"],["{Ev}… Where's my umbrella?","{evj}… かさ どこ？"]],
  mine:[["{d} meters today! Amazing, boss.","きょうは {d}メートル！ 店長 すごい。"],["Welcome back from the mine!","鉱山から おかえりなさい！"]],
- pack:[["New cards! I can smell them!","新しい カード！ においで わかる！"],["What was in the pack?","パック、 なにが 出たのかな？"]],
+ pack:[["New cards! I can smell them!","新しい カード！ においで わかる！"],["What was in the box?","箱に なにが 入ってたのかな？"]],
  sell:[["We sold \"{w}\"! Yay!","「{w}」 売れた！ やった！"]],
  buyin:[["A new card, \"{w}\"! Welcome!","新しい カード 「{w}」！ ようこそ！"],["Where shall we put \"{w}\"?","「{w}」、 どこに おこうかな？"]],
  meal:[["How was the {food}?","{foodj}、 おいしかった？"],["You smell like Marco's diner!","マルコさんの 食堂の におい！"]],

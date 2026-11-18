@@ -5,7 +5,7 @@
    - ことばが きまっていない 勉強（授業・とっくん・とことん授業・ふくしゅう・先生と 会話・文法テスト・リクの 家庭教師・浜辺の 会話）は
      授業に 出てきた ブックの ことば（なければ 在庫が すくない ブックの カード）が とどく
    - ✏️ 仕入れ練習: 仕入れ画面で ブックの カードを えらんで 3問。 2問 正解で 1まい とどく
-   - 1まいの カードは 1日 3まいまで（CAP）。 とどいた カードは 仕入れ画面の 「📦 とどいた カード」に 出る（見たら 消える。 在庫は そのまま）
+   - 何まいでも とどく（1日の 上限は 11/18 に なくした）。 とどいた カードは 仕入れ画面の 「📦 とどいた カード」に 出る（見たら 消える。 在庫は そのまま）
    保存は CG.rec().stk = {d:日付, day:{id:きょう とどいた 数}, src:{みなもと:きょうの 数}, nw:{id:まだ 見ていない 数}, all:ぜんぶの 数}
    ミオの セリフは この ファイル、 ミナ先生の セリフも さいご */
 (()=>{
@@ -14,7 +14,7 @@ const H=HE,esc=H.esc,$=id=>document.getElementById(id);
 const C=CG,pickL=a=>a[Math.random()*a.length|0];
 const sf=k=>{try{SFX[k]&&SFX[k]()}catch(e){}};
 const ML=(k,v)=>{try{return MINA.line(k,v||{})}catch(e){return ['smile','']}};
-const CAP=3,SHOWN=60;
+const SHOWN=60;
 const head1=I=>I.k==='s'?I.en:String(I.en).split(',')[0].trim();
 const headOf=e=>String(e||'').split(',')[0].trim().toLowerCase().replace(/[.!?]$/,'');
 const SRC={tango:['📗','単語帳'],radio:['📻','浜辺の クイズ'],mine:['⛏️','鉱山'],talk:['💬','単語帳の おしゃべり'],lesson:['👩‍🏫','授業'],tokkun:['💪','苦手とっくん'],
@@ -25,7 +25,7 @@ function K(){const r=C.rec();const k=r.stk||(r.stk={d:'',day:{},src:{},nw:{},all
 const inBook=id=>{try{return !!SHOP.inBook(id)}catch(e){return false}};
 const bookIds=()=>{try{return Object.keys(SHOP.bookRec()).filter(inBook)}catch(e){return []}};
 const stockOf=id=>{try{return SHOP.stock(id)}catch(e){return C.count(id)}};
-const left=id=>Math.max(0,CAP-(K().day[id]||0));
+const left=id=>1;   // 1日の 上限は なし（11/18 ユーザー決定）。 前の 呼び出しの ため のこす
 const newN=()=>Object.values(K().nw).reduce((a,n)=>a+n,0);
 const todayN=()=>Object.values(K().day).reduce((a,n)=>a+n,0);
 /* ことば → ブックの カード */
@@ -92,10 +92,10 @@ const MIO_STK={
   ["It's quiet today. Want to try a quick practice? Three questions, and a card arrives.","きょうは しずかですね。 さっと 練習 してみます？ 3問で カードが 1まい とどきます。"],
   ["The delivery truck runs on studying. Funny truck, right?","うちの トラックは 勉強で 走るんです。 おもしろい トラックでしょ？"]],
  nobook:[["Our supplier only sends cards that are in the card book. Let's put some cards in the book first!","うちの 仕入れ先は カードブックに ある カードしか 送ってくれないんです。 まず ブックに カードを 入れましょう！"],
-  ["The card book is empty… Dig new cards in the mine, put them in the book, then study. That's the route!","カードブックが からっぽ… 鉱山で ほって、 ブックに 入れて、 勉強する。 それが 仕入れの 道です！"]],
+  ["The card book is empty… Dig cards in the mine. They go straight into the book. Then study. That's the route!","カードブックが からっぽ… 鉱山で ほると、 そのまま ブックに 入ります。 あとは 勉強！ それが 仕入れの 道です！"]],
  ok:[["Perfect! One more card is on its way. Thank you, boss!","かんぺき！ カードが 1まい とどきますよ。 ありがとう、 店長！"],["Nice! That's how we stock up here. Study, then sell!","いいですね！ うちの 仕入れは これ。 勉強して、 売る！"]],
  miss:[["So close! Want to try again? The truck is waiting.","おしい！ もう一回 やります？ トラックが 待ってますよ。"],["It's OK, boss. Mistakes are part of the job. One more time!","だいじょうぶ、 店長。 まちがいも しごとの うち。 もう一回！"]],
- full:[["That card came three times today already. Let's give it a rest until tomorrow!","その カード、 きょうは もう 3回 とどきました。 あしたまで おやすみ させましょう！"]]};
+};
 
 /* ================================================================ 📦 仕入れの 画面 */
 let sort='low',shown=SHOWN,back0=null;
@@ -103,7 +103,7 @@ function open(back){if(back)back0=back;shown=SHOWN;draw()}
 function goBack(){sf('back');const b=back0;back0=null;b?b():SHOP.open()}
 function list(){let ids=bookIds();
   if(sort==='weak')ids=ids.filter(id=>C.weak&&C.weak(id));
-  return ids.map(id=>[stockOf(id),id]).sort((a,b)=>(left(b[1])>0)-(left(a[1])>0)||a[0]-b[0]||(C.info(a[1]).en<C.info(b[1]).en?-1:1)).map(x=>x[1])}
+  return ids.map(id=>[stockOf(id),id]).sort((a,b)=>a[0]-b[0]||(C.info(a[1]).en<C.info(b[1]).en?-1:1)).map(x=>x[1])}
 function draw(say0){const k=K(),nw=Object.keys(k.nw).filter(id=>C.info(id)),book=bookIds(),tn=todayN();
   const L=say0||(!book.length?pickL(MIO_STK.nobook):nw.length?pickL(MIO_STK.got):pickL(MIO_STK.none));
   const ids=list(),src=Object.entries(k.src).filter(x=>x[1]>0);
@@ -118,14 +118,14 @@ function draw(say0){const k=K(),nw=Object.keys(k.nw).filter(id=>C.info(id)),book
     ${book.length?`<div class="stkhd"><b>📖 ブックの カード <small>${book.length}</small></b>
         <span class="stkseg"><button data-s="low" class="${sort==='low'?'on':''}">在庫 すくない順</button><button data-s="weak" class="${sort==='weak'?'on':''}">苦手</button></span></div>
       <p class="stkt">タップすると ✏️ 3問で 1まい 仕入れられるよ</p>
-      <div class="stkg stkbk">${ids.slice(0,shown).map(id=>`<button class="stkc ${left(id)?'':'full'}" data-b="${esc(id)}">${C.face(id,{mini:1,marks:false})}<em class="${stockOf(id)?'':'zero'}">在庫 ${stockOf(id)}</em></button>`).join('')||'<p class="stkempty">苦手な カードは ないよ</p>'}</div>
+      <div class="stkg stkbk">${ids.slice(0,shown).map(id=>`<button class="stkc" data-b="${esc(id)}">${C.face(id,{mini:1,marks:false})}<em class="${stockOf(id)?'':'zero'}">在庫 ${stockOf(id)}</em></button>`).join('')||'<p class="stkempty">苦手な カードは ないよ</p>'}</div>
       ${ids.length>shown?`<button class="sub" id="stmore">もっと 見る（のこり ${ids.length-shown}）</button>`:''}`
-     :`<button class="big" id="stbook">📖 カードブックへ</button>`}
+     :`<div class="row">${(()=>{try{return CBOOK.addable().length}catch(e){return 0}})()?'<button class="big" id="stbook">📖 カードブックへ</button>':''}<button class="big" id="stmine">⛏️ 鉱山で ほる</button></div>`}
     <details class="shmore"><summary>仕入れの しくみ</summary>
       <ul class="stkhow"><li>📖 仕入れられるのは カードブックに 入れた カードだけ。 コインは いらない</li>
         <li>📗 単語帳で「おぼえた！」・📻 浜辺の クイズ・⛏️ 鉱山で 正解すると、 その ことばの カードが とどく</li>
         <li>👩‍🏫 授業・💪 とっくん・📘 テスト などの あとは、 出てきた ことばや 在庫が すくない カードが とどく</li>
-        <li>✏️ ここで カードを えらんで 3問。 2問 正解で 1まい</li><li>1まいの カードは 1日 ${CAP}まいまで。 新しい カードは ⛏️ 鉱山で ほりだそう</li></ul></details>
+        <li>✏️ ここで カードを えらんで 3問。 2問 正解で 1まい</li><li>1日の 上限は なし。 勉強した ぶんだけ とどくよ</li><li>新しい カードは ⛏️ 鉱山で ほりだそう（ほった カードは 自動で ブックに 入るよ）</li></ul></details>
   </section>`);
   bindMio(H.panel);say(L[0]);
   $('stb').onclick=goBack;
@@ -135,6 +135,7 @@ function draw(say0){const k=K(),nw=Object.keys(k.nw).filter(id=>C.info(id)),book
   if($('stok'))$('stok').onclick=()=>{sf('card');seen();H.toast('📦 倉庫に しまったよ<small>売り場に ならべると お客さんが 買っていくよ</small>',2400);draw(pickL(MIO_STK.ok))};
   if($('stfl'))$('stfl').onclick=()=>{sf('step');seen();try{SHOP.floor()}catch(e){SHOP.open()}};
   if($('stbook'))$('stbook').onclick=()=>{sf('step');CBOOK.open(null,null,()=>open())};
+  if($('stmine'))$('stmine').onclick=()=>{sf('step');try{MINE.open()}catch(e){SHOP.open()}};
   if($('stmore'))$('stmore').onclick=()=>{sf('tap');shown+=SHOWN;draw(L)};
   H.panel.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{sf('tap');sort=b.dataset.s;shown=SHOWN;draw(L)});
   H.panel.querySelectorAll('.stkc[data-id]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.id)});
@@ -142,10 +143,10 @@ function draw(say0){const k=K(),nw=Object.keys(k.nw).filter(id=>C.info(id)),book
   if(!C.rec().stkTold){C.rec().stkTold=1;C.save();setTimeout(()=>{const [,tx]=ML('stk_first');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4600)},1200)}}
 
 /* 1まい えらんだ: ✏️ 3問 / 📖 くわしく */
-function card(id){const I=C.info(id);if(!I)return;const lf=left(id);
+function card(id){const I=C.info(id);if(!I)return;
   const o=C.ov(`<div class="cgbuy stkov">${C.face(id,{big:1,ja:1})}
-    <p class="stkn">在庫 <b>${stockOf(id)}</b>まい ・ きょう あと <b>${lf}</b>まい 仕入れられる</p>
-    ${lf?`<button id="stdr" class="big">✏️ 3問で 仕入れる</button>`:`<p class="stkt">${esc(MIO_STK.full[0][1])}</p>`}
+    <p class="stkn">在庫 <b>${stockOf(id)}</b>まい</p>
+    <button id="stdr" class="big">✏️ 3問で 仕入れる</button>
     <div class="row"><button id="stdt" class="sub">📖 くわしく</button><button id="stx" class="sub">とじる</button></div></div>`,'by');
   $('stx').onclick=()=>{sf('back');C.closeOv()};
   $('stdt').onclick=()=>{sf('card');C.closeOv();C.detail(id,()=>open())};
@@ -159,7 +160,7 @@ function drill(id){const I=C.info(id);let i=0,ok=0,last=null;
     o.querySelector('.stkdr').innerHTML=`<p class="stkdh">${got?'📦 入荷！':'✏️ おしい！'} <b>${ok} / 3</b></p>
       ${got?C.face(id,{mini:1,marks:false}):''}${mio(L,got?'laugh':'smile',got?'peace':'')}
       <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
-      <div class="row">${!got&&left(id)?'<button id="stag">もう一回</button>':''}<button id="stend" class="sub">仕入れに もどる</button></div>`;
+      <div class="row"><button id="stag">${got?'✏️ もう 1まい':'もう一回'}</button><button id="stend" class="sub">仕入れに もどる</button></div>`;
     bindMio(o);say(L[0]);if(got){sf('done');try{SFX.fanfare(1)}catch(e){}}else sf('step');
     const ag=o.querySelector('#stag');if(ag)ag.onclick=()=>{sf('open');C.closeOv();drill(id)};
     o.querySelector('#stend').onclick=()=>{sf('back');C.closeOv();draw(L)}};
@@ -170,7 +171,8 @@ function rec0(id,ok){quiet=true;try{C.record(id,ok)}finally{quiet=false}}
 /* ================================================================ ミナ先生 */
 Object.assign(MINA_LINES,{
  stk_new:[['wow','カードショップの 仕入れが かわったよ！ コインは いらなくて、 カードブックの ことばを 勉強すると その カードが とどくの'],['happy','おしらせ！ 単語帳や 授業で 勉強すると、 カードブックの カードが お店に 入荷するように なったよ']],
- stk_first:[['point','📖 ブックに 入れた ことばを 勉強すると、 ここに カードが とどくよ。 1まいの カードは 1日 3まいまで'],['smile','勉強が そのまま お店の 仕入れに なるの。 すてきな お店でしょ']],
+ stk_first:[['point','📖 ブックに 入れた ことばを 勉強すると、 ここに カードが とどくよ。 1日の 上限は ないから、 勉強した ぶんだけ ふえるの'],['smile','勉強が そのまま お店の 仕入れに なるの。 すてきな お店でしょ']],
+ stk_noCap:[['wow','おしらせ！ 仕入れの「1日 3まいまで」が なくなったよ。 勉強した ぶんだけ、 何まいでも お店に とどくの'],['happy','鉱山で ほった カードは 自動で 📖ブックに 入るように なったよ。 あとは 勉強すれば どんどん 入荷！']],
  stk_lesson:[['happy','授業に 出てきた「{w}」の カードが お店に とどいたよ'],['smile','勉強した ぶん、 お店の たなも うまっていくね'],['proud','授業の あとは 入荷の 時間。 ミオさんが よろこぶよ']],
  stk_drillOk:[['proud','「{w}」 3問 クリア！ 仕入れ かんりょう'],['happy','ちゃんと わかってるね。 「{w}」の カード、 倉庫に 入ったよ'],['smile','英語で "in stock"（在庫あり）。 お店の ことばも おぼえちゃおう']],
  stk_drillMiss:[['smile','おしい！ まちがえた ところは 📖 くわしくで 見てから もう一回'],['think','「{w}」、 いみと つづりを 声に 出して 言ってみて。 つぎは いけるよ']],
@@ -184,7 +186,10 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_stkDrill',1,()=>{try{return SHOP.rec().met&&bookIds().some(id=>!stockOf(id)&&left(id))?{}:null}catch(e){return null}},goStk]);
 /* 1回だけ: 仕入れが かわった お知らせ */
 setTimeout(function first(){const r=C.rec();if(!r.met||r.stkNew)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
-  r.stkNew=1;C.save();const [ex,tx]=ML('stk_new');m.say('m',ex,tx,10000,null,goStk())},16000);
+  r.stkNew=1;r.stkNoCap=1;C.save();const [ex,tx]=ML('stk_new');m.say('m',ex,tx,10000,null,goStk())},16000);
+/* 1回だけ: 1日の 上限が なくなった お知らせ（前の しくみを 知っている 人に） */
+setTimeout(function noCap(){const r=C.rec();if(!r.met||!r.stkNew||r.stkNoCap)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(noCap,20000);
+  r.stkNoCap=1;C.save();const [ex,tx]=ML('stk_noCap');m.say('m',ex,tx,10000,null,goStk())},22000);
 
-window.STOCK={open,credit,creditHead,creditSome,newN,todayN,left,bookIds,CAP,pick};
+window.STOCK={open,credit,creditHead,creditSome,newN,todayN,left,bookIds,pick};
 })();
