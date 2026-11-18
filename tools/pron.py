@@ -65,3 +65,7 @@ def phonemes(text, tok):
     for w in words:
         ph = ph.replace(tok.phonemize(w, 'en-us'), WORD[w])  # 文の中で もう正しく読めていれば そのまま
     return None if ph == ph0 and src == text and text not in TEXT else ph
+
+# さいごの k の 息が 長く のびて、 ちがう 音に 聞こえる 単語（park が「パーツ」に 聞こえた。 11/18）。
+# tools/make_trim.py が 同じ 声で 作りなおして、 のびた 息を みじかく する（audio/trim.*）
+TRIM = {'park'}

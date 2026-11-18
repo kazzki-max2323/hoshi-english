@@ -4,7 +4,7 @@
    - 会話は 分かれ道つきの 「長い 会話」と 同じ 形: nodes = {key:{m:[英語,日本語],ex,o:[[おもて,うら,つぎ,点]]}}、 おわりは {m,ex,end:'good'|'ok'|'fun'}
      文の { } は その とき めくった 単語で うまる（{w} 英語・{jc} 意味・{e} 絵文字・{ex}/{exj} 例文 など）
    - 同じ 話の 形は 直近 10回 くりかえさない・同じ 人は 2回 つづけて 来ない
-   - おわると コイン。 たまに その 単語の カードを もらえる（倉庫へ）
+   - おわると コイン（11/18 から カードは くばらない。 カードは 鉱山で ほって ゲット）
    - 単語帳の 上の 🎵 で のんびり BGM（ローファイ）を オン・オフ（game.js の placeBgm('cards')）
    - 「あとで」なら 5語 めくったら また 来る。 急かさない・失敗なし
    game.js から: HE.on('cardShow') / HE.on('cardsOpen')。 ミナ先生の セリフは この ファイルの さいご */
@@ -408,7 +408,7 @@ function run(pk){const {p,t,x,V}=pk,W=WHO[p];
     TT.talks++;TT.by[p]=(TT.by[p]||0)+1;TT.last={who:p,w:V.w,jc:V.jc,t:Date.now(),id:t.id};
     const coins=(isNew?3:1)+(n.end==='good'?2:1);
     /* now and then a card of the word (more often when the talk is about cards) */
-    let card=null;try{const id=V.M.id;if(id&&window.CG&&Math.random()<(x.card?.7:.25)){CG.give(id);CG.save();card=id;TT.cards++}}catch(e){card=null}
+    const card=null;   // 11/18 ユーザー「カードは 鉱山で ほって ゲット」: おしゃべりで カードを もらう しくみは なくした
     save();try{RECENT.add('tango',{who:p,en:V.w,ja:V.jc,card:card||''})}catch(e){}
     try{const r=logE.getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+r.height/2,coins)}catch(e){H.addCoins(coins)}
     line('nt',`${E[0]} 「${E[1]}」${isNew?' NEW!':''}　🪙${coins}`);

@@ -1,7 +1,7 @@
 /* ⛏️ 単語の 鉱山の 道具・宝箱・できごと（しくみは game/mine.js）
    - 道具は ながれぎ雑貨店の 「⛏️ 鉱山」の たなで 英語で 買う（会話は game/zakka-goods-talk.js。 ZAKKA_GOODS.tool）。 1回 つかうと なくなる
      11/18 新しい 鉱山（5まい発掘・休憩所・たき火・トランシーバー）に あわせて 作りなおし:
-     ほる とき（🎒）: lamp=宝石が 出やすい・まっくらを けす / mag=宝カードが 出やすい / guard=悪い できごとを 1回 ふせぐ / key=宝箱を かぎで あける
+     ほる とき（🎒）: lamp=宝石が 出やすい・まっくらを けす / mag=宝石の ねだんが 1.5倍 / guard=悪い できごとを 1回 ふせぐ / key=宝箱を かぎで あける
      休憩所（rest:1。 game/mine-rest.js）: wood=たき火で ❤が 2ばいの 速さ / batt=単語ラジオに 📖ブックの ことば・聞いた カード 3まいが 仕入れに / map=つぎの 階の 8まいから 5まい えらぶ
      お話（auto）: note=📜 お話の ボーナス 2ばい
    - 宝箱（📦）: ほっていると たまに 出る。 かぎ か 英語の 合言葉（いまの 5まいの 単語）で あける。 まちがえても 少しは 入っている（失敗なし）
@@ -29,8 +29,8 @@ const MINE_TOOLS={
   q:["What's on the shop's channel?","お店の チャンネルって なにが 流れるの？","Words from your card book. Listen to them, and Mio orders those cards for the shop.","あなたの カードブックの ことば。 聞いていると、 ミオちゃんが その カードを お店に 注文してくれるの。"],
   f:["Can I listen to music on it?","音楽も 聞ける？","Only words. It's a very serious radio.","ことばだけ。 とても まじめな ラジオなの。","Boring! Boring!"],
   e:["Listen well. Your shop is listening too.","よく 聞いてね。 お店も 聞いてるわ。"]},
- mag:{lv:'jh',ico:'🔍',n:'虫めがね',en:'magnifying glass',p:60,ef:'mag',v:10,s:'ほる とき: 10問 宝カードが 見つかりやすい',
-  d:["This is a magnifying glass. It helps you notice small things, like cards hidden in the rocks.","これは 虫めがね。 岩に かくれた カードみたいな 小さな ものに 気づけるの。"],
+ mag:{lv:'jh',ico:'🔍',n:'虫めがね',en:'magnifying glass',p:60,ef:'mag',v:10,s:'ほる とき: 10問 宝石の ねだんが 1.5倍',
+  d:["This is a magnifying glass. It helps you see how good a gem really is.","これは 虫めがね。 宝石の ほんとうの よさが 見えるの。 高く 売れるわよ。"],
   q:["Have you ever found anything with it?","これで なにか 見つけたこと ある？","Once I found Pip's lost feather under the shelf. He was so happy.","一度、 たなの 下で ピップの なくした 羽を 見つけたわ。 すごく よろこんでた。"],
   f:["Can I burn ants with it?","アリを やけちゃう？","No! Be kind to the ants. They work harder than all of us.","だめ！ アリには やさしくね。 わたしたちより よく はたらいてるのよ。","Poor ants! Poor ants!"],
   e:["Look closely. Treasure loves to hide.","よーく 見てね。 宝ものは かくれるのが 好きなの。"]},
