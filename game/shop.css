@@ -248,3 +248,7 @@
 .wdcard.on{outline:3px solid #ffd23f}
 .wdcard .wdf{width:84px;height:84px;display:block}.wdcard .wdf svg{width:100%;height:100%}.wdcard .wdf.mcf{border-radius:50%;overflow:hidden;box-shadow:0 0 0 2px #e8b84a}
 .wdcard b{font-size:1rem}.wdcard small{font-size:.68rem;line-height:1.4;opacity:.9}.wdcard .wdst{color:#ffe14a;opacity:1}
+/* 📖 鉱山: まちがえた あとの しらべる */
+.mnlook{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:0 0 6px}
+.mnlook span{font-size:.78rem;color:#ffe9a8;margin-right:2px}
+.mnlook button{padding:4px 10px!important;font-size:.82rem;border-radius:999px;background:#ffffff1f;border:1px solid #ffffff55;color:#fff;font-family:"Libre Baskerville",Georgia,serif}

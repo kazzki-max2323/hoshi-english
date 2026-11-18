@@ -215,6 +215,7 @@ function ask(box,q,done,opt={}){let hint=false,over=false;const nh=opt.noHint;bo
     if(ok){b.classList.add('ok');sf('correct');if(!q.auto&&!opt.quiet)sayIt();setTimeout(()=>done({ok:true,hint}),opt.fast?450:750)}
     else{b.classList.add('ng');sf('wrong');const x=box.querySelector('.cgqx');x.hidden=false;
       x.innerHTML=`<p>${q.tip}</p><button class="nx">つぎへ ▶</button>`;if(!opt.quiet)sayIt();
+      if(opt.onWrong)try{opt.onWrong(x,q)}catch(e){}
       x.querySelector('.nx').onclick=()=>{sf('step');done({ok:false,hint})};
       setTimeout(()=>x.scrollIntoView({block:'nearest',behavior:'smooth'}),50)}})}
 
