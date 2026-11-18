@@ -53,19 +53,15 @@ Object.assign(MINA_LINES,{
  cg_win:[['happy','{f}に 勝ったね！ コンボ、 うまく 使えてた'],['proud','勝利！ 正解した 単語は おぼえて きてるよ']],
  cg_lose:[['smile','{f}に 負けちゃったね。 まちがえた 単語は 結果に のってるよ'],['think','守るときは 相手の カードの 問題だよ。 はやく 答えると 🛡が 2ばい'],['smile','となりの 土地と コンボに なる 単語を 置くと、 通行料が 2ばい。 そこを ねらってみて'],['think','同じ 色の 土地を あつめると 通行料が どんどん 上がるよ']],
  x_cgOpen:[['smile','浜辺の 小屋は カードショップ「しおさい」。 きみが 店長に なって、 単語の 鉱山で カードを ほるんだ'],['happy','カードショップに 行ってみて！ アルバイトの ミオさんが 待ってるよ']],
- x_cgWeak:[['proud','苦手カードの {w}、 鉱山の 道具に すると 何回も 練習できるよ。 にげずに 使ってみて'],['think','{w} は まちがいノートの 単語。 カードで 出すと おぼえやすいよ']],
- x_cgForgot:[['think','💤 {w} の カード、 しばらく 見てないね。 鉱山で 使ってみて'],['smile','わすれかけた ころに 思い出すと、 いちばん 記憶に のこるんだ']],
- x_cgFree:[['happy','カードショップで きょうの むりょうパックが もらえるよ'],['smile','むりょうパック、 まだ あけてないよ']],
- x_cgPack:[['smile','カードショップの 仕入れ、 1パック 10まい前後 入ってるよ。 まだ もってない カードが 出やすいんだ'],['happy','仕入れの パックは ぜんぶ さいしょから 買えるよ。 小学生パックから ハイレベルまで、 すきな ところから'],['think','仕入れは ちょっと 高いけど、 1パックで 10まいくらい ふえるよ。 鉱山で ためた コインで どうぞ'],['smile','仕入れは 何回でも できるように なったよ。 コインが あれば すきなだけ どうぞ'],['think','仕入れの パックは 小・中・高の 単語。 毎日の 練習用の カードを ふやすのに ぴったり']],
- x_cgSent:[['smile','📜 文カードパックには 文カードが 2まい。 文に 出てくる 単語の カードも いっしょに 入ってるよ'],['proud','文カードの 英文、 声に 出して 読んでみて。 単語が 文の 中で どう 使われるか わかるよ']],
- x_cgGood:[['point','新しい カードは ⛏️鉱山でしか 見つからないよ。 ほりだしたら 📖カードブックへ'],['smile','深く ほるほど SR や SSR、 UR まで 出やすく なるんだって'],['think','鉱山は 宝さがし、 仕入れは 勉強。 そう おぼえておくと わかりやすいよ'],['happy','ブックに 入れた ことばを 勉強すると、 その カードが お店に とどくよ']],
- sh_packFree:[['happy','カードショップの 仕入れ、 何回でも できるように なったよ！ ただし いい カードは 鉱山だけ'],['smile','仕入れが 何回でも OKに なったよ。 🎁宝カードは ⛏️鉱山で さがしてね']]});
+ x_cgWeak:[['proud','苦手カードの {w}、 📦仕入れの ✏️3問で 練習してみて。 正解すると お店にも とどくよ'],['think','{w} は まちがいノートの 単語。 仕入れ練習で カードを 見ながら 答えると おぼえやすいよ']],
+ x_cgForgot:[['think','💤 {w} の カード、 しばらく 見てないね。 📦仕入れの ✏️3問で 思い出してみて'],['smile','わすれかけた ころに 思い出すと、 いちばん 記憶に のこるんだ']],
+ x_cgGood:[['point','新しい カードは ⛏️鉱山でしか 見つからないよ。 ほりだしたら 📖カードブックへ'],['smile','深く ほるほど SR や SSR、 UR まで 出やすく なるんだって'],['think','鉱山は 宝さがし、 仕入れは 勉強。 そう おぼえておくと わかりやすいよ'],['happy','ブックに 入れた ことばを 勉強すると、 その カードが お店に とどくよ']]});
 const goShop=()=>['🃏 カードショップへ',()=>C.open()];
 const goTab=t=>()=>['🃏 カードショップへ',()=>{C.open();setTimeout(()=>C.go(t),50)}];
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_cgOpen',4,()=>!R().met?{}:null,goShop],
- ['x_cgWeak',3,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.weak(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('mine')],
- ['x_cgForgot',2,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.forgot(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('mine')],
+ ['x_cgWeak',3,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.weak(id)&&SHOP.inBook(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('pack')],
+ ['x_cgForgot',2,()=>{const a=Object.keys(R().c).filter(id=>C.BY[id]&&C.forgot(id)&&SHOP.inBook(id));if(!a.length)return null;return {w:C.info(pickL(a)).en.split(',')[0]}},goTab('pack')],
  ['x_cgGood',2,()=>R().met?{}:null,goTab('mine')]);
 /* the card button left the home screen: Mina points at the hut once */
 setTimeout(function first(){if(R().told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,15000);

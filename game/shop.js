@@ -27,7 +27,7 @@ function allCards(){const r=R(),out=Object.keys(r.c).filter(id=>r.c[id]>0&&C.BY[
 /* 📖 カードブック（game/cbook.js）: 入れた カードは 1まい ブックに とっておく（売り場には 出せない） */
 const BOOKR=()=>{const S=SH();if(!S.book||typeof S.book!=='object'||Array.isArray(S.book))S.book={};return S.book};
 const inBook=id=>BOOKR()[id]&&C.count(id)>0?1:0;
-/* 🖼️ かざりだな（カウンターの ガラスケース、 3まい）: 飾った 1まいは 売り場に 出せない・倉庫から 出ていく（ブックと 同じ）。 鉱山では つかえる */
+/* 🖼️ かざりだな（カウンターの ガラスケース、 3まい）: 飾った 1まいは 売り場に 出せない・倉庫から 出ていく（ブックと 同じ）。 持っている カードなので 鉱山には 出ない */
 const CASE_N=3;
 const CASER=()=>{const S=SH();if(!Array.isArray(S.cs))S.cs=[null,null,null];while(S.cs.length<CASE_N)S.cs.push(null);return S.cs};
 const inCase=id=>CASER().includes(id)&&C.count(id)>0?1:0;
@@ -38,7 +38,7 @@ function cleanFloor(){cleanCase();const S=SH(),need={};S.floor=S.floor.filter(id
 const onFloor=id=>SH().floor.filter(x=>x===id).length;
 /* 売り場に 出せる まい数（ブックの 1まいと 売り場の 分を のぞく） */
 const free=id=>C.count(id)-onFloor(id)-inBook(id)-inCase(id);
-/* 倉庫に ある まい数（ブックに 入れた 1まいは 倉庫から 出ていく。 鉱山の 練習には allCards() で そのまま つかえる） */
+/* 倉庫に ある まい数（ブックに 入れた 1まいは 倉庫から 出ていく） */
 const stock=id=>C.count(id)-inBook(id)-inCase(id);
 const storeCards=()=>allCards().filter(id=>stock(id)>0);
 function sell(id,p,fly){const S=SH(),i=S.floor.indexOf(id);if(i<0)return false;S.floor.splice(i,1);C.take(id);S.sold++;S.earn+=p;
@@ -208,7 +208,7 @@ function caseScreen(back,ln){cleanFloor();back=back||open;const cs=CASER();
     ${bubble(say[0],say[1],caseN()?'laugh':'smile',caseN()?'peace':'')}
     <div class="shcsg">${cs.map((id,i)=>id?`<div class="shcsl" data-i="${i}">${C.face(id,{ja:1,marks:false})}<div class="row"><button data-ch="${i}" class="sub">かえる</button><button data-off="${i}" class="sub">下げる</button></div></div>`
       :`<div class="shcsl empty" data-i="${i}"><button data-ch="${i}"><b>＋</b>かざる</button></div>`).join('')}</div>
-    <p class="note">かざった カードは 売りものに ならないよ（鉱山では つかえる）</p></section>`);
+    <p class="note">かざった カードは 売りものに ならないよ（倉庫から ケースへ おひっこし）</p></section>`);
   bindBubble();speak(say[0]);$('shb').onclick=()=>{sf('back');back()};
   H.panel.querySelectorAll('.shcsl .cgc').forEach(e=>e.onclick=()=>{sf('tap');try{C.sayCard(e.dataset.id)}catch(er){}});
   H.panel.querySelectorAll('[data-off]').forEach(b=>b.onclick=()=>{cs[+b.dataset.off]=null;save();sf('back');caseScreen(back,caseLine('off'))});
