@@ -2,9 +2,8 @@
    - カード: 単語帳の 6000語あまり（小・中・高・ハイレベル）＋ 宝箱の カード（宝カード）＋ 語源パーツ ＋ 文カード
    - 絵: 単語の 意味の 絵（2つの 絵の 組み合わせも）。 属性と レベルで 背景と わくが かわり、 もようは 単語ごとに ちがう（同じ 見た目の カードは ない）
    - おぼえた 度合い（正解で 育つ。 画面には 出さない）は 鉱山の カードの えらび方に つかう。 苦手（まちがいが 多い・まちがいノートの 単語）と わすれかけ（しばらく 見ていない）の しるし
-   - お店で できる ことの うち カードを ふやすのは 仕入れ（パック）だけ。 段位（級）は ない。 パックは ぜんぶ さいしょから 買えて、 1パック 10まい前後
-   - 仕入れ（パック）は 何回でも。 ただし パックに 入るのは 小・中・高の 単語・パーツ・文の カードだけ。
-     いい カード（🎁宝カード・ハイレベルの 単語）は ⛏️鉱山でしか 見つからない（11/16）。 買うときの 会話は ない
+   - 新しい カードは ⛏️鉱山で ほりだす。 📦仕入れは コインを 使わず、 📖カードブックに 入れた カードを 勉強すると とどく（11/18。 game/stock.js）
+     前の パック（packCards・packList）は もう 売っていない。 段位（級）は ない
    ほかの 機能との 連動・ミナ先生の セリフは game/cg-more.js。 データは game/cg-data.js */
 (()=>{
 const {S:ST,sfx:SFX}=BEACH;
@@ -403,7 +402,7 @@ function starter(){const pool=W.filter(c=>c.lv==='es');const ids=[];
 /* the shop's front is game/shop.js */
 function open(){if(window.SHOP)return SHOP.open();H.home()}
 /* 仕入れ と 鉱山 だけ（ほかの 売り場・図鑑・道場は なくした。 古い 呼び出しは お店の 入口へ） */
-function go(t){({pack:packs,mine:()=>window.MINE?MINE.open():open()}[t]||open)()}
+function go(t){({pack:()=>window.STOCK?STOCK.open():open(),mine:()=>window.MINE?MINE.open():open()}[t]||open)()}
 const top=(t,right='')=>`<div class="qtop"><button class="x" id="cgb" aria-label="もどる">←</button><b>${t}</b><span class="qn">${right}</span></div>`;
 const coinTxt=n=>`🪙${n}`;
 function pay(n){if(ST.coins<n){H.toast('🪙 コインが たりないよ');sf('wrong');return false}ST.coins-=n;save();H.head();sf('buy');return true}
@@ -418,7 +417,7 @@ function packList(){const L=[];LVK.filter(lv=>lv!=='adv').forEach(lv=>L.push({k:
 const BUY_N=Infinity;
 const buyLeft=()=>1;
 const buyToday=()=>CG.buy&&CG.buy.d===today()?CG.buy.n:0;
-function packs(){const L=packList(),free=CG.free!==today();
+function packs(){if(window.STOCK)return STOCK.open();const L=packList(),free=CG.free!==today();
   H.show('cg',`<section class="pnl cgp">${top('🎁 仕入れ',coinTxt(ST.coins))}
     ${free?`<button class="cgfree" id="cgfree">🎁 きょうの むりょうパック（3まい）</button>`:''}
     <p class="cgleft">仕入れは 何回でも OK</p>

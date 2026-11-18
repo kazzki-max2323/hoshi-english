@@ -1,0 +1,40 @@
+/* 📦 仕入れ（game/stock.js）: シンプルに・文字は 影なし */
+.stk .stkin{margin:8px 0;padding:10px;border-radius:14px;background:#fff7e3;border:2px solid #e8b84a;color:#3a2a10}
+.stk .stkh{margin:0 0 6px;font-weight:800;font-size:.9rem;text-shadow:none}
+.stk .stkh b{font-size:1.1rem;color:#c2410c}
+.stk .stkg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;margin:4px 0 8px}
+.stk .stkc{position:relative;padding:0!important;background:none!important;border:0!important;box-shadow:none!important;min-height:0;cursor:pointer}
+.stk .stkc .cgc{max-width:60px;margin:0 auto}
+.stk .stkc em{position:absolute;right:0;bottom:-2px;font-style:normal;font-size:.62rem;font-weight:800;padding:1px 5px;border-radius:999px;background:#1f6f5c;color:#fff;text-shadow:none}
+.stk .stkc em.zero{background:#9a3412}
+.stk .stkc.full{opacity:.55}
+.stk .stkin .row button{flex:1}
+.stk .stkempty{margin:10px 0;text-align:center;font-size:.8rem;color:var(--mute);text-shadow:none}
+.stk .stksrc{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:4px 0 8px}
+.stk .stksrc span{font-size:.7rem;padding:2px 8px;border-radius:999px;background:#ffffff1a;text-shadow:none}
+.stk .stkhd{display:flex;align-items:center;gap:6px;margin-top:6px}
+.stk .stkhd>b{flex:1;font-size:.88rem;text-shadow:none}
+.stk .stkhd small{font-size:.7rem;opacity:.8}
+.stk .stkseg{display:flex;gap:4px}
+.stk .stkseg button{padding:3px 9px!important;min-height:0;font-size:.7rem;border-radius:999px;opacity:.6}
+.stk .stkseg button.on{opacity:1;background:#e8b84a!important;color:#3a2a10!important}
+.stk .stkt,.stkov .stkt{margin:2px 0 4px;font-size:.72rem;color:var(--mute);text-align:center;text-shadow:none}
+.stk .stkhow{margin:6px 0 0;padding-left:1.2em;font-size:.76rem;line-height:1.6;text-align:left;text-shadow:none}
+.stkov{text-align:center}
+.stkov .stkn{margin:8px 0;font-size:.82rem;text-shadow:none}
+.stkov .stkn b{font-size:1rem}
+.stkov .row{display:flex;gap:6px;margin-top:6px}.stkov .row button{flex:1}
+.stkdr{text-align:center}
+.stkdr .stkdh{margin:0 0 6px;font-weight:800;text-shadow:none}
+.stkdr .row{display:flex;gap:6px;margin-top:8px}.stkdr .row button{flex:1}
+.stkdr .kmina{margin-top:6px}
+.shpack.stkhas small{color:#fff}
+/* 鉱山: 🗺️ 地図で えらぶ・休憩所の 道具 */
+.mnhand.mnmap{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:8px 0}
+.mnmap .mnt{padding:2px!important;background:none!important;border:2px solid transparent!important;border-radius:10px;box-shadow:none!important;min-height:0}
+.mnmap .mnt.on{border-color:#ffd27a!important;background:#ffd27a22!important}
+.mrtl{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:6px 0}
+.mrtl button{flex:1;min-width:30%;font-size:.78rem}
+.mrtl .mron{font-size:.72rem;padding:4px 10px;border-radius:999px;background:#ffd27a33;text-shadow:none}
+.stk .stkin .row .sub{color:#7a3416!important;background:#fff!important;border-color:#e8b84a!important}
+.stkdr>.cgc,.stkdr .cgc{max-width:92px;margin:4px auto}

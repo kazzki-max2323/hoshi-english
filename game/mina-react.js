@@ -59,7 +59,7 @@ function react(e){const v={};let k=null,go=null;
     /* 📦 宝箱・悪い できごと・🎒 つかった 物・🔀 入れかえ（game/mine.js） */
     if(k==='r_mn'||k==='r_mn_card'){const x=Math.random();if(e.chest&&x<.5)k='r_mn_chest';else if(e.bad&&x<.75)k='r_mn_bad';else if(e.used&&e.used.length&&x<.9){k='r_mn_item';v.ico=e.used.join('')}else if(e.swap&&x<.95)k='r_mn_swap'}
     break}
-  case 'pack':Object.assign(v,{p:e.ja||'パック',ico:e.ico||'🃏'});k='r_pk';break;
+  case 'pack':Object.assign(v,{p:e.p||'カード',ico:e.ico||'📦',w:e.en||'',n:e.n||1});k='r_pk';break;
   case 'book':Object.assign(v,{en:e.en,ja:e.ja});k=e.en?'r_book':null;break;
   case 'sell':Object.assign(v,{en:e.en,p:e.p|0});k=e.by==='mio'?'r_sell_mio':'r_sell';break;
   case 'buyin':Object.assign(v,{en:e.en,ja:e.ja||'',p:e.p|0});k=e.by==='mio'?'r_buyin_mio':e.isNew&&Math.random()<.6?'r_buyin_new':'r_buyin';break;
@@ -79,7 +79,7 @@ function desc(e){try{switch(e.k){
   case 'tutor':return 'リクくんに 英語を 教えた';case 'meal':return `食堂で ${e.ja}を 食べた`;case 'snack':return `${e.ja}を 食べた`;
   case 'zbuy':return `雑貨屋で ${e.ja}を 買った`;case 'zsell':return '雑貨屋で 売り買い した';case 'bottle':return 'ボトルメールを 読んだ';
   case 'map':return '宝の地図を 見つけた';case 'treasure':return '宝箱を あけた';case 'gift':return `${e.toN||'だれか'}に プレゼントした`;
-  case 'pension':return 'ペンションの なぞに いどんだ';case 'mine':return `鉱山で ${e.depth|0}m まで ほった`;case 'pack':return 'カードを 仕入れた';
+  case 'pension':return 'ペンションの なぞに いどんだ';case 'mine':return `鉱山で ${e.depth|0}m まで ほった`;case 'pack':return '勉強で とどいた カードを 見た';
   case 'book':return 'カードブックに カードを 入れた';case 'sell':return 'お店で カードを 売った';case 'buyin':return 'お店で カードを 買い取った';case 'mio':return 'ミオちゃんと 話した';case 'meteor':return '流れ星を つかまえた'}}catch(er){}return ''}
 const descList=a=>a.map(desc).filter(Boolean);
 
