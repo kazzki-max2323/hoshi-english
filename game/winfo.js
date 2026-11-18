@@ -68,6 +68,21 @@ function hand(){if(HAND)return HAND;HAND={};
 const get=(h,k)=>{h=String(h||'').toLowerCase();const H=hand();return (k==='t'&&H['@'+h])||H[h]||null};
 const exOf=(h,k)=>{const x=get(h,k);if(x&&x.ex)return x.ex;const a=typeof WINFO_EX!=='undefined'&&WINFO_EX[String(h||'').toLowerCase()];return a||null};
 
+/* ---------------------------------------------------------------- 🧩 なりたち（語源。 データは game/winfo-roots*.js） */
+let ROOT=null,RFAM=null;
+function roots(){if(ROOT)return ROOT;ROOT={};RFAM={};
+  (window.WROOT_SRC||[]).forEach(src=>src.split('\n').forEach(l=>{l=l.trim();if(!l||l.startsWith('#'))return;const f=l.split('|').map(x=>x.trim());
+    const h=f[0].toLowerCase();if(!h||!f[1]||ROOT[h])return;const keys=(f[3]||'').split(',').map(x=>x.trim()).filter(Boolean);
+    ROOT[h]={h,parts:f[1],story:f[2]||'',keys};keys.forEach(k=>(RFAM[k]=RFAM[k]||[]).push(h))}));
+  return ROOT}
+/* その 単語の なりたち。 fam は 同じ 根っこの ことば（ok で しぼる） */
+function root(h,ok){h=String(h||'').toLowerCase();const r=roots()[h];if(!r)return null;
+  const fam=[];r.keys.slice().reverse().forEach(k=>(RFAM[k]||[]).forEach(w=>{if(w!==h&&!fam.includes(w)&&(!ok||ok(w)))fam.push(w)}));
+  return Object.assign({},r,{fam})}
+/* 部品の 英語の ところを 太字に（「dis（はずす）＋ cover（おおう）」→ <b>dis</b>（はずす）…） */
+function rootHtml(t,esc){return esc(t).replace(/(^|＋\s*|\s)([A-Za-z][A-Za-zé'\- ]*?)（/g,(m,a,w)=>`${a}<b>${w}</b>（`)}
+const rootCount=()=>Object.keys(roots()).length;
+
 /* ---------------------------------------------------------------- 品詞 */
 const POSN={n:'名詞',nu:'名詞',np:'名詞',v:'動詞',a:'形容詞',ad:'副詞',p:'前置詞',c:'接続詞',pr:'代名詞',i:'あいさつ',ph:'熟語',x:''};
 /* テーマの 本の 中の 名詞では ない ことば */
@@ -181,29 +196,66 @@ function forms(I){const p=pos(I),en=String(I.en||''),h=I.h,out={p,rows:[],tips:[
 function speak(en){try{if(!window.speechSynthesis||(window.BEACH&&BEACH.S&&!BEACH.S.sound))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(en);u.lang='en-US';
   u.rate=window.BEACH&&BEACH.S&&BEACH.S.slow?.75:.92;speechSynthesis.speak(u)}catch(e){}}
 
-window.WI={get,exOf,pos,POSN,forms,verb,plural,compare,article,speak,hand,IRR,UNC};
+window.WI={get,exOf,pos,POSN,forms,verb,plural,compare,article,speak,hand,IRR,UNC,root,rootHtml,rootCount};
 })();
 
 /* ---------------------------------------------------------------- ミナ先生・ミオの ひとこと（📖 くわしく の 案内） */
 (()=>{
 const ML=(k,v)=>{try{return MINA.line(k,v||{})}catch(e){return ['smile','']}};
-if(window.MINA_LINES)Object.assign(MINA_LINES,{
+if(typeof MINA_LINES!=='undefined')Object.assign(MINA_LINES,{
  sh_wiNew:[['wow','カードの 📖くわしく が 新しく なったよ！ その ことばの 説明・例文・形の かわり方・ワンポイントが 入ってるの'],
   ['happy','カードを タップして 📖くわしく を ひらいてみて。 動詞なら 過去形や ing形、 名詞なら 複数形も 見られるよ']],
  x_shWi:[['smile','カードの 📖くわしく、 のぞいてみた？ 例文の 🔊を 聞いて まねすると、 単語が 文の 中で 使えるように なるよ'],
   ['think','単語は 意味だけじゃなくて、 形の かわり方も セットで 覚えると 強いよ。 カードの 📖くわしく を 見てみよう'],
   ['happy','わからない 単語が あったら、 カードの 📖くわしく に ワンポイントが あるかも。 先生の おすすめの 見方だよ']],
  x_shWiMany:[['proud','📖くわしく、 もう {n}回も 見たんだね。 調べる くせが ついてる 人は ぐんぐん のびるよ'],
-  ['happy','{n}回 くわしく を ひらいたね！ 例文を 1つ 声に 出して 読んでから 寝ると、 あしたも 覚えてるよ']]});
+  ['happy','{n}回 くわしく を ひらいたね！ 例文を 1つ 声に 出して 読んでから 寝ると、 あしたも 覚えてるよ']],
+ /* 🧩 なりたち（11/18） */
+ sh_rootNew:[['wow','カードの 📖くわしく に 🧩なりたち が たくさん 入ったよ！ 部品に 分けると、 「なぜ その 意味に なるか」が わかるの'],
+  ['happy','単語の なりたち、 1400語より 多く 入れたよ。 discover は 「かぶせた 布を はずす → 見つける」。 ね、 わすれにくいでしょ？']],
+ wi_root:[['smile','なりたちが わかると、 つづりも 意味も いっしょに 覚えられるよ'],
+  ['think','部品に 分けて、 → の 流れを 声に 出してみて。 頭に のこるんだ'],
+  ['happy','ことばにも 生まれた 理由が あるの。 それを 知ると、 もう ただの 暗記じゃ なくなるよ'],
+  ['proud','なりたちから 意味を 思い出せたら、 もう 自分の ことばに なった しるしだよ'],
+  ['smile','知らない 単語も、 知ってる 部品を さがせば 意味が 想像できるように なるよ'],
+  ['think','わすれそうに なったら、 部品の 意味から たどってみて。 道すじが 思い出させて くれるから'],
+  ['happy','先生も 学生の ころ、 なりたちを 知って 単語が いっきに 好きに なったんだ'],
+  ['smile','{w} の なりたち、 だれかに 話してみて。 人に 説明すると いちばん 覚えるよ'],
+  ['think','{w} を 見たら、 → の 絵を 頭に うかべてね。 絵に なった ことばは わすれにくいの'],
+  ['happy','つづりの 長い 単語ほど、 部品に 分けると かんたんに なるんだよ']],
+ wi_rootFam:[['wow','{w} と {f} は おなじ 根っこ！ 1つ わかると なかまも まとめて 覚えられるよ'],
+  ['think','{f} や {g} にも 同じ 部品が 入ってるよ。 ならべると 意味の 共通点が 見えてくるね'],
+  ['happy','根っこが 同じ ことばは 家族みたいな もの。 {w} の 家族には {f} や {g} が いるよ'],
+  ['proud','{f} の カードを 見たら {w} も 思い出してね。 そうやって ことばの 地図が 広がるんだ'],
+  ['smile','{w}・{f}・{g}、 3つ ならべて 声に 出してみて。 根っこの 音が 聞こえてくるよ']],
+ wi_rootFam1:[['smile','{f} も おなじ 根っこの なかま。 セットで 覚えると おとくだよ'],
+  ['think','{w} と {f}、 どこが 同じ 部品か わかる？ そこが 意味の かなめだよ']],
+ x_shRoot:[['think','{w} の なりたち、 知ってる？ {p}。 {s}'],
+  ['smile','きょうの なりたち：{w} は {p}。 {s}'],
+  ['happy','{w} って、 {p} なんだよ。 {s}。 カードの 📖くわしく にも のってるよ']],
+ x_shRootMany:[['proud','🧩なりたちを もう {n}回 見たんだね。 部品が わかる 人は、 はじめての 単語にも 強いよ'],
+  ['happy','なりたち {n}回！ そろそろ 知らない 単語の 意味も 部品から 当てられるんじゃない？']]});
 const goShop=()=>['🃏 カードショップへ',()=>{try{CG.open()}catch(e){}}];
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_shWi',1,()=>{try{const r=CG.rec();if(!SHOP.rec().met||(r.wiSeen||0)>=3)return null;return Object.keys(r.c||{}).length>=10?{}:null}catch(e){return null}},goShop],
- ['x_shWiMany',1,()=>{try{const n=CG.rec().wiSeen||0;return n>=20?{n}:null}catch(e){return null}},goShop]);
+ ['x_shWiMany',1,()=>{try{const n=CG.rec().wiSeen||0;return n>=20?{n}:null}catch(e){return null}},goShop],
+ /* もっている カードの なりたちを 1つ 話す */
+ ['x_shRoot',2,()=>{try{const r=CG.rec(),ids=Object.keys(r.c||{}).filter(id=>CG.BY[id]);const a=[];
+    for(const id of ids){const I=CG.info(id);const R=I&&WI.root(I.h);if(R&&R.story)a.push(R)}
+    if(!a.length)return null;const R=a[Math.random()*a.length|0],st=R.story.split(' → ');
+    return {w:R.h,p:R.parts,s:st.length>1?st.slice(-2).join(' → '):R.story}}catch(e){return null}},goShop],
+ ['x_shRootMany',1,()=>{try{const n=CG.rec().rootSeen||0;return n>=15?{n}:null}catch(e){return null}},goShop]);
+/* 🧩 なりたちが 入ったことを 1回だけ */
+setTimeout(function rootFirst(){try{const S=SHOP.rec();if(S.rootTold||!S.met)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(rootFirst,25000);
+  S.rootTold=1;CG.save();const [ex,tx]=ML('sh_rootNew');m.say('m',ex,tx,11000,null,goShop())}catch(e){}},70000);
 /* 新しく なったことを 1回だけ */
 setTimeout(function first(){try{const S=SHOP.rec();if(S.wiTold||!S.met)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
   S.wiTold=1;CG.save();const [ex,tx]=ML('sh_wiNew');m.say('m',ex,tx,10000,null,goShop())}catch(e){}},40000);
 /* ミオの あいさつにも */
 try{MIO_HI.push(["Boss, tap a card and open \"More\". There are example sentences and tips now!","店長、 カードを タップして 「📖くわしく」を ひらいてみて。 例文や ワンポイントが 入りましたよ！"],
  ["I checked the past form of \"swim\" in the card's notes. Swam! I always forget.","カードの くわしく で swim の 過去形 見ました。 swam！ いつも わすれちゃう。"],
- ["When I don't know a word, I read the example sentence out loud. It really helps!","知らない 単語は、 くわしく の 例文を 声に 出して 読むんです。 けっこう 効きますよ！"])}catch(e){}
+ ["When I don't know a word, I read the example sentence out loud. It really helps!","知らない 単語は、 くわしく の 例文を 声に 出して 読むんです。 けっこう 効きますよ！"],
+ ["Boss, did you know? \"Discover\" means taking the cover off. That's why it means \"find\"!","店長、 知ってました？ discover って 「おおいを はずす」なんです。 だから 「見つける」！"],
+ ["I love word roots. \"Tele\" means far, so a telescope sees far!","なりたち、 好きなんです。 tele は 「遠く」だから、 telescope は 遠くを 見る 道具！"],
+ ["\"Breakfast\" is breaking your fast. I break mine with a big sandwich!","breakfast は 「断食を やぶる」。 わたしは 大きな サンドイッチで やぶります！"])}catch(e){}
 })();

@@ -49,7 +49,7 @@ collect|v|集める|I collect stamps.|切手を 集めている。|名詞は col
 cover|v|おおう|Snow covered the ground.|雪が 地面を おおった。|be covered with 〜 ＝ 〜で おおわれている。 本の 表紙も cover
 cross|v|渡る・横切る|Cross the street carefully.|気をつけて 道を 渡ってね。|十字の しるしも cross。 横断歩道は crosswalk
 develop|v|発達させる・開発する|Japan is a developed country.|日本は 先進国だ。|最後に e は つかない（develope は まちがい）
-discover|v|発見する|He discovered a new star.|かれは 新しい 星を 発見した。|dis（とる）＋ cover（おおい）＝ おおいを とって 見つける
+discover|v|発見する|He discovered a new star.|かれは 新しい 星を 発見した。|discover は 「だれも 知らなかった ものを はじめて 見つける」。 なくした かぎを 見つけるのは find
 drop|v|落とす・落ちる|I dropped my phone.|スマホを 落とした。|過去形は dropped（p を 重ねる）。 名詞の drop は 「しずく」
 express|v|表現する|It's hard to express my feelings in English.|気持ちを 英語で 表すのは むずかしい。|名詞は expression。 急行電車も express
 hold|v|持つ・開く（もよおしを）|Hold my hand.|手を にぎって。|hold – held – held。 Hold on. ＝ （電話で）そのまま 待って
