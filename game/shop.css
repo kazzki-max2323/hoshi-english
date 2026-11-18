@@ -252,3 +252,66 @@
 .mnlook{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin:0 0 6px}
 .mnlook span{font-size:.78rem;color:#ffe9a8;margin-right:2px}
 .mnlook button{padding:4px 10px!important;font-size:.82rem;border-radius:999px;background:#ffffff1f;border:1px solid #ffffff55;color:#fff;font-family:"Libre Baskerville",Georgia,serif}
+/* ⛏️ 11/18 作りなおし: 岩の 5まい・はじめての ことば・お話・休憩所・トランシーバー・帰りの ミオ */
+.mnrock{position:relative;display:flex;align-items:center;justify-content:center;aspect-ratio:5/7;max-width:58px;margin:0 auto;border-radius:9px;font-size:1.4rem;
+  background:linear-gradient(145deg,#8a7a68,#5e5246 60%,#463c34);box-shadow:inset 0 -3px 0 #0004,inset 0 2px 0 #fff2}
+.mnrocks:not(.sm) .mnrock{max-width:none}
+.mnrock b{position:absolute;right:6px;bottom:3px;font-size:.8rem;color:#ffe9a8}
+.mnt.met .cgc{filter:sepia(.45) brightness(.78);outline:3px solid #6e6052;outline-offset:-3px}
+.mnt.on.met .cgc{filter:sepia(.2) brightness(.95)}
+.mnt.got .cgc{box-shadow:0 0 0 2px #ffe14a,0 0 10px #ffe14a99}
+.mngotb{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);font-style:normal;font-size:.6rem;font-weight:900;background:#ffe14a;color:#1d1a3a;border-radius:6px;padding:0 5px}
+.mncrk{position:absolute;inset:0;pointer-events:none;max-width:58px;margin:0 auto;background-repeat:no-repeat;background-size:100% 100%}
+.mncrk.c1{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 70'%3E%3Cpath d='M10 4 L18 20 L14 30' stroke='%23231a14' stroke-width='2' fill='none'/%3E%3C/svg%3E")}
+.mncrk.c2{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 70'%3E%3Cpath d='M10 4 L18 20 L14 30 M40 66 L32 50 L36 40' stroke='%23231a14' stroke-width='2' fill='none'/%3E%3C/svg%3E")}
+.mncrk.c3{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 50 70'%3E%3Cpath d='M10 4 L18 20 L14 30 L24 38 M40 66 L32 50 L36 40 M46 14 L36 22 L40 30' stroke='%23231a14' stroke-width='2' fill='none'/%3E%3C/svg%3E")}
+.mnintro{text-align:center}
+.mnin{display:flex!important;flex-direction:column;align-items:center;gap:2px;width:100%;margin:6px 0 8px;padding:12px!important;background:#fff8e6!important;color:#2a2340!important;border-radius:14px!important}
+.mnin b{font-size:1.6rem}.mnin span{font-size:1rem;font-weight:700}.mnin small{font-size:.7rem;color:#7a6a50}
+.mnintro .row{display:flex;gap:8px}.mnintro .row .big{flex:1}
+.mnsty .mnstp{background:#fff6e0;color:#2a2340;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;box-shadow:inset 0 0 0 2px #d8c49a}
+.mnsth{margin:0 0 2px;font-weight:900;font-size:.9rem;color:#7a5a2a}
+.mnsl{margin:0;padding:4px 6px;border-radius:8px;font-size:.98rem;line-height:1.45;cursor:pointer}
+.mnsl.op{font-style:italic;color:#6a5a4a;font-size:.9rem}
+.mnsl b{color:#c0392b;background:#ffe14a55;border-radius:4px;padding:0 2px}
+.mnsl small{display:block;font-size:.76rem;color:#6a6070}
+.mnsl.on{background:#ffe9a8}
+.mnfall{margin:0;text-align:center;font-size:.85rem;color:#ffd0a0}
+.mnbest{font-style:normal;font-size:.7rem;background:#ff7a8a;color:#fff;border-radius:6px;padding:1px 6px}
+.mnfalling{animation:mnfallp .9s ease-in forwards}
+@keyframes mnfallp{0%{transform:none}30%{transform:translate(-4px,2px)}50%{transform:translate(4px,-2px)}100%{transform:translateY(40px);opacity:0}}
+/* 休憩所 */
+.mrstage{position:relative;border-radius:10px;overflow:hidden;box-shadow:0 0 0 3px #8a5a2a,0 4px 14px #0008;background:#000}
+.mrstage canvas{display:block;width:100%;height:auto;image-rendering:pixelated}
+.mrfl{position:absolute;inset:0;pointer-events:none}
+.mrfc{position:absolute;pointer-events:auto;width:18%;box-sizing:border-box;padding:3px 2px!important;border-radius:8px!important;border:2px solid #ffe9a8aa!important;background:#2a2340cc!important;color:#fff!important;
+  display:flex;flex-direction:column;align-items:center;line-height:1.15;animation:mrflt 3.2s ease-in-out infinite;animation-delay:var(--d)}
+.mrfc b{font-size:.7rem;max-width:100%;overflow-wrap:anywhere;line-height:1.1}.mrfc small{font-size:.58rem;color:#ffe9a8;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mrfc.lit{border-color:#ffe14a!important;box-shadow:0 0 10px #ffe14a88}
+@keyframes mrflt{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+.mrcap{position:absolute;left:6px;right:6px;bottom:6px;background:#1d1a3aee;color:#fff;border-radius:8px;padding:4px 8px;font-size:.85rem;text-align:center}
+.mrcap b{color:#ffe14a;font-size:1rem}.mrcap .ja{margin-left:6px}
+.mrnote{margin:0;text-align:center;font-size:.8rem;color:#ffd9a0}
+.mrbtns{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.mrbtns button{position:relative;padding:9px 4px!important;font-size:.82rem!important}
+.mrbtns button.on{background:#ffe14a!important;color:#1d1a3a!important}.mrbtns .dot{position:absolute;top:4px;right:6px;width:8px;height:8px;border-radius:50%;background:#ff5a7a}
+.mrup{animation:mrup .6s}@keyframes mrup{50%{color:#ff9ab0;transform:scale(1.08)}}
+.mnrest.dim{background:linear-gradient(#141030f2,#1d1840f2)}
+@media (prefers-reduced-motion:reduce){.mrfc,.mnfalling{animation:none}}
+/* トランシーバー */
+.wk{box-sizing:border-box;width:min(94vw,380px);max-height:88vh;margin:auto;padding:12px;border-radius:16px;background:#1f2a24;border:3px solid #7ad08a;text-shadow:none;display:flex;flex-direction:column;gap:8px}
+.wk.soft{background:#161a2c;border-color:#9a8ad8}
+.wkh{margin:0;font-weight:900;display:flex;align-items:center;gap:6px}.wkh small{font-weight:500;font-size:.75rem;opacity:.8}.wkface{margin-left:auto;width:36px;height:36px}.wkface svg{width:36px;height:36px}
+.wklog{display:flex;flex-direction:column;gap:6px;overflow:auto;max-height:46vh}
+.wkr{border-radius:12px;padding:6px 10px;background:#ffffff14;text-align:left}.wkr.y{background:#ffe14a22;margin-left:22px}.wkr.m{margin-right:22px}
+.wkw{font-size:.66rem;opacity:.75}.wkr .en{margin:1px 0;font-weight:700;font-size:.95rem}.wkr .ja{margin:0;font-size:.75rem;color:#cfd6f0}
+.wkr .ksay{position:static!important;display:inline-block;vertical-align:middle;padding:0 6px!important;font-size:.75rem!important;border-width:1px!important}
+.wkch{display:flex;flex-direction:column;gap:6px}.wkch>button{text-align:left;display:flex;flex-direction:column}.wkch>button small{font-weight:500;font-size:.72rem;opacity:.8}
+.wkmemo{background:#ffffff12;border-radius:10px;padding:6px 10px;text-align:left}.wkmemo p{margin:3px 0;font-size:.8rem}.wkmemo b{color:#9ff0b0}
+.wk .row{display:flex;gap:6px}.wk .row button{flex:1}
+/* 帰りの ミオ */
+.mnsee{display:flex;flex-direction:column;gap:6px}
+.mnseer{display:grid;grid-template-columns:58px 1fr;gap:8px;align-items:center;background:#ffffff10;border-radius:12px;padding:6px}
+.mnseer.on{box-shadow:0 0 0 2px #55e0b4}
+.mnseec{padding:0!important;border:0!important;background:none!important}
+.mnseet{display:flex;flex-direction:column;gap:4px}.mnmio1{margin:0;font-size:.8rem;line-height:1.4;cursor:pointer}
+.mnflb{padding:5px 8px!important;font-size:.75rem!important}
