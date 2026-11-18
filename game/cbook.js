@@ -244,7 +244,7 @@ setTimeout(function first(){const S=SHOP.rec();if(S.bookTold||!S.met)return;cons
 /* もう 1回: 新しく できた「さがす・入れやすく」を 1回だけ */
 setTimeout(function first2(){const S=SH2();if(!S||S.bookTold2||!S.bookTold)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first2,20000);
   S.bookTold2=1;save();const [ex,tx]=ML('sh_bookFind');m.say('m',ex,tx,10000,null,goBook())},30000);
-/* 🏠 ホームの ボタンの 列（単語帳・もちもの・浜辺の 会話 の となり）に 📖 カードブック */
+/* 🏠 ホームの ボタンの 列（単語帳・もちもの の となり）に 📖 カードブック */
 const homeBtn=()=>{try{const row=H.panel.querySelector('.home .row');if(!row||row.querySelector('#cbHome')||!SHOP.rec().met)return;
   const n=addable().length,b=document.createElement('button');b.id='cbHome';b.className='sub';
   b.innerHTML=`<span>📖</span>カードブック${n?`<em class="cbhn">${n>99?'99+':n}</em>`:''}`;b.setAttribute('aria-label','カードブック');

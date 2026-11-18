@@ -75,3 +75,36 @@
 /* 文法の 答え・文法の 一覧（game/gram-see.js） */
 .kopts button.kgram{border-color:#7fc4ff!important;background:rgba(127,196,255,.16)!important}
 .kgl button{font-family:inherit!important;font-size:.74rem!important}
+/* 📒 会話の きろく（タップで エンドが ひらく） */
+.krec .krow2{border:1px solid rgba(255,255,255,.14);border-radius:12px;background:rgba(255,255,255,.05);margin:0 0 6px}
+.krec .krow2.kstory{border-color:rgba(255,210,63,.45)}
+.krec .krow2 summary{list-style:none;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:8px;padding:7px 10px;cursor:pointer}
+.krec .krow2 summary::-webkit-details-marker{display:none}
+.krec .krow2 .ci{font-size:1.5rem}
+.krec .krow2 .lt b{display:block;font-size:.84rem;line-height:1.35}
+.krec .krow2 .lt small{font-size:.66rem;color:var(--mute)}
+.krec .krow2 .lp{font-family:var(--pixel);font-size:.72rem;color:#ffe7a8;white-space:nowrap}
+.krec .krow2 .kends{padding:0 8px 8px}
+.kleft{text-align:center}
+/* 👋 浜辺の だれかが 話しかけに 来る（game/kaiwa-visit.js） */
+#kvVis{position:absolute;z-index:3;pointer-events:auto;width:0;height:0}
+#kvVis .kvMan{position:absolute;left:-22px;top:-44px;width:44px;height:44px;padding:0!important;margin:0;border:none!important;background:none!important;box-shadow:none!important;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#kvVis .kvIco{display:block;font-size:34px;line-height:44px;filter:drop-shadow(0 3px 2px rgba(0,0,0,.35))}
+#kvVis.fromR .kvIco{transform:scaleX(-1)}
+#kvVis.walk .kvIco{animation:kvwalk .42s ease-in-out infinite}
+#kvVis.here .kvIco{animation:kvwave 1.6s ease-in-out infinite}
+@keyframes kvwalk{50%{translate:0 -5px}}
+@keyframes kvwave{0%,100%{rotate:0deg}25%{rotate:-8deg}75%{rotate:8deg}}
+#kvVis .kvBub{position:absolute;bottom:50px;width:min(230px,80vw);box-sizing:border-box;background:#fff6e0;color:#2a2340;text-shadow:none;border-radius:14px;padding:8px 10px 10px;box-shadow:0 4px 14px rgba(0,0,0,.35);animation:kvpop .3s ease-out;overflow:hidden}
+#kvVis .kvWho{display:block;font-size:.66rem;color:#7a6a8a;font-weight:700}
+#kvVis .kvEn{margin:2px 0 0;font-size:.9rem;font-weight:700;line-height:1.35}
+#kvVis .kvJa{margin:1px 0 6px;font-size:.7rem;color:#6b5f7a}
+#kvVis .kvBtns{display:flex;gap:6px}
+#kvVis .kvBtns button{flex:1;font-size:.78rem;padding:5px 4px!important;margin:0}
+#kvVis .kvGo small{opacity:.75;font-size:.7rem;margin-left:2px}
+#kvVis .kvBar{position:absolute;left:0;bottom:0;height:3px;width:100%;background:#ff9ac0;transform-origin:left;transform:scaleX(0)}
+#kvVis.count .kvBar{animation:kvbar linear forwards}
+#kvVis.pause .kvBar{animation-play-state:paused}
+@keyframes kvbar{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+@keyframes kvpop{from{opacity:0;transform:translateY(6px) scale(.96)}}
+@media (prefers-reduced-motion:reduce){#kvVis .kvIco{animation:none!important}}

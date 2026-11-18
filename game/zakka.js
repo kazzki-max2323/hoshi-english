@@ -499,7 +499,8 @@ function bag(bk){hush();const back=typeof bk==='function'?bk:shop,me=()=>bag(bac
     Z.tgs().length?row('👦','リクからの お礼',Z.tgs().map(t=>t.ico).join(' ')+'・あげても 売っても いいよ',`${window.GIFT?'<button data-tgv="1">あげる</button>':''}<button data-tg="1" class="sub">売る</button>`):'',
     ZD.own.note?row('📒','買いもの フレーズ手帳',`言えた フレーズ ${phN()}/${PHK.length}`,`<button data-nt="1">ひらく</button>`):'',
     ...(window.FOOD?FOOD.bagRows(row):[]),
-    ...(window.MINE?MINE.bagRows(row):[])].filter(Boolean);
+    ...(window.MINE?MINE.bagRows(row):[]),
+    ...(window.KAIWA&&KAIWA.bagRows?KAIWA.bagRows(row):[])].filter(Boolean);
   H.show('zakka',`<section class="pnl zk">
     <div class="qtop"><button class="x" id="zkx" aria-label="もどる">←</button><b>🎒 もちもの</b><span class="qn"></span></div>
     ${minaBox(rows.length?'zk_bag':'zk_bagNone',{})}
@@ -522,7 +523,8 @@ function bag(bk){hush();const back=typeof bk==='function'?bk:shop,me=()=>bag(bac
   H.panel.querySelectorAll('[data-rgm]').forEach(b=>b.onclick=()=>{SFX.talk();MIOC.open(me)});
   H.panel.querySelectorAll('[data-tg]').forEach(b=>b.onclick=()=>{SFX.talk();play('sell')});
   H.panel.querySelectorAll('[data-nt]').forEach(b=>b.onclick=()=>{SFX.book();notebook(me)});
-  H.panel.querySelectorAll('[data-fe]').forEach(b=>b.onclick=()=>FOOD.eat(b.dataset.fe,me))}
+  H.panel.querySelectorAll('[data-fe]').forEach(b=>b.onclick=()=>FOOD.eat(b.dataset.fe,me));
+  H.panel.querySelectorAll('[data-kwr]').forEach(b=>b.onclick=()=>{SFX.book();KAIWA.open(me)})}
 
 /* ---------- 📖 a picture book: line by line, 🔊 and Japanese on a tap ---------- */
 function reader(id,back){hush();const b=item(id);if(!b||!ZD.own[id])return back();

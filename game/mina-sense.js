@@ -22,8 +22,9 @@ const goLesson=id=>['📖 授業を ひらく',()=>LESSON.open(id,back)];
 const goSay=(lv,en)=>['🔊 きいてみる',()=>H.say(lv,en)];
 /* 宝カードは カードショップの 📖カードブックと ⛏️鉱山で（宝箱くじ・きらきら宝パックは なくした） */
 const goCards=s=>['🃏 カードショップへ',()=>window.CG?CG.open():H.home()];
-const goKaiwa=()=>['💬 会話を ひらく',()=>KAIWA.open()];
-const goTalk=id=>['💬 話しに 行く',()=>KAIWA.play(id)];
+/* 浜辺の 会話は 入口の 一覧が ない（2026-11-18）。ミナ先生は 相手を 呼んできて くれる（game/kaiwa-visit.js）・きろくは もちもの から */
+const goKaiwa=()=>['📒 会話の きろく',()=>KAIWA.open()];
+const goTalk=id=>['👋 呼んでくる',()=>KAIWA.call?KAIWA.call(id):KAIWA.play(id,'visit')];
 const goSensei=()=>['🗣️ 先生と 話す',()=>SENSEI.open()];
 const LVI=lv=>['es','jh','hs','adv'].indexOf(lv);
 const goGram=(lv,i)=>['📚 文法ノートを 見る',()=>H.gramNote(lv,i)];
@@ -251,17 +252,17 @@ const R=[
 /* ===== 浜辺の 会話（game/kaiwa.js） ===== */
 ['x_kwStory',3,F=>{if(!window.KAIWA)return null;const lv=lvOf(F),a=KAIWA.scenes.filter(s=>s.story&&!KAIWA.rec().done[s.id]&&LVI(s.lv)<=LVI(lv));if(!a.length)return null;const s=pickL(a);return {t:s.t,c:KAIWA.chars[s.c].n,_id:s.id}},v=>goTalk(v._id)],
 ['x_kwEnds',2,F=>{if(!window.KAIWA)return null;const R=KAIWA.rec(),a=KAIWA.scenes.filter(s=>s.story&&R.done[s.id]&&KAIWA.endsGot(s)<KAIWA.endsOf(s).length);if(!a.length)return null;const s=pickL(a);return {t:s.t,got:KAIWA.endsGot(s),tot:KAIWA.endsOf(s).length,n:KAIWA.endsN(),all:KAIWA.endsAll(),_id:s.id}},v=>goTalk(v._id)],
-/* 2026-11 会話の 入口が ホームの 🎒もちものの 横に ひっこした。2週間だけ 話す */
-['x_kwMoved',3,F=>window.KAIWA&&F.now<new Date(2026,10,28)?{}:null,()=>goKaiwa()],
-['x_kwNone',4,F=>window.KAIWA&&!KAIWA.rec().n?{}:null,()=>goKaiwa()],
+/* 2026-11-18 会話の ボタンを なくして、みんなが 話しかけに 来る 形に した。2週間だけ 話す */
+['x_kwAuto',4,F=>window.KAIWA&&F.now<new Date(2026,11,2)?{}:null,()=>goKaiwa()],
+['x_kwNone',4,F=>window.KAIWA&&!KAIWA.rec().n?{}:null,()=>goTalk()],
 ['x_kwChar',2,F=>{if(!window.KAIWA)return null;const i=LVI(lvOf(F)),a=KAIWA.scenes.filter(s=>LVI(s.lv)<=i+1&&!KAIWA.rec().heart[s.c]);if(!a.length)return null;const s=pickL(a),c=KAIWA.chars[s.c];return {c:c.n,ico:c.ico,t:s.t,_id:s.id}},v=>goTalk(v._id)],
 ['x_kwLv',3,F=>{if(!window.KAIWA||!KAIWA.rec().n)return null;const a=KAIWA.scenes.filter(s=>s.lv===lvOf(F)&&!KAIWA.rec().done[s.id]);if(!a.length)return null;const s=pickL(a);return {t:s.t,c:KAIWA.chars[s.c].n,lvn:LVN[s.lv],_id:s.id}},v=>goTalk(v._id)],
 ['x_kwNext',2,F=>{if(!window.KAIWA)return null;const lv=lvOf(F),a=KAIWA.scenes.filter(s=>s.lv===lv),nx=H.LV_ORDER[H.LV_ORDER.indexOf(lv)+1];if(!a.length||!nx||!a.every(s=>KAIWA.rec().done[s.id]))return null;const b=KAIWA.scenes.find(s=>s.lv===nx&&!KAIWA.rec().done[s.id]);return b?{lvn:LVN[lv],_id:b.id}:null},v=>goTalk(v._id)],
 ['x_kwFun',2,F=>{if(!window.KAIWA||!KAIWA.funN())return null;const k=Object.keys(KAIWA.rec().fun),s=KAIWA.scenes.find(x=>x.id===k[k.length-1].split(':')[0]);return {n:KAIWA.funN(),tot:KAIWA.funTotal(),c:s?KAIWA.chars[s.c].n:'みんな'}},()=>goKaiwa()],
 ['x_kwFriend',2,F=>{if(!window.KAIWA)return null;const h=KAIWA.rec().heart,top=Object.keys(h).sort((a,b)=>h[b]-h[a])[0];if(!top||h[top]<2)return null;const s=pickL(KAIWA.scenes.filter(x=>x.c===top));return {c:KAIWA.chars[top].n,n:h[top],_id:s.id}},v=>goTalk(v._id)],
-['x_kwFree',2,F=>window.KAIWA&&KAIWA.rec().n>=2&&KAIWA.rec().free<3?{}:null,()=>goKaiwa()],
+['x_kwFree',2,F=>window.KAIWA&&KAIWA.rec().n>=2&&KAIWA.rec().free<3?{}:null,()=>goTalk()],
 ['x_kwAsk',1,F=>window.KAIWA&&KAIWA.rec().n>=1?{_id:'es-gen-time'}:null,v=>goTalk(v._id)],
-['x_kwBack',3,F=>{if(!window.KAIWA)return null;const R=KAIWA.rec();if(!R.n||!R.last)return null;const d=Math.floor((Date.now()-R.last)/864e5);if(d<3)return null;const h=R.heart,top=Object.keys(h).sort((a,b)=>h[b]-h[a])[0];return {d,c:top?KAIWA.chars[top].n:'ソラ'}},()=>goKaiwa()],
+['x_kwBack',3,F=>{if(!window.KAIWA)return null;const R=KAIWA.rec();if(!R.n||!R.last)return null;const d=Math.floor((Date.now()-R.last)/864e5);if(d<3)return null;const h=R.heart,top=Object.keys(h).sort((a,b)=>h[b]-h[a])[0];return {d,c:top?KAIWA.chars[top].n:'ソラ',_id:top?(KAIWA.scenes.find(s=>s.c===top)||{}).id:null}},v=>goTalk(v._id)],
 ['x_kwTime',1,F=>window.KAIWA&&LVI(lvOf(F))<=1?{h:F.h,_id:'es-gen-time'}:null,v=>goTalk(v._id)],
 /* ===== ミナ先生と 英語で 話す（game/sensei.js） ===== */
 ['x_snNone',4,F=>window.SENSEI&&!SENSEI.rec().n?{}:null,()=>goSensei()],
