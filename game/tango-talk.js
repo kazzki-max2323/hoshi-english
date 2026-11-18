@@ -397,8 +397,10 @@ function run(pk){const {p,t,x,V}=pk,W=WHO[p];
       if(r==='c'){d.onclick=()=>speak(p,en);speak(p,en)}}
     logE.appendChild(d);logE.scrollTop=logE.scrollHeight};
   const node=n=>{if(!live())return;line('c',fill(n.m[0],V),fill(n.m[1],V),n.ex);
-    if(n.end)return setTimeout(()=>end(n),700);
-    setTimeout(()=>{if(!live())return;
+    /* 答えと おわりは セリフを 読みおわってから */
+    const wait=(fn,ms)=>H.afterTalk?H.afterTalk(fn,300,ms,live):setTimeout(fn,ms);
+    if(n.end)return wait(()=>end(n),700);
+    wait(()=>{if(!live())return;
       optE.innerHTML=n.o.map((o,i)=>`<button data-i="${i}">${esc(fill(o[0],V))}${o[1]&&fill(o[1],V)!==fill(o[0],V)?`<small>${esc(fill(o[1],V))}</small>`:''}</button>`).join('');
       optE.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const o=n.o[+b.dataset.i];sf('tap');optE.innerHTML='';line('me',fill(o[0],V),fill(o[1],V));pts+=o[3]||0;
         const nx=x.nodes[o[2]];setTimeout(()=>{if(live()&&nx)node(nx)},600)})},650)};

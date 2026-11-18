@@ -310,7 +310,17 @@ FX.meteor=()=>{let night=false;try{night=SC.dbg().dark>.6}catch(e){}if(night&&!$
    speechSynthesis.speak=u=>{if(off()){try{u&&u.onend&&setTimeout(()=>u.onend(),0)}catch(e){}return}
      /* 英語の 声で 読む ときは 日本語の ところ（「あれは 新しい カードです」など）を 読まない */
      try{if(u&&(!u.lang||/^en/i.test(u.lang))&&JPC.test(u.text)){const t=enOnly(u.text);if(!t){u.onend&&setTimeout(()=>u.onend(),0);return}u.text=t}}catch(e){}
+     /* いま 読んでいる ことを おぼえる（HE.afterTalk が 読みおわりを まつ） */
+     try{const id=++SPK.id;SPK.on=true;SPK.max=Date.now()+2500+String(u.text||'').length*(ST.slow?150:110)/Math.max(.5,u.rate||1);
+       const done=()=>{if(id===SPK.id)SPK.on=false};u.addEventListener('end',done);u.addEventListener('error',done)}catch(e){}
      return sp(u)}}}
+/* 会話の つぎの セリフは 前の セリフを 読みおわってから（音が オフなら すぐ）。 alive() が false に なったら 何もしない */
+var SPK={on:false,id:0,max:0};
+function talkBusy(){if(!ST.sound)return false;if(clip)return true;const ss=window.speechSynthesis;
+  return !!ss&&(SPK.on||ss.speaking||ss.pending)&&Date.now()<SPK.max}
+function afterTalk(fn,gap=500,minMs=700,alive){const t0=Date.now();
+  const wait=()=>{if(alive&&!alive())return;if(talkBusy()||Date.now()-t0<minMs){setTimeout(wait,150);return}
+    setTimeout(()=>{if(!alive||alive())fn()},gap)};setTimeout(wait,150)}
 /* 日本語の 文字 */
 const JPC=/[\u3040-\u30ff\u3400-\u9fff\uff01-\uff9f\u3000-\u303f]/;
 /* 英文から 日本語の ところを 取る: 日本語の 入った かっこ・引用は まるごと、 のこった 日本語の 文字も けす */
@@ -606,7 +616,7 @@ function playTrack(id){if(inShop()&&songOk(id)){ST.shopSong=id;save()}
   if(!ST.sound){toast('🔇 音を オンにすると きこえるよ');return}try{startMusic(id,inShop()?36000:3600);musWhere=inShop()?'shop':screen}catch(e){}toast(`🎵 ${TRACKS[id].name}`,1800)}
 
 /* what the treasure map (game/adventure.js) needs from here */
-window.HE={goods,stopMusic:()=>stopMusic(true),books,gramFrom:(lv,back)=>gramList(lv,back||null),book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},get bgmOn(){return MUS.on&&/^bgm:/.test(musWhere||'')?MUS.id:null},placeBgm:(name,o)=>{placeBgm[name]=o},musAt,shopSong,get shopSongId(){return songOk(ST.shopSong)?ST.shopSong:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramTry,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
+window.HE={afterTalk,talkBusy,goods,stopMusic:()=>stopMusic(true),books,gramFrom:(lv,back)=>gramList(lv,back||null),book:(lv,bi,onlyLeft)=>cards(lv,bi,onlyLeft),shop,gramList,isLearned,getBook,get playing(){return MUS.on?MUS.id:null},get bgmOn(){return MUS.on&&/^bgm:/.test(musWhere||'')?MUS.id:null},placeBgm:(name,o)=>{placeBgm[name]=o},musAt,shopSong,get shopSongId(){return songOk(ST.shopSong)?ST.shopSong:null},on:(n,f)=>{(hooks[n]=hooks[n]||[]).push(f)},rest:ms=>{nextAt=Math.max(nextAt,performance.now()+ms)},LV_ORDER,allWords,gramNote,gramQuiz,gramTry,gramShop:lv=>shop('gram',lv),onSale,timeBadge,panel,show,home,say,loadAud,addCoins,toast,coinBurst,flyCoin,head,esc,shuffle,allWords,playTrack,radioWake,cheerSoon:()=>{cheerAt=CHEER_EVERY},bgSoon:()=>{bgAt=bgNext},meteorSoon:g=>{metAt=0;if(g)spawnMeteor(true)},folkSoon:()=>{folkNext=0},get screen(){return screen},get stage(){return {nextIn:Math.round(nextAt-performance.now()),talking,question:!!(cur&&!cur.done),cheer:cheerOn,folk:!!folkNow}}};
 save();head();setTimeout(()=>{placeRadios();save();drawRadios()},300);home();SC.update(ST.coins);
 addEventListener('resize',()=>{if(cur)fitBubbles()});
 })();

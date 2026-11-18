@@ -103,8 +103,10 @@ function talk(T,box,again,force){if(TK&&TK.alive&&TK.T===T&&T.alive&&!again)retu
     logE.appendChild(d);logE.scrollTop=logE.scrollHeight;try{d.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(er){}};
   const setPose=ex=>{m.pose=ex==='laugh'?'cheer':ex==='oops'?'stand':ex==='sleepy'?'doze':'wave';m.until=Date.now()+2600;if(m.pose==='doze')m.until=Date.now()+1500};
   let go=null,heartOk=0;
+  /* 答えは ミオが 読みおわってから */
+  const wait=(fn,ms)=>H.afterTalk?H.afterTalk(fn,300,ms,live):setTimeout(fn,ms);
   const node=n=>{if(!live())return;add('m',Object.assign([...n.m],{p:n.p}),n.ex);setPose(n.ex);
-    setTimeout(()=>{if(!live())return;
+    wait(()=>{if(!live())return;
       optE.innerHTML=`<p class="shq">店長の 返事は？</p><div class="cgtc">${H.shuffle(n.o.map((o,i)=>[o,i])).map(([o,i])=>`<button data-i="${i}">${esc(fill(o[0],V))}<small>${esc(fill(o[1],V))}</small></button>`).join('')}</div>`;
       optE.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{const o=n.o[+b.dataset.i];sf('tap');optE.innerHTML='';add('me',o);
         const x=o[3]||(Array.isArray(o[2])&&o[2][3])||null;
