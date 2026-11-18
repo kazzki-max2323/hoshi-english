@@ -33,7 +33,7 @@ function byHead(h){h=headOf(h);if(!h)return [];return bookIds().filter(id=>{cons
 
 /* 1まい とどける。 とどいたら true */
 function credit(id,src){if(!id||!inBook(id)||!left(id))return false;const k=K();
-  C.give(id);k.day[id]=(k.day[id]||0)+1;k.src[src]=(k.src[src]||0)+1;k.nw[id]=(k.nw[id]||0)+1;k.all=(k.all||0)+1;C.save();
+  C.give(id);k.day[id]=(k.day[id]||0)+1;const hh=k.h||(k.h={});hh[k.d]=(hh[k.d]||0)+1;{const ks=Object.keys(hh);if(ks.length>14)ks.sort((a,b)=>new Date(a)-new Date(b)).slice(0,ks.length-14).forEach(x=>delete hh[x])}k.src[src]=(k.src[src]||0)+1;k.nw[id]=(k.nw[id]||0)+1;k.all=(k.all||0)+1;C.save();
   try{badge()}catch(e){}return true}
 function creditHead(h,src){for(const id of byHead(h))if(credit(id,src))return id;return null}
 /* ことばが きまっていない 勉強: 在庫が すくない・苦手・きょう まだ とどいていない カードから */
@@ -114,7 +114,7 @@ function draw(say0){const k=K(),nw=Object.keys(k.nw).filter(id=>C.info(id)),book
       <div class="stkg">${nw.map(id=>`<button class="stkc" data-id="${esc(id)}">${C.face(id,{mini:1,marks:false})}${k.nw[id]>1?`<em>×${k.nw[id]}</em>`:''}</button>`).join('')}</div>
       <div class="row"><button id="stok">✓ 倉庫に しまう</button><button id="stfl" class="sub">🏷️ 売り場へ</button></div></div>`
      :book.length?`<p class="stkempty">📭 まだ とどいていないよ。 ブックの ことばを 勉強すると とどくよ</p>`:''}
-    ${src.length?`<p class="stksrc">${src.map(([s,n])=>`<span>${(SRC[s]||['📦'])[0]} ${esc((SRC[s]||['',''])[1])} <b>${n}</b></span>`).join('')}</p>`:''}
+    ${graph(k,src)}
     ${book.length?`<div class="stkhd"><b>📖 ブックの カード <small>${book.length}</small></b>
         <span class="stkseg"><button data-s="low" class="${sort==='low'?'on':''}">在庫 すくない順</button><button data-s="weak" class="${sort==='weak'?'on':''}">苦手</button></span></div>
       <p class="stkt">タップすると ✏️ 3問で 1まい 仕入れられるよ</p>
@@ -142,6 +142,15 @@ function draw(say0){const k=K(),nw=Object.keys(k.nw).filter(id=>C.info(id)),book
   H.panel.querySelectorAll('.stkc[data-b]').forEach(b=>b.onclick=()=>{sf('card');card(b.dataset.b)});
   if(!C.rec().stkTold){C.rec().stkTold=1;C.save();setTimeout(()=>{const [,tx]=ML('stk_first');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4600)},1200)}}
 
+/* 📊 きょう 勉強して とどいた 数（7日の 棒 ＋ きょうの 内わけ）。 文字は DOM で くっきり */
+function graph(k,src){const days=[],now=new Date();
+  for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(now.getDate()-i);const key=i?ymd(d):k.d;days.push([key,i?(k.h&&k.h[key])||0:todayN(),i?['日','月','火','水','木','金','土'][d.getDay()]:'きょう'])}
+  if(!days.some(x=>x[1])&&!src.length)return '';
+  const mx=Math.max(1,...days.map(x=>x[1])),sm=Math.max(1,...src.map(x=>x[1]));
+  return `<div class="stkgr"><p class="stkgh">📊 勉強で とどいた カード</p>
+    <div class="stkwk">${days.map(([,n,l],i)=>`<div class="${i===6?'td':''}"><b>${n||''}</b><i style="height:${Math.round(n/mx*100)}%"></i><small>${l}</small></div>`).join('')}</div>
+    ${src.length?`<div class="stkby">${src.sort((a,b)=>b[1]-a[1]).map(([s0,n])=>`<p><span>${(SRC[s0]||['📦'])[0]} ${esc((SRC[s0]||['','その他'])[1])}</span><i><em style="width:${Math.round(n/sm*100)}%"></em></i><b>${n}</b></p>`).join('')}</div>`:''}</div>`}
+const ymd=d=>d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();   // CG.today() と 同じ 形
 /* 1まい えらんだ: ✏️ 3問 / 📖 くわしく */
 function card(id){const I=C.info(id);if(!I)return;
   const o=C.ov(`<div class="cgbuy stkov">${C.face(id,{big:1,ja:1})}
@@ -176,6 +185,7 @@ Object.assign(MINA_LINES,{
  stk_lesson:[['happy','授業に 出てきた「{w}」の カードが お店に とどいたよ'],['smile','勉強した ぶん、 お店の たなも うまっていくね'],['proud','授業の あとは 入荷の 時間。 ミオさんが よろこぶよ']],
  stk_drillOk:[['proud','「{w}」 3問 クリア！ 仕入れ かんりょう'],['happy','ちゃんと わかってるね。 「{w}」の カード、 倉庫に 入ったよ'],['smile','英語で "in stock"（在庫あり）。 お店の ことばも おぼえちゃおう']],
  stk_drillMiss:[['smile','おしい！ まちがえた ところは 📖 くわしくで 見てから もう一回'],['think','「{w}」、 いみと つづりを 声に 出して 言ってみて。 つぎは いけるよ']],
+ x_stkWeek:[['proud','さいきん 勉強して とどいた カード、 {n}まい！ 📦 仕入れの グラフで 見てみて'],['happy','仕入れの 画面の 📊 グラフ、 きょうの 棒が のびてるよ。 勉強した ぶんだけ 高く なるの']],
  x_stkNew:[['happy','カードショップに カードが {n}まい とどいてるよ。 勉強した ことばの カードだね'],['smile','📦 入荷した カード、 売り場に ならべてみたら？']],
  x_stkBook:[['point','カードブックに カードを 入れると、 その ことばを 勉強した ときに お店に 仕入れられるよ'],['think','鉱山で ほった カード、 ブックに 入れてみて。 勉強が 仕入れに なるよ']],
  x_stkDrill:[['smile','仕入れの 画面で カードを えらぶと、 3問で 1まい 仕入れられるよ'],['point','在庫が 0の カードが あるみたい。 ✏️ 仕入れ練習で ふやせるよ']]});
@@ -183,6 +193,7 @@ const goStk=()=>['📦 仕入れへ',()=>{SHOP.open();setTimeout(()=>open(),60)}
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_stkNew',3,()=>{try{const n=newN();return SHOP.rec().met&&n>=3?{n}:null}catch(e){return null}},goStk],
  ['x_stkBook',2,()=>{try{return SHOP.rec().met&&!bookIds().length&&CBOOK.addable().length?{}:null}catch(e){return null}},()=>['📖 カードブックへ',()=>{SHOP.open();setTimeout(()=>CBOOK.open(),60)}]],
+ ['x_stkWeek',1,()=>{try{const h=K().h||{};const n=Object.values(h).reduce((a,b)=>a+b,0);return SHOP.rec().met&&n>=10?{n}:null}catch(e){return null}},goStk],
  ['x_stkDrill',1,()=>{try{return SHOP.rec().met&&bookIds().some(id=>!stockOf(id)&&left(id))?{}:null}catch(e){return null}},goStk]);
 /* 1回だけ: 仕入れが かわった お知らせ */
 setTimeout(function first(){const r=C.rec();if(!r.met||r.stkNew)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);

@@ -20,11 +20,17 @@ const jaOf=I=>!I?'':String(I.ja||'').split(/[、,;／/]/)[0].trim();
 const SV_REC_AT=k=>SV_REC.at[k]||['cards','カード'];
 
 /* ================================================================ 売りに 来る お客さんが 持ってくる カード
-   すきな なかま が 多め・自分の レベルの 1つ上 まで・まだ 持っていない カードが 出やすい（6わり）。 ときどき 文カード・宝カード */
+   すきな なかま が 多め・自分の レベルの 1つ上 まで・まだ 持っていない カードが 出やすい（6わり）。 ときどき 宝カード（7%）・文カード（17%）・パーツカード（12%） */
 const LVS=['es','jh','hs','adv'];
 function offer(G,not){const my=Math.max(0,LVS.indexOf(C.myLv())),r=Math.random();
+  /* 💎 ためている カード: コインが たまったら 半分の 確率で、 たまっていなくても ときどき もってくる */
+  try{const w=SHOP.wantRec();if(w&&w.id!==not){const c=(BEACH.S.coins|0)>=w.p;if(Math.random()<(c?.5:.08))return w.id}}catch(e){}
+  /* 💎 めずらしい 文・パーツの カード（まだ ない もの）: 5% */
+  try{if(r>=.36&&r<.41){const L=SHOP.premList().filter(x=>x!==not&&!C.owns(x));if(L.length)return pickL(L)}}catch(e){}
   try{if(r<.07&&window.CARDS&&CARDS.book){const pool=CARDS.book.filter(c=>c.r>=2&&c.r<=4&&'t:'+c.e!==not),nw=pool.filter(c=>!CARDS.has(c));const c=pickL(nw.length&&Math.random()<.6?nw:pool);if(c)return 't:'+c.e}}catch(e){}
-  if(r<.15&&C.SENT&&C.SENT.length){const ok=LVS.slice(0,my+1),pool=C.SENT.filter(x=>ok.includes(x.lv)&&'s:'+x.i!==not),nw=pool.filter(x=>!C.owns('s:'+x.i));const x=pickL(nw.length&&Math.random()<.6?nw:pool);if(x)return 's:'+x.i}
+  /* 🧩 パーツの カード（11/18〜。 鉱山の お話の おまけ と ここだけ） */
+  if(r>=.24&&r<.36&&typeof CG_PARTS!=='undefined'){const pool=Object.keys(CG_PARTS).map(k=>'p:'+k).filter(x=>x!==not&&!SHOP.premium(x)),nw=pool.filter(x=>!C.owns(x));const x=pickL(nw.length&&Math.random()<.7?nw:pool);if(x)return x}
+  if(r<.24&&C.SENT&&C.SENT.length){const ok=LVS.slice(0,my+1),pool=C.SENT.filter(x=>ok.includes(x.lv)&&'s:'+x.i!==not&&!SHOP.premium('s:'+x.i)),nw=pool.filter(x=>!C.owns('s:'+x.i));const x=pickL(nw.length&&Math.random()<.6?nw:pool);if(x)return 's:'+x.i}
   const ok=LVS.slice(0,Math.min(4,my+2));let pool=C.W.filter(c=>ok.includes(c.lv)&&c.id!==not&&c.ja);
   const fav=pool.filter(c=>(G.a||[]).includes(c.a));if(fav.length>8&&Math.random()<.6)pool=fav;
   const nw=pool.filter(c=>!C.owns(c.id));const c=pickL(nw.length&&Math.random()<.6?nw:pool);return c?c.id:null}
@@ -44,7 +50,7 @@ function serve(X){const {T,g,box}=X,BUY=!!X.buy,W=who(g),nm=short(g);
   let id=X.id,p=id?X.price(id):0,pp=BUY?Math.max(4,Math.round(p*.7)):p,hideJa=false,mode='',fast=false,miss=0,tip=0,ok=0;
   const P=g.plan||(BUY?planBuy(id):plan(g,X.floor()));g.plan=P;hideJa=P.k==='mean';
   /* 買い取りの 値段: ふつう 7わり・言い値 9わり・あいだ・ミオの 値切り 6わり・売り値 */
-  const bv=()=>{const bp=Math.max(4,Math.round(p*.7)),hi=Math.max(bp+1,Math.round(p*.9));return {bp,hi,mid:Math.round((bp+hi)/2),lo:Math.max(3,Math.round(p*.6)),sp:p}};
+  const bv=()=>{if(window.SHOP&&SHOP.premium&&SHOP.premium(id))return {bp:p,hi:p,mid:p,lo:p,sp:p};const bp=Math.max(4,Math.round(p*.7)),hi=Math.max(bp+1,Math.round(p*.9));return {bp,hi,mid:Math.round((bp+hi)/2),lo:Math.max(3,Math.round(p*.6)),sp:p}};
   const alive=()=>T.alive&&T.g===g&&box.isConnected;
   const STOP={};
   const fill=s=>String(s).replace(/\{(\w+)\}/g,(m,k)=>{const I=C.info(id);const at=SV_REC_AT((g.G.a||[])[0]);
