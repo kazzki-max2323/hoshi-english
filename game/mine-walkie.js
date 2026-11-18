@@ -172,7 +172,7 @@ const SEE_HI=[n=>`おかえりなさい、 店長！ ${n}まいも ほってき�
 function seeLine(I,seed){const L=SEE[I.k==='t'?'t':I.lv]||SEE.es,i=Math.abs(seed|0)%L.length;
   return L[i].replace(/\{w\}/g,head1(I)).replace(/\{ja\}/g,I.ja)}
 /* ほった カードは 📖ブックに 入れた（game/mine.js toBook） */
-const SEE_BK=[n=>`ほった カードは カードブックに 入れておきました！ その ことばを 勉強したら、 お店に 入荷しますよ`,n=>`カードブックの ポケットに しまっておきましたよ。 勉強すると その カードが 仕入れで とどきます！`,n=>`ブックが ${n}まい ふえましたね。 店長が 勉強した ぶんだけ、 お店の たなに ならびます`];
+const SEE_BK=[n=>`ほった カードは カードブックに 入れておきました！ 仕入れで 問題に 答えたら、 お店に 入荷しますよ`,n=>`カードブックの ポケットに しまっておきましたよ。 仕入れの 問題に 答えると その カードが とどきます！`,n=>`ブックが ${n}まい ふえましたね。 仕入れで 正解した ぶんだけ、 お店の たなに ならびます`];
 window.MINE_MIO_SEE={line:seeLine,hi:n=>pickL(SEE_HI)(n),bk:n=>pickL(SEE_BK)(n)};
 
 /* ミナ先生の セリフ */

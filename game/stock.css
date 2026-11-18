@@ -55,3 +55,24 @@
 .stk .stkby i{display:block;height:8px;border-radius:4px;background:#ffffff1a;overflow:hidden}
 .stk .stkby em{display:block;height:100%;background:#ffc94a;border-radius:4px}
 .stk .stkby b{text-align:right}
+
+/* ✏️ まとめて 仕入れ（11/18） */
+.stk .stkc.on{outline:3px solid #ffc94a;outline-offset:1px;border-radius:10px}
+.stk .stkc.on::after{content:'✓';position:absolute;left:-2px;top:-4px;width:20px;height:20px;line-height:20px;border-radius:50%;background:#ffc94a;color:#3a2a10;font-weight:900;font-size:.8rem;text-align:center}
+.stk .stkbar{position:sticky;bottom:0;z-index:3;display:flex;gap:6px;margin:6px -4px 4px;padding:8px 4px;background:linear-gradient(#0000,#1c1838 30%)}
+.stk .stkbar .big{flex:1;margin:0}.stk .stkbar .big small{font-size:.72rem;opacity:.85;margin-left:4px}
+.stk .stkbar .sub{flex:0 0 auto;min-width:44px;padding:6px 10px!important}
+.stkbt .stkdh{display:flex;align-items:center;justify-content:center;gap:8px}
+.stkbt .stkq{margin-left:auto;padding:3px 10px!important;min-height:0;font-size:.72rem}
+.stkchips{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:0 0 8px}
+.stkchips span{font-size:.72rem;padding:2px 8px;border-radius:999px;background:#ffffff1f;text-shadow:none}
+.stkchips span.ok{background:#1f6f5c;color:#fff;font-weight:800}
+.stkchips span.re{background:#9a341299}
+.stkres{display:flex;flex-direction:column;gap:5px;margin:6px 0 8px}
+.stkres .stkr{display:flex;align-items:center;gap:8px;padding:4px 8px!important;min-height:0;text-align:left;background:#ffffff12!important;border:1px solid #ffffff22!important;border-radius:10px;box-shadow:none!important}
+.stkres .stkr.ok{background:#1f6f5c33!important;border-color:#3fbf9a!important}
+.stkres .stkr .cgc{max-width:38px!important;margin:0!important;flex:0 0 38px}
+.stkres .stkr span{flex:1;min-width:0;text-shadow:none}.stkres .stkr span b{display:block;font-size:.9rem}.stkres .stkr span small{font-size:.72rem;opacity:.85}
+.stkres .stkr em{font-style:normal;font-size:.72rem;font-weight:800;white-space:nowrap;text-shadow:none;opacity:.8}
+.stkres .stkr.ok em{color:#7fe8c4;opacity:1}
+.stkbt .row+.row{margin-top:4px}
