@@ -242,8 +242,14 @@ function more(I){const h=I.h,WI=window.WI,out=[];
   if(cs.length)out.push(`<p>🔗 いっしょに: ${cs.slice(0,3).map(c=>`<b>${esc(c.p)}</b>（${esc(c.j)}）`).join('、 ')}</p>`);
   const ant=ANTO[h]?[...ANTO[h]].slice(0,3):[],syn=SYN[h]?[...SYN[h]].slice(0,4):[];
   if(ant.length||syn.length)out.push(`<p>${ant.length?`⚡ 反対: <b>${esc(ant.join(', '))}</b>`:''}${ant.length&&syn.length?'　':''}${syn.length?`🛡️ にた ことば: ${esc(syn.join(', '))}`:''}</p>`);
-  const dv=DERIV.find(d=>d.d===h),fam=DERIV.filter(d=>d.b===h).slice(0,4);
-  if(dv)out.push(`<p>🧩 なりたち: <b>${esc(dv.b)}</b> ＋ ${esc(CG_PARTS[dv.p][0])}（${esc(CG_PARTS[dv.p][1])}）</p>`);
+  /* 🧩 なりたち: 部品 → なぜ その 意味に なるか → おなじ 根っこの なかま（データは game/winfo-roots*.js） */
+  const rt=WI.root?WI.root(h,hasHead):null,dv=DERIV.find(d=>d.d===h),fam=DERIV.filter(d=>d.b===h).slice(0,4);
+  if(rt){const ml=rootMina(rt);
+    out.push(`<div class="wirt"><p>🧩 なりたち: ${WI.rootHtml(rt.parts,esc)}</p>${rt.story?`<p class="wirs">${esc(rt.story)}</p>`:''}${rt.fam.length?`<p class="wirf">🌱 おなじ 根っこ: ${rt.fam.slice(0,5).map(w=>`<b>${esc(w)}</b>`).join(', ')}</p>`:''}${ml?`<p class="wirm">👩‍🏫 ${esc(ml)}</p>`:''}</div>`);
+    if(x.tip){const t=x.tip.split('。').map(z=>z.trim()).filter(z=>z&&!(/＋/.test(z)&&/^[a-z@]/i.test(z))).join('。 ');x.tip=t}}
+  else if(dv){const P=CG_PARTS[dv.p],bc=cardOfHead(dv.b),bj=bc?String(bc.ja).split(/[・、,，（(]/)[0].trim():'',pre=!/^-/.test(P[0]);
+    const bp=`<b>${esc(dv.b)}</b>${bj?`（${esc(bj)}）`:''}`,pp=`<b>${esc(P[0])}</b>（${esc(P[1])}）`;
+    out.push(`<div class="wirt"><p>🧩 なりたち: ${pre?pp+' ＋ '+bp:bp+' ＋ '+pp}</p><p class="wirs">${esc(bj||dv.b)} ＋ 「${esc(P[1])}」 → ${esc(I.ja)}</p></div>`)}
   else if(fam.length)out.push(`<p>🧩 なかまの ことば: ${fam.map(d=>`<b>${esc(d.d)}</b>`).join(', ')}</p>`);
   const tips=[];if(x.tip)tips.push(esc(x.tip));
   const wr=WRONG.find(w=>w.a===h||w.b===h);if(wr&&tips.length<2)tips.push(`×「${esc(wr.a)} ${esc(wr.b)}」→ ⭕「${esc(wr.ok)}」 ${esc(wr.why)}`);
@@ -252,6 +258,9 @@ function more(I){const h=I.h,WI=window.WI,out=[];
   if(tips.length)out.push(`<div class="witip">${tips.map(t=>`<p>💡 ${t}</p>`).join('')}</div>`);
   if(!out.length)return '';
   return `<details class="cgfold wif" open><summary>📖 くわしく</summary>${out.join('')}</details>`}
+/* なりたちの 下の ミナ先生の ひとこと（おなじ 根っこの なかまが いれば その 話） */
+function rootMina(rt){try{if(!window.MINA||!MINA.line)return '';const f=rt.fam;
+  const [,tx]=f.length>=2&&Math.random()<.6?MINA.line('wi_rootFam',{w:rt.h,f:f[0],g:f[1]}):f.length===1&&Math.random()<.5?MINA.line('wi_rootFam1',{w:rt.h,f:f[0]}):MINA.line('wi_root',{w:rt.h});return tx||''}catch(e){return ''}}
 /* くわしくの 中の 🔊 と、 ひらいた 回数 */
 function bindMore(o){o.querySelectorAll('[data-wisay]').forEach(b=>b.onclick=e=>{e.stopPropagation();sf('pickup');window.WI?WI.speak(b.dataset.wisay):speak(b.dataset.wisay)});
   o.querySelectorAll('.wif').forEach(fd=>fd.addEventListener('toggle',()=>{if(fd.open){CG.wiSeen=(CG.wiSeen||0)+1;save()}}))}
@@ -271,6 +280,7 @@ function detail(id,back){const I=info(id);if(!I)return;const n=count(id),own=n>0
   const say=()=>{try{H.say(I.k==='t'?'cards':I.lv,I.k==='s'?I.en:I.en)}catch(e){}};say();
   if(window.UNK)UNK.bind(o);
   bindMore(o);
+  if(I.k!=='p'&&I.k!=='s'&&window.WI&&WI.root&&WI.root(h)){CG.rootSeen=(CG.rootSeen||0)+1;save()}
   $('cgsay').onclick=say;$('cgclose').onclick=()=>{sf('back');closeOv();back&&back()};
 }
 
