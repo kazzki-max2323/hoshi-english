@@ -601,4 +601,13 @@ deadline|dead（死んだ）＋ line（線）|こえては いけない 線 → 
 register|re（もとへ）＋ gist（運ぶ ← gerere）＋ er|書きうつして 運びこむ → 記録する・登録する|gest
 participant|parti（部分）＋ cip（取る ← capere）＋ ant|部分を 取る 人 → 参加者|part,capere
 according to|ac（〜へ）＋ cord（心）＋ ing|心を あわせて → 〜に よると|cord
+persimmon|pessemin（かきの 実 ← アメリカ先住民 ポウハタン族の ことば）|北アメリカの 先住民が ほして 食べていた あまい 実の 名前 → 英語に 入って persimmon → かき|
+tomato|tomatl（ふくらんだ 実 ← アステカの ナワトル語）|メキシコの ことば tomatl → スペイン語 tomate → 英語 tomato → トマト|
+potato|batata（さつまいも ← カリブの タイノ語）|スペイン語で patata → はじめは さつまいもの こと → じゃがいもにも 使うように なった → じゃがいも|
+chocolate|chocolatl（アステカの ナワトル語の 飲みもの）|カカオで 作る にがい 飲みもの → スペイン語 chocolate → 英語へ → チョコレート|
+avocado|āhuacatl（アボカドの 実 ← アステカの ナワトル語）|スペイン語で aguacate → 「弁護士」の ことば avocado に 音が にて 入れかわった → アボカド|
+mango|mānkāy（マンゴーの 木の 実 ← インドの タミル語）|ポルトガルの 船乗りが manga と して ヨーロッパへ → 英語 mango → マンゴー|
+canoe|canoa（丸木舟 ← カリブの タイノ語）|コロンブスたちが カリブの 島で 聞いた ことば → スペイン語 canoa → 英語 canoe → カヌー|
+skunk|segankw（スカンク ← アメリカ先住民 アベナキ族の ことば）|北アメリカの 先住民の 呼び名が そのまま 英語に → スカンク|
+sushi|酸し（すっぱい ← 日本語）|お米を 酢で すっぱく した 食べもの → 日本語の まま 英語に → すし|
 `);
