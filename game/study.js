@@ -37,7 +37,9 @@ const lvNow=()=>{let l='es';try{l=MINA.level()}catch(e){}return l==='adv'?'hs':l
 /* ---------- 4ステップの 道: 授業 → とっくん → 会話 → ノート ---------- */
 const STEPS=[['l','授業','📖'],['t','とっくん','🎯'],['k','会話','🗣️'],['n','ノート','📝']];
 function pathOf(id){const r=SD.p[id]||{},L=lesFor(id);let dp=false;try{dp=!!(window.DEEP&&DEEP.rec()[id])}catch(e){}
-  return {l:!!(r.l||L.some(l=>lesDone(l.id))||(!L.length&&dp)),t:!!r.t,k:!!(r.k||scenesFor(id).some(s=>snDone(s.id))),n:!!(r.n||noteOk(id))}}
+  /* 🎯: この 道から やった とっくん・ほかの 入口から やった とっくん（SENSEI の tk）・とことん授業の 5問 たしかめ（ドリルの ない 文法の とっくん） */
+  let tk=false;try{tk=!!((SENSEI.rec().tk||{})[id]||((DEEP.rec()[id]||{}).cn))}catch(e){}
+  return {l:!!(r.l||L.some(l=>lesDone(l.id))||(!L.length&&dp)),t:!!(r.t||tk),k:!!(r.k||scenesFor(id).some(s=>snDone(s.id))),n:!!(r.n||noteOk(id))}}
 const pathN=id=>{const p=pathOf(id);return STEPS.filter(s=>p[s[0]]).length};
 const nextStep=id=>{const p=pathOf(id),s=STEPS.find(s=>!p[s[0]]);return s?s[0]:null};
 /* いま 習っている 文法: とちゅうの もの → まだの もの（レベルの じゅん） */
@@ -47,7 +49,7 @@ function curG(lv){const N=notes().filter(g=>g.lv===(lv||lvNow()));if(!N.length)r
 function stepItem(id,s){const it=stepItem0(id,s);if(it)it.st=s;return it}
 function stepItem0(id,s){const t=gName(id);
   if(s==='l'){const L=lesFor(id),l=L.find(x=>!lesDone(x.id))||L[0];return l?{k:'les',id:l.id,g:id,t:l.t}:{k:'deep',id,g:id,t:`「${t}」の なんで？`}}
-  if(s==='t')return typeof SENSEI_DRILL!=='undefined'&&!SENSEI_DRILL[id]&&window.DEEP?{k:'deep',id,g:id,t:`「${t}」の たしかめ`}:{k:'tok',id,g:id,t:`「${t}」の とっくん`};
+  if(s==='t')return typeof SENSEI_DRILL!=='undefined'&&!SENSEI_DRILL[id]&&window.DEEP?{k:'deep',id,g:id,chk:1,t:`「${t}」の とっくん`}:{k:'tok',id,g:id,t:`「${t}」の とっくん`};
   if(s==='k'){const g=gOf(id),S=scenesFor(id),lvS=scenes().filter(x=>x.lv===(g?g.lv:'es')),sc=S.find(x=>!snDone(x.id))||S[0]||lvS.find(x=>!snDone(x.id))||lvS[0];
     return sc?{k:'talk',id:sc.id,g:id,t:sc.t}:{k:'tok',id,g:id,t:`「${t}」の とっくん`}}
   return {k:'note',id,g:id,t:`「${t}」の ノート`}}
@@ -90,7 +92,7 @@ function start(it,fromPlan){if(!it)return;stopCd();const D=day();
     case 'tok':SFX.step();SENSEI.tokkun([it.id],0,'mina');break;
     case 'talk':SFX.talk();SENSEI.play(it.id,'mina');break;
     case 'note':{const g=gOf(it.id);if(!g)break;SFX.book();H.gramFrom(g.lv,MINA.open);H.gramNote(g.lv,g.i);break}
-    case 'deep':SFX.step();DEEP.open(it.id);break}}catch(e){console.error(e)}}
+    case 'deep':SFX.step();DEEP.open(it.id,it.chk?{chk:1}:undefined);break}}catch(e){console.error(e)}}
 function startStep(id,s){start(stepItem(id,s),false)}
 
 /* ---------- おわったら: 道の しるし・予定を すすめる・「つぎへ」ボタン ---------- */
