@@ -17,6 +17,8 @@ const TIER=[['meh','ちょっと 苦手みたい','😅'],['ok','ふつうに �
 /* ---------- the record ---------- */
 const GF=(()=>{try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}').gift;if(s&&s.seen)return s}catch(e){}
   return {n:0,gave:{},seen:{},hint:{},end:{},fun:0}})();
+/* 毎回 かわる 会話の ための きろく（2026-11-18）: last=前に あげた 品 day=あげた 日 fk=前の 展開 long=見た 長い 会話 ret=お返し from=お返しで もらった 品の 相手 ev=できごとの 回数 */
+['last','day','fk','long','retDay','from','ev'].forEach(k=>{if(!GF[k])GF[k]={}});if(!GF.ret)GF.ret=0;
 _saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');s.gift=GF;localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
 
 /* ---------- what you have ---------- */
@@ -97,7 +99,16 @@ function who(it,back,prev){hush();if(typeof it==='string')it=byRef(it);if(!it)re
 let C=null;
 const live=()=>C&&$('gflog');
 function scrollLog(){const l=$('gflog');if(l)l.scrollTo({top:l.scrollHeight,behavior:'smooth'})}
-const fill=(s)=>String(s).replace(/\{w\}/g,C.it.w).replace(/\{n\}/g,C.it.n);
+const fill=(s)=>String(s).replace(/\{w\}/g,C.it.w).replace(/\{n\}/g,C.it.n).replace(/\{last\}/g,(C.last||{}).w||'present').replace(/\{lastj\}/g,(C.last||{}).n||'プレゼント').replace(/\{k\}/g,C.k||'');
+/* 共通の セリフを その キャラの 口ぐせに（game/gift-vary.js GIFT_STYLE） */
+const sty=line=>{const s=GIFT_STYLE[C.to];return s?[s.en(line[0]),s.ja(line[1]||'')]:line};
+const today=()=>new Date().toDateString();
+/* 重みつき くじ: [[値, 重み], …] */
+const wpick=a=>{a=a.filter(x=>x[1]>0);let r=Math.random()*a.reduce((t,x)=>t+x[1],0);for(const x of a){r-=x[1];if(r<0)return x[0]}return a.length?a[a.length-1][0]:null};
+/* [英, 日, ok, lv, つぎ] → えらぶ ボタン。 つぎ が [英,日] なら さいごの 返事、 {m,o} なら 会話が つづく */
+function opt(o,styled){return {e:fill(o[0]),j:fill(o[1]),ok:o[2]?1:0,lv:o[3]||'',go:()=>{const nx=o[4],S=x=>styled?sty(x):x;
+  if(Array.isArray(nx))said(S(nx),o[2]?'😊':'😂',o[2]?'k-good':'k-oops');
+  else{them(S(nx.m),'💬');afterTalk(()=>ask(nx.o.map(x=>opt(x,styled))),300,700)}}}}
 function them(line,fx,cls=''){if(!live())return;const en=fill(line[0]),ja=fill(line[1]||''),on=jaOn(),d=document.createElement('div');
   d.className='lsay kth '+cls;
   d.innerHTML=`<span class="lface kf">${pFace(C.to,C.ex)}${fx?`<i class="kfx">${fx}</i>`:''}</span><div class="lbody"><p class="ken">${esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p>${ja?`<small class="kja ${on?'on':''}">${esc(ja)}</small>${on?'':'<button class="kjab">訳を 見る</button>'}`:''}</div>`;
@@ -114,18 +125,40 @@ const EX=['worry','smile','happy','love'];
 
 function play(it,to,back){hush();if(typeof it==='string')it=byRef(it);if(!it||!PP[to])return (back||H.home)();
   const p=PP[to],t=tier(to,it.key);
-  C={it,to,p,t,back:back||H.home,fun:0,typed:0,step:0,hint:false,ex:'smile',opts:[]};
+  const last=GF.last[to]&&GF.last[to].k!==it.key?GF.last[to]:null;
+  C={it,to,p,t,back:back||H.home,fun:0,typed:0,step:0,hint:false,ex:'smile',opts:[],last,k:(GF.gave[to]||0)+1,ev:[],ret:null,longId:''};
   H.show('gift',`<section class="pnl lsn kw zk gf" data-stay>
     <div class="qtop"><button class="x" id="gfx" aria-label="やめる">←</button><b>🎁 ${esc(p.n)}に ${it.ico}</b><span class="qn" id="gfq"></span></div>
     <div class="lslog kwlog" id="gflog"></div>
     <div id="gfans" class="kans"></div>
   </section>`);
   $('gfx').onclick=()=>{sf('back');hush();const b=C.back;C=null;b()};
-  setTimeout(()=>{them(p.hi,'❓');afterTalk(()=>ask(handOpts()),300,700)},300)}
+  setTimeout(()=>opener(),300)}
+
+/* ---------- はじまり（毎回 かわる） ---------- */
+function opener(){const {p,it,to}=C,O=GIFT_OPEN;
+  const k=GF.n===0?'hi':wpick([['hi',3],['you',2],['eyes',1.5],['guess',1.5],['wrap',it.wrap?4:0],['again',GF.day[to]===today()?4:0],['mem',C.last&&C.last.t>=2?2:0]]);
+  if(k!=='hi')C.ev.push('o_'+k);
+  const lvOpts=(a,fun,go,fgo)=>{const o=a.map(x=>({e:x[0],j:x[1],ok:1,lv:x[2],go}));if(fun){const f=pickL(fun);o.splice(Math.random()*(o.length+1)|0,0,{e:f[0],j:f[1],ok:0,go:fgo})}return o};
+  const huh=(a,fn)=>()=>{them(sty(pickL(a)),'😅','k-oops');afterTalk(fn,300,600)};
+  if(k==='hi'){them(p.hi,'❓');afterTalk(()=>ask(handOpts()),300,700)}
+  else if(k==='you'){const nx=()=>afterTalk(()=>ask(handOpts()),300,700);
+    ask(lvOpts(shuffle(O.you.me.slice()).slice(0,3),O.you.fun,()=>{them(sty(pickL(O.you.them)),'😊');nx()},huh(O.you.huh,()=>ask(handOpts()))))}
+  else if(k==='eyes')ask(lvOpts(O.eyes.me,null,()=>{them(sty(pickL(O.eyes.them)),'🙈');
+      afterTalk(()=>ask(lvOpts(O.eyes.open,O.eyes.fun,react,huh(O.eyes.huh,react))),300,700)}));
+  else if(k==='guess')ask(lvOpts(O.guess.me,O.guess.fun,()=>{const tg=TAGS[it.key]||[],hits=O.guess.any.filter(g=>tg.includes(g[2]));
+      const g=hits.length&&Math.random()<.45?pickL(hits):pickL(O.guess.any),hit=tg.includes(g[2]);C.ev.push(hit?'g_hit':'g_miss');
+      them(sty(g),'🤔');afterTalk(()=>ask(lvOpts(hit?O.guess.hit:O.guess.miss,null,hit?()=>{them(sty(pickL(O.guess.hitThem)),'😆','k-good');afterTalk(react,300,600)}:react)),300,700)},
+    huh(O.guess.huh,()=>ask(handOpts()))));
+  else if(k==='wrap'){them(sty(pickL(O.wrap.them)),'🎀');afterTalk(()=>ask(lvOpts(O.wrap.me,O.wrap.fun,react,huh(O.wrap.huh,react))),300,700)}
+  else if(k==='again'){them(sty(pickL(O.again.them)),'😳');afterTalk(()=>ask(lvOpts(shuffle(O.again.me.slice()),O.again.fun,react,huh(O.again.huh,react))),300,700)}
+  else {them(sty(pickL(O.mem.them)),'😊');afterTalk(()=>ask(handOpts()),300,700)}}
 
 /* the choices: [english, japanese, ok, level, what happens] */
-function handOpts(){const o=['es','jh','hs'].map(lv=>{const h=pickL(GIFT_HAND.filter(x=>x[0]===lv));return {e:h[1],j:h[2],ok:1,lv,go:react}});
-  const f=pickL(GIFT_HAND_FUN);o.splice(Math.random()*4|0,0,{e:f[0],j:f[1],ok:0,go:()=>{them(pickL(GIFT_HAND_HUH),'😅','k-oops');afterTalk(react,300,600)}});return o}
+function handOpts(){const tg=TAGS[C.it.key]||[],tl=[].concat(...tg.map(t=>GIFT_HAND_TAG[t]||[]));
+  const o=['es','jh','hs'].map(lv=>{const a=GIFT_HAND.concat(GIFT_HAND_X).filter(x=>x[0]===lv),b=tl.filter(x=>x[0]===lv);
+    const h=b.length&&Math.random()<.4?pickL(b):pickL(a);return {e:h[1],j:h[2],ok:1,lv,go:react}});
+  const f=pickL(GIFT_HAND_FUN);o.splice(Math.random()*4|0,0,{e:f[0],j:f[1],ok:0,go:()=>{them(sty(pickL(GIFT_HAND_HUH)),'😅','k-oops');afterTalk(react,300,600)}});return o}
 function ask(opts,hint){if(!live())return;C.opts=opts;C.step++;$('gfq').textContent='💬 '+C.step;const on=jaOn(),mic=window.SpeechRecognition||window.webkitSpeechRecognition;
   $('gfans').innerHTML=`${hint?`<p class="khint">💡 たとえば：<b>${esc(hint)}</b></p>`:''}
     <div class="lopts kopts zkopts">${opts.map((o,i)=>`<button data-o="${i}">${o.lv?`<i class="zlv zlv-${o.lv}">${LVM[o.lv]}</i> `:''}${esc(o.e)}${on&&o.j?`<small>${esc(o.j)}</small>`:''}</button>`).join('')}</div>
@@ -152,15 +185,32 @@ function react(){const {p,t,it,to}=C;C.ex=EX[t];let line=pickL(p.r[t]),fx=TIER[t
   if(to==='nora'&&it.src==='z'){them(p.shop,'😆');afterTalk(()=>{them(line,fx,t>=2?'k-good':'');after()},300,700);return}
   t>=2?sf('pickup'):t===1?sf('step'):sf('tease');
   them(line,fx,t>=2?'k-good':t===0?'k-oops':'');
-  if(it.wrap)afterTalk(()=>{them(["And the wrapping is beautiful, too!","つつみ紙も すてき！"],'🎀','k-good');after()},300,700);else after()}
-function after(){afterTalk(()=>{const {t}=C;t>=2?askWhere():t===1?askWhy():askMeh()},500,900)}
+  const tg=(TAGS[it.key]||[]).filter(x=>GIFT_SEE[x]);
+  if(it.wrap&&t>=1&&!C.ev.includes('o_wrap'))afterTalk(()=>{them(sty(["And the wrapping is beautiful, too!","つつみ紙も すてき！"]),'🎀','k-good');after()},300,700);
+  else if(t>=2&&tg.length&&Math.random()<.35)afterTalk(()=>{them(sty(pickL(GIFT_SEE[pickL(tg)])),'✨','k-good');after()},300,700);
+  else after()}
+/* ---------- そのあとの 展開（毎回 かわる。 前回と 同じ 展開は 出にくい） ---------- */
+function after(){afterTalk(()=>{const {t,to,it}=C,fk=GF.fk[to];
+  const tg=(TAGS[it.key]||[]).filter(x=>GIFT_TOPIC[x]),L=longs(),cnt=GIFT_COUNT[C.k];
+  const w=t===0?[['meh',6],['topic',tg.includes('dog')?2:0],['none',1]]
+    :[['where',t>=2?3:1],['why',t===1?3:1.5],['topic',tg.length?3:0],['mem',C.last?2:0],['count',cnt?12:0],['long',L.length?(L.some(x=>!GF.long[x.id])?2:.8):0],['none',1.5],['quick',1]];
+  const k=wpick(w.map(x=>[x[0],x[0]===fk?x[1]*.3:x[1]]));C.fk=k;C.ev.push('f_'+k);
+  ({meh:askMeh,where:askWhere,why:askWhy,none:closing,quick:end,
+    topic:()=>{const tp=pickL(GIFT_TOPIC[C.t===0?'dog':pickL(tg)]);them(sty(tp.q),'❓');afterTalk(()=>ask(shuffle(tp.o.map(o=>opt(o,true)))),300,700)},
+    mem:()=>{const m=pickL(GIFT_MEM);them(sty(m.q),'💭');afterTalk(()=>ask(shuffle(m.o.map(o=>opt(o,true)))),300,700)},
+    count:()=>{them(sty(cnt),'🎉','k-good');afterTalk(()=>ask(shuffle(GIFT_COUNT_O.map(o=>opt(o,true)))),300,700)},
+    long:()=>{const un=L.filter(x=>!GF.long[x.id]),l=pickL(un.length?un:L),own=!!GIFT_LONG[to]&&GIFT_LONG[to].includes(l);
+      C.longId=l.id;them(own?l.m:sty(l.m),'💬');afterTalk(()=>ask(l.o.map(o=>opt(o,!own))),300,700)}})[k]()},500,900)}
+const longs=()=>{const {t,to}=C,ok=l=>l.when!=='good'||t>=2;return (GIFT_LONG[to]||[]).filter(ok).concat(to==='mina'||to==='mio'?[]:(GIFT_LONG['*']||[]).filter(ok))};
 
 /* the second question */
 const src=()=>C.it.src;
-function askWhere(){const {p,to}=C;them(p.ask,'❓');
+function askWhere(){const {p,to}=C;them(Math.random()<.4?sty(pickL(GIFT_WHERE_Q)):p.ask,'❓');
   const o=[];
   if(src()==='z'||src()==='f')o.push(to==='nora'?{e:"I bought it at your shop!",j:"あなたの お店で 買ったんだよ！",ok:1,lv:'es',go:()=>said(["I know! Ha ha. You're my best customer.","知ってるわよ！ あはは。 いちばんの お客さんね。"])}
     :{e:"I bought it at Nora's shop by the beach.",j:"浜辺の ノラさんの お店で 買ったよ。",ok:1,lv:'jh',go:()=>said(["Nora's shop! I should go there sometime.","ノラさんの お店！ こんど 行って みよう。"])});
+  else if(GF.from[C.it.key]&&GF.from[C.it.key]!=='riku')o.push(GF.from[C.it.key]===to?{e:"You gave it to me, remember?",j:"あなたが くれたんだよ、 おぼえてる？",ok:1,lv:'jh',go:()=>said(sty(["Oh! Ha ha! It came back to me!","あ！ あはは！ もどってきた！"]),'😆')}
+    :{e:"A friend on the beach gave it to me.",j:"浜辺の 友だちが くれたの。",ok:1,lv:'jh',go:()=>said(sty(["A present from a present! How nice.","プレゼントの プレゼント！ すてき。"]))});
   else o.push(to==='riku'?{e:"You gave it to me, remember?",j:"きみが くれたんだよ、 おぼえてる？",ok:1,lv:'jh',go:()=>said(["Oh yeah! Ha ha! Now it's a present again!","そうだった！ あはは！ また プレゼントに なった！"])}
     :{e:"Riku gave it to me. I teach him English.",j:"リクが くれたの。 英語を 教えてるんだ。",ok:1,lv:'hs',go:()=>said(["You teach English? That's amazing!","英語を 教えてるの？ すごい！"])});
   o.push({e:"It's a secret.",j:"ひみつ。",ok:1,lv:'es',go:()=>said(["A secret? Ha ha, OK. I like secrets.","ひみつ？ あはは、 わかった。 ひみつって すてき。"])});
@@ -168,10 +218,8 @@ function askWhere(){const {p,to}=C;them(p.ask,'❓');
   o.push({e:"It fell from the moon.",j:"月から おちてきたの。",ok:0,go:()=>said(C.p.fun,'😂','k-oops')});
   ask(shuffle(o))}
 function askWhy(){const {p}=C;them(p.why,'❓');
-  ask(shuffle([{e:"Because you're my friend.",j:"ともだち だから。",ok:1,lv:'es',go:()=>said(["Aww, thank you, friend.","わあ、 ありがとう、 ともだち。"])},
-    {e:"I thought you might like it.",j:"気に いって くれるかなと 思って。",ok:1,lv:'jh',go:()=>said(["That's so sweet of you.","やさしいね。"])},
-    {e:"Because it's your birthday!",j:"きょうは たんじょうび だから！",ok:0,go:()=>said(["It's not my birthday! But thank you, ha ha!","たんじょうびじゃ ないよ！ でも ありがとう、 あはは！"],'😂','k-oops')},
-    {e:"I didn't need it anymore.",j:"もう いらなかったから。",ok:0,go:()=>said(["Oh... ha ha. You're very honest!","あ… あはは。 正直だね！"],'😅','k-oops')}]))}
+  const W=GIFT_WHY_O,g=shuffle(W.filter(x=>x[2])).slice(0,3),f=pickL(W.filter(x=>!x[2]));
+  ask(shuffle(g.concat([f]).map(o=>opt(o,true))))}
 function askMeh(){
   ask(shuffle([{e:"You don't like it, do you?",j:"気に いらなかった よね？",ok:1,lv:'jh',go:()=>{them(["To be honest, it's not really my thing. But I'm happy you thought of me.","正直に いうと、 ちょっと ちがうかな。 でも 思い出して くれて うれしい。"],'🙂');afterTalk(hint,300,700)}},
     {e:"What kind of things do you like?",j:"どんな ものが 好き？",ok:1,lv:'jh',go:hint},
@@ -180,19 +228,41 @@ function askMeh(){
 function hint(){const {p,to}=C;C.hint=true;const nw=!GF.hint[to];GF.hint[to]=p.hint[2];save();
   them(p.hint,'💡','k-good');if(nw)setTimeout(()=>H.toast(`📔 ${esc(p.n)}の 好きな もの：<b>${esc(TAGN[p.hint[2]])}</b><small>好きな物ノートに のこしたよ</small>`,3400),900);
   afterTalk(closing,500,900)}
-function said(line,fx,cls){them(line,fx||'😊',cls||'k-good');afterTalk(closing,500,900)}
+function said(line,fx,cls){them(line,fx||'😊',cls||'k-good');afterTalk(maybeRet,500,900)}
+
+/* ---------- お返し（たまに。 同じ 人からは 1日 1回まで） ---------- */
+function maybeRet(){const {t,to}=C,R=GIFT_RETURN[to]||GIFT_RETURN['*'];
+  const ch=GF.n<1||GF.retDay[to]===today()?0:t>=2?.22:t===1?.08:0;
+  if(!R||Math.random()>=ch)return closing();
+  const r=pickL(R),own=!!GIFT_RETURN[to];C.ev.push('ret');
+  them(own?r.m:sty(r.m),'🎁','k-good');
+  afterTalk(()=>ask(shuffle(GIFT_RETURN_O.map(x=>({e:x[0],j:x[1],ok:1,lv:x[3],go:()=>{giveBack(r);afterTalk(closing,400,800)}})))),300,700)}
+function giveBack(r){const {to}=C;GF.retDay[to]=today();GF.ret++;let ico='🪙',n='';
+  if(r.k==='c'){try{H.addCoins(r.n)}catch(e){}n=`${r.n}コイン`}
+  else if(r.k==='f'){try{FOOD.add(r.id);const s=FOOD_SNACKS[r.id];ico=s.ico;n=s.n}catch(e){}}
+  else {try{const T=TUTOR.rec();T.gifts[r.id]=(T.gifts[r.id]||0)+1;const g=TUTOR_GIFTS.find(x=>x[0]===r.id);ico=g[1];n=g[2];GF.from['t:'+r.id]=to}catch(e){}}
+  C.ret={ico,n};save();sf('coin');
+  H.toast(`🎁 ${esc(pName(to))}から お返し： ${ico} <b>${esc(n)}</b><small>${r.k==='c'?'コインが ふえたよ':'🎒 もちものに 入れたよ'}</small>`,3200)}
 
 /* the last word */
 function closing(){const {t,p}=C;
-  if(t>=2)ask(shuffle([{e:"You're welcome.",j:"どういたしまして。",ok:1,lv:'es',go:end},{e:"I'm glad you like it.",j:"気に いって もらえて よかった。",ok:1,lv:'jh',go:end},{e:"It's my pleasure.",j:"よろこんで。（どういたしまして）",ok:1,lv:'hs',go:end},
-    {e:"That'll be 100 coins, please.",j:"100コインに なります。",ok:0,go:()=>{them(p.fun,'😂','k-oops');afterTalk(end,300,700)}}]));
-  else ask(shuffle([{e:"No problem.",j:"いいって ことよ。",ok:1,lv:'es',go:end},{e:"Next time, I'll find something you'll love.",j:"つぎは もっと 好きな ものを 見つけるね。",ok:1,lv:'jh',go:end},t===0?{e:"Thanks for being honest.",j:"正直に 言って くれて ありがとう。",ok:1,lv:'hs',go:end}:{e:"I'm glad I could make you smile.",j:"わらって もらえて よかった。",ok:1,lv:'hs',go:end},
-    {e:"Can I have it back?",j:"やっぱり かえして もらえる？",ok:0,go:()=>{them(p.fun,'😂','k-oops');afterTalk(end,300,700)}}]))}
+  if(Math.random()<.18){C.ev.push('c_skip');return end()}
+  const X=t>=2?GIFT_CLOSE_X.good:GIFT_CLOSE_X.meh;
+  if(Math.random()<.5){const x=pickL(X),o=closeOpts(t,p);const i=o.findIndex(y=>y.ok&&y.lv===x[3]);if(i>=0)o[i]={e:x[0],j:x[1],ok:1,lv:x[3],go:end};return ask(shuffle(o))}
+  ask(shuffle(closeOpts(t,p)))}
+function closeOpts(t,p){
+  if(t>=2)return ([{e:"You're welcome.",j:"どういたしまして。",ok:1,lv:'es',go:end},{e:"I'm glad you like it.",j:"気に いって もらえて よかった。",ok:1,lv:'jh',go:end},{e:"It's my pleasure.",j:"よろこんで。（どういたしまして）",ok:1,lv:'hs',go:end},
+    {e:"That'll be 100 coins, please.",j:"100コインに なります。",ok:0,go:()=>{them(p.fun,'😂','k-oops');afterTalk(end,300,700)}}]);
+  return ([{e:"No problem.",j:"いいって ことよ。",ok:1,lv:'es',go:end},{e:"Next time, I'll find something you'll love.",j:"つぎは もっと 好きな ものを 見つけるね。",ok:1,lv:'jh',go:end},t===0?{e:"Thanks for being honest.",j:"正直に 言って くれて ありがとう。",ok:1,lv:'hs',go:end}:{e:"I'm glad I could make you smile.",j:"わらって もらえて よかった。",ok:1,lv:'hs',go:end},
+    {e:"Can I have it back?",j:"やっぱり かえして もらえる？",ok:0,go:()=>{them(p.fun,'😂','k-oops');afterTalk(end,300,700)}}])}
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a}
 
 /* ================================================================ 4. the end */
 function end(){if(!live())return;const {p,t,it,to}=C;
-  them(t>=2?p.bye[0]:p.bye[1],t>=2?'💕':'👋',t>=2?'k-good':'');
+  const BX=t>=2?GIFT_BYE_X.good:GIFT_BYE_X.ok;
+  them(Math.random()<.35?sty(pickL(BX)):t>=2?p.bye[0]:p.bye[1],t>=2?'💕':'👋',t>=2?'k-good':'');
+  GF.last[to]={k:it.key,n:it.n,w:it.w,t};GF.day[to]=today();if(C.fk)GF.fk[to]=C.fk;if(C.longId)GF.long[C.longId]=1;
+  C.ev.forEach(e=>GF.ev[e]=(GF.ev[e]||0)+1);
   useUp(it);
   const key=C.fun>=2?'fun':TIER[t][0],ek=to+':'+key,newEnd=!GF.end[ek];GF.end[ek]=1;
   const firstSeen=seen(to,it.key)==null;(GF.seen[to]=GF.seen[to]||{})[it.key]=t;
@@ -210,13 +280,18 @@ function end(){if(!live())return;const {p,t,it,to}=C;
   const title=key==='fun'?'わらいの プレゼント':TIER[t][1],good=key!=='fun'&&t>=2;
   /* what Mina says */
   let k=to==='mina'?['gf_minaMeh','gf_minaOk','gf_minaLike','gf_minaLove'][t]:key==='fun'?'gf_endFun':['gf_endMeh','gf_endOk','gf_endLike','gf_endLove'][t];
-  if(C.hint&&to!=='mina')k='gf_endHint';if(GF.n===1)k='gf_endFirst';if(C.typed>=2)k='gf_endTyped';
-  const v={c:p.n,n:it.n,w:it.w,like:TAGN[GF.hint[to]]||''};
+  if(C.hint&&to!=='mina')k='gf_endHint';
+  /* きょうの 展開に 合わせた ひとこと（7わり） */
+  const EVK=[['ret','gf_endRet'],['f_long','gf_endLong'],['f_count','gf_endCount'],['o_eyes','gf_endEyes'],['g_hit','gf_endGuess'],['g_miss','gf_endGuess'],['o_again','gf_endAgain'],['o_mem','gf_endMem'],['f_mem','gf_endMem'],['f_topic','gf_endTopic'],['o_wrap','gf_endWrap'],['o_you','gf_endYou'],['f_quick','gf_endQuick'],['f_none','gf_endQuick'],['c_skip','gf_endQuick']].find(x=>C.ev.includes(x[0]));
+  if(EVK&&!C.hint&&Math.random()<.7)k=EVK[1];
+  if(GF.n===1)k='gf_endFirst';if(C.typed>=2)k='gf_endTyped';
+  const v={c:p.n,n:it.n,w:it.w,like:TAGN[GF.hint[to]]||'',k:C.k,r:C.ret?C.ret.n:'',last:C.last?C.last.n:''};
   const ends=['love','like','ok','meh','fun'],got=ends.filter(e=>GF.end[to+':'+e]).length;
   setTimeout(()=>{if(!live())return;$('gfq').textContent=good?'★':'🏁';
     $('gfans').innerHTML=`<div class="kres">
       <p class="kend ${good?'good':'fun'}">${good?'★':key==='fun'?'😂':'🎁'} 「${esc(title)}」${newEnd?' <small>NEW!</small>':''}</p>
       <p class="zkheart">${heart}</p>
+      ${C.ret?`<p class="zkheart">🎁 お返し： ${C.ret.ico} ${esc(C.ret.n)}</p>`:''}
       ${coins?`<p class="kpay">🪙 <b>${coins}まい</b> <small>新しい 反応</small></p>`:''}
       <details class="mfold"><summary>${PP[to].ico} ${esc(p.n)}の 反応 <small>${got}/${ends.length}</small></summary><div class="kends" style="padding:0 10px 10px">${ends.map(e=>{const T=e==='fun'?['fun','わらいの プレゼント','😂']:TIER.find(x=>x[0]===e);return GF.end[to+':'+e]?`<span class="${e==='love'||e==='like'?'g':''} ${e===key?'now':''}">${T[2]} ${esc(T[1])}</span>`:'<span class="no">？ ？？？</span>'}).join('')}</div></details>
       ${minaBox(k,v)}
@@ -266,9 +341,24 @@ Object.assign(MINA_LINES,{
  x_gfBtn:[['smile','わたしや リクくん、 ノラさん、 マルコさんの 画面の 右上に 🎁あげる が あるよ。 会いに 行った ついでに わたせるんだ'],['happy','もちものを 開かなくても、 相手の 画面の 🎁から すぐ プレゼント できるよ']],
  x_gfMarco:[['think','食堂の マルコさん、 むかしは 船の コック さん だったんだって。 海の ものや 食べものが 好きそう…'],['smile','マルコさんに なにか あげてみたら？ 食堂の 右上の 🎁から わたせるよ。 「This is for you.」 だよ']],
  gf_pickMarco:[['smile','マルコさんは 料理の プロ。 食べものを あげるなら 「I hope you like it.」って そえて みて'],['think','元・船の コックさん だから、 海や 旅に かんけいの ある ものが いいかも？']],
+ gf_endRet:[['wow','{c}から お返しを もらったね！ 「You didn\'t have to!」＝「いいのに！」は お返しを もらった ときの 決まり文句だよ'],['happy','プレゼントが プレゼントを つれてきたね。 「{r}」、 もちものに 入ってるよ'],['smile','お返しを もらったら 「Thank you. I\'ll treasure it.」 大切に するね、 って 言えると すてき']],
+ gf_endLong:[['happy','{c}と たくさん 話せたね。 プレゼントは 長い おしゃべりの きっかけに なるんだ'],['proud','きょうは 会話が 長く つづいたね。 答えに あわせて 話が かわるから、 また ちがう 答えも ためしてみて'],['love','あんな 話が 聞けるなんて。 {c}の こと、 また ひとつ くわしく なったね']],
+ gf_endCount:[['wow','{c}に {k}回目の プレゼント！ 「This is the third present.」みたいに、 何番目かは third・fifth で 言うんだよ'],['happy','{k}回も あげてるんだね。 {c}、 ちゃんと 数えてたよ']],
+ gf_endEyes:[['happy','「Close your eyes!」「Open your eyes!」 サプライズの 英語、 ばっちりだね'],['smile','目を とじてもらう わたし方、 ドキドキするでしょ？ 「No peeking!」＝「のぞかないでね！」も 言えるよ']],
+ gf_endGuess:[['happy','「Guess what I have!」 当てっこ すると 会話が もりあがるね'],['think','「Is it something to eat?」みたいに、 Is it ～? で 当てる 質問が できるよ。 こんど 自分でも 聞いてみて']],
+ gf_endAgain:[['smile','きょう 2回目の プレゼント だったね。 「Another one?」＝「また？」って おどろいてたね'],['happy','毎日 だって あげて いいんだよ。 「Every day is special.」なんて 言えたら かっこいいね']],
+ gf_endMem:[['love','{c}、 前に もらった {last}の こと おぼえてたね。 大事に してくれてるんだ'],['smile','「I still have the ～ you gave me.」＝「前に くれた ～、 まだ もってるよ」。 お礼の 気持ちが つたわる 言い方だよ']],
+ gf_endTopic:[['happy','品物の 話で もりあがったね。 「How does it look on me?」「Can you play it?」… 品に よって 質問が かわるんだ'],['think','プレゼントの あとに 「Have you tried it?」「Let\'s share it.」 そんな 会話が できると 自然だよ']],
+ gf_endWrap:[['happy','つつんで あげると 「Can I open it now?」って 聞かれるね。 答えは 「Sure! Open it!」 だよ'],['smile','ラッピングも プレゼントの うち。 「Go ahead.」＝「どうぞ」も 言えたね']],
+ gf_endYou:[['smile','自分から 「Do you have a minute?」って 話しかけたね。 話の はじめ方、 じょうずだよ'],['happy','「Can I give you something?」で 話を はじめるのも いいね']],
+ gf_endQuick:[['smile','きょうは さらっと わたせたね。 短くても 気持ちは ちゃんと つたわるよ'],['happy','あっさり 受けとって もらえたね。 毎回 ちがう 会話に なるから、 また あげてみて']],
+ x_gfRet:[['happy','この前 {c}から お返し もらったんでしょ？ プレゼントって まわっていくんだね'],['smile','お返しの 品、 もちものに 入ってるよ。 だれかに また あげても いいんだ']],
+ x_gfVary:[['think','プレゼントの 会話、 毎回 ちがうでしょ？ 目を とじて もらったり、 当てっこ したり。 いろんな 英語が 出てくるよ'],['smile','同じ 人に 何回も あげると、 前の 品の 話を してくれる ことも あるよ']],
  x_gfMina:[['love','ねえ… わたしにも なにか くれるの？ …なんてね。 えへへ'],['smile','プレゼントを わたす 英語、 3つ 言える？ 「This is for you.」「I got this for you.」「I saw this and thought of you.」']]
 });
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
+ ['x_gfRet',2,()=>{const to=Object.keys(GF.retDay).find(k=>GF.retDay[k]===today()&&PP[k]);return to?{c:pName(to)}:null},()=>['🎒 もちもの',()=>{try{ZAKKA.bag(H.home)}catch(e){pick()}}]],
+ ['x_gfVary',2,()=>has()&&GF.n>=2&&GF.n<15?{}:null,()=>['🎁 あげる',()=>pick()]],
  ['x_gfHave',4,()=>{const L=items();if(!L.length)return null;const it=pickL(L);return {n:it.n,_r:it.ref}},v=>['🎁 あげる',()=>who(v._r,H.home)]],
  ['x_gfHint',2,()=>{const P=people().filter(to=>GF.hint[to]&&to!=='mina');if(!P.length||!has())return null;const to=pickL(P);return {c:pName(to),like:TAGN[GF.hint[to]],_to:to}},v=>['🎁 あげる',()=>pick({to:v._to})]],
  ['x_gfRiku',2,()=>{const L=items().filter(x=>x.src==='t');if(!L.length||GF.n>2)return null;return {n:pickL(L).n}},()=>['🎁 あげる',()=>pick()]],
