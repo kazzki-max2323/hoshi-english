@@ -23,7 +23,7 @@ const MINE_TOOLS={
   q:["Does it protect me from everything?","なんでも 守ってくれる？","It stops one bad thing. After that, it's too dented to use again.","悪い ことを 1回 止めるの。 そのあとは へこんで もう 使えないわ。"],
   f:["Will it make me smarter?","かぶると 頭が よくなる？","It protects your head. Making it smarter is your job!","頭を 守るだけ。 かしこく するのは あなたの しごとよ！","Smart! Smart!"],
   e:["Safety first! Come back safe.","安全 第一！ ぶじに 帰ってきてね。"]},
- mag:{lv:'jh',ico:'🔍',n:'虫めがね',en:'magnifying glass',p:60,ef:'mag',v:10,s:'10問 カードが 見つかりやすい',
+ mag:{lv:'jh',ico:'🔍',n:'虫めがね',en:'magnifying glass',p:60,ef:'mag',v:10,s:'10問 宝カードが 見つかりやすい',
   d:["This is a magnifying glass. It helps you notice small things, like cards hidden in the rocks.","これは 虫めがね。 岩に かくれた カードみたいな 小さな ものに 気づけるの。"],
   q:["Have you ever found anything with it?","これで なにか 見つけたこと ある？","Once I found Pip's lost feather under the shelf. He was so happy.","一度、 たなの 下で ピップの なくした 羽を 見つけたわ。 すごく よろこんでた。"],
   f:["Can I burn ants with it?","アリを やけちゃう？","No! Be kind to the ants. They work harder than all of us.","だめ！ アリには やさしくね。 わたしたちより よく はたらいてるのよ。","Poor ants! Poor ants!"],

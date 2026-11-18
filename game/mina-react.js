@@ -55,6 +55,7 @@ function react(e){const v={};let k=null,go=null;
   case 'mine':{Object.assign(v,{depth:e.depth|0,q:e.q|0,ok:e.ok|0});const cs=(e.cards||[]).map(cardEn).filter(Boolean);
     k=e.hp==='hp'&&Math.random()<.6?'r_mn_tired':e.depth>=20&&e.depth>(e.best|0)?'r_mn_deep':e.rare?'r_mn_rare':cs.length&&Math.random()<.5?'r_mn_card':'r_mn';if(cs.length)v.card=pickL(cs);
     if(k==='r_mn_card'&&!v.card)k='r_mn';
+    if((e.fl|0)>=3&&(e.fl|0)>(e.bestF|0)&&Math.random()<.7){k='r_mn_floor';v.f=e.fl|0}else if(e.story&&k==='r_mn'&&Math.random()<.4)k='r_mn_story';
     /* 📦 宝箱・悪い できごと・🎒 つかった 物・🔀 入れかえ（game/mine.js） */
     if(k==='r_mn'||k==='r_mn_card'){const x=Math.random();if(e.chest&&x<.5)k='r_mn_chest';else if(e.bad&&x<.75)k='r_mn_bad';else if(e.used&&e.used.length&&x<.9){k='r_mn_item';v.ico=e.used.join('')}else if(e.swap&&x<.95)k='r_mn_swap'}
     break}
@@ -62,7 +63,7 @@ function react(e){const v={};let k=null,go=null;
   case 'book':Object.assign(v,{en:e.en,ja:e.ja});k=e.en?'r_book':null;break;
   case 'sell':Object.assign(v,{en:e.en,p:e.p|0});k=e.by==='mio'?'r_sell_mio':'r_sell';break;
   case 'buyin':Object.assign(v,{en:e.en,ja:e.ja||'',p:e.p|0});k=e.by==='mio'?'r_buyin_mio':e.isNew&&Math.random()<.6?'r_buyin_new':'r_buyin';break;
-  case 'mio':k=e.how==='study'?'r_mio_study':'r_mio';break;
+  case 'mio':k=e.how==='study'?'r_mio_study':e.kind==='radio'?'r_mio_radio':'r_mio';break;
   case 'meteor':v.c=e.coins|0;k=e.gold?'r_met_gold':'r_met';break;
   case 'bev':{const id=e.name||'';if(e.cat==='show'&&/^f|fw|senko/.test(id))k='r_show_fw';else if(has('r_ev_'+id))k='r_ev_'+id;
     else{v.msg=(window.MINA_EV_MSG&&MINA_EV_MSG[id])||((e.ico||'')+' '+(e.ja||''));k=e.cat==='show'?'r_show_any':'r_ev_any'}break}
