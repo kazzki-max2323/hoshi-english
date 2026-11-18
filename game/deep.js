@@ -3,7 +3,7 @@
      （なんで？・図・例文・よく ある まちがい・にてる 文法との ちがい・覚え方・よく ある 疑問・授業へ）
    - 「わかった！」で 5問の たしかめ（苦手とっくんと 同じ：ヒント → 解説・同じ 問題は ひとめぐり するまで 出ない）。
      ★（わかった度）・コイン・まちがえた ところへ もどる 道
-   - 日本語で 自由に 質問しても OK。ことばの にかたで 近い 答えを さがす（ほかの 文法の 話なら そっちへ 案内）
+   - 質問は チップから えらぶ（自由入力の 欄は なし）。入口の 画面だけ 質問を 書いて 文法を さがせる
    - 画面の 上に かさねて ひらく ので、会話の とちゅうでも 話は そのまま
    - 入口：会話の 📘解説・会話と とっくんの おわり・文法カルテ・文法ノート・「ミナ先生と 英語で 話す」・ホームの ミナ先生
    中身は game/deep-data.js（DEEP_DATA）と 文法ノート・ミニ授業の 図・SENSEI_ERR / SENSEI_DRILL。
@@ -133,7 +133,7 @@ function check(again){const c=C;if(!live())return;hush();
   const qs=pickQs(c.id,5).map(p=>{try{return makeQ(c.id,p)}catch(e){return null}}).filter(q=>q&&!/\{/.test(q.full+(q.s||'')+q.opts.map(o=>o.t).join('')));
   if(!qs.length){chips();return}
   c.T={qs,i:0,st:{ok:0,hint:0,miss:0},row:0,miss:[]};save();
-  $('dpchips').innerHTML='';$('dpask').hidden=true;
+  $('dpchips').innerHTML='';
   const [ex,tx]=ML(again?'dp_cAgain':c.asked.size>=3?'dp_cStartMany':'dp_cStart',{g:c.g,n:qs.length,k:c.asked.size});mina(tx,ex);snd('step');
   setTimeout(askQ,700)}
 function askQ(){if(!live()||!C.T)return;const T=C.T,q=T.qs[T.i];if(!q)return result();T.tries=0;bar();
@@ -192,7 +192,7 @@ function result(){const c=C,T=c.T,st=T.st,N=T.qs.length,r=rec()[c.id];
   d.querySelectorAll('[data-e]').forEach(b=>b.onclick=()=>{const e=b.dataset.e,id=c.id;
     if(e==='back'||e==='again'){d.querySelectorAll('.row,.dpnext').forEach(x=>x.remove());
       if(e==='again'){check(1);return}
-      snd('step');$('dpask').hidden=false;[...c.asked].forEach(x=>{if(x[0]!=='q')c.asked.delete(x)});c.errI=0;c.exI=0;c.figI=c.d.fig?0:1;
+      snd('step');[...c.asked].forEach(x=>{if(x[0]!=='q')c.asked.delete(x)});c.errI=0;c.exI=0;c.figI=c.d.fig?0:1;
       const [e2,t2]=ML('dp_cReview',{g:c.g});mina(t2,e2);chips();return}
     close();
     if(e==='tk'){snd('step');S()&&S().tokkun([id])}
@@ -200,10 +200,7 @@ function result(){const c=C,T=c.T,st=T.st,N=T.qs.length,r=rec()[c.id];
     else if(e==='ls'){snd('lesson');LESSON.open(c.les.id,()=>{MINA.open()})}
     else snd('back')})}
 
-/* ---------- a question in your own words ---------- */
-const INTENT=[[/なんで|なぜ|どうして|理由|りゆう|わけ/,'why'],[/例文|れいぶん|例|れい|使い方|つかいかた/,'ex'],[/ちがい|違い|ちがう|違う|差|区別|見分け|みわけ|くらべ|比べ/,'vs'],
-  [/まちが|間違|ミス|よくある|気をつけ|注意/,'err'],[/図|絵|イメージ|見たい|みたい/,'fig'],[/覚え|おぼえ|コツ|こつ|暗記/,'tip'],
-  [/問題|もんだい|練習|れんしゅう|ためし|テスト|クイズ/,'try'],[/授業|じゅぎょう/,'les'],[/ルール|まとめ|ぜんぶ|全部/,'rules']];
+/* ---------- 入口の 画面で 書いた 質問から 文法を さがす ---------- */
 /* every grammar as a bag of letter pairs and English words; rare ones count more */
 let IDX=null;
 const bag=t=>({b:bi(t.replace(/[a-z']+/gi,' ')),w:new Set(enW(t))});
@@ -227,23 +224,6 @@ function find(text,cur){const best=[];
     const I=index(),ws=enW(text).filter(w=>(I.wf[w]||0)<I.N/4);(d?d.qa:[]).forEach((q,i)=>{const a=alike(text,q[0])+(ws.length?Math.min(.36,hasW(q[0],ws)*.26):0);if(a>qa){qa=a;what='q'+i}});
     if(qa<.34)what=null;s=Math.max(s,qa);if(id===cur)s+=.12;best.push([s,id,what])});
   return best.sort((a,b)=>b[0]-a[0])}
-function free(text){if(!live())return;text=String(text||'').trim();if(!text)return;hush();you(text);const c=C;
-  const it=INTENT.find(x=>x[0].test(text)),f=find(text,c.id),top=f[0],mine=f.find(x=>x[1]===c.id);
-  setTimeout(()=>{if(!live())return;
-    /* a known question of this grammar */
-    if(mine&&mine[2]&&mine[0]>=.34){ask(mine[2]);return}
-    /* about another grammar → offer to go there */
-    if(top&&top[1]!==c.id&&top[0]>=(it?.8:.45)&&(!mine||top[0]>mine[0]+.15)){const g2=gById(top[1]),[ex,tx]=ML('dp_jump',{g:'「'+g2.n.t+'」'});
-      const d=mina(tx,ex,`<span class="snbtns"><button class="sub" data-go="1">🔎 「${esc(g2.n.t)}」を ひらく</button></span>`);
-      d.querySelector('[data-go]').onclick=()=>{snd('step');open(top[1],{q:top[2]})};chips();return}
-    /* what kind of question it is */
-    if(it){const k=it[1],ok=topics().some(x=>x[0]===k)||k==='rules'||(k==='try'&&qPool(c.id).length)||(k==='why'&&c.d.why);
-      if(ok){ask(k);return}
-      const [ex,tx]=ML('dp_noMore',{g:c.g});mina(tx,ex);chips();return}
-    /* rules that share words with the question */
-    const ws=enW(text),rs=c.n.r.filter(r=>(ws.length&&hasW(r,ws))||alike(text,r)>.22);
-    if(rs.length){mina(`ルールの ここが ヒントに なるかも`,'think',`<ul class="dprules">${rs.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`);chips();return}
-    const [ex,tx]=ML('dp_unknown',{g:c.g});mina(tx,ex);chips()},450)}
 
 /* ---------- open: one grammar ---------- */
 function open(id,opt){const g=gById(id);if(!g)return;opt=opt||{};hush();
@@ -255,10 +235,8 @@ function open(id,opt){const g=gById(id);if(!g)return;opt=opt||{};hush();
     <p class="dpt">${esc(n.t)} <span id="dpbest" class="dpbest"></span></p>
     <div class="lslog dplog" id="dplog"></div>
     <div class="dpchips" id="dpchips"></div>
-    <form class="dpask" id="dpask"><input id="dpin" type="text" autocomplete="off" placeholder="ほかに 知りたい ことを 書いてね（日本語で OK）"><button>きく</button></form>
   </section>`;
   $('dpx').onclick=()=>{snd('back');close()};$('dpov').onclick=e=>{if(e.target.id==='dpov'){snd('back');close()}};
-  $('dpask').onsubmit=e=>{e.preventDefault();const v=$('dpin').value;$('dpin').value='';free(v)};
   snd('book');best();
   const [ex,tx]=ML(r.n?'dp_again':'dp_hello',{g:C.g});
   mina(tx,ex);
