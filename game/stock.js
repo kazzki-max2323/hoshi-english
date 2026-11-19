@@ -160,10 +160,18 @@ const ymd=d=>d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();   // CG.today
 /* 1まい えらんだ: くわしく 画面の 下に ✏️ 3問で 仕入れる */
 function card(id){const I=C.info(id);if(!I)return;
   C.detail(id,null,{from:'stock',btns:[[`✏️ 3問で 仕入れる <small>（在庫 ${stockOf(id)}まい）</small>`,()=>{sf('open');drill(id)}]]})}
+/* 問題の 上に その カードの 絵（11/19）。 答える 前は 和訳を 出さない。 英語が 答えの 問題（英語で/つづり/聞く/あなうめ）は 名前も ？ で かくす。
+   答えたら 名前と 和訳が 出て、 タップで 📖 くわしく */
+function qcard(box,id,q){const I=C.info(id);if(!box||!I)return;const hide=q.t!=='mean'&&q.t!=='tf';
+  const el=document.createElement('div');el.className='stkqc';el.innerHTML=C.face(id,hide?{nm:'？？？',marks:false}:{marks:false});box.prepend(el);
+  const show=()=>{if(el.dataset.on)return;el.dataset.on=1;el.innerHTML=C.face(id,{ja:1,marks:false})+'<small>👆 タップで 📖</small>';el.classList.add('on');
+    el.onclick=e=>{e.stopPropagation();C.peek(id,{from:'stock'})}};
+  box.querySelectorAll('.cgqc button').forEach(b=>b.addEventListener('click',show))}
 function drill(id){const I=C.info(id);let i=0,ok=0,last=null;
   const o=C.ov(`<div class="cgbuy stkdr"><p class="stkdh">✏️ 仕入れ練習 <b id="stdn">1 / 3</b></p><div id="stq"></div></div>`,'by');o.dataset.stay=1;
   const nx=()=>{if(i>=3)return end();$('stdn').textContent=`${i+1} / 3`;const q=C.quiz(id,{avoid:last});last=q.t;
-    C.ask($('stq'),q,r=>{rec0(id,r.ok);if(r.ok)ok++;i++;nx()},{tag:'📦 仕入れ'})};
+    C.ask($('stq'),q,r=>{rec0(id,r.ok);if(r.ok)ok++;i++;nx()},{tag:'📦 仕入れ'});
+    qcard($('stq'),id,q)};
   const end=()=>{const got=ok>=2&&credit(id,'drill');const L=pickL(got?MIO_STK.ok:MIO_STK.miss);
     const [ex,tx]=ML(got?'stk_drillOk':'stk_drillMiss',{w:head1(I)});
     o.querySelector('.stkdr').innerHTML=`<p class="stkdh">${got?'📦 入荷！':'✏️ おしい！'} <b>${ok} / 3</b></p>
@@ -191,16 +199,17 @@ function batch(ids){ids=ids.filter(id=>C.info(id));if(!ids.length)return draw();
   const r1=H.shuffle(ids.slice()),r2=H.shuffle(ids.slice());if(r2[0]===r1[r1.length-1])r2.push(r2.shift());
   const Q=[...r1,...r2].map(id=>({id})),st={};ids.forEach(id=>st[id]={ok:0,n:0,last:null,re:false,done:false});
   let i=0,ok=0,ans=0,reAdded=false,fin=false;
-  const chip=id=>{const I=C.info(id),s=st[id];return `<span class="${s.done?'ok':''}${s.re&&!s.done?' re':''}">${s.done?'✓ ':''}${esc(head1(I))}</span>`};
+  const chip=(id,cur,hide)=>{const I=C.info(id),s=st[id];return `<span class="${s.done?'ok':''}${s.re&&!s.done?' re':''}${id===cur?' cur':''}">${s.done?'✓ ':''}${id===cur&&hide?'？？？':esc(head1(I))}</span>`};
   const o=C.ov(`<div class="cgbuy stkdr stkbt"><p class="stkdh">✏️ まとめて 仕入れ <b id="stdn"></b><button class="sub stkq" id="stq0" aria-label="ここで おわる">おわる</button></p>
     <div class="stkchips" id="stch"></div><div id="stq"></div></div>`,'by');o.dataset.stay=1;
-  const top=()=>{$('stdn').textContent=`${Math.min(i+1,Q.length)} / ${Q.length}`;$('stch').innerHTML=ids.map(chip).join('')};
+  const top=(cur,hide)=>{$('stdn').textContent=`${Math.min(i+1,Q.length)} / ${Q.length}`;$('stch').innerHTML=ids.map(id=>chip(id,cur,hide)).join('')};   // 答えが 英語の 問題では 今の カードの 名前を かくす
   const nx=()=>{if(fin)return;
     if(i>=Q.length&&!reAdded){reAdded=true;ids.filter(id=>!st[id].done).forEach(id=>{st[id].re=true;Q.push({id,re:1})})}
-    if(i>=Q.length)return end();top();const it=Q[i],s=st[it.id],q=C.quiz(it.id,{avoid:s.last});s.last=q.t;
+    if(i>=Q.length)return end();const it=Q[i],s=st[it.id],q=C.quiz(it.id,{avoid:s.last});s.last=q.t;top(it.id,q.t!=='mean'&&q.t!=='tf');
     C.ask($('stq'),q,r=>{rec0(it.id,r.ok);ans++;if(r.ok)ok++;
       if(it.re){if(r.ok)s.done=true}else{s.n++;if(r.ok)s.ok++;if(s.n>=2&&s.ok>=2)s.done=true}
-      i++;nx()},{tag:it.re?'🔁 やりなおし':'📦 仕入れ'})};
+      i++;nx()},{tag:it.re?'🔁 やりなおし':'📦 仕入れ'});
+    qcard($('stq'),it.id,q)};
   const end=()=>{if(fin)return;fin=true;const got=ids.filter(id=>st[id].done&&credit(id,'drill')),miss=ids.filter(id=>!got.includes(id));
     const all=got.length===ids.length,L=pickL(all?MIO_STK.bAll:got.length?MIO_STK.bSome:MIO_STK.bNone);
     const [ex,tx]=ML(all?'stk_batchAll':got.length?'stk_batchSome':'stk_batchNone',{n:got.length,m:ids.length,w:got.length?head1(C.info(got[0])):head1(C.info(ids[0]))});
@@ -235,6 +244,8 @@ Object.assign(MINA_LINES,{
  stk_batchSome:[['smile','{n}まい 入荷！ のこりの カードは 📖 くわしくで 見てから もう一回 やってみよう'],['point','まちがえた ことばこそ のびしろ。 🔁 で もう一回 やると、 今度は きっと とどくよ'],['think','2問とも 正解すると 入荷だよ。 いみ と つづり、 両方 わかると 強いね']],
  stk_batchNone:[['smile','だいじょうぶ。 はじめての ことばは まちがえて 当たりまえ。 カードを タップして 見てから もう一回'],['think','5まいは 多かったかな？ 1まいずつ えらぶと 3問で じっくり 練習できるよ']],
  stk_batchNew:[['wow','おしらせ！ 仕入れで カードを 5まいまで えらんで、 まとめて 仕入れられるように なったよ。 🎲おまかせも あるの'],['happy','仕入れが まとめて できるように なったよ！ 1まい 2問ずつ、 まちがえたら さいごに やりなおし']],
+ stk_cardQ:[['wow','おしらせ！ 仕入れの 問題に、 その ことばの カードが 出るように なったよ。 答えると 名前と いみが 出て、 タップで 📖 くわしく'],['happy','仕入れの 問題で カードの 絵を 見ながら 答えられるように なったの。 絵と ことばを セットで おぼえると わすれにくいよ']],
+ x_stkCardQ:[['point','仕入れの 問題では、 答えたあと カードを タップすると 📖 くわしくが 見られるよ'],['think','つづりや 英語で 答える 問題では、 カードの 名前が ？？？ に なってるの。 絵を ヒントに 思い出してみて']],
  x_stkBatch:[['point','在庫 0の カードが {n}まい あるよ。 仕入れの 🎲 おまかせ5まいで まとめて ふやせるよ'],['smile','まとめて 仕入れは 1まい 2問ずつ。 10問で 5まい とどくかも']],
  x_stkWeek:[['proud','さいきん 仕入れた カード、 {n}まい！ 📦 仕入れの グラフで 見てみて'],['happy','仕入れの 画面の 📊 グラフ、 きょうの 棒が のびてるよ。 勉強した ぶんだけ 高く なるの']],
  x_stkNew:[['happy','カードショップに カードが {n}まい とどいてるよ。 勉強した ことばの カードだね'],['smile','📦 入荷した カード、 売り場に ならべてみたら？']],
@@ -246,16 +257,21 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_stkBook',2,()=>{try{return SHOP.rec().met&&!bookIds().length&&CBOOK.addable().length?{}:null}catch(e){return null}},()=>['📖 カードブックへ',()=>{SHOP.open();setTimeout(()=>CBOOK.open(),60)}]],
  ['x_stkWeek',1,()=>{try{const h=K().h||{};const n=Object.values(h).reduce((a,b)=>a+b,0);return SHOP.rec().met&&n>=10?{n}:null}catch(e){return null}},goStk],
  ['x_stkDrill',1,()=>{try{return SHOP.rec().met&&bookIds().some(id=>!stockOf(id)&&left(id))?{}:null}catch(e){return null}},goStk],
+ ['x_stkCardQ',1,()=>{try{return SHOP.rec().met&&bookIds().length>=2?{}:null}catch(e){return null}},goStk],
  ['x_stkBatch',2,()=>{try{const n=bookIds().filter(id=>!stockOf(id)).length;return SHOP.rec().met&&n>=5?{n}:null}catch(e){return null}},goStk]);
 /* 1回だけ: 仕入れが かわった お知らせ */
 setTimeout(function first(){const r=C.rec();if(!r.met||r.stkNew)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
-  r.stkNew=1;r.stkNoCap=1;r.stkBatch=1;C.save();const [ex,tx]=ML('stk_new');m.say('m',ex,tx,10000,null,goStk())},16000);
+  r.stkNew=1;r.stkNoCap=1;r.stkBatch=1;r.stkCardQ=1;C.save();const [ex,tx]=ML('stk_new');m.say('m',ex,tx,10000,null,goStk())},16000);
 /* 1回だけ: まとめて 仕入れの お知らせ（前から お店を 使っている 人に） */
 setTimeout(function first2(){const r=C.rec();if(!r.met||!r.stkNew||r.stkBatch)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first2,20000);
   r.stkBatch=1;C.save();const [ex,tx]=ML('stk_batchNew');m.say('m',ex,tx,10000,null,goStk())},26000);
 /* 1回だけ: 1日の 上限が なくなった お知らせ（前の しくみを 知っている 人に） */
 setTimeout(function noCap(){const r=C.rec();if(!r.met||!r.stkNew||r.stkNoCap)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(noCap,20000);
   r.stkNoCap=1;C.save();const [ex,tx]=ML('stk_noCap');m.say('m',ex,tx,10000,null,goStk())},22000);
+
+/* 1回だけ: 仕入れの 問題に カードが 出るように なった お知らせ（11/19） */
+setTimeout(function cardQ(){const r=C.rec();if(!r.met||!r.stkNew||r.stkCardQ)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(cardQ,20000);
+  r.stkCardQ=1;C.save();const [ex,tx]=ML('stk_cardQ');m.say('m',ex,tx,10000,null,goStk())},30000);
 
 window.STOCK={open,credit,creditHead,creditSome,newN,todayN,left,bookIds,pick};
 })();
