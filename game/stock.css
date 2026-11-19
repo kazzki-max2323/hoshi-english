@@ -76,3 +76,10 @@
 .stkres .stkr em{font-style:normal;font-size:.68rem;font-weight:800;white-space:nowrap;text-shadow:none;padding:1px 8px;border-radius:999px;background:#ffffff1f}
 .stkres .stkr.ok em{background:#1f6f5c;color:#fff}
 .stkbt .row+.row{margin-top:4px}
+/* 問題の 上の カード（11/19）: 答えたら 名前と 和訳が 出て タップで 📖 */
+.stkqc{display:flex;flex-direction:column;align-items:center;margin:0 0 6px}
+.stkdr .stkqc .cgc{width:84px;max-width:84px;margin:0 auto;cursor:default}
+.stkqc.on .cgc{cursor:pointer;animation:stkqcOn .35s ease-out}
+.stkqc small{margin-top:3px;font-size:.66rem;color:var(--mute);text-shadow:none}
+@keyframes stkqcOn{0%{transform:rotateY(70deg) scale(.92)}100%{transform:none}}
+.stkchips span.cur{outline:2px solid #ffd27a;outline-offset:-1px}
