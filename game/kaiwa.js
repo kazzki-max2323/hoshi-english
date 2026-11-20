@@ -5,7 +5,8 @@
    - レベルは ミナ先生の 見る「いまの 力」（MINA.level）。小学生は 日本語訳が いつも 出る
    - 自分で 書いた 英語は、えらぶ 答えの どれに いちばん 近いかを ことばの 重なりで 判定する（外部の AIは つかわない）
    - 声は 端末の 読み上げ（キャラごとに 高さと 速さを かえる）
-   - 入口の ボタンは ない（2026-11-18 ユーザーの 希望）。浜辺の だれかが 自分から 話しかけに 来て、自動で はじまる（game/kaiwa-visit.js）。
+   - 11/20 ユーザー「浜辺の 会話は なし・きろくも エンドも なくして」で、 話しかけに 来る しくみ（kaiwa-visit.js）と もちものの きろくを なくした。
+     ここは のこして ある 道具（KAIWA.match＝英語の 答えの 読みとり・chars）だけ ほかの 画面が つかう。 いい 長い 会話は game/kaiwa-moved.js で ミオ・リクへ
      エンド・おもしろ図鑑は 🎒もちものの 「💬 浜辺の 会話の きろく」（list）
    中身は game/kaiwa-data.js（KAIWA_CHARS / KAIWA_SCENES）。ミナ先生の セリフは game/mina-talk.js の k_ / x_kw で はじまる 場面 */
 (()=>{
@@ -125,7 +126,7 @@ const row=s=>{const c=CH[s.c],E=endsOf(s),g=endsGot(s),star=E.some(e=>e[1]&&KD.e
   return `<details class="krow2 ${s.story?'kstory':''}"><summary><span class="ci">${c.ico}</span><span class="lt"><b>${s.story?'📖 ':''}${esc(s.t)}</b><small>${esc(c.n)}・${LVN[s.lv]}</small></span><span class="lp">${star?'★':'🏁'}${g}/${E.length}</span></summary>
     <div class="kends">${E.map(e=>KD.end[s.id+':'+e[0]]?`<span class="${e[1]?'g':''}">${e[1]?'★':'😂'} ${esc(e[2])}</span>`:`<span class="no">${e[1]?'★':'？'} ？？？</span>`).join('')}</div></details>`};
 /* 🎒 もちもの (game/zakka.js bag): one row for the record */
-const bagRows=row=>KD.n?[row('💬','浜辺の 会話の きろく',`エンド ${endsN()}/${endsAll()}・おもしろ ${funN()}/${funTotal()}`,'<button data-kwr="1">見る</button>')]:[];
+const bagRows=row=>false?[row('💬','浜辺の 会話の きろく',`エンド ${endsN()}/${endsAll()}・おもしろ ${funN()}/${funTotal()}`,'<button data-kwr="1">見る</button>')]:[];
 
 /* ---------- the funny-reaction book ---------- */
 function funBook(){const items=[],F=facts();SC.forEach(s=>Object.entries(nodesOf(s)).forEach(([nk,n])=>{if(!n.o)return;val(n.o,F).forEach((x,oi)=>{if(KD.fun[s.id+':'+nk+':'+oi])items.push([s,x])})}));

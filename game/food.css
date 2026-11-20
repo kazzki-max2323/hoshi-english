@@ -114,3 +114,8 @@ header{position:relative}
 #hpPop p{margin:0;flex:1 1 150px}
 #hpPop button{margin-left:auto;font:inherit;font-size:.78rem;font-weight:700;padding:5px 12px;border-radius:999px;border:1px solid rgba(255,122,154,.6);background:rgba(255,122,154,.18);color:#fff;cursor:pointer}
 .hpchip[hidden]{display:none}
+/* 💨 さらっと 食べる（11/20） */
+.fdq .fdqit{display:grid;grid-template-columns:2.2rem 1fr auto;align-items:center;gap:8px;margin:10px 0;padding:10px 12px;border-radius:12px;background:rgba(244,241,230,.06);border:1px solid rgba(244,241,230,.25);color:#f4f1e6}
+.fdq .fdqit .fdi{font-size:1.8rem;line-height:1}.fdq .fdqit .fdn b{display:block}.fdq .fdqit .fdn small{opacity:.8}
+.fdq .fdqtalk{text-align:center;margin-top:8px}.fdq .fdqtalk button{font-size:.8rem}
+.fdq .zkres{margin:10px 0;text-align:center}

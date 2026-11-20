@@ -331,10 +331,10 @@ function bgSound(){const hide=document.hidden;try{if(ac){if(hide)ac.suspend();el
 document.addEventListener('visibilitychange',bgSound);addEventListener('pagehide',()=>{try{ac&&ac.suspend()}catch(e){}try{speechSynthesis.cancel()}catch(e){}});
 addEventListener('pageshow',()=>{if(!document.hidden)bgSound()});
 
-/* ---------- cheer: a few warm words in the sky after every 5 minutes of play (paused while the app is hidden or a mini game runs) ----------
+/* ---------- cheer: a few warm words in the sky after every 10 minutes of play (11/20 ユーザー「10分に1回」) (paused while the app is hidden or a mini game runs) ----------
    It takes turns with the other things on the beach: it waits until no radio or resident is talking, no fresh question is waiting
    and no message is up; while it shows, radios and residents stay quiet, and they come back 10 seconds after it goes. */
-const CHEER_EVERY=5*60*1000,CHEER_REST=10000;let cheerAt=0,cheerLast=performance.now(),cheerOn=false,cheerWait=0;
+const CHEER_EVERY=10*60*1000,CHEER_REST=10000;let cheerAt=0,cheerLast=performance.now(),cheerOn=false,cheerWait=0;
 const cheerDue=()=>ST.cheer&&cheerAt>=CHEER_EVERY;   // once due, radios and residents hold their next turn so it can come in
 const beachBusy=()=>talking||folkNow||(cur&&!cur.done&&performance.now()-cur.t0<7000)||document.querySelector('#toast.on');
 const cheerEl=document.createElement('div');cheerEl.id='cheerBox';cheerEl.hidden=true;$('window').appendChild(cheerEl);
