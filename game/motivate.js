@@ -167,7 +167,7 @@ function minaBox(){const p=H.panel.querySelector('.minap');if(!p||p.querySelecto
   if(rec){const m=document.createElement('div');m.className='mvmeter';m.innerHTML=meters;rec.prepend(m);
     const sm=p.querySelector('.mrec summary small');if(sm)sm.textContent=`❤️Lv${MV.nk.lv}・📮${k}/10`}
   if(tiles)d.insertAdjacentHTML('beforeend',btns);
-  else{d.innerHTML=(rec?'':meters)+btns;const t=p.querySelector('.mstats')||p.querySelector('.mtalk');t?t.after(d):p.appendChild(d)}
+  else{d.innerHTML=(rec?'':meters)+btns;const t=p.querySelector('.mstats')||p.querySelector('.mmrow')||p.querySelector('.mtalk');t?t.after(d):p.appendChild(d)}
   d.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{SFX.step();const v=b.dataset.v;if(v==='qz')quizOpen();else LESSON.open(MV.hc.id)})}
 new MutationObserver(()=>minaBox()).observe(H.panel,{childList:true});
 H.on('home',()=>{chips();if(MV.pc.length&&!$('cardOv'))setTimeout(()=>{if(H.screen==='home')openCards()},1200)});
