@@ -1,7 +1,7 @@
 """ふだんの声（af_heart）だと 頭に「エ」「ア」が 入ったり にごったり する 単語を、 ほかの 声（pron.VOICE）で 録りなおす。
 もとの 音声ごとに audio/v_<もとの名前>.mp3 / .json に まとめ、 もとの .json からは その単語を 消す（game.js の SPRITES に v_ も 入れる）。
 
-  python tools/make_voice.py audio
+  python tools/make_voice.py audio [v_es v_jh ...]   （名前を書くと その v_ だけ 作る）
   （kokoro.onnx と voices.bin は make_audio.py と同じ int8 版）
 
 11/20 ユーザー「音声が変」（カード Vietnam が「エ・ヴィエトナム」に 聞こえた）。 全部の 単語を 音声認識で しらべて、
@@ -44,7 +44,10 @@ for f in sorted(glob.glob(f"{out}/*.json")):
         json.dump(m, open(f, "w"), ensure_ascii=False, separators=(',', ':'))
         todo.setdefault('v_' + sp, []).extend(hit)
 
+only = set(sys.argv[2:])
 for vs, words in sorted(todo.items()):
+    if only and vs not in only:
+        continue
     parts, idx, pos = [], {}, 0
     for t in sorted(set(words)):
         s = gen(t, pron.VOICE[t])
