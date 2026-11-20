@@ -241,7 +241,7 @@ function wipeAll(){
 /* tapping anywhere outside the panel works like its ← button (and that tap does nothing else).
    Result screens without ← mark their "back" button with data-back. Mini games have neither, so they ignore it.
    A running long talk / the novel (data-stay) ignores it too, so a stray tap can't end it; once its ending shows (.kend/.kends) it closes like the rest */
-document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#cardTop,.cgdvback,#meteor,#bbadge,#minaPop,#dpov,#bmPop,.ttov'))return;
+document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#cardTop,.cgdvback,#meteor,#bbadge,#minaPop,#dpov,#backFab,#bmPop,.ttov'))return;
   if(panel.querySelector('[data-stay]')&&!panel.querySelector('.kend,.kends'))return;
   const x=panel.querySelector('.qtop .x')||panel.querySelector('[data-back]');if(!x)return;
   e.preventDefault();e.stopPropagation();x.click();
@@ -249,11 +249,13 @@ document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest
 /* a round ← at the bottom right on every screen but home: it works like the screen's ← (or its data-back button).
    Hidden where the outside tap is off too: mini games (no ← at all) and a running long talk / novel (data-stay) */
 const fab=document.createElement('button');fab.id='backFab';fab.className='backfab';fab.textContent='←';fab.setAttribute('aria-label','もどる');fab.hidden=true;document.body.appendChild(fab);
-const fabTarget=()=>{if(screen==='home'||$('cardOv')||$('cardTop')||$('dpov')||$('bmPop')||document.querySelector('.ttov'))return null;   // popups over the panel have their own ✕
+const fabTarget=()=>{/* 授業・特別練習などの 重ね（#dpov）: その 重ねの ← / ✕ と 同じ（💡くわしく が 開いていれば そっちを とじる）11/20 */
+  const ov=$('dpov');if(ov&&!$('cardOv')&&!$('cardTop')&&!$('bmPop')&&!document.querySelector('.ttov')){const d=ov.querySelector('.kddet');return (d&&d.querySelector('.qtop .x'))||ov.querySelector('.qtop .x')}
+  if(screen==='home'||$('cardOv')||$('cardTop')||$('dpov')||$('bmPop')||document.querySelector('.ttov'))return null;   // popups over the panel have their own ✕
   if(panel.querySelector('[data-stay]')&&!panel.querySelector('.kend,.kends'))return null;
   return panel.querySelector('.qtop .x')||panel.querySelector('[data-back]')};
 fab.onclick=e=>{e.stopPropagation();const x=fabTarget();if(x)x.click()};
-let fabQ=0;const fabUpd=()=>{fabQ=0;const on=!!fabTarget();fab.hidden=!on;document.body.classList.toggle('fab-on',on)};
+let fabQ=0;const fabUpd=()=>{fabQ=0;const on=!!fabTarget();fab.hidden=!on;document.body.classList.toggle('fab-on',on);document.body.classList.toggle('fab-ov',on&&!!$('dpov'))};
 const fabKick=()=>{if(!fabQ)fabQ=requestAnimationFrame(fabUpd)};
 new MutationObserver(fabKick).observe(panel,{childList:true,subtree:true,attributes:true,attributeFilter:['data-stay','class']});new MutationObserver(fabKick).observe(document.body,{childList:true});
 /* moving things (answer bubbles, residents, mini-game targets) answer the moment a finger touches them.
