@@ -258,7 +258,7 @@ const R=[
 ['x_snScene',3,F=>{if(!window.SENSEI)return null;const lv=lvOf(F),a=SENSEI.scenes.filter(s=>s.lv===lv&&!SENSEI.rec().done[s.id]);if(!a.length)return null;const s=pickL(a),g=(s.g||[]).map(id=>window.GRAMSEE&&GRAMSEE.byId(id)).filter(Boolean)[0];return {t:'「'+s.t+'」',g:g?'「'+g.n.t+'」':'いまの レベルの 文法',_id:s.id}},v=>['🗣️ 話しに 行く',()=>SENSEI.play(v._id)]],
 ['x_snEnds',2,F=>{if(!window.SENSEI)return null;const a=SENSEI.scenes.filter(s=>SENSEI.rec().done[s.id]&&SENSEI.endsGot(s)<SENSEI.endsOf(s).length);if(!a.length)return null;const s=pickL(a);return {t:'「'+s.t+'」',got:SENSEI.endsGot(s),tot:SENSEI.endsOf(s).length,_id:s.id}},v=>['🗣️ もう一度 話す',()=>SENSEI.play(v._id)]],
 ['x_snGood',2,F=>{if(!window.SENSEI||!window.GRAMSEE)return null;const g=SENSEI.good()[0];return g&&GRAMSEE.byId(g)?{g:'「'+GRAMSEE.byId(g).n.t+'」'}:null},()=>goSensei()],
-['x_snFree',2,F=>window.SENSEI&&SENSEI.rec().free>=3?{n:SENSEI.rec().free}:null,()=>goSensei()],
+/* x_snFree: 書いて答える入力欄は 11/20 に なくしたので 出さない */
 ['x_snPat',1,F=>window.SENSEI?{pat:SENSEI.patText()}:null,()=>goSensei()],
 ['x_snBack',3,F=>{if(!window.SENSEI)return null;const R=SENSEI.rec();if(!R.n||!R.last)return null;const d=Math.floor((Date.now()-R.last)/864e5);return d>=3?{d}:null},()=>goSensei()],
 ['x_snKarte',1,F=>{if(!window.SENSEI)return null;const n=Object.keys(SENSEI.rec().g||{}).length;return n>=3?{n}:null},()=>['📋 カルテを 見る',()=>SENSEI.karte()]],

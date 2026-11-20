@@ -1,5 +1,5 @@
 /* ミナ先生と 英語で 話す（先生との 会話）。
-   - ミナ先生が いろんな 場面（game/sensei-scenes.js）で 英語で 話しかけてくる。答えは えらぶ / 自分で 書く / 声で 言う
+   - ミナ先生が いろんな 場面（game/sensei-scenes.js）で 英語で 話しかけてくる。答えは えらぶ（書く・声の 入力欄は 11/20 に なくした）
    - まちがえたら 先生らしく 教える：1回目は 💡ヒント（もう一度 えらべる）、2回目は 📘解説（文法ノートの ルールと 正しい 文）→ 話は つづく
    - 自分で 書いた 英語も、よく ある まちがい（SENSEI_CHECK）を 見つけて 教える。いまの レベルの 文法が つかえたら ほめる
    - 会話の とちゅうに いまの レベルの「文法チェック」（SENSEI_DRILL）が まざる。苦手な 文法ほど 出やすい
@@ -220,15 +220,10 @@ function turn(){if(!live())return;const raw=P.s.nodes[P.at];if(!raw)return finis
   if(N.ask){minaJa(N.ex||'smile',`❓ ${N.ask}`,'snask');setTimeout(answers,350)}
   else{mina(N.s,N.j,N.ex||'smile','',N.btns);setTimeout(answers,350)}}
 
-/* the choices and a box to write (or say) your own */
+/* the choices (answer by tapping one) */
 function answers(){if(!live())return;const N=P.N,order=P.order&&P.order.length===N.o.length?P.order:shuffle(N.o.map((o,i)=>i));P.order=order;
-  const mic=window.SpeechRecognition||window.webkitSpeechRecognition;
-  $('sans').innerHTML=`<div class="lopts kopts">${order.map(i=>`<button data-o="${i}" ${P.tried.has(i)?'disabled class="tried"':''}>${esc(N.o[i].en)}</button>`).join('')}</div>
-    <div class="kfree"><input id="sin" type="text" placeholder="${N.ask?'英語で 質問を 書いてもOK':'英語で 書いてもOK（先生が チェック）'}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">${mic?'<button id="smic" class="sub" aria-label="声で 言う">🎤</button>':''}<button id="ssend" aria-label="送る">▶</button></div>`;
-  $('sans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>choose(+b.dataset.o));
-  const inp=$('sin'),send=()=>{const v=inp.value.trim();if(v)typed(v)};
-  $('ssend').onclick=send;inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
-  const mb=$('smic');if(mb)mb.onclick=()=>listen(mic,inp,mb)}
+  $('sans').innerHTML=`<div class="lopts kopts">${order.map(i=>`<button data-o="${i}" ${P.tried.has(i)?'disabled class="tried"':''}>${esc(N.o[i].en)}</button>`).join('')}</div>`;
+  $('sans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>choose(+b.dataset.o))}
 function listen(R,inp,mb){try{const r=new R();r.lang='en-US';r.interimResults=false;r.maxAlternatives=1;mb.classList.add('on');
   r.onresult=e=>{const t=e.results[0][0].transcript;inp.value=t;mb.classList.remove('on');typed(t,true)};
   r.onerror=r.onend=()=>mb.classList.remove('on');r.start()}catch(e){mb.classList.remove('on');H.toast('🎤 この 端末では 声の 入力が つかえないみたい')}}
@@ -340,7 +335,7 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
       ${s.kind?`<p class="kend good">🎯 とっくん おわり！</p>`:`<p class="kend ${good?'good':'fun'}">${good?'★':'😂'} エンド「${esc(title)}」${newEnd?' <small>NEW!</small>':''}</p>
       <div class="kends">${E.map(e=>SD.end[s.id+':'+e[0]]?`<span class="${e[1]?'g':''} ${e[0]===key?'now':''}">${e[1]?'★':'😂'} ${esc(e[2])}</span>`:`<span class="no">${e[1]?'★':'？'} ？？？</span>`).join('')}</div>
       <p class="kendn">🏁 見つけた エンド ${got}/${tot}${good?'':'　<b>★の エンドは べつの 答えの 先に あるよ</b>'}</p>`}
-      <div class="snscore"><span>⭕ 1回で <b>${st.ok}</b></span><span>💡 ヒントで <b>${st.hint}</b></span><span>📘 解説 <b>${st.miss}</b></span><span>✍️ 自分で <b>${st.free}</b></span></div>
+      <div class="snscore"><span>⭕ 1回で <b>${st.ok}</b></span><span>💡 ヒントで <b>${st.hint}</b></span><span>📘 解説 <b>${st.miss}</b></span></div>
       <p class="kpay">🪙 <b>${pay}まい</b>${first?' <small>はじめては 2ばい！</small>':''}${perfect?' <small>ノーミス +5</small>':''}${newEnd?' <small>新しい エンド</small>':''}</p>
       <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
       ${GL.length?`<div class="kwords kgl sngl"><small>📘 この 会話の 文法（${missG.length?'📘 解説を きいた ものから 復習しよう':'よく できたね'}）</small><div>${GL.map(id=>{const r=st.g[id],L=lesFor(id);return `<span class="sng ${r.miss?'miss':r.hint?'hint':'ok'}"><b>${r.miss?'📘':r.hint?'💡':'⭕'} ${esc(gName(id))}</b><span><button data-gn="${id}" class="sub">📚 ノート</button>${r.miss||r.hint?`<button data-tk="${id}" class="sub">🎯 とっくん</button>`:''}${window.DEEP&&(r.miss||r.hint)?`<button data-dp="${id}" class="sub">🔎 くわしく</button>`:''}${L&&(r.miss||r.hint)?`<button data-ls="${L.id}" class="sub">📖 授業</button>`:''}</span></span>`}).join('')}</div></div>`:''}
