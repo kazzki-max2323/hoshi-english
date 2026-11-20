@@ -338,12 +338,13 @@ function finish(N){if(!live())return;const s=P.s,st=P.st,first=!SD.done[s.id]&&!
       <div class="snscore"><span>⭕ 1回で <b>${st.ok}</b></span><span>💡 ヒントで <b>${st.hint}</b></span><span>📘 解説 <b>${st.miss}</b></span></div>
       <p class="kpay">🪙 <b>${pay}まい</b>${first?' <small>はじめては 2ばい！</small>':''}${perfect?' <small>ノーミス +5</small>':''}${newEnd?' <small>新しい エンド</small>':''}</p>
       <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
-      ${GL.length?`<div class="kwords kgl sngl"><small>📘 この 会話の 文法（${missG.length?'📘 解説を きいた ものから 復習しよう':'よく できたね'}）</small><div>${GL.map(id=>{const r=st.g[id],L=lesFor(id);return `<span class="sng ${r.miss?'miss':r.hint?'hint':'ok'}"><b>${r.miss?'📘':r.hint?'💡':'⭕'} ${esc(gName(id))}</b><span><button data-gn="${id}" class="sub">📚 ノート</button>${r.miss||r.hint?`<button data-tk="${id}" class="sub">🎯 とっくん</button>`:''}${window.DEEP&&(r.miss||r.hint)?`<button data-dp="${id}" class="sub">🔎 くわしく</button>`:''}${L&&(r.miss||r.hint)?`<button data-ls="${L.id}" class="sub">📖 授業</button>`:''}</span></span>`}).join('')}</div></div>`:''}
+      ${GL.length?`<div class="kwords kgl sngl"><small>📘 この 会話の 文法（${missG.length?'📘 解説を きいた ものから 復習しよう':'よく できたね'}）</small><div>${GL.map(id=>{const r=st.g[id],L=lesFor(id);return `<span class="sng ${r.miss?'miss':r.hint?'hint':'ok'}"><b>${r.miss?'📘':r.hint?'💡':'⭕'} ${esc(gName(id))}</b><span><button data-gn="${id}" class="sub">📚 ノート</button>${r.miss||r.hint?`<button data-tk="${id}" class="sub">🎯 とっくん</button>`:''}${id==='jh_modal'&&window.MODAL?'<button data-md="1" class="sub">💪 特別授業</button>':''}${window.DEEP&&(r.miss||r.hint)?`<button data-dp="${id}" class="sub">🔎 くわしく</button>`:''}${L&&(r.miss||r.hint)?`<button data-ls="${L.id}" class="sub">📖 授業</button>`:''}</span></span>`}).join('')}</div></div>`:''}
       <div class="row"><button id="sagain" class="${good?'sub':''}">🔁 ${s.kind?'もう一回':'さいしょから'}</button><button id="smore" class="${good?'':'sub'}">🗣️ ほかの 会話</button></div>
     </div>`;
     const r=$('sans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?SFX.done():(SFX.tease?SFX.tease():SFX.pop());
     $('sans').querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{SFX.book();P=null;openGram(b.dataset.gn,list)});
     $('sans').querySelectorAll('[data-tk]').forEach(b=>b.onclick=()=>{SFX.step();tokkun([b.dataset.tk])});
+    $('sans').querySelectorAll('[data-md]').forEach(b=>b.onclick=()=>{SFX.lesson();hush();P=null;MODAL.open()});
     $('sans').querySelectorAll('[data-dp]').forEach(b=>b.onclick=()=>{SFX.step();DEEP.open(b.dataset.dp)});
     $('sans').querySelectorAll('[data-ls]').forEach(b=>b.onclick=()=>{SFX.lesson();hush();P=null;LESSON.open(b.dataset.ls,list)});
     const from=P.from,again=s.kind==='tok'?()=>tokkun(P.ids,1,from):()=>play(s.id,from);

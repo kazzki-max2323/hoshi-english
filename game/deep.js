@@ -77,6 +77,7 @@ function topics(){const c=C,d=c.d,out=[];
   if(d.tip&&!c.asked.has('tip'))out.push(['tip','💡 覚え方']);
   if(c.n.r.length>2&&!c.asked.has('rules'))out.push(['rules','📜 ルールを ぜんぶ']);
   if(c.les&&!c.asked.has('les'))out.push(['les','📖 授業で 見る']);
+  if(c.id==='jh_modal'&&window.MODAL&&!c.asked.has('md'))out.push(['md','💪 特別授業で 1から']);
   return out}
 function chips(){if(!live())return;const t=topics(),box=$('dpchips'),open=C.open;
   const main=t.filter(x=>x[0][0]==='q').slice(0,2).concat(t.filter(x=>x[0][0]!=='q')).slice(0,open?99:5),rest=open?[]:t.filter(x=>!main.includes(x));
@@ -98,6 +99,7 @@ function ask(k,label){if(!live())return;hush();const c=C,d=c.d;if(label)you(labe
   if(k==='rules'){mina(`「${esc(c.n.t)}」の ルール、ぜんぶ だよ`,'smile',`<ul class="dprules">${c.n.r.map(x=>`<li>${esc(x)}</li>`).join('')}</ul>`);after();return}
   if(k==='try'){check();return}
   if(k==='les'){const l=c.les;close();snd('lesson');LESSON.open(l.id,()=>{MINA.open()});return}
+  if(k==='md'){close();snd('lesson');MODAL.open();return}
   if(k==='ok'){r.n++;save();check();return}
   after()}
 /* ---------- ✏️ たしかめ 5問：苦手とっくんと 同じ ように、まちがえたら ヒント → もう一回 まちがえたら 解説 ----------
