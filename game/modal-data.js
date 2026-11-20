@@ -130,6 +130,26 @@ const MIX=[
  {s:'___ I have to finish it today?',ja:'今日 おわらせなきゃ ダメ？',o:['Do','Must','Am'],h:'have to の 質問',e:'have to の 質問は Do を 前に。 Do I have to 〜?',c:2},
 ];
 CH.forEach((c,i)=>c.q.forEach(q=>q.c=i));
+/* 📄 まとめ 1まい（章ごとの 要点。 game/modal.js の sheet() が ならべる） */
+const SUM=[
+ {pt:'助動詞 ＋ <b>はだかの 動詞（原形）</b>。 s も to も -ing も つけない',
+  f:row([B('You','s'),B('should','m'),B('rest','v')],'o')+row([B('should','m'),B('to rest','x'),B('resting','x')],'x')+row([B('She','s'),B('can','m'),B('play','v')],'o')+row([B('cans','x'),B('can plays','x')],'x'),
+  memo:"have to は セット。 he / she なら <b>has to</b>"},
+ {pt:'気もちの 強さ',
+  f:meter([['must','ぜったい しなきゃ（自分の 気もち）',100,'r'],['have to','しなきゃ（決まり・事情）',88,'r'],['should','した ほうが いいよ（アドバイス）',60,'o'],['may','しても いいよ',35,'g']])},
+ {pt:'「しない」は 助動詞の うしろに <b>not</b>、 「〜する？」は 助動詞を <b>前に</b>。 do は いらない',
+  f:row([B('He','s'),B("can't",'m'),B('swim','v')],'o')+row([B('Can','m'),B('you','s'),B('swim','v'),B('?')],'o')+
+   `<div class="mdtbl"><span>can not</span><b>can't</b><span>must not</span><b>mustn't</b><span>should not</span><b>shouldn't</b><span>will not</span><b>won't</b></div>`,
+  memo:"have to だけ do を つかう：<b>don't have to</b>・<b>Do I have to 〜?</b>"},
+ {pt:'形は にてるけど 意味は ぎゃく',
+  f:two(['🚫 must not','〜しては いけない','r'],["😌 don't have to",'〜しなくて いい','g']),
+  memo:'must ＝ ぜったい → ぜったい しちゃ ダメ ／ have to ＝ しなきゃ → しなきゃ が 消える'},
+ {pt:'may は 2つ、 could・would は ていねい',
+  f:two(['may ① 許可','May I come in?<br>入っても いい？','g'],['may ② 予想','It may rain.<br>雨かもしれない','o'])+
+   two(['could','can の 過去「できた」<br>Could you 〜? ていねい','o'],['will / would','〜する つもり<br>Would you 〜? ていねい','o']),
+  memo:'おねがいの ていねいさ：Can you ＜ Will you ＜ Could you ≒ Would you'},
+];
+SUM.forEach((x,i)=>{if(CH[i])CH[i].sum=x});
 window.MODAL_DATA={CH,MIX,title:'助動詞',gid:'jh_modal'};
 
 /* ---------- ミナ先生の セリフ（[表情, ことば]） ---------- */
@@ -189,6 +209,11 @@ Object.assign(MINA_LINES,{
   ['smile','{n}/{N} 正解。 だいじょうぶ、 まちがえた 章を もう一回 見よう。 苦手 とっくんにも 入れておいたよ'],['love','今日 まちがえた ところは、 明日 できるように なる ところ。 いっしょに もう一回 やろう'],
  ],
  /* ほかの 画面から さそう ひとこと */
+ md_sheet:[
+  ['proud','5時間 ぶんの 大事な ところ、 1まいに まとめたよ。 まよったら ここを 見てね'],
+  ['smile','テストの 前に ここを さっと 見るだけで ちがうよ'],
+  ['love','わからなく なったら いつでも ここに もどってきてね。 見出しを タップすると その 授業に 行けるよ'],
+ ],
  md_fromDeep:[['smile','助動詞は 特別授業も あるよ。 1から カードで ゆっくり 説明するね']],
  x_mdNew:[
   ['happy','助動詞の 特別授業を 作ったよ。 カードで 1つずつ、 ゆっくり 説明するね'],

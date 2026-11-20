@@ -54,10 +54,12 @@ function menu(key){C={m:'menu'};hush();const box=shell('',null),nx=nextCh(),all=
   box.innerHTML=`${minaBox(ex,tx)}
     <div class="mdchs">${CH.map((c,i)=>`<button data-ch="${i}" class="${chDone(i)?'done':''}${i===nx?' now':''}"><i>${chDone(i)?'✔':c.ico}</i><span><small>${i+1}時間目</small>${esc(c.t)}</span></button>`).join('')}</div>
     <div class="mdgo2">${nx!=null?`<button id="mdstart">${nx?'▶ つづきから（'+(nx+1)+'時間目）':'▶ はじめる'}</button>`:''}
+      <button id="mdsum" class="sub">📄 まとめ 1まいで 見る</button>
       <button id="mdtest" class="${all?'':'sub'}">📝 まとめテスト ${R.best?`<span class="mdstar">${'★'.repeat(R.best)}<i>${'★'.repeat(3-R.best)}</i></span>`:''}</button></div>`;
   box.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{snd('step');chapter(+b.dataset.ch,0)});
   const s=$('mdstart');if(s)s.onclick=()=>{snd('lesson');chapter(nx,0)};
-  $('mdtest').onclick=()=>{snd('step');test()}}
+  $('mdtest').onclick=()=>{snd('step');test()};
+  $('mdsum').onclick=()=>{snd('book');sheet(menu)}}
 
 /* ---------- 章の カード ---------- */
 function chapter(ci,i){const c=CH[ci];if(!c)return menu();C={m:'card',ci,i};hush();
@@ -129,6 +131,16 @@ function peek(ci,back){const c=CH[ci];C={m:'peek'};hush();const box=shell(`${c.i
     `<div class="mdnav"><button id="mdbk">✏️ 問題に もどる ▶</button></div>`;
   bindSay(box);$('mdbk').onclick=()=>{snd('step');back()}}
 
+/* ---------- 📄 まとめ 1まい: 5時間 ぶんの 要点を 1つの 画面に。 見出しを タップで その 授業へ ---------- */
+function sheet(back){C={m:'sheet'};hush();const box=shell('📄 まとめ 1まい',back||menu),[ex,tx]=ML('md_sheet');$('mdn').textContent='';
+  box.innerHTML=`${minaBox(ex,tx)}<div class="mdsheet">${CH.map((c,i)=>c.sum?`<div class="mdsec">
+      <button class="mdsh" data-ch="${i}"><i>${c.ico}</i><span><small>${i+1}時間目</small>${esc(c.t)}</span><em>授業 ▶</em></button>
+      <p class="mdpt">${c.sum.pt}</p><div class="mdfig">${c.sum.f}</div>${c.sum.memo?`<p class="mdmemo">💡 ${c.sum.memo}</p>`:''}</div>`:'').join('')}</div>
+    <div class="mdnav"><button id="mdst">📝 まとめテスト</button></div>`;
+  box.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{snd('step');chapter(+b.dataset.ch,0)});
+  $('mdst').onclick=()=>{snd('step');test()};
+  try{R.sh=(R.sh||0)+1;save()}catch(e){}}
+
 /* ---------- おわり ---------- */
 const stars=n=>`<span class="mdstar">${'★'.repeat(n)}<i>${'★'.repeat(3-n)}</i></span>`;
 function score(st){return `<div class="snscore"><span>⭕ 1回で <b>${st.ok}</b></span><span>💡 ヒントで <b>${st.hint}</b></span><span>📘 解説 <b>${st.miss}</b></span></div>`}
@@ -158,11 +170,12 @@ function testEnd(st,bad){const N=st.ok+st.hint+st.miss,perfect=st.ok===N,s=perfe
     ${minaBox(ex,tx)}
     ${weak.length?`<p class="mdnote2">📘 見なおすと いい ところ</p><div class="mdchs">${weak.map(i=>`<button data-ch="${i}"><i>${CH[i].ico}</i><span><small>${i+1}時間目</small>${esc(CH[i].t)}</span></button>`).join('')}</div>`:''}
     <div class="mdnav"><button id="mdag" class="${perfect?'':'sub'}">🔁 もう一回 テスト</button>${weak.length&&window.SENSEI?'<button id="mdtk">🎯 苦手とっくん</button>':''}</div>
-    <div class="mdnav"><button class="sub" id="mdm">☰ 章の 一覧</button><button class="sub" id="mdc">✖ とじる</button></div></div>`;
+    <div class="mdnav"><button class="sub" id="mdm">☰ 章の 一覧</button><button class="sub" id="mds2">📄 まとめ</button><button class="sub" id="mdc">✖ とじる</button></div></div>`;
   new3||perfect?snd('done'):snd('pop');pay(coin);
   $('mdbox').querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{snd('step');chapter(+b.dataset.ch,0)});
   $('mdag').onclick=()=>{snd('step');test()};
   const tk=$('mdtk');if(tk)tk.onclick=()=>{snd('step');close();SENSEI.tokkun([GID])};
+  $('mds2').onclick=()=>{snd('book');sheet(menu)};
   $('mdm').onclick=()=>{snd('pop');menu()};$('mdc').onclick=()=>{snd('back');close()}}
 
 /* ---------- 入口 ---------- */
@@ -172,7 +185,7 @@ function btn(){const n=doneN(),all=n===CH.length;
 function bindBtn(){const b=$('mdgo');if(b)b.onclick=()=>{snd('lesson');open()}}
 /* 文法ノート「助動詞」の ページ */
 H.on('gramView',(lv,i,n)=>setTimeout(()=>{if(!n||n.id!==GID)return;const row=H.panel.querySelector('.gview .row');if(!row||row.querySelector('#gmd'))return;
-  row.insertAdjacentHTML('beforeend','<button id="gmd" class="sub">💪 特別授業</button>');$('gmd').onclick=()=>{snd('lesson');open()}},0));
+  row.insertAdjacentHTML('beforeend','<button id="gmd" class="sub">💪 特別授業</button><button id="gms" class="sub">📄 まとめ</button>');$('gmd').onclick=()=>{snd('lesson');open()};$('gms').onclick=()=>{snd('book');sheet(close)}},0));
 /* ミナ先生の ひとこと（game/mina-sense.js の ルールに 足す） */
 try{const RL=MINA_SENSE._rules,go=ci=>['💪 特別授業へ',()=>open(ci!=null?{ch:ci}:null)];
   RL.push(['x_mdNew',4,F=>R.n?null:{},()=>go()]);
@@ -182,5 +195,5 @@ try{const RL=MINA_SENSE._rules,go=ci=>['💪 特別授業へ',()=>open(ci!=null?
     const ci=Object.keys(R.miss).sort((a,b)=>R.miss[b]-R.miss[a])[0];return {t:ci!=null&&CH[ci]?'「'+CH[ci].short+'」':'助動詞',_i:ci!=null&&CH[ci]?+ci:null}},v=>go(v._i)]);
 }catch(e){}
 
-window.MODAL={open,close,menu,chapter,test,btn,bindBtn,rec:()=>R,doneN,_c:()=>C};
+window.MODAL={open,close,menu,chapter,test,sheet,btn,bindBtn,rec:()=>R,doneN,_c:()=>C};
 })();
