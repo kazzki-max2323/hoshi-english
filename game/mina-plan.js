@@ -1,6 +1,6 @@
 /* 👩‍🏫 ミナ先生が えらんで はじめる しくみ（MPLAN）
    ユーザーの 希望（2026-11-20）: 「何分？」は なし。 えらぶのは ミナ先生。 全部で いくつ・のこり いくつは 見せない
-   - 🔥 きょうの授業（大きく）: ちょっと ふくしゅう 2問 → いまの 単元の つぎの 1時間 → おまけ（音・ことば・勉強の コツの ミニ授業）
+   - 🔥 きょうの授業（大きく。 自動では はじまらない: ユーザーの 希望 11/20）: ちょっと ふくしゅう 2問 → いまの 単元の つぎの 1時間 → おまけ（音・ことば・勉強の コツの ミニ授業）
        はじめての 単元は さいしょに 1問ずつ 聞いて、 わかる 時間は とばす（UNIT.probe）
    - 💪 特別授業: 苦手が いちばん 多い 単元を、 まちがえた 時間から 通しで
    - 📖 勉強: きょうの授業とは べつの 単元の 1時間（なければ 音・ことばの ミニ授業）
@@ -92,10 +92,15 @@ function chat(){let lv='es';try{lv=MINA.level();if(lv==='adv')lv='hs'}catch(e){}
 
 /* ---------- ミナ先生の ページの 上の ぶぶん（game/mina.js） ---------- */
 let cdT=null,snooze=0;
+/* まだ 聞いていない ミナ先生の うんちく（game/unchiku-data.js の UNK_MINA）。 きょうの うんちく（ほかも やる の 中）とは べつの もの */
+function unkPick(p){if(typeof UNK_MINA==='undefined'||!window.UNK||Math.random()>p)return null;let td=-1;try{td=UNK.todayIdx()}catch(e){}
+  const L=UNK_MINA.map((t,i)=>i).filter(i=>i!==td&&!UNK.heard('mina',i));if(!L.length)return null;const i=pickL(L);UNK.hear('mina',i);return {i,t:UNK_MINA[i]}}
 function page(from){const D=day(),I=todayInfo();let ex='smile',say='',sub='',auto=false;
   if(!I){[ex,say]=ML('mp_done')}
   else if(D.done){[ex,say]=ML('mp_done');sub='もう 1時間'}
-  else{[ex,say]=I.fresh?ML('mp_new',{u:I.u.D.title}):I.test?ML('mp_test',{u:I.u.D.title}):ML('mp_hello',{u:I.u.D.title,t:I.t});auto=from==='home'&&Date.now()>snooze}
+  else{[ex,say]=I.fresh?ML('mp_new',{u:I.u.D.title}):I.test?ML('mp_test',{u:I.u.D.title}):ML('mp_hello',{u:I.u.D.title,t:I.t})}
+  /* たまに うんちく（ユーザーが うんちく好き）: きょうの授業の あとは 半分、 ふだんは 3回に 1回くらい */
+  const U=unkPick(D.done?.5:.33);if(U){[ex,say]=ML('mp_unk',{t:esc(U.t[0]),ja:esc(U.t[2])});say+=` <button class="ksay mpunk" id="mpunk" data-en="${esc(U.t[1])}" aria-label="英語で 聞く">🔊</button>`}
   const sp=specialName();
   return {auto,html:`<div class="mpcard${auto?' cd':''}" id="mpcard">
     <div class="stsay"><span class="lface">${MINA.face('m',ex)}</span><p>${say}</p></div>
@@ -111,6 +116,7 @@ function bind(info){const g=$('mpgo');if(!g)return;
   $('mpst').onclick=()=>{stopCd();SFX.lesson();study()};
   $('mprv').onclick=()=>{stopCd();SFX.lesson();review()};
   $('mpct').onclick=()=>{stopCd();chat()};
+  const uk=$('mpunk');if(uk)uk.onclick=e=>{e.stopPropagation();SFX.pop();try{SENSEI.talk(uk.dataset.en)}catch(er){}};
   const lt=$('mplater');if(lt)lt.onclick=e=>{e.stopPropagation();SFX.pop();stopCd();snooze=Date.now()+30*60000;const [,t]=ML('mp_later');const p=$('mpcard').querySelector('.stsay p');if(p)p.textContent=t};
   if(!info.auto)return;
   /* ホームから 来た ときは 3びょうで 自動スタート（前と 同じ）。 ほかを さわったら とまる */

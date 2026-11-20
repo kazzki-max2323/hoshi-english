@@ -317,12 +317,12 @@ function panelOpen(){const from=H.screen,MP=window.MPLAN,P=MP?MP.page(from):{htm
   H.show('mina',`<section class="pnl minap">
     <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b>${window.GIFT?GIFT.btn('mina','mgift'):'<span></span>'}</div>
     ${P.html}
+    ${love}
     ${window.MSEARCH?'<button id="msgo" class="msgo"><span>🔍</span><b>英語で さがす</b><small>カード・文法・授業</small></button>':''}
-    <details class="mfold stmore"><summary>ほかも やる${loveDot?'<i class="dot"></i>':''}</summary><div class="mfbody">
+    <details class="mfold stmore"><summary>ほかも やる</summary><div class="mfbody">
       <div class="mtalk" id="mtalk"></div>
       <div class="mmrow">${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}</div>
       ${window.UNK?UNK.minaBox():''}
-      ${love}
     </div></details>
     <button id="mrec" class="sub mrecb">📊 きろく</button>
   </section>`);
