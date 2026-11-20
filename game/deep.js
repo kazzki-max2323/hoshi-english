@@ -35,9 +35,8 @@ const hasW=(text,ws)=>{const t=' '+String(text).toLowerCase().replace(/<[^>]+>/g
 
 /* ---------- the lesson pictures that go with a grammar (game/lessons via game/gram-link.js) ---------- */
 function lesFigs(id){const out=[];try{(window.GRAMLINK?GRAMLINK.lessonsFor(id):[]).forEach(l=>l.steps.forEach((s,i)=>{if(s[3])out.push({t:s[2],fig:s[3],l})}))}catch(e){}return out}
-/* example sentences: the note's, the ones found on the beach, the ones from the talks */
+/* example sentences: the note's and the ones from the talks */
 function examples(id,n){const out=n.ex.map(e=>({en:e[0],ja:e[1]}));
-  try{(GS()?GS().seenOf(id):[]).slice(-4).forEach(en=>{if(!out.some(x=>x.en===en))out.push({en,ja:'',seen:1})})}catch(e){}
   try{(DR[id]||[]).forEach(d=>d.good.forEach(g=>{const en=S().fill(g,{});if(en&&!/\{/.test(en)&&!out.some(x=>x.en===en))out.push({en,ja:''})}))}catch(e){}
   return out}
 /* mistakes: Mina's word on each kind, with a wrong → right pair from the talks when there is one */
@@ -59,11 +58,11 @@ function scroll(){const l=$('dplog');if(l)setTimeout(()=>l.scrollTo({top:l.scrol
 function mina(html,ex='smile',more){if(!live())return null;const d=document.createElement('div');d.className='lsay dpm';
   d.innerHTML=`<span class="lface">${MINA.face('m',ex)}</span><div class="lbody"><p>${html}</p>${more||''}</div>`;
   $('dplog').appendChild(d);d.querySelectorAll('[data-say]').forEach(b=>b.onclick=e=>{e.stopPropagation();snd('pop');talk(b.dataset.say)});
-  if(GS())try{GS().bind(d)}catch(e){}scroll();return d}
+  scroll();return d}
 function you(t){if(!live())return;const d=document.createElement('div');d.className='lsay by-h dpy';
   d.innerHTML=`<span class="lface kf you">⭐</span><div class="lbody"><p>${esc(t)}</p></div>`;$('dplog').appendChild(d);scroll()}
 const fz=h=>h?`<div class="fz">${h}</div>`:'';
-const enRow=e=>`<button class="dpen" data-say="${esc(e.en)}"><span>🔊 ${GS()?GS().mark(e.en):esc(e.en)}</span>${e.ja?`<small>${esc(e.ja)}</small>`:e.seen?'<small>🌊 浜辺で 見つけた 英文</small>':''}</button>`;
+const enRow=e=>`<button class="dpen" data-say="${esc(e.en)}"><span>🔊 ${esc(e.en)}</span>${e.ja?`<small>${esc(e.ja)}</small>`:''}</button>`;
 const nudge=()=>{const [ex,tx]=ML('dp_more',{g:C.g});return [ex,tx]};
 
 /* ---------- the things you can ask about ---------- */

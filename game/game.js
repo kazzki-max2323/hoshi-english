@@ -76,7 +76,7 @@ function flyCoin(x,y,n,quick){const d=document.createElement('div');d.className=
 
 /* ---------- screens ---------- */
 let screen='home';
-function show(name,html){screen=name;window.GRAMSEE&&GRAMSEE.hidePop();panel.innerHTML=html;panel.scrollTop=0;if(name!=='home')radioQuiet();musAt()}
+function show(name,html){screen=name;panel.innerHTML=html;panel.scrollTop=0;if(name!=='home')radioQuiet();musAt()}
 /* the beach reaches down to the top of the home panel (a little gap), so the campfire and the shops sit lower on the sand.
    --dock only grows while the screen size stays the same (no jumping when Mina's line gets longer or shorter); it never goes past 250px */
 const DOCK={w:0,h:0,v:0};
@@ -260,8 +260,6 @@ new MutationObserver(fabKick).observe(panel,{childList:true,subtree:true,attribu
    A normal click needs the finger to go down and up on the same element, which fails when it drifts away in between. */
 const FAST='.ab.opt,.ab.line,#ar .shell,#ar .st,#ar .crab,#ar .tile,#ar [data-d]';let eatUntil=0;
 document.addEventListener('pointerdown',e=>{if(e.button>0)return;let t=e.target.closest(FAST);if(!t)return;
-  /* the shining grammar inside the radio's line is its own button (game/gram-see.js), not "say it again" */
-  const gm=e.target.closest('.ab.line [data-gmk]');if(gm)t=gm;
   e.preventDefault();t.click();eatUntil=performance.now()+600},true);
 document.addEventListener('click',e=>{if(e.isTrusted&&performance.now()<eatUntil){eatUntil=0;e.stopPropagation();e.preventDefault()}},true);
 document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys&&!document.querySelector('.ttov'))cardKeys(e)});
@@ -460,11 +458,9 @@ const RISE=9,FAST_MS=5000;
 function bubbleEl(html,cls){const b=document.createElement('div');b.className='bubble ab '+cls;
   b.innerHTML=`<span class="in" style="--bc:${pick(BC)};--tilt:${(Math.random()*8-4).toFixed(1)}deg">${html}${Math.random()<.35?'<i class="sp a">✦</i><i class="sp b">✦</i>':''}</span>`;bub.appendChild(b);return b}
 function clampX(b,W){const w=b.offsetWidth,l=parseFloat(b.style.left);b.style.left=Math.max(6,Math.min(W.width-6-w,l))+'px'}
-function drawLine(r){const c=cur,GS=window.GRAMSEE;clearBubbles();GS&&GS.hidePop();const W=bub.getBoundingClientRect();
+function drawLine(r){const c=cur;clearBubbles();const W=bub.getBoundingClientRect();
   /* the radio's English line sits at the top of the sky, in front of everything, so answers never cover it */
-  const line=bubbleEl(c.src==='folk'?`${c.ico}<b class="lvt folkt">${esc(c.who)}</b> ${esc(c.en)} <i class="again">🔁</i>`:`📻<b class="lvt lv-${c.lv}">${LEVELS[c.lv].short}</b>${c.review?'<b class="lvt revt">ふくしゅう</b>':''}${c.sea?`<b class="lvt seat">${c.sea.ico} ${esc(c.sea.name)}</b>`:''} ${GS&&c.kind==='s'?GS.mark(c.en):esc(c.en)} <i class="again">🔁</i>`,'line');
-  /* grammar you own lights up in the line (game/gram-see.js): tap it for the rule */
-  if(GS&&c.kind==='s'&&c.src!=='folk'){const g=GS.record(c.en);line.querySelectorAll('[data-gmk]').forEach(m=>m.onclick=e=>{e.stopPropagation();GS.toastRule(m.dataset.gmk,m)})}
+  const line=bubbleEl(c.src==='folk'?`${c.ico}<b class="lvt folkt">${esc(c.who)}</b> ${esc(c.en)} <i class="again">🔁</i>`:`📻<b class="lvt lv-${c.lv}">${LEVELS[c.lv].short}</b>${c.review?'<b class="lvt revt">ふくしゅう</b>':''}${c.sea?`<b class="lvt seat">${c.sea.ico} ${esc(c.sea.name)}</b>`:''} ${esc(c.en)} <i class="again">🔁</i>`,'line');
   line.style.left=(W.width/2-line.offsetWidth/2)+'px';line.style.top='10px';clampX(line,W);
   line.onclick=()=>say(c.lv,c.en);
   /* answers are born on the sand and float up like balloons until they press against the line */
@@ -563,14 +559,13 @@ function gramList(lv='es',back){if(back!==undefined)gBack=back;
   panel.querySelectorAll('[data-gl]').forEach(b=>b.onclick=()=>{SFX.pop();gramList(b.dataset.gl)});
   panel.querySelectorAll('[data-gn]').forEach(b=>b.onclick=()=>{SFX.flip();gramNote(lv,+b.dataset.gn)})}
 /* 文法ノート: さいしょは 1行＋例文 1つ。 「もっと 知りたい ▸」で ルール → なんで？ → 気をつけて → うんちく と だんだん くわしく */
-function gramNote(lv,i){const G=GRAMMAR[lv],n=G.notes[i],seen=window.GRAMSEE?GRAMSEE.seenOf(n.id):[];loadAud('gram');emit('gramView',lv,i,n);
+function gramNote(lv,i){const G=GRAMMAR[lv],n=G.notes[i];loadAud('gram');emit('gramView',lv,i,n);
   const D=typeof DEEP_DATA!=='undefined'?DEEP_DATA[n.id]:null,exb=(e,j)=>`<button class="gexr" data-ex="${j}"><span class="ge">🔊 ${esc(e[0])}</span><small>${esc(e[1])}</small></button>`;
   const MORE=[
     ['📌 ルール',`<ul class="grules">${n.r.map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${n.ex.length>1?`<div class="gex">${n.ex.slice(1).map((e,j)=>exb(e,j+1)).join('')}</div>`:''}`],
     D&&(D.why||D.fig)?['🤔 なんで そうなるの？',`${D.why?`<p class="gwhy">${D.why}</p>`:''}${D.fig?`<div class="fz">${D.fig}</div>`:''}`]:null,
     D&&(D.vs||(D.qa&&D.qa[0]))?['⚠️ 気をつけて',`${D.vs?`<p class="gwhy">${D.vs[1]}</p>${D.vs[2]?`<div class="fz">${D.vs[2]}</div>`:''}`:''}${D.qa&&D.qa[0]?`<p class="gqa"><b>Q. ${D.qa[0][0]}</b>${D.qa[0][1]}</p>`:''}`]:null,
-    ['💡 覚え方・うんちく',`${D&&D.tip?`<p class="gwhy">${D.tip}</p>`:''}${D&&D.qa?D.qa.slice(1).map(x=>`<p class="gqa"><b>Q. ${x[0]}</b>${x[1]}</p>`).join(''):''}
-      ${seen.length?`<h4>🌊 浜辺で 見つけた この文法</h4><div class="gex gseen">${seen.map((e,j)=>`<button class="gexr" data-se="${j}"><span class="ge">🔊 ${window.GRAMSEE.mark(e)}</span></button>`).join('')}</div>`:`<p class="note gseen0">🌊 ラジオや 会話で この文法が 出てくると、英文の 中で 光るよ。見つけた 英文は ここに たまる</p>`}`]].filter(Boolean);
+    D&&(D.tip||(D.qa&&D.qa.length>1))?['💡 覚え方・うんちく',`${D&&D.tip?`<p class="gwhy">${D.tip}</p>`:''}${D&&D.qa?D.qa.slice(1).map(x=>`<p class="gqa"><b>Q. ${x[0]}</b>${x[1]}</p>`).join(''):''}`]:null].filter(Boolean);
   show('gram',`<section class="pnl gram gview">
     <div class="qtop"><button class="x" id="gx" aria-label="ノートの 一覧に もどる">←</button><b>${esc(n.t)}</b><span class="qn">${G.ico}</span></div>
     <div class="gbody">
@@ -581,7 +576,7 @@ function gramNote(lv,i){const G=GRAMMAR[lv],n=G.notes[i],seen=window.GRAMSEE?GRA
     </div>
     <div class="row"><button id="gq">✏️ れんしゅう ${gCleared(n.id)?'（クリアずみ）':`（クリアで 🪙${G.reward}）`}</button></div>
   </section>`);
-  let m=0;const bindEx=()=>{panel.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>say('gram',n.ex[+b.dataset.ex][0]));panel.querySelectorAll('[data-se]').forEach(b=>b.onclick=()=>say('gram',seen[+b.dataset.se]))};
+  let m=0;const bindEx=()=>{panel.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>say('gram',n.ex[+b.dataset.ex][0]))};
   $('gmb').onclick=()=>{SFX.flip();const [h,body]=MORE[m++],d=document.createElement('div');d.className='gstep';d.innerHTML=`<h4>${h}</h4>${body}`;$('gmore').appendChild(d);bindEx();
     if(m>=MORE.length)$('gmb').remove();else $('gmb').querySelector('small').textContent=MORE[m][0];d.scrollIntoView({block:'start',behavior:'smooth'})};
   $('gx').onclick=()=>{SFX.back();gramList(lv)};

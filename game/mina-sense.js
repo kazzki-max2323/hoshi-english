@@ -163,12 +163,6 @@ const R=[
 ['x_gramFree',3,F=>F.gram.some(g=>g.clr)?null:{_lv:lvOf(F)==='adv'?'hs':lvOf(F)},v=>['📚 文法ノートを 見る',()=>H.gramFrom(v._lv)]],
 ['x_gramRule',3,F=>{const a=F.gram.filter(g=>g.own&&g.n.r&&g.n.r.length);if(!a.length)return null;const g=pickL(a);return {g:g.n.t,r:pickL(g.n.r),_g:g}},v=>goGram(v._g.lv,v._g.i)],
 ['x_gramEx',3,F=>{const a=F.gram.filter(g=>g.own&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=pickL(g.n.ex);return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>['🔊 きいてみる',()=>H.say('gram',v.en)]],
-/* 英文の 中の 文法（game/gram-see.js）と 会話の 文法の 答え */
-['x_gsRead',2,F=>{const n=(ST.gram.rn|0);return n>=3?{n}:null},()=>['📚 文法を 見る',()=>H.gramFrom()]],
-['x_gsSeen',3,F=>{if(!window.GRAMSEE)return null;const a=Object.entries(ST.gram.seen||{}).filter(([id,v])=>v.length&&GRAMSEE.byId(id));if(!a.length)return null;const [id,v]=pickL(a),g=GRAMSEE.byId(id);
-  return {g:'「'+g.n.t+'」',en:v[0].length>60?v[0].slice(0,57)+'…':v[0],_g:g}},v=>goGram(v._g.lv,v._g.i)],
-['x_gsTap',3,F=>(ST.gram.rn|0)>=3&&!(ST.gram.tap|0)?{}:null,null],
-['x_gsLit',2,F=>F.gram.some(g=>g.own)&&(ST.gram.rn|0)<5?{}:null,null],
 ['x_gramPeek',2,F=>{const a=F.gram.filter(g=>!g.clr&&g.lv===(lvOf(F)==='adv'?'hs':lvOf(F))&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=g.n.ex[0];return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>goGram(v._g.lv,v._g.i)],
 
 /* ===== 文法テスト と 授業の つながり（game/gram-link.js） ===== */
