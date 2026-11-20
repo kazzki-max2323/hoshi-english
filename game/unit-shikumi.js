@@ -284,7 +284,7 @@ const SUM=[
   f:row([B('Where','o'),B('do','m'),B('you','s'),B('live','v'),B('?')],'o'),memo:"文の 中の 質問は ふつうの ならび: I don't know where he lives."},
 ];
 SUM.forEach((x,i)=>{if(CH[i])CH[i].sum=x});
-const U=UNIT.make({id:'shikumi',ico:'🧩',title:'英語のしくみ',gid:'jh_be',sp:1,CH,MIX},{lk:'sk_',head:'🧩 英語のしくみ'}),R=U.rec();
+const U=UNIT.make({id:'shikumi',ico:'🧩',title:'英語のしくみ',gid:'jh_be',sp:1,CH,MIX},{lk:'sk_',head:'🧩 英語のしくみ',extra:['⚡ 特別練習（連発）',()=>{try{SKDRILL.open()}catch(e){}}]}),R=U.rec();
 window.SHIKUMI=U;
 
 /* ================================================================ ミナ先生の セリフ */

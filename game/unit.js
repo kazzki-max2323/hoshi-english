@@ -64,12 +64,13 @@ function menu(key){C={m:'menu'};P=null;hush();const box=shell('',null),nx=nextCh
   box.innerHTML=`${minaBox(ex,tx)}
     <div class="mdchs">${CH.map((c,i)=>`<button data-ch="${i}" class="${chDone(i)?'done':''}${i===nx?' now':''}"><i>${chDone(i)?'✔':c.ico}</i><span><small>${i+1}時間目</small>${esc(c.t)}</span></button>`).join('')}</div>
     <div class="mdgo2">${nx!=null?`<button id="mdstart">${nx?'▶ つづきから（'+(nx+1)+'時間目）':'▶ はじめる'}</button>`:''}
-      <button id="mdsum" class="sub">📄 まとめ 1まいで 見る</button>
+      ${opt.extra?`<button id="mdex" class="sub">${opt.extra[0]}</button>`:''}<button id="mdsum" class="sub">📄 まとめ 1まいで 見る</button>
       <button id="mdtest" class="${all?'':'sub'}">📝 まとめテスト ${R.best?stars(R.best):''}</button></div>`;
   box.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{snd('step');chapter(+b.dataset.ch,0)});
   const s=$('mdstart');if(s)s.onclick=()=>{snd('lesson');chapter(nx,0)};
   $('mdtest').onclick=()=>{snd('step');test()};
-  $('mdsum').onclick=()=>{snd('book');sheet(menu)}}
+  $('mdsum').onclick=()=>{snd('book');sheet(menu)};
+  const xb=$('mdex');if(xb)xb.onclick=()=>{snd('lesson');close();opt.extra[1]()}}
 const back=()=>P?close():menu();
 
 /* ---------- 1時間の カード ---------- */

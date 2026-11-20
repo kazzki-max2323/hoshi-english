@@ -108,12 +108,13 @@ function page(from){const D=day(),I=todayInfo();let ex='smile',say='',sub='',aut
     <button class="mpgo${D.done?' done':''}" id="mpgo"><span class="mpico">${D.done?'🌟':'🔥'}</span><span class="mptx"><small>${D.done?'きょうの 授業 おわり！':'きょうの 授業'}</small><b>${I?esc(I.u.D.title)+'　'+esc(I.t):''}</b></span><span class="mpplay"><i id="mpcd">${auto?3:'▶'}</i>${sub?`<small>${sub}</small>`:''}</span></button>
     ${auto?'<button id="mplater" class="sub stlater">あとで</button>':''}
   </div>
-  <button class="mpsp" id="mpsp"><span>💪</span><b>特別授業</b><small>${esc(sp)}</small></button>
+  <div class="mpsprow"><button class="mpsp" id="mpsp"><span>💪</span><b>特別授業</b><small>${esc(sp)}</small></button>${window.SKDRILL?'<button class="mpkd" id="mpkd"><span>⚡</span><b>特別練習</b></button>':''}</div>
   <div class="st3 mp3"><button id="mpst"><span>📖</span><b>勉強</b></button><button id="mprv"><span>📚</span><b>復習</b></button><button id="mpct"><span>☕</span><b>おしゃべり</b></button></div>`}}
 function stopCd(){if(cdT){clearInterval(cdT);cdT=null}const c=$('mpcard');if(c){c.classList.remove('cd');const i=$('mpcd');if(i)i.textContent='▶';const l=$('mplater');if(l)l.remove()}}
 function bind(info){const g=$('mpgo');if(!g)return;
   g.onclick=()=>{stopCd();SFX.lesson();today()};
   $('mpsp').onclick=()=>{stopCd();SFX.lesson();special()};
+  const kd=$('mpkd');if(kd)kd.onclick=()=>{stopCd();SFX.lesson();SKDRILL.open()};
   $('mpst').onclick=()=>{stopCd();SFX.lesson();study()};
   $('mprv').onclick=()=>{stopCd();SFX.lesson();review()};
   $('mpct').onclick=()=>{stopCd();chat()};
