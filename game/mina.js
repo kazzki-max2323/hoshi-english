@@ -324,6 +324,7 @@ function panelOpen(){const from=H.screen,S=window.STUDY,P=S?S.page(from):{html:'
     <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b>${window.GIFT?GIFT.btn('mina','mgift'):'<span></span>'}</div>
     ${P.html}
     <div class="st3"><button id="st3l"><span>📖</span><b>習う</b></button><button id="st3r"><span>📚</span><b>ふくしゅう</b>${revN?'<i class="dot"></i>':''}</button><button id="st3t"><span>🗣️</span><b>話す</b></button></div>
+    ${window.MODAL?MODAL.btn():''}
     ${window.MSEARCH?'<button id="msgo" class="msgo"><span>🔍</span><b>英語で さがす</b><small>カード・文法・授業</small></button>':''}
     <details class="mfold stmore"><summary>ほかも やる${loveDot?'<i class="dot"></i>':''}</summary><div class="mfbody">
       <div class="mtalk" id="mtalk"></div>
@@ -346,6 +347,7 @@ function panelOpen(){const from=H.screen,S=window.STUDY,P=S?S.page(from):{html:'
   $('st3r').onclick=()=>{SFX.lesson();window.REVIEW?REVIEW.list():LESSON.list()};
   $('st3t').onclick=()=>{SFX.talk();window.SENSEI&&SENSEI.open()};
   $('mrec').onclick=()=>{SFX.book();recOpen()};
+  if(window.MODAL)MODAL.bindBtn();
   const ms=$('msgo');if(ms)ms.onclick=()=>MSEARCH.open('');
   const ma=$('mall');if(ma)ma.onclick=()=>{SFX.lesson();LESSON.list()};
   const gl=$('mgl');if(gl)gl.onclick=()=>{SFX.book();const lv=level();H.gramFrom(lv==='adv'?'hs':lv,panelOpen)};
