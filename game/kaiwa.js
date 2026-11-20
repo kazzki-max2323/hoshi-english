@@ -153,8 +153,8 @@ function play(id,from){const s=sceneOf(id);if(!s)return list();const c=CH[s.c];
 const live=()=>P&&$('klog');
 function scrollLog(){const l=$('klog');if(l)l.scrollTo({top:l.scrollHeight,behavior:'smooth'})}
 function them(en,ja,fx,cls=''){if(!live())return;const d=document.createElement('div'),show=jaOn(P.s.lv);d.className='lsay kth '+cls;
-  d.innerHTML=`<span class="lface kf">${P.c.ico}${fx?`<i class="kfx">${fx}</i>`:''}</span><div class="lbody"><p class="ken">${GS()?GS().mark(en):esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p>${ja?`<small class="kja ${show?'on':''}">${esc(ja)}</small>${show?'':'<button class="kjab">訳を 見る</button>'}`:''}</div>`;
-  $('klog').appendChild(d);P.lines.push(en);if(GS()){GS().record(en);GS().bind(d)}
+  d.innerHTML=`<span class="lface kf">${P.c.ico}${fx?`<i class="kfx">${fx}</i>`:''}</span><div class="lbody"><p class="ken">${esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p>${ja?`<small class="kja ${show?'on':''}">${esc(ja)}</small>${show?'':'<button class="kjab">訳を 見る</button>'}`:''}</div>`;
+  $('klog').appendChild(d);P.lines.push(en);
   d.querySelector('.ksay').onclick=e=>{e.stopPropagation();talk(en,P&&P.c)};
   const jb=d.querySelector('.kjab');if(jb)jb.onclick=()=>{SFX.pop();jb.remove();d.querySelector('.kja').classList.add('on');scrollLog()};
   talk(en,P.c);scrollLog()}

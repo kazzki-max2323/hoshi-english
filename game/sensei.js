@@ -165,8 +165,8 @@ function play(id,from){const s=sceneOf(id);if(!s)return list();begin(s,from)}
 /* the lines in the log */
 function scrollLog(){const l=$('slog');if(l)l.scrollTo({top:l.scrollHeight,behavior:'smooth'})}
 function mina(en,ja,ex='smile',cls='',btns){if(!live())return;en=String(en);en=en.charAt(0).toUpperCase()+en.slice(1);const d=document.createElement('div'),show=jaOn(P.s.lv);d.className='lsay snm '+cls;
-  d.innerHTML=`<span class="lface">${MINA.face('m',ex)}</span><div class="lbody"><p class="ken">${GS()?GS().mark(en):esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p>${ja?`<small class="kja ${show?'on':''}">${esc(ja)}</small>${show?'':'<button class="kjab">訳を 見る</button>'}`:''}${btns?`<span class="snbtns">${btns.map((b,i)=>`<button class="sub" data-bi="${i}">${b[0]}</button>`).join('')}</span>`:''}</div>`;
-  $('slog').appendChild(d);P.lines.push(en);if(GS()){GS().record(en);GS().bind(d)}
+  d.innerHTML=`<span class="lface">${MINA.face('m',ex)}</span><div class="lbody"><p class="ken">${esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p>${ja?`<small class="kja ${show?'on':''}">${esc(ja)}</small>${show?'':'<button class="kjab">訳を 見る</button>'}`:''}${btns?`<span class="snbtns">${btns.map((b,i)=>`<button class="sub" data-bi="${i}">${b[0]}</button>`).join('')}</span>`:''}</div>`;
+  $('slog').appendChild(d);P.lines.push(en);
   d.querySelector('.ksay').onclick=e=>{e.stopPropagation();talk(en)};
   const jb=d.querySelector('.kjab');if(jb)jb.onclick=()=>{SFX.pop();jb.remove();d.querySelector('.kja').classList.add('on');scrollLog()};
   if(btns)d.querySelectorAll('[data-bi]').forEach(b=>b.onclick=()=>{SFX.step();hush();btns[+b.dataset.bi][1]()});

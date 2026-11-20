@@ -1,7 +1,6 @@
 /* 英文の 中に 文法ノートの 文法を 見つける しくみ（文法の めがね）。
    - GRAM_PAT: 文法ノートの id → その 文法が 出てくる 英文の 形（正規表現）。上ほど くわしい 文法（先に えらぶ）
-   - 読める英文が 増える: 文法ノートの 文法は（ぜんぶ ひらいている）、ラジオ・会話の 英文で 光る（タップで ルール。ラジオでは ミナ先生が とことん授業・ノートへ 案内）。
-     見つけた 英文は ノートごとに 5つまで のこり、ノートの 画面に「浜辺で 見つけた この文法」として 出る（ST.gram.seen / ST.gram.rn）
+   - 英文の 中の 文法を 青い 下線で 光らせる 目印（タップで ルール・「浜辺で 見つけた この文法」）は 2026-11-20 に 外した。
    - まちがえた文から 誘う: ラジオの 文で まちがえたら、その 文の 文法を ミナ先生が 教えて、ノートへ さそう
    - 会話の 文法の 答え（game/kaiwa-story.js の G(...)）や エンドの 文法一覧も ここを つかう
    文法ノートを 足したら ここの GRAM_PAT にも 足す。セリフは game/mina-talk.js の gs_ / x_gs で はじまる 場面 */
@@ -72,62 +71,19 @@ const GRAM_PAT=[
 ];
 
 (()=>{
-const {S:ST,sfx:SFX}=BEACH;
-const H=HE,esc=H.esc,$=id=>document.getElementById(id);
+const {S:ST}=BEACH;
+const H=HE,esc=H.esc;
 const GLV=['es','jh','hs'];
-const pickL=a=>a[Math.random()*a.length|0];
 if(typeof GRAMMAR==='undefined')return;
 /* note id → {lv,i,n} */
 const BY={};GLV.forEach(lv=>(GRAMMAR[lv]?GRAMMAR[lv].notes:[]).forEach((n,i)=>BY[n.id]={lv,i,n}));
 const owned=id=>true /* 文法ノートは ぜんぶ ひらいている */,cleared=id=>(ST.gram.cleared||[]).includes(id);
-ST.gram.seen=ST.gram.seen||{};ST.gram.rn=ST.gram.rn||0;
 
 /* every grammar in a sentence: [{id,lv,i,n,at,len}] (most advanced first) */
 const cache=new Map();
 function find(en){en=String(en||'').replace(/[’‘]/g,"'");if(cache.has(en))return cache.get(en);
   const out=[];for(const [id,re] of GRAM_PAT){if(!BY[id])continue;const m=re.exec(en);if(m&&m[0].trim())out.push({...BY[id],id,at:m.index,len:m[0].length})}
   if(cache.size>800)cache.clear();cache.set(en,out);return out}
-/* the grammar to light up: one the player owns */
-const lit=en=>find(en).find(g=>owned(g.id))||null;
-/* the sentence as HTML, the owned grammar part marked (tap: the rule) */
-function mark(en){en=String(en||'');const g=lit(en);if(!g)return esc(en);
-  return `${esc(en.slice(0,g.at))}<mark class="gmk" data-gmk="${g.id}">${esc(en.slice(g.at,g.at+g.len))}</mark>${esc(en.slice(g.at+g.len))}`}
-/* a sentence the player read with owned grammar: remember it under the note (5 per note), count it once */
-function record(en){const g=lit(en);if(!g)return null;const S=ST.gram.seen[g.id]=ST.gram.seen[g.id]||[];
-  if(!S.includes(en)){S.unshift(en);if(S.length>5)S.pop();ST.gram.rn++;save();
-    if([1,10,30,50,100,200,500].includes(ST.gram.rn))milestone=ST.gram.rn}
-  return g}
-let milestone=0;
-/* tap a marked part: the rule, and the way to the note */
-function tip(id,anchor){const g=BY[id];if(!g)return;SFX.flip&&SFX.flip();
-  const old=document.querySelector('.gtip');if(old){const same=old.dataset.g===id&&old.previousElementSibling===anchor;old.remove();if(same)return}
-  const d=document.createElement('div');d.className='gtip';d.dataset.g=id;
-  d.innerHTML=`<b>📘 ${esc(g.n.t)}</b><small>${esc(g.n.r[0])}</small><button class="sub">📚 ノートを ひらく</button>`;
-  anchor.after(d);d.querySelector('button').onclick=e=>{e.stopPropagation();SFX.book();try{speechSynthesis.cancel()}catch(x){}H.gramNote(g.lv,g.i)}}
-/* hook the marks inside an element */
-function bind(el){el.querySelectorAll('[data-gmk]').forEach(m=>m.onclick=e=>{e.stopPropagation();tip(m.dataset.gmk,m.closest('p,.in')||m)})}
-/* the radio line: tap the shining part → a small card under the line. Mina says what it is, and the way to
-   🔎 とことん授業 (game/deep.js) or the note. Tap outside or wait, and it goes away */
-let popT=0;
-function hidePop(){const p=$('gpop');if(p)p.classList.remove('on');clearTimeout(popT)}
-function toastRule(id,anchor){const g=BY[id],W=$('window');if(!g)return;SFX.flip&&SFX.flip();
-  if(!W||!window.MINA){H.toast(`📘 <b>${esc(g.n.t)}</b><small>${esc(g.n.r[0])}</small>`,3600);return}
-  let p=$('gpop');if(!p){p=document.createElement('div');p.id='gpop';W.appendChild(p)}
-  if(p.classList.contains('on')&&p.dataset.g===id){hidePop();return}
-  const deep=window.DEEP&&DEEP.has(id),first=!(ST.gram.tap|0);ST.gram.tap=(ST.gram.tap|0)+1;save();
-  const [ex,tx]=MINA.line(first?'gs_tapFirst':deep?'gs_tap':'gs_tapNote',{g:'「'+esc(g.n.t)+'」',r:esc(g.n.r[0])});
-  p.dataset.g=id;
-  p.innerHTML=`<span class="mpf">${MINA.face('m',ex)}</span><span class="gpt">${tx}<small>${esc(g.n.r[0])}</small>
-    <span class="gpb">${deep?'<button data-k="dp">🔎 とことん授業</button>':''}<button data-k="nt" class="sub">📚 ノート</button></span></span>`;
-  /* just under the radio's line */
-  const L=anchor&&anchor.closest('.ab.line'),wr=W.getBoundingClientRect();
-  p.style.top=(L?Math.round(L.getBoundingClientRect().bottom-wr.top+6):70)+'px';
-  p.classList.remove('on');void p.offsetWidth;p.classList.add('on');
-  p.querySelectorAll('button').forEach(b=>b.onclick=e=>{e.stopPropagation();hidePop();try{speechSynthesis.cancel()}catch(x){}
-    if(b.dataset.k==='dp'){SFX.step&&SFX.step();DEEP.open(id)}else{SFX.book&&SFX.book();H.gramNote(g.lv,g.i)}});
-  clearTimeout(popT);popT=setTimeout(hidePop,12000)}
-document.addEventListener('pointerdown',e=>{const p=$('gpop');if(p&&p.classList.contains('on')&&!e.target.closest('#gpop,[data-gmk]'))hidePop()},true);
-
 /* ---------- a radio sentence answered wrong: Mina tells which grammar it uses, and invites ---------- */
 let lastAsk=0;const asked={};
 H.on('answer',(c,ok)=>{if(c.kind==='s'&&!ok){const G=find(c.en);if(!G.length)return;
@@ -139,16 +95,11 @@ H.on('answer',(c,ok)=>{if(c.kind==='s'&&!ok){const G=find(c.en);if(!G.length)ret
     const k=cleared(g.id)?'gs_missClear':'gs_missOwn';
     const [ex,tx]=MINA.line(k,{g:'「'+esc(g.n.t)+'」',en:esc(c.en),r:esc(g.n.r[0])});
     MINA.say('m',ex,tx,11000,null,['📚 ノートを ひらく',()=>H.gramNote(g.lv,g.i)])},2800)}
-  /* a right answer with owned grammar: it counts as a sentence you could read */
-  if(ok&&c.kind==='s')record(c.en)});
-/* milestones of sentences read with grammar */
-setInterval(()=>{if(!milestone||!window.MINA||!MINA.canTalk())return;const n=milestone;milestone=0;
-  const [ex,tx]=MINA.line('gs_readN',{n});MINA.say('m',ex,tx,8000,null,['📚 文法を 見る',()=>H.gramFrom()])},4000);
+});
 
 /* grammar in a whole talk (the end of a conversation): owned ones and locked ones, up to 4 */
 function inLines(lines){const seen=new Set(),out=[];lines.forEach(en=>find(en).forEach(g=>{if(!seen.has(g.id)){seen.add(g.id);out.push(g)}}));
   return out.sort((a,b)=>(owned(b.id)?1:0)-(owned(a.id)?1:0)).slice(0,4)}
 
-window.GRAMSEE={find,lit,mark,record,bind,tip,toastRule,hidePop,inLines,byId:id=>BY[id],owned,cleared,
-  seenOf:id=>ST.gram.seen[id]||[],get read(){return ST.gram.rn}};
+window.GRAMSEE={find,inLines,byId:id=>BY[id],owned,cleared};
 })();
