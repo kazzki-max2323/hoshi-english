@@ -49,6 +49,11 @@ const ADJ=[
  {a:'sick',j:['具合が わるい','具合は わるくない','具合が わるかった','具合が わるい？','具合が わるく なるだろう']},
 ];
 const jaS=(s,t)=>`${s[1]}は ${t}`;
+/* 様子？ 動詞？（11/20 ユーザー「動詞と 様子が ちょっと あいまい」）: [英語, a=様子 v=動詞, 日本語, will の 日本語, ひとこと] */
+const WP=[['sick','a','具合が わるい','具合が わるく なるだろう'],['sleepy','a','ねむい','ねむく なるだろう'],['sleep','v','ねむる','ねむるだろう'],['tired','a','つかれている','つかれるだろう'],
+ ['angry','a','おこっている','おこるだろう'],['sad','a','かなしい','かなしく なるだろう'],['cry','v','泣く','泣くだろう'],['laugh','v','笑う','笑うだろう'],['late','a','おくれている','おくれるだろう'],
+ ['win','v','勝つ','勝つだろう'],['happy','a','うれしい','よろこぶだろう'],['swim','v','およぐ','およぐだろう'],['hungry','a','おなかが すいている','おなかが すくだろう'],['eat','v','食べる','食べるだろう'],
+ ['busy','a','いそがしい','いそがしく なるだろう'],['run','v','走る','走るだろう'],['kind','a','やさしい',null],['like','v','すき',null,'日本語は 「すき」でも 英語の like は 動詞'],['afraid','a','こわがっている',null],['work','v','はたらく','はたらくだろう'],['ready','a','用意が できている',null],['help','v','手伝う','手伝うだろう']];
 const vOK=(i)=>VERB.filter(v=>v.j[i]);
 /* ================================================================ 問題の 型
    1問 = {k: 型, ja, s: ___ の 文（なければ 文を えらぶ）, o: [正解, まちがい], why} */
@@ -94,6 +99,13 @@ const T={
  willBe:()=>{const s=pick(SUBJ),a=pick(ADJ),r=Math.random();
    const ng=r<.5?`${s[0]} will ${a.a}.`:`${s[0]} will ${beNow(s)} ${a.a}.`;
    return {ja:jaS(s,a.j[4]),o:[`${s[0]} will be ${a.a}.`,ng],why:r<.5?`様子の ことばには be。 will の あとは 原形 be`:`will の あとは 原形 → be`}},
+ /* 様子？ 動詞？ を 見分ける */
+ which:()=>{const w=pick(WP),a=w[1]==='a';
+   return {ja:`${w[0]}（${w[2]}）`,p:'は 様子の ことば？ 動詞？',o:a?['様子の ことば','動詞']:['動詞','様子の ことば'],why:w[4]||(a?`very ${w[0]} と 言える → 様子。 文では be が いる`:`very ${w[0]} とは 言えない → 動詞。 be は いらない`)}},
+ /* will の あと: 様子なら be、 動詞なら そのまま（文を えらぶ） */
+ willX:()=>{const s=pick(SUBJ),w=pick(WP.filter(x=>x[3])),a=w[1]==='a';
+   return {ja:jaS(s,w[3]),o:a?[`${s[0]} will be ${w[0]}.`,`${s[0]} will ${w[0]}.`]:[`${s[0]} will ${w[0]}.`,`${s[0]} will be ${w[0]}.`],
+     why:a?`${w[0]}（${w[2]}）は 様子 → be が いる。 「なる」は be`:`${w[0]}（${w[2]}）は 動詞 → be は いらない`}},
  /* will・can の あとは 原形 */
  modV:()=>{const s=pick(SUBJ.filter(is3)),c=Math.random()<.5,v=pick(vOK(c?7:6));
    return {ja:jaS(s,v.j[c?7:6]),s:`${s[0]} ${c?'can':'will'} ___ ${v.o}.`,o:[v.v,v.s],why:`${c?'can':'will'} の あとは 原形（-s は つかない）`}},
@@ -102,7 +114,7 @@ const T={
    return Math.random()<.5?{ja:jaS(s,'今 '+v.j[8]),s:`${s[0]} ${b} ___ ${v.o} now.`,o:[v.ing,v.v],why:'be の あとは -ing で 「している」'}
      :{ja:jaS(s,'今 '+v.j[8]),o:[`${s[0]} ${b} ${v.ing} ${v.o} now.`,`${s[0]} ${v.ing} ${v.o} now.`],why:'-ing は 様子の ことば → be が いる'}},
 };
-const KN={s3:'-s',doQ:'Do/Does の 質問',doesV:'does → 原形',doNeg:"don't / doesn't",doesntV:"doesn't → 原形",didV:'did → 原形',past:'過去形',beQ:'be の 質問',beNeg:'be の 否定',beQp:'was / were の 質問',beAdj:'様子には be',one:'動詞は 1つ',willBe:'will be ＋ 様子',modV:'will・can → 原形',ing:'be ＋ -ing'};
+const KN={s3:'-s',doQ:'Do/Does の 質問',doesV:'does → 原形',doNeg:"don't / doesn't",doesntV:"doesn't → 原形",didV:'did → 原形',past:'過去形',beQ:'be の 質問',beNeg:'be の 否定',beQp:'was / were の 質問',beAdj:'様子には be',one:'動詞は 1つ',willBe:'will be ＋ 様子',modV:'will・can → 原形',ing:'be ＋ -ing',which:'様子？ 動詞？',willX:'will の あと be？'};
 
 /* 💡 ひとことを タップで くわしく（11/20 ユーザー「解説は シンプルで いい。 深掘り したく なったら タップで 詳細」）
    t 見出し, b 説明（なぜ そう なるか）, ok/ng ⭕❌の 例, tip ワンポイント, ch 英語のしくみの 何時間目（0から）。 カードは その場で 見られる */
@@ -121,20 +133,24 @@ const DET={
   ok:['She went to school.','Did she go to school?',"She didn't go to school."],ng:['Did she went to school?',"She didn't went."],tip:'過去の しるしも 文に 1つだけ'},
  past:{t:'手伝い役が いない ときは 動詞が 自分で 過去形',ch:1,b:'ふつうの 文（質問・否定じゃない）には お手伝いさんの did が いないから、 <b>動詞 自身が 過去形</b>に なるよ。 過去形は 「ひとりで 立てる 顔」',
   ok:['We played tennis yesterday.','She ate breakfast.'],ng:['We play tennis yesterday.'],tip:'went・ate・swam など 形が かわる 動詞は 3つの 顔で 覚えよう'},
- beQ:{t:'be の 文の 質問に do は いらない',ch:2,b:'hungry や busy は <b>様子の ことば</b>で 動詞じゃない。 だから 文には be が 入っている（You are hungry）。 be の 文の 質問は <b>be を 前に 出すだけ</b>。 do は ふつうの 動詞の お手伝い だから 来ないよ',
+ beQ:{t:'be の 文の 質問に do は いらない',mw:1,ch:2,b:'hungry や busy は <b>様子の ことば</b>で 動詞じゃない。 だから 文には be が 入っている（You are hungry）。 be の 文の 質問は <b>be を 前に 出すだけ</b>。 do は ふつうの 動詞の お手伝い だから 来ないよ',
   ok:['You are hungry.','Are you hungry?'],ng:['Do you hungry?','Do you are hungry?'],tip:'英語の 文は 動詞が 1つ。 be が その 1つ'},
- beNeg:{t:'be の 文の 否定は be に not',ch:2,b:'様子の ことばの 文は be が 動詞。 否定は <b>be の うしろに not</b> を つけるだけ（am not・isn\'t・aren\'t）。 don\'t は ふつうの 動詞の 文で つかうの',
+ beNeg:{t:'be の 文の 否定は be に not',mw:1,ch:2,b:'様子の ことばの 文は be が 動詞。 否定は <b>be の うしろに not</b> を つけるだけ（am not・isn\'t・aren\'t）。 don\'t は ふつうの 動詞の 文で つかうの',
   ok:["I'm not hungry.","He isn't busy."],ng:["I don't hungry.","He doesn't busy."],tip:'be が ある 文に do は 入れない'},
- beQp:{t:'過去の be の 質問は Was / Were',ch:0,b:'tired は 様子の ことば → be の 文。 過去の be は <b>was / were</b>。 質問は それを 前に 出すだけ。 did は ふつうの 動詞の お手伝い なので つかわないよ',
+ beQp:{t:'過去の be の 質問は Was / Were',mw:1,ch:0,b:'tired は 様子の ことば → be の 文。 過去の be は <b>was / were</b>。 質問は それを 前に 出すだけ。 did は ふつうの 動詞の お手伝い なので つかわないよ',
   ok:['You were tired.','Were you tired yesterday?'],ng:['Did you tired yesterday?','Did you were tired?'],tip:'I・he・she は was、 you・we・they は were'},
- beAdj:{t:'様子の ことばには be',ch:2,b:'英語の 文には <b>動詞の 席</b>が かならず 1つ ある。 hungry や happy は 様子の ことばで 動詞じゃないから、 席が 空いている。 そこを <b>be</b> で うめるの',
+ beAdj:{t:'様子の ことばには be',mw:1,ch:2,b:'英語の 文には <b>動詞の 席</b>が かならず 1つ ある。 hungry や happy は 様子の ことばで 動詞じゃないから、 席が 空いている。 そこを <b>be</b> で うめるの',
   ok:['I am hungry.','She is happy.'],ng:['I hungry.','She happy.'],tip:'日本語の 「わたし、 ねむい」は そのままでは 英語に ならない'},
- one:{t:'英語の 文は 動詞が 1つ',ch:2,b:'like・play・go などの 動詞が もう あるなら、 席は うまっている。 そこに be を 足すと 動詞が 2つに なって ✕。 be を 入れるのは <b>ほかに 動詞が ない ときだけ</b>',
+ one:{t:'英語の 文は 動詞が 1つ',mw:1,ch:2,b:'like・play・go などの 動詞が もう あるなら、 席は うまっている。 そこに be を 足すと 動詞が 2つに なって ✕。 be を 入れるのは <b>ほかに 動詞が ない ときだけ</b>',
   ok:['I like dogs.','He goes to school.'],ng:['I am like dogs.','He is go to school.'],tip:'am と いっしょに つかえるのは -ing（am playing）や 様子の ことば'},
- willBe:{t:'will の あとは 原形 be',ch:0,b:'will の あとは いつも <b>原形</b>。 am・is・are の 原形は <b>be</b>。 それに tired は 様子の ことばで 動詞じゃないから、 be が ないと 動詞の 席が 空っぽ。 だから <b>will be tired</b>',
+ willBe:{t:'will の あとは 原形 be',mw:1,ch:0,b:'will の あとは いつも <b>原形</b>。 am・is・are の 原形は <b>be</b>。 それに tired は 様子の ことばで 動詞じゃないから、 be が ないと 動詞の 席が 空っぽ。 だから <b>will be tired</b>',
   ok:['I will be tired.','She will be busy.'],ng:['I will tired.','I will am tired.'],tip:'can be・want to be・have been も 同じ しくみ'},
  modV:{t:'will・can の あとは 原形',ch:4,b:'will・can・should などの 助動詞は <b>後ろの 動詞を 原形に する</b> セット。 -s も 過去形も つかない。 he・she でも 同じだよ',
   ok:['She can swim.','He will play tennis.'],ng:['She can swims.','He will plays tennis.'],tip:'助動詞じしんにも -s は つかない（cans ✕）'},
+ which:{t:'様子の ことば？ 動詞？ の 見分け方',ch:2,mw:1,b:'<b>様子の ことば</b>は 「どんな 状態か」を 言う ことば（sick・tired・happy）。 動詞じゃないから 文では <b>be が いる</b>。 <b>動詞</b>は 「何を するか」（eat・cry・sleep）。 動詞が あれば be は いらないよ',
+  ok:['I am sick.','I eat breakfast.','I like dogs.'],ng:['I sick.','I am eat breakfast.','I am like dogs.'],tip:'sleep（ねむる）は 動詞、 sleepy（ねむい）は 様子。 にている ペアに 注意'},
+ willX:{t:'will の あと: 様子なら be、 動詞なら そのまま',ch:2,mw:1,b:'will の あとには 原形の 動詞が 1つ いる。 <b>動詞</b>（cry・sleep）なら それが 入って おしまい。 <b>様子の ことば</b>（sick・sleepy）は 動詞じゃないから、 <b>be</b> を 入れて 動詞の 席を うめるの。 日本語の 「〜に なる」の 「なる」は be が うけもつよ',
+  ok:['You will be sick.','You will cry.','You will be sleepy.','You will sleep.'],ng:['You will sick.','You will be cry.'],tip:'very を つけて 言えたら 様子 → will be ＿'},
  ing:{t:'-ing は 様子の ことば → be が いる',ch:3,b:'playing・eating は もう 動詞じゃなくて <b>「している 様子」</b>の ことば（happy の 仲間）。 だから happy と 同じで <b>be が いる</b>。 be の あとの 動詞は -ing に して 「している」',
   ok:['They are playing tennis.','She is cooking now.'],ng:['They playing tennis.','She is cook now.'],tip:'happy に 入れかえて みて: They are happy. ← 同じ 形'},
 };
@@ -171,23 +187,24 @@ function ask(){const g=G;if(!g||!$('kdbox'))return;if(g.i>=N)return finish();
   const [a,b]=q.s?q.s.split('___'):['',''],ord=Math.random()<.5?[0,1]:[1,0];
   $('kdbox').innerHTML=`<div class="kdq">
       <p class="kdja">${esc(q.ja)}</p>
-      ${q.s?`<p class="kden">${esc(a)}<u>　？　</u>${esc(b)}</p>`:`<p class="kden kdpick">正しい 文は？</p>`}
+      ${q.s?`<p class="kden">${esc(a)}<u>　？　</u>${esc(b)}</p>`:`<p class="kden kdpick">${esc(q.p||'正しい 文は？')}</p>`}
       <div class="kdopts${q.s?'':' full'}">${ord.map(i=>`<button data-o="${i}">${esc(q.o[i])}</button>`).join('')}</div>
       <div class="kdfb" id="kdfb">${g.streak>=3?`<span class="kdst">🔥 ${g.streak} れんぞく</span>`:''}</div></div>`;
   $('kdbox').querySelectorAll('[data-o]').forEach(bt=>bt.onclick=()=>answer(+bt.dataset.o,bt))}
 const full=q=>q.s?q.s.replace('___',q.o[0]):q.o[0];
+const say=q=>{const f=full(q);if(/^[A-Za-z]/.test(f))talk(f);else if(q.k==='which')talk(q.ja.split('（')[0])};
 function answer(k,bt){const g=G;if(!g||g.lock)return;g.lock=1;const q=g.L[g.i],dt=(performance.now()-g.t0)/1000;
   $('kdbox').querySelectorAll('[data-o]').forEach(x=>{x.disabled=true;if(+x.dataset.o===0)x.classList.add('right')});
   if(k===0){g.ok++;g.streak++;g.best=Math.max(g.best,g.streak);const fast=dt<=3;if(fast)g.fast++;snd('correct');
     const sp=g.streak>0&&g.streak%10===0?ML('kd_streak',{n:g.streak})[1]:'';
     $('kdfb').innerHTML=`<span class="kdok">⭕ ${fast?'<b>はやい！</b>':''}</span>${sp?`<span class="kdsp">${esc(sp)}</span>`:''}`;
-    talk(full(q));g.i++;setTimeout(()=>{if(G===g)ask()},sp?1500:fast?650:900);return}
+    say(q);g.i++;setTimeout(()=>{if(G===g)ask()},sp?1500:fast?650:900);return}
   bt.classList.add('wrong');snd('wrong');g.streak=0;g.miss[q.k]=(g.miss[q.k]||0)+1;R.miss[q.k]=(R.miss[q.k]||0)+1;save();
   try{window.SENSEI&&SENSEI.gram(/^be|one|willBe|ing/.test(q.k)?'jh_be':q.k==='s3'?'jh_3s':'jh_do',0)}catch(e){}
   /* 4問あとに そのまま、 8問あとに 同じ 型の 言いかえ */
   g.L.splice(g.i+4,0,Object.assign({},q,{again:1}));const v=make(q.k);if(v)g.L.splice(g.i+9,0,v);
   $('kdfb').innerHTML=`<div class="kdfix"><p>⭕ <b>${esc(full(q))}</b></p><button class="kdwhy" id="kdwhy">💡 ${esc(q.why)}<i>くわしく ▶</i></button></div><div class="mdnav"><button id="kdnx">つぎへ ▶</button></div>`;
-  talk(full(q));g.i++;$('kdnx').onclick=()=>{snd('step');hush();ask()};
+  say(q);g.i++;$('kdnx').onclick=()=>{snd('step');hush();ask()};
   $('kdwhy').onclick=()=>{snd('book');detail(q.k,q)}}
 function finish(quit){const g=G;if(!g)return close();const n=g.i,ok=g.ok;G=null;hush();
   R.tot=(R.tot||0)+n;R.ok=(R.ok||0)+ok;if(!quit)R.full=(R.full||0)+1;const rate=n?ok/n:0;
@@ -219,10 +236,11 @@ function detail(k,q){const d=DET[k];if(!d)return;const sec=document.querySelecto
   o.innerHTML=`<div class="qtop"><button class="x" id="kddx" aria-label="もどる">←</button><b>💡 くわしく</b><span></span></div>
     <h3 class="kddt">${esc(d.t)}</h3>${minaBox(ex,tx)}
     <div class="mdfig kddb"><p>${d.b}</p></div>
-    ${q?`<p class="mdnote2">さっきの 問題</p><div class="kdpair"><p class="ng">❌ ${esc(q.s?q.s.replace('___',q.o[1]):q.o[1])}</p><p class="ok">⭕ ${esc(full(q))}</p></div>`:''}
+    ${q&&q.k==='which'?`<p class="mdnote2">さっきの 問題</p><div class="kdpair"><p class="ok">⭕ ${esc(q.ja)} → ${esc(q.o[0])}</p></div>`:''}${q&&q.k!=='which'?`<p class="mdnote2">さっきの 問題</p><div class="kdpair"><p class="ng">❌ ${esc(q.s?q.s.replace('___',q.o[1]):q.o[1])}</p><p class="ok">⭕ ${esc(full(q))}</p></div>`:''}
     <p class="mdnote2">⭕ こう 言う</p><div class="mdens">${d.ok.map(en).join('')}</div>
     <p class="mdnote2">❌ よくある まちがい</p><div class="kdng">${d.ng.map(s=>`<s>${esc(s)}</s>`).join('')}</div>
     ${d.tip?`<p class="mdmemo">💡 ${d.tip}</p>`:''}
+    ${d.mw?`<div class="mdmemo kdmw">🔍 <b>動詞？ 様子？ の 見分け方</b><br>① <b>very</b> を つけて 言えたら 様子（very sick ⭕ ・ very eat ✕）→ be が いる<br>② 日本語で 「どんな 状態？」なら 様子、 「何を する？」なら 動詞<br>③ 「〜に なる」の 「なる」は <b>be</b> が うけもつ（will be sick）</div>`:''}
     ${c?`<button class="sub kdcard" id="kdcard">🧩 英語のしくみ ${d.ch+1}時間目「${esc(c.t)}」の カードを 見る ▼</button><div id="kdcards"></div>`:''}
     <div class="mdnav"><button id="kddb">← 練習に もどる</button></div>`;
   sec.appendChild(o);
@@ -237,6 +255,7 @@ Object.assign(MINA_LINES,{
  kd_first:[['happy','特別練習へ ようこそ！ 考えなくても 口から 出るように、 {n}問 連発で いくよ。 まちがえても すぐ また 出すから 大丈夫'],['proud','わかるのと、 とっさに 出るのは べつの 力。 きょうは その 「とっさ」を きたえよう']],
  kd_start:[['smile','{n}問 連発！ ゆっくり 考えず、 ぱっと えらんでね'],['happy','きょうも 手伝い役の 練習、 いこう！ 「前の ことばで 後ろが きまる」だよ'],['think','do？ be？ 原形？ ぱっと 見て えらべるかな']],
  kd_det:[['smile','「{t}」の しくみ、 じっくり 見ていこう'],['happy','なんで？って 思えるの、 いいことだよ。 わけが わかると わすれないからね'],['think','ここが わかると、 にた 問題が ぜんぶ 解けるように なるよ']],
+ x_kdMw:[['think','動詞か 様子か、 まよったら very を つけてみて。 very sick は 言える、 very eat は 言えない。 言えたら be が いるよ'],['smile','「〜に なる」の 「なる」は be の しごと。 will be sick、 覚えてる？']],
  kd_streak:[['wow','{n}問 れんぞく！ もう 体が 覚えてきたね'],['proud','{n}れんぞく！ その 調子']],
  kd_perfect:[['wow','{n}問で {ok}問 正解！ もう とっさに 出てるね。 これは 自分の ものだよ'],['love','ほとんど 1回で 正解… すごいよ。 はやいのも {f}問 あったね']],
  kd_good:[['proud','{n}問で {ok}問 正解！ まちがえた 型を あと 何回か やれば 完ぺき'],['happy','いい テンポだったよ。 まちがえた ところは 下に 出してあるね']],
@@ -248,6 +267,7 @@ Object.assign(MINA_LINES,{
 });
 try{const RL=MINA_SENSE._rules,go=()=>['⚡ 特別練習',()=>open()];
   RL.push(['x_kdTry',3,()=>!R.n&&window.SHIKUMI&&SHIKUMI.doneN()>0?{}:null,go]);
+  RL.push(['x_kdMw',3,()=>(R.miss.which||0)+(R.miss.willX||0)+(R.miss.willBe||0)>0?{}:null,go]);
   RL.push(['x_kdAgain',2,()=>R.n&&R.t&&Date.now()-R.t>864e5?{ok:R.best||0}:null,go]);
 }catch(e){}
 })();
