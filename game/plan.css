@@ -64,3 +64,15 @@
 .kdfix p{margin:0 0 4px;font-family:Georgia,serif;font-size:1.15rem}.kdfix small{font-size:.88rem;font-weight:700;color:#5b4b8a}
 .kdweak{display:flex;flex-wrap:wrap;gap:6px;justify-content:center}.kdweak span{background:rgba(255,154,60,.18);border:1px solid rgba(255,154,60,.6);border-radius:99px;padding:3px 10px;font-size:.85rem}
 .kdopts button:disabled{opacity:1}.kdopts button:disabled:not(.right):not(.wrong){opacity:.45}
+/* 💡 くわしく（特別練習の 上に 重ねる） */
+.kdp{position:relative}
+.kddet{position:absolute;inset:0;z-index:5;background:#15173d;border-radius:12px;padding:12px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;animation:lsin .2s ease-out}
+.kddt{margin:0;text-align:center;font-size:1.05rem;color:#ffe7a8}
+.kddb p{margin:0;line-height:1.7;font-size:.95rem;text-align:left}.kddb b{color:#c2410c}
+.kdpair{background:#fff6e0;color:#2a2340;text-shadow:none;border-radius:12px;padding:8px 12px;font-family:Georgia,serif}
+.kdpair p{margin:2px 0}.kdpair .ng{color:#b91c1c;text-decoration:line-through}.kdpair .ok{font-weight:700}
+.kdng{display:flex;flex-direction:column;gap:4px;background:#fff1f1;color:#b91c1c;text-shadow:none;border-radius:10px;padding:8px 12px;font-family:Georgia,serif}
+.kdwhy{display:block;width:100%;background:none!important;border:none!important;padding:2px 0!important;color:#5b4b8a!important;text-shadow:none!important;font:inherit;font-size:.88rem;font-weight:700;cursor:pointer}
+.kdwhy i{font-style:normal;margin-left:8px;color:#c2410c;text-decoration:underline}
+.kdweak button{background:rgba(255,154,60,.18);border:1px solid rgba(255,154,60,.6);border-radius:99px;padding:3px 10px;font-size:.85rem;color:var(--ink);cursor:pointer}.kdweak i{font-style:normal}
+.kdcard{align-self:stretch}
