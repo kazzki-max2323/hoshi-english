@@ -281,8 +281,8 @@ function hello(){const gap=MD.last?Math.floor((Date.now()-MD.last)/864e5):0;MD.l
   /* この前 したこと（game/mina-react.js） */
   if(window.MINA_REACT){const b=MINA_REACT.hello();if(b)return b}
   /* ミニ授業が いちばん: きょう まだなら、 半分くらいは きょうの 授業に さそう */
-  if(window.LESSON&&!LESSON.doneToday()&&Math.random()<.5){const l=LESSON.today();if(l){const sk=LESSON.streak();
-    return [...line(sk?'lesHelloStreak':'lesHello',{t:'「'+l.t+'」',n:sk,n1:sk+1}),['📖 授業を ひらく',()=>LESSON.open(l.id,H.home)]]}}
+  if(window.MPLAN&&!MPLAN.doneToday()&&Math.random()<.5){const I=MPLAN.todayInfo();if(I)
+    return [...line(I.fresh?'x_mpNew':'x_mpToday',{u:I.u.D.title,t:I.t}),['🔥 きょうの 授業',()=>MPLAN.today()]]}
   /* 💗 ふたりの 時間が はじまっていたら、 朝と 夜の あいさつは 段階で かわる（game/love.js） */
   if(window.LOVE&&Math.random()<.5){const g=LOVE.greet(h);if(g)return g}
   const r=Math.random();
@@ -310,49 +310,31 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
 function talkBox(o){const [ex,tx]=o?line(o[0],o[1]):line('tap'),go=goTo(o);
   return {go,html:`<span class="mbig">${face('m',ex,poseFor(ex,tx))}</span>${go?`<button class="mline go" id="mgo">${tx}<small>${go[0]} ▶</small></button>`:`<p class="mline">${tx}</p>`}`}}
 function bindTalk(o,t){if(!t.go)return;$('mgo').onclick=()=>{SFX.step();if(window.MINA_REACT)MINA_REACT.noteSug(t.go);if(o[0]==='stepUp')MD.said.step=today();t.go[1]()};H.panel.querySelector('.mbig').onclick=()=>$('mgo').click()}
-/* 授業メニューの 🎯 苦手 とっくん と 🔎 とことん授業（中身は 先生と 話す 画面と 同じ。ここからも すぐ 行ける） */
-/* ほかも やる ▾ の 中の タイル（数字は 出さない。数字は 📊 きろく へ） */
-function menuTiles(){let h='';
-  if(window.SENSEI){const w=SENSEI.weak().length;h+=`<button id="mtok" class="mvc mt-tok${w?' hot':''}"><span>🎯 苦手 とっくん</span><b>${w?'🔥 苦手を やっつける':'5問で きたえる'}</b></button>`}
-  if(window.DEEP)h+=`<button id="mdeep" class="mvc mt-deep"><span>🔎 とことん授業</span><b>なんで？を 深く</b></button>`;
-  return h}
-/* ミナ先生の ページ: 「きょうの 1本」（game/study.js）＋ 習う・ふくしゅう・話す の 3つ。ほかは 「ほかも やる ▾」に たたむ */
-function panelOpen(){const from=H.screen,S=window.STUDY,P=S?S.page(from):{html:'',cnt:false};
+/* ミナ先生の ページ（2026-11-20 作りなおし）: 🔥きょうの授業（大きく）・💪特別授業・📖勉強／📚復習／☕おしゃべり。
+   どれも ミナ先生が 1つ えらんで すぐ はじまる（game/mina-plan.js）。 全部の 数や のこりは 出さない。 さがしたい ときは 🔍 */
+function panelOpen(){const from=H.screen,MP=window.MPLAN,P=MP?MP.page(from):{html:'',auto:false};
   const love=window.LOVE?LOVE.btn():'',loveDot=/class="dot"/.test(love);
-  let revN=0;try{revN=window.REVIEW?REVIEW.todayN():0}catch(e){}
   H.show('mina',`<section class="pnl minap">
     <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b>${window.GIFT?GIFT.btn('mina','mgift'):'<span></span>'}</div>
     ${P.html}
-    <div class="st3"><button id="st3l"><span>📖</span><b>習う</b></button><button id="st3r"><span>📚</span><b>ふくしゅう</b>${revN?'<i class="dot"></i>':''}</button><button id="st3t"><span>🗣️</span><b>話す</b></button></div>
-    ${window.MODAL?MODAL.btn():''}
     ${window.MSEARCH?'<button id="msgo" class="msgo"><span>🔍</span><b>英語で さがす</b><small>カード・文法・授業</small></button>':''}
     <details class="mfold stmore"><summary>ほかも やる${loveDot?'<i class="dot"></i>':''}</summary><div class="mfbody">
       <div class="mtalk" id="mtalk"></div>
-      <div class="mmrow">${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}${window.MCHAT?'<button id="mchat" class="sub mmore">☕ おしゃべり</button>':''}</div>
-      ${window.LESSON?`<div class="mtiles">${menuTiles()}<button id="mall" class="mvc mt-all"><span>📖 ぜんぶの 授業</span><b>図解・覚え方も</b></button>${typeof GRAMMAR!=='undefined'?`<button id="mgl" class="mvc mt-gram"><span>📚 文法ノート</span><b>ルールと テスト</b></button>`:''}</div>`:''}
+      <div class="mmrow">${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}</div>
       ${window.UNK?UNK.minaBox():''}
       ${love}
     </div></details>
     <button id="mrec" class="sub mrecb">📊 きろく</button>
   </section>`);
-  if(S)S.bind(P);
+  if(MP)MP.bind(P);
   /* 「ほかの 話」: 開いたときに ミナ先生の いつもの ひとこと（さっきの こと・アドバイス） */
   const say=o=>{const t=talkBox(o);$('mtalk').innerHTML=t.html;bindTalk(o,t);const b=H.panel.querySelector('.mbig');if(b){b.classList.remove('mnew');void b.offsetWidth;b.classList.add('mnew')}};
   const fold=H.panel.querySelector('.stmore');let said=false;
-  fold.ontoggle=()=>{if(!fold.open)return;SFX.pop();if(said)return;said=true;const opts=advice();say((window.MINA_REACT&&MINA_REACT.page())||(opts.length&&Math.random()<.5?opts[0]:(sense()||opts[0]||null)))};
+  fold.ontoggle=()=>{if(!fold.open)return;SFX.pop();if(MP)MP._stop();if(said)return;said=true;const opts=advice();say((window.MINA_REACT&&MINA_REACT.page())||(opts.length&&Math.random()<.5?opts[0]:(sense()||opts[0]||null)))};
   const mm=$('mmore');if(mm)mm.onclick=()=>{SFX.pop();const opts=advice();say(sense()||(opts.length?pickL(opts):null))};
-  const mc=$('mchat');if(mc)mc.onclick=()=>{SFX.talk();MCHAT.open(null,panelOpen)};
   $('mx').onclick=()=>{SFX.pop();const [e2,t2]=line('bye');H.home();setTimeout(()=>sayRow('m',e2,t2,4000),150)};
-  $('st3l').onclick=()=>{SFX.lesson();S?S.path():LESSON.list()};
-  $('st3r').onclick=()=>{SFX.lesson();window.REVIEW?REVIEW.list():LESSON.list()};
-  $('st3t').onclick=()=>{SFX.talk();window.SENSEI&&SENSEI.open()};
   $('mrec').onclick=()=>{SFX.book();recOpen()};
-  if(window.MODAL)MODAL.bindBtn();
   const ms=$('msgo');if(ms)ms.onclick=()=>MSEARCH.open('');
-  const ma=$('mall');if(ma)ma.onclick=()=>{SFX.lesson();LESSON.list()};
-  const gl=$('mgl');if(gl)gl.onclick=()=>{SFX.book();const lv=level();H.gramFrom(lv==='adv'?'hs':lv,panelOpen)};
-  const mt=$('mtok');if(mt)mt.onclick=()=>{SFX.step();SENSEI.tokkun(null,0,'mina')};
-  const md=$('mdeep');if(md)md.onclick=()=>{SFX.step();DEEP.pick()};
   if(window.LOVE)LOVE.bind(panelOpen);
   if(window.GIFT)GIFT.bindBtn('mina','mgift',panelOpen);
   if(window.UNK)UNK.minaBind(panelOpen)}

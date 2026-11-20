@@ -1,0 +1,40 @@
+/* ミナ先生の ページ（game/mina-plan.js）と 単元の 時間の 線（game/unit.js の UNIT.F.tl）。 明るい 地の 上は text-shadow:none で くっきり */
+.minap .mpcard,.minap .mpsp,.minap .mp3{text-shadow:none}
+/* ---------- 🔥 きょうの 授業（大きく） ---------- */
+.mpcard{display:flex;flex-direction:column;gap:10px;border-radius:18px;padding:12px;
+  background:linear-gradient(135deg,rgba(255,210,63,.26),rgba(255,122,89,.18) 55%,rgba(122,162,255,.16));border:2px solid #ffd23f;box-shadow:0 0 16px rgba(255,210,63,.3)}
+.mpgo{display:grid!important;grid-template-columns:auto 1fr auto;align-items:center;gap:12px;width:100%;text-align:left;padding:14px 14px!important;border-radius:16px!important;
+  background:#2a2f6e!important;border:2px solid #ffd23f!important}
+.mpgo .mpico{display:grid;place-items:center;width:58px;height:58px;border-radius:14px;background:#fff6e0;font-size:2rem}
+.mpgo .mptx{min-width:0}
+.mpgo .mptx small{display:block;font-size:.78rem;font-weight:800;color:#ffe7a8}
+.mpgo .mptx b{display:block;font-size:1.18rem;line-height:1.35;color:#fff}
+.mpgo .mpplay{display:flex;flex-direction:column;align-items:center;gap:2px}
+.mpgo .mpplay i{display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:linear-gradient(#ffe27a,#ffb04a);color:#3a2000;font-weight:900;font-size:1.2rem;font-style:normal}
+.mpgo .mpplay small{font-size:.66rem;color:#ffe7a8;font-weight:800}
+.mpcard.cd .mpplay i{animation:stpulse 1s ease-in-out infinite}
+.mpgo.done{border-color:#55e0b4!important}
+.mpcard .stlater{align-self:flex-end;margin:0}
+/* ---------- 💪 特別授業 ---------- */
+.mpsp{display:flex!important;align-items:center;gap:10px;width:100%;text-align:left;padding:12px 14px!important;border-radius:14px!important;
+  border:2px solid rgba(255,154,60,.75)!important;background:rgba(255,154,60,.16)!important}
+.mpsp span{font-size:1.5rem}
+.mpsp b{font-size:1.02rem}
+.mpsp small{margin-left:auto;font-size:.8rem;color:#ffe7a8;font-weight:700}
+/* ---------- 📖 勉強・📚 復習・☕ おしゃべり（小さめ） ---------- */
+.mp3 button{padding:8px 4px!important}
+.mp3 button span{font-size:1.25rem}
+.mp3 button b{font-size:.85rem}
+/* ---------- 時間の 線（むかし ― いま ― これから） ---------- */
+.utl{width:100%;padding:22px 4px 2px;box-sizing:border-box}
+.utlbar{position:relative;height:10px;border-radius:5px;background:#e6e0f7}
+.utlbar i{position:absolute;top:0;height:10px;border-radius:5px;background:#ffb347}
+.utlbar i.g{background:#34c38f}.utlbar i.o{background:#ffb347}.utlbar i.r{background:#f87171}
+.utlbar i em{position:absolute;bottom:13px;left:50%;transform:translateX(-50%);white-space:nowrap;font-style:normal;font-size:.72rem;font-weight:800;color:#3b3360}
+.utlbar b{position:absolute;top:-3px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:#7a5cff;border:2px solid #fff}
+.utlbar b em{position:absolute;top:18px;left:50%;transform:translateX(-50%);white-space:nowrap;font-style:normal;font-size:.7rem;font-weight:700;color:#5b4b8a}
+.utlbar u{position:absolute;top:-6px;width:3px;height:22px;margin-left:-1px;background:#c2410c;border-radius:2px}
+.utllab{position:relative;height:1.2em;margin-top:18px;font-size:.72rem;font-weight:800;color:#6b6390}
+.utllab span{position:absolute;left:0}
+.utllab span:nth-child(2){transform:translateX(-50%);color:#c2410c}
+.utllab span:last-child{left:auto;right:0}
