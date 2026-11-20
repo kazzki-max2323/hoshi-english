@@ -18,7 +18,7 @@ const strip=s=>String(s||'').replace(/<[^>]+>/g,' ');
 
 /* ================================================================ さがす もの */
 let IDX=null;
-function index(){if(IDX)return IDX;IDX={cards:[],gram:[],les:[]};
+function index(){if(IDX)return IDX;IDX={cards:[],gram:[],les:[],unit:[]};
   /* カード: ブックの 分け方（宝・小中高ハイ・パーツと文）の ぜんぶ。 もっていない カードも */
   try{const B=window.CBOOK,C=window.CG;if(B&&C)B.SEC.forEach(s=>B.list(s.k).forEach(id=>{const I=C.info(id);if(!I)return;
     IDX.cards.push({id,sec:s.n,k:I.k,en:I.en,ja:I.ja,ne:norm(I.en),nj:norm(I.ja),ws:new Set(words(I.en))})}))}catch(e){}
@@ -31,10 +31,15 @@ function index(){if(IDX)return IDX;IDX={cards:[],gram:[],les:[]};
   try{if(typeof LESSONS!=='undefined')LESSONS.forEach(l=>{
     const txt=[...(l.steps||[]).map(s=>strip(s[2])+' '+strip(s[3]||'')),...(l.quiz||[]).map(q=>strip(q.q)+' '+(q.o||q.c||[]).map(strip).join(' '))].join(' ');
     IDX.les.push({id:l.id,lv:l.lv,t:l.t,ws:new Set(words(txt+' '+(l.key||[]).join(' '))),nt:norm(l.t),nk:norm((l.key||[]).join(' ')),nj:norm(txt)})})}catch(e){}
+  /* 単元・特別授業（game/unit.js）の 時間: カードの 説明・例文・問題 */
+  try{if(window.UNIT)UNIT.list.forEach(u=>u.D.CH.forEach((c,ci)=>{
+    const en=[...c.cards.flatMap(k=>(k.ex||[]).map(e=>e[0])),...c.cards.map(k=>strip(k.f||'')),...c.q.map(q=>q.s?q.s.replace('___',q.o[0]):q.o[0])].join(' ');
+    const ja=[c.t,c.short,...c.cards.map(k=>strip(k.say)),...c.cards.flatMap(k=>(k.ex||[]).map(e=>e[1]))].join(' ');
+    IDX.unit.push({u,ci,t:c.t,ico:c.ico,ws:new Set(words(en+' '+ja)),nt:norm(c.t+' '+c.short+' '+u.D.title),nj:norm(ja)})}))}catch(e){}
   return IDX}
 
 /* 点数: 小さいほど 上 */
-function find(q){q=String(q||'').trim();const n=norm(q);if(!n)return {cards:[],gram:[],les:[]};const I=index(),en=isEn(q),qw=words(q);
+function find(q){q=String(q||'').trim();const n=norm(q);if(!n)return {cards:[],gram:[],les:[],unit:[]};const I=index(),en=isEn(q),qw=words(q);
   /* 英語の 1語なら 語の かたち（swim → swims / swimming / swam）も 見る */
   const w1=en&&qw.length===1?qw[0]:'',stem=w1.length>=4?w1.replace(/(ing|ed|es|s)$/,''):w1;
   const hasW=ws=>{if(!w1)return qw.length>1&&qw.every(w=>ws.has(w));if(ws.has(w1))return true;if(stem.length<3)return false;for(const w of ws)if(w.startsWith(stem)&&w.length-stem.length<=4)return true;return false};
@@ -48,7 +53,9 @@ function find(q){q=String(q||'').trim();const n=norm(q);if(!n)return {cards:[],g
   gram.sort((a,b)=>a[0]-b[0]);
   const les=[];I.les.forEach(l=>{let r=-1;if(l.nt.includes(n)||l.nk.includes(n))r=0;else if(en&&hasW(l.ws))r=1;else if(!en&&n.length>=2&&l.nj.includes(n))r=1.5;if(r>=0)les.push([r,l])});
   les.sort((a,b)=>a[0]-b[0]);
-  return {cards:uniq.map(x=>x[2]),gram:gram.map(x=>x[1]),les:les.map(x=>x[1])}}
+  const unit=[];I.unit.forEach(x=>{let r=-1;if(x.nt.includes(n))r=0;else if(en&&hasW(x.ws))r=1;else if(!en&&n.length>=2&&x.nj.includes(n))r=1.5;if(r>=0)unit.push([r-(x.u.doneN()>0?.3:0),x])});
+  unit.sort((a,b)=>a[0]-b[0]);
+  return {cards:uniq.map(x=>x[2]),gram:gram.map(x=>x[1]),les:les.map(x=>x[1]),unit:unit.map(x=>x[1])}}
 
 /* ================================================================ がめん */
 const LVN={es:'小',jh:'中',hs:'高',adv:'ハイ'};
@@ -70,14 +77,15 @@ function open(q){q=q==null?(SR.last||''):q;shown=12;sf('pop');
   draw(q);if(!q)setTimeout(()=>{try{inp.focus()}catch(e){}},80)}
 function minaSay(k,v){const [ex,tx]=ML(k,v);$('msm').innerHTML=`<span class="msf">${mface(ex)}</span><p>${tx}</p>`}
 function draw(q,enter){const box=$('msr');if(!box)return;q=String(q||'').trim();
-  if(!q){lastQ='';box.innerHTML=SR.q.length?`<p class="mshd">さいきん さがした ことば</p><div class="msrec">${SR.q.map(x=>`<button data-q="${esc(x)}">${esc(x)}</button>`).join('')}</div>`:'';
+  if(!q){lastQ='';box.innerHTML=(SR.q.length?`<p class="mshd">さいきん さがした ことば</p><div class="msrec">${SR.q.map(x=>`<button data-q="${esc(x)}">${esc(x)}</button>`).join('')}</div>`:'')+shelf();bindShelf(box);
     box.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{sf('tap');$('msq').value=b.dataset.q;$('msqx').hidden=false;draw(b.dataset.q,1)});
-    minaSay(SR.n?'ms_open':'ms_first');return}
-  const R=find(q),C=window.CG,nc=R.cards.length,tot=nc+R.gram.length+R.les.length;
+    minaSay(!SR.n?'ms_first':learned().length&&Math.random()<.5?'ms_shelf':'ms_open');return}
+  const R=find(q),C=window.CG,nc=R.cards.length,tot=nc+R.gram.length+R.les.length+R.unit.length;
   const own=c=>{try{return C.count(c.id)>0}catch(e){return false}};
   const row=c=>{const o=own(c);return `<button class="mscard${o?' own':''}" data-id="${esc(c.id)}"><span class="msb">${esc(c.sec)}</span><span class="mst"><b>${esc(c.en)}</b><small>${esc(c.ja)}</small></span><i>${o?'✅':'まだ'}</i></button>`};
   let h='';
   if(nc)h+=`<p class="mshd">🃏 カード <small>${nc}</small></p><div class="mslist">${R.cards.slice(0,shown).map(row).join('')}</div>${nc>shown?`<button class="sub msmore" id="msmore">もっと 見る（のこり ${nc-shown}）</button>`:''}`;
+  if(R.unit.length)h+=`<p class="mshd">📘 授業 <small>${R.unit.length}</small></p><div class="mslist">${R.unit.slice(0,6).map(x=>`<button class="msu" data-u="${esc(x.u.id)}:${x.ci}"><span class="msb">${x.ico}</span><span class="mst"><b>${esc(x.u.D.title)}　${x.ci+1}時間目</b><small>${esc(x.t)}</small></span><i>${x.u.rec().ch&&x.u.rec().ch[x.ci]&&x.u.rec().ch[x.ci].d?'✔':'▶'}</i></button>`).join('')}</div>`;
   if(R.gram.length)h+=`<p class="mshd">📚 文法ノート <small>${R.gram.length}</small></p><div class="mslist">${R.gram.slice(0,8).map(g=>`<button class="msg" data-g="${g.lv}:${g.i}"><span class="msb">${esc(LVN[g.lv]||g.lv)}</span><span class="mst"><b>${esc(g.t)}</b>${exOf(g,q)}</span><i>▶</i></button>`).join('')}</div>`;
   if(R.les.length)h+=`<p class="mshd">📖 ミニ授業 <small>${R.les.length}</small></p><div class="mslist">${R.les.slice(0,6).map(l=>`<button class="msl" data-l="${esc(l.id)}"><span class="msb">${esc(LVN[l.lv]||'')}</span><span class="mst"><b>${esc(l.t)}</b></span><i>▶</i></button>`).join('')}</div>`;
   if(!tot)h=`<p class="msnone">見つからなかったよ</p>`;
@@ -85,6 +93,7 @@ function draw(q,enter){const box=$('msr');if(!box)return;q=String(q||'').trim();
   box.querySelectorAll('.mscard').forEach(b=>b.onclick=()=>{const id=b.dataset.id;remember(q);SR.seen=(SR.seen|0)+1;save();sf('step');
     C.detail(id,null,{from:'search'});if(!own({id}))try{const I=C.info(id);H.toast(`まだ もっていない カード<small>${I&&I.k==='t'?'⛏️ 鉱山の 深い ところで 見つかるかも':'⛏️ 鉱山で ほりだそう'}</small>`)}catch(e){}});
   box.querySelectorAll('.msg').forEach(b=>b.onclick=()=>{const [lv,i]=b.dataset.g.split(':');remember(q);sf('step');H.gramFrom(lv,()=>open(q));H.gramNote(lv,+i);const gx=$('gx');if(gx)gx.onclick=()=>{sf('back');open(q)}});
+  box.querySelectorAll('.msu').forEach(b=>b.onclick=()=>{const [id,ci]=b.dataset.u.split(':'),u=UNIT.get(id);if(!u)return;remember(q);sf('lesson');u.open({ch:+ci})});
   box.querySelectorAll('.msl').forEach(b=>b.onclick=()=>{remember(q);sf('step');LESSON.open(b.dataset.l,()=>open(q))});
   const m=$('msmore');if(m)m.onclick=()=>{sf('tap');shown+=24;draw(q)};
   if(q!==lastQ){lastQ=q;SR.n++;save();
@@ -92,9 +101,18 @@ function draw(q,enter){const box=$('msr');if(!box)return;q=String(q||'').trim();
     if(!tot)minaSay('ms_none',{q});
     else if(nc&&R.gram.length)minaSay('ms_both',{q,c:nc,g:R.gram.length});
     else if(nc&&notOwn&&notOwn===nc)minaSay('ms_notOwn',{q});
+    else if(R.unit.length&&!nc&&!R.gram.length)minaSay('ms_unit',{q});
+    else if(R.unit.length&&Math.random()<.4)minaSay('ms_unit',{q});
     else if(nc)minaSay('ms_cards',{q,c:nc});
     else minaSay('ms_gram',{q})}
   if(enter&&tot)remember(q)}
+/* 📘 習った 授業を 見かえす（11/20 ユーザー「終わった 特別授業は いつでも 見れるように」）。 ミナ先生の ページに えらぶ 画面を ふやさないよう、 🔍 の 中に おく */
+function learned(){try{return UNIT.list.filter(u=>u.doneN()>0||u.rec().tn)}catch(e){return []}}
+function shelf(){const L=learned();if(!L.length)return '';
+  return `<p class="mshd">📘 習った 授業を 見かえす</p><div class="mslist">${L.map(u=>{const r=u.rec(),all=u.nextCh()==null;
+    return `<div class="msshelf"><button class="msun" data-un="${esc(u.id)}"><span class="msb">${u.D.ico}</span><span class="mst"><b>${esc(u.D.title)}</b><small>${r.best?u.stars(r.best):all?'ぜんぶ 習った':'とちゅう'}</small></span><i>▶</i></button><button class="sub mssh" data-sh="${esc(u.id)}">📄 まとめ</button></div>`}).join('')}</div>`}
+function bindShelf(box){box.querySelectorAll('[data-un]').forEach(b=>b.onclick=()=>{const u=UNIT.get(b.dataset.un);if(u){sf('lesson');u.open()}});
+  box.querySelectorAll('[data-sh]').forEach(b=>b.onclick=()=>{const u=UNIT.get(b.dataset.sh);if(u){sf('book');u.sheet(u.close)}})}
 /* 文法ノートの 中で その ことばが 出てくる 例文を 1つ */
 function exOf(g,q){const w=words(q)[0];if(!w)return '';const s=g.en.split(/(?<=[.?!])\s+/).find(x=>words(x).some(y=>y===w||(w.length>=4&&y.startsWith(w.replace(/(ing|ed|es|s)$/,'')))));return s?`<small>${esc(s)}</small>`:''}
 function remember(q){q=String(q||'').trim();if(!q)return;SR.last=q;SR.q=[q,...SR.q.filter(x=>x!==q)].slice(0,8);save()}
@@ -108,6 +126,8 @@ Object.assign(MINA_LINES,{
  ms_open:[['smile','なにを さがす？ 英語でも 日本語でも いいよ'],['happy','気に なった ことば、 すぐ しらべるの えらいね'],['think','さっきの 授業で 気に なった ことばは ある？']],
  ms_cards:[['happy','「{q}」は カードが {c}まい 見つかったよ。 タップで くわしく 見られるよ'],['smile','「{q}」の カード、 {c}まい あったよ。 例文も 読んでみてね']],
  ms_both:[['wow','「{q}」は カード {c}まいと、 文法ノート {g}こに 出てくるよ。 いっしょに 見ると 覚えやすいの'],['proud','「{q}」、 カードも 文法も あるよ。 使い方まで わかると 強いね']],
+ ms_shelf:[['smile','前に 習った 授業は、 下の 📘 から いつでも 見かえせるよ。 📄まとめ だけ さっと 見るのも いいね'],['happy','「なんだっけ？」って 思ったら、 習った 授業を もう一回 のぞいてみよう']],
+ ms_unit:[['happy','「{q}」は 授業の 中でも 出てきたよ。 📘 から その 時間の カードに 行けるの'],['think','「{q}」、 授業で やった ところだね。 もう一回 カードを 見ると すっきり するよ']],
  ms_gram:[['think','「{q}」は 文法ノートに 出てくるよ。 ルールと 例文を 見てみよう'],['smile','「{q}」の ことは 文法ノートと 授業に あるよ']],
  ms_notOwn:[['happy','「{q}」の カードは まだ もっていないね。 ⛏️ 鉱山で ほりだせるかも'],['smile','まだ 手に 入れて いない カードでも、 中身は 先に 見ておけるよ']],
  ms_none:[['think','「{q}」は 見つからなかった… つづりを たしかめるか、 日本語でも ためしてみて'],['worry','うーん、 「{q}」は のって いないみたい。 みじかく してみると 出てくるかも']],

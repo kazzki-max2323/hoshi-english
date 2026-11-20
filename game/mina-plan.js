@@ -50,7 +50,8 @@ function today(){const D=day(),I=todayInfo();if(!I)return;const u=I.u,label='�
   if(W)W.src.warmRun(W.qs,label,start);else start()}
 
 /* ---------- 💪 特別授業: 苦手が 多い 単元を まちがえた 時間から ---------- */
-function weakUnit(){const L=units().filter(u=>u.started()),m=L.filter(u=>u.missOf()>0).sort((a,b)=>b.missOf()-a.missOf());if(m.length)return m[0];
+function weakUnit(){/* 新しく 作った 特別授業（D.sp: 英語のしくみ）は おわるまで それを */const sp=units().find(u=>u.D.sp&&!u.done());if(sp)return sp;
+  const L=units().filter(u=>u.started()),m=L.filter(u=>u.missOf()>0).sort((a,b)=>b.missOf()-a.missOf());if(m.length)return m[0];
   let w=[];try{w=SENSEI.weak()}catch(e){}const g=L.find(u=>u.gids().some(id=>w.includes(id)));if(g)return g;
   return L.find(u=>(u.rec().best||0)<3)||cur()}
 function special(){const u=weakUnit();if(!u)return;const R=u.rec(),CH=u.D.CH;

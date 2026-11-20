@@ -147,6 +147,10 @@ small.sten{font-size:.8em;color:#b45309;margin-left:4px}
 .mst b{font-size:1rem;overflow-wrap:anywhere}.mst small{opacity:.8;font-size:.8rem;overflow-wrap:anywhere}
 .mslist i{font-style:normal;font-size:.78rem;opacity:.8;flex:none}
 .msmore{align-self:center}
+/* 📘 習った 授業を 見かえす（search.js shelf） */
+.msshelf{display:flex;gap:6px;align-items:stretch}.msshelf .msun{flex:1;min-width:0}
+.mslist .mssh{width:auto;flex:none;padding:6px 10px;font-size:.82rem;white-space:nowrap}
+.mslist .msu .msb,.msshelf .msb{font-size:1rem;background:rgba(122,162,255,.18)}
 .msnone{text-align:center;opacity:.8;margin:12px 0}
 .msrec{display:flex;flex-wrap:wrap;gap:6px}
 .msrec button{padding:6px 12px;border-radius:99px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:var(--ink);font:inherit;cursor:pointer}

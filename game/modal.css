@@ -21,6 +21,8 @@
 .mdnote{margin:2px 0 0;font-size:.82rem;font-weight:700;color:#5b4b8a;text-align:center}
 .mdtbl{display:grid;grid-template-columns:auto auto;gap:3px 14px;margin-top:6px;font-family:Georgia,serif;font-size:.95rem}
 .mdtbl span{color:#6b6390;text-align:right}.mdtbl b{color:#9a3412}
+/* 3つの 顔の 表（英語のしくみ）: 1行目が 見出し */
+.mdtbl.sk3{grid-template-columns:auto auto auto;gap:4px 16px}.mdtbl.sk3 span{text-align:center;font-family:inherit;font-size:.78rem;font-weight:800}.mdtbl.sk3 b{text-align:center}
 .mdmeter{display:flex;flex-direction:column;gap:7px;width:100%}
 .mdmeter>div{display:grid;grid-template-columns:7.2em 1fr;grid-template-rows:auto auto;gap:2px 8px;align-items:center}
 .mdmeter .mdb{grid-row:1/3;text-align:center;font-size:.85rem;padding:4px 4px}
