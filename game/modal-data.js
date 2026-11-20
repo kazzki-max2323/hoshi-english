@@ -150,7 +150,7 @@ const SUM=[
   memo:'おねがいの ていねいさ：Can you ＜ Will you ＜ Could you ≒ Would you'},
 ];
 SUM.forEach((x,i)=>{if(CH[i])CH[i].sum=x});
-window.MODAL_DATA={CH,MIX,title:'助動詞',gid:'jh_modal'};
+window.MODAL_DATA={id:'modal',ico:'💪',CH,MIX,title:'助動詞',gid:'jh_modal'};
 
 /* ---------- ミナ先生の セリフ（[表情, ことば]） ---------- */
 Object.assign(MINA_LINES,{
