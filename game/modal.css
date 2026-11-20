@@ -78,3 +78,17 @@
 .mdmeter .mdbar i{height:12px}
 .mdopts button:disabled{opacity:1}
 .mdopts button:disabled:not(.right):not(.wrong){opacity:.55}
+/* 📄 まとめ 1まい */
+.mdsheet{display:flex;flex-direction:column;gap:12px}
+.mdsec{display:flex;flex-direction:column;gap:6px;background:rgba(255,255,255,.05);border-radius:12px;padding:8px}
+.mdsh{display:flex;align-items:center;gap:8px;text-align:left;padding:6px 10px!important}
+.mdsh i{font-style:normal;font-size:1.15rem}
+.mdsh span{flex:1;display:flex;flex-direction:column;font-weight:800;font-size:.9rem}
+.mdsh small{font-size:.68rem;opacity:.75;font-weight:400}
+.mdsh em{font-style:normal;font-size:.72rem;color:#ffd23f}
+.mdpt{margin:0;background:#fff6e0;color:#2a2340;text-shadow:none;border-radius:10px;padding:8px 11px;font-size:.92rem;line-height:1.55;font-weight:700}
+.mdpt b{color:#c2410c}
+.mdsec .mdfig{padding:9px}
+.mdsec .mdtwo+.mdtwo{margin-top:2px}
+.mdmemo{margin:0;background:#fff6c9;color:#2a2340;text-shadow:none;border-left:5px solid #ffb347;border-radius:8px;padding:7px 10px;font-size:.84rem;line-height:1.5}
+.mdmemo b{color:#c2410c}
