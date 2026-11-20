@@ -155,7 +155,56 @@ function open(){gen++;P=null;FD.v=(FD.v||0)+1;save();const M=menu(),[en,ja]=gree
   if(window.GIFT)GIFT.bindBtn('marco','fdgv',open);
   H.panel.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{const d=dish(b.dataset.d);if(!d)return;
     if(ST.coins<d.p){sf('wrong');H.toast(`🪙 コインが たりないよ <small>あと ${d.p-ST.coins}まい</small>`);return}
-    sf('talk');order(d,M)})}
+    if(talkTurn()){sf('talk');return order(d,M)}sf('pop');quick(d,M)})}
+/* ---------- 💨 さらっと 食べる（2026-11-20 ユーザー「会計は 疲れる。 5回に1回に」）
+   ふだんは ボタンで 注文して すぐ 食べる（マルコさんは ひとこと だけ・うんちくは 1つ）。 5回に 1回くらい いつもの 英語の 注文に なる。
+   「💬 マルコさんと 英語で 注文」で いつでも 会話に できる */
+const talkTurn=()=>{FD.ckn=(FD.ckn||0)+1;save();return FD.ckn%5===0};
+const Q_HI=[["Ah, good choice! Coming right up.","おっ、 いい えらびだ！ すぐ 作るよ。"],["One of my favorites! Sit down, sit down.","おれの 好きな 料理だ！ すわって すわって。"],["Great! Give me a minute.","いいね！ ちょっと 待っててくれ。"],["You'll love this one.","これは 気に入るぞ。"]];
+const Q_BYE=[["Thanks! Come again!","ありがとう！ また 来てくれ！"],["Enjoyed it? See you soon!","うまかったかい？ またな！"],["Thank you, friend!","ありがとな！"]];
+let qLast='';const qPick=a=>{const b=a.filter(x=>x[0]!==qLast),x=pickL(b.length?b:a);qLast=x[0];return x};
+function quick(d,M){gen++;P=null;const [en,ja]=qPick(Q_HI);
+  H.show('food',`<section class="pnl fd fdq">
+    <div class="qtop"><button class="x" id="fdx" aria-label="もどる">←</button><b>${d.ico} ${esc(d.n)} <small class="zlv zlv-${d.lv}">${LVJ[d.lv]}</small></b><span class="qn">❤${hp()}</span></div>
+    <div id="fdhi">${marcoLine(en,ja)}</div>
+    <div class="fdqit"><span class="fdi">${d.ico}</span><span class="fdn"><b>${esc(d.n)}</b><small>${d.fl} ${esc(d.c)}</small></span><span class="fdp">🪙${d.p}<small>❤+${d.hp}</small></span></div>
+    <div class="row"><button id="fdqok">😋 🪙${d.p}で 食べる</button><button id="fdqno" class="sub">やめる</button></div>
+    <p class="note fdqtalk"><button id="fdqtalk" class="sub">💬 マルコさんと 英語で 注文</button></p>
+  </section>`);
+  bindLine($('fdhi'));say(en);
+  $('fdx').onclick=$('fdqno').onclick=()=>{sf('back');try{speechSynthesis.cancel()}catch(e){}open()};
+  $('fdqtalk').onclick=()=>{sf('talk');order(d,M)};
+  $('fdqok').onclick=()=>{if(ST.coins<d.p){sf('wrong');H.toast(`🪙 コインが たりないよ <small>あと ${d.p-ST.coins}まい</small>`);return}quickEat(d)}}
+function quickEat(d){const g0=++gen,before=hp(),first=!FD.eaten[d.id],newC=first&&!countries().includes(d.c);
+  ST.coins=Math.max(0,ST.coins-d.p);save();H.head();sf('buy');
+  const [a,b]=gain(d.hp);
+  FD.eaten[d.id]=(FD.eaten[d.id]||0)+1;FD.meals=(FD.meals||0)+1;try{RECENT.add('meal',{id:d.id,en:d.en||'',ja:d.n,ico:d.ico,c:d.c})}catch(e){}
+  /* うんちくは 1つ（まだ 聞いていない ほう） */
+  const tr=FD.tri[d.id]||(FD.tri[d.id]=[0,0]),ti=d.t&&d.t.length?(tr[0]?(tr[1]||!d.t[1]?(Math.random()*d.t.length|0):1):0):-1,newT=ti>=0&&!tr[ti];if(ti>=0)tr[ti]=1;save();
+  let k='fd_qEat',v={d:d.n,c:d.c,n:Object.keys(FD.eaten).length};
+  if(FD.meals===1)k='fd_qFirst';else if(!FD.qn)k='fd_qFirst';else if(newC)k='fd_newCountry';else if(b>=MAX&&a<MAX)k='fd_full';else if(newT&&Math.random()<.4)k='fd_qTri';
+  FD.qn=1;save();
+  const [ex,tx]=ML(k,v),[be,bj]=qPick(Q_BYE);
+  H.show('food',`<section class="pnl fd fdq" data-stay>
+    <div class="qtop"><button class="x" id="fdx" aria-label="もどる">←</button><b>${d.ico} ${esc(d.n)}</b><span class="qn">❤${b}</span></div>
+    <div class="fdmeal">${munchHtml(d.ico)}<p class="fdgot">もぐもぐ… ❤ <b class="fdnum">${before}</b> ${hpBar(before,'big')}</p></div>
+    <div id="fdqend" hidden>
+      <div id="fdhi">${marcoLine(be,bj)}</div>
+      <p class="zkres">${d.ico} <b>${esc(d.n)}</b>（${d.fl} ${esc(d.c)}） 🪙${d.p} ・ ❤ ${a} → <b>${b}</b>${first?' <small>はじめての 料理！</small>':''}</p>
+      ${ti>=0?`<details class="mfold" ${newT?'open':''}><summary>📜 うんちく ${newT?'<i class="zknew">NEW</i>':''}</summary><div class="fdtris"><div class="fdtri"><p>${esc(d.t[ti][0])}<button class="ksay" data-say="${esc(d.t[ti][0])}">🔊</button></p><small>${esc(d.t[ti][1])}</small></div></div></details>`:''}
+      <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
+      <div class="row"><button id="fdbook2" class="sub">📜 うんちく図鑑</button><button id="fdback">🍽️ お品書きに もどる</button></div>
+      ${minePeek()}</div>
+  </section>`);
+  $('fdx').onclick=()=>{sf('back');gen++;open()};
+  const box=H.panel.querySelector('.fdmeal');
+  munch(box,a,b,()=>{if(gen!==g0)return;const g=box.querySelector('.fdgot');if(g)g.insertAdjacentHTML('beforeend',` <small>+${b-a}${b>=MAX?' まんたん！':''}</small>`);
+    const e=$('fdqend');if(!e)return;e.hidden=false;sf('done');bindLine(e);say(be);
+    e.querySelectorAll('[data-say]').forEach(x=>x.onclick=ev=>{ev.stopPropagation();say(x.dataset.say)});
+    $('fdback').onclick=()=>{sf('back');open()};
+    $('fdbook2').onclick=()=>{sf('book');book(open)};
+    const mg=$('fdmine');if(mg)mg.onclick=()=>{sf('open');try{CG.open();setTimeout(()=>MINE.open(),60)}catch(err){H.home()}};
+    setTimeout(()=>e.scrollIntoView({behavior:'smooth',block:'end'}),100)})}
 function marcoLine(en,ja){const on=jaOn();
   return `<div class="lsay kth fdhi"><span class="lface kf">${MARCO.ico}</span><div class="lbody"><p class="ken">${esc(en)}<button class="ksay" data-say="${esc(en)}" aria-label="もう一度 きく">🔊</button></p><small class="kja ${on?'on':''}">${esc(ja)}</small>${on?'':'<button class="kjab">訳を 見る</button>'}</div></div>`}
 function bindLine(root){if(!root)return;root.querySelectorAll('[data-say]').forEach(b=>b.onclick=e=>{e.stopPropagation();say(b.dataset.say)});
@@ -474,6 +523,9 @@ try{const X=SFX;
 Object.assign(MINA_LINES,{
  fd_first:[['wow','はじめての 食堂、 どうだった？ 英語で 注文できたね！ 「I\'d like ～, please.」は 旅行でも ずっと つかえるよ'],['happy','{d}、 おいしそう！ マルコさんの うんちく、 わたしも 聞きたかったな']],
  fd_end:[['smile','{d}、 ごちそうさま！ これで {n}品め。 料理の 名前って 英語の まま 世界に 通じるのが 多いんだよ'],['happy','注文の 英語、 どんどん なれてきたね。 つぎは ちがう 国の 料理も ためしてみよう'],['point','「Could I have the check, please?」 は お会計の きまり文句。 おぼえておくと 外国で こまらないよ'],['smile','{c}の 料理だったね。 うんちくは 📜図鑑で いつでも 読みかえせるよ']],
+ fd_qFirst:[['smile','食堂も ボタンで さらっと 食べられるように なったよ。 5回に 1回くらいは マルコさんが 英語で 注文を 聞いてくるから、 そのときは のんびり 話してね'],['happy','英語で 注文したい 日は 「💬 マルコさんと 英語で 注文」を おしてね。 いつでも できるよ']],
+ fd_qEat:[['smile','{d}、 ごちそうさま！ これで {n}品め'],['happy','{d}、 おいしそう！ 料理の 名前って 英語の まま 世界に 通じるのが 多いんだよ'],['point','注文の きほんは 「I\'d like ～, please.」。 マルコさんと 英語で 注文する 回に つかってみてね'],['smile','つかれた 日は さらっと 食べて 元気 チャージ。 それで いいんだよ']],
+ fd_qTri:[['think','マルコさんの うんちく、 読んだ？ {d}の 話、 だれかに 話したく なるね'],['smile','うんちくは 📜 うんちく図鑑に たまっていくよ。 {c}の 料理、 また ふえたね']],
  fd_newCountry:[['wow','{c}の 味は はじめて！ 食べた 国が また ふえたね'],['happy','{c}の 料理、 どんな 味だった？ 食べものから その 国が 好きに なる こと、 あるよね']],
  fd_full:[['happy','❤ まんたん！ これで 鉱山も ばっちりだね'],['smile','おなか いっぱい、 元気 いっぱい。 {d}の おかげだね']],
  fd_hs:[['proud','高の 料理を 英語で 注文できたね。 「Could you tell me ～?」みたいな ていねいな 言い方、 すてきだよ'],['wow','むずかしい うんちくも 聞けたね。 わからない ところは 訳を 見ても いいからね']],

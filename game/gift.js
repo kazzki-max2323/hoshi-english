@@ -1,6 +1,6 @@
 /* 🎁 プレゼント: もちものの 品を だれかに あげる（中身は game/gift-data.js）
    - あげられる 品: 雑貨屋の プレゼント（ZAKKA.rec().gift）と リクからの お礼（TUTOR.rec().gifts）と ダブった 単語カード（game/cg-more.js）
-   - あげられる 相手: ミナ先生・リク（バイトで 会ったら）・ノラさん（お店で 会ったら）・ミオ（カードショップで 会ったら）・浜辺の 会話で 会った みんな
+   - あげられる 相手: ミナ先生・リク（バイトで 会ったら）・ノラさん（お店で 会ったら）・ミオ（カードショップで 会ったら）・マルコさん（食堂に 行ったら）。 浜辺の 会話は 11/20 に なくした
    - 会話: わたす ことば（小・中・高）→ 反応（4だん）→ 相手の 質問 → さいごの ひとこと → エンド。 へんな 答えでも 話は すすむ
    - 苦手だった ときに 「なにが 好き？」と 聞くと 好きな ものを 教えてくれる → 🎁 好きな物ノート に のこる
    - ミナ先生は なかよし度、 浜辺の みんなは ♥ が 上がる。 新しい エンドで コイン
@@ -42,7 +42,6 @@ function people(){const out=['mina'];const T=TR(),Z=ZR();
   if(T&&T.met)out.push('riku');if(Z&&Z.met)out.push('nora');
   try{if(window.MIOC&&SHOP.rec().met)out.push('mio')}catch(e){}
   try{if(window.FOOD&&FOOD.rec().v)out.push('marco')}catch(e){}
-  try{const K=KAIWA.rec();Object.keys(PP).forEach(k=>{if(KAIWA.chars[k]&&K.heart[k]>0)out.push(k)})}catch(e){}
   return out}
 const pName=to=>PP[to].n;
 const pFace=(to,ex)=>to==='mina'?MINA.face('m',ex||'smile'):to==='mio'&&window.MIO?MIO.face(({worry:'oops',happy:'laugh',love:'wink'})[ex]||'smile'):`<span class="gfi">${(to!=='riku'&&to!=='nora'&&window.KAIWA&&KAIWA.chars[to]||PP[to]).ico}</span>`;
@@ -90,7 +89,6 @@ function who(it,back,prev){hush();if(typeof it==='string')it=byRef(it);if(!it)re
     <div class="qtop"><button class="x" id="gfx" aria-label="もどる">←</button><b>${it.ico} ${esc(it.n)}を だれに？</b><span class="qn"></span></div>
     ${minaBox('gf_who',{n:it.n})}
     <div class="gfwho">${P.map(to=>{const s=seen(to,it.key);return `<button data-to="${to}"><span class="gff">${pFace(to,'smile')}</span><b>${esc(pName(to))}</b>${s!=null?`<i class="gfk">${tierIco(s)}</i>`:''}</button>`}).join('')}</div>
-    ${P.length<4?'<p class="note">浜辺の 会話で 会った 人にも あげられるよ</p>':''}
   </section>`);
   $('gfx').onclick=()=>{sf('back');(prev||back)()};
   H.panel.querySelectorAll('[data-to]').forEach(b=>b.onclick=()=>{sf('step');play(it,b.dataset.to,back)})}
@@ -127,6 +125,8 @@ function play(it,to,back){hush();if(typeof it==='string')it=byRef(it);if(!it||!P
   const p=PP[to],t=tier(to,it.key);
   const last=GF.last[to]&&GF.last[to].k!==it.key?GF.last[to]:null;
   C={it,to,p,t,back:back||H.home,fun:0,typed:0,step:0,hint:false,ex:'smile',opts:[],last,k:(GF.gave[to]||0)+1,ev:[],ret:null,longId:''};
+  /* 11/20 ユーザー「英文が 多くて つかれる」: ふだんは さらっと（わたして → 1〜2行の 反応で おわり）。 4回に 1回くらい いつもの 長い 会話。 はじめての 1回と ○回目の 記念日は 長い ほう */
+  C.short=GF.n>0&&!GIFT_COUNT[C.k]&&Math.random()<.75;
   H.show('gift',`<section class="pnl lsn kw zk gf" data-stay>
     <div class="qtop"><button class="x" id="gfx" aria-label="やめる">←</button><b>🎁 ${esc(p.n)}に ${it.ico}</b><span class="qn" id="gfq"></span></div>
     <div class="lslog kwlog" id="gflog"></div>
@@ -137,6 +137,8 @@ function play(it,to,back){hush();if(typeof it==='string')it=byRef(it);if(!it||!P
 
 /* ---------- はじまり（毎回 かわる） ---------- */
 function opener(){const {p,it,to}=C,O=GIFT_OPEN;
+  if(C.short){const lv=(()=>{try{const l=MINA.level();return l==='adv'?'hs':l}catch(e){return 'es'}})(),a=GIFT_HAND.filter(x=>x[0]===lv),h=pickL(a.length?a:GIFT_HAND);
+    $('gfq').textContent='🎁';you(h[1]);sf('step');return setTimeout(()=>{if(live())react()},650)}
   const k=GF.n===0?'hi':wpick([['hi',3],['you',2],['eyes',1.5],['guess',1.5],['wrap',it.wrap?4:0],['again',GF.day[to]===today()?4:0],['mem',C.last&&C.last.t>=2?2:0]]);
   if(k!=='hi')C.ev.push('o_'+k);
   const lvOpts=(a,fun,go,fgo)=>{const o=a.map(x=>({e:x[0],j:x[1],ok:1,lv:x[2],go}));if(fun){const f=pickL(fun);o.splice(Math.random()*(o.length+1)|0,0,{e:f[0],j:f[1],ok:0,go:fgo})}return o};
@@ -190,7 +192,14 @@ function react(){const {p,t,it,to}=C;C.ex=EX[t];let line=pickL(p.r[t]),fx=TIER[t
   else if(t>=2&&tg.length&&Math.random()<.35)afterTalk(()=>{them(sty(pickL(GIFT_SEE[pickL(tg)])),'✨','k-good');after()},300,700);
   else after()}
 /* ---------- そのあとの 展開（毎回 かわる。 前回と 同じ 展開は 出にくい） ---------- */
-function after(){afterTalk(()=>{const {t,to,it}=C,fk=GF.fk[to];
+/* さらっと の おわり: 苦手な ときは ときどき 好きな ものを 教えてくれる・たまに お返し */
+function shortEnd(){const {t,to,p}=C;C.ev.push('f_quick');
+  if(t===0&&Math.random()<.5){C.hint=true;const nw=!GF.hint[to];GF.hint[to]=p.hint[2];save();them(p.hint,'💡','k-good');
+    if(nw)setTimeout(()=>H.toast(`📔 ${esc(p.n)}の 好きな もの：<b>${esc(TAGN[p.hint[2]])}</b><small>好きな物ノートに のこしたよ</small>`,3400),900);return afterTalk(end,500,900)}
+  const R=GIFT_RETURN[to]||GIFT_RETURN['*'],ch=GF.retDay[to]===today()?0:t>=2?.15:0;
+  if(R&&Math.random()<ch){const r=pickL(R);C.ev.push('ret');them(GIFT_RETURN[to]?r.m:sty(r.m),'🎁','k-good');giveBack(r);return afterTalk(end,500,900)}
+  end()}
+function after(){if(C.short)return afterTalk(shortEnd,400,700);afterTalk(()=>{const {t,to,it}=C,fk=GF.fk[to];
   const tg=(TAGS[it.key]||[]).filter(x=>GIFT_TOPIC[x]),L=longs(),cnt=GIFT_COUNT[C.k];
   const w=t===0?[['meh',6],['topic',tg.includes('dog')?2:0],['none',1]]
     :[['where',t>=2?3:1],['why',t===1?3:1.5],['topic',tg.length?3:0],['mem',C.last?2:0],['count',cnt?12:0],['long',L.length?(L.some(x=>!GF.long[x.id])?2:.8):0],['none',1.5],['quick',1]];
@@ -260,7 +269,7 @@ function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;
 /* ================================================================ 4. the end */
 function end(){if(!live())return;const {p,t,it,to}=C;
   const BX=t>=2?GIFT_BYE_X.good:GIFT_BYE_X.ok;
-  them(Math.random()<.35?sty(pickL(BX)):t>=2?p.bye[0]:p.bye[1],t>=2?'💕':'👋',t>=2?'k-good':'');
+  if(!C.short)them(Math.random()<.35?sty(pickL(BX)):t>=2?p.bye[0]:p.bye[1],t>=2?'💕':'👋',t>=2?'k-good':'');
   GF.last[to]={k:it.key,n:it.n,w:it.w,t};GF.day[to]=today();if(C.fk)GF.fk[to]=C.fk;if(C.longId)GF.long[C.longId]=1;
   C.ev.forEach(e=>GF.ev[e]=(GF.ev[e]||0)+1);
   useUp(it);
@@ -351,7 +360,7 @@ Object.assign(MINA_LINES,{
  gf_endTopic:[['happy','品物の 話で もりあがったね。 「How does it look on me?」「Can you play it?」… 品に よって 質問が かわるんだ'],['think','プレゼントの あとに 「Have you tried it?」「Let\'s share it.」 そんな 会話が できると 自然だよ']],
  gf_endWrap:[['happy','つつんで あげると 「Can I open it now?」って 聞かれるね。 答えは 「Sure! Open it!」 だよ'],['smile','ラッピングも プレゼントの うち。 「Go ahead.」＝「どうぞ」も 言えたね']],
  gf_endYou:[['smile','自分から 「Do you have a minute?」って 話しかけたね。 話の はじめ方、 じょうずだよ'],['happy','「Can I give you something?」で 話を はじめるのも いいね']],
- gf_endQuick:[['smile','きょうは さらっと わたせたね。 短くても 気持ちは ちゃんと つたわるよ'],['happy','あっさり 受けとって もらえたね。 毎回 ちがう 会話に なるから、 また あげてみて']],
+ gf_endQuick:[['smile','きょうは さらっと わたせたね。 短くても 気持ちは ちゃんと つたわるよ'],['smile','プレゼントは ふだん さらっと わたせるよ。 4回に 1回くらいは ゆっくり おしゃべりに なるから、 お楽しみに'],['happy','あっさり 受けとって もらえたね。 毎回 ちがう 会話に なるから、 また あげてみて']],
  x_gfRet:[['happy','この前 {c}から お返し もらったんでしょ？ プレゼントって まわっていくんだね'],['smile','お返しの 品、 もちものに 入ってるよ。 だれかに また あげても いいんだ']],
  x_gfVary:[['think','プレゼントの 会話、 毎回 ちがうでしょ？ 目を とじて もらったり、 当てっこ したり。 いろんな 英語が 出てくるよ'],['smile','同じ 人に 何回も あげると、 前の 品の 話を してくれる ことも あるよ']],
  x_gfMina:[['love','ねえ… わたしにも なにか くれるの？ …なんてね。 えへへ'],['smile','プレゼントを わたす 英語、 3つ 言える？ 「This is for you.」「I got this for you.」「I saw this and thought of you.」']]

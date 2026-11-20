@@ -36,12 +36,15 @@ function offer(G,not){const my=Math.max(0,LVS.indexOf(C.myLv())),r=Math.random()
   const nw=pool.filter(c=>!C.owns(c.id));const c=pickL(nw.length&&Math.random()<.6?nw:pool);return c?c.id:null}
 const BKINDS=[['quick',18],['story',18],['chat',10],['deal',15],['mean',14],['rare',8],['have',9],['oops',7]];
 let lastB='';
-function planBuy(id){const kinds=BKINDS.filter(([k])=>k!=='have'||!C.owns(id));
+/* 11/20 ユーザー「会計は 疲れる。 5回に1回に」: 英語の やりとりが あるのは 5人に 1人くらい。 ほかは すぐ 売れる・すぐ 買いとる（quick） */
+let talkN=Math.random()*5|0;
+const talkTurn=()=>++talkN%5===0;
+function planBuy(id){if(!talkTurn())return {k:'quick',pre:false,buy:1};const kinds=BKINDS.filter(([k])=>k!=='have'&&k!=='quick'||k==='have'&&!C.owns(id));
   let k,n=0;do{let tot=kinds.reduce((a,x)=>a+x[1],0),r=Math.random()*tot;k=kinds.find(x=>(r-=x[1])<0)[0]}while(k===lastB&&++n<8);lastB=k;
   return {k,pre:!/quick|chat/.test(k)&&Math.random()<.25,buy:1}}
 
 /* ================================================================ which kind of talk（店の decide() で 1回） */
-function plan(g,floor){const kinds=KINDS.filter(([k])=>k!=='rec'||new Set(floor).size>=2);
+function plan(g,floor){if(!talkTurn())return {k:'quick',pre:false,end:false};const kinds=KINDS.filter(([k])=>k!=='quick'&&(k!=='rec'||new Set(floor).size>=2));
   let k,n=0;do{let tot=kinds.reduce((a,x)=>a+x[1],0),r=Math.random()*tot;k=kinds.find(x=>(r-=x[1])<0)[0]}while(k===lastK&&++n<8);lastK=k;
   return {k,pre:!/quick|chat/.test(k)&&Math.random()<.3,end:k!=='quick'&&Math.random()<.3}}
 

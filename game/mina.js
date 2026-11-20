@@ -363,7 +363,6 @@ function recOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),wg=weakGram
   if(gTot)nums.push(['📝','文法ノート',`${(ST.gram.cleared||[]).length} / ${gTot}`]);
   if(S)nums.push(['🌱','しあがった 文法（4ステップ）',`${can.filter(c=>c.full).length} / ${gTot}`]);
   try{if(window.REVIEW)nums.push(['📚','ふくしゅう',`きょう ${REVIEW.todayN()}問・まちがいノート ${REVIEW.missN()}問`])}catch(e){}
-  try{if(window.KAIWA&&KAIWA.rec().n)nums.push(['💬','浜辺の 会話',`エンド ${KAIWA.endsN()} / ${KAIWA.endsAll()}・おもしろ ${KAIWA.funN()} / ${KAIWA.funTotal()}`])}catch(e){}
   try{if(window.SENSEI)nums.push(['🗣️','会話の エンド',`${SENSEI.endsN()} / ${SENSEI.endsAll()}（パターン 約 ${SENSEI.patText()} とおり）`])}catch(e){}
   try{if(window.DEEP){const R=DEEP.rec();nums.push(['🔎','とことん授業 ★3',`${Object.keys(R).filter(id=>R[id].best>=3).length}`])}}catch(e){}
   const [ex,tx]=line(can.length?'st_rec':'st_recNone');

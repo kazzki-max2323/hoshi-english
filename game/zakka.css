@@ -143,3 +143,8 @@
 .zknow .zknp small{font-size:.66rem;font-weight:400;opacity:.85}
 .zknow .zlv{font-style:normal;font-size:.6rem;font-weight:700;line-height:1;padding:2px 4px;border-radius:5px;color:#fff}
 .zknow.own .zknp{color:#9be8b0}
+/* 💨 さらっと お会計（11/20） */
+.zkq .zkqit{display:flex;align-items:center;gap:10px;margin:10px 0;padding:10px 12px;border-radius:12px;background:rgba(255,246,224,.08);border:1px solid rgba(255,231,168,.25)}
+.zkq .zkqit .zi{font-size:1.9rem;line-height:1}.zkq .zkqit b{flex:1;font-size:.95rem}.zkq .zkqit .zp{color:#ffe7a8;font-weight:700;white-space:nowrap}
+.zkq .zkqtalk{text-align:center;margin-top:8px}.zkq .zkqtalk button{font-size:.8rem}
+.zkq .zkres{margin:10px 0}
