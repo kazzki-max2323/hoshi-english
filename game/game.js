@@ -34,7 +34,7 @@ const allWords=lv=>LEVELS[lv].books.flatMap(b=>b.w);
    played through Web Audio so it also works inside app web views without speech synthesis */
 const AUD={};
 /* which sprite holds which line: every sprite's small .json index is read up front */
-const SPRITES=['trim','fix','es','jh','hs','adv','suika','pop','season','star','folk','gram','jh2a','jh2b','jh2c','jh2d','hs2a','hs2b','hs2c','hs2d','adv2a','adv2b','adv2c','adv2d','cheer','cards','talk2es','talk2jh','talk2hs','talk2adv'],IDX={};
+const SPRITES=['trim','fix','v_es','v_jh','v_hs','v_adv','v_cards','v_season','v_star','v_jh2a','v_jh2b','v_jh2c','v_jh2d','v_hs2a','v_hs2b','v_hs2c','v_hs2d','v_adv2a','v_adv2b','v_adv2c','v_adv2d','es','jh','hs','adv','suika','pop','season','star','folk','gram','jh2a','jh2b','jh2c','jh2d','hs2a','hs2b','hs2c','hs2d','adv2a','adv2b','adv2c','adv2d','cheer','cards','talk2es','talk2jh','talk2hs','talk2adv'],IDX={};
 const idxP=Promise.all(SPRITES.map(k=>fetch(`audio/${k}.json`).then(r=>r.json()).then(m=>{for(const t in m)if(!(t in IDX))IDX[t]=k}).catch(()=>{})));let idxOk=false;idxP.then(()=>{idxOk=true});
 function loadAud(lv){if(AUD[lv])return AUD[lv].p;const a=AUD[lv]={};
   a.p=Promise.all([fetch(`audio/${lv}.json`).then(r=>r.json()),fetch(`audio/${lv}.mp3`).then(r=>r.arrayBuffer())])
@@ -301,6 +301,19 @@ FX.meteor=()=>{let night=false;try{night=SC.dbg().dark>.6}catch(e){}if(night&&!$
 /* when the app goes to the background (another app, the lock screen, another tab) every sound stops, and comes back when it returns */
 /* 隠れているあいだは だれも 音を 起こせない：浜辺の 音（波・雨・音楽・住人）は タイマーで 動きつづけていて、
    音を 鳴らすたびに AudioContext を resume していたので、止めても すぐ また 鳴りだしていた。読み上げ（speechSynthesis）も 同じ */
+/* 11/20 ユーザー「スマホを スリープにしても 動いてる、音鳴ってる」: スリープ（画面オフ）で visibilitychange が 来ない 端末が ある。
+   画面が 描かれなく なった（requestAnimationFrame が 3びょう 止まった）ら 隠れたのと 同じに する。 document.hidden も その間は true を
+   返すので、 隠れている間は 止まる しくみ（浜辺の タイマー・音・読み上げ・会話）が ぜんぶ そのまま 止まる。 画面が もどったら 再開 */
+{let asleep=false,lastF=performance.now(),lastC=performance.now();
+ const D=Object.getOwnPropertyDescriptor(Document.prototype,'hidden'),real=()=>!!(D&&D.get&&D.get.call(document));
+ try{if(D&&D.get)Object.defineProperty(document,'hidden',{configurable:true,get:()=>real()||asleep})}catch(e){}
+ const set=v=>{if(asleep===v)return;asleep=v;try{document.dispatchEvent(new Event('visibilitychange'))}catch(e){}};
+ const frame=()=>{lastF=performance.now();if(asleep)set(false);requestAnimationFrame(frame)};requestAnimationFrame(frame);
+ /* タイマー自体が おくれた ときは 重い 処理で 止まっていただけ（スリープでは ない）なので 見おくる */
+ setInterval(()=>{const now=performance.now(),late=now-lastC>2000;lastC=now;
+   if(!late&&!asleep&&!real()&&now-lastF>3000)set(true)},1000);
+ /* ページが 凍結される ときも 止める */
+ document.addEventListener('freeze',()=>set(true))}
 {const off=()=>document.hidden;
  [window.AudioContext,window.webkitAudioContext].forEach(C=>{const P=C&&C.prototype;if(!P||!P.resume||P.resume._bg)return;const r=P.resume;
    P.resume=function(){if(off()){try{this.state==='running'&&this.suspend()}catch(e){}return Promise.resolve()}return r.apply(this,arguments)};P.resume._bg=1});
