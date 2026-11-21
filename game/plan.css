@@ -76,3 +76,6 @@
 .kdwhy i{font-style:normal;margin-left:8px;color:#c2410c;text-decoration:underline}
 .kdweak button{background:rgba(255,154,60,.18);border:1px solid rgba(255,154,60,.6);border-radius:99px;padding:3px 10px;font-size:.85rem;color:var(--ink);cursor:pointer}.kdweak i{font-style:normal}
 .kdcard{align-self:stretch}
+/* 特別練習の あと 🤔 なんで？の おしゃべりへ（11/21） */
+.kdwhyt{display:block;width:100%;margin:10px 0 2px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,210,63,.65);background:rgba(255,210,63,.14);color:var(--ink);font:inherit;font-weight:800;cursor:pointer}
+.kdwhyt small{display:block;font-weight:600;font-size:.78rem;opacity:.8;margin-top:2px}
