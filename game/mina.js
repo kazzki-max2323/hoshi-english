@@ -27,9 +27,8 @@ H.on('answer',(c,ok,ms)=>{const k=c.lv+'|'+c.en,e=MD.w[k]=MD.w[k]||{s:0,m:0,k:0,
   streak=ok?streak+1:0;if(streak>MD.best)MD.best=streak;prune();save();
   if(ok&&[5,10,20,30].includes(streak))queue('streak',{n:streak},'happy');
   if(!ok&&e.m===3)queue('weakWord',{w:c.en,ja:c.ja,n:e.m},'think')});
-/* a radio line that went by unanswered: n = times unanswered. Weak like a miss, but not counted in the right/wrong record */
-H.on('skip',c=>{const k=c.lv+'|'+c.en,e=MD.w[k]=MD.w[k]||{s:0,m:0,k:0,t:0,j:c.ja,kind:c.kind};
-  e.n=(e.n||0)+1;e.k=0;e.t=Date.now();e.j=c.ja;e.kind=c.kind;prune();save()});
+/* a radio line that went by unanswered is not counted at all (2026-11-21): the radio is for listening at your own pace.
+   Old saves may still carry e.n (times unanswered); it is ignored everywhere */
 /* grammar: mt = last miss, rv = last time the note was opened, k = right in a row since the last miss */
 H.on('gram',(lv,i,n,ok)=>{const e=MD.g[n.id]=MD.g[n.id]||{s:0,m:0,t:0,lv,i,title:n.t};e.s++;e.t=Date.now();
   if(ok)e.k=(e.k||0)+1;else{e.m++;e.k=0;e.mt=e.t;gramMissNow={g:n.t,id:n.id}}save()});
@@ -38,10 +37,10 @@ let gramMissNow=null;
 H.on('learned',()=>{const D=day();D.l++;save();if([10,20,50,100].includes(D.l))queue('learned',{n:D.l},'proud')});
 
 /* ---------- what is weak ---------- */
-/* a word is weak when it was missed or left unanswered, and has not been answered right twice in a row since */
-const miss=e=>e.m+(e.n||0);
+/* a word is weak when it was missed, and has not been answered right twice in a row since (a radio line left unanswered does not count) */
+const miss=e=>e.m;
 const weakWords=(lv,kind='w')=>Object.entries(MD.w).filter(([k,e])=>miss(e)>0&&e.k<2&&(!kind||e.kind===kind)&&(!lv||k.startsWith(lv+'|')))
-  .sort((a,b)=>(miss(b[1])-b[1].k)-(miss(a[1])-a[1].k)||b[1].t-a[1].t).map(([k,e])=>({lv:k.split('|')[0],en:k.split('|').slice(1).join('|'),ja:e.j,m:e.m,n:e.n||0,s:e.s}));
+  .sort((a,b)=>(miss(b[1])-b[1].k)-(miss(a[1])-a[1].k)||b[1].t-a[1].t).map(([k,e])=>({lv:k.split('|')[0],en:k.split('|').slice(1).join('|'),ja:e.j,m:e.m,s:e.s}));
 let bookOf=null;
 function weakBook(){if(!bookOf){bookOf={};H.LV_ORDER.forEach(lv=>LEVELS[lv].books.forEach(b=>b.w.forEach(w=>bookOf[lv+'|'+w[0]]=[lv,b.t])))}
   const cnt={};weakWords().forEach(w=>{const b=bookOf[w.lv+'|'+w.en];if(b){const k=b.join('|');cnt[k]=(cnt[k]||0)+1}});
@@ -363,8 +362,8 @@ function recOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),wg=weakGram
     ${window.LESSON?`<p class="note">いまの 力：${LVN[level()]}くらい</p>`:''}
     </div></details>
     <details class="mfold mwkf"><summary>🔁 苦手な ことば<small>${ww.length?ww.length+'こ':'なし'}</small></summary><div class="mfbody">
-    <p class="note">${ww.length?'まちがえた（✗）・こたえなかった（💤）ことば。ラジオで ときどき 出すね。2回 つづけて 正解で 卒業':''}</p>
-    <div class="mweak">${ww.map(w=>`<button data-say="${esc(w.en)}" data-lv="${w.lv}"><span class="en">${esc(w.en)}</span><span class="ja">${esc(w.ja||'')}</span><span class="mm">${w.m?'✗'+w.m:''}${w.m&&w.n?' ':''}${w.n?'💤'+w.n:''}</span></button>`).join('')||'<p class="note">ラジオで あそぶと、まちがえた ことばや こたえなかった ことばが ここに たまるよ</p>'}</div>
+    <p class="note">${ww.length?'まちがえた（✗）ことば。ラジオで ときどき 出すね。2回 つづけて 正解で 卒業（ラジオを 聞きながすだけなら ここには 入らないよ）':''}</p>
+    <div class="mweak">${ww.map(w=>`<button data-say="${esc(w.en)}" data-lv="${w.lv}"><span class="en">${esc(w.en)}</span><span class="ja">${esc(w.ja||'')}</span><span class="mm">${w.m?'✗'+w.m:''}</span></button>`).join('')||'<p class="note">ラジオで まちがえた ことばが ここに たまるよ。聞きながすだけなら 何も たまらないよ</p>'}</div>
     </div></details>
     <div class="mtiles" hidden></div>
   </section>`);

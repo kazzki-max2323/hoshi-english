@@ -420,7 +420,7 @@ function radioQuiet(){talking=false;cur=null;stopClip();clearBubbles();layer.que
 const RADIO_REST=10000;  // after closing a panel, the radios wait this long before talking again
 function radioWake(){nextAt=Math.min(nextAt||Infinity,performance.now()+1500)}
 function rqIdle(){const el=$('rq');if(!el)return;const on=ST.radios.filter(r=>r.on).length;
-  el.textContent=!ST.radios.length?'📻 浜辺の 右はしの 雑貨屋で 小学生ラジオを もらおう（むりょう）。浜辺で 英語を つぶやくよ':on?'📻 ラジオの こたえが 浜辺に うかぶよ。タップして コインを もらおう':'📻 ラジオが ぜんぶ オフだよ。浜辺の ラジオを タップすると オンになるよ'}
+  el.textContent=!ST.radios.length?'📻 浜辺の 右はしの 雑貨屋で 小学生ラジオを もらおう（むりょう）。浜辺で 英語を つぶやくよ':on?'📻 ラジオの こたえが 浜辺に うかぶよ。タップすると コイン。聞きながすだけでも だいじょうぶ（何も カウントしないよ）':'📻 ラジオが ぜんぶ オフだよ。浜辺の ラジオを タップすると オンになるよ'}
 /* distractors must not share a meaning with the answer (e.g. 提案 / 提案する) */
 const overlap=(a,b)=>{a=a.replace(/[〜（）・、。？！ ]/g,'');b=b.replace(/[〜（）・、。？！ ]/g,'');for(let i=0;i<a.length-1;i++)if(b.includes(a.slice(i,i+2)))return true;return false};
 /* a radio line: a word, a sentence, a character / trend line, or (in season) a seasonal line */
@@ -475,9 +475,9 @@ function drawLine(r){const c=cur;clearBubbles();const W=bub.getBoundingClientRec
     addBody({el:b,w,h,x,y:room.floor-h/2,vx:Math.random()*30-15,vy:-40-Math.random()*30,born:performance.now(),room,c});SFX.pop()},350+k*520));
   /* nobody answered: the question drifts away with its bubbles */
   setTimeout(()=>drift(c),350+c.opts.length*520+RISE*1000)}
-/* a radio line that went by without an answer counts as weak (苦手), so it comes back for review.
-   Not when it was cut off: a panel opened, a cheer came in, or the app went to the background */
-function drift(c){if(cur!==c||c.done)return;cur=null;if(c.src!=='folk'&&!document.hidden&&screen==='home'&&!$('dpov'))emit('skip',c)}
+/* a radio line that went by without an answer just drifts away: nothing is counted (not weak, not a miss),
+   so the radio can be listened to at your own pace (2026-11-21) */
+function drift(c){if(cur!==c||c.done)return;cur=null}
 /* ---------- bubble physics ----------
    each bubble is a horizontal capsule (a pill: segment of half-length a, radius r) with mass from its area.
    Buoyancy lifts it, air drag slows it, and contacts are solved with impulses (restitution + friction).
