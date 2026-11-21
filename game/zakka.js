@@ -99,7 +99,7 @@ const Z={good,lineup,gOwned,gScene,phNow,
   preview:c=>{c.pv=1;if(!ST.sound){H.toast('🔇 音を オンにすると 聞けるよ');return}if(!PV)PV={prev:H.playing};H.playTrack(c.it.id)},
   ownGoods:seed=>{const a=[...ST.radios.map(r=>good('radio',r.lv)),...ST.music.map(id=>good('music',id))].filter(Boolean);const k=a.length?(seed||0)%a.length:0;return a.slice(k).concat(a.slice(0,k))},
 item,coins:()=>ST.coins,visits:()=>ZD.v||0,tgs:()=>{try{return window.TUTOR?TUTOR.sellable():[]}catch(e){return []}},held:()=>ZD.hold,own:id=>!!ZD.own[id],pcDone,bottles,half,paid,sellable,returnable:sellable,
-  price:c=>Math.max(1,Math.round(c.it.p*(1-(c.disc||0)))),
+  price:c=>c.it.p>0?Math.max(1,Math.round(c.it.p*(1-(c.disc||0)))):0,  // むりょうの 品は 0まい（1まい 取らない）
   part:()=>{const h=(typeof GH==='function'?GH():new Date().getHours());return h>=5&&h<12?'morning':h>=12&&h<18?'afternoon':'evening'},
   partJ:()=>{const h=(typeof GH==='function'?GH():new Date().getHours());return h>=5&&h<12?'おはよう':h>=12&&h<18?'こんにちは':'こんばんは'},
   recBook:()=>{const i=LV.indexOf(myLv()),a=books().filter(b=>!ZD.own[b.id]);return a.find(b=>LV.indexOf(b.lv)===i)||a.find(b=>LV.indexOf(b.lv)<i)||a[0]||null},
@@ -450,7 +450,7 @@ function deal(N){const c=P.c,it=c.it,R={};
   case 'gsell':{R.got=c.sellP||0;R.sold=it.ico+' '+it.n;R.gsold=it;const was=H.shopSongId;H.goods.sell(it);if(it.kind==='music'&&was===it.id)R.bgm=H.shopSongId||'off';break}
   case 'exch':{const d=Z.diff(c),pd=paid(it.id),rc=ZD.rcpt[it.id];if(d)pay(d);forget(it.id);ZD.own[c.to2.id]=1;ZD.paid[c.to2.id]=pd+d;if(rc)ZD.rcpt[c.to2.id]=1;R.ex=c.to2;break}}
   save();
-  try{const x=R.it||R.good;if(x&&R.paid)RECENT.add('zbuy',{id:x.id,en:x.w||x.en||'',ja:x.n||x.name||'',ico:x.ico||'',kind:x.k||x.kind||'',now:R.now||0});else if(R.sold)RECENT.add('zsell',{ja:R.sold,ret:R.ret||0,kind:R.gsold?R.gsold.kind:R.gift?'gift':'',en:R.gsold?(R.gsold.en||''):'',tn:R.gsold?R.gsold.n:''})}catch(e){}
+  try{const x=R.it||R.good;if(x&&R.paid!=null)RECENT.add('zbuy',{id:x.id,en:x.w||x.en||'',ja:x.n||x.name||'',ico:x.ico||'',kind:x.k||x.kind||'',now:R.now||0});else if(R.sold)RECENT.add('zsell',{ja:R.sold,ret:R.ret||0,kind:R.gsold?R.gsold.kind:R.gift?'gift':'',en:R.gsold?(R.gsold.en||''):'',tn:R.gsold?R.gsold.n:''})}catch(e){}
   return R}
 function forget(id){if(ZD.rareBuy&&ZD.rareBuy.id===id)delete ZD.rareBuy;delete ZD.own[id];delete ZD.rcpt[id];delete ZD.paid[id];delete ZD.read[id]}
 
@@ -502,7 +502,8 @@ function end(N){if(!live())return;const c=P.c,sid=P.sid,key=sid+':'+P.at,good=!!
   if(R.good||/^g(Es|Jh|Hs)$/.test(sid)){
     if(R.good){k=R.good.kind==='radio'?'zk_endRadio':R.good.kind==='music'?'zk_endSong':R.good.kind==='food'?'zk_endFood':R.good.kind==='tool'?'zk_endTool':'zk_endEvent';v={t:R.good.n,lv:GLV[R.good.lv]}}
     else if(good)k='zk_'+sid;
-    if(R.good&&R.now)k='zk_endSongNow'}
+    if(R.good&&R.now)k='zk_endSongNow';
+    if(R.good&&R.paid===0)k='zk_endFree'}
   if(sid==='gNow')k=P.at==='eHave'?'zk_endNowHave':good?'zk_endNow':'zk_endNowFun';
   if(R.gsold){k=R.gsold.kind==='music'?(R.bgm?'zk_endRecSellBgm':'zk_endRecSell'):'zk_endGoodSell';v={t:R.gsold.n}}
   if(R.gift){k='zk_endGiftSell';v={t:R.gift.n}}
@@ -771,6 +772,7 @@ Object.assign(MINA_LINES,{
  x_zkHold:[['smile','ノラさんが {t}を とっておいて くれてるよ。 コインは たりてる？']],
  zk_moved:[['wow','お知らせ！ ショップは 浜辺の 右はしの 雑貨屋に ひっこしたよ。 ラジオも 曲も イベントも、 ノラさんと 英語で 買えるんだ'],['smile','ショップの ボタンは なくなって、 ぜんぶ 雑貨屋で 買えるように なったよ。 品物の 小・中・高の マークを 見てね']],
  /* 📻🎵🎆 ラジオ・レコード・イベント（むかしの ショップ）を 雑貨屋で 買ったとき */
+ zk_endFree:[['happy','{t}、 ノラさんから プレゼントで もらえたね！ コインは へってないよ'],['smile','「It\'s a present from me.」は 「わたしからの プレゼント」。 もらったら 「Thank you!」で ばっちり'],['wow','{t}、 浜辺に おいたよ！ ただで もらえる ものも、 英語で たのむと うれしいね']],
  zk_endRadio:[['wow','{t}、 浜辺に おいたよ！ さっそく 英語を つぶやきはじめるね'],['proud','ラジオも 英語で 買えたね。 {lv}の マークの 英語、 ばっちりだったよ'],['happy','{t}が ふえると 聞こえる 英語が ふえるよ。 毎日 ちょっとずつ ね']],
  zk_endSong:[['love','「{t}」、 いい 曲だね。 カードショップの BGMに どうぞ'],['happy','レコードを 英語で 買えたね。 先に 聞いてから 買うのは かしこい やり方だよ'],['smile','「{t}」は カードショップの 中で ながれるよ。 お店の 🎵 BGMで えらんでね']],
  zk_endEvent:[['wow','{t}、 浜辺に もどったら はじまるよ！ 見に 行こう'],['happy','イベントも 英語で 買えたね。 {lv}の マークの 会話、 よく できました'],['smile','{t}を 見ながら、 ノラさんの 説明を 思い出してみて']],
