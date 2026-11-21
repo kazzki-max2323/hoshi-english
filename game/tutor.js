@@ -7,6 +7,8 @@
        リクの 助け舟（「でも 教科書には…」→ えらびなおし）/ ミナ先生が まどの 外から こっそり ヒント /
        リクが その 教え方で へんな 英文を 言って 大わらい → 「ほんとは？」で 正しい 文を えらぶと 「ありがとう！」と おまけ
    - へんな 英文は 「へんな英文 図鑑」（と 浜辺の 会話の おもしろ反応 図鑑）に のこる
+   - 🤔 わからない: どの 選択肢にも 「わからない」が ある。失敗には ならず、リクと いっしょに ミナ先生の 本で しらべて 答えと 短い 解説。
+     しらべた 質問は つぎの 回から 「この前 いっしょに しらべた」で もう一度 出る（教えられたら 卒業）
    - バイト代は まちがえても へらない。1日 3回まで コイン＋お礼の 品（ながれぎ雑貨店で 売れる）。4回目からも 教えられる
    中身: game/tutor-data.js。ミナ先生の セリフは この ファイルの さいごに ある */
 (()=>{
@@ -66,6 +68,9 @@ function pick3(NQ=3,mode=''){const st=studied(),me=LV.indexOf(myLv());
   /* "I forgot…": now and then one thing you taught a while ago comes back (spaced review) */
   if(mode!=='hw'&&Math.random()<.45){const old=shuffle(TQ.filter(q=>TD.taught[q.id]&&!out.includes(q)&&Date.now()-((TD.when||{})[q.id]||0)>20*3600e3));
     if(old.length){res[res.length-1]={q:old[0],tag:tagOf(old[0],st),again:1}}}
+  /* 🔎 the ones you looked up together come back on a later visit (the oldest first) */
+  const dk=Object.entries(TD.dunno||{}).filter(([id,t])=>Date.now()-t>15*60e3&&qById(id)&&!res.some(x=>x.q.id===id)).sort((a,b)=>a[1]-b[1]);
+  if(mode!=='hw'&&dk.length){const q=qById(dk[0][0]);res[res.length-1]={q,tag:tagOf(q,st),again:'dk'}}
   return res}
 
 /* ---------- voice: Riku high and bright (only the English is read) ---------- */
@@ -176,7 +181,7 @@ function pickDay(){if(TD.n<2)return 'normal';
   let r=Math.random()*w.reduce((a,x)=>a+x[1],0);return w.find(x=>(r-=x[1])<0)[0]}
 function play(){const day=(window.TUTOR&&TUTOR._force)||pickDay();TD.lastDay=day;
   const qs=pick3(day==='short'||day==='quiz'?(day==='quiz'?1:2):3,day);
-  P={qs,i:0,day,firstOk:0,fix:0,newFun:[],funs:[],taught:[],tries:{},paid:paidLeft()>0,quiz:null,ken:0,talk:null,again:[]};
+  P={qs,i:0,day,firstOk:0,fix:0,newFun:[],funs:[],taught:[],tries:{},paid:paidLeft()>0,quiz:null,ken:0,talk:null,again:[],dunno:[],dunnoBack:[]};
   H.show('tutor',`<section class="pnl lsn kw tu" data-stay>
     <div class="qtop"><button class="x" id="tux" aria-label="やめる">←</button><b>👦 リクに 教える</b><span class="qn" id="tuq"></span></div>
     <div class="lslog kwlog" id="tulog"></div>
@@ -214,9 +219,11 @@ function afterTalk(fn,gap=500,minMs=900){const t0=Date.now();
   const wait=()=>{if(!live())return;const busy=ST.sound&&window.speechSynthesis&&(talkOn||speechSynthesis.speaking||speechSynthesis.pending)&&Date.now()<talkMax;
     if(busy||Date.now()-t0<minMs){setTimeout(wait,150);return}setTimeout(fn,gap)};setTimeout(wait,150)}
 /* the choices: [[label, sub?]…] → fn(index) */
-function choices(list,fn,cls=''){if(!live())return;
-  $('tuans').innerHTML=`<div class="lopts kopts tuopts ${cls}">${list.map((o,i)=>`<button data-o="${i}">${esc(o[0])}${o[1]?`<small>${esc(o[1])}</small>`:''}</button>`).join('')}</div>`;
+/* dk: "🤔 わからない" — saying you don't know is never a failure */
+function choices(list,fn,cls='',dk){if(!live())return;
+  $('tuans').innerHTML=`<div class="lopts kopts tuopts ${cls}">${list.map((o,i)=>`<button data-o="${i}">${esc(o[0])}${o[1]?`<small>${esc(o[1])}</small>`:''}</button>`).join('')}${dk?'<button class="tudk" data-dk="1">🤔 わからない</button>':''}</div>`;
   $('tuans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{$('tuans').innerHTML='';fn(+b.dataset.o)});
+  const d=$('tuans').querySelector('[data-dk]');if(d)d.onclick=()=>{$('tuans').innerHTML='';dk()};
   setTimeout(()=>{const a=$('tuans');if(a)a.scrollIntoView({block:'nearest',behavior:'smooth'})},80)}
 
 function partOfDay(){const h=new Date().getHours();return h<5?'night':h<11?'morning':h<16?'day':h<19?'evening':'night'}
@@ -258,7 +265,9 @@ function quiz(){const T=shuffle(TQ.filter(q=>TD.taught[q.id]&&!P.qs.some(x=>x.q=
     afterTalk(()=>choices(opts.map(t=>[t]),k=>{const t=opts[k];you(t);
       setTimeout(()=>{if(t===q.ok[1]){SFX.correct();P.quiz.ok++;kid(pickL(K.quizRight),'😲','k-good',' ');afterTalk(one,300,500)}
         else{try{SFX.tease?SFX.tease():SFX.pop()}catch(e){}kid(pickL(K.quizWrong),'😆','',' ');
-          afterTalk(()=>{kid(pickL(K.quizAns),'🙋','',' ');afterTalk(()=>{kidEn(q.ok[1],'💡','k-good');afterTalk(one,300,500)},200,300)},300,500)}},500)},'tufix'),300,500)};
+          afterTalk(()=>{kid(pickL(K.quizAns),'🙋','',' ');afterTalk(()=>{kidEn(q.ok[1],'💡','k-good');afterTalk(one,300,500)},200,300)},300,500)}},500)},'tufix',
+      ()=>{you(pickL(K.dunnoSay));SFX.step();setTimeout(()=>{kid(pickL(K.quizDunno),'😏','',' ');
+        afterTalk(()=>{kid(pickL(K.quizAns),'🙋','',' ');afterTalk(()=>{kidEn(q.ok[1],'💡','k-good');afterTalk(()=>{kid(pickL(K.quizDunnoPt).replace('{p}',q.pt),'☝️','',' ');afterTalk(one,300,500)},300,400)},200,300)},300,500)},500)}),300,500)};
   const done=()=>{TD.quizN=(TD.quizN||0)+P.quiz.n;TD.quizOk=(TD.quizOk||0)+P.quiz.ok;save();
     kid(pickL(K.quizEnd).replace('{n}',P.quiz.ok),'🏆','',' ');afterTalk(()=>{kid(pickL(K.quizThen),'🙋','',' ');afterTalk(ask,300,500)},300,500)};
   one()}
@@ -271,20 +280,38 @@ function gotLine(t){t=String(t);return /^わかった！/.test(t)&&Math.random()
 function ask(){if(!live())return;const {q,tag}=P.qs[P.i];P.tries[q.id]=0;P.avail=shuffle(q.o.map((o,i)=>i));P.wr=0;P.peek=0;P.lab=labels(q);
   $('tuq').textContent=`❓ ${P.i+1}/${P.qs.length}`;
   const ag=P.qs[P.i].again;
-  sys(`${ag?'🔁 わすれちゃった':KIND[q.k||'why']}${!ag&&tag?'・'+TAG[tag]:''}<br>${esc(q.t)}`);
-  if(ag){kid(pickL(K.again).replace('{t}',q.t),'😅','',' ');return afterTalk(()=>{kid(q.q,'🤔');afterTalk(()=>teach(),300,700)},300,500)}
+  sys(`${ag==='dk'?'🔎 この前 いっしょに しらべた':ag?'🔁 わすれちゃった':KIND[q.k||'why']}${!ag&&tag?'・'+TAG[tag]:''}<br>${esc(q.t)}`);
+  if(ag){kid(pickL(ag==='dk'?K.dunnoBack:K.again).replace('{t}',q.t),ag==='dk'?'😄':'😅','',' ');return afterTalk(()=>{kid(q.q,'🤔');afterTalk(()=>teach(),300,700)},300,500)}
   kid(q.q,'🤔');
   afterTalk(()=>teach(),300,700)}
 function teach(){const {q}=P.qs[P.i];
   choices(P.avail.map(i=>[P.lab[i]]),k=>{const oi=P.avail[k],o=q.o[oi];you(P.lab[oi]);
-    setTimeout(()=>o[1]?good():wrong(oi),550)},'tuteach')}
+    setTimeout(()=>o[1]?good():wrong(oi),550)},'tuteach',()=>dunno(q))}
+
+/* 🤔 "I don't know" — no failing: you and Riku look it up together in Mina's book, then he says it.
+   It comes back on a later visit (🔎 この前 いっしょに しらべた) until you can teach it */
+function dunno(q,fromFix){you(pickL(K.dunnoSay));SFX.step();
+  TD.dunno=TD.dunno||{};TD.dunno[q.id]=Date.now();TD.dunnoN=(TD.dunnoN||0)+1;if(!P.dunno.includes(q))P.dunno.push(q);save();
+  setTimeout(()=>{kid(pickL(fromFix?K.dunnoFix:K.dunnoRe),'😲','',' ');
+    afterTalk(()=>{lookup(q);
+      setTimeout(()=>{if(!live())return;kid(gotLine(q.ok[0]),'💡','k-good',' ');
+        afterTalk(()=>{kidEn(q.ok[1],'🗣️','k-good');markTaught(q);
+          afterTalk(()=>{kid(pickL(K.dunnoAfter),'😊','',' ');afterTalk(next,300,500)},300,500)},300,500)},1800)},300,600)},500)}
+/* the page of Mina's book: the right way to teach and the point */
+function lookup(q){if(!live())return;const ok=q.o.find(o=>o[1]),[ex,tx]=mline('tu_dunnoBook');
+  const d=document.createElement('div');d.className='lsay tuwh tubook';
+  d.innerHTML=`<span class="lface">${MINA.face('m',ex||'smile')}</span><div class="lbody"><small>📖 ミナ先生の 本を いっしょに めくると…</small>
+    <p><b>${esc(q.pt)}</b></p>${ok?`<p class="tubk">${esc(ok[0])}</p>`:''}<p class="tubm">${esc(tx||'')}</p></div>`;
+  $('tulog').appendChild(d);try{SFX.book?SFX.book():SFX.pickup()}catch(e){}scrollLog()}
 
 /* a right way to teach: Riku gets it and tries the English */
 function good(){const {q}=P.qs[P.i],first=!P.tries[q.id];SFX.correct();
   if(first){P.firstOk++;TD.first[q.id]=(TD.first[q.id]||0)+1}
   markTaught(q);
-  const ag=P.qs[P.i].again;if(ag&&!P.again.includes(q))P.again.push(q);
-  kid(ag?pickL(K.againGot):gotLine(q.ok[0]),'💡','k-good',' ');
+  const ag=P.qs[P.i].again;
+  if(ag==='dk'){delete (TD.dunno||{})[q.id];save();if(!P.dunnoBack.includes(q))P.dunnoBack.push(q)}
+  else if(ag&&!P.again.includes(q))P.again.push(q);
+  kid(ag==='dk'?pickL(K.dunnoBackGot):ag?pickL(K.againGot):gotLine(q.ok[0]),'💡','k-good',' ');
   afterTalk(()=>{kidEn(q.ok[1],'🗣️','k-good');afterTalk(()=>{
     if(P.day==='ken'&&(!P.ken||Math.random()<.5)&&q.o.some(o=>o[2]))kenTry(q);else if(q.m&&Math.random()<.8)more();else next()},400)},300,500)}
 function markTaught(q){TD.taught[q.id]=(TD.taught[q.id]||0)+1;TD.when=TD.when||{};TD.when[q.id]=Date.now();if(!P.taught.includes(q))P.taught.push(q);save()}
@@ -331,7 +358,7 @@ function fix(q,bad){kid(pickL(K.fixQ),'🙋');
       else{SFX.wrong();opts=opts.filter(x=>x!==t);
         const then=()=>{if(opts.length>1)afterTalk(go,200,400);else afterTalk(()=>{whisper(peekText(q));setTimeout(go,1200)},200,400)};
         if(t===bad){kid(pickL(K.fixSame),'😆','',' ');then()}
-        else{const oi=q.o.findIndex(x=>x[2]===t);kidEn(t,'😂','k-oops');if(oi>=0)recFun(q.id+':'+oi);afterTalk(()=>{kid(pickL(K.fixOther),'🤣','',' ');then()},300,500)}}},500)},'tufix');
+        else{const oi=q.o.findIndex(x=>x[2]===t);kidEn(t,'😂','k-oops');if(oi>=0)recFun(q.id+':'+oi);afterTalk(()=>{kid(pickL(K.fixOther),'🤣','',' ');then()},300,500)}}},500)},'tufix',()=>dunno(q,1));
   afterTalk(go,200,400)}
 
 /* the follow-up: "then what about …?" */
@@ -341,7 +368,8 @@ function more(){const {q}=P.qs[P.i],m=q.m;let av=shuffle(m.o.map((o,i)=>i));
     setTimeout(()=>{if(o[1]){SFX.correct();kid(gotLine(m.ok[0]),'😆','k-good',' ');afterTalk(()=>{kidEn(m.ok[1],'🗣️','k-good');afterTalk(next,400)},300,400)}
       else{SFX.tease?SFX.tease():SFX.pop();av=av.filter(i=>i!==oi);
         if(o[2]){const [fe,fj]=splitF(o[2]);kidEn(fe,'😂','k-oops');recFun(q.id+':m'+oi);afterTalk(()=>{kid(fj?fj+'！ あはは':pickL(K.laugh),'🤣','',' ');afterTalk(()=>{kid(pickL(K.moreRetry),'🙋','',' ');afterTalk(go,200,300)},300,500)},300,500)}
-        else{kid(pickL(K.moreMiss),'🤔');afterTalk(go,200,400)}}},500)},'tufix');
+        else{kid(pickL(K.moreMiss),'🤔');afterTalk(go,200,400)}}},500)},'tufix',()=>{you(pickL(K.dunnoSay));SFX.step();
+      setTimeout(()=>{kid(pickL(K.moreDunno),'🙋','',' ');afterTalk(()=>{kid(gotLine(m.ok[0]),'💡','k-good',' ');afterTalk(()=>{kidEn(m.ok[1],'🗣️','k-good');afterTalk(next,400)},300,400)},300,500)},500)});
   afterTalk(go,200,500)}
 function recFun(k){if(!P.funs.includes(k))P.funs.push(k);if(!TD.fun[k]){TD.fun[k]=1;P.newFun.push(k);save();
   setTimeout(()=>H.toast(`😂 へんな英文 はっけん！<small>図鑑 ${funN()}/${funAll()}</small>`,2200),700)}}
@@ -391,17 +419,20 @@ function finish(){if(!live())return;
   /* the special things of this visit come first */
   if(P.talk&&Math.random()<.35){k='tu_endChat';v.c=P.talk.t.replace(/^\S+\s/,'')}
   if(P.again.length&&Math.random()<.6){k='tu_endAgain';v.t=P.again[0].t}
+  if(P.dunno.length&&Math.random()<.7){k='tu_endDunno';v.t=P.dunno[0].t}
+  if(P.dunnoBack.length&&Math.random()<.8){k='tu_endDunnoBack';v.t=P.dunnoBack[0].t}
   const DK={quiz:'tu_endQuiz',ken:'tu_endKen',hw:'tu_endHw',short:'tu_endShort',pochi:'tu_endPochi'};
   if(DK[P.day]&&Math.random()<.7){k=DK[P.day];if(P.quiz)v.n=P.quiz.ok}
-  const rows=P.taught.map(q=>{const L=lesFor(q);return `<div class="tutr"><span><b>${esc(q.t)}</b><small>${esc(q.pt)}</small></span>${L?`<button class="sub" data-les="${L.id}" aria-label="授業を みなおす">📖</button>`:''}</div>`}).join('');
+  const rows=P.taught.map(q=>{const L=lesFor(q);return `<div class="tutr"><span><b>${P.dunno.includes(q)?'🔎 ':''}${esc(q.t)}</b><small>${esc(q.pt)}</small></span>${L?`<button class="sub" data-les="${L.id}" aria-label="授業を みなおす">📖</button>`:''}</div>`}).join('');
   setTimeout(()=>{if(!live())return;
     $('tuans').innerHTML=`<div class="kres">
-      <p class="kend good">🧑‍🏫 教えた！ ${'⭐'.repeat(P.firstOk)}${'☆'.repeat(P.qs.length-P.firstOk)} <small>一発で ${P.firstOk}/${P.qs.length}</small></p>
+      <p class="kend good">🧑‍🏫 教えた！ ${'⭐'.repeat(P.firstOk)}${'🔎'.repeat(Math.min(P.dunno.length,P.qs.length-P.firstOk))}${'☆'.repeat(Math.max(0,P.qs.length-P.firstOk-P.dunno.length))} <small>一発で ${P.firstOk}/${P.qs.length}</small></p>
       ${paid?`<p class="zkres">🪙 バイト代 <b>${PAY}まい</b>${P.fix?` ＋ おまけ <b>${Math.min(3,P.fix)}まい</b>`:''}</p>
         <p class="zkres tugot">${gift[1]} <b>${esc(gift[2])}</b> を もらった <small>ながれぎ雑貨店で 売れるよ</small></p>`
         :`<p class="zkres"><small>きょうの バイト代は おしまい（1日 ${PER_DAY}回まで）。 教えた ことは のこるよ</small></p>`}
       <details class="mfold" open><summary>📒 きょう 教えた こと</summary><div class="tutl">${rows}</div></details>
       ${P.quiz?`<p class="tusys">🎤 リクの クイズ ${P.quiz.ok}/${P.quiz.n}もん せいかい</p>`:''}${P.ken?`<p class="tusys">🧒 ケンにも ${P.ken}回 教えた</p>`:''}
+      ${P.dunno.length?`<p class="tusys">🔎 いっしょに しらべた ${P.dunno.length}こ（また こんど リクが 聞きに くるよ）</p>`:''}
       ${P.funs.length?`<p class="tusys">😂 へんな英文 ${P.funs.length}こ${P.newFun.length?` <i class="zknew">NEW ${P.newFun.length}</i>`:''}</p>`:''}
       ${letter?`<button id="tulet" class="tulb">✉️ リクから 手紙も もらった！ <small>ひらく</small></button>`:''}
       ${minaBox(letter?'tu_letter':k,v)}
@@ -505,6 +536,7 @@ Object.assign(MINA_LINES,{
  ['tu_endFix',[['proud','へんな 英文と 正しい 英文、 ならべて くらべると 一生 わすれないよ'],['happy','「ほんとは？」に すぐ 答えられたね。 それが いちばんの ふくしゅう']]],
  ['tu_endFun',[['happy','リクくんの わらい声、 まどの 外まで 聞こえてたよ'],['wink','へんな 英文で わらった ぶん、 正しい 形が 頭に のこるんだ']]],
  ['tu_endFree',[['smile','バイト代が なくても 来てくれるって、 リクくん よろこぶよ'],['happy','教えた ぶんだけ、 あなたの 英語も きたえられてるよ']]],
+ ['tu_hello',[['smile','わからない ときは 「🤔 わからない」で いいんだよ。 リクくんと いっしょに しらべれば、 それも 勉強']]],
  ['tu_endWeak',[['proud','前は つまずいた 「{t}」を、 こんどは 教える がわ。 すごい ことだよ']]],
 ].forEach(([k,L])=>{MINA_LINES[k]=(MINA_LINES[k]||[]).concat(L)});
 Object.assign(MINA_LINES,{
@@ -514,6 +546,10 @@ Object.assign(MINA_LINES,{
  tu_endShort:[['smile','きょうは みじかかったね。 「I\'m coming!」、 前に 教えた ことが 出たね'],['happy','ちょっと だけでも、 毎日 ふれるのが いちばん だよ']],
  tu_endPochi:[['happy','ポチ、 にぎやか だったね。 犬に 言う 英語も ふえたね'],['smile','Good boy! Drop it! 英語って 生活の 中に いっぱい あるね']],
  tu_endAgain:[['proud','「{t}」、 リクくん わすれてたね。 2回 教えると 自分も もっと おぼえるよ'],['smile','わすれた ころに もう一回。 それが いちばん 頭に のこる ふくしゅう なんだ']],
+ tu_dunnoBook:[['smile','「わからない」って 言えるのは、 いい 先生の しょうこ。 ここを いっしょに 読もう'],['happy','わからない ときは しらべれば いいの。 リクくんと いっしょに おぼえちゃおう'],['wink','先生だって ぜんぶ 知ってる わけじゃ ないよ。 ポイントは ここ'],['think','知ったかぶり するより ずっと いい。 さあ、 この 1行だけ おぼえて帰ろう']],
+ tu_endDunno:[['smile','「{t}」、 わからないって 正直に 言えたね。 いっしょに しらべた ことは、 ふつうより よく のこるよ'],['happy','リクくん、 せんせいと しらべるの たのしかった みたい。 「{t}」、 こんど また 聞きに くるって'],['proud','わからない ことを わからないって 言えるの、 じつは いちばん 大事な 力なんだよ']],
+ tu_endDunnoBack:[['proud','この前 しらべた 「{t}」、 こんどは ちゃんと 教えられたね！ もう 自分の ものだよ'],['wow','「{t}」、 前は わからなかったのに！ 1回 しらべて、 1回 教える。 それで ばっちり'],['love','リクくん、 「せんせい おぼえてた！」って うれしそう だったね']],
+ x_tuDunno:[['smile','この前 リクくんと いっしょに しらべた 「{t}」、 こんどは 教えられそう？ リクくん また 聞きたいって'],['happy','「{t}」、 しらべた ままに なってるよ。 リクくんに 教えに 行くと しっかり おぼえるよ']],
  tu_endChat:[['happy','リクくんと 「{c}」の 話、 たのしそう だったね'],['smile','リクくんの ☕ ひとやすみ、 話の たねが ふえたよ。 ポチの ボールさがしや すなの お城の 話も あるんだって'],['smile','おしゃべりの 中の 英語も、 ちゃんと 勉強に なってるよ']],
  x_tuQuiz:[['wink','リクくん、 先生に 出す クイズを こっそり 作ってる みたい。 教えた こと、 おぼえてる？'],['smile','リクくんの クイズの日、 あたったら たのしいよ。 前に 教えた ことが 出るんだって']],
  x_tuTalk:[['happy','リクくん、 せんせいと おしゃべり するのを たのしみに してるんだって'],['smile','リクくんが 「せんせいに 話したい こと ある」って 言ってたよ']],
@@ -527,6 +563,7 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_tuLetter',1,()=>{const nl=nextLetter();return TD.met&&nl&&nl-TD.n<=2?{n:nl-TD.n}:null},goTu],
  ['x_tuQuiz',1,()=>TD.met&&paidLeft()&&taughtN()>=4?{}:null,goTu],
  ['x_tuTalk',1,()=>TD.met&&paidLeft()&&Object.keys(TD.talks||{}).length<CH.length?{}:null,goTu],
+ ['x_tuDunno',3,()=>{if(!TD.met||!paidLeft())return null;const id=Object.keys(TD.dunno||{}).find(qById);return id?{t:qById(id).t}:null},goTu],
  ['x_tuFun',1,()=>{const F=funList();if(!F.length)return null;return {n:F.length,e:pickL(F).en}},()=>['😂 図鑑を 見る',()=>funBook(H.home)]]);
 /* the first time: Mina points at the parasol once */
 setTimeout(function first(){if(TD.met||TD.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
