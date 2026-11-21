@@ -91,7 +91,7 @@ function draw(q,enter){const box=$('msr');if(!box)return;q=String(q||'').trim();
   if(!tot)h=`<p class="msnone">見つからなかったよ</p>`;
   box.innerHTML=h;
   box.querySelectorAll('.mscard').forEach(b=>b.onclick=()=>{const id=b.dataset.id;remember(q);SR.seen=(SR.seen|0)+1;save();sf('step');
-    C.detail(id,null,{from:'search'});if(!own({id}))try{const I=C.info(id);H.toast(`まだ もっていない カード<small>${I&&I.k==='t'?'⛏️ 鉱山の 深い ところで 見つかるかも':'⛏️ 鉱山で ほりだそう'}</small>`)}catch(e){}});
+    C.detail(id,null,{from:'search'});if(!own({id}))try{const I=C.info(id);H.toast(`カードは まだ もってない<small>${I&&I.k==='t'?'⛏️ 鉱山の 深い ところで 見つかるかも':'⛏️ 鉱山で ほりだそう'}</small>`)}catch(e){}});
   box.querySelectorAll('.msg').forEach(b=>b.onclick=()=>{const [lv,i]=b.dataset.g.split(':');remember(q);sf('step');H.gramFrom(lv,()=>open(q));H.gramNote(lv,+i);const gx=$('gx');if(gx)gx.onclick=()=>{sf('back');open(q)}});
   box.querySelectorAll('.msu').forEach(b=>b.onclick=()=>{const [id,ci]=b.dataset.u.split(':'),u=UNIT.get(id);if(!u)return;remember(q);sf('lesson');u.open({ch:+ci})});
   box.querySelectorAll('.msl').forEach(b=>b.onclick=()=>{remember(q);sf('step');LESSON.open(b.dataset.l,()=>open(q))});

@@ -156,7 +156,7 @@ function tap(id,cl){const I=C.info(id);
   if(cl.contains('can')){sf('card');return C.detail(id,null,{from:'book',btns:[['📖 ブックに 入れる',()=>put(id)]]})}
   if(cl.contains('fl')){sf('card');C.detail(id,null,{from:'book'});H.toast('🏷️ 売り場に 出ている カードだよ<small>売り場から 下げると 入れられるよ</small>');return}
   /* まだ もっていない 単語も くわしく 見られる（宝カードは ないしょ） */
-  if(I.k!=='t'){sf('card');C.detail(id,null,{from:'book'})}else sf('pop');H.toast(`まだ もっていない カード<small>${I.k==='t'?'⛏️ 鉱山でしか 見つからないよ。 深いほど レアが 出やすい':I.k==='w'?(I.lv==='adv'?'⛏️ 鉱山の 深い ところで ほりだそう。 ほった カードは 自動で ブックに 入るよ':'⛏️ 鉱山で ほりだそう。 ほった カードは 自動で ブックに 入るよ'):'⛏️ 鉱山の お話の おまけ か、 カウンターに 売りに 来る お客さんから 手に 入るよ'}</small>`)}
+  if(I.k!=='t'){sf('card');C.detail(id,null,{from:'book'})}else sf('pop');H.toast(`カードは まだ もってない<small>${I.k==='t'?'⛏️ 鉱山でしか 見つからないよ。 深いほど レアが 出やすい':I.k==='w'?(I.lv==='adv'?'⛏️ 鉱山の 深い ところで ほりだそう。 ほった カードは 自動で ブックに 入るよ':'⛏️ 鉱山で ほりだそう。 ほった カードは 自動で ブックに 入るよ'):'⛏️ 鉱山の お話の おまけ か、 カウンターに 売りに 来る お客さんから 手に 入るよ'}</small>`)}
 
 function put(id){if(!canIn(id))return;const w=where(id);B()[id]=1;save();flash=id;sf('card');
   if(mode!=='page'||q){open();H.toast(`📖 ${esc(nm(C.info(id)))} を 入れたよ<small>${esc(SK[w[0]].t)} の ${w[1]+1}ばん</small>`,1800);

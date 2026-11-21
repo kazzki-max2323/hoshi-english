@@ -76,7 +76,7 @@ function view(c){const own=has(c),R=RAR[c.r];
       <button id="ksay" class="kbtn">🔊 ${esc(c.en)}</button>
       ${c.r>=4?`<button id="kspecial" class="kbtn gold">💫 タップ</button>`:''}
       ${c.r>=3&&summonOf(c)?`<button id="ksummon" class="kbtn">${summonOk(c)?`🏖️ 浜辺に よぶ：${summonOf(c).n}`:'🏖️ きょうは もう よんだよ（あしたまた）'}</button>`:''}`
-    :`<b class="rk r${c.r}">${R.k}　${R.n}</b><span>まだ もっていない</span><span class="khint">宝箱くじか、 鉱山の 奥で 見つかるよ</span>`}
+    :`<b class="rk r${c.r}">${R.k}　${R.n}</b><span>カードは まだ もってない</span><span class="khint">宝箱くじか、 鉱山の 奥で 見つかるよ</span>`}
     <button id="kclose" class="kbtn sub">とじる</button></div></div>`,'kv');
   tilt(o.querySelector('.tc'));o.querySelector('.tc').classList.add('live');
   $('kclose').onclick=()=>{SFX.pop();closeOv()};
