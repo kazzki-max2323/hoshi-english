@@ -59,10 +59,10 @@ const chT=ci=>`${CH[ci].ico} ${ci+1}時間目　${esc(CH[ci].t)}`;
 function open(o){o=o||{};P=null;C={m:'menu'};R.n=(R.n||0)+1;R.t=Date.now();save();
   if(o.ch!=null)return chapter(o.ch,0);
   menu(R.n<=1?'hello':null)}
-function menu(key){C={m:'menu'};P=null;hush();const box=shell('',null),nx=nextCh(),all=nx==null;
+function menu(key){C={m:'menu'};P=null;hush();const box=shell('',null),nx=nextCh(),all=nx==null,lk=nx!=null&&lockOf(nx);
   const k=key||(R.best>=3?'master':all?'allDone':'again'),[ex,tx]=ML(k);
   box.innerHTML=`${minaBox(ex,tx)}
-    <div class="mdchs">${CH.map((c,i)=>`<button data-ch="${i}" class="${chDone(i)?'done':''}${i===nx?' now':''}"><i>${chDone(i)?'✔':c.ico}</i><span><small>${i+1}時間目</small>${esc(c.t)}</span></button>`).join('')}</div>
+    <div class="mdchs">${CH.map((c,i)=>`<button data-ch="${i}" class="${chDone(i)?'done':''}${i===nx?' now':''}${lk&&!chDone(i)?' lock':''}"><i>${chDone(i)?'✔':lk?'🔒':c.ico}</i><span><small>${i+1}時間目</small>${esc(c.t)}</span></button>`).join('')}</div>
     <div class="mdgo2">${nx!=null?`<button id="mdstart">${nx?'▶ つづきから（'+(nx+1)+'時間目）':'▶ はじめる'}</button>`:''}
       ${opt.extra?`<button id="mdex" class="sub">${opt.extra[0]}</button>`:''}<button id="mdsum" class="sub">📄 まとめ 1まいで 見る</button>
       <button id="mdtest" class="${all?'':'sub'}">📝 まとめテスト ${R.best?stars(R.best):''}</button></div>`;
@@ -74,7 +74,12 @@ function menu(key){C={m:'menu'};P=null;hush();const box=shell('',null),nx=nextCh
 const back=()=>P?close():menu();
 
 /* ---------- 1時間の カード ---------- */
-function chapter(ci,i,pre){const c=CH[ci];if(!c)return menu();C={m:'card',ci,i};hush();
+/* 一度に 増やさない（game/mina-plan.js gate）: いちばん 新しく おわった 時間が 練習で 身につくまで、 まだの 時間は 🔒 */
+const lockOf=ci=>{if(chDone(ci)||!window.MPLAN||!MPLAN.gate)return null;try{return MPLAN.gate()}catch(e){return null}};
+function locked(G,ci){C={m:'lock'};hush();const box=shell(chT(ci),P?null:menu),[ex,tx]=MINA.line('mp_gateLes',{t:G.c.short});$('mdn').textContent='🔒';
+  box.innerHTML=`${minaBox(ex,tx)}<div class="mdnav"><button id="mdlk">🌱 「${esc(G.c.short)}」を 練習する ▶</button></div><div class="mdnav"><button class="sub" id="mdlkb">☰ 時間の 一覧</button></div>`;
+  $('mdlk').onclick=()=>{snd('lesson');close();PRAC.start({u:G.u.id,ci:G.ci})};$('mdlkb').onclick=()=>{snd('pop');menu()}}
+function chapter(ci,i,pre){const c=CH[ci];if(!c)return menu();if(!i){const G=lockOf(ci);if(G)return locked(G,ci)}C={m:'card',ci,i};hush();
   const box=shell(chT(ci),P?null:menu),k=c.cards[i],N=c.cards.length;
   box.innerHTML=`${pre&&!i?`<div class="mdjump">${minaBox(pre[0],pre[1])}</div>`:''}<div class="mdcard">
       ${minaBox(k.x||'smile',k.say)}
