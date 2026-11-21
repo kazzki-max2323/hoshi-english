@@ -161,15 +161,10 @@ function handOpts(){const tg=TAGS[C.it.key]||[],tl=[].concat(...tg.map(t=>GIFT_H
   const o=['es','jh','hs'].map(lv=>{const a=GIFT_HAND.concat(GIFT_HAND_X).filter(x=>x[0]===lv),b=tl.filter(x=>x[0]===lv);
     const h=b.length&&Math.random()<.4?pickL(b):pickL(a);return {e:h[1],j:h[2],ok:1,lv,go:react}});
   const f=pickL(GIFT_HAND_FUN);o.splice(Math.random()*4|0,0,{e:f[0],j:f[1],ok:0,go:()=>{them(sty(pickL(GIFT_HAND_HUH)),'😅','k-oops');afterTalk(react,300,600)}});return o}
-function ask(opts,hint){if(!live())return;C.opts=opts;C.step++;$('gfq').textContent='💬 '+C.step;const on=jaOn(),mic=window.SpeechRecognition||window.webkitSpeechRecognition;
+function ask(opts,hint){if(!live())return;C.opts=opts;C.step++;$('gfq').textContent='💬 '+C.step;const on=jaOn();
   $('gfans').innerHTML=`${hint?`<p class="khint">💡 たとえば：<b>${esc(hint)}</b></p>`:''}
-    <div class="lopts kopts zkopts">${opts.map((o,i)=>`<button data-o="${i}">${o.lv?`<i class="zlv zlv-${o.lv}">${LVM[o.lv]}</i> `:''}${esc(o.e)}${on&&o.j?`<small>${esc(o.j)}</small>`:''}</button>`).join('')}</div>
-    <div class="kfree"><input id="gfin" type="text" placeholder="英語を 書いてもOK" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">${mic?'<button id="gfmic" class="sub" aria-label="声で 言う">🎤</button>':''}<button id="gfsend" aria-label="送る">▶</button></div>`;
-  $('gfans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>choose(+b.dataset.o));
-  const inp=$('gfin'),send=()=>{const v=inp.value.trim();if(v)typed(v)};
-  $('gfsend').onclick=send;inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
-  const mb=$('gfmic');if(mb)mb.onclick=()=>{try{const r=new mic();r.lang='en-US';r.interimResults=false;mb.classList.add('on');
-    r.onresult=e=>{const t=e.results[0][0].transcript;inp.value=t;mb.classList.remove('on');typed(t)};r.onerror=r.onend=()=>mb.classList.remove('on');r.start()}catch(e){mb.classList.remove('on');H.toast('🎤 この 端末では 声の 入力が つかえないみたい')}}}
+    <div class="lopts kopts zkopts">${opts.map((o,i)=>`<button data-o="${i}">${o.lv?`<i class="zlv zlv-${o.lv}">${LVM[o.lv]}</i> `:''}${esc(o.e)}${on&&o.j?`<small>${esc(o.j)}</small>`:''}</button>`).join('')}</div>`;
+  $('gfans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>choose(+b.dataset.o));}
 function typed(v){if(!live())return;let i=-1;try{[i]=KAIWA.match(v,C.opts.map(o=>[o.e,o.ok,0,0,0,null]))}catch(e){}
   if(i<0){you(v,true);$('gfans').innerHTML='';
     setTimeout(()=>{them(["Sorry? Could you say that again?","ごめん、 もう一回 言って くれる？"],'❓','k-huh');const g=C.opts.filter(o=>o.ok);setTimeout(()=>ask(C.opts,pickL(g.length?g:C.opts).e),500)},600);return}

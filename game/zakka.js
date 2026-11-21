@@ -400,15 +400,10 @@ function turn(){if(!live())return;let N=P.s.nodes[P.at],guard=0;
   P.opts=(val(N.o,P.c)||[]).filter(o=>!o.if||o.if(P.c));
   them(val(N.s,P.c),val(N.j,P.c));
   if(N.pip)setTimeout(()=>{them(N.pip,'',null,'',PIP);setTimeout(answers,500)},900);else setTimeout(answers,350)}
-function answers(hint){if(!live())return;const on=jaOn(),mic=window.SpeechRecognition||window.webkitSpeechRecognition;
+function answers(hint){if(!live())return;const on=jaOn();
   $('zkans').innerHTML=`${hint?`<p class="khint">💡 たとえば：<b>${esc(hint)}</b></p>`:''}
-    <div class="lopts kopts zkopts">${P.opts.map((o,i)=>`<button data-o="${i}">${esc(val(o.e,P.c))}${on&&o.j?`<small>${esc(val(o.j,P.c))}</small>`:''}</button>`).join('')}</div>
-    <div class="kfree"><input id="zkin" type="text" placeholder="英語を 書いてもOK" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">${mic?'<button id="zkmic" class="sub" aria-label="声で 言う">🎤</button>':''}<button id="zksend" aria-label="送る">▶</button></div>`;
-  $('zkans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>pick(+b.dataset.o));
-  const inp=$('zkin'),send=()=>{const v=inp.value.trim();if(v)typed(v)};
-  $('zksend').onclick=send;inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
-  const mb=$('zkmic');if(mb)mb.onclick=()=>{try{const r=new mic();r.lang='en-US';r.interimResults=false;mb.classList.add('on');
-    r.onresult=e=>{const t=e.results[0][0].transcript;inp.value=t;mb.classList.remove('on');typed(t)};r.onerror=r.onend=()=>mb.classList.remove('on');r.start()}catch(e){mb.classList.remove('on');H.toast('🎤 この 端末では 声の 入力が つかえないみたい')}}}
+    <div class="lopts kopts zkopts">${P.opts.map((o,i)=>`<button data-o="${i}">${esc(val(o.e,P.c))}${on&&o.j?`<small>${esc(val(o.j,P.c))}</small>`:''}</button>`).join('')}</div>`;
+  $('zkans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>pick(+b.dataset.o));}
 /* what the player wrote: the closest answer (the same reading as 浜辺の 会話), or Nora does not understand */
 function typed(v){if(!live())return;const opts=P.opts.map(o=>[val(o.e,P.c),o.ok,0,0,0,null]);const [i]=KAIWA.match(v,opts);
   if(i<0){you(v,true);$('zkans').innerHTML='';

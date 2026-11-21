@@ -170,14 +170,9 @@ function turn(){if(!live())return;const N=nodesOf(P.s)[P.at];if(!N)return;if(N.e
   else{them(val(N.s,P.F),val(N.j,P.F));setTimeout(answers,350)}}
 /* the choices, and a box to write (or say) your own */
 function answers(hint){if(!live())return;const N=P.N,order=P.order&&P.order.length===P.opts.length?P.order:H.shuffle(P.opts.map((o,i)=>i));P.order=order;
-  const mic=window.SpeechRecognition||window.webkitSpeechRecognition;
   $('kans').innerHTML=`${hint?`<p class="khint">💡 たとえば：<b>${esc(hint)}</b></p>`:''}
-    <div class="lopts kopts">${order.map(i=>`<button data-o="${i}" class="${P.opts[i].g?'kgram':''}">${P.opts[i].g?'📘 ':''}${esc(P.opts[i][0])}</button>`).join('')}</div>
-    <div class="kfree"><input id="kin" type="text" placeholder="${N.ask?'質問を 書いてもOK':'英語を 書いてもOK'}" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="send">${mic?'<button id="kmic" class="sub" aria-label="声で 言う">🎤</button>':''}<button id="ksend" aria-label="送る">▶</button></div>`;
-  $('kans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>pick(+b.dataset.o));
-  const inp=$('kin'),send=()=>{const v=inp.value.trim();if(!v)return;typed(v)};
-  $('ksend').onclick=send;inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();send()}};
-  const mb=$('kmic');if(mb)mb.onclick=()=>listen(mic,inp,mb)}
+    <div class="lopts kopts">${order.map(i=>`<button data-o="${i}" class="${P.opts[i].g?'kgram':''}">${P.opts[i].g?'📘 ':''}${esc(P.opts[i][0])}</button>`).join('')}</div>`;
+  $('kans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>pick(+b.dataset.o));}
 function listen(R,inp,mb){try{const r=new R();r.lang='en-US';r.interimResults=false;r.maxAlternatives=1;mb.classList.add('on');
   r.onresult=e=>{const t=e.results[0][0].transcript;inp.value=t;mb.classList.remove('on');typed(t)};
   r.onerror=r.onend=()=>mb.classList.remove('on');r.start()}catch(e){mb.classList.remove('on');H.toast('🎤 この 端末では 声の 入力が つかえないみたい')}}
