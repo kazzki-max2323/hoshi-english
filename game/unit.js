@@ -110,8 +110,10 @@ function ask(){const T=C;if(!live()||T.m!=='q')return;const q=T.qs[T.i];if(!q)re
   const hd=q.s?`<p class="mdqs">${esc(a)}<u>　？　</u>${esc(b||'')}</p>${q.ja?`<small class="mdja">${esc(q.ja)}</small>`:''}`:`<p class="mdqp">${esc(q.p)}</p>`;
   const el=$('mdq');el.innerHTML=`<div class="mdcard mdqc"><p class="mdqn">Q${T.i+1}.${q.s?' ___ に 入るのは？':''}</p>${hd}<div id="mdhint"></div>
     <div class="mdopts">${order.map(i=>`<button data-o="${i}" class="${isEn(q.o[i])?'en':''}">${esc(q.o[i])}</button>`).join('')}</div>
-    ${q.c!=null?`<button class="mddunno" id="mddunno">🤔 わからない → ${T.o.probe?'授業へ':'カードを 見る'}</button>`:''}<div id="mdafter"></div></div>`;
+    ${q.c!=null?(T.o.probe||!window.PRAC?`<button class="mddunno" id="mddunno">🤔 わからない → ${T.o.probe?'授業へ':'カードを 見る'}</button>`:`<button class="mddunno" id="mdteach">🤔 教えて</button>`):''}<div id="mdafter"></div></div>`;
   const dn=$('mddunno');if(dn)dn.onclick=()=>{if(C!==T||dn.disabled)return;hush();dunno(q)};
+  /* 🤔 教えて（game/practice.js）: 答える 前でも あとでも。 問題は うしろで そのまま */
+  const tb=$('mdteach');if(tb)tb.onclick=()=>{if(C!==T)return;hush();PRAC.teach(q,U,q.c)};
   el.querySelectorAll('[data-o]').forEach(bt=>bt.onclick=()=>{if(bt.disabled||C!==T)return;hush();const k=+bt.dataset.o;
     if(k===0){bt.classList.add('right');el.querySelectorAll('[data-o],#mddunno').forEach(x=>x.disabled=true);got(q)}
     else{bt.classList.add('wrong');bt.disabled=true;T.tries++;missed(q,k)}})}
@@ -122,7 +124,7 @@ function got(q){const T=C,first=!T.tries;snd('correct');
   const [ex,tx]=ML(first?'ok':'okHint'),f=fullOf(q);
   $('mdafter').innerHTML=`${minaBox(ex,tx)}${f?`<div class="mdens">${enBtn(f,q.ja||q.p||'')}</div>`:''}`;bindSay($('mdafter'));show('mdafter');
   if(f)talk(f);
-  const go=()=>{if(C!==T)return;T.i++;ask()};
+  const go=()=>{if(C!==T)return;if($('prteach')&&window.PRAC){PRAC.onClose(go);return}T.i++;ask()};
   (H.afterTalk?H.afterTalk(go,500,1300,()=>C===T):setTimeout(go,1600))}
 function missed(q,k){const T=C,left=document.querySelectorAll('#mdq [data-o]:not(:disabled)').length;
   if(T.tries===1&&left>1){snd('pickup');const [ex,tx]=ML('hint');
@@ -246,7 +248,7 @@ function review(p){const d=CH.map((c,ci)=>ci).filter(chDone);if(!d.length)return
 
 /* ほかの 単元の 授業の 前に、 この 単元の 問題で 「ちょっと ふくしゅう」 → then() */
 function warmRun(qs,label,then){P={label};run(qs,{title:'🔁 ちょっと ふくしゅう',say:ML('warm',{n:qs.length}),end:()=>{P=null;then()}})}
-const U={id:D.id,D,open,go,probe,warmRun,close,menu,chapter,test,sheet,review,warmQs,rec:()=>R,doneN,nextCh,missOf,stars,
+const U={id:D.id,D,save,open,go,probe,warmRun,close,menu,chapter,test,sheet,review,warmQs,rec:()=>R,doneN,nextCh,missOf,stars,
   started:()=>!!(R.n||doneN()),done:()=>nextCh()==null&&!!R.tn,gids:allG,_c:()=>C};
 if(!LIST.includes(U))LIST.push(U);return U}
 

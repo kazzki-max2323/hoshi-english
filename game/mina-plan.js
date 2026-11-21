@@ -110,7 +110,8 @@ function pickToday(){const D=day(),I=todayInfo(),pr=prSrc();
   return {k:'ct',ico:'☕',tag:'きょうは おしゃべり',t:'ミナ先生と ひと休み',line:['mp_tCt',{}]}}
 function runToday(p){p=p||pickToday();if(p.k==='pr'){practice();return}if(p.k==='les'){today();return}chat()}
 /* 練習: いまは まちがいを 先に（ミナ先生が えらぶ） */
-function practice(){const D=day();D.pr=1;keep();try{RECENT.add('plan',{k:'practice'})}catch(e){}review()}
+function practice(){/* ⚡ 練習（game/practice.js）。 習った 時間が まだ なければ 前の ふくしゅう（まちがいノート・とっくん） */
+  if(window.PRAC&&PRAC.has()){PRAC.start();return}const D=day();D.pr=1;keep();review()}
 
 /* ---------- ミナ先生の ページの 上の ぶぶん（game/mina.js）: 「きょうは これ」＋ 📘授業・⚡練習・☕おしゃべり の 3つ ---------- */
 let cdT=null,snooze=0;
@@ -156,12 +157,17 @@ function lessonsPage(){const I=todayInfo(),D=day(),L=units().filter(u=>u.started
 
 /* ⚡ 練習: きょうの 練習（ミナ先生が えらぶ）・ ⚡れんぱつ・ 📝まとめテスト */
 function practicePage(){const pr=prSrc(),L=units().filter(u=>u.doneN()>0),[ex,tx]=ML(pr?'mp_pr':'mp_pr0');let tk=[];try{tk=SENSEI.weak()}catch(e){}
+  const U=window.PRAC?units().filter(u=>PRAC.has(u.id)):[];let mn=0;try{mn=REVIEW.missN()}catch(e){}
   const body=`${pr?rowB('id="mppgo"','⚡','きょうの 練習',esc(pr.t)+' ▶','big'):''}
+    ${U.length>1?`<h4 class="sth">📘 授業を えらんで 練習</h4><div class="mplist">${U.map(u=>rowB(`data-pu="${u.id}"`,u.D.ico,esc(u.D.title),'10問')).join('')}</div>`:''}
+    ${mn?rowB('id="mppmn"','📒','ミニ授業の まちがいノート',mn+'問'):''}
     ${window.SKDRILL?rowB('id="mppkd"','🔁','れんぱつ 練習','英語の しくみ・50問まで'):''}
     ${tk.length?rowB('id="mpptk"','🎯','苦手 とっくん','5問'):''}
     ${L.length?`<h4 class="sth">📝 まとめテスト</h4><div class="mplist">${L.map(u=>rowB(`data-t="${u.id}"`,u.D.ico,esc(u.D.title),u.stars?u.stars(u.rec().best||0):'')).join('')}</div>`:''}`;
   sub('⚡ 練習',ex,tx,body);
   const g=$('mppgo');if(g)g.onclick=()=>{SFX.lesson();practice()};
+  H.panel.querySelectorAll('[data-pu]').forEach(b=>b.onclick=()=>{SFX.lesson();PRAC.start({u:b.dataset.pu})});
+  const mnb=$('mppmn');if(mnb)mnb.onclick=()=>{SFX.lesson();REVIEW.drill('miss',MINA.open,5)};
   const kd=$('mppkd');if(kd)kd.onclick=()=>{SFX.lesson();day().pr=1;keep();SKDRILL.open()};
   const t=$('mpptk');if(t)t.onclick=()=>{SFX.step();day().pr=1;keep();SENSEI.tokkun(tk.slice(0,3),0,'mina')};
   H.panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{SFX.lesson();const u=UNIT.get(b.dataset.t);if(u){u.open();u.test()}})}
@@ -193,7 +199,7 @@ try{const RL=MINA_SENSE._rules,drop=['x_stAsk','x_stNext','x_lesToday','x_lesStr
   RL.push(['x_mpToday',6,F=>{const D=day(),I=todayInfo();return !D.done&&I&&!I.fresh?{u:I.u.D.title,t:I.t}:null},go]);
   RL.push(['x_mpNew',4,F=>{const D=day(),I=todayInfo();return !D.done&&I&&I.fresh?{u:I.u.D.title}:null},go]);
   RL.push(['x_mpWeak',3,F=>{const u=units().find(u=>u.missOf()>=2);return u?{u:u.D.title}:null},()=>['💪 特別授業',()=>special()]]);
-  RL.push(['x_mpRev',2,F=>units().some(u=>u.doneN()>0&&u.rec().t&&Date.now()-u.rec().t>2*864e5)?{}:null,()=>['📚 復習',()=>review()]]);
+  RL.push(['x_mpRev',2,F=>units().some(u=>u.doneN()>0&&u.rec().t&&Date.now()-u.rec().t>2*864e5)?{}:null,()=>['⚡ 練習',()=>practice()]]);
 }catch(e){console.error(e)}
 
 window.MPLAN={page,bind,today,special,study,review,chat,practice,pickToday,runToday,lessonsPage,practicePage,chatPage,cur,todayInfo,units,doneToday:()=>!!day().done,rec:()=>MP,_stop:stopCd};
