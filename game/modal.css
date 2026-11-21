@@ -94,3 +94,8 @@
 .mdsec .mdtwo+.mdtwo{margin-top:2px}
 .mdmemo{margin:0;background:#fff6c9;color:#2a2340;text-shadow:none;border-left:5px solid #ffb347;border-radius:8px;padding:7px 10px;font-size:.84rem;line-height:1.5}
 .mdmemo b{color:#c2410c}
+
+/* 🤔 わからない → 授業へ（game/unit.js dunno） */
+.mddunno{display:block;margin:10px auto 0;padding:7px 14px!important;font-size:.85rem!important;background:rgba(255,236,170,.10)!important;border:1px dashed rgba(255,214,120,.6)!important;color:#ffe3a3!important;border-radius:999px!important;text-shadow:none}
+.mddunno:disabled{opacity:.4}
+.mdjump{margin-bottom:8px}
