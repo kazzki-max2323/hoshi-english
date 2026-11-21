@@ -219,13 +219,18 @@ function finish(quit){const g=G;if(!g)return close();const n=g.i,ok=g.ok;G=null;
     <div class="snscore"><span>⭕ <b>${ok}</b>/${n}</span><span>⏱ はやい <b>${g.fast}</b></span><span>🔥 さいこう <b>${g.best}</b>れんぞく</span></div>
     ${coin?`<p class="kpay">🪙 <b>${coin}まい</b></p>`:''}${minaBox(ex,tx)}
     ${weak.length?`<p class="mdnote2">📘 まちがえた 型</p><div class="kdweak">${weak.map(k=>`<button data-dk="${k}">${esc(KN[k]||k)} ×${g.miss[k]} <i>💡</i></button>`).join('')}</div>`:''}
+    ${whyNew()?'<button class="sub kdwhyt" id="kdwt">🤔 なんで こんなに 決まってるの？ <small>ミナ先生の おはなし</small></button>':''}
     <div class="mdnav"><button id="kdag">⚡ もう一回</button>${window.SHIKUMI?'<button class="sub" id="kdsh">🧩 英語のしくみ</button>':''}<button class="sub" id="kdc">✖ とじる</button></div></div>`;
   if(coin)setTimeout(()=>{try{const b=$('kdbox').getBoundingClientRect();H.coinBurst(b.left+b.width/2,Math.min(b.top+60,innerHeight-60),coin)}catch(e){ST.coins+=coin}},400);
   quit?snd('pop'):snd('done');
   $('kdag').onclick=()=>{snd('lesson');R.n++;save();shell();start()};
   const sh=$('kdsh');if(sh)sh.onclick=()=>{snd('book');close();SHIKUMI.open()};
   $('kdc').onclick=()=>{snd('back');close()};
+  const wt=$('kdwt');if(wt)wt.onclick=()=>{snd('step');close();MCHAT.open('why',()=>MINA.open())};
   $('kdbox').querySelectorAll('[data-dk]').forEach(b=>b.onclick=()=>{snd('book');detail(b.dataset.dk)})}
+
+/* 🤔 「なんで こんなに 決まってるの？」の おしゃべり（game/mina-chat-data.js の why）を まだ 聞いていない */
+const whyNew=()=>{try{return !!window.MCHAT&&MCHAT.chats.some(c=>c.id==='why')&&!(MCHAT.rec().n.why>0)}catch(e){return false}};
 
 /* 💡 くわしく: 練習の 上に 重ねる（練習は そのまま。 ← で もどる） */
 function detail(k,q){const d=DET[k];if(!d)return;const sec=document.querySelector('#dpov .kdp');if(!sec)return;let o=sec.querySelector('.kddet');if(o)o.remove();
@@ -248,6 +253,9 @@ function detail(k,q){const d=DET[k];if(!d)return;const sec=document.querySelecto
   const back=()=>{snd('back');hush();o.remove()};$('kddx').onclick=back;$('kddb').onclick=back;
   const cb=$('kdcard');if(cb)cb.onclick=()=>{snd('book');cb.remove();const box=$('kdcards');
     box.innerHTML=c.cards.map(x=>`<div class="mdcard">${minaBox(x.x||'smile',x.say)}${x.f?`<div class="mdfig">${x.f}</div>`:''}${x.ex?`<div class="mdens">${x.ex.map(e=>`<button class="mden" data-say="${esc(e[0])}"><span>🔊 ${esc(e[0])}</span><small>${esc(e[1])}</small></button>`).join('')}</div>`:''}</div>`).join('');bind(box)}}
+/* ホームに もどった ときの ミナ先生の ひとこと（game/mina-react.js）。 まだ 聞いて なければ 「なんで？」の おしゃべりへ（☕ その 話を もっと） */
+window.MINA_REACT_EXT=window.MINA_REACT_EXT||{};
+MINA_REACT_EXT.skdrill={act:e=>e.n?[whyNew()?'r_kd_why':'r_kd',{n:e.n|0,ok:e.ok|0},null]:null,desc:()=>'特別練習を した'};
 window.SKDRILL={open,close,detail,rec:()=>R,make,T,KN,DET};
 
 /* ================================================================ ミナ先生の セリフ */
@@ -263,11 +271,15 @@ Object.assign(MINA_LINES,{
  kd_quit:[['smile','{n}問 やったね。 ちょっとずつでも 毎日 やると とっさに 出るように なるよ'],['happy','ここまで {ok}問 正解！ また 続きを やろう']],
  kd_quit0:[['smile','また やりたく なったら いつでも 来てね']],
  x_kdTry:[['happy','💪特別授業の 横に ⚡特別練習を 作ったよ。 do や be を 連発で とっさに 出す 練習！'],['think','わかってるのに とっさに 出ない ときは、 ⚡特別練習で 連発しよう']],
+ x_kdWhy:[['think','特別練習を してて、 「なんで he の ときだけ s なの？」って 思わなかった？ じつは あれ、 1000年 前の なごり なんだよ'],['smile','動詞が かならず いる わけ、 he の s の わけ… 英語の 「なんで？」の 話、 ゆっくり しない？']],
+ r_kd_why:[['smile','特別練習、 {ok}問 正解！ …ねえ、 やってて 「なんで こんなに きっちり 決まってるの？」って 思わなかった？'],['think','{n}問 連発 おつかれさま。 he の s とか、 なんで あるんだろうね。 じつは わけが あるんだよ']],
+ r_kd:[['proud','特別練習、 {n}問で {ok}問 正解！ とっさに 出る 力、 ついてきたね'],['happy','⚡ 特別練習 おつかれさま。 He plays… もう 耳が なれてきたでしょ？'],['smile','連発 {n}問！ 「なんか へん」って 感じられたら、 それが 身についた しるしだよ']],
  x_kdAgain:[['smile','⚡特別練習、 きのうより 速く なってるかも。 ためしてみる？'],['proud','この前の 特別練習、 {ok}問 正解だったね。 また 連発しよう']],
 });
 try{const RL=MINA_SENSE._rules,go=()=>['⚡ 特別練習',()=>open()];
   RL.push(['x_kdTry',3,()=>!R.n&&window.SHIKUMI&&SHIKUMI.doneN()>0?{}:null,go]);
   RL.push(['x_kdMw',3,()=>(R.miss.which||0)+(R.miss.willX||0)+(R.miss.willBe||0)>0?{}:null,go]);
+  RL.push(['x_kdWhy',3,()=>R.tot&&whyNew()?{}:null,()=>['☕ なんで？の はなし',()=>MCHAT.open('why',()=>MINA.open())]]);
   RL.push(['x_kdAgain',2,()=>R.n&&R.t&&Date.now()-R.t>864e5?{ok:R.best||0}:null,go]);
 }catch(e){}
 })();
