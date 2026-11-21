@@ -108,7 +108,7 @@ function tip(x,y,tx){const old=document.querySelector('.wttip');if(old)old.remov
   const w=d.offsetWidth;d.style.left=Math.max(8,Math.min(innerWidth-w-8,x-w/2))+'px';d.style.top=Math.max(8,y-52)+'px';
   setTimeout(()=>d.classList.add('go'),1300);setTimeout(()=>d.remove(),1700)}
 function open(id,w){sf('card');
-  const o=C.detail(id,null,{top:true,from:'wtap'});if(!o)return;o.classList.add('wtcard');
+  const bk0=/^(es|jh|hs):/.test(id)&&BASIC.has(id);const o=C.detail(id,null,{top:true,from:bk0&&Math.random()<.5?'basic':'wtap'});if(!o)return;o.classList.add('wtcard');
   const bk=document.querySelector('.cgdvback');if(bk)bk.classList.add('wtback');
   WT.n++;WT.last=(C.info(id)||{}).en||w;WT.at=Date.now();save();
   /* はじめての ときは ミナ先生が つかいかたを ひとこと */
@@ -142,6 +142,8 @@ document.addEventListener('pointermove',e=>{if(lp&&Math.hypot(e.clientX-lp.x,e.c
 document.addEventListener('click',e=>{if(performance.now()<eatUntil&&e.target instanceof Element&&e.target.closest(BTN)){eatUntil=0;e.preventDefault();e.stopImmediatePropagation()}},true);
 document.addEventListener('contextmenu',e=>{if(performance.now()<eatUntil||lp)e.preventDefault()},true);
 
+/* 11/21 に 足した 単語（基本の ことばの 本）: ミナ先生の ひとこと 用 */
+const BASIC=new Set();try{['es','jh','hs'].forEach(lv=>LEVELS[lv].books.filter(b=>/^きほんの ことば/.test(b.t)).forEach(b=>b.w.forEach(w=>BASIC.add(lv+':'+w[0]))))}catch(e){}
 window.WTAP={lookup,cands,rec:()=>WT,open:w=>{const id=lookup(w,[],[]);if(id)open(id,w);return !!id}};
 
 /* ================================================================ ミナ先生の セリフ */
@@ -154,11 +156,17 @@ Object.assign(MINA_LINES,{
   ['happy','会話や 授業で わからない 英単語が あったら、 その 単語を タップしてみて。 えらぶ ボタンの 英語は 長押しだよ']],
  cg_lookFrom_wtap:[['happy','「{w}」、 文の 中で 出会うと 覚えやすいよね。 例文も 声に 出してみよう'],['smile','その 場で しらべるの、 いちばん 身に つくよ。 「{w}」は もう だいじょうぶ？'],
   ['think','「{w}」の 形が かわって いても、 もとの 形の カードが 出るよ。 くらべてみてね']],
+ wt_newWords:[['wow','お知らせ！ the・you・is・can みたいな いちばん 基本の ことばと、 浜辺で よく 出てくる ことば、 ぜんぶで 240語の カードが ふえたよ。 単語帳の さいごにも 入ってるの'],
+  ['happy','英文の 中の the や is も、 タップすると カードが 開くように なったよ。 使い方の 説明つきだから のぞいてみてね']],
+ cg_lookFrom_basic:[['smile','「{w}」みたいな 小さな ことばほど、 よく 使うんだよ。 例文ごと 声に 出してみよう'],['think','「{w}」は 意味より 使い方が だいじな ことば。 ワンポイントも 読んでみてね']],
  x_wtTry:[['smile','会話の 中の 英単語、 タップすると カードが 見られるよ。 試してみて'],['think','知らない 英単語は 飛ばさないで、 タップで しらべてみよう']],
  x_wtLast:[['happy','この前 タップで しらべた 「{w}」、 覚えてる？'],['smile','「{w}」、 しらべた ことばは 次に 出てきた とき 気づけると うれしいよね']]});
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_wtTry',1,()=>WT.n<3?{}:null,null],
  ['x_wtLast',2,()=>WT.last&&WT.n>=2?{w:WT.last.split(',')[0]}:null,()=>['📖 カード',()=>WTAP.open(WT.last.split(',')[0])]]);
+/* 11/21 足した 単語（levels/basic-add.js）の お知らせも 1回だけ */
+setTimeout(function nw(){if(WT.toldWords)return;if(!WT.told)return setTimeout(nw,60000);const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(nw,30000);
+  WT.toldWords=1;save();const [ex,tx]=ML('wt_newWords');m.say('m',ex,tx,10000)},240000);
 /* 新しく できたことを 1回だけ */
 setTimeout(function first(){if(WT.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
   WT.told=1;save();const [ex,tx]=ML('wt_new');m.say('m',ex,tx,10000)},70000);
