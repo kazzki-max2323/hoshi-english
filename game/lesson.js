@@ -166,7 +166,7 @@ function quiz(l,back,st,qs){st=st||{help:0,stg:0};qs=qs&&qs.length?qs:l.quiz.map
       <div class="lsay by-m big"><span class="lface">${MINA.face('m','proud')}</span><div class="lbody"><p>${msg}${pay?`<br>ごほうびに 🪙<b>${pay}</b>まい`:''}</p></div></div>
       ${sug?`<div class="lsay by-m lsug"><span class="lface">${MINA.face('m','think')}</span><div class="lbody"><p>${MINA.line(sug[0])[1]}</p><button id="lsug" class="sub">${sug[1]}</button></div></div>`:''}
       ${gk?gk.html:''}
-      ${ext.length?`<div class="bwin"><b class="bt">🎁 ごほうび</b>${ext.map(x=>`<div class="brow">${x.html}</div>`).join('')}</div>`:''}
+      ${ext.length?`<div class="bwin bsm">${ext.map(x=>`<div class="brow">${x.html}</div>`).join('')}</div>`:''}
       ${nx?`<p class="note">つぎの 授業も やってみる？</p>${row(nx)}`:''}
       <div class="row"><button id="lagain" class="sub">もう一度</button><button id="lback" data-back>${back===H.home?'ホームへ':'ミナ先生へ'}</button></div>
     </section>`);

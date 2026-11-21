@@ -74,11 +74,11 @@ function study(){const c=cur(),L=units().filter(u=>u!==c&&!u.done()),u=L.find(u=
 
 /* ---------- 📚 復習: いろいろな ところから じゅんばんに 1つ ---------- */
 function review(){const opts=[];
-  const um=units().filter(u=>u.missOf()>0);if(um.length)opts.push(()=>um[0].review({label:'📚 復習'}));
+  const um=units().filter(u=>u.missOf()>0);if(um.length)opts.push(()=>um[0].review({label:'⚡ 練習'}));
   try{if(REVIEW.missN()>0)opts.push(()=>{SFX.lesson();REVIEW.drill('miss',MINA.open,5)})}catch(e){}
   try{if(REVIEW.dueIds().length)opts.push(()=>{SFX.lesson();REVIEW.drill('today',MINA.open)})}catch(e){}
   try{const w=SENSEI.weak();if(w.length)opts.push(()=>{SFX.step();SENSEI.tokkun(w.slice(0,3),0,'mina')})}catch(e){}
-  const ud=units().filter(u=>u.doneN()>0);if(ud.length)opts.push(()=>pickL(ud).review({label:'📚 復習'}));
+  const ud=units().filter(u=>u.doneN()>0);if(ud.length)opts.push(()=>pickL(ud).review({label:'⚡ 練習'}));
   if(!opts.length){const [ex,tx]=ML('mp_none');try{MINA.say(ex,tx,5000)}catch(e){}today();return}
   MP.rv=(MP.rv||0)+1;keep();opts[(MP.rv-1)%opts.length]()}
 
@@ -91,46 +91,99 @@ function chat(){let lv='es';try{lv=MINA.level();if(lv==='adv')lv='hs'}catch(e){}
   if(window.MCHAT){SFX.talk();MCHAT.open(null,MINA.open);return}
   if(window.SENSEI)SENSEI.open()}
 
-/* ---------- ミナ先生の ページの 上の ぶぶん（game/mina.js） ---------- */
+/* ---------- 「きょうは これ」: ミナ先生が 1つだけ えらぶ（11/21 作りなおし） ----------
+   1. まちがえた ところが あって、 きょうの 練習が まだ → ⚡ 練習
+   2. きょうの 授業が まだ → 📘 つぎの 授業
+   3. 練習が まだ（習った ところが ある）→ ⚡ 練習
+   4. ぜんぶ おわった → ☕ おしゃべり */
+function prSrc(){/* 練習で いちばん 先に かためたい ところ（なければ null） */
+  const um=units().filter(u=>u.missOf()>0).sort((a,b)=>b.missOf()-a.missOf());if(um.length)return {miss:1,t:um[0].D.title};
+  try{if(REVIEW.missN()>0)return {miss:1,t:'まちがいノート'}}catch(e){}
+  try{if(SENSEI.weak().length)return {miss:1,t:'苦手な 文法'}}catch(e){}
+  const ud=units().filter(u=>u.doneN()>0);if(ud.length)return {miss:0,t:ud.map(u=>u.D.title).slice(0,2).join('・')};
+  return null}
+function pickToday(){const D=day(),I=todayInfo(),pr=prSrc();
+  if(pr&&pr.miss&&!D.pr)return {k:'pr',ico:'⚡',tag:'きょうは まず 練習',t:pr.t,line:['mp_tPr',{u:pr.t}]};
+  if(I&&!D.done)return {k:'les',ico:'📘',tag:'きょうの 授業',t:I.u.D.title+'　'+I.t,
+    line:I.fresh?['mp_new',{u:I.u.D.title}]:I.test?['mp_test',{u:I.u.D.title}]:['mp_hello',{u:I.u.D.title,t:I.t}]};
+  if(pr&&!D.pr)return {k:'pr',ico:'⚡',tag:'きょうの 練習',t:pr.t,line:['mp_tPr2',{u:pr.t}]};
+  return {k:'ct',ico:'☕',tag:'きょうは おしゃべり',t:'ミナ先生と ひと休み',line:['mp_tCt',{}]}}
+function runToday(p){p=p||pickToday();if(p.k==='pr'){practice();return}if(p.k==='les'){today();return}chat()}
+/* 練習: いまは まちがいを 先に（ミナ先生が えらぶ） */
+function practice(){const D=day();D.pr=1;keep();try{RECENT.add('plan',{k:'practice'})}catch(e){}review()}
+
+/* ---------- ミナ先生の ページの 上の ぶぶん（game/mina.js）: 「きょうは これ」＋ 📘授業・⚡練習・☕おしゃべり の 3つ ---------- */
 let cdT=null,snooze=0;
 /* まだ 聞いていない ミナ先生の うんちく（game/unchiku-data.js の UNK_MINA）。 きょうの うんちく（ほかも やる の 中）とは べつの もの */
 function unkPick(p){if(typeof UNK_MINA==='undefined'||!window.UNK||Math.random()>p)return null;let td=-1;try{td=UNK.todayIdx()}catch(e){}
   const L=UNK_MINA.map((t,i)=>i).filter(i=>i!==td&&!UNK.heard('mina',i));if(!L.length)return null;const i=pickL(L);UNK.hear('mina',i);return {i,t:UNK_MINA[i]}}
-function page(from){const D=day(),I=todayInfo();let ex='smile',say='',sub='',auto=false;
-  if(!I){[ex,say]=ML('mp_done')}
-  else if(D.done){[ex,say]=ML('mp_done');sub='もう 1時間'}
-  else{[ex,say]=I.fresh?ML('mp_new',{u:I.u.D.title}):I.test?ML('mp_test',{u:I.u.D.title}):ML('mp_hello',{u:I.u.D.title,t:I.t})}
-  /* たまに うんちく（ユーザーが うんちく好き）: きょうの授業の あとは 半分、 ふだんは 3回に 1回くらい */
-  const U=unkPick(D.done?.5:.33);if(U){[ex,say]=ML('mp_unk',{t:esc(U.t[0]),ja:esc(U.t[2])});say+=` <button class="ksay mpunk" id="mpunk" data-en="${esc(U.t[1])}" aria-label="英語で 聞く">🔊</button>`}
-  const sp=specialName();
-  return {auto,html:`<div class="mpcard${auto?' cd':''}" id="mpcard">
+function page(from){const D=day(),T=pickToday();let [ex,say]=ML(T.line[0],T.line[1]);
+  /* たまに うんちく（ユーザーが うんちく好き）: おしゃべりの 日は 半分、 ふだんは 3回に 1回くらい */
+  const U=unkPick(T.k==='ct'?.5:.33);if(U){[ex,say]=ML('mp_unk',{t:esc(U.t[0]),ja:esc(U.t[2])});say+=` <button class="ksay mpunk" id="mpunk" data-en="${esc(U.t[1])}" aria-label="英語で 聞く">🔊</button>`}
+  return {auto:false,T,html:`<div class="mpcard" id="mpcard">
     <div class="stsay"><span class="lface">${MINA.face('m',ex)}</span><p>${say}</p></div>
-    <button class="mpgo${D.done?' done':''}" id="mpgo"><span class="mpico">${D.done?'🌟':'🔥'}</span><span class="mptx"><small>${D.done?'きょうの 授業 おわり！':'きょうの 授業'}</small><b>${I?esc(I.u.D.title)+'　'+esc(I.t):''}</b></span><span class="mpplay"><i id="mpcd">${auto?3:'▶'}</i>${sub?`<small>${sub}</small>`:''}</span></button>
-    ${auto?'<button id="mplater" class="sub stlater">あとで</button>':''}
+    <button class="mpgo k${T.k}" id="mpgo"><span class="mpico">${T.ico}</span><span class="mptx"><small>${T.tag}</small><b>${esc(T.t)}</b></span><span class="mpplay"><i>▶</i></span></button>
   </div>
-  <div class="mpsprow"><button class="mpsp" id="mpsp"><span>💪</span><b>特別授業</b><small>${esc(sp)}</small></button>${window.SKDRILL?'<button class="mpkd" id="mpkd"><span>⚡</span><b>特別練習</b></button>':''}</div>
-  <div class="st3 mp3"><button id="mpst"><span>📖</span><b>勉強</b></button><button id="mprv"><span>📚</span><b>復習</b></button><button id="mpct"><span>☕</span><b>おしゃべり</b></button></div>`}}
-function stopCd(){if(cdT){clearInterval(cdT);cdT=null}const c=$('mpcard');if(c){c.classList.remove('cd');const i=$('mpcd');if(i)i.textContent='▶';const l=$('mplater');if(l)l.remove()}}
+  <div class="st3 mp3"><button id="mpls"><span>📘</span><b>授業</b></button><button id="mppr"><span>⚡</span><b>練習</b></button><button id="mpct"><span>☕</span><b>おしゃべり</b></button></div>`}}
+function stopCd(){if(cdT){clearInterval(cdT);cdT=null}}
 function bind(info){const g=$('mpgo');if(!g)return;
-  g.onclick=()=>{stopCd();SFX.lesson();today()};
-  $('mpsp').onclick=()=>{stopCd();SFX.lesson();special()};
-  const kd=$('mpkd');if(kd)kd.onclick=()=>{stopCd();SFX.lesson();SKDRILL.open()};
-  $('mpst').onclick=()=>{stopCd();SFX.lesson();study()};
-  $('mprv').onclick=()=>{stopCd();SFX.lesson();review()};
-  $('mpct').onclick=()=>{stopCd();chat()};
-  const uk=$('mpunk');if(uk)uk.onclick=e=>{e.stopPropagation();SFX.pop();try{SENSEI.talk(uk.dataset.en)}catch(er){}};
-  const lt=$('mplater');if(lt)lt.onclick=e=>{e.stopPropagation();SFX.pop();stopCd();snooze=Date.now()+30*60000;const [,t]=ML('mp_later');const p=$('mpcard').querySelector('.stsay p');if(p)p.textContent=t};
-  if(!info.auto)return;
-  /* ホームから 来た ときは 3びょうで 自動スタート（前と 同じ）。 ほかを さわったら とまる */
-  let n=3;cdT=setInterval(()=>{const i=$('mpcd');if(!i||H.screen!=='mina'){stopCd();return}n--;if(n>0){i.textContent=n;return}stopCd();today()},1000);
-  const stop=e=>{if(e.target.closest('#mpgo,#mplater'))return;stopCd();H.panel.removeEventListener('pointerdown',stop,true)};
-  H.panel.addEventListener('pointerdown',stop,true)}
+  g.onclick=()=>{SFX.lesson();runToday(info.T)};
+  $('mpls').onclick=()=>{SFX.book();lessonsPage()};
+  $('mppr').onclick=()=>{SFX.book();practicePage()};
+  $('mpct').onclick=()=>{SFX.pop();chatPage()};
+  const uk=$('mpunk');if(uk)uk.onclick=e=>{e.stopPropagation();SFX.pop();try{SENSEI.talk(uk.dataset.en)}catch(er){}}}
 
-/* ---------- ホームの 「きょうの授業」カード（前の ミニ授業の カードを 入れかえる） ---------- */
-function homeCard(){const v=H.panel.querySelector('.home .row');if(!v)return;const o=$('lcard');if(o)o.remove();const I=todayInfo();if(!I)return;const D=day();
-  v.insertAdjacentHTML('beforebegin',`<div class="lcard2${D.done?' done':''}" id="lcard"><button class="lcgo" id="mphome"><span class="lcico">${D.done?'🌟':'🔥'}</span>
-    <span class="lctx"><small>${D.done?'✅ きょうの 授業 クリア！':'🔥 きょうの 授業'}</small><b>${esc(I.u.D.title)}　${esc(I.t)}</b></span><span class="lcplay">${D.done?'もう1時間':'はじめる'} ▶</span></button></div>`);
-  $('mphome').onclick=()=>{SFX.lesson();today()}}
+/* ---------- 3つの ページ（ミナ先生の ページの 中。 ← で もどる） ---------- */
+function sub(title,ex,tx,body){H.show('mina',`<section class="pnl minap mpsub">
+    <div class="qtop"><button class="x" id="mpbk" aria-label="ミナ先生に もどる">←</button><b>${title}</b><span></span></div>
+    <div class="stsay"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>${body}</section>`);
+  $('mpbk').onclick=()=>{SFX.pop();MINA.open()}}
+const rowB=(id,ico,b,s,cls)=>`<button class="mprow ${cls||''}" ${id}><span>${ico}</span><b>${b}</b>${s?`<small>${s}</small>`:''}</button>`;
+
+/* 📘 授業: つぎの 授業（大きく）・ 習っている／おわった 単元（見かえせる）・ 💡コツの たな */
+const COTS=[['kotsu','💡','覚え方の コツ'],['oto','👄','音と 発音'],['yarikata','📝','勉強の やり方'],['kagaku','🧠','学び方の 科学'],['hama','🍬','ハマ子の 語呂'],['zu','🖼️','図で わかる 文法']];
+function lessonsPage(){const I=todayInfo(),D=day(),L=units().filter(u=>u.started()),[ex,tx]=ML(L.length?'mp_les':'mp_les0');
+  const body=`${I?rowB('id="mplgo"','📘',esc(I.u.D.title)+'　'+esc(I.t),D.done?'もう 1時間':'つぎの 授業 ▶','big'):''}
+    ${L.length?`<h4 class="sth">📚 習っている 授業</h4><div class="mplist">${L.map(u=>rowB(`data-u="${u.id}"`,u.D.ico,esc(u.D.title),u.done()?'おわった・見かえす':'つづき')).join('')}</div>`:''}
+    <details class="mfold mpcot"><summary>💡 コツの たな<small>音・覚え方・勉強の やり方</small></summary><div class="mfbody" id="mpcotb"></div></details>`;
+  sub('📘 授業',ex,tx,body);
+  const g=$('mplgo');if(g)g.onclick=()=>{SFX.lesson();today()};
+  H.panel.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{SFX.lesson();const u=UNIT.get(b.dataset.u);if(u)u.open()});
+  const f=H.panel.querySelector('.mpcot');f.ontoggle=()=>{if(!f.open||$('mpcotb').children.length)return;SFX.pop();
+    if(typeof LESSONS==='undefined')return;
+    $('mpcotb').innerHTML=COTS.map(([c,ico,n])=>{const ls=LESSONS.filter(l=>l.cat===c);return ls.length?`<details class="mfold"><summary>${ico} ${n}<small>${ls.length}</small></summary><div class="mfbody">${ls.map(LESSON.row).join('')}</div></details>`:''}).join('');
+    LESSON.bindRows(lessonsPage)}}
+
+/* ⚡ 練習: きょうの 練習（ミナ先生が えらぶ）・ ⚡れんぱつ・ 📝まとめテスト */
+function practicePage(){const pr=prSrc(),L=units().filter(u=>u.doneN()>0),[ex,tx]=ML(pr?'mp_pr':'mp_pr0');let tk=[];try{tk=SENSEI.weak()}catch(e){}
+  const body=`${pr?rowB('id="mppgo"','⚡','きょうの 練習',esc(pr.t)+' ▶','big'):''}
+    ${window.SKDRILL?rowB('id="mppkd"','🔁','れんぱつ 練習','英語の しくみ・50問まで'):''}
+    ${tk.length?rowB('id="mpptk"','🎯','苦手 とっくん','5問'):''}
+    ${L.length?`<h4 class="sth">📝 まとめテスト</h4><div class="mplist">${L.map(u=>rowB(`data-t="${u.id}"`,u.D.ico,esc(u.D.title),u.stars?u.stars(u.rec().best||0):'')).join('')}</div>`:''}`;
+  sub('⚡ 練習',ex,tx,body);
+  const g=$('mppgo');if(g)g.onclick=()=>{SFX.lesson();practice()};
+  const kd=$('mppkd');if(kd)kd.onclick=()=>{SFX.lesson();day().pr=1;keep();SKDRILL.open()};
+  const t=$('mpptk');if(t)t.onclick=()=>{SFX.step();day().pr=1;keep();SENSEI.tokkun(tk.slice(0,3),0,'mina')};
+  H.panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{SFX.lesson();const u=UNIT.get(b.dataset.t);if(u){u.open();u.test()}})}
+
+/* ☕ おしゃべり: 長い おしゃべり・ 英語で 話す */
+function chatPage(){const [ex,tx]=ML('mp_ct');
+  const body=`${window.MCHAT?rowB('id="mpcl"','☕','ミナ先生と おしゃべり','日本語で のんびり','big'):''}
+    ${window.SENSEI?rowB('id="mpce"','🗣️','英語で 話す','ミナ先生が 先生役'):''}
+    ${window.SENSEI?rowB('id="mpcs"','🎬','場面を えらぶ','会話の 一覧'):''}`;
+  sub('☕ おしゃべり',ex,tx,body);
+  const a=$('mpcl');if(a)a.onclick=()=>{SFX.talk();MCHAT.open(null,MINA.open)};
+  const b=$('mpce');if(b)b.onclick=()=>{SFX.talk();MP.ct=0;chatScene()};
+  const c=$('mpcs');if(c)c.onclick=()=>{SFX.pop();SENSEI.open()}}
+function chatScene(){let lv='es';try{lv=MINA.level();if(lv==='adv')lv='hs'}catch(e){}
+  const sc=(window.SENSEI?SENSEI.scenes:[]).filter(s=>s.lv===lv),done=(window.SENSEI&&SENSEI.rec().done)||{};
+  const fresh=sc.filter(s=>!done[s.id]),scene=pickL(fresh.length?fresh:sc);if(scene)SENSEI.play(scene.id,'mina');else SENSEI.open()}
+
+/* ---------- ホームの 「きょうは これ」カード ---------- */
+function homeCard(){const v=H.panel.querySelector('.home .row');if(!v)return;const o=$('lcard');if(o)o.remove();const T=pickToday();
+  v.insertAdjacentHTML('beforebegin',`<div class="lcard2 k${T.k}" id="lcard"><button class="lcgo" id="mphome"><span class="lcico">${T.ico}</span>
+    <span class="lctx"><small>${T.tag}</small><b>${esc(T.t)}</b></span><span class="lcplay">はじめる ▶</span></button></div>`);
+  $('mphome').onclick=()=>{SFX.lesson();runToday(T)}}
 H.on('home',()=>setTimeout(homeCard,0));if(H.screen==='home')setTimeout(homeCard,0);
 
 /* ---------- ホームの ミナ先生の ひとこと: 「何分？」と ミニ授業の きょうの1本 は やめて、 こっちに ---------- */
@@ -143,5 +196,5 @@ try{const RL=MINA_SENSE._rules,drop=['x_stAsk','x_stNext','x_lesToday','x_lesStr
   RL.push(['x_mpRev',2,F=>units().some(u=>u.doneN()>0&&u.rec().t&&Date.now()-u.rec().t>2*864e5)?{}:null,()=>['📚 復習',()=>review()]]);
 }catch(e){console.error(e)}
 
-window.MPLAN={page,bind,today,special,study,review,chat,cur,todayInfo,units,doneToday:()=>!!day().done,rec:()=>MP,_stop:stopCd};
+window.MPLAN={page,bind,today,special,study,review,chat,practice,pickToday,runToday,lessonsPage,practicePage,chatPage,cur,todayInfo,units,doneToday:()=>!!day().done,rec:()=>MP,_stop:stopCd};
 })();
