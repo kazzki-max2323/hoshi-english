@@ -103,3 +103,4 @@
 /* 単元（game/unit-auto.js）の ルール一覧 */
 .uarul{margin:0;padding:8px 10px 8px 26px;background:#fff;color:#2a2340;text-shadow:none;border-radius:10px;font-size:.9rem;line-height:1.6}
 .uarul li+li{margin-top:4px}
+.mdchs button.lock{opacity:.6}
