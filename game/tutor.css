@@ -50,3 +50,10 @@
 /* 第2弾: ケン・ママ・ポチの ふきだし */
 .tu .tuken .lbody>small,.tu .tufar .lbody>small{display:block;font-size:.72em;opacity:.7;margin-bottom:.1em}
 .tu .tufar p{font-style:italic}
+/* 🤔 わからない: 失敗では ないので やわらかく。 本の ページ */
+.tuopts button.tudk{font-family:"M PLUS Rounded 1c",sans-serif!important;text-align:center!important;font-size:.8rem;background:rgba(255,255,255,.04)!important;border-style:dashed!important;opacity:.92}
+.tubook .lbody{border-style:solid;border-color:rgba(255,231,168,.6);background:rgba(255,248,225,.1)}
+.tubook .lbody p{text-shadow:none}
+.tubook .lbody p.tubk{color:#fff!important;font-size:.8rem;margin-top:4px}
+.tubook .lbody p.tubm{color:var(--mute,#cfd8e6)!important;font-size:.74rem;margin-top:4px}
+.tubook .lbody p b{color:#ffe7a8}
