@@ -97,7 +97,11 @@ function quizLock(el,isBtn){
   if(isBtn){const bs=[...el.parentElement.querySelectorAll(':scope>button')].filter(b=>!b.classList.contains('sub'));
     if(bs.length<2||answered(bs))return false;
     /* 単語の 選択肢（1〜2語）が ならんでいる = 単語・つづり・文法の 問題 */
-    return bs.every(b=>{const t=b.textContent.trim();return hasEn(t)&&t.split(/\s+/).length<=2})}
+    /* 11/21 「Sure!」「No way.」のような 会話の 返事（記号つき）は 問題では ないので しめない */
+    return bs.every(b=>{const t=b.textContent.trim();return hasEn(t)&&t.split(/\s+/).length<=2&&!/[!?.。！？]$/.test(t)})}
+  /* 11/21 ユーザー「単語カードが でない」（ミオの ふきだし "Boss, did you see an eclipse outside?"）:
+     しめるのは 意味を 聞く 単語の 問題（英語が 3語まで）だけ。 文の ふきだし・会話は 答える 前でも ひらける */
+  const en=(el.textContent.match(WRE)||[]).length;if(!en||en>3)return false;
   const bs=choicesNear(el);if(!bs||answered(bs))return false;
   /* 英語の 問題文に 日本語の 選択肢 = 意味の 問題 */
   return bs.every(b=>!hasEn(b.textContent))}
