@@ -327,7 +327,8 @@ FX.meteor=()=>{let night=false;try{night=SC.dbg().dark>.6}catch(e){}if(night&&!$
      return sp(u)}}}
 /* 会話の つぎの セリフは 前の セリフを 読みおわってから（音が オフなら すぐ）。 alive() が false に なったら 何もしない */
 var SPK={on:false,id:0,max:0};
-function talkBusy(){if(!ST.sound)return false;if(clip)return true;const ss=window.speechSynthesis;
+function talkBusy(){if(document.querySelector('#cardTop.wtcard'))return true;/* 英単語タップの カードを 見ている 間は 会話を 進めない（wordtap.js） */
+  if(!ST.sound)return false;if(clip)return true;const ss=window.speechSynthesis;
   return !!ss&&(SPK.on||ss.speaking||ss.pending)&&Date.now()<SPK.max}
 function afterTalk(fn,gap=500,minMs=700,alive){const t0=Date.now();
   const wait=()=>{if(alive&&!alive())return;if(talkBusy()||Date.now()-t0<minMs){setTimeout(wait,150);return}

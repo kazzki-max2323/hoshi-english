@@ -414,3 +414,9 @@
 /* くわしく画面: 長いときも 上まで スクロールできるように（中央よせで 上が 切れていた）＋ 右下の ← */
 #cardOv.cgov,#cardTop.cgov{justify-content:flex-start;padding-bottom:90px}
 .backfab.cgdvback{z-index:62}
+/* どこでも 英単語タップ → カード（game/wordtap.js）: ほかの ポップアップより 上に 重ねる */
+#cardTop.wtcard{z-index:96}.backfab.cgdvback.wtback{z-index:97}
+.wttip{position:fixed;z-index:98;pointer-events:none;padding:5px 10px;border-radius:10px;background:#fff8e6;color:#3a2a10;text-shadow:none;font-size:.8rem;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,.35);transition:opacity .35s}
+.wttip.go{opacity:0}
+button.wtheld{transform:scale(.97);filter:brightness(1.15)}
+button,[role="button"]{-webkit-touch-callout:none}
