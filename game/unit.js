@@ -74,9 +74,9 @@ function menu(key){C={m:'menu'};P=null;hush();const box=shell('',null),nx=nextCh
 const back=()=>P?close():menu();
 
 /* ---------- 1時間の カード ---------- */
-function chapter(ci,i){const c=CH[ci];if(!c)return menu();C={m:'card',ci,i};hush();
+function chapter(ci,i,pre){const c=CH[ci];if(!c)return menu();C={m:'card',ci,i};hush();
   const box=shell(chT(ci),P?null:menu),k=c.cards[i],N=c.cards.length;
-  box.innerHTML=`<div class="mdcard">
+  box.innerHTML=`${pre&&!i?`<div class="mdjump">${minaBox(pre[0],pre[1])}</div>`:''}<div class="mdcard">
       ${minaBox(k.x||'smile',k.say)}
       ${k.f?`<div class="mdfig">${k.f}</div>`:''}
       ${k.ex?`<div class="mdens">${k.ex.map(e=>enBtn(e[0],e[1])).join('')}</div>`:''}
@@ -109,9 +109,11 @@ function ask(){const T=C;if(!live()||T.m!=='q')return;const q=T.qs[T.i];if(!q)re
   const order=shuffle(q.o.map((x,i)=>i)),[a,b]=q.s?q.s.split('___'):['',''];
   const hd=q.s?`<p class="mdqs">${esc(a)}<u>　？　</u>${esc(b||'')}</p>${q.ja?`<small class="mdja">${esc(q.ja)}</small>`:''}`:`<p class="mdqp">${esc(q.p)}</p>`;
   const el=$('mdq');el.innerHTML=`<div class="mdcard mdqc"><p class="mdqn">Q${T.i+1}.${q.s?' ___ に 入るのは？':''}</p>${hd}<div id="mdhint"></div>
-    <div class="mdopts">${order.map(i=>`<button data-o="${i}" class="${isEn(q.o[i])?'en':''}">${esc(q.o[i])}</button>`).join('')}</div><div id="mdafter"></div></div>`;
+    <div class="mdopts">${order.map(i=>`<button data-o="${i}" class="${isEn(q.o[i])?'en':''}">${esc(q.o[i])}</button>`).join('')}</div>
+    ${q.c!=null?`<button class="mddunno" id="mddunno">🤔 わからない → ${T.o.probe?'授業へ':'カードを 見る'}</button>`:''}<div id="mdafter"></div></div>`;
+  const dn=$('mddunno');if(dn)dn.onclick=()=>{if(C!==T||dn.disabled)return;hush();dunno(q)};
   el.querySelectorAll('[data-o]').forEach(bt=>bt.onclick=()=>{if(bt.disabled||C!==T)return;hush();const k=+bt.dataset.o;
-    if(k===0){bt.classList.add('right');el.querySelectorAll('[data-o]').forEach(x=>x.disabled=true);got(q)}
+    if(k===0){bt.classList.add('right');el.querySelectorAll('[data-o],#mddunno').forEach(x=>x.disabled=true);got(q)}
     else{bt.classList.add('wrong');bt.disabled=true;T.tries++;missed(q,k)}})}
 const show=id=>setTimeout(()=>{const e=$(id);if(e)e.scrollIntoView({block:'nearest',behavior:'smooth'})},60);
 const fullOf=q=>q.s?q.s.replace('___',q.o[0]):isEn(q.o[0])?q.o[0]:'';
@@ -126,6 +128,7 @@ function missed(q,k){const T=C,left=document.querySelectorAll('#mdq [data-o]:not
   if(T.tries===1&&left>1){snd('pickup');const [ex,tx]=ML('hint');
     $('mdhint').innerHTML=`<div class="mdhint">💡 <b>ヒント</b>　${esc(q.h)}<small>${esc(tx.replace(/<[^>]+>/g,''))}</small></div>`;show('mdhint');return}
   snd('wrong');T.st.miss++;T.bad.push(q);gram(q.c,0);if(!T.o.check&&q.c!=null){R.miss[q.c]=(R.miss[q.c]||0)+1;save()}
+  const dn=$('mddunno');if(dn)dn.remove();
   document.querySelectorAll('#mdq [data-o]').forEach(x=>{x.disabled=true;if(+x.dataset.o===0)x.classList.add('right')});
   const [ex,tx]=ML('explain'),bad=q.s?q.s.replace('___',q.o[k]):q.o[k],good=q.s?fullOf(q):q.o[0];
   $('mdhint').innerHTML='';
@@ -134,8 +137,14 @@ function missed(q,k){const T=C,left=document.querySelectorAll('#mdq [data-o]:not
   show('mdafter');if(isEn(good))talk(good);
   $('mdnx').onclick=()=>{snd('step');hush();T.i++;ask()};
   const see=$('mdsee');if(see)see.onclick=()=>{snd('book');peek(q.c,()=>{C=T;const box=shell(T.o.title,P?null:menu);box.innerHTML='<div id="mdq"></div>';T.i++;ask()})}}
-function peek(ci,bk){const c=CH[ci];C={m:'peek'};hush();const box=shell(chT(ci),bk);$('mdn').textContent='';
-  box.innerHTML=c.cards.map(k=>`<div class="mdcard">${minaBox(k.x||'smile',k.say)}${k.f?`<div class="mdfig">${k.f}</div>`:''}${k.ex?`<div class="mdens">${k.ex.map(e=>enBtn(e[0],e[1])).join('')}</div>`:''}</div>`).join('')+
+/* 🤔 わからない: 答え合わせは しないで、 その 時間の 授業へ（さいしょの 「聞かせて」）／ カードを 見て つぎの 問題へ（ほかの 問題） */
+function dunno(q){const T=C;snd('book');
+  if(T.o.probe)return T.o.jump(q,T);
+  T.st.miss++;T.bad.push(q);gram(q.c,0);if(!T.o.check){R.miss[q.c]=(R.miss[q.c]||0)+1;save()}
+  try{RECENT.add('unitDunno',{id:D.id,ci:q.c,t:CH[q.c].short})}catch(e){}
+  peek(q.c,()=>{C=T;const box=shell(T.o.title,P?null:menu);box.innerHTML='<div id="mdq"></div>';T.i++;ask()},ML('dunnoPeek',{t:CH[q.c].short}))}
+function peek(ci,bk,pre){const c=CH[ci];C={m:'peek'};hush();const box=shell(chT(ci),bk);$('mdn').textContent='';
+  box.innerHTML=(pre?`<div class="mdjump">${minaBox(pre[0],pre[1])}</div>`:'')+c.cards.map(k=>`<div class="mdcard">${minaBox(k.x||'smile',k.say)}${k.f?`<div class="mdfig">${k.f}</div>`:''}${k.ex?`<div class="mdens">${k.ex.map(e=>enBtn(e[0],e[1])).join('')}</div>`:''}</div>`).join('')+
     `<div class="mdnav"><button id="mdbk">✏️ 問題に もどる ▶</button></div>`;
   bindSay(box);$('mdbk').onclick=()=>{snd('step');bk()}}
 
@@ -205,7 +214,13 @@ function go(p){p=p||{};P=p;R.n=(R.n||0)+1;R.t=Date.now();save();
     else f()}}
 /* 1問だけ ちょっと 聞いて、 わかっている 時間を とばす（はじめての 単元） */
 function probe(p){P=p;const qs=CH.map((c,ci)=>{const q=shuffle(c.q)[0];return q}).filter(Boolean);
-  run(qs,{title:'🧭 まず ちょっと 聞かせて',say:ML('probe',{n:qs.length}),check:1,end:(st,bad)=>{
+  run(qs,{title:'🧭 まず ちょっと 聞かせて',say:ML('probe',{n:qs.length}),check:1,probe:1,
+  /* 🤔 わからない: それまでに 1回で 正解した 時間は とばして、 この 問題の 時間を すぐ はじめる */
+  jump:(q,T)=>{const ok=new Set(T.qs.slice(0,T.i).filter(x=>!T.bad.includes(x)&&!(T.bad2||[]).includes(x)).map(x=>x.c));
+    CH.forEach((c,ci)=>{if(ci&&ci!==q.c&&ok.has(ci)&&!chDone(ci))R.ch[ci]={d:1,c:0,sk:1}});R.pr=1;save();
+    try{RECENT.add('unitDunno',{id:D.id,ci:q.c,t:CH[q.c].short,probe:1})}catch(e){}
+    P=p;R.n=(R.n||0)+1;R.t=Date.now();save();chapter(q.c,0,ML('dunnoGo',{t:CH[q.c].short}))},
+  end:(st,bad)=>{
     const miss=new Set(bad.concat(C.bad2||[]).map(q=>q.c));let sk=0;
     /* さいしょの 時間は かならず やる。 1回で 正解した 時間だけ 「もう わかる」に */
     CH.forEach((c,ci)=>{if(ci&&!miss.has(ci)&&!chDone(ci)){R.ch[ci]={d:1,c:0,sk:1};sk++}});
