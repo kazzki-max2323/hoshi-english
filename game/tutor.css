@@ -57,3 +57,31 @@
 .tubook .lbody p.tubk{color:#fff!important;font-size:.8rem;margin-top:4px}
 .tubook .lbody p.tubm{color:var(--mute,#cfd8e6)!important;font-size:.74rem;margin-top:4px}
 .tubook .lbody p b{color:#ffe7a8}
+/* リクと ケンの 顔（絵） */
+.tukid .lface.kf{overflow:visible;position:relative}
+.tuface{display:block;width:100%;height:100%;border-radius:50%}
+.tuken .lface.kf{border-color:#5ab4ff}
+.tuzf{display:inline-block;width:46px;height:46px}
+/* 👩‍🏫 参観日の ミナ先生 */
+.tuvis .lbody{border-color:rgba(255,154,200,.6)}
+.tuvis .lbody p{color:#ffe0ef!important}
+.tuvn small{color:#ffe0ef!important}
+/* 📒 リクの ノート（ノートの 罫線） */
+.tunb{display:flex;flex-direction:column;gap:8px;padding:0 10px 12px}
+.tupg{display:flex;align-items:center;gap:8px;padding:9px 12px;border-radius:8px;background:#fffbef repeating-linear-gradient(transparent 0 21px,#cfe0f5 21px 22px);color:#2b2b3a;text-shadow:none;border-left:4px solid #f08a8a}
+.tupg>span{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;align-items:flex-start}
+.tupg b{font-size:.86rem;color:#2b2b3a}
+.tupg i{font-style:normal;font-size:.8rem;color:#2c55a8;font-weight:700}
+.tupg small{font-size:.72rem;color:#5a5a6a}
+.tupg .tuex{color:#2b2b3a!important;background:rgba(0,0,0,.05)!important;text-shadow:none}
+.tunote button{font-family:"M PLUS Rounded 1c",sans-serif!important;font-size:.82rem}
+/* 📝 宿題プリント */
+.tupr{display:inline-block;margin-top:4px;padding:6px 12px;border-radius:8px;background:#fffbef;color:#2b2b3a;font-family:"Libre Baskerville",Georgia,serif;font-size:.95rem;text-shadow:none}
+.tuord{display:flex;flex-direction:column;gap:8px}
+.tuord .tuline{margin:0;padding:8px 12px;border-radius:8px;background:#fffbef;color:#2b2b3a;font-family:"Libre Baskerville",Georgia,serif;font-size:1rem;line-height:1.7;text-shadow:none}
+.tuord .tuline b{color:#1d4fa8}.tuord .tuline i{color:#999;font-style:normal}
+.tutok{display:flex;flex-wrap:wrap;gap:6px}
+.tutok button{font-family:"Libre Baskerville",Georgia,serif!important;padding:7px 12px!important;font-size:.95rem}
+.tuord .tudk{font-size:.78rem;border-style:dashed!important;background:rgba(255,255,255,.04)!important}
+.tushake{animation:tushk .4s}
+@keyframes tushk{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}

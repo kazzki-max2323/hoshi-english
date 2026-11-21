@@ -255,7 +255,7 @@ function announce(ex,text,ms=10000,tap){if(!$('minaSay'))return false;annAt=perf
 const canTalk=()=>H.screen==='home'&&!document.hidden&&!busy()&&!H.stage.talking&&!H.stage.cheer&&$('minaSay');
 
 /* ---------- Hamako comes by ---------- */
-function hamaPick(){const ww=weakWords(),ra=recentAcc(),ph=(()=>{try{return BEACH.scene.dbg().dark>.6?'night':'day'}catch(e){return 'day'}})(),h=new Date().getHours();
+function hamaPick(){const ww=weakWords(),ra=recentAcc(),ph=(()=>{try{return BEACH.scene.dbg().dark>.6?'night':'day'}catch(e){return 'day'}})(),h=(typeof GH==='function'?GH():new Date().getHours());
   const by=w=>HAMA_TALKS.filter(t=>t.when===w);let pool=by('any');
   const r=Math.random();if(r<.3)pool=by('candy');else if(r<.5&&ww.length)pool=by('weak');else if(r<.65&&ra!=null&&ra>=75)pool=by('good');
   else if(r<.75&&ph==='night')pool=by('night');else if(r<.75&&h>=5&&h<11)pool=by('morning');
@@ -275,7 +275,7 @@ function hamaVisit(t0){const t=t0||hamaPick();if(!t)return;const ww=weakWords()[
 /* ---------- when to talk ---------- */
 let opened=false,talkAt=0,talkGap=(3+Math.random()*2)*60000,hamaAt=0,hamaGap=(12+Math.random()*10)*60000,lastT=performance.now();
 function hello(){const gap=MD.last?Math.floor((Date.now()-MD.last)/864e5):0;MD.last=Date.now();save();
-  const h=new Date().getHours(),opts=advice();
+  const h=(typeof GH==='function'?GH():new Date().getHours()),opts=advice();
   if(gap>=3)return line('openBack',{days:gap});
   /* この前 したこと（game/mina-react.js） */
   if(window.MINA_REACT){const b=MINA_REACT.hello();if(b)return b}
