@@ -38,11 +38,11 @@ function items(only){const out=[];(window.UNIT?UNIT.list:[]).forEach(u=>{if(only
 const has=only=>items(only).length>0;
 /* どれだけ 出したいか: まちがえて まだ なおっていない ＞ ふくしゅうの 日が 来た ＞ その 時間に まちがいが ある ＞ ほか */
 const GAPS=[1,3,7,14,30];
-function weight(it){const r=R.q[keyOf(it.u,it.q)],um=(it.u.rec().miss||{})[it.ci]||0;let w=Math.random();
+function weight(it,ci){const r=R.q[keyOf(it.u,it.q)],um=(it.u.rec().miss||{})[it.ci]||0;let w=Math.random();
   if(r){if(r.m&&(r.k||0)<2)w+=4;else if(r.due&&Date.now()>=r.due)w+=2;else w-=.5}else w+=1;
-  if(um)w+=1.5;return w}
-function choose(only,n){const all=items(only);if(!all.length)return [];
-  const sorted=all.map(it=>[weight(it),it]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]),out=[],seen=new Set();
+  if(um)w+=1.5;if(ci!=null&&it.ci===ci)w+=5;return w}
+function choose(only,n,focus){const all=items(only);if(!all.length)return [];
+  const sorted=all.map(it=>[weight(it,focus),it]).sort((a,b)=>b[0]-a[0]).map(x=>x[1]),out=[],seen=new Set();
   for(const it of sorted){const k=qText(it.q);if(seen.has(k))continue;seen.add(k);out.push(it);if(out.length>=n)break}
   /* 少なければ くりかえして 埋める（同じ 問題が ならばない ように） */
   while(out.length<Math.min(n,Math.max(5,all.length))){const it=pickL(all);if(out[out.length-1]!==it)out.push(it)}
@@ -71,7 +71,7 @@ function shell(){let o=$('dpov');if(o)o.remove();try{window.DEEP&&DEEP.close()}c
 const live=g=>G===g&&$('prq');
 
 /* ---------- はじめる ---------- */
-function start(o){o=o||{};const list=choose(o.u,o.n||N);if(!list.length)return false;
+function start(o){o=o||{};const list=choose(o.u,o.n||N,o.ci);if(!list.length)return false;
   const u=o.u&&UNIT.get(o.u);
   G={list,i:0,st:{ok:0,hint:0,miss:0},bad:[],again:new Set(),title:u?`⚡ 練習：${u.D.title}`:'⚡ 練習',o};
   shell();const [ex,tx]=ML(o.u?'pr_startU':'pr_start',{u:u?u.D.title:'',n:list.length});
@@ -158,8 +158,9 @@ function teach(q,u,ci){if(ci==null)ci=q.c;const box=layer('🤔 教えて'),good
     <div class="mdcard prtc"><p class="prth">📘 なぜ 「${esc(good)}」？</p><p>${esc(q.e)}</p></div>
     <div class="mdcard prtc"><p class="prth">🙅 ほかの 答えは なぜ ちがう？</p><ul class="prtno">${others}</ul></div>
     ${c?`<div class="mdnav"><button id="prtles">📘 ${ci+1}時間目「${esc(c.t)}」の 授業を 見る</button></div>`:''}
-    <div class="mdnav"><button class="sub" id="prtbk">← 問題に もどる</button></div>`;
+    <div class="mdnav"><button class="sub" id="prtbk">← 問題に もどる</button>${window.MINAQA?'<button class="sub" id="prtqa">🙋 ほかの 「なんで？」</button>':''}</div>`;
   bindSay(box);box.scrollTop=0;
+  const qa=$('prtqa');if(qa)qa.onclick=()=>{snd('talk');qaList()};
   $('prtbk').onclick=()=>{snd('step');closeTeach()};
   const l=$('prtles');if(l)l.onclick=()=>{snd('book');lesson(q,u,ci)}}
 /* その 時間の 授業カードを その場で（単元の 「カードを 見る」と 同じ 見た目） */
@@ -170,6 +171,14 @@ function lesson(q,u,ci){const c=u.D.CH[ci],box=layer(`📘 ${ci+1}時間目　${
   $('prtback').onclick=()=>{snd('pop');teach(q,u,ci)};
   $('prtbk').onclick=()=>{snd('step');closeTeach()}}
 
+/* 🙋 しつもんコーナーを 教えての 重ねの 中で（問題は うしろで そのまま） */
+function qaList(){const box=layer('🙋 ミナ先生に しつもん'),[ex,tx]=ML('qa_list');const Q=MINAQA.all;
+  box.innerHTML=minaBox(ex,tx)+`<div class="qalist">${Q.map((x,i)=>`<button data-q="${i}"><i>${x.ico}</i><span>${esc(x.q)}</span></button>`).join('')}</div><div class="mdnav"><button class="sub" id="prtbk">← 問題に もどる</button></div>`;
+  box.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{snd('talk');qaOne(Q[+b.dataset.q])});$('prtbk').onclick=()=>{snd('step');closeTeach()}}
+function qaOne(x){const box=layer('🙋 '+esc(x.q));try{RECENT.add('qa',{t:x.q})}catch(e){}
+  box.innerHTML=`<div class="mdcard qaq"><p class="qaqt">🙋 ${esc(x.q)}</p></div>`+x.cards.map(k=>`<div class="mdcard">${minaBox(k.x||'smile',k.say)}${k.f?`<div class="mdfig">${k.f}</div>`:''}${k.ex?`<div class="mdens">${k.ex.map(e=>enBtn(e[0],e[1])).join('')}</div>`:''}</div>`).join('')+
+    `<div class="mdnav"><button class="sub" id="prtqa">🙋 ほかの 質問</button><button id="prtbk">✏️ 問題に もどる</button></div>`;
+  bindSay(box);box.scrollTop=0;$('prtqa').onclick=()=>{snd('pop');qaList()};$('prtbk').onclick=()=>{snd('step');closeTeach()}}
 window.PRAC={start,has,teach,closeTeach,learned,items,rec:()=>R,onClose:f=>{onTeachClose=f},_close:close};
 
 /* ---------- セリフ ---------- */
