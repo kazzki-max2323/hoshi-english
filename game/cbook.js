@@ -132,8 +132,8 @@ function body(){const el=$('cbbody');if(!el)return;
     el.innerHTML=`<div class="cbtabs"><div><small>🎁</small>${SEC.filter(s=>s.g==='tr').map(tab).join('')}</div><div><small>🔤</small>${SEC.filter(s=>s.g==='w').map(tab).join('')}</div></div>
     <div class="cbbind ${cur}">
       <div class="cbhd"><b>${esc(SK[cur].t)}</b><span>${got}/${L.length}</span></div>
-      <div class="cbpage ${pageFull(cur,p)?'full':''}">${shown.map((id,i)=>pocket(id,p*PER+i)).join('')}${Array.from({length:PER-shown.length},()=>'<div class="cbp blank"></div>').join('')}</div>
       ${pages>1?`<div class="cbnav"><button class="sub" data-p="-1" ${p?'':'disabled'}>◀</button><input type="range" id="cbr" min="1" max="${pages}" value="${p+1}" aria-label="ページ"><span id="cbpn">${p+1}/${pages}</span><button class="sub" data-p="1" ${p<pages-1?'':'disabled'}>▶</button></div>`:''}
+      <div class="cbpage ${pageFull(cur,p)?'full':''}">${shown.map((id,i)=>pocket(id,p*PER+i)).join('')}${Array.from({length:PER-shown.length},()=>'<div class="cbp blank"></div>').join('')}</div>
       ${jump>=0?`<button class="cbjump sub" id="cbj">＋ つぎの 入れられる ページへ</button>`:''}
     </div>`;
     el.querySelectorAll('.cbt').forEach(b=>b.onclick=()=>{sf('tap');hl='';cur=b.dataset.k;
