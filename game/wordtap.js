@@ -114,12 +114,29 @@ function open(id,w){sf('card');
   /* はじめての ときは ミナ先生が つかいかたを ひとこと */
   if(!WT.first){WT.first=1;save();setTimeout(()=>{const [,tx]=ML('wt_first');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,6000)},1100)}
   else if(WT.n===5||WT.n===30||WT.n===100){setTimeout(()=>{const [,tx]=ML('wt_count',{n:WT.n});if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4500)},1100)}}
-function tryOpen(el,x,y,isBtn){if(!el||el.closest(OFF))return false;
+/* 11/21 ユーザー「この 画面からも 単語タップで 飛ぶ。 戻るのは 直前の 画面」:
+   カードの くわしく（例文・なりたち・おなじ 根っこ・いっしょに など）の 英単語も タップで 次の カードへ。
+   いまの カードは 消さずに かくして 上に 重ねる（スタック）ので、 ← ・とじる・外側タップで 1まい 前の カードに そのまま もどる */
+const inCard=el=>{const o=el.closest('#cardOv,#cardTop');return o&&el.closest('.cgdi')&&!el.closest('.cgdj,.cgds,[data-notap]')?o:null};
+function stack(host,id,w){
+  const bk=document.querySelector('.cgdvback'),hid=host.id;if(bk)bk.remove();
+  host.id='';host.dataset.wthid=hid;host.style.display='none';
+  open(id,w);const o=$('cardTop');
+  if(!o||o===host){restore();return}
+  WT.chain=(WT.chain|0)+1;const d=document.querySelectorAll('[data-wthid]').length;if(d>(WT.deep|0))WT.deep=d;save();
+  if(!WT.chainTold){WT.chainTold=1;save();setTimeout(()=>{const [,tx]=ML('wt_chainFirst');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,5500)},1100)}
+  else if(d===3&&!WT.deepTold){WT.deepTold=1;save();setTimeout(()=>{const [,tx]=ML('wt_chainDeep');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4500)},1100)}
+  /* 上の カードが とじたら、 かくした カードを もとに もどす */
+  const mo=new MutationObserver(()=>{if(o.isConnected)return;mo.disconnect();restore()});mo.observe(document.body,{childList:true});
+  function restore(){if(!host.isConnected)return;if(hid&&!$(hid))host.id=hid;delete host.dataset.wthid;host.style.display='';
+    if(bk&&!document.querySelector('.cgdvback'))document.body.appendChild(bk)}}
+function tryOpen(el,x,y,isBtn){if(!el)return false;const host=!isBtn&&inCard(el);if(!host&&el.closest(OFF))return false;
   const s=getSelection&&getSelection();if(s&&!s.isCollapsed&&String(s).trim())return false;
   const hit=wordAt(isBtn?el.closest(BTN):el,x,y);if(!hit)return false;
   const id=lookup(hit.w,hit.before,hit.after);
   /* カードに ない ことば: 長めの 語だけ 小さく 知らせる（その タップは いつもどおり） */
   if(!id){if(hit.w.length>=4&&!/^[A-Z]/.test(hit.w)||hit.w.length>=4&&isBtn)tip(x,y,`${hit.w} は まだ カードに ない ことば`);return false}
+  if(host){if(id===host.dataset.id)return false;stack(host,id,hit.w);return true}
   if(quizLock(isBtn?el.closest(BTN):el,isBtn)){sf('back');tip(x,y,'答えたら しらべられるよ');if(!WT.lockTold){WT.lockTold=1;save();
     setTimeout(()=>{const [,tx]=ML('wt_lock');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4500)},400)}return 'lock'}
   open(id,hit.w);return true}
@@ -154,6 +171,12 @@ Object.assign(MINA_LINES,{
  wt_lock:[['smile','クイズの 答えに なる ことばは、 答えた あとで しらべてね。 まちがえても カードで すぐ 確認できるよ'],['think','いまは 問題の 答えが わかっちゃうから、 答えて からね']],
  wt_new:[['wow','お知らせ！ どの 画面でも、 英単語を タップすると その 単語の カードが 開くように なったよ。 ← で もとの 場所に もどれるの'],
   ['happy','会話や 授業で わからない 英単語が あったら、 その 単語を タップしてみて。 えらぶ ボタンの 英語は 長押しだよ']],
+ wt_chainFirst:[['wow','カードの 中の 英単語も タップできるよ。 ← で ひとつ 前の カードに もどれるから、 どんどん たどってみてね'],
+  ['happy','ことばから ことばへ、 つながりを たどるの 楽しいでしょ？ もどる ときは ← だよ']],
+ wt_chainDeep:[['proud','もう 3まい 先まで たどったね。 なかまの ことばを まとめて 覚えると、 わすれにくいよ'],['smile','ことばの 糸を たどる 旅だね。 ← を 押せば 1まいずつ もどれるよ']],
+ wt_chainNew:[['wow','お知らせ！ カードの くわしくの 中の 英単語も、 タップすると その カードに 飛べるように なったよ。 ← で 1まい 前の カードに もどれるの'],
+  ['happy','おなじ 根っこや 例文の 英単語も タップしてみて。 次の カードに 飛んで、 ← で 前の カードに もどれるよ']],
+ x_wtChain:[['smile','カードの 「おなじ 根っこ」の 単語も タップできるよ。 なかまを たどってみてね'],['think','例文の 中の 英単語も タップで 次の カードへ。 ことばの つながりが 見えてくるよ']],
  cg_lookFrom_wtap:[['happy','「{w}」、 文の 中で 出会うと 覚えやすいよね。 例文も 声に 出してみよう'],['smile','その 場で しらべるの、 いちばん 身に つくよ。 「{w}」は もう だいじょうぶ？'],
   ['think','「{w}」の 形が かわって いても、 もとの 形の カードが 出るよ。 くらべてみてね']],
  wt_newWords:[['wow','お知らせ！ the・you・is・can みたいな いちばん 基本の ことばと、 浜辺で よく 出てくる ことば、 ぜんぶで 240語の カードが ふえたよ。 単語帳の さいごにも 入ってるの'],
@@ -163,10 +186,14 @@ Object.assign(MINA_LINES,{
  x_wtLast:[['happy','この前 タップで しらべた 「{w}」、 覚えてる？'],['smile','「{w}」、 しらべた ことばは 次に 出てきた とき 気づけると うれしいよね']]});
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_wtTry',1,()=>WT.n<3?{}:null,null],
+ ['x_wtChain',1,()=>WT.n>=3&&!(WT.chain>0)?{}:null,null],
  ['x_wtLast',2,()=>WT.last&&WT.n>=2?{w:WT.last.split(',')[0]}:null,()=>['📖 カード',()=>WTAP.open(WT.last.split(',')[0])]]);
 /* 11/21 足した 単語（levels/basic-add.js）の お知らせも 1回だけ */
 setTimeout(function nw(){if(WT.toldWords)return;if(!WT.told)return setTimeout(nw,60000);const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(nw,30000);
   WT.toldWords=1;save();const [ex,tx]=ML('wt_newWords');m.say('m',ex,tx,10000)},240000);
+/* カードの 中から 飛べるように なった お知らせも 1回だけ（前の お知らせの あと） */
+setTimeout(function cn(){if(WT.toldChain)return;if(WT.chain>0){WT.toldChain=1;save();return}if(!WT.told)return setTimeout(cn,60000);const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(cn,30000);
+  WT.toldChain=1;save();const [ex,tx]=ML('wt_chainNew');m.say('m',ex,tx,10000)},150000);
 /* 新しく できたことを 1回だけ */
 setTimeout(function first(){if(WT.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
   WT.told=1;save();const [ex,tx]=ML('wt_new');m.say('m',ex,tx,10000)},70000);

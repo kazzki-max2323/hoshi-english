@@ -289,6 +289,7 @@ function detail(id,back,opt={}){const I=info(id);if(!I)return;const n=count(id),
       ${(opt.btns||[]).filter(Boolean).map((b,i)=>`<button data-dvb="${i}" class="${b[2]||''}">${b[0]}</button>`).join('')}
       <button class="sub" data-dv="close">とじる</button></div></div>`;
   let o;if(top){closeTop();o=document.createElement('div');o.id='cardTop';o.className='cgov dv';o.innerHTML=html;document.body.appendChild(o)}else o=ov(html,'dv');
+  o.dataset.id=id;
   /* 右下の ←（オーバーレイの backdrop-filter の 中だと fixed が ずれるので body に 直接 置く） */
   document.querySelectorAll('.cgdvback').forEach(x=>x.remove());
   const bk=document.createElement('button');bk.className='backfab cgdvback';bk.setAttribute('aria-label','もどる');bk.textContent='←';document.body.appendChild(bk);
