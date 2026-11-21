@@ -104,8 +104,10 @@ function prSrc(){/* 練習で いちばん 先に かためたい ところ（�
   return null}
 /* 一度に 増やさない（11/21）: いちばん 新しく おわった 時間が 練習で 「身についた」（ちがう 日に 2回 ヒントなしで 正解）まで、 つぎの 授業は 出さない。
    わかる から とばした 時間（sk）は 身についた あつかい */
+/* この しくみが できる 前（11/21 21:48）に おわった 時間は 身についた あつかい（前の 完了形などで 文の きほんが 止まらないように） */
+const GATE_T=Date.UTC(2026,10,21,12,48);
 function gate(){if(!window.PRAC)return null;let last=null;
-  units().forEach(u=>{const r=u.rec();Object.keys(r.ch||{}).forEach(k=>{const c=r.ch[k],ci=+k;if(!c||!c.d||c.sk||!u.D.CH[ci])return;if(!last||(c.t||0)>last.t)last={u,ci,t:c.t||0}})});
+  units().forEach(u=>{const r=u.rec();Object.keys(r.ch||{}).forEach(k=>{const c=r.ch[k],ci=+k;if(!c||!c.d||c.sk||!u.D.CH[ci]||(c.t||0)<GATE_T)return;if(!last||(c.t||0)>last.t)last={u,ci,t:c.t||0}})});
   if(!last||PRAC.learned(last.u,last.ci))return null;return Object.assign(last,{c:last.u.D.CH[last.ci]})}
 function pickToday(){const D=day(),I=todayInfo(),pr=prSrc(),G=gate();
   if(pr&&pr.miss&&!D.pr)return {k:'pr',ico:'⚡',tag:'きょうは まず 練習',t:pr.t,line:['mp_tPr',{u:pr.t}]};
