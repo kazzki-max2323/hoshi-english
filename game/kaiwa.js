@@ -27,7 +27,7 @@ _saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');s.
 
 /* ---------- now (for the time and greeting scenes) ---------- */
 const NUMW=['twelve','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve'];
-function facts(){const d=new Date(),h24=d.getHours(),m=d.getMinutes(),h=h24%12||12,wh=(h+5)%12||12;
+function facts(){const d=new Date(),gh=(typeof GH==="function"?GH():d.getHours()+d.getMinutes()/60),h24=Math.floor(gh)%24,m=Math.floor((gh%1)*60),h=h24%12||12,wh=(h+5)%12||12;
   const part=h24>=5&&h24<12?'morning':h24>=12&&h24<18?'afternoon':'evening',mo=part==='morning';
   return {h,m,mm:String(m).padStart(2,'0'),hw:NUMW[h],wh,part,partJ:{morning:'朝',afternoon:'昼',evening:'夜'}[part],
     greet:'Good '+part,greetJ:{morning:'おはよう',afternoon:'こんにちは',evening:'こんばんは'}[part],
@@ -135,7 +135,7 @@ function funBook(){const items=[],F=facts();SC.forEach(s=>Object.entries(nodesOf
     <div class="qtop"><button class="x" id="kx" aria-label="もどる">←</button><b>😂 おもしろ反応 図鑑</b><span class="qn">${items.length}/${funTotal()}</span></div>
     <div class="kmina"><span class="lface">${MINA.face('m',ex,MINA.poseFor(ex,tx))}</span><p>${tx}</p></div>
     <div class="kfunl">${items.map(([s,x])=>`<div class="kfi"><span class="ki">${CH[s.c].ico}</span><div><p class="kyou">「${esc(x[0])}」</p><p class="kre">${esc(x[3])} <i>${x[4]||''}</i></p></div></div>`).join('')||'<p class="note">会話で わざと へんな 答えを えらぶと、ここに たまるよ</p>'}</div>
-    ${window.TUTOR&&TUTOR.funList().length?`<p class="tusys">👦 リクの へんな英文（家庭教師の バイト）</p><div class="kfunl">${TUTOR.funList().map(f=>`<div class="kfi"><span class="ki">👦</span><div><p class="kyou">「${esc(f.en)}」</p><p class="kre">⭕ ${esc(f.ok)}</p></div></div>`).join('')}</div>`:''}
+
   </section>`);
   $('kx').onclick=()=>{SFX.pop();list()}}
 

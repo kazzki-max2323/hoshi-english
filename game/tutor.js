@@ -6,7 +6,10 @@
    - まちがえても 失敗には ならない。かわりに 3つの どれかが おきる:
        リクの 助け舟（「でも 教科書には…」→ えらびなおし）/ ミナ先生が まどの 外から こっそり ヒント /
        リクが その 教え方で へんな 英文を 言って 大わらい → 「ほんとは？」で 正しい 文を えらぶと 「ありがとう！」と おまけ
-   - へんな 英文は 「へんな英文 図鑑」（と 浜辺の 会話の おもしろ反応 図鑑）に のこる
+   - 教えた あとに: 📒 リクの ノートの みだしを えらぶ（ノートは たまって 見かえせる）・📝 宿題プリント（ならべかえ・穴うめ）
+   - べつの 日に リクが 教えた 英語を 自分で つかってくる（あってる？ ちがう？ → ちがえば 直す。まちがえても 失敗なし）
+   - 👩‍🏫 参観日: ミナ先生が うしろで 見学して、1問ごとに ほめる・アドバイス。おわりに 参観ノート
+   - リクの へんな 英文は その場で わらって 直すだけ（図鑑は ない。memFun で たまに 思い出す）
    - 🤔 わからない: どの 選択肢にも 「わからない」が ある。失敗には ならず、リクと いっしょに ミナ先生の 本で しらべて 答えと 短い 解説。
      しらべた 質問は つぎの 回から 「この前 いっしょに しらべた」で もう一度 出る（教えられたら 卒業）
    - バイト代は まちがえても へらない。1日 3回まで コイン＋お礼の 品（ながれぎ雑貨店で 売れる）。4回目からも 教えられる
@@ -16,10 +19,25 @@ const {S:ST,sfx:SFX}=BEACH;
 const H=HE,esc=H.esc,$=id=>document.getElementById(id);
 const TQ=TUTOR_Q,TG=TUTOR_GIFTS,K=TUTOR_KID,TX=typeof TUTOR_TEACH!=='undefined'?TUTOR_TEACH:{},KEN=typeof TUTOR_KEN!=='undefined'?TUTOR_KEN:{n:'ケン',ico:'🧒',v:{p:1.32,r:1.04}},CH=typeof TUTOR_CHATS!=='undefined'?TUTOR_CHATS:[];
 const pickL=a=>a[Math.random()*a.length|0];
+/* the faces: Riku (brown hair with a cowlick, yellow T-shirt) and Ken (blue cap, tan, a big grin) — drawn so they never look the same */
+const FACE={
+ riku:`<svg class="tuface" viewBox="0 0 40 40" aria-label="リク"><rect width="40" height="40" fill="#ffe9b8"/><path d="M7 40 Q8 33 20 33 Q32 33 33 40Z" fill="#ffcf4a"/><path d="M17 33.4 L20 36 L23 33.4" fill="none" stroke="#e0a92e" stroke-width=".9"/>
+  <circle cx="8.6" cy="22.6" r="2.3" fill="#f3c9a0"/><circle cx="31.4" cy="22.6" r="2.3" fill="#f3c9a0"/><circle cx="20" cy="22" r="11.4" fill="#f3c9a0"/>
+  <path d="M8.4 21.4 Q7.4 9.2 20 9.4 Q32.6 9.2 31.6 21.4 Q29 15.4 24 16.6 Q21.6 13.8 17.4 16.2 Q12.4 15.2 8.4 21.4Z" fill="#6b4425"/><path d="M19.4 9.8 Q18.6 4.8 23.8 4.4 Q21 7.2 22.2 9.8Z" fill="#6b4425"/>
+  <ellipse cx="15.8" cy="23" rx="1.45" ry="1.95" fill="#2a1c10"/><ellipse cx="24.2" cy="23" rx="1.45" ry="1.95" fill="#2a1c10"/><circle cx="16.3" cy="22.3" r=".55" fill="#fff"/><circle cx="24.7" cy="22.3" r=".55" fill="#fff"/>
+  <ellipse cx="12.6" cy="27" rx="2.2" ry="1.25" fill="#ff9a8a" opacity=".6"/><ellipse cx="27.4" cy="27" rx="2.2" ry="1.25" fill="#ff9a8a" opacity=".6"/>
+  <path d="M17.4 28.2 Q20 30.8 22.6 28.2" fill="none" stroke="#a05a3a" stroke-width="1" stroke-linecap="round"/></svg>`,
+ ken:`<svg class="tuface" viewBox="0 0 40 40" aria-label="ケン"><rect width="40" height="40" fill="#cfe8ff"/><path d="M7 40 Q8 33 20 33 Q32 33 33 40Z" fill="#4cbf7a"/><path d="M14 33.6 L14 40 M26 33.6 L26 40" stroke="#2f9a5c" stroke-width="1.4"/>
+  <circle cx="8.6" cy="22.6" r="2.3" fill="#d9a273"/><circle cx="31.4" cy="22.6" r="2.3" fill="#d9a273"/><circle cx="20" cy="22" r="11.4" fill="#d9a273"/>
+  <path d="M8.8 20 L9.6 16.4 L11.2 19 L12 15.8 M31.2 20 L30.4 16.4 L28.8 19" fill="#1d1a1a" stroke="#1d1a1a" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M8.2 17.4 Q8.6 7.4 20 7.2 Q31.4 7.4 31.8 17.4Z" fill="#2f6fd6"/><path d="M8.2 17.4 Q20 15.4 31.8 17.4 L37.6 18.6 Q37 20.6 31 19.6 Q20 18 8.2 19.4Z" fill="#1f4fa8"/><circle cx="20" cy="7.6" r="1.2" fill="#1f4fa8"/><path d="M17 11 Q20 9.6 23 11" stroke="#ffd23f" stroke-width="1.4" fill="none"/>
+  <path d="M14.2 23.4 Q15.8 21.6 17.4 23.4 M22.6 23.4 Q24.2 21.6 25.8 23.4" fill="none" stroke="#2a1c10" stroke-width="1.3" stroke-linecap="round"/>
+  <rect x="25.6" y="25.4" width="4.6" height="2" rx=".9" fill="#f6dcb4" transform="rotate(-24 27.9 26.4)"/>
+  <path d="M15.6 27.4 Q20 33 24.4 27.4Z" fill="#7a2e22"/><rect x="18.4" y="27.4" width="3.2" height="1.6" fill="#fff"/></svg>`};
 const shuffle=a=>H.shuffle?H.shuffle(a.slice()):a.slice().sort(()=>Math.random()-.5);
 const LV=['es','jh','hs','adv'];
 const PAY=10,PER_DAY=3,NQ=3;
-const KID={p:1.55,r:1},MINAV={p:1.25,r:.95};
+const KID={p:1.22,r:1},MINAV={p:1.25,r:.95};
 const qById=id=>TQ.find(q=>q.id===id);
 const gById=id=>TG.find(g=>g[0]===id);
 const dk=()=>{const d=new Date();return d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate()};
@@ -74,14 +92,20 @@ function pick3(NQ=3,mode=''){const st=studied(),me=LV.indexOf(myLv());
   return res}
 
 /* ---------- voice: Riku high and bright (only the English is read) ---------- */
-let enVoice=null;
-function pickVoice(){if(!window.speechSynthesis)return;const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));
-  enVoice=vs.find(v=>/en[-_]US/i.test(v.lang)&&/Samantha|Google|Natural/i.test(v.name))||vs.find(v=>/en[-_]US/i.test(v.lang))||vs[0]||null}
+/* a real child's voice if the device has one (Microsoft Ana / Apple Junior); otherwise a soft voice that is not Mio's, only a little higher (very high pitch sounded strange) */
+let enVoice=null,kenVoice=null,kidReal=0,kenReal=0;
+function pickVoice(){if(!window.speechSynthesis)return;const vs=speechSynthesis.getVoices().filter(v=>/^en[-_]/i.test(v.lang));if(!vs.length)return;
+  const kidV=['Ana','Junior','Ivy','Justin','Kevin'].map(n=>vs.find(v=>new RegExp('\\b'+n+'\\b').test(v.name))).filter(Boolean);
+  const mio=(()=>{try{return MIO.voice()}catch(e){return null}})();
+  const soft=vs.filter(v=>v!==mio&&/en[-_]US/i.test(v.lang)&&/Natural|Online|Neural|Google|Aria|Jenny|Samantha|Allison|Ava|Zira/i.test(v.name)&&!/Male|Guy|Davis|Tony|Jason|Fred|Alex\b|Daniel|Rishi/i.test(v.name));
+  const any=vs.filter(v=>v!==mio&&/en[-_]US/i.test(v.lang));
+  enVoice=kidV[0]||soft[0]||any[0]||vs[0];kidReal=kidV[0]?1:0;
+  kenVoice=kidV[1]||(kidV[0]&&kidV[0]!==enVoice?kidV[0]:null)||soft.find(v=>v!==enVoice)||any.find(v=>v!==enVoice)||enVoice;kenReal=kidV.includes(kenVoice)?1:0}
 if(window.speechSynthesis){pickVoice();speechSynthesis.addEventListener&&speechSynthesis.addEventListener('voiceschanged',pickVoice)}
 let talkOn=false,talkId=0,talkMax=0;
 function talk(en,c){if(!ST.sound||!window.speechSynthesis||!en)return;
-  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(sayNames(en).replace(/\.\.\.\s*/g,' '));u.lang='en-US';if(enVoice)u.voice=enVoice;
-    u.pitch=(c||KID).p;u.rate=(ST.slow?.72:.92)*(c||KID).r;u.volume=Math.min(1,(ST.vol&&ST.vol.voice!=null)?ST.vol.voice:1);
+  try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(sayNames(en).replace(/\.\.\.\s*/g,' '));u.lang='en-US';const isKen=c&&c===KEN.v,vv=isKen?kenVoice:enVoice,real=isKen?kenReal:kidReal;if(vv)u.voice=vv;
+    u.pitch=Math.max(.5,Math.min(2,real?1+((c||KID).p-1.3)*.4:(c||KID).p));u.rate=(ST.slow?.74:.95)*(c||KID).r;u.volume=Math.min(1,(ST.vol&&ST.vol.voice!=null)?ST.vol.voice:1);
     const id=++talkId;talkOn=true;talkMax=Date.now()+3000+String(en).length*(ST.slow?140:100);u.onend=u.onerror=()=>{if(id===talkId)talkOn=false};speechSynthesis.speak(u)}catch(e){talkOn=false}}
 const hush=()=>{try{speechSynthesis.cancel()}catch(e){}};
 /* only the English part of a line, if there is one */
@@ -149,7 +173,7 @@ H.on('home',()=>setTimeout(spot,60));
 
 /* ================================================================ the top: Riku under the parasol */
 function kidLine(ja,cls=''){const en=enOf(ja);
-  return `<div class="lsay kth tukid ${cls}"><span class="lface kf">${K.ico}</span><div class="lbody"><p class="${en?'tusay':''}">${esc(ja)}${en?`<button class="ksay" data-say="${esc(en)}" aria-label="もう一度 きく">🔊</button>`:''}</p></div></div>`}
+  return `<div class="lsay kth tukid ${cls}"><span class="lface kf">${FACE.riku}</span><div class="lbody"><p class="${en?'tusay':''}">${esc(ja)}${en?`<button class="ksay" data-say="${esc(en)}" aria-label="もう一度 きく">🔊</button>`:''}</p></div></div>`}
 function bindSay(root){root.querySelectorAll('[data-say]').forEach(b=>b.onclick=e=>{e.stopPropagation();talk(b.dataset.say)})}
 function open(){if(!TD.met){TD.met=1;save();return top(K.hello[0])}top()}
 function memT(){const T=TQ.filter(q=>TD.taught[q.id]);return T.length?pickL(T):null}
@@ -159,15 +183,14 @@ function top(first){hush();const left=paidLeft(),mq=memT();
     <div class="qtop"><button class="x" id="tux" aria-label="もどる">←</button><b>👦 家庭教師の バイト</b>${window.GIFT?GIFT.btn('riku','tugv'):'<span class="qn"></span>'}</div>
     <div id="tuhi">${kidLine(line)}</div>
     <button id="tugo" class="tubig"><b>📒 リクに 教える</b><small>${left?`きょうの バイト代 あと ${left}回`:'きょうの バイト代は おしまい・教えるのは できるよ'}</small></button>
-    <div class="row tur"><button id="tunote" class="sub">📒 教えた こと ${taughtN()?`<small>${taughtN()}</small>`:''}</button><button id="tufun" class="sub">😂 へんな英文 ${funN()?`<small>${funN()}</small>`:''}</button><button id="tugift" class="sub">🎁 お礼 ${giftN()?`<small>${giftN()}</small>`:''}</button></div>
+    <div class="row tur"><button id="tunote" class="sub">📒 リクの ノート ${taughtN()?`<small>${taughtN()}</small>`:''}</button><button id="tugift" class="sub">🎁 お礼 ${giftN()?`<small>${giftN()}</small>`:''}</button></div>
     ${first?minaBox('tu_hello'):''}
-    <details class="mfold"><summary>📊 きろく</summary><div class="zkrec"><span>📒 教えた こと <b>${taughtN()}/${TQ.length}</b></span><span>😂 へんな英文 <b>${funN()}/${funAll()}</b></span><span>💡 直して あげた <b>${TD.fix}</b>回</span><span>🧑‍🏫 バイト <b>${TD.n}</b>回${nextLetter()?`（あと ${nextLetter()-TD.n}回で 手紙？）`:''}</span><span>✉️ 手紙 <b>${(TD.letters||[]).length}/${(K.letters||[]).length}</b></span><span>☕ おしゃべり <b>${Object.keys(TD.talks||{}).filter(id=>CH.some(c=>c.id===id)).length}/${CH.length}</b></span>${TD.quizN?`<span>🎤 リクの クイズ <b>${TD.quizOk||0}/${TD.quizN}</b>もん せいかい</span>`:''}${TD.kenN?`<span>🧒 ケンにも 教えた <b>${TD.kenN}</b>回</span>`:''}</div></details>
+    <details class="mfold"><summary>📊 きろく</summary><div class="zkrec"><span>📒 教えた こと <b>${taughtN()}/${TQ.length}</b></span><span>💡 直して あげた <b>${TD.fix}</b>回</span><span>🧑‍🏫 バイト <b>${TD.n}</b>回${nextLetter()?`（あと ${nextLetter()-TD.n}回で 手紙？）`:''}</span><span>✉️ 手紙 <b>${(TD.letters||[]).length}/${(K.letters||[]).length}</b></span><span>☕ おしゃべり <b>${Object.keys(TD.talks||{}).filter(id=>CH.some(c=>c.id===id)).length}/${CH.length}</b></span>${TD.quizN?`<span>🎤 リクの クイズ <b>${TD.quizOk||0}/${TD.quizN}</b>もん せいかい</span>`:''}${TD.kenN?`<span>🧢 ケンにも 教えた <b>${TD.kenN}</b>回</span>`:''}</div></details>
   </section>`);
   bindSay($('tuhi'));
   $('tux').onclick=()=>{SFX.back();hush();H.home()};
   $('tugo').onclick=()=>{SFX.lesson?SFX.lesson():SFX.step();play()};
   $('tunote').onclick=()=>{SFX.book();notebook(top)};
-  $('tufun').onclick=()=>{SFX.book();funBook(top)};
   $('tugift').onclick=()=>{SFX.open();gifts(top)};
   if(window.GIFT)GIFT.bindBtn('riku','tugv',()=>top())}
 
@@ -176,12 +199,12 @@ let P=null;
 const live=()=>P&&$('tulog');
 /* what kind of day it is (most days are ordinary) */
 function pickDay(){if(TD.n<2)return 'normal';
-  const w=[['normal',50],['ken',13],['hw',10],['short',8],['pochi',9]];if(taughtN()>=4)w.push(['quiz',12]);
+  const w=[['normal',50],['ken',13],['hw',10],['short',8],['pochi',9]];if(TD.n>=3)w.push(['visit',10]);if(taughtN()>=4)w.push(['quiz',12]);
   if(TD.lastDay&&TD.lastDay!=='normal')w.forEach(x=>{if(x[0]===TD.lastDay)x[1]=0});
   let r=Math.random()*w.reduce((a,x)=>a+x[1],0);return w.find(x=>(r-=x[1])<0)[0]}
 function play(){const day=(window.TUTOR&&TUTOR._force)||pickDay();TD.lastDay=day;
   const qs=pick3(day==='short'||day==='quiz'?(day==='quiz'?1:2):3,day);
-  P={qs,i:0,day,firstOk:0,fix:0,newFun:[],funs:[],taught:[],tries:{},paid:paidLeft()>0,quiz:null,ken:0,talk:null,again:[],dunno:[],dunnoBack:[]};
+  P={qs,i:0,day,firstOk:0,fix:0,newFun:[],funs:[],taught:[],tries:{},paid:paidLeft()>0,quiz:null,ken:0,talk:null,again:[],dunno:[],dunnoBack:[],res:{},notes:[],prints:0,uses:null,visit:[]};
   H.show('tutor',`<section class="pnl lsn kw tu" data-stay>
     <div class="qtop"><button class="x" id="tux" aria-label="やめる">←</button><b>👦 リクに 教える</b><span class="qn" id="tuq"></span></div>
     <div class="lslog kwlog" id="tulog"></div>
@@ -193,19 +216,19 @@ function scrollLog(){const l=$('tulog');if(l)l.scrollTo({top:l.scrollHeight,beha
 /* Riku says something (Japanese, with any English read aloud) */
 function kid(ja,fx,cls='',en){if(!live())return;const d=document.createElement('div');en=en===undefined?enOf(ja):String(en).trim();
   d.className='lsay kth tukid '+cls;
-  d.innerHTML=`<span class="lface kf">${K.ico}${fx?`<i class="kfx">${fx}</i>`:''}</span><div class="lbody"><p class="${en?'tusay':''}">${esc(ja)}${en?'<button class="ksay" aria-label="もう一度 きく">🔊</button>':''}</p></div>`;
+  d.innerHTML=`<span class="lface kf">${FACE.riku}${fx?`<i class="kfx">${fx}</i>`:''}</span><div class="lbody"><p class="${en?'tusay':''}">${esc(ja)}${en?'<button class="ksay" aria-label="もう一度 きく">🔊</button>':''}</p></div>`;
   $('tulog').appendChild(d);const b=d.querySelector('.ksay');if(b)b.onclick=e=>{e.stopPropagation();talk(en)};
   if(en)talk(en);scrollLog()}
 /* Riku tries the English: a big English line */
 function kidEn(en,fx,cls=''){if(!live())return;const d=document.createElement('div');d.className='lsay kth tukid tuen '+cls;
-  d.innerHTML=`<span class="lface kf">${K.ico}${fx?`<i class="kfx">${fx}</i>`:''}</span><div class="lbody"><p class="ken">${esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p></div>`;
+  d.innerHTML=`<span class="lface kf">${FACE.riku}${fx?`<i class="kfx">${fx}</i>`:''}</span><div class="lbody"><p class="ken">${esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p></div>`;
   $('tulog').appendChild(d);d.querySelector('.ksay').onclick=e=>{e.stopPropagation();talk(en)};talk(en);scrollLog()}
 /* Ken (Riku's friend), Mom (far away), Pochi (the dog) */
 function ken(ja,fx,en){if(!live())return;const d=document.createElement('div');en=en===undefined?enOf(ja):String(en).trim();d.className='lsay kth tukid tuken';
-  d.innerHTML=`<span class="lface kf">${KEN.ico}${fx?`<i class="kfx">${fx}</i>`:''}</span><div class="lbody"><small>${KEN.n}</small><p class="${en?'tusay':''}">${esc(ja)}${en?'<button class="ksay" aria-label="もう一度 きく">🔊</button>':''}</p></div>`;
+  d.innerHTML=`<span class="lface kf">${FACE.ken}${fx?`<i class="kfx">${fx}</i>`:''}</span><div class="lbody"><small>${KEN.n}</small><p class="${en?'tusay':''}">${esc(ja)}${en?'<button class="ksay" aria-label="もう一度 きく">🔊</button>':''}</p></div>`;
   $('tulog').appendChild(d);const b=d.querySelector('.ksay');if(b)b.onclick=e=>{e.stopPropagation();talk(en,KEN.v)};if(en)talk(en,KEN.v);scrollLog()}
 function kenEn(en,fx,cls=''){if(!live())return;const d=document.createElement('div');d.className='lsay kth tukid tuken tuen '+cls;
-  d.innerHTML=`<span class="lface kf">${KEN.ico}${fx?`<i class="kfx">${fx}</i>`:''}</span><div class="lbody"><small>${KEN.n}</small><p class="ken">${esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p></div>`;
+  d.innerHTML=`<span class="lface kf">${FACE.ken}${fx?`<i class="kfx">${fx}</i>`:''}</span><div class="lbody"><small>${KEN.n}</small><p class="ken">${esc(en)}<button class="ksay" aria-label="もう一度 きく">🔊</button></p></div>`;
   $('tulog').appendChild(d);d.querySelector('.ksay').onclick=e=>{e.stopPropagation();talk(en,KEN.v)};talk(en,KEN.v);scrollLog()}
 function far(ico,name,t){if(!live())return;const d=document.createElement('div');d.className='lsay kth tufar';
   d.innerHTML=`<span class="lface kf">${ico}</span><div class="lbody"><small>${name}</small><p>${esc(t)}</p></div>`;$('tulog').appendChild(d);scrollLog()}
@@ -228,7 +251,7 @@ function choices(list,fn,cls='',dk){if(!live())return;
 
 function partOfDay(){const h=(typeof GH==='function'?GH():new Date().getHours());return h<5?'night':h<11?'morning':h<16?'day':h<19?'evening':'night'}
 function hiLine(){const T=(K.hiTime||{})[partOfDay()];return T&&Math.random()<.4?pickL(T):pickL(K.hi)}
-const DAYNAME={quiz:'🎤 きょうは リクの クイズの日',ken:'🧒 きょうは ケンも いっしょ',hw:'✏️ きょうは 宿題の日',short:'🏃 きょうは ちょっとだけ',pochi:'🐕 きょうは ポチも いっしょ'};
+const DAYNAME={visit:'👩‍🏫 きょうは ミナ先生の 参観日',quiz:'🎤 きょうは リクの クイズの日',ken:'🧢 きょうは ケンも いっしょ',hw:'✏️ きょうは 宿題の日',short:'🏃 きょうは ちょっとだけ',pochi:'🐕 きょうは ポチも いっしょ'};
 function intro(){const d=P.day;if(DAYNAME[d])sys(DAYNAME[d]);
   const greet=then=>{const ops=shuffle(K.open).slice(0,3);
     afterTalk(()=>choices(ops.map(o=>[o[0]]),i=>{you(ops[i][0]);SFX.step();setTimeout(()=>{kid(ops[i][1],'😊');afterTalk(then)},500)}),300,600)};
@@ -239,11 +262,13 @@ function intro(){const d=P.day;if(DAYNAME[d])sys(DAYNAME[d]);
   if(d==='ken')return afterTalk(()=>{kid(pickL(K.kenIntro),'😊');afterTalk(()=>{ken(pickL(K.kenHi),'👋');
     afterTalk(()=>choices([['よろしくね、 ケン'],['Nice to meet you, Ken!'],['2人とも よろしく']],i=>{you(['よろしくね、 ケン','Nice to meet you, Ken!','2人とも よろしく'][i]);
       setTimeout(()=>{ken(['よろしく！ ぼくにも 教えてね！','ナイス トゥ ミート ユー トゥー！ …って 言うんだよね？','よろしく〜！ リク、 さっそく 質問 しなよ'][i],'😆');afterTalk(ask,300,500)},500)}),300,500)},300,500)},300,500);
+  if(d==='visit')return afterTalk(()=>{kid(pickL(K.visitHi),'😳');afterTalk(()=>{mina(mline('tu_visitHi')[1]);afterTalk(()=>memory(ask),300,1600)},300,500)},300,500);
   if(d==='pochi')return afterTalk(()=>{kid(pickL(K.pochiHi),'🐕');setTimeout(()=>{far('🐕','ポチ','ワン！');setTimeout(()=>greet(ask),600)},900)},300,500);
   greet(()=>memory(ask))}
 
 /* ---------- Riku remembers: something you taught before, or a funny line he once said ---------- */
 function memory(fn){const T=TQ.filter(q=>TD.taught[q.id]),F=funList();
+  if(T.length&&Math.random()<.45){const old=T.filter(q=>!P.qs.some(x=>x.q===q));if(old.length)return useCheck(pickL(old),fn)}
   if(T.length<2||Math.random()>.4)return fn();
   if(F.length&&Math.random()<.35){const f=pickL(F),ops=K.memFunRe;
     kid(pickL(K.memFun).replace('{e}',f.en),'😆','',' ');
@@ -290,7 +315,7 @@ function teach(){const {q}=P.qs[P.i];
 
 /* 🤔 "I don't know" — no failing: you and Riku look it up together in Mina's book, then he says it.
    It comes back on a later visit (🔎 この前 いっしょに しらべた) until you can teach it */
-function dunno(q,fromFix){you(pickL(K.dunnoSay));SFX.step();
+function dunno(q,fromFix){you(pickL(K.dunnoSay));SFX.step();P.res[q.id]='dunno';
   TD.dunno=TD.dunno||{};TD.dunno[q.id]=Date.now();TD.dunnoN=(TD.dunnoN||0)+1;if(!P.dunno.includes(q))P.dunno.push(q);save();
   setTimeout(()=>{kid(pickL(fromFix?K.dunnoFix:K.dunnoRe),'😲','',' ');
     afterTalk(()=>{lookup(q);
@@ -305,7 +330,7 @@ function lookup(q){if(!live())return;const ok=q.o.find(o=>o[1]),[ex,tx]=mline('t
   $('tulog').appendChild(d);try{SFX.book?SFX.book():SFX.pickup()}catch(e){}scrollLog()}
 
 /* a right way to teach: Riku gets it and tries the English */
-function good(){const {q}=P.qs[P.i],first=!P.tries[q.id];SFX.correct();
+function good(){const {q}=P.qs[P.i],first=!P.tries[q.id];SFX.correct();P.res[q.id]=P.res[q.id]||(first?'ok':'retry');
   if(first){P.firstOk++;TD.first[q.id]=(TD.first[q.id]||0)+1}
   markTaught(q);
   const ag=P.qs[P.i].again;
@@ -352,7 +377,7 @@ function fix(q,bad){kid(pickL(K.fixQ),'🙋');
   const others=q.o.filter(x=>x[2]&&x[2]!==bad).map(x=>x[2]);
   let opts=shuffle([q.ok[1],bad,...(others.length?[pickL(others)]:[])]);
   const go=()=>choices(opts.map(t=>[t]),k=>{const t=opts[k];you(t);
-    setTimeout(()=>{if(t===q.ok[1]){SFX.correct();P.fix++;TD.fix++;
+    setTimeout(()=>{if(t===q.ok[1]){SFX.correct();P.fix++;TD.fix++;P.res[q.id]='fix';
         markTaught(q);
         kidEn(q.ok[1],'💡','k-good');afterTalk(()=>{kid(pickL(K.fixed)+(P.paid?' （おまけ +1まい）':''),'🥰');afterTalk(next,300)},300)}
       else{SFX.wrong();opts=opts.filter(x=>x!==t);
@@ -372,7 +397,7 @@ function more(){const {q}=P.qs[P.i],m=q.m;let av=shuffle(m.o.map((o,i)=>i));
       setTimeout(()=>{kid(pickL(K.moreDunno),'🙋','',' ');afterTalk(()=>{kid(gotLine(m.ok[0]),'💡','k-good',' ');afterTalk(()=>{kidEn(m.ok[1],'🗣️','k-good');afterTalk(next,400)},300,400)},300,500)},500)});
   afterTalk(go,200,500)}
 function recFun(k){if(!P.funs.includes(k))P.funs.push(k);if(!TD.fun[k]){TD.fun[k]=1;P.newFun.push(k);save();
-  setTimeout(()=>H.toast(`😂 へんな英文 はっけん！<small>図鑑 ${funN()}/${funAll()}</small>`,2200),700)}}
+}}
 /* a little chat between the questions now and then */
 /* ☕ a long chat with branches (most of the time), or a short one */
 function chatLong(fn){const seen=TD.talks||{},nt=partOfDay()==='night',CT=CH.filter(c=>!c.night||nt);const fresh=CT.filter(c=>!seen[c.id]);const c=pickL(fresh.length?fresh:CT);if(!c)return fn();
@@ -388,10 +413,101 @@ function chat(fn){if(CH.length&&Math.random()<.65)return chatLong(fn);const C=K.
   afterTalk(()=>choices(c[1].map(o=>[o[0]]),i=>{you(c[1][i][0]);SFX.step();setTimeout(()=>{kid(c[1][i][1],'😆');afterTalk(fn,300,600)},500)}),300,600)}
 function pochiEv(fn){const e=pickL(K.pochiEv),o=e.o;far('🐕','ポチ',e.p);
   setTimeout(()=>{kid(e.r,'😵');afterTalk(()=>choices(o.map(x=>[x[0]]),i=>{you(o[i][0]);SFX.step();setTimeout(()=>{kid(o[i][1],'😆');afterTalk(fn,300,600)},500)}),300,500)},900)}
-function next(){if(!live())return;P.i++;if(P.i<P.qs.length){
+function next(){if(!live())return;const cur=P.qs[P.i];if(cur&&!cur.post){cur.post=1;return afterQ(cur.q,next)}P.i++;if(P.i<P.qs.length){
   if(P.day==='pochi'&&!P.pochi){P.pochi=1;return pochiEv(()=>{kid(pickL(K.backToQ),'✋');afterTalk(ask,300,500)})}
   if(!P.chatted&&P.day!=='short'&&Math.random()<(P.day==='normal'?.6:.4)){P.chatted=1;return chat(()=>{kid(pickL(K.backToQ),'✋');afterTalk(ask,300,500)})}
   kid(pickL(P.i===P.qs.length-1&&Math.random()<.5?K.lastQ:K.nextQ),'✋');afterTalk(ask,300,500)}else bye()}
+
+/* ================================================================ after each question */
+function afterQ(q,fn){const st=[];const taught=P.taught.includes(q);
+  if(taught&&P.dunno.includes(q)){TD.note=TD.note||{};if(!TD.note[q.id]){TD.note[q.id]=Date.now();save()}}
+  else if(taught&&P.day!=='short'&&!(TD.note||{})[q.id]&&(P.day==='visit'||Math.random()<.6))st.push(noteStep);
+  if(taught&&P.day!=='short'&&(P.day==='hw'||Math.random()<.22)&&printable(q))st.push(printStep);
+  if(P.day==='visit')st.push(visitNote);
+  const go=()=>{if(!live())return;const f=st.shift();if(!f)return fn();f(q,()=>afterTalk(go,300,400))};go()}
+
+/* Mina speaks in the room (the visiting day) */
+function mina(t,lab){if(!live())return;const d=document.createElement('div');d.className='lsay tuwh tuvis';const [ex]=mline('tu_visitHi');
+  d.innerHTML=`<span class="lface">${MINA.face('m',ex||'smile')}</span><div class="lbody"><small>${lab||'👩‍🏫 ミナ先生（うしろで 見学中）'}</small><p>${esc(t)}</p></div>`;
+  $('tulog').appendChild(d);scrollLog()}
+
+/* 📒 Riku's notebook: which heading should he write? */
+function noteStep(q,fn){const oth=shuffle(TQ.filter(x=>x!==q&&x.pt!==q.pt)).sort((a,b)=>(b.k===q.k)-(a.k===q.k)||(!!TD.taught[b.id])-(!!TD.taught[a.id]));
+  let opts=shuffle([q.pt].concat(oth.slice(0,2).map(x=>x.pt))),miss=0;
+  kid(pickL(K.noteAsk),'📒','',' ');
+  const done=how=>{TD.note=TD.note||{};TD.note[q.id]=Date.now();TD.noteN=(TD.noteN||0)+1;P.notes.push(q);save();
+    sys(`📒 リクの ノートに <b>「${esc(q.pt)}」</b>`);try{SFX.pickup()}catch(e){}
+    afterTalk(()=>{kid(pickL(how==='dk'?K.noteBook:K.noteDone),'✏️','',' ');afterTalk(fn,300,500)},300,700)};
+  const go=()=>choices(opts.map(t=>[t]),k=>{const t=opts[k];you(t);
+    setTimeout(()=>{if(t===q.pt){SFX.correct();done()}
+      else{try{SFX.tease?SFX.tease():SFX.pop()}catch(e){}opts=opts.filter(x=>x!==t);miss++;
+        kid(pickL(K.noteMiss),'🤔','',' ');afterTalk(()=>{if(miss>=1&&opts.length>1&&Math.random()<.5)whisper(q.mina);afterTalk(go,200,400)},300,500)}},500)},'tunote',
+    ()=>{you(pickL(K.dunnoSay));SFX.step();setTimeout(()=>{lookup(q);setTimeout(()=>done('dk'),1600)},500)});
+  afterTalk(go,200,400)}
+
+/* 📝 the homework sheet: put the words in order, or fill the gap */
+const GROUPS=[['a','an','the'],['is','are','am','was','were'],['do','does','did'],['in','on','at','to'],['he','she','it','they'],['this','that','these','those'],['can','will','must','should'],['have','has','had'],['some','any'],['much','many'],['who','what','where','when','why','how'],['my','your','his','her','our','their'],['me','him','her','us','them']];
+const bare=w=>w.toLowerCase().replace(/[^a-z']/g,'');
+function sentOf(q){const c=[q.ok[1]].concat(q.m&&q.m.ok?[q.m.ok[1]]:[]).filter(t=>{const n=String(t).trim().split(/\s+/).length;return n>=3&&n<=9&&/^[A-Za-z0-9 ,.'!?’-]+$/.test(t)});return c.length?pickL(c):null}
+const printable=q=>!!sentOf(q);
+function keyOf(q,words){const pt=(q.pt+' '+q.t).toLowerCase(),L=words.map(bare);
+  let i=L.findIndex(w=>w.length>=1&&GROUPS.some(g=>g.includes(w))&&new RegExp('(^|[^a-z])'+w+'([^a-z]|$)').test(pt));
+  if(i<0)i=L.findIndex(w=>w.length>=2&&new RegExp('(^|[^a-z])'+w+'([^a-z]|$)').test(pt));
+  if(i<0)i=L.findIndex(w=>GROUPS.some(g=>g.includes(w)));return i}
+function printStep(q,fn){const S=sentOf(q);if(!S)return fn();const W=S.trim().split(/\s+/),ki=keyOf(q,W);
+  const type=ki>=0&&(W.length<4||Math.random()<.5)?'fill':'order';P.prints++;TD.printN=(TD.printN||0)+1;save();
+  kid(pickL(type==='fill'?K.printFill:K.printOrder),'📝','',' ');sys(`📝 リクの 宿題プリント・${type==='fill'?'あなうめ':'ならべかえ'}<br>${esc(q.t)}`);
+  const fin=()=>{SFX.correct();kidEn(S,'💯','k-good');afterTalk(()=>{kid(pickL(K.printDone),'😆','',' ');afterTalk(fn,300,500)},300,500)};
+  if(type==='fill'){const w=W[ki],bw=bare(w),g=GROUPS.find(g=>g.includes(bw));
+    let pool=(g||[]).filter(x=>x!==bw);if(pool.length<2){const o=shuffle(TQ.map(sentOf).filter(Boolean).join(' ').split(/\s+/).map(bare).filter(x=>x.length>=2&&x!==bw));pool=pool.concat([...new Set(o)])}
+    const keep=t=>w.replace(/[A-Za-z']+/,m=>m[0]===m[0].toUpperCase()&&m[0]!==m[0].toLowerCase()?t[0].toUpperCase()+t.slice(1):t);
+    let opts=shuffle([w].concat(shuffle(pool).slice(0,2).map(keep)));
+    const line=W.map((x,i)=>i===ki?'＿＿＿':x).join(' ');
+    const go=()=>{if(!live())return;$('tuans').innerHTML='';sys(`<span class="tupr">${esc(line)}</span>`);
+      choices(opts.map(t=>[t]),k=>{const t=opts[k];you(t);
+        setTimeout(()=>{if(t===w)fin();else{try{SFX.tease?SFX.tease():SFX.pop()}catch(e){}opts=opts.filter(x=>x!==t);kid(pickL(K.printMiss),'🤔','',' ');afterTalk(()=>opts.length>1?go():fin(),200,400)}},500)},'tufix',
+        ()=>{you(pickL(K.dunnoSay));SFX.step();setTimeout(()=>{lookup(q);setTimeout(fin,1500)},500)})};
+    return afterTalk(go,200,400)}
+  /* put in order */
+  let got=0;const toks=W.map((t,i)=>({t,i}));let pile=shuffle(toks);if(pile.every((x,i)=>x.i===i))pile=pile.slice(1).concat(pile[0]);
+  const draw=()=>{if(!live())return;
+    $('tuans').innerHTML=`<div class="tuord"><p class="tuline">${W.map((t,i)=>i<got?`<b>${esc(t)}</b>`:'<i>＿</i>').join(' ')}</p>
+      <div class="tutok">${pile.map((x,k)=>`<button data-k="${k}">${esc(x.t)}</button>`).join('')}</div>
+      <button class="tudk" data-dk="1">🤔 わからない（つぎの ことばを 見る）</button></div>`;
+    $('tuans').querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{const x=pile[+b.dataset.k];
+      if(bare(x.t)===bare(W[got])&&x.t===W[got]||x.i===got){SFX.step();pile.splice(+b.dataset.k,1);got++;if(got>=W.length){$('tuans').innerHTML='';you(S);return setTimeout(fin,500)}draw()}
+      else{try{SFX.tease?SFX.tease():SFX.pop()}catch(e){}b.classList.add('tushake');setTimeout(()=>b.classList.remove('tushake'),450);if(Math.random()<.5)kid(pickL(K.printMiss),'🤔','',' ')}});
+    $('tuans').querySelector('[data-dk]').onclick=()=>{SFX.step();const k=pile.findIndex(x=>x.t===W[got]);if(k>=0){pile.splice(k,1);got++}
+      if(got===1)kid(pickL(K.printHint),'🙋','',' ');if(got>=W.length){$('tuans').innerHTML='';you(S);return setTimeout(fin,500)}draw()};
+    setTimeout(()=>{const a=$('tuans');if(a)a.scrollIntoView({block:'nearest',behavior:'smooth'})},80)};
+  afterTalk(draw,200,400)}
+
+/* 👩‍🏫 the visiting day: one comment from Mina after each question */
+function visitNote(q,fn){const r=P.res[q.id]||'ok',key={ok:'tu_vGood',retry:'tu_vRetry',fix:'tu_vFix',dunno:'tu_vDunno'}[r]||'tu_vGood';
+  const t=mline(key,{t:q.t,p:q.pt})[1];mina(t);P.visit.push([q.t,t]);afterTalk(fn,300,1500)}
+
+/* ---------- Riku uses what you taught, on another day: right or wrong? ---------- */
+function useCheck(q,fn){const R=[q.ok[1]].concat(q.m&&q.m.ok?[q.m.ok[1]]:[]),Wr=q.o.filter(o=>o[2]).map(o=>o[2]).concat(q.m?q.m.o.filter(o=>o[2]).map(o=>splitF(o[2])[0]):[]);
+  const right=!Wr.length||Math.random()<.45,X=right?pickL(R):pickL(Wr),ok=right?X:q.ok[1];
+  P.uses={q,ok:0};TD.useN=(TD.useN||0)+1;save();
+  kid(pickL(K.useSay).replace('{t}',q.t),'😄','',' ');
+  const fixIt=()=>{const others=Wr.filter(x=>x!==X);let opts=shuffle([ok,X].concat(others.length?[pickL(others)]:[]));
+    const go=()=>choices(opts.map(t=>[t]),k=>{const t=opts[k];you(t);
+      setTimeout(()=>{if(t===ok){SFX.correct();P.uses.ok=0;P.uses.fixed=1;TD.useFix=(TD.useFix||0)+1;save();kidEn(ok,'💡','k-good');afterTalk(()=>{kid(pickL(K.fixed),'🥰','',' ');afterTalk(fn,300,500)},300,500)}
+        else{try{SFX.tease?SFX.tease():SFX.pop()}catch(e){}opts=opts.filter(x=>x!==t);kid(pickL(K.fixSame),'😆','',' ');
+          afterTalk(()=>{if(opts.length<=2)whisper(peekText(q));afterTalk(go,200,400)},200,400)}},500)},'tufix',
+      ()=>{you(pickL(K.dunnoSay));SFX.step();setTimeout(()=>{lookup(q);setTimeout(()=>{kidEn(ok,'💡','k-good');afterTalk(()=>{kid(pickL(K.dunnoAfter),'😊','',' ');afterTalk(fn,300,500)},300,500)},1600)},500)});
+    afterTalk(go,200,400)};
+  afterTalk(()=>{kidEn(X,'🗣️',right?'':'');
+    afterTalk(()=>{kid(pickL(K.useAsk),'🤔','',' ');
+      afterTalk(()=>choices([['⭕ あってるよ！'],['🤏 ちょっと ちがうかも']],i=>{you(i?'ちょっと ちがうかも':'あってるよ！');SFX.step();
+        setTimeout(()=>{
+          if(right&&!i){SFX.correct();P.uses.ok=1;TD.useOk=(TD.useOk||0)+1;save();kid(pickL(K.useYay),'🥳','',' ');afterTalk(fn,300,600)}
+          else if(right&&i){kid(pickL(K.useHuh),'😲','',' ');afterTalk(()=>{lookup(q);setTimeout(()=>{if(!live())return;P.uses.ok=1;kid(pickL(K.useRightAfter),'😆','',' ');afterTalk(fn,300,600)},1600)},300,500)}
+          else if(!right&&i){kid(pickL(K.useOops),'😅','',' ');afterTalk(fixIt,300,500)}
+          else{kid(pickL(K.useKen),'😅','',' ');afterTalk(fixIt,300,500)}},500)},'',
+        ()=>{you(pickL(K.dunnoSay));SFX.step();setTimeout(()=>{lookup(q);setTimeout(()=>{if(!live())return;
+          if(right){P.uses.ok=1;kid(pickL(K.useRightAfter),'😆','',' ');afterTalk(fn,300,600)}else{kid(pickL(K.useOops),'😅','',' ');afterTalk(fixIt,300,500)}},1600)},500)}),300,500)},300,500)},300,500)}
 
 /* ---------- the end ---------- */
 function bye(){$('tuq').textContent='🏁';const ops=shuffle(K.bye).slice(0,3);
@@ -413,7 +529,6 @@ function finish(){if(!live())return;
   let k='tu_end',v={n:P.taught.length};
   if(P.firstOk===P.qs.length)k='tu_endPerfect';else if(P.fix)k='tu_endFix';else if(P.funs.length)k='tu_endFun';
   if(!paid)k=P.firstOk===P.qs.length?'tu_endPerfect':'tu_endFree';
-  if(P.newFun.length&&Math.random()<.4){k='tu_endNewFun';v.e=funText(P.newFun[0])}
   if(Math.random()<.35){const kd=P.qs.map(x=>x.q.k).find(x=>x&&x!=='why');if(kd)k='tu_end_'+kd}
   const weak=P.qs.find(x=>x.tag==='weak');if(weak&&Math.random()<.6){k='tu_endWeak';v.t=weak.q.t}
   /* the special things of this visit come first */
@@ -421,7 +536,10 @@ function finish(){if(!live())return;
   if(P.again.length&&Math.random()<.6){k='tu_endAgain';v.t=P.again[0].t}
   if(P.dunno.length&&Math.random()<.7){k='tu_endDunno';v.t=P.dunno[0].t}
   if(P.dunnoBack.length&&Math.random()<.8){k='tu_endDunnoBack';v.t=P.dunnoBack[0].t}
-  const DK={quiz:'tu_endQuiz',ken:'tu_endKen',hw:'tu_endHw',short:'tu_endShort',pochi:'tu_endPochi'};
+  if(P.notes.length&&Math.random()<.3){k='tu_endNote';v.t=P.notes[0].t}
+  if(P.prints&&Math.random()<.35)k='tu_endPrint';
+  if(P.uses&&Math.random()<.5){k=P.uses.ok?'tu_endUseOk':'tu_endUseFix';v.t=P.uses.q.t}
+  const DK={visit:'tu_endVisit',quiz:'tu_endQuiz',ken:'tu_endKen',hw:'tu_endHw',short:'tu_endShort',pochi:'tu_endPochi'};
   if(DK[P.day]&&Math.random()<.7){k=DK[P.day];if(P.quiz)v.n=P.quiz.ok}
   const rows=P.taught.map(q=>{const L=lesFor(q);return `<div class="tutr"><span><b>${P.dunno.includes(q)?'🔎 ':''}${esc(q.t)}</b><small>${esc(q.pt)}</small></span>${L?`<button class="sub" data-les="${L.id}" aria-label="授業を みなおす">📖</button>`:''}</div>`}).join('');
   setTimeout(()=>{if(!live())return;
@@ -431,9 +549,10 @@ function finish(){if(!live())return;
         <p class="zkres tugot">${gift[1]} <b>${esc(gift[2])}</b> を もらった <small>ながれぎ雑貨店で 売れるよ</small></p>`
         :`<p class="zkres"><small>きょうの バイト代は おしまい（1日 ${PER_DAY}回まで）。 教えた ことは のこるよ</small></p>`}
       <details class="mfold" open><summary>📒 きょう 教えた こと</summary><div class="tutl">${rows}</div></details>
-      ${P.quiz?`<p class="tusys">🎤 リクの クイズ ${P.quiz.ok}/${P.quiz.n}もん せいかい</p>`:''}${P.ken?`<p class="tusys">🧒 ケンにも ${P.ken}回 教えた</p>`:''}
+      ${P.quiz?`<p class="tusys">🎤 リクの クイズ ${P.quiz.ok}/${P.quiz.n}もん せいかい</p>`:''}${P.ken?`<p class="tusys">🧢 ケンにも ${P.ken}回 教えた</p>`:''}
+      ${P.visit.length?`<details class="mfold" open><summary>👩‍🏫 ミナ先生の 参観ノート</summary><div class="tutl">${P.visit.map(v=>`<div class="tutr tuvn"><span><b>${esc(v[0])}</b><small>${esc(v[1])}</small></span></div>`).join('')}</div></details>`:''}
+      ${P.notes.length||P.prints?`<p class="tusys">${P.notes.length?`📒 ノートに ${P.notes.length}ページ`:''}${P.notes.length&&P.prints?'・':''}${P.prints?`📝 宿題プリント ${P.prints}もん`:''}</p>`:''}
       ${P.dunno.length?`<p class="tusys">🔎 いっしょに しらべた ${P.dunno.length}こ（また こんど リクが 聞きに くるよ）</p>`:''}
-      ${P.funs.length?`<p class="tusys">😂 へんな英文 ${P.funs.length}こ${P.newFun.length?` <i class="zknew">NEW ${P.newFun.length}</i>`:''}</p>`:''}
       ${letter?`<button id="tulet" class="tulb">✉️ リクから 手紙も もらった！ <small>ひらく</small></button>`:''}
       ${minaBox(letter?'tu_letter':k,v)}
       <div class="row"><button id="tuagain" class="sub">🔁 もう一度</button><button id="tuback">👦 もどる</button></div>
@@ -447,11 +566,11 @@ function finish(){if(!live())return;
 function lesFor(q){try{return q.les.map(id=>LESSONS.find(l=>l.id===id)).find(Boolean)||null}catch(e){return null}}
 
 /* ================================================================ 📒 what you taught / 😂 the funny English / 🎁 the presents */
-function notebook(back){const T=TQ.filter(q=>TD.taught[q.id]);
+function notebook(back){const N=TD.note||{},T=TQ.filter(q=>TD.taught[q.id]).sort((a,b)=>((N[b.id]||(TD.when||{})[b.id]||0)-(N[a.id]||(TD.when||{})[a.id]||0)));const nN=T.filter(q=>N[q.id]).length;
   H.show('tutor',`<section class="pnl tu">
-    <div class="qtop"><button class="x" id="tux" aria-label="もどる">←</button><b>📒 教えた こと</b><span class="qn">${T.length}/${TQ.length}</span></div>
-    ${minaBox(T.length?'tu_note':'tu_noteNone',{n:T.length})}
-    <div class="zkbag">${T.map(q=>{const L=lesFor(q);return `<div class="tutr"><span><b>${esc(q.t)}</b><small>${esc(q.pt)}</small><button class="tuex" data-say="${esc(q.ok[1])}">🔊 ${esc(q.ok[1])}</button></span>${L?`<button class="sub" data-les="${L.id}" aria-label="授業を みなおす">📖</button>`:''}</div>`}).join('')||'<p class="note">リクに 教えた ことが ここに たまるよ</p>'}</div>
+    <div class="qtop"><button class="x" id="tux" aria-label="もどる">←</button><b>📒 リクの ノート</b><span class="qn">${T.length}/${TQ.length}</span></div>
+    ${minaBox(T.length?'tu_note':'tu_noteNone',{n:T.length,w:nN})}
+    <div class="tunb">${T.map(q=>{const L=lesFor(q);return `<div class="tupg${N[q.id]?' w':''}"><span><b>${esc(q.t)}</b>${N[q.id]?`<i>✏️ ${esc(q.pt)}</i>`:`<small>${esc(q.pt)}</small>`}<button class="tuex" data-say="${esc(q.ok[1])}">🔊 ${esc(q.ok[1])}</button></span>${L?`<button class="sub" data-les="${L.id}" aria-label="授業を みなおす">📖</button>`:''}</div>`}).join('')||'<p class="note">リクに 教えた ことが ここに たまるよ</p>'}</div>
   </section>`);
   bindSay(H.panel);
   H.panel.querySelectorAll('[data-les]').forEach(b=>b.onclick=()=>{SFX.lesson();LESSON.open(b.dataset.les,()=>notebook(back))});
@@ -459,13 +578,6 @@ function notebook(back){const T=TQ.filter(q=>TD.taught[q.id]);
 function funText(k){const [id,x]=k.split(':'),q=qById(id);if(!q)return '';if(x[0]==='m'){const o=q.m.o[+x.slice(1)];return o?splitF(o[2])[0]:''}const o=q.o[+x];return o?o[2]:''}
 function funList(){return Object.keys(TD.fun).map(k=>{const [id,x]=k.split(':'),q=qById(id);if(!q)return null;
   if(x[0]==='m'){const o=q.m.o[+x.slice(1)];if(!o)return null;const [en,why]=splitF(o[2]);return {en,why,q,ok:q.m.ok[1]}}const o=q.o[+x];return o&&{en:o[2],why:o[3]||'',q,ok:q.ok[1]}}).filter(Boolean)}
-function funBook(back){const F=funList();
-  H.show('tutor',`<section class="pnl tu">
-    <div class="qtop"><button class="x" id="tux" aria-label="もどる">←</button><b>😂 へんな英文 図鑑</b><span class="qn">${F.length}/${funAll()}</span></div>
-    ${minaBox(F.length?'tu_fun':'tu_funNone',{n:F.length})}
-    <div class="kfunl">${F.map(f=>`<div class="kfi"><span class="ki">${K.ico}</span><div><p class="kyou"><button class="tuex" data-say="${esc(f.en)}">「${esc(f.en)}」</button></p><p class="kre">${esc(f.why||f.q.t)} → <button class="tuex ok" data-say="${esc(f.ok)}">⭕ ${esc(f.ok)}</button></p></div></div>`).join('')||'<p class="note">わざと ちがう 教え方を すると、 リクが へんな 英文を 言って ここに たまるよ</p>'}</div>
-  </section>`);
-  bindSay(H.panel);$('tux').onclick=()=>{SFX.back();back()}}
 function gifts(back){const G=TG.filter(g=>TD.gifts[g[0]]>0);
   H.show('tutor',`<section class="pnl tu">
     <div class="qtop"><button class="x" id="tux" aria-label="もどる">←</button><b>🎁 リクからの お礼</b><span class="qn">${giftN()}</span></div>
@@ -484,7 +596,7 @@ function gifts(back){const G=TG.filter(g=>TD.gifts[g[0]]>0);
 function readLetter(n,back){const l=(K.letters||[]).find(x=>x[0]===n);if(!l)return back();
   H.show('tutor',`<section class="pnl tu">
     <div class="qtop"><button class="x" id="tux" aria-label="もどる">←</button><b>✉️ リクからの 手紙</b><span class="qn">${n}回目</span></div>
-    <div class="zkcard tuletter"><span class="zcp">👦</span><p class="bmEn">${esc(l[1])}</p><p class="bmJa" hidden>${esc(l[2])}</p>
+    <div class="zkcard tuletter"><span class="zcp tuzf">${FACE.riku}</span><p class="bmEn">${esc(l[1])}</p><p class="bmJa" hidden>${esc(l[2])}</p>
       <div class="bmBtns"><button id="tus" class="sub">🔊 きく</button><button id="tuj" class="sub">日本語を 見る</button></div></div>
     ${minaBox('tu_letterRead',{})}
     <div class="row"><button id="tuok">もどる</button></div>
@@ -537,6 +649,8 @@ Object.assign(MINA_LINES,{
  ['tu_endFun',[['happy','リクくんの わらい声、 まどの 外まで 聞こえてたよ'],['wink','へんな 英文で わらった ぶん、 正しい 形が 頭に のこるんだ']]],
  ['tu_endFree',[['smile','バイト代が なくても 来てくれるって、 リクくん よろこぶよ'],['happy','教えた ぶんだけ、 あなたの 英語も きたえられてるよ']]],
  ['tu_hello',[['smile','わからない ときは 「🤔 わからない」で いいんだよ。 リクくんと いっしょに しらべれば、 それも 勉強']]],
+ ['tu_note',[['happy','📒 リクくんの ノート、 {n}ページ。 ✏️ の ついた みだしは 2人で えらんだ ことば だよ'],['smile','🔊 で リクくんの 英文を 聞きなおすと、 自分の ふくしゅうにも なるよ']]],
+ ['tu_hello',[['happy','ときどき わたしも 見学に 行くね。 参観日、 たのしみに してて']]],
  ['tu_endWeak',[['proud','前は つまずいた 「{t}」を、 こんどは 教える がわ。 すごい ことだよ']]],
 ].forEach(([k,L])=>{MINA_LINES[k]=(MINA_LINES[k]||[]).concat(L)});
 Object.assign(MINA_LINES,{
@@ -546,6 +660,16 @@ Object.assign(MINA_LINES,{
  tu_endShort:[['smile','きょうは みじかかったね。 「I\'m coming!」、 前に 教えた ことが 出たね'],['happy','ちょっと だけでも、 毎日 ふれるのが いちばん だよ']],
  tu_endPochi:[['happy','ポチ、 にぎやか だったね。 犬に 言う 英語も ふえたね'],['smile','Good boy! Drop it! 英語って 生活の 中に いっぱい あるね']],
  tu_endAgain:[['proud','「{t}」、 リクくん わすれてたね。 2回 教えると 自分も もっと おぼえるよ'],['smile','わすれた ころに もう一回。 それが いちばん 頭に のこる ふくしゅう なんだ']],
+ tu_visitHi:[['smile','きょうは うしろで 見学させてね。 いつもどおりで だいじょうぶ'],['happy','参観日だよ。 リクくんの 先生ぶり、 見せて もらうね'],['wink','わたしは いない ことに して。 …ふふ、 リクくん かたまってる']],
+ tu_vGood:[['proud','「{t}」、 まよわず 一発。 ポイントを さいしょに 言えてたね'],['happy','いまの 教え方、 リクくんの 顔が ぱっと 明るく なったよ'],['wow','「{t}」は もう 自分の ことばで 説明できるね。 かんぺき']],
+ tu_vRetry:[['smile','「{t}」は 1回 まよったけど、 えらびなおせたのが 大事。 「{p}」を 先に 思いだすと 早いよ'],['think','アドバイス: こまったら 「{p}」。 これを 合言葉に しておこう'],['happy','まちがえた 教え方を 見て、 正しい ほうに 気づけたね。 それも 力だよ']],
+ tu_vFix:[['proud','へんな 英文を 直して あげたね。 まちがいを 見て 「どこが へんか」 わかるのは 本物の 力'],['smile','リクくん、 わらった あとで ちゃんと 正しい 文を 言えてた。 いい ながれだね'],['think','アドバイス: 直す ときは 「{p}」と いっしょに 言うと、 リクくんも 自分で 直せるように なるよ']],
+ tu_vDunno:[['happy','「わからない」って 言えたの、 いいね。 先生が しらべる すがたを 見せるのも 教え方の 1つだよ'],['smile','しらべて わかった ことは 「{p}」。 つぎの 回に もう一度 出るから、 そのとき 教えてね'],['love','知ったかぶり しない 先生、 リクくんは きっと 信じて くれるよ']],
+ tu_endVisit:[['proud','参観日、 おつかれさま。 ちゃんと 先生の 顔に なってたよ'],['happy','見学してて たのしかった！ 参観ノート、 あとで 見かえしてね'],['love','リクくんが あなたを 見る 目、 すっかり 先生を 見る 目だったよ']],
+ tu_endNote:[['happy','リクくんの ノートに 「{t}」が ふえたね。 みだしを えらぶと、 何を 教えたか 頭が せいりされるよ'],['smile','📒 リクの ノート、 たまってきたね。 ときどき 見かえすと ふくしゅうに なるよ']],
+ tu_endPrint:[['happy','宿題プリント、 いっしょに といたね。 ならべかえは 英語の じゅんばんの 練習に ぴったり'],['smile','あなうめ、 リクくん うれしそう だったね。 1文 まるごと 言えると 自信に なるよ']],
+ tu_endUseOk:[['proud','リクくん、 「{t}」を 自分で つかえてたね。 教えた ことが 生きてる しょうこだよ'],['happy','前に 教えた 「{t}」が ちゃんと リクくんの ものに なってた。 うれしいね']],
+ tu_endUseFix:[['smile','リクくんの 「{t}」、 ちょっと ずれてたのを 直して あげたね。 つかって まちがえて 直すのが いちばん おぼえるんだ'],['proud','「あってる？」に すぐ 気づけたね。 人の 英語を 見る 目が ついてきたよ']],
  tu_dunnoBook:[['smile','「わからない」って 言えるのは、 いい 先生の しょうこ。 ここを いっしょに 読もう'],['happy','わからない ときは しらべれば いいの。 リクくんと いっしょに おぼえちゃおう'],['wink','先生だって ぜんぶ 知ってる わけじゃ ないよ。 ポイントは ここ'],['think','知ったかぶり するより ずっと いい。 さあ、 この 1行だけ おぼえて帰ろう']],
  tu_endDunno:[['smile','「{t}」、 わからないって 正直に 言えたね。 いっしょに しらべた ことは、 ふつうより よく のこるよ'],['happy','リクくん、 せんせいと しらべるの たのしかった みたい。 「{t}」、 こんど また 聞きに くるって'],['proud','わからない ことを わからないって 言えるの、 じつは いちばん 大事な 力なんだよ']],
  tu_endDunnoBack:[['proud','この前 しらべた 「{t}」、 こんどは ちゃんと 教えられたね！ もう 自分の ものだよ'],['wow','「{t}」、 前は わからなかったのに！ 1回 しらべて、 1回 教える。 それで ばっちり'],['love','リクくん、 「せんせい おぼえてた！」って うれしそう だったね']],
@@ -563,11 +687,12 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_tuLetter',1,()=>{const nl=nextLetter();return TD.met&&nl&&nl-TD.n<=2?{n:nl-TD.n}:null},goTu],
  ['x_tuQuiz',1,()=>TD.met&&paidLeft()&&taughtN()>=4?{}:null,goTu],
  ['x_tuTalk',1,()=>TD.met&&paidLeft()&&Object.keys(TD.talks||{}).length<CH.length?{}:null,goTu],
+ ['x_tuNote',1,()=>{const n=Object.keys(TD.note||{}).filter(qById).length;return TD.met&&n>=3?{n}:null},()=>['📒 ノートを 見る',()=>notebook(H.home)]],
  ['x_tuDunno',3,()=>{if(!TD.met||!paidLeft())return null;const id=Object.keys(TD.dunno||{}).find(qById);return id?{t:qById(id).t}:null},goTu],
- ['x_tuFun',1,()=>{const F=funList();if(!F.length)return null;return {n:F.length,e:pickL(F).en}},()=>['😂 図鑑を 見る',()=>funBook(H.home)]]);
+ ['x_tuFunNone',0,()=>null,goTu]);
 /* the first time: Mina points at the parasol once */
 setTimeout(function first(){if(TD.met||TD.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
   TD.told=1;save();const [ex,tx]=mline('tu_first');m.say('m',ex,tx,9000,null,['👦 行ってみる',open])},70000);
 
-window.TUTOR={open,top,play,notebook,funBook,gifts,rec:()=>TD,sellable,take,funList,funN,funAll,qs:TQ,_spot:spot,_pick:pick3};
+window.TUTOR={open,top,play,notebook,gifts,rec:()=>TD,sellable,take,funList,funN,funAll,qs:TQ,_spot:spot,_pick:pick3};
 })();

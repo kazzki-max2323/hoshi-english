@@ -29,7 +29,7 @@ const goGram=(lv,i)=>['📚 文法ノートを 見る',()=>H.gramNote(lv,i)];
 /* ---------- what is true now (read again every 10 s at most) ---------- */
 let FC=null,FT=-1e9;
 function facts(){if(FC&&performance.now()-FT<10000)return FC;FT=performance.now();
-  const now=new Date(),h=now.getHours(),MD=MINA.rec(),F={now,h,m:now.getMonth()+1,dow:now.getDay(),coins:ST.coins|0,lv:MINA.level()};
+  const now=new Date(),h=(typeof GH==='function'?GH():now.getHours()),MD=MINA.rec(),F={now,h,m:now.getMonth()+1,dow:now.getDay(),coins:ST.coins|0,lv:MINA.level()};
   /* the beach has its own clock (faster than real time): what the sky looks like now */
   F.gh=((ST.gameMin||0)/60)%24;F.sky=F.gh>=4.5&&F.gh<6.5?'dawn':F.gh>=6.5&&F.gh<17?'day':F.gh>=17&&F.gh<19.5?'sunset':'night';
   F.part=h>=5&&h<10?'morning':h>=10&&h<16?'noon':h>=16&&h<19?'evening':h>=19&&h<23?'night':'late';
