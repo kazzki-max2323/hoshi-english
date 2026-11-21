@@ -88,7 +88,7 @@ function bev(id){const b=BEV[id];return b?{id,ico:b[0],en:b[1],ja:b[2],cat:b[3]}
 
 /* ================================================================ いまの ようす */
 const dark=()=>{try{return SCENE.dark()}catch(e){return 0}};
-function now(){const d=dark(),o={tod:d>.6?'night':d>.25?'dusk':'day',hour:new Date().getHours(),rain:0,ev:null,evs:[],fest:null,song:null,hp:null,hpMax:null,coins:0,food:[],gifts:[],screen:''};
+function now(){const d=dark(),o={tod:d>.6?'night':d>.25?'dusk':'day',hour:(typeof GH==='function'?GH():new Date().getHours()),rain:0,ev:null,evs:[],fest:null,song:null,hp:null,hpMax:null,coins:0,food:[],gifts:[],screen:''};
   try{o.rain=typeof rainKind==='function'?rainKind():0}catch(e){}
   try{const c=SCENE.curEv();o.ev=c?bev(c)||{id:c,cat:'?'}:null}catch(e){}
   try{o.evs=SCENE.showing().map(bev).filter(Boolean)}catch(e){}

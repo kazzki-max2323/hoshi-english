@@ -44,7 +44,7 @@ const ok=(s,V)=>!/\{\w+\}/.test(fill(s,V));
 function fits(t,V){if(t.nodes)return true;const L=[];const walk=o=>o.forEach(x=>{L.push(x[0]);if(Array.isArray(x[2]))L.push(x[2][0]);else{L.push(x[2].m[0]);walk(x[2].o)}});L.push(t.m[0]);walk(t.o);return L.every(s=>ok(s,V))}
 
 /* ================================================================ いまの ようす の きっかけ */
-function stateKinds(N){const k=[],S=(()=>{try{return SHOP.rec()}catch(e){return {floor:[1]}}})(),h=new Date().getHours();
+function stateKinds(N){const k=[],S=(()=>{try{return SHOP.rec()}catch(e){return {floor:[1]}}})(),h=(typeof GH==='function'?GH():new Date().getHours());
   if(N.rain)k.push('rain');
   if(N.tod==='night')k.push('night');else if(N.tod==='dusk')k.push('dusk');else if(h>=5&&h<11)k.push('morning');
   if(N.hp!=null&&N.hp<25)k.push('hpLow');
