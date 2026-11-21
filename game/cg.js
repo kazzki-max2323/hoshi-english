@@ -284,7 +284,7 @@ function detail(id,back,opt={}){const I=info(id);if(!I)return;const n=count(id),
       <button class="cgsay" data-dv="say">🔊 ${esc(I.en)}</button>
       <p class="cgdj">${esc(I.ja)}</p>
       ${window.UNK?UNK.cardBox(I,own):''}
-      ${I.k==='w'||I.k==='t'?`<p class="cgds">${own?`もっている かず ×${n}`:'まだ もっていない'}</p>`:''}
+      ${I.k==='w'||I.k==='t'?`<p class="cgds">${own?`もっている かず ×${n}`:'カードは まだ もってない'}</p>`:''}
       ${more(I)}
       ${(opt.btns||[]).filter(Boolean).map((b,i)=>`<button data-dvb="${i}" class="${b[2]||''}">${b[0]}</button>`).join('')}
       <button class="sub" data-dv="close">とじる</button></div></div>`;
