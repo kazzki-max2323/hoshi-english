@@ -1,0 +1,30 @@
+/* 💡 さらっと まめちしき（game/mame.js）。 明るい 紙の 枠なので 文字の 影は なし */
+#mamePop{position:fixed;left:12px;right:12px;top:calc(env(safe-area-inset-top,0px) + 58px);z-index:94;max-width:460px;margin:0 auto;
+  opacity:0;transform:translateY(-8px);transition:opacity .25s,transform .25s;text-shadow:none}
+#mamePop.on{opacity:1;transform:none}
+#mamePop *{text-shadow:none}
+#mamePop .mmhook{display:flex;align-items:flex-start;gap:9px;width:100%;text-align:left;padding:9px 11px;border-radius:14px;
+  background:#fffaf0;border:2px solid #f2c95c;box-shadow:0 4px 14px #0006;color:#3a2f1d;font:inherit;cursor:pointer}
+#mamePop .mmf{flex:0 0 auto;width:42px;height:42px;border-radius:50%;overflow:hidden;border:2px solid #f2c95c;background:#fde9c8}
+#mamePop .mmf svg{display:block;width:100%;height:100%}
+#mamePop .mmt{display:flex;flex-direction:column;gap:3px;font-size:.86rem;line-height:1.5}
+#mamePop .mmt em{font-style:normal;font-weight:700;font-size:.74rem;color:#b7791f}
+#mamePop .mmt b{color:#9a4b00}
+#mamePop .mmt small{align-self:flex-end;font-size:.72rem;color:#b7791f;font-weight:700}
+#mamePop .mmbox{padding:11px 12px;border-radius:14px;background:#fffaf0;border:2px solid #f2c95c;box-shadow:0 4px 14px #0006;color:#3a2f1d;
+  max-height:calc(100vh - 140px);overflow:auto;display:flex;flex-direction:column;gap:9px}
+#mamePop .mmhd{display:flex;gap:9px;align-items:flex-start}
+#mamePop .mmhd p{margin:0;font-size:.88rem;line-height:1.6}
+#mamePop .mmhd b{color:#9a4b00}
+#mamePop .mmtwo{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+#mamePop .mmtwo>div{border-radius:10px;padding:7px;text-align:center;background:#fff;border:2px solid #e6dcc4;display:flex;flex-direction:column;gap:3px}
+#mamePop .mmtwo>div:last-child{border-color:#34c38f;background:#effcf5}
+#mamePop .mmtwo b{font-family:Georgia,serif;font-size:.95rem;color:#2a2340}
+#mamePop .mmtwo span{font-size:.75rem;line-height:1.4;color:#4a4060}
+#mamePop .mmex{display:flex;flex-direction:column;gap:6px}
+#mamePop .mmex button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;padding:7px 10px;border-radius:10px;
+  background:#fff;border:1.5px solid #e6dcc4;color:#2a2340;font:inherit;cursor:pointer}
+#mamePop .mmex span{font-family:Georgia,serif;font-size:.92rem}
+#mamePop .mmex small{font-size:.74rem;color:#6b6080}
+#mamePop .mmnav{display:flex;justify-content:center}
+#mamePop .mmok{padding:8px 22px;border-radius:999px;border:0;background:#f2a93b;color:#fff;font:inherit;font-weight:700;cursor:pointer}
