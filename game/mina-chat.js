@@ -11,7 +11,7 @@ const pickL=a=>a[Math.random()*a.length|0];
 const MD=()=>{const m=MINA.rec();m.mc=m.mc||{n:{},ph:[]};return m.mc};
 const ks=k=>Array.isArray(k)?k:[k];
 const skyOf=()=>{const g=((ST.gameMin||0)/60)%24;return g>=4.5&&g<6.5?'dawn':g>=6.5&&g<17?'day':g>=17&&g<19.5?'sunset':'night'};
-const partOf=()=>{const h=new Date().getHours();return h>=5&&h<10?'morning':h<16?'noon':h<19?'evening':'night'};
+const partOf=()=>{const h=(typeof GH==='function'?GH():new Date().getHours());return h>=5&&h<10?'morning':h<16?'noon':h<19?'evening':'night'};
 /* できごとの 名前（{x} に 入る） */
 function xOf(e){if(!e)return '';try{switch(e.k){case 'meal':case 'snack':return e.ja;case 'gift':return e.toN||'だれか';
   case 'kaiwa':return KAIWA.chars[e.c].n;case 'mio':return 'ミオちゃん';case 'tokkun':return e.g?'「'+e.g+'」の とっくん':'とっくん';

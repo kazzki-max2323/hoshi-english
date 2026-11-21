@@ -226,7 +226,7 @@ function choices(list,fn,cls='',dk){if(!live())return;
   const d=$('tuans').querySelector('[data-dk]');if(d)d.onclick=()=>{$('tuans').innerHTML='';dk()};
   setTimeout(()=>{const a=$('tuans');if(a)a.scrollIntoView({block:'nearest',behavior:'smooth'})},80)}
 
-function partOfDay(){const h=new Date().getHours();return h<5?'night':h<11?'morning':h<16?'day':h<19?'evening':'night'}
+function partOfDay(){const h=(typeof GH==='function'?GH():new Date().getHours());return h<5?'night':h<11?'morning':h<16?'day':h<19?'evening':'night'}
 function hiLine(){const T=(K.hiTime||{})[partOfDay()];return T&&Math.random()<.4?pickL(T):pickL(K.hi)}
 const DAYNAME={quiz:'🎤 きょうは リクの クイズの日',ken:'🧒 きょうは ケンも いっしょ',hw:'✏️ きょうは 宿題の日',short:'🏃 きょうは ちょっとだけ',pochi:'🐕 きょうは ポチも いっしょ'};
 function intro(){const d=P.day;if(DAYNAME[d])sys(DAYNAME[d]);
@@ -375,7 +375,7 @@ function recFun(k){if(!P.funs.includes(k))P.funs.push(k);if(!TD.fun[k]){TD.fun[k
   setTimeout(()=>H.toast(`😂 へんな英文 はっけん！<small>図鑑 ${funN()}/${funAll()}</small>`,2200),700)}}
 /* a little chat between the questions now and then */
 /* ☕ a long chat with branches (most of the time), or a short one */
-function chatLong(fn){const seen=TD.talks||{};const fresh=CH.filter(c=>!seen[c.id]);const c=pickL(fresh.length?fresh:CH);if(!c)return fn();
+function chatLong(fn){const seen=TD.talks||{},nt=partOfDay()==='night',CT=CH.filter(c=>!c.night||nt);const fresh=CT.filter(c=>!seen[c.id]);const c=pickL(fresh.length?fresh:CT);if(!c)return fn();
   P.talk=c;sys(`☕ ひとやすみ・${esc(c.t)}`);let node=c.n.s,first=1;
   const step=()=>{if(!live())return;kid(node.r,first?'😄':'🙂');first=0;
     afterTalk(()=>choices(node.o.map(o=>[o[0]]),i=>{const o=node.o[i];you(o[0]);SFX.step();

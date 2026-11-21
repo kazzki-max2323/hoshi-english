@@ -100,8 +100,8 @@ const Z={good,lineup,gOwned,gScene,phNow,
   ownGoods:seed=>{const a=[...ST.radios.map(r=>good('radio',r.lv)),...ST.music.map(id=>good('music',id))].filter(Boolean);const k=a.length?(seed||0)%a.length:0;return a.slice(k).concat(a.slice(0,k))},
 item,coins:()=>ST.coins,visits:()=>ZD.v||0,tgs:()=>{try{return window.TUTOR?TUTOR.sellable():[]}catch(e){return []}},held:()=>ZD.hold,own:id=>!!ZD.own[id],pcDone,bottles,half,paid,sellable,returnable:sellable,
   price:c=>Math.max(1,Math.round(c.it.p*(1-(c.disc||0)))),
-  part:()=>{const h=new Date().getHours();return h>=5&&h<12?'morning':h>=12&&h<18?'afternoon':'evening'},
-  partJ:()=>{const h=new Date().getHours();return h>=5&&h<12?'おはよう':h>=12&&h<18?'こんにちは':'こんばんは'},
+  part:()=>{const h=(typeof GH==='function'?GH():new Date().getHours());return h>=5&&h<12?'morning':h>=12&&h<18?'afternoon':'evening'},
+  partJ:()=>{const h=(typeof GH==='function'?GH():new Date().getHours());return h>=5&&h<12?'おはよう':h>=12&&h<18?'こんにちは':'こんばんは'},
   recBook:()=>{const i=LV.indexOf(myLv()),a=books().filter(b=>!ZD.own[b.id]);return a.find(b=>LV.indexOf(b.lv)===i)||a.find(b=>LV.indexOf(b.lv)<i)||a[0]||null},
   altGift:id=>{const t=today().all.filter(i=>i.k==='gift'),g=t.length>1?t:IT.filter(i=>i.k==='gift'&&loveOk(i)&&!i.rare);return g[(g.findIndex(i=>i.id===id)+1)%g.length]},
   bonusW:()=>pcDone()?'fortune cookie':'postcard',bonusJ:()=>pcDone()?'おみくじ クッキー':'絵はがき',
@@ -210,7 +210,7 @@ function greet(){
   {const nid=bgmSong(),ng=nid&&good('music',nid);if(ng&&ST.sound){const ph=phNow(),fit=ng.t&&ng.t.includes(ph),PJ={dawn:'夜明け',morning:'朝',noon:'お昼',evening:'夕方',sunset:'夕暮れ',night:'夜'},PE={dawn:'dawn',morning:'the morning',noon:'noon',evening:'the evening',sunset:'sunset',night:'the night'};
     g.push(fit?[`Do you hear the music? It's "${ng.en}." It's perfect for ${PE[ph]}.`,`音楽、 聞こえる？ 「${ng.n}」よ。 ${PJ[ph]}に ぴったりなの。`]:[`Today's song is "${ng.en}." Pip picked it!`,`きょうの 曲は 「${ng.n}」。 ピップが えらんだのよ！`],
       gOwned(ng)?[`Oh, you have "${ng.en}," too, don't you? We have the same taste.`,`「${ng.n}」、 あなたも もってるわよね？ 好みが にてるわ。`]:[`Do you like this song? Look at the records shelf. You can ask me about it.`,`この 曲、 気に入った？ レコードの たなを 見てね。 曲の こと、 聞いてくれて いいのよ。`])}}
-  if(new Date().getHours()>=21||new Date().getHours()<5)g.push(["It's late! I'm almost closing, but come in.","おそい 時間ね！ もうすぐ 閉店だけど、 どうぞ。"]);
+  if((h=>h>=21||h<5)((typeof GH==='function'?GH():new Date().getHours())))g.push(["It's late! I'm almost closing, but come in.","おそい 時間ね！ もうすぐ 閉店だけど、 どうぞ。"]);
   return pickL(g)}
 function noraLine(en,ja){const on=jaOn();
   return `<div class="lsay kth zkhi"><span class="lface kf">${NORA.ico}</span><div class="lbody"><p class="ken">${esc(en)}<button class="ksay" data-say="${esc(en)}" aria-label="もう一度 きく">🔊</button></p><small class="kja ${on?'on':''}">${esc(ja)}</small>${on?'':'<button class="kjab">訳を 見る</button>'}</div></div>`}
