@@ -99,3 +99,7 @@
 .mddunno{display:block;margin:10px auto 0;padding:7px 14px!important;font-size:.85rem!important;background:rgba(255,236,170,.10)!important;border:1px dashed rgba(255,214,120,.6)!important;color:#ffe3a3!important;border-radius:999px!important;text-shadow:none}
 .mddunno:disabled{opacity:.4}
 .mdjump{margin-bottom:8px}
+
+/* 単元（game/unit-auto.js）の ルール一覧 */
+.uarul{margin:0;padding:8px 10px 8px 26px;background:#fff;color:#2a2340;text-shadow:none;border-radius:10px;font-size:.9rem;line-height:1.6}
+.uarul li+li{margin-top:4px}
