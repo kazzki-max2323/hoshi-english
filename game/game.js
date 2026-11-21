@@ -157,7 +157,7 @@ function cards(lv,bi,onlyLeft=false){
   const fc=$('fc');
   function draw(){const w=B.w[i],lr=isLearned(lv,bi,w);fc.classList.remove('flip');fc.classList.toggle('learned',lr);
     $('ff').innerHTML=`${lr?'<em class="lmark">✓ おぼえた</em>':''}${w[2]?`<span class="ce">${w[2]}</span>`:''}<span class="cw">${esc(w[0])}</span>`;
-    $('fb').innerHTML=`<span class="cj">${esc(w[1])}</span><span class="cw2">${esc(w[0])}</span>`;
+    const ab=window.ABBR&&ABBR.html(w[0]);$('fb').innerHTML=`<span class="cj">${esc(w[1])}</span>${ab?`<span class="cab">${ab}</span>`:''}<span class="cw2">${esc(w[0])}</span>`;
     $('cn').textContent=`${i+1} / ${B.w.length}`;$('ln').textContent=left().length;$('ck').classList.toggle('on',lr);ST.bookPos[key]=i;save();emit('cardShow',lv,bi,w)}
   /* read the card aloud as it appears (after its sound file loads, and only if it is still the card on screen) */
   function autoSay(){if(!ST.autoSay)return;const t=B.w[i][0];idxP.then(()=>loadAud(IDX[t]||lv)).then(()=>{if(screen==='cards'&&B.w[i]&&B.w[i][0]===t&&fc.isConnected)say(lv,t)})}

@@ -232,6 +232,10 @@ function more(I){const h=I.h,WI=window.WI,out=[];
   if(!WI)return '';
   const x=Object.assign({},WI.get(h,I.k)||{}),f=WI.forms(I),pn=WI.POSN[f.p]||'',ex=WI.exOf(h,I.k);
   const jn=t=>String(t||'').replace(/[（）()・、\s]/g,'');if(x.d&&(jn(x.d)===jn(I.ja)||jn(I.ja).includes(jn(x.d))))x.d='';
+  /* 🔤 略語の 元の ことば（なりたちに もう 書いて ある 語は そちらに まかせる） */
+  const ab=window.ABBR&&!(WI.root&&WI.root(h,hasHead))&&ABBR.html(h);
+  if(ab){let ml='';try{if(window.MINA&&Math.random()<.4)ml=MINA.line('wi_abbr',{w:I.en||h})[1]}catch(e){}
+    out.push(`<div class="wirt"><p>🔤 元の ことば: ${ab}</p><p class="wirs">${esc(I.en||h)} は この 頭文字を ならべた 略語</p>${ml?`<p class="wirm">👩‍🏫 ${esc(ml)}</p>`:''}</div>`)}
   if(x.d||pn)out.push(`<p class="wid">${pn?`<i class="wipos">${pn}</i>`:''}${x.d?esc(x.d):''}</p>`);
   if(ex)out.push(`<div class="wiex"><p class="en">${esc(ex[0])} <button class="wisay" data-wisay="${esc(ex[0])}" aria-label="例文を 聞く">🔊</button></p><p class="ja">${esc(ex[1])}</p></div>`);
   if(f.rows.length)out.push(`<div class="wifm">${f.rows.map(r=>`<span><b>${esc(r[0])}</b><small>${esc(r[1])}</small></span>`).join('')}</div>`);

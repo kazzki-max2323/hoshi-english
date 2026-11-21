@@ -327,7 +327,7 @@ science|nu|りか・科学|||sc の c は 読まない（サイエンス）
 social studies|np|しゃかい（教科）|||
 music|nu|おんがく|||
 arts and crafts|np|ずがこうさく|||
-p.e|nu|たいいく|||physical education の りゃく
+p.e|nu|たいいく|||「体育の 授業」は P.E. class。 体育館は gym
 home economics|nu|かていか|||
 moral education|nu|どうとく|||
 pencil|n|えんぴつ|||
