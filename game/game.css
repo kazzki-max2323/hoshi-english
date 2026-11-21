@@ -58,6 +58,7 @@
 .ce{font-size:2.6rem;line-height:1}
 .cw{font-family:"Libre Baskerville",Georgia,serif;font-size:clamp(1.5rem,7vw,2.2rem);font-weight:700;overflow-wrap:anywhere}
 .cj{font-size:clamp(1.3rem,6vw,1.9rem);font-weight:800;overflow-wrap:anywhere}
+.cab{font-size:.82rem;color:#ffe9a8;text-shadow:none;margin:.1rem 0 .2rem;overflow-wrap:anywhere}.cab b{color:#fff;font-weight:900}
 .cw2{font-family:"Libre Baskerville",Georgia,serif;font-size:.85rem;color:#c9d4ff}
 .ctl{display:flex;gap:8px;justify-content:center}
 .ctl button{min-width:64px;font-size:1.1rem}
