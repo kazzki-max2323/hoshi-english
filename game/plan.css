@@ -91,3 +91,18 @@
 .mpsub .lsrow{margin-bottom:6px}
 .kpay.sm{font-size:.82rem;opacity:.9;margin:2px 0}
 .bwin.bsm{padding:5px 10px;border-width:1px;font-size:.8rem;animation:none}.bwin.bsm .brow{margin:2px 0}.bwin.bsm .brbtn .bgo{padding:4px 10px;font-size:.8rem}
+/* ⚡ 練習・🤔 教えて（game/practice.js） */
+#prteach{position:fixed;inset:0;z-index:64;background:rgba(5,6,20,.6);display:flex;align-items:flex-end;justify-content:center;padding:10px 12px max(8px,env(safe-area-inset-bottom,0px))}
+#prteach .dpp{max-width:560px;width:100%;max-height:calc(100% - 24px);overflow:hidden;font-family:inherit}
+body.fab-on #prteach .dpp{padding-bottom:74px}
+.prt .mdbox{overflow-y:auto}
+.prtc{text-shadow:none}.prtc p{margin:0;line-height:1.6}
+.prth{font-weight:900;color:#ffd23f;font-size:.88rem;margin:0 0 4px!important}
+.prtgood{font-family:Georgia,serif;font-size:1.1rem;font-weight:700}
+.prtno{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.prtno li{display:flex;flex-direction:column;gap:2px;background:rgba(255,255,255,.06);border-radius:8px;padding:6px 9px}
+.prtno s{color:#ff9a9a;font-family:Georgia,serif}.prtno span{font-size:.88rem;line-height:1.5}
+.prwhy{color:#5b2a2a;font-size:.86rem;margin-top:6px!important}
+.prbad{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:4px 0 8px}
+.prbad button{font-family:Georgia,serif;font-size:.85rem!important;padding:5px 10px!important;border-radius:999px!important;text-shadow:none}
+.prteachb{background:rgba(255,236,170,.14)!important;border-style:solid!important}
