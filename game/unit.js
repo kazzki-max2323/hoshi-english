@@ -168,8 +168,8 @@ function chEnd(ci,st,bad){const c=CH[ci],first=!chDone(ci);R.ch[ci]=R.ch[ci]||{}
   const coin=first?5:2,[ex,tx]=ML(st.miss?'chMiss':'chDone',{t:c.short}),nx=nextCh(),nxt=ci+1<CH.length?ci+1:nx,Pl=P;
   C={m:'end'};$('mdn').textContent='✔';
   const then=Pl&&Pl.then?Pl.then(st):null;
-  $('mdbox').innerHTML=`<div class="kres mdres"><p class="kend good">✔ ${ci+1}時間目 おわり！</p>${score(st)}
-    <p class="kpay">🪙 <b>${coin}まい</b>${first?' <small>はじめて</small>':''}</p>${minaBox(ex,tx)}
+  $('mdbox').innerHTML=`<div class="kres mdres"><p class="kend good">${st.miss?'✔':'🌟 よくできた！'} ${ci+1}時間目 おわり</p>${score(st)}
+    <p class="kpay sm">🪙 ${coin}まい</p>${minaBox(ex,tx)}
     ${then?`<div class="mdnav"><button id="mdthen">${then[0]}</button></div>`:''}
     <div class="mdnav">${st.miss?`<button class="sub" id="mdre">🔁 カードを もう一回</button>`:''}${then?'':nxt!=null?`<button id="mdnc">▶ ${nxt+1}時間目へ</button>`:`<button id="mdt">📝 まとめテストへ</button>`}</div>
     ${then?`<div class="mdnav"><button class="sub" id="mdc">✖ きょうは ここまで</button></div>`:`<div class="mdnav"><button class="sub" id="mdm">☰ 時間の 一覧</button></div>`}</div>`;
@@ -188,9 +188,9 @@ function testEnd(st,bad){const N=st.ok+st.hint+st.miss,perfect=st.ok===N,s=perfe
   const weak=[...new Set(bad.filter(q=>q.c!=null).map(q=>q.c))].sort();
   C={m:'end'};$('mdn').textContent='';
   const then=Pl&&Pl.then?Pl.then(st):null;
-  $('mdbox').innerHTML=`<div class="kres mdres"><p class="kend good">📝 まとめテスト おわり！</p>
+  $('mdbox').innerHTML=`<div class="kres mdres"><p class="kend good">${perfect?'🌟 よくできた！':'📝'} まとめテスト おわり</p>
     <p class="dpstar">${stars(s)}<small>わかった度</small></p>${score(st)}
-    <p class="kpay">🪙 <b>${coin}まい</b>${first?' <small>はじめての テスト</small>':''}${perfect?' <small>ノーミス +5</small>':''}${new3?' <small>★3 はじめて +5</small>':''}</p>
+    <p class="kpay sm">🪙 ${coin}まい</p>
     ${minaBox(ex,tx)}
     ${then?`<div class="mdnav"><button id="mdthen">${then[0]}</button></div>`:''}
     ${weak.length?`<p class="mdnote2">📘 見なおすと いい ところ</p><div class="mdchs">${weak.map(i=>`<button data-ch="${i}"><i>${CH[i].ico}</i><span><small>${i+1}時間目</small>${esc(CH[i].t)}</span></button>`).join('')}</div>`:''}

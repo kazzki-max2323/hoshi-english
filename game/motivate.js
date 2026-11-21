@@ -74,7 +74,7 @@ function nkAdd(p){MV.nk.p+=p;const ups=[];while(MV.nk.lv<NK.length&&MV.nk.p>=NK[
     const gifts=(NK_GIFT[lv]||[]).map(give).filter(Boolean);ups.push({lv,gifts,news:NK_NEW[lv]||''})}
   save();if(ups.length)nkUnlock();return ups}
 const nkBar=()=>{const lv=MV.nk.lv;if(lv>=NK.length)return 100;const a=NK[lv-1],b=NK[lv];return Math.round((MV.nk.p-a)/(b-a)*100)};
-function nkHtml(gain,ups){return `<span class="nkline">❤️ なかよし <b>+${gain}</b>　Lv${MV.nk.lv}「${NK_NAME[MV.nk.lv-1]}」</span><i class="nkbar"><i style="width:${nkBar()}%"></i></i>`
+function nkHtml(gain,ups){return `<span class="nkline">❤️ なかよし <b>+${gain}</b></span>`
   +ups.map(u=>`<span class="nkup">💗 <b>Lv${u.lv}「${NK_NAME[u.lv-1]}」</b>に なった！<small>${u.gifts.join('・')}${u.news?`${u.gifts.length?'・':''}${u.news}`:''}</small></span>`).join('')}
 /* outside a lesson (the quiz), a level-up is told by Mina */
 function nkOut(p){const ups=nkAdd(p);if(!ups.length)return;const u=ups[ups.length-1];SFX.fanfare(3);
@@ -82,10 +82,10 @@ function nkOut(p){const ups=nkAdd(p);if(!ups.length)return;const u=ups[ups.lengt
   setTimeout(()=>{if(MINA.canAnnounce())MINA.announce('love',NK_UP[u.lv]||'',8000)},1500)}
 
 /* ---------- 1. stamps ---------- */
-const ST_GIFT=n=>{const k=(n-1)%10+1,g=[];if(k===5)g.push(['coin',50]);if(k===10)g.push(['card',2]);if(n%20===0)g.push(['show']);return g};
+const ST_GIFT=n=>{const k=(n-1)%10+1,g=[];if(k===5)g.push(['coin',50]);if(k===10)g.push(['card',2]);return g};
 function stampRow(l){const t=today();if(MV.st.d!==t){MV.st.d=t;MV.st.got={}}if(MV.st.got[l.id])return null;
   MV.st.got[l.id]=1;const n=++MV.st.n,k=(n-1)%10+1,gifts=ST_GIFT(n).map(give).filter(Boolean);save();
-  return `<span>📮 授業スタンプ <b>${k}/10</b>${gifts.length?`　🎉 ${gifts.join('・')}`:''}</span>${sheet(n,true)}`}
+  return `<span>📮 スタンプ <b>${k}/10</b>${gifts.length?`　🎉 ${gifts.join('・')}`:''}</span>`}
 /* the sheet of ten: the newest stamp pops in */
 function sheet(n,fresh){const k=n?(n-1)%10+1:0,full=n&&k===10&&fresh;
   return `<span class="stsheet">${Array.from({length:10},(_,i)=>{const on=i<k||(!fresh&&k===10),nw=fresh&&i===k-1;
@@ -146,7 +146,7 @@ LESSON_AFTER.push((l,info)=>{if(info.first&&!MV.qz.ct[l.id]){MV.qz.ct[l.id]=Date
 
 /* ---------- home: chips for what is waiting; Mina's page: the whole picture ---------- */
 function chips(){const old=$('mchips');if(H.screen!=='home'){return}const row=H.panel.querySelector('.mrow');if(!row)return;
-  const z=MV.qz.now&&lesOf(MV.qz.now.id),hc=hcOn()&&lesOf(MV.hc.id),pc=MV.pc.length;
+  const z=null,hc=null,pc=MV.pc.length;
   const ex=(window.MOTI_CHIPS||[]).map(f=>{try{return f()}catch(e){return null}}).filter(Boolean);   // more chips from other files (game/review.js)
   const html=(z?`<button class="bchip qz" data-m="qz"><span>❓ 思い出しクイズ</span><span>${esc(z.t)}</span></button>`:'')
     +(hc?`<button class="bchip hc" data-m="hc"><span>🍬 ハマ子の 挑戦状</span><span>${esc(hc.t)}</span></button>`:'')
@@ -155,13 +155,13 @@ function chips(){const old=$('mchips');if(H.screen!=='home'){return}const row=H.
   if(!html){if(old)old.remove();return}
   const c=old||document.createElement('div');c.id='mchips';c.innerHTML=html;if(!old){const bc=$('bchip');(bc||row).after(c)}
   c.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{SFX.step();const m=b.dataset.m;if(m[0]==='x')ex[+m.slice(1)].go();else if(m==='qz')quizOpen();else if(m==='hc')LESSON.open(MV.hc.id,H.home);else openCards()})}
-function minaBox(){const p=H.panel.querySelector('.minap');if(!p||p.querySelector('.mvbox'))return;const n=MV.st.n,k=n?(n-1)%10+1:0;
-  const z=MV.qz.now&&lesOf(MV.qz.now.id),hc=hcOn()&&lesOf(MV.hc.id),need=nkNeed();
+function minaBox(){const p=H.panel.querySelector('.minap');if(!p||p.classList.contains('mpsub')||p.querySelector('.mvbox'))return;const n=MV.st.n,k=n?(n-1)%10+1:0;
+  const z=null,hc=null,need=nkNeed();
   /* Mina's page stays simple: the buttons go with the lessons, the meters into the folded 「きろく・ごほうび」 */
   const tiles=p.querySelector('.mtiles'),rec=p.querySelector('.mrec .mfbody');
   const d=tiles||document.createElement('div');d.classList.add('mvbox');
   const meters=`<div class="nk"><span>❤️ なかよし <b>Lv${MV.nk.lv}</b>「${NK_NAME[MV.nk.lv-1]}」</span><small>${need>0?`つぎの レベルまで ${need}`:'さいこうの なかよし！'}</small><i class="nkbar"><i style="width:${nkBar()}%"></i></i></div>
-    <div class="stp"><span>📮 授業スタンプ <b>${k}/10</b>　<small>5こ 🪙50・10こ 🃏宝箱くじ・20こごと 🏖️ショー</small></span>${sheet(n,false)}</div>`;
+    <div class="stp"><span>📮 授業スタンプ <b>${k}/10</b>　<small>5こ 🪙50・10こ 🃏宝箱くじ</small></span>${sheet(n,false)}</div>`;
   const btns=`    ${z?`<button class="mvc qz" data-v="qz"><span>❓ 思い出しクイズ</span><b>${esc(z.t)}</b></button>`:''}
     ${hc?`<button class="mvc hc" data-v="hc"><span>🍬 ハマ子の 挑戦状</span><b>${esc(hc.t)}</b></button>`:''}`;
   if(rec){const m=document.createElement('div');m.className='mvmeter';m.innerHTML=meters;rec.prepend(m);
@@ -180,8 +180,7 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
   if(H.screen!=='home')return;homeT+=dt;
   if(MV.ps.length)playShow();
   if(!MINA.canAnnounce()||MINA.sinceAnn()<60000||(window.BONUS&&BONUS.active()&&MINA.sinceAnn()<120000))return;
-  if(homeT>=quizAt&&!MV.qz.now&&MV.qz.n<3){quizAt=homeT+(12+Math.random()*8)*60000;if(quizStart())return}
-  if(homeT>=hcAt&&MV.hc.d!==today()){hcAt=homeT+5*60000;if(hcStart())return}},1000);
+  /* 思い出しクイズ・ハマ子の 挑戦状は 11/21 に やめた（⚡練習に まとめる） */},1000);
 nkUnlock();chips();
 
 window.MOTI={nkName:()=>NK_NAME[MV.nk.lv-1],nkNeed,nkMax:NK.length,pendCard,pendShow,coins,gain:n=>{if(inLesson)inLesson.gain+=n;else nkOut(n)},rec:()=>MV,openCards,chips,

@@ -79,3 +79,15 @@
 /* 特別練習の あと 🤔 なんで？の おしゃべりへ（11/21） */
 .kdwhyt{display:block;width:100%;margin:10px 0 2px;padding:10px 12px;border-radius:14px;border:1px solid rgba(255,210,63,.65);background:rgba(255,210,63,.14);color:var(--ink);font:inherit;font-weight:800;cursor:pointer}
 .kdwhyt small{display:block;font-weight:600;font-size:.78rem;opacity:.8;margin-top:2px}
+/* 11/21 ミナ先生の ページ: きょうは これ ＋ 📘授業・⚡練習・☕おしゃべり */
+.mpgo.kpr{border-color:#ffd23f!important}.mpgo.kct{border-color:#7ad3c4!important}
+.mpsub{text-shadow:none}
+.mpsub .stsay{display:flex;gap:10px;align-items:center}
+.mprow{display:flex!important;align-items:center;gap:10px;width:100%;text-align:left;padding:11px 14px!important;border-radius:14px!important;margin:0 0 8px;text-shadow:none}
+.mprow span{font-size:1.4rem;flex:none}.mprow b{font-size:1rem;min-width:0}
+.mprow small{margin-left:auto;font-size:.78rem;color:#ffe7a8;font-weight:700;flex:none}
+.mprow.big{padding:15px 14px!important;border:2px solid #ffd23f!important}.mprow.big b{font-size:1.08rem}
+.mplist{display:flex;flex-direction:column}
+.mpsub .lsrow{margin-bottom:6px}
+.kpay.sm{font-size:.82rem;opacity:.9;margin:2px 0}
+.bwin.bsm{padding:5px 10px;border-width:1px;font-size:.8rem;animation:none}.bwin.bsm .brow{margin:2px 0}.bwin.bsm .brbtn .bgo{padding:4px 10px;font-size:.8rem}
