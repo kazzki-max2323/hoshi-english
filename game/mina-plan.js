@@ -102,13 +102,19 @@ function prSrc(){/* 練習で いちばん 先に かためたい ところ（�
   try{if(SENSEI.weak().length)return {miss:1,t:'苦手な 文法'}}catch(e){}
   const ud=units().filter(u=>u.doneN()>0);if(ud.length)return {miss:0,t:ud.map(u=>u.D.title).slice(0,2).join('・')};
   return null}
-function pickToday(){const D=day(),I=todayInfo(),pr=prSrc();
+/* 一度に 増やさない（11/21）: いちばん 新しく おわった 時間が 練習で 「身についた」（ちがう 日に 2回 ヒントなしで 正解）まで、 つぎの 授業は 出さない。
+   わかる から とばした 時間（sk）は 身についた あつかい */
+function gate(){if(!window.PRAC)return null;let last=null;
+  units().forEach(u=>{const r=u.rec();Object.keys(r.ch||{}).forEach(k=>{const c=r.ch[k],ci=+k;if(!c||!c.d||c.sk||!u.D.CH[ci])return;if(!last||(c.t||0)>last.t)last={u,ci,t:c.t||0}})});
+  if(!last||PRAC.learned(last.u,last.ci))return null;return Object.assign(last,{c:last.u.D.CH[last.ci]})}
+function pickToday(){const D=day(),I=todayInfo(),pr=prSrc(),G=gate();
   if(pr&&pr.miss&&!D.pr)return {k:'pr',ico:'⚡',tag:'きょうは まず 練習',t:pr.t,line:['mp_tPr',{u:pr.t}]};
-  if(I&&!D.done)return {k:'les',ico:'📘',tag:'きょうの 授業',t:I.u.D.title+'　'+I.t,
+  if(G&&!D.pr)return {k:'pr',ico:'🌱',tag:'身に つける 練習',t:G.u.D.title+'　'+G.c.short,u:G.u.id,ci:G.ci,line:['mp_gate',{t:G.c.short}]};
+  if(I&&!D.done&&!G)return {k:'les',ico:'📘',tag:'きょうの 授業',t:I.u.D.title+'　'+I.t,
     line:I.fresh?['mp_new',{u:I.u.D.title}]:I.test?['mp_test',{u:I.u.D.title}]:['mp_hello',{u:I.u.D.title,t:I.t}]};
   if(pr&&!D.pr)return {k:'pr',ico:'⚡',tag:'きょうの 練習',t:pr.t,line:['mp_tPr2',{u:pr.t}]};
-  return {k:'ct',ico:'☕',tag:'きょうは おしゃべり',t:'ミナ先生と ひと休み',line:['mp_tCt',{}]}}
-function runToday(p){p=p||pickToday();if(p.k==='pr'){practice();return}if(p.k==='les'){today();return}chat()}
+  return {k:'ct',ico:'☕',tag:'きょうは おしゃべり',t:'ミナ先生と ひと休み',line:G?['mp_gateWait',{t:G.c.short}]:['mp_tCt',{}]}}
+function runToday(p){p=p||pickToday();if(p.k==='pr'){if(p.u&&window.PRAC&&PRAC.start({u:p.u,ci:p.ci}))return;practice();return}if(p.k==='les'){today();return}chat()}
 /* 練習: いまは まちがいを 先に（ミナ先生が えらぶ） */
 function practice(){/* ⚡ 練習（game/practice.js）。 習った 時間が まだ なければ 前の ふくしゅう（まちがいノート・とっくん） */
   if(window.PRAC&&PRAC.has()){PRAC.start();return}const D=day();D.pr=1;keep();review()}
@@ -143,12 +149,13 @@ const rowB=(id,ico,b,s,cls)=>`<button class="mprow ${cls||''}" ${id}><span>${ico
 
 /* 📘 授業: つぎの 授業（大きく）・ 習っている／おわった 単元（見かえせる）・ 💡コツの たな */
 const COTS=[['kotsu','💡','覚え方の コツ'],['oto','👄','音と 発音'],['yarikata','📝','勉強の やり方'],['kagaku','🧠','学び方の 科学'],['hama','🍬','ハマ子の 語呂'],['zu','🖼️','図で わかる 文法']];
-function lessonsPage(){const I=todayInfo(),D=day(),L=units().filter(u=>u.started()),[ex,tx]=ML(L.length?'mp_les':'mp_les0');
-  const body=`${I?rowB('id="mplgo"','📘',esc(I.u.D.title)+'　'+esc(I.t),D.done?'もう 1時間':'つぎの 授業 ▶','big'):''}
+function lessonsPage(){const I=todayInfo(),D=day(),L=units().filter(u=>u.started()),G=gate(),[ex,tx]=G?ML('mp_gateLes',{t:G.c.short}):ML(L.length?'mp_les':'mp_les0');
+  const body=`${G?rowB('id="mplgt"','🌱',esc(G.u.D.title)+'　'+esc(G.c.short),'身に つける 練習 ▶','big'):I?rowB('id="mplgo"','📘',esc(I.u.D.title)+'　'+esc(I.t),D.done?'もう 1時間':'つぎの 授業 ▶','big'):''}
     ${L.length?`<h4 class="sth">📚 習っている 授業</h4><div class="mplist">${L.map(u=>rowB(`data-u="${u.id}"`,u.D.ico,esc(u.D.title),u.done()?'おわった・見かえす':'つづき')).join('')}</div>`:''}
     <details class="mfold mpcot"><summary>💡 コツの たな<small>音・覚え方・勉強の やり方</small></summary><div class="mfbody" id="mpcotb"></div></details>`;
   sub('📘 授業',ex,tx,body);
   const g=$('mplgo');if(g)g.onclick=()=>{SFX.lesson();today()};
+  const gt=$('mplgt');if(gt)gt.onclick=()=>{SFX.lesson();PRAC.start({u:G.u.id,ci:G.ci})};
   H.panel.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{SFX.lesson();const u=UNIT.get(b.dataset.u);if(u)u.open()});
   const f=H.panel.querySelector('.mpcot');f.ontoggle=()=>{if(!f.open||$('mpcotb').children.length)return;SFX.pop();
     if(typeof LESSONS==='undefined')return;
@@ -174,10 +181,12 @@ function practicePage(){const pr=prSrc(),L=units().filter(u=>u.doneN()>0),[ex,tx
 
 /* ☕ おしゃべり: 長い おしゃべり・ 英語で 話す */
 function chatPage(){const [ex,tx]=ML('mp_ct');
-  const body=`${window.MCHAT?rowB('id="mpcl"','☕','ミナ先生と おしゃべり','日本語で のんびり','big'):''}
+  const body=`${window.MINAQA?rowB('id="mpqa"','🙋','ミナ先生に しつもん','よく ある 「なんで？」','big'):''}
+    ${window.MCHAT?rowB('id="mpcl"','☕','ミナ先生と おしゃべり','日本語で のんびり'):''}
     ${window.SENSEI?rowB('id="mpce"','🗣️','英語で 話す','ミナ先生が 先生役'):''}
     ${window.SENSEI?rowB('id="mpcs"','🎬','場面を えらぶ','会話の 一覧'):''}`;
   sub('☕ おしゃべり',ex,tx,body);
+  const q=$('mpqa');if(q)q.onclick=()=>{SFX.talk();MINAQA.list(chatPage)};
   const a=$('mpcl');if(a)a.onclick=()=>{SFX.talk();MCHAT.open(null,MINA.open)};
   const b=$('mpce');if(b)b.onclick=()=>{SFX.talk();MP.ct=0;chatScene()};
   const c=$('mpcs');if(c)c.onclick=()=>{SFX.pop();SENSEI.open()}}
@@ -202,5 +211,5 @@ try{const RL=MINA_SENSE._rules,drop=['x_stAsk','x_stNext','x_lesToday','x_lesStr
   RL.push(['x_mpRev',2,F=>units().some(u=>u.doneN()>0&&u.rec().t&&Date.now()-u.rec().t>2*864e5)?{}:null,()=>['⚡ 練習',()=>practice()]]);
 }catch(e){console.error(e)}
 
-window.MPLAN={page,bind,today,special,study,review,chat,practice,pickToday,runToday,lessonsPage,practicePage,chatPage,cur,todayInfo,units,doneToday:()=>!!day().done,rec:()=>MP,_stop:stopCd};
+window.MPLAN={gate,page,bind,today,special,study,review,chat,practice,pickToday,runToday,lessonsPage,practicePage,chatPage,cur,todayInfo,units,doneToday:()=>!!day().done,rec:()=>MP,_stop:stopCd};
 })();
