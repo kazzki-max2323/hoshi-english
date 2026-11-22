@@ -155,7 +155,7 @@ function practicePage(){const pr=prSrc(),L=units().filter(u=>u.doneN()>0),[ex,tx
   const body=`${pr?rowB('id="mppgo"','⚡','きょうの 練習',esc(pr.t)+' ▶','big'):''}
     ${U.length>1?`<h4 class="sth">📘 授業を えらんで 練習</h4><div class="mplist">${U.map(u=>rowB(`data-pu="${u.id}"`,u.D.ico,esc(u.D.title),'10問')).join('')}</div>`:''}
     ${window.SKDRILL?rowB('id="mppkd"','🔁','れんぱつ 練習','ぜんぶ・🚦動詞チェック など'):''}
-    ${tk.length?rowB('id="mpptk"','🎯','苦手 とっくん','5問'):''}
+    ${tk.length?rowB('id="mpptk"','🔥','苦手 練習','会話で まよった 文法 5問'):''}
     ${L.length?`<h4 class="sth">📝 まとめテスト</h4><div class="mplist">${L.map(u=>rowB(`data-t="${u.id}"`,u.D.ico,esc(u.D.title),u.stars?u.stars(u.rec().best||0):'')).join('')}</div>`:''}`;
   sub('⚡ 練習',ex,tx,body);
   const g=$('mppgo');if(g)g.onclick=()=>{SFX.lesson();practice()};
@@ -194,7 +194,9 @@ H.on('home',()=>setTimeout(homeCard,0));if(H.screen==='home')setTimeout(homeCard
 try{const RL=MINA_SENSE._rules,drop=['x_stAsk','x_stNext','x_lesToday','x_lesStreakKeep','x_lesMore','x_lesStreakLost','x_dpWeak','x_dpCurious','x_dpCheck','x_dpMaster',
     /* 11/22: ミニ授業を すすめる ひとことは やめる（えらぶ ものは 📘授業だけ） */
     'x_lesStreakDone','x_lesCount','x_lesLevel','x_lesCat','x_lesNone','x_lesRecent','x_lesKey','x_lesLvDone','x_lesNew','x_lesGram','x_gramLes','x_gramLesBoth','x_gramLesPeek',
-    'x_tipMiss','x_tipWeekend','x_rvToday','x_rvMiss','x_rvStar','x_rvDue','x_hamaCh'],
+    'x_tipMiss','x_tipWeekend','x_rvToday','x_rvMiss','x_rvStar','x_rvDue','x_hamaCh',
+    /* 11/22: 文法ノートの クリア数・🔒なし の 話も やめる（文法は 📘授業へ。 game/gram-go.js） */
+    'x_gramCount','x_gramFree'],
     /* コツの ひとことは のこす。 でも 「📖 授業を ひらく」の ボタンは つけない（言うだけ） */
     talkOnly=['x_tipDone','x_tipNew','x_tipSleep','x_tipMorning','x_oops','x_lesQuiz','x_stamp'];
   for(let i=RL.length-1;i>=0;i--){if(drop.includes(RL[i][0]))RL.splice(i,1);else if(talkOnly.includes(RL[i][0]))RL[i][3]=null}

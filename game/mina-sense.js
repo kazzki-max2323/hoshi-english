@@ -18,13 +18,16 @@ const goShelf=lv=>['📕 単語帳を 見る',()=>H.books(lv)];
 /* むかしの ショップは 浜辺の 右はしの 雑貨屋（game/zakka.js）に ひっこした */
 const goShop=tab=>['🏚️ 雑貨屋へ 行く',()=>window.ZAKKA?ZAKKA.open(tab):H.home()];
 const shelf=k=>{try{return window.ZAKKA?ZAKKA.lineup()[k]:[]}catch(e){return []}};
-const goLesson=id=>['📖 授業を ひらく',()=>LESSON.open(id,back)];
+/* 11/22: 古い ミニ授業・文法ノート・とっくん・とことん授業の 入口は 📘授業・⚡練習（game/gram-go.js）へ。 単元に ない ミニ授業は ボタンなし */
+const goLesson=id=>window.GGO?GGO.lesBtn(id):null;
 const goSay=(lv,en)=>['🔊 きいてみる',()=>H.say(lv,en)];
 /* 宝カードは カードショップの 📖カードブックと ⛏️鉱山で（宝箱くじ・きらきら宝パックは なくした） */
 const goCards=s=>['🃏 カードショップへ',()=>window.CG?CG.open():H.home()];
 const goSensei=()=>['🗣️ 先生と 話す',()=>SENSEI.open()];
 const LVI=lv=>['es','jh','hs','adv'].indexOf(lv);
-const goGram=(lv,i)=>['📚 文法ノートを 見る',()=>H.gramNote(lv,i)];
+const goGram=(lv,i)=>{const g=window.GGO&&GGO.gidOf(lv,i);return g&&GGO.at(g)?GGO.lessonBtn(g):goLes()};
+const goLes=()=>['📘 授業を 見る',()=>window.GGO?GGO.lessonsPage():MINA.open()];
+const goPrac=gid=>['⚡ 練習する',()=>window.GGO?(gid?GGO.prac(gid):GGO.practicePage()):SENSEI.tokkun(gid?[gid]:null,0,'mina')];
 
 /* ---------- what is true now (read again every 10 s at most) ---------- */
 let FC=null,FT=-1e9;
@@ -131,7 +134,7 @@ const R=[
 ['x_todayZero',2,F=>F.today.a===0&&ST.radios.some(r=>r.on)&&F.answered>0?{}:null,null],
 ['x_best',1,F=>F.best>=5?{n:F.best}:null,null],
 ['x_answered',1,F=>F.answered>=50?{n:F.answered}:null,null],
-['x_sentence',2,F=>{const a=F.rec.filter(e=>e.kind==='s');if(a.length<5)return null;const s=a.reduce((x,e)=>x+e.s,0),m=a.reduce((x,e)=>x+e.m,0);return {n:a.length,acc:Math.round((s-m)/s*100)}},()=>['📚 文法を 見る',()=>H.gramFrom(lvOf(facts())==='adv'?'hs':lvOf(facts()))]],
+['x_sentence',2,F=>{const a=F.rec.filter(e=>e.kind==='s');if(a.length<5)return null;const s=a.reduce((x,e)=>x+e.s,0),m=a.reduce((x,e)=>x+e.m,0);return {n:a.length,acc:Math.round((s-m)/s*100)}},()=>goLes()],
 
 /* ===== ラジオ（雑貨屋の たなに いつも ある） ===== */
 ['x_radioOwn',2,F=>{const a=ST.radios.filter(r=>LEVELS[r.lv]);if(!a.length)return null;const r=pickL(a);return {radio:LEVELS[r.lv].name,on:r.on?'オン':'オフ'}},null],
@@ -157,10 +160,10 @@ const R=[
 
 /* ===== 文法ノート ===== */
 ['x_gramUnread',3,F=>{const a=F.gram.filter(g=>g.own&&!g.clr);if(!a.length)return null;const g=pickL(a);return {g:g.n.t,_g:g}},v=>goGram(v._g.lv,v._g.i)],
-['x_gramCount',1,F=>{const n=F.gram.filter(g=>g.clr).length;return n?{n,tot:F.gram.length}:null},()=>['📚 文法を 見る',()=>H.gramFrom()]],
+['x_gramCount',1,F=>{const n=F.gram.filter(g=>g.clr).length;return n?{n,tot:F.gram.length}:null},()=>goLes()],
 ['x_gramNext',2,F=>{const lv=lvOf(F)==='adv'?'hs':lvOf(F),a=F.gram.filter(g=>g.lv===lv&&!g.clr);if(!a.length)return null;const g=a[0];return {g:g.n.t,lvn:LVN[lv],reward:GRAMMAR[lv].reward,_g:g}},v=>goGram(v._g.lv,v._g.i)],
 /* 文法ノートは 2026-11 から ぜんぶ むりょうで ひらいた（ショップ・おためしは なし）。まだ 1さつも クリアしていない 人に 知らせる */
-['x_gramFree',3,F=>F.gram.some(g=>g.clr)?null:{_lv:lvOf(F)==='adv'?'hs':lvOf(F)},v=>['📚 文法ノートを 見る',()=>H.gramFrom(v._lv)]],
+['x_gramFree',3,F=>F.gram.some(g=>g.clr)?null:{_lv:lvOf(F)==='adv'?'hs':lvOf(F)},()=>goLes()],
 ['x_gramRule',3,F=>{const a=F.gram.filter(g=>g.own&&g.n.r&&g.n.r.length);if(!a.length)return null;const g=pickL(a);return {g:g.n.t,r:pickL(g.n.r),_g:g}},v=>goGram(v._g.lv,v._g.i)],
 ['x_gramEx',3,F=>{const a=F.gram.filter(g=>g.own&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=pickL(g.n.ex);return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>['🔊 きいてみる',()=>H.say('gram',v.en)]],
 ['x_gramPeek',2,F=>{const a=F.gram.filter(g=>!g.clr&&g.lv===(lvOf(F)==='adv'?'hs':lvOf(F))&&g.n.ex&&g.n.ex.length);if(!a.length)return null;const g=pickL(a),e=g.n.ex[0];return {g:g.n.t,en:e[0],ja:e[1],_g:g}},v=>goGram(v._g.lv,v._g.i)],
@@ -177,14 +180,14 @@ const R=[
 
 /* ===== ミニ授業 ===== */
 ['x_homeBooks',1,F=>({lvn:LVN[lvOf(F)]}),()=>['📕 単語帳を ひらく',()=>H.books()]],
-['x_homeGram',1,F=>typeof GRAMMAR!=='undefined'?{}:null,()=>['📚 文法ノートを 見る',()=>H.gramFrom(lvOf(facts())==='adv'?'hs':lvOf(facts()),()=>MINA.open())]],
+['x_homeGram',1,F=>typeof GRAMMAR!=='undefined'?{}:null,()=>goLes()],
 /* きょうの 授業（ホームの 大きな カード）と 授業の れんぞく日数。授業が いちばんなので 重めに */
 ['x_lesToday',6,F=>{if(!window.LESSON||LESSON.doneToday())return null;const l=LESSON.today();return l?{t:l.t,_id:l.id}:null},v=>goLesson(v._id)],
 ['x_lesStreakKeep',6,F=>{if(!window.LESSON||LESSON.doneToday())return null;const n=LESSON.streak(),l=LESSON.today();return n&&l?{n,n1:n+1,t:l.t,_id:l.id}:null},v=>goLesson(v._id)],
 ['x_lesStreakDone',3,F=>{if(!window.LESSON||!LESSON.doneToday())return null;const n=LESSON.streak();return n>=2?{n,n1:n+1}:null},null],
 ['x_lesMore',2,F=>{if(!window.LESSON||!LESSON.doneToday())return null;const l=LESSON.today();return l?{t:l.t,_id:l.id}:null},v=>goLesson(v._id)],
 ['x_lesStreakLost',3,F=>{if(!window.LESSON||LESSON.streak())return null;const s=MINA.rec().ls,l=LESSON.today();return s&&s.best>=2&&l?{n:s.best,t:l.t,_id:l.id}:null},v=>goLesson(v._id)],
-['x_lesCount',1,F=>F.lesN?{n:F.lesN,tot:F.lesAll.length}:null,()=>['📖 授業を 見る',()=>LESSON.list()]],
+['x_lesCount',1,F=>F.lesN?{n:F.lesN,tot:F.lesAll.length}:null,()=>goLes()],
 ['x_lesLevel',2,F=>{const lv=lvOf(F),a=F.lesAll.filter(l=>l.lv===lv),n=a.filter(l=>F.les[l.id]).length;if(!a.length||n===a.length)return null;const nx=pickL(a.filter(l=>!F.les[l.id]));
   return {n,tot:a.length,lvn:LVN[lv],t:nx.t,_id:nx.id}},v=>goLesson(v._id)],
 ['x_lesCat',2,F=>{const cats=Object.keys(CATN).filter(c=>F.lesAll.some(l=>l.cat===c&&!F.les[l.id]));if(!cats.length)return null;const c=pickL(cats),l=pickL(F.lesAll.filter(x=>x.cat===c&&!F.les[x.id]));
@@ -202,13 +205,13 @@ const R=[
 ['x_tipWeekend',2,F=>{if(F.dow!==0&&F.dow!==6)return null;const a=['adv-speech','hs-opinion-prep','adv-subtitles','jh-directions','adv-retelling'].map(lesOf).filter(Boolean);if(!a.length)return null;const l=pickL(a);return {t:l.t,_id:l.id}},v=>goLesson(v._id)],
 ['x_oops',3,F=>{if(typeof LESSON_OOPS==='undefined')return null;const a=LESSON_OOPS.filter(o=>lesOf(o[2]));if(!a.length)return null;const o=pickL(a),l=lesOf(o[2]);return {bad:o[0],good:o[1],t:l.t,_id:l.id}},v=>goLesson(v._id)],
 ['x_rvToday',3,F=>{const n=window.REVIEW?REVIEW.todayN():0;return n>0?{n}:null},()=>['📚 ふくしゅうを はじめる',()=>REVIEW.drill('today',H.home)]],
-['x_rvMiss',3,F=>{const n=window.REVIEW?REVIEW.missN():0;return n>0?{n}:null},()=>['📒 まちがいノートを ひらく',()=>REVIEW.drill('miss',back)]],
+['x_rvMiss',3,F=>{const n=window.REVIEW?REVIEW.missN():0;return n>0?{n}:null},()=>goPrac()],
 ['x_rvStar',1,F=>{if(!window.REVIEW)return null;const a=Object.keys(F.les).filter(id=>lesOf(id)&&REVIEW.stars(id)>=3);if(!a.length)return null;const id=pickL(a);return {t:lesOf(id).t,n:REVIEW.stars(id)}},()=>['📚 ふくしゅう リストを 見る',()=>REVIEW.list()]],
 ['x_rvDue',2,F=>{if(!window.REVIEW||!REVIEW.dueIds)return null;const a=REVIEW.dueIds();if(!a.length)return null;const id=pickL(a);return {t:lesOf(id).t,_id:id}},v=>goLesson(v._id)],
 
 /* ===== スタンプ・なかよし度・ハマ子 ===== */
 ['x_stamp',2,F=>{if(!F.moti)return null;const n=F.moti.st.n||0,nx=[5,10,20,30,40,50,60,80,100].find(x=>x>n)||n+20;
-  return {n,left:nx-n,prize:nx%20===0?'浜辺の 大きな ショー':nx%10===0?'宝箱くじ':'コイン'}},()=>['📖 授業を 見る',()=>LESSON.list()]],
+  return {n,left:nx-n,prize:nx%20===0?'浜辺の 大きな ショー':nx%10===0?'宝箱くじ':'コイン'}},()=>goLes()],
 ['x_nk',2,F=>{if(!F.moti||!MOTI.nkName||!MOTI.nkNeed())return null;const lv=F.moti.nk.lv;return {lv,name:MOTI.nkName(),need:MOTI.nkNeed()}},null],
 ['x_nkHigh',2,F=>F.moti&&F.moti.nk.lv>=5?{lv:F.moti.nk.lv,name:MOTI.nkName()}:null,null],
 ['x_hamaCh',2,F=>F.moti&&F.moti.hc&&F.moti.hc.d===dkey(F.now)&&!F.moti.hc.done&&lesOf(F.moti.hc.id)?{t:lesOf(F.moti.hc.id).t,_id:F.moti.hc.id}:null,v=>goLesson(v._id)],
@@ -241,14 +244,14 @@ const R=[
 /* 浜辺の 会話（キャラが 話しかけに 来る）は 11/20 ユーザー「英文が 多くて つかれる」で なくした。いい 会話は ミオ・リクの 会話へ（game/kaiwa-moved.js） */
 /* ===== ミナ先生と 英語で 話す（game/sensei.js） ===== */
 ['x_snNone',4,F=>window.SENSEI&&!SENSEI.rec().n?{}:null,()=>goSensei()],
-['x_snWeak',5,F=>{if(!window.SENSEI)return null;const w=SENSEI.weak().filter(id=>GRAMSEE&&GRAMSEE.byId(id));if(!w.length)return null;const g=GRAMSEE.byId(w[0]);return {g:'「'+g.n.t+'」',_id:w[0]}},v=>['🎯 とっくん する',()=>SENSEI.tokkun([v._id])]],
-['x_dpWeak',3,F=>{if(!window.SENSEI||!window.DEEP)return null;const R=DEEP.rec(),w=SENSEI.weak().filter(id=>GRAMSEE&&GRAMSEE.byId(id)&&!(R[id]&&Date.now()-R[id].t<3*864e5));if(!w.length)return null;const g=GRAMSEE.byId(w[0]);return {g:'「'+g.n.t+'」',_id:w[0]}},v=>['🔎 とことん きく',()=>DEEP.open(v._id)]],
-['x_menuTok',3,F=>{if(!window.SENSEI||!window.GRAMSEE)return null;const w=SENSEI.weak().filter(id=>GRAMSEE.byId(id));return w.length?{n:w.length,g:'「'+GRAMSEE.byId(w[0]).n.t+'」'}:null},()=>['🎯 とっくん する',()=>SENSEI.tokkun(null,0,'mina')]],
-['x_menuTokNone',1,F=>window.SENSEI&&!SENSEI.weak().length?{}:null,()=>['🎯 5問 ちょうせん',()=>SENSEI.tokkun(null,0,'mina')]],
-['x_menuDeep',2,F=>window.DEEP?{}:null,()=>['🔎 とことん授業',()=>DEEP.pick()]],
-['x_dpCurious',1,F=>window.SENSEI&&window.DEEP&&SENSEI.rec().n>=2&&!Object.keys(DEEP.rec()).length?{}:null,()=>['🔎 とことん授業',()=>DEEP.pick()]],
-['x_dpCheck',3,F=>{if(!window.DEEP||!window.GRAMSEE)return null;const R=DEEP.rec(),a=Object.keys(R).filter(id=>R[id].cn&&R[id].best<3&&GRAMSEE.byId(id)&&Date.now()-(R[id].ct||0)>864e5);if(!a.length)return null;const id=pickL(a),g=GRAMSEE.byId(id);return {g:'「'+g.n.t+'」',b:R[id].best,_id:id}},v=>['✏️ たしかめる',()=>DEEP.open(v._id,{chk:1})]],
-['x_dpMaster',1,F=>{if(!window.DEEP)return null;const R=DEEP.rec(),n=Object.keys(R).filter(id=>R[id].best>=3).length;return n?{n}:null},()=>['🔎 とことん授業',()=>DEEP.pick()]],
+['x_snWeak',5,F=>{if(!window.SENSEI)return null;const w=SENSEI.weak().filter(id=>GRAMSEE&&GRAMSEE.byId(id));if(!w.length)return null;const g=GRAMSEE.byId(w[0]);return {g:'「'+g.n.t+'」',_id:w[0]}},v=>goPrac(v._id)],
+['x_dpWeak',3,F=>{if(!window.SENSEI||!window.DEEP)return null;const R=DEEP.rec(),w=SENSEI.weak().filter(id=>GRAMSEE&&GRAMSEE.byId(id)&&!(R[id]&&Date.now()-R[id].t<3*864e5));if(!w.length)return null;const g=GRAMSEE.byId(w[0]);return {g:'「'+g.n.t+'」',_id:w[0]}},v=>window.GGO&&GGO.at(v._id)?GGO.lessonBtn(v._id):goLes()],
+['x_menuTok',3,F=>{if(!window.SENSEI||!window.GRAMSEE)return null;const w=SENSEI.weak().filter(id=>GRAMSEE.byId(id));return w.length?{n:w.length,g:'「'+GRAMSEE.byId(w[0]).n.t+'」'}:null},()=>goPrac()],
+['x_menuTokNone',1,F=>window.SENSEI&&!SENSEI.weak().length?{}:null,()=>goPrac()],
+['x_menuDeep',2,F=>window.UNIT?{}:null,()=>goLes()],
+['x_dpCurious',1,F=>window.SENSEI&&window.DEEP&&SENSEI.rec().n>=2&&!Object.keys(DEEP.rec()).length?{}:null,()=>goLes()],
+['x_dpCheck',3,F=>{if(!window.DEEP||!window.GRAMSEE)return null;const R=DEEP.rec(),a=Object.keys(R).filter(id=>R[id].cn&&R[id].best<3&&GRAMSEE.byId(id)&&Date.now()-(R[id].ct||0)>864e5);if(!a.length)return null;const id=pickL(a),g=GRAMSEE.byId(id);return {g:'「'+g.n.t+'」',b:R[id].best,_id:id}},v=>goPrac(v._id)],
+['x_dpMaster',1,F=>{if(!window.DEEP)return null;const R=DEEP.rec(),n=Object.keys(R).filter(id=>R[id].best>=3).length;return n?{n}:null},()=>goLes()],
 ['x_snScene',3,F=>{if(!window.SENSEI)return null;const lv=lvOf(F),a=SENSEI.scenes.filter(s=>s.lv===lv&&!SENSEI.rec().done[s.id]);if(!a.length)return null;const s=pickL(a),g=(s.g||[]).map(id=>window.GRAMSEE&&GRAMSEE.byId(id)).filter(Boolean)[0];return {t:'「'+s.t+'」',g:g?'「'+g.n.t+'」':'いまの レベルの 文法',_id:s.id}},v=>['🗣️ 話しに 行く',()=>SENSEI.play(v._id)]],
 ['x_snEnds',2,F=>{if(!window.SENSEI)return null;const a=SENSEI.scenes.filter(s=>SENSEI.rec().done[s.id]&&SENSEI.endsGot(s)<SENSEI.endsOf(s).length);if(!a.length)return null;const s=pickL(a);return {t:'「'+s.t+'」',got:SENSEI.endsGot(s),tot:SENSEI.endsOf(s).length,_id:s.id}},v=>['🗣️ もう一度 話す',()=>SENSEI.play(v._id)]],
 ['x_snGood',2,F=>{if(!window.SENSEI||!window.GRAMSEE)return null;const g=SENSEI.good()[0];return g&&GRAMSEE.byId(g)?{g:'「'+GRAMSEE.byId(g).n.t+'」'}:null},()=>goSensei()],

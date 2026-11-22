@@ -37,10 +37,10 @@ function react(e){const v={};let k=null,go=null;
     if(miss&&window.LESSON)go=['🔁 もう一度',()=>LESSON.open(e.id,back)];break}
   case 'review':Object.assign(v,{n:e.n,ok:e.ok});k=e.all?'r_rv_all':'r_rv_miss';break;
   case 'tokkun':v.g=gq(e.g);k=e.perfect?'r_tok_perfect':e.miss?'r_tok_miss':e.hint?'r_tok_hint':'r_tok_perfect';
-    if(e.miss&&window.SENSEI)go=['🎯 もう一回',()=>SENSEI.tokkun(null,0,'mina')];break;
+    if(e.miss&&window.SENSEI)go=['⚡ もう一回',()=>SENSEI.tokkun(null,0,'mina')];break;
   case 'sensei':Object.assign(v,{t:e.ja||'',end:e.end||'',g:gq(e.g)});k=!e.good?'r_sn_fun':e.miss&&Math.random()<.5?'r_sn_miss':'r_sn_good';break;
   case 'deep':v.g=gq(e.g);k=e.stars>=3?'r_dp_3':e.stars===2?'r_dp_2':'r_dp_1';
-    if(e.stars<3&&window.DEEP)go=['✏️ もう一回 たしかめる',()=>DEEP.open(e.id,{chk:1})];break;
+    if(e.stars<3&&window.GGO&&GGO.at(e.id))go=GGO.lessonBtn(e.id);break;
   case 'kaiwa':Object.assign(v,{c:kwName(e.c),t:kwTitle(e.id)});k=e.good?'r_kw_good':'r_kw_fun';break;
   case 'tutor':{const D={quiz:'r_tu_quiz',ken:'r_tu_ken',hw:'r_tu_hw',short:'r_tu_short',pochi:'r_tu_pochi'};Object.assign(v,{t:(typeof e.ti==='string'&&e.ti)||'英語',tot:e.tot||0});
     k=D[e.day]&&Math.random()<.6?D[e.day]:e.tot&&e.ok===e.tot&&Math.random()<.5?'r_tu_perfect':e.fun&&Math.random()<.3?'r_tu_fun':'r_tu';break}
@@ -87,7 +87,7 @@ function desc(e){try{switch(e.k){
 const descList=a=>a.map(desc).filter(Boolean);
 
 /* ---------- わたしが すすめた こと（タップされた ボタン）→ その すぐあとの できごと ---------- */
-const SUG=[[/授業を ひらく|授業を 見る|もう一度|つぎの 授業/,['lesson']],[/とっくん|5問/,['tokkun']],[/とことん|たしかめ|くわしく/,['deep']],[/先生と 話す|もう一度 話す|🗣️/,['sensei']],
+const SUG=[[/授業を ひらく|授業を 見る|もう一度|つぎの 授業/,['lesson']],[/とっくん|5問|練習/,['tokkun','prac']],[/とことん|たしかめ|くわしく/,['deep']],[/先生と 話す|もう一度 話す|🗣️/,['sensei']],
   [/💬/,['kaiwa']],[/ふくしゅう|まちがいノート/,['review','lesson']],[/宝探し/,['treasure','map']],[/雑貨屋/,['zbuy','zsell']],[/カードショップ|お店/,['pack','mine','book','sell','buyin']],[/食堂/,['meal']],[/食べる/,['snack']]];
 function sugFor(e){const s=MINA.rec().sug;if(!s||e.t<s.t||e.t-s.t>40*MIN)return false;const m=SUG.find(([re])=>re.test(s.g));return !!m&&m[1].includes(e.k)}
 function noteSug(go){if(!go)return;MINA.rec().sug={t:Date.now(),g:String(go[0]||'')}}

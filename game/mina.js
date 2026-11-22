@@ -93,7 +93,7 @@ const sense=()=>window.MINA_SENSE?MINA_SENSE.pick():null;
 /* tapping what she says takes you there: the lesson, the grammar note, the word book… (null = nothing to open) */
 function goTo(o){if(!o)return null;const [k,,x]=o;if(o[3])return o[3];
   if(k==='lesson'&&x&&window.LESSON)return ['📖 授業を ひらく',()=>LESSON.open(x.id,panelOpen)];
-  if(k==='grammar'&&x&&(typeof GRAMMAR!=='undefined')&&GRAMMAR[x.lv])return ['📚 文法ノートを 見る',()=>H.gramNote(x.lv,x.i)];
+  if(k==='grammar'&&x&&(typeof GRAMMAR!=='undefined')&&GRAMMAR[x.lv]){const gid=window.GGO&&GGO.gidOf(x.lv,x.i);return gid&&GGO.at(gid)?GGO.lessonBtn(gid):['📘 授業を 見る',()=>GGO.lessonsPage()]}
   if((k==='weakBook'||k==='stepUp')&&x&&H.books)return ['📕 単語帳を ひらく',()=>H.books(k==='stepUp'?x.nlv:x.lv)];
   if(k==='weakWord'&&x)return ['🔊 きいてみる',()=>H.say(x.lv,x.en)];
   if(k==='review')return ['🔁 苦手な ことばを 見る',()=>{recOpen();setTimeout(()=>{const w=H.panel.querySelector('.mweak');if(w){const f=w.closest('details');if(f)f.open=true;w.scrollIntoView({behavior:'smooth',block:'center'})}},200)}];
@@ -352,12 +352,12 @@ function recOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),wg=weakGram
     <div class="qtop"><button class="x" id="mrx" aria-label="ミナ先生に もどる">←</button><b>📊 きろく</b><span></span></div>
     <div class="kmina"><span class="lface">${face('m',ex)}</span><p>${tx}</p></div>
     <h4 class="sth">🌱 できるように なった こと</h4>
-    <ul class="stcan">${can.slice().reverse().map(c=>`<li class="${c.full?'full':''}">${c.full?'🌟':'✔️'} ${esc(c.c)}</li>`).join('')||'<li class="none">授業や 文法ノートを おえると、 ここに ふえていくよ</li>'}</ul>
+    <ul class="stcan">${can.slice().reverse().map(c=>`<li class="${c.full?'full':''}">${c.full?'🌟':'✔️'} ${esc(c.c)}</li>`).join('')||'<li class="none">授業や 練習を おえると、 ここに ふえていくよ</li>'}</ul>
     <details class="mfold mrec"><summary>🔢 数字で 見る<small>${D.a?`きょう ${D.a}問`:''}</small></summary><div class="mfbody">
     <div class="mstats"><div><b>${D.a}</b><small>きょう 答えた</small></div><div><b>${accToday==null?'-':accToday+'%'}</b><small>正解率</small></div><div><b>${D.l}</b><small>おぼえた</small></div><div><b>${MD.best}</b><small>れんぞく</small></div></div>
     <div class="stnums">${nums.map(n=>`<p><span>${n[0]} ${n[1]}</span><b>${esc(n[2])}</b></p>`).join('')}</div>
     ${su?`<p class="msug">⬆️ ${esc(su.lv)}の 正解率 ${su.acc}%。<b>${esc(su.next)}</b>に ちょうせん してみよう</p>`:''}
-    ${wg?`<button id="mgram" class="msug btn">📚 文法ノート「${esc(wg.title)}」を 見る</button>`:''}
+    ${wg?`<button id="mgram" class="msug btn">📘 「${esc(wg.title)}」を 授業で 見る</button>`:''}
     ${window.LESSON?`<p class="note">いまの 力：${LVN[level()]}くらい</p>`:''}
     </div></details>
     <details class="mfold mwkf"><summary>🔁 苦手な ことば<small>${ww.length?ww.length+'こ':'なし'}</small></summary><div class="mfbody">
@@ -369,7 +369,7 @@ function recOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),wg=weakGram
   $('mrx').onclick=()=>{SFX.pop();panelOpen()};
   H.panel.querySelectorAll('[data-say]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.say));
   H.panel.querySelectorAll('.mfold').forEach(f=>f.ontoggle=()=>{if(f.open)SFX.pop()});
-  const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.book();H.gramNote(wg.lv,wg.i)}}
+  const gb=$('mgram');if(gb)gb.onclick=()=>{SFX.lesson();const gid=window.GGO&&GGO.gidOf(wg.lv,wg.i);gid?GGO.lesson(gid):H.gramNote(wg.lv,wg.i)}}
 /* the face lives in the home row; tap = talk */
 H.on('home',()=>{const f1=$('minaFace');if(f1)f1.innerHTML=face('m',minaEx,minaPoseNow);const f=$('minaFace');if(f)f.onclick=()=>{SFX.talk();panelOpen()};
   if(talkOn){const hf=$('hamaFace');if(hf){hf.hidden=false;hf.innerHTML=face('h','smile')}}});

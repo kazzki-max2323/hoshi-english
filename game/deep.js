@@ -75,7 +75,7 @@ function topics(){const c=C,d=c.d,out=[];
   if(d.vs&&!c.asked.has('vs')&&gById(d.vs[0]))out.push(['vs','🔀 「'+gById(d.vs[0]).n.t+'」との ちがい']);
   if(d.tip&&!c.asked.has('tip'))out.push(['tip','💡 覚え方']);
   if(c.n.r.length>2&&!c.asked.has('rules'))out.push(['rules','📜 ルールを ぜんぶ']);
-  if(c.les&&!c.asked.has('les'))out.push(['les','📖 授業で 見る']);
+  /* 📖ミニ授業へは もう さそわない（11/22） */
   if(c.id==='jh_modal'&&window.MODAL&&!c.asked.has('md'))out.push(['md','💪 特別授業で 1から']);
   return out}
 function chips(){if(!live())return;const t=topics(),box=$('dpchips'),open=C.open;
@@ -186,7 +186,7 @@ function result(){const c=C,T=c.T,st=T.st,N=T.qs.length,r=rec()[c.id];
     <div class="kmina"><span class="lface">${MINA.face('m',ex,MINA.poseFor(ex,tx))}</span><p>${tx}</p></div>
     ${T.miss.length?`<details class="dpmiss"><summary>📘 解説を きいた 問題 ${T.miss.length}</summary><div class="dpens">${T.miss.map(q=>enRow({en:q.full,ja:q.kind==='fill'?q.ja:''})).join('')}</div></details>`:''}
     <div class="row">${perfect?'':'<button data-e="back">🔎 もう少し くわしく</button>'}<button data-e="again" class="${perfect?'':'sub'}">🔁 もう一回 5問</button></div>
-    <div class="snbtns dpnext"><button class="sub" data-e="tk">🎯 とっくん</button><button class="sub" data-e="gn">📚 ノート</button>${c.les?'<button class="sub" data-e="ls">📖 授業</button>':''}<button class="sub" data-e="x">✖ とじる</button></div>`;
+    <div class="snbtns dpnext">${window.GGO&&GGO.at(c.id)?'<button class="sub" data-e="ls">📘 授業で 見る</button>':''}<button class="sub" data-e="tk">⚡ 練習する</button><button class="sub" data-e="x">✖ とじる</button></div>`;
   $('dplog').appendChild(d);d.querySelectorAll('[data-say]').forEach(b=>b.onclick=e=>{e.stopPropagation();snd('pop');talk(b.dataset.say)});scroll();
   new3?snd('fanfare'):snd('done');
   setTimeout(()=>{try{const b=d.getBoundingClientRect();H.coinBurst(b.left+b.width/2,Math.min(b.top+40,innerHeight-60),pay)}catch(e){}},400);
@@ -196,9 +196,9 @@ function result(){const c=C,T=c.T,st=T.st,N=T.qs.length,r=rec()[c.id];
       snd('step');[...c.asked].forEach(x=>{if(x[0]!=='q')c.asked.delete(x)});c.errI=0;c.exI=0;c.figI=c.d.fig?0:1;
       const [e2,t2]=ML('dp_cReview',{g:c.g});mina(t2,e2);chips();return}
     close();
-    if(e==='tk'){snd('step');S()&&S().tokkun([id])}
-    else if(e==='gn'){snd('book');const g=gById(id);H.gramNote(g.lv,g.i)}
-    else if(e==='ls'){snd('lesson');LESSON.open(c.les.id,()=>{MINA.open()})}
+    /* 11/22: 📚ノート・🎯とっくん・📖ミニ授業 → 📘授業・⚡練習（game/gram-go.js） */
+    if(e==='tk'){snd('step');window.GGO?GGO.prac(id):S()&&S().tokkun([id])}
+    else if(e==='ls'){snd('lesson');GGO.lesson(id)}
     else snd('back')})}
 
 /* ---------- 入口の 画面で 書いた 質問から 文法を さがす ---------- */
@@ -267,9 +267,9 @@ function pick(){hush();C=null;const w=(S()?S().weak():[]).filter(gById).slice(0,
     const [e2,t2]=ML(f.length?'dp_found':'dp_unknown',{g:''});
     $('dpfound').innerHTML=`<div class="kmina"><span class="lface">${MINA.face('m',e2,MINA.poseFor(e2,t2))}</span><p>${t2}</p></div>${f.length?`<div class="dpchips">${f.map(x=>`<button data-g="${x[1]}" ${x[2]?`data-q="${x[2]}"`:''}>${esc(x[2]?DD[x[1]].qa[+x[2].slice(1)][0]:gById(x[1]).n.t)}</button>`).join('')}</div>`:''}`;bind()}}
 
-/* ---------- 文法ノートの ページに 「とことん」ボタン ---------- */
-H.on('gramView',(lv,i,n)=>setTimeout(()=>{const row=H.panel.querySelector('.gview .row');if(!row||row.querySelector('#gdp'))return;
-  row.insertAdjacentHTML('beforeend','<button id="gdp" class="sub">🔎 とことん</button>');$('gdp').onclick=()=>{snd('step');open(n.id)}},0));
+/* ---------- 文法ノートの ページに 「📘 授業で 見る」ボタン（11/22: 前は 🔎とことん） ---------- */
+H.on('gramView',(lv,i,n)=>setTimeout(()=>{const row=H.panel.querySelector('.gview .row');if(!row||row.querySelector('#gdp')||!window.GGO||!GGO.at(n.id))return;
+  row.insertAdjacentHTML('beforeend','<button id="gdp" class="sub">📘 授業で 見る</button>');$('gdp').onclick=()=>{snd('lesson');GGO.lesson(n.id)}},0));
 
 window.DEEP={open,pick,close,has:id=>!!DD[id],rec,find,_c:()=>C,_qs:id=>qPool(id).map(p=>{try{return makeQ(id,p)}catch(e){return {err:e.message}}})};
 })();

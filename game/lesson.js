@@ -161,7 +161,7 @@ function quiz(l,back,st,qs){st=st||{help:0,stg:0};qs=qs&&qs.length?qs:l.quiz.map
     /* 数字より できるように なった こと（game/study.js）。 まちがいが あれば とっくん、 「？」を たくさん おしたら とことん授業を さそう */
     const can=S()?S().lessonCan(l):'',gid=S()?S().gidOf(l):null,E=S()&&st.stg?S().en('end',st.stg):'';
     const msg=can&&!miss?`${E?E+'<br>':''}「${esc(l.t)}」 クリア！ ${can}`:MINA_LINES.les_endP?MINA.line(miss?'les_endM':'les_endP',{t:l.t,ok:N-miss,n:N})[1]:`「${esc(l.t)}」 おつかれさま！`;
-    const sug=gid&&miss&&window.SENSEI?['st_tokSug','🎯 5問 とっくん',()=>SENSEI.tokkun([gid],0,'mina')]:gid&&st.help>=3&&window.DEEP?['st_qDeep','🔎 とことん授業で 見る',()=>DEEP.open(gid)]:null;
+    const sug=gid&&miss&&window.SENSEI?['st_tokSug','⚡ 練習する',()=>window.GGO?GGO.prac(gid):SENSEI.tokkun([gid],0,'mina')]:gid&&st.help>=3&&window.GGO&&GGO.at(gid)?['st_qDeep','📘 授業で 見る',()=>GGO.lesson(gid)]:null;
     H.show('lesson',`<section class="pnl lsn">
       <div class="lsay by-m big"><span class="lface">${MINA.face('m','proud')}</span><div class="lbody"><p>${msg}${pay?`<br>ごほうびに 🪙<b>${pay}</b>まい`:''}</p></div></div>
       ${sug?`<div class="lsay by-m lsug"><span class="lface">${MINA.face('m','think')}</span><div class="lbody"><p>${MINA.line(sug[0])[1]}</p><button id="lsug" class="sub">${sug[1]}</button></div></div>`:''}
