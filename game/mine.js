@@ -6,7 +6,7 @@
    - 5まい ほりだしたら: 📜 5つの ことばの 小さな お話（game/mine-story.js。 読めたら ボーナス）→ 床が くずれて 一つ 下の 階 → 🏕️ 休憩所（game/mine-rest.js）
      休憩所で 食べる・単語ラジオ・❤回復・📡 トランシーバーで ミオと 話す（game/mine-walkie.js）・ほった 5まいを ながめる。 そこから つぎの 5まい か 帰る
    - ほりだした カードは そのまま 📖カードブックへ（toBook。 11/18: ブックに 入れずに 売ると「持っていない」に もどって また 鉱山に 出るのを ふせぐ。
-     ブックの カードは 鉱山に 出ない・📦仕入れの 問題で お店に 入荷する = game/stock.js）
+     11/22〜 単語の カードは 🪨原石に なって お店の 作業台へ（toOre・game/ore.js）。 ブックに 記録ずみ・原石の ことばは 出ない）
    - 帰ると ミオが ほった ことばを 見て ひとこと（MINE_MIO_SEE）
    - 体力（❤）は 1問で 1 へる。 0に なっても 見つけた 物は ぜんぶ 持ち帰れる（失敗なし）。 体力は game/food.js（鉱山の 外でも のこる・時間で もどる）
    - カードは 岩の 5まいを ほって ゲットする だけ（11/18 ユーザー。 とちゅうで 見つかる・宝箱から 出る しくみは なし）。 特別な 🎁宝カードは お話を 読めた ごほうびで たまに
@@ -59,16 +59,19 @@ const LVK=['es','jh','hs','adv'];
 const inBook=id=>{try{return !!SHOP.inBook(id)}catch(e){return false}};
 const trNot=c=>inBook('t:'+c.e);
 /* ほりだした 1まいを 📖カードブックへ（まだ 入っていなくて 入れられる とき）。 入れたら true */
-function toBook(id){try{if(!inBook(id)&&window.CBOOK&&CBOOK.canIn(id)){SHOP.bookRec()[id]=1;C.save();return true}}catch(e){}return false}
+function toBook(id){try{if(!inBook(id)&&C.count(id)>0){SHOP.bookRec()[id]=1;C.save();return true}}catch(e){}return false}
+/* 11/22: ほりだした 単語の カードは 🪨原石に なって お店の 作業台へ（game/ore.js）。 原石に できない ことば（熟語など）は 前と 同じ */
+const toOre=id=>{try{return !!(window.ORE&&window.ORE.fromMine(id))}catch(e){return false}};
+const notYet=id=>!inBook(id)&&!(window.ORE&&window.ORE.has(id));
 const learned=id=>{try{return !!(ST.learned&&ST.learned[id])}catch(e){return false}};
-const baseLv=()=>{for(let i=0;i<LVK.length;i++)if(C.W.some(c=>c.lv===LVK[i]&&!C.owns(c.id)))return i;return 0};
+const baseLv=()=>{for(let i=0;i<LVK.length;i++)if(C.W.some(c=>c.lv===LVK[i]&&notYet(c.id)))return i;return 0};
 function lvMix(fl){const b=baseLv(),up=fl<=2?1+(Math.random()<.4?1:0):fl<=5?2:fl<=9?2+(Math.random()<.5?1:0):3,
     two=fl>=12?2:fl>=6?1:0,out=[];
   for(let i=0;i<HAND;i++){const k=i<HAND-up?0:i<HAND-two?1:2;out.push(Math.min(LVK.length-1,b+k))}return out}
 function pickFloor(fl,not=[]){const out=[],used=new Set(not);
   lvMix(fl).forEach(li=>{let id=null;
     for(const d of [0,1,-1,2,-2,3,-3]){const j=li+d;if(j<0||j>=LVK.length)continue;
-      const pool=C.W.filter(c=>c.lv===LVK[j]&&!C.owns(c.id)&&!used.has(c.id)&&!used.has('h:'+c.h));if(pool.length){id=pickL(pool).id;break}}
+      const pool=C.W.filter(c=>c.lv===LVK[j]&&notYet(c.id)&&!used.has(c.id)&&!used.has('h:'+c.h));if(pool.length){id=pickL(pool).id;break}}
     if(!id){const pool=C.W.filter(c=>c.lv===LVK[li]&&!inBook(c.id)&&!used.has(c.id)&&!used.has('h:'+c.h));if(pool.length){pool.sort((a,b)=>(C.weak(b.id)?1:0)-(C.weak(a.id)?1:0)||C.star(a.id)-C.star(b.id)+Math.random()-.5);id=pool[0].id}}
     if(id){used.add(id);used.add('h:'+C.info(id).h);out.push(id)}});
   return out}
@@ -283,7 +286,7 @@ function after(id,ok){if(!D||D.busy)return;D.busy=true;D.q++;D.hp--;keepHp(D.hp)
       const big=won?false:find();C.save();hud();if(!big)setTimeout(()=>next(),won?1500:D.pop?650:450)},420);}
   else{D.swing=6;D.crack=Math.min(2,D.crack+1);setTimeout(()=>{sf('tap')},300);C.save();hud();setTimeout(()=>next(),200)}}
 /* 1まい ほりだした！ 自分の ものに なる */
-function dug(x){x.dug=true;const isNew=!C.owns(x.id);C.give(x.id);const bk=toBook(x.id);D.got.push({id:x.id,isNew,bk});cardTag(x.id,isNew,true,bk);
+function dug(x){x.dug=true;const isNew=!C.owns(x.id),ore=toOre(x.id);if(!ore)C.give(x.id);const bk=ore?'ore':toBook(x.id);D.got.push({id:x.id,isNew,bk,ore});cardTag(x.id,isNew,true,bk);
   const n=D.cards.filter(y=>y.dug).length;if(n<HAND&&!MN().dugTold){MN().dugTold=1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_dug',{w:head1(C.info(x.id))});if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},7000)}}
 /* what you find. カードは めったに 出ない（出たら 大きな お祝い）。 true を かえすと お祝いの あとで つぎへ */
 function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.luck>0)D.luck--;const dk=D.dark>0;if(dk)D.dark--;
@@ -338,7 +341,7 @@ function cardTag(id,isNew,dg,bk){const M=MN();M.cards=(M.cards||0)+1;C.save();D.
   try{SFX.fanfare(1)}catch(e){sf('done')}
   try{const r=$('mncv').getBoundingClientRect();FX.firework(r.left+r.width*(.3+Math.random()*.4),r.top+r.height*.4)}catch(e){}
   const el=$('mncard');if(!el)return;const I=C.info(id);if(!I)return;
-  el.innerHTML=`<button class="mncd" data-id="${esc(id)}"><span class="gi">🎴</span><span class="cn"><small>${dg?'ほりだした！':'カードを 見つけた！'}${isNew?' <em>NEW</em>':''}${bk?' 📖ブックへ':''}</small><b>${esc(head1(I))}</b><i>${esc(I.ja)}</i></span><span class="tp">📖</span></button>`;
+  el.innerHTML=`<button class="mncd" data-id="${esc(id)}"><span class="gi">🎴</span><span class="cn"><small>${dg?'ほりだした！':'カードを 見つけた！'}${isNew?' <em>NEW</em>':''}${bk==='ore'?' 🪨原石に！ お店で みがこう':bk?' 📖ブックへ':''}</small><b>${esc(head1(I))}</b><i>${esc(I.ja)}</i></span><span class="tp">📖</span></button>`;
   const b=el.firstChild;b.onclick=()=>{sf('card');C.detail(id,null,{from:'mine'})};
   clearTimeout(el._t);el._t=setTimeout(()=>{if(b.isConnected)b.classList.add('out');setTimeout(()=>{if(b.isConnected)b.remove()},400)},6500);
   if(!MN().cardTold){MN().cardTold=1;C.save();setTimeout(()=>{if(!D)return;try{const [,tx]=ML('mn_card',{w:head1(I)});H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)}catch(e){}},7200)}}
@@ -590,17 +593,17 @@ function finish(why){if(!D)return;const d=D;D.alive=false;D=null;keepHp(d.hp);co
   try{RECENT.add('mine',{depth:d.depth,best:pb,fl:d.floor,bestF:pf,ok:d.ok,q:d.q,cards:d.got.map(x=>x.id),rare:d.got.some(x=>/^t:/.test(x.id)),coins:d.coins,hp:why==='hp'?'hp':'',chest:d.chests,bad:d.bads.length,badN:d.bads[0]||'',used:d.used.slice(0,4),story:d.stories})}catch(e){}
   const head=why==='hp'?'⛏️ つかれたので 帰ってきた':'🎒 もちかえった';
   const mio=window.MIO&&window.MINE_MIO_SEE;
-  const bkN=d.got.filter(g=>g.bk).length;
+  const bkN=d.got.filter(g=>g.bk&&g.bk!=='ore').length,oreN=d.got.filter(g=>g.ore).length;
   d.seed=Math.random()*1e6|0;
   const draw=()=>{H.show('cg',`<section class="pnl cgp mnp">
     <div class="qtop"><button class="x" id="mnb" aria-label="もどる">←</button><b>${head}</b><span class="qn">地下${d.floor}階</span></div>
     <div class="mnres"><p>🪜 <b>地下${d.floor}階</b> まで${d.floor>pf?' <em class="mnbest">最高記録！</em>':''} ・ ${d.q}問中 <b>${d.ok}</b>問 正解</p>
       <p>${d.coins?`🪙 +${d.coins}`:''} ${d.got.length?`🎴 カード ${d.got.length}まい`:''} ${d.events.map(e=>e.ico).join('')}</p>${mapN?`<p class="mnmap">🗺️ 岩の すきまに 古い 宝の地図！「${esc(mapN)}」 <button id="mnmapgo" class="sub">宝探しに 行く</button></p>`:''}</div>
-    ${mio&&words.length?`<div class="kmina mnmio"><span class="lface">${MIO.face('smile')}</span><p>${esc(MINE_MIO_SEE.hi(words.length))}${bkN?`<br>${esc(MINE_MIO_SEE.bk(bkN))}`:''}</p></div>`:''}
+    ${mio&&words.length?`<div class="kmina mnmio"><span class="lface">${MIO.face('smile')}</span><p>${esc(MINE_MIO_SEE.hi(words.length))}${oreN?`<br>${esc(MINE_MIO_SEE.ore(oreN))}`:bkN?`<br>${esc(MINE_MIO_SEE.bk(bkN))}`:''}</p></div>`:''}
     ${words.length?`<div class="mnsee">${words.map((id,wi)=>{const I=C.info(id),g=d.got.find(x=>x.id===id)||{};return `<div class="mnseer ${g.bk?'on':''}"><button class="mnseec" data-id="${esc(id)}">${C.face(id,{mini:1,marks:false})}</button>
-      <div class="mnseet">${mio?`<p class="mnmio1" data-en="${esc(I.en)}">🧑‍🎓 ${esc(MINE_MIO_SEE.line(I,d.seed+wi))}</p>`:''}<small class="mnbkt">${g.bk?'📖 カードブックに 入れたよ':'🗃️ 倉庫に 入れたよ（もう ブックに あるので 売れるよ）'}</small></div></div>`}).join('')}</div>
+      <div class="mnseet">${mio?`<p class="mnmio1" data-en="${esc(I.en)}">🧑‍🎓 ${esc(MINE_MIO_SEE.line(I,d.seed+wi))}</p>`:''}<small class="mnbkt">${g.ore?'🪨 原石に なったよ。 お店の 作業台で みがこう':g.bk?'📖 カードブックに 記録したよ':'🗃️ 倉庫に 入れたよ'}</small></div></div>`}).join('')}</div>
       ${extra.length?`<p class="mnlbl">📜🧩 お話の おまけ</p><div class="mnhand sm">${extra.map(g=>`<div class="mnt" data-id="${esc(g.id)}">${C.face(g.id,{mini:1,marks:false})}</div>`).join('')}</div>`:''}
-      ${bkN?'<p class="note">📖 ブックに 入った カードは 📦仕入れで 問題に 答えると お店に 入荷するよ</p>':''}`:'<p class="note">きょうは カードを ほりだせなかったね。 つぎは きっと！</p>'}
+      ${oreN?'<p class="note">🪨 原石は お店の 下の 作業台で みがくと カードに なるよ</p>':''}`:'<p class="note">きょうは カードを ほりだせなかったね。 つぎは きっと！</p>'}
     ${why==='hp'&&window.FOOD?`<p class="note">❤は 2分で 1 もどるよ。 🍽️ しおかぜ食堂か 🥪 もちものの 食べ物で いっきに 回復！</p><div class="row"><button id="mndin" class="sub">🍽️ 食堂へ</button></div>`:''}
     <div class="row">${bkN?'<button id="mnbook" class="sub">📖 ブックで 見る</button>':''}<button id="mnshop" class="big">🃏 お店に もどる</button></div></section>`);
     if($('mndin'))$('mndin').onclick=()=>{sf('open');FOOD.open()};
@@ -611,7 +614,7 @@ function finish(why){if(!D)return;const d=D;D.alive=false;D=null;keepHp(d.hp);co
     H.panel.querySelectorAll('.mnmio1').forEach(b=>b.onclick=()=>{try{MIO.say(b.dataset.en)}catch(e){}})};
   draw();
   sf(d.floor>pf&&d.floor>=2?'done':'step');
-  setTimeout(()=>{try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()){const bt=bkN&&!M.bkTold;if(bt){M.bkTold=1;C.save()}const [ex,tx]=ML(bt?'mn_autoBook':d.floor>pf&&d.floor>=2?'mn_bestFloor':'sh_mineEnd',{n:d.q,d:d.depth,f:d.floor});MINA.say('m',ex,tx,7000)}}catch(e){}},900)}
+  setTimeout(()=>{try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()){const bt=oreN&&!M.oreTold;if(bt){M.oreTold=1;C.save()}const [ex,tx]=ML(bt?'ore_mine':d.floor>pf&&d.floor>=2?'mn_bestFloor':'sh_mineEnd',{n:d.q,d:d.depth,f:d.floor});MINA.say('m',ex,tx,7000)}}catch(e){}},900)}
 H.on('home',()=>{if(D){D.alive=false;keepHp(D.hp);if(D.coins)H.addCoins(D.coins);D=null;C.save()}try{if(window.MINE_REST)MINE_REST.stop()}catch(e){}});
 /* ================================================================ ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
@@ -626,11 +629,10 @@ Object.assign(MINA_LINES,{
  mn_storyMiss:[['smile','むずかしかったね。 でも 読もうと した だけで ちゃんと 力に なってるよ。 ボーナスも 少し あるからね'],['wink','お話は ちょっと 背のびでも いいの。 さっきの 解説の 文を 声に 出して 読むと いいよ']],
  mn_newFloor:[['point','地下{f}階！ 新しい 5まいが 岩の 中に ねむってるよ'],['smile','下の 階に 来たね。 少し むずかしい ことばも まざってくるよ'],['wow','ここは 地下{f}階。 深く なるほど 宝石も 高く なるよ！']],
  mn_storyCard:[['wow','お話の おまけで カードが 出たね！ 📜 文の カードは 英文まるごと、 🧩 パーツの カードは ことばの 部品だよ'],['point','🧩 パーツの カードは un- や -ful みたいな 部品。 知っていると はじめての 単語も 意味が 読めるの'],['smile','📜 文の カードは 声に 出して 読んでみて。 ほった ことばが 文の 中で 生きてるよ']],
- mn_autoBook:[['point','ほりだした カードは、 自動で 📖カードブックに 入るように なったよ。 ブックの カードは 📦仕入れの 問題で お店に とどくの'],['happy','鉱山で ほる → ブックに 入る → 仕入れの 問題で 入荷 → お店で 売る。 これが カードショップの 道だよ']],
  mn_bestFloor:[['wow','おかえり！ 地下{f}階まで 下りたの！？ 最高記録だね！'],['proud','地下{f}階！ 一階ずつ ことばを ほりだして ここまで。 ほんとに えらいよ'],['love','おかえり。 地下{f}階まで 行けたんだね。 ほりだした カード、 あとで いっしょに 見ようね']],
- sh_mineEnd:[['happy','おかえり！ {n}問 ほって、 地下{f}階まで 行ったんだね'],['smile','おつかれさま。 ほりだした カードは 📖カードブックに 入ってるよ。 📦仕入れの 問題で お店に 入荷するからね'],['proud','{n}問 がんばったね。 ミオちゃんに ほった カード、 見せてあげた？']],
+ sh_mineEnd:[['happy','おかえり！ {n}問 ほって、 地下{f}階まで 行ったんだね'],['smile','おつかれさま。 ほった ことばは 🪨原石に なって お店の 作業台で まってるよ'],['proud','{n}問 がんばったね。 ミオちゃんに ほった カード、 見せてあげた？']],
  mn_card:[['wow','「{w}」の カード、 見つけたね！ 見つけた カードは 🎒の 🎴に たまるから、 タップで 読んで くわしく 見てね'],['smile','カードが 出たら 上に 札が 出るよ。 タップすると 「{w}」を 読んで くわしく 見られるの。 見のがしても 🎒の 🎴から 見られるからね']],
- mn_treasure:[['wow','🎁 宝カード！？ 鉱山の 奥で 見つかるなんて… すごい 運だね！'],['proud','宝カードは 仕入れでは 手に 入らない、 鉱山だけの 宝もの。 深く 下りるほど いい カードが 出やすいよ'],['love','宝カードだ！ はじめての 1まいは カードブックへ。 ダブったら お店で 売れるからね']],
+ mn_treasure:[['wow','🎁 宝カード！？ 鉱山の 奥で 見つかるなんて… すごい 運だね！'],['proud','宝カードは 鉱山だけの 宝もの。 深く 下りるほど いい カードが 出やすいよ'],['love','宝カードだ！ はじめての 1まいは カードブックへ。 ダブったら お店で 売れるからね']],
  mn_lootTap:[['smile','🎒の ところに ならんだ 物は、 タップすると くわしく 見られるよ。 宝石の 英語の 名前も わかるの'],['happy','手に 入れた 石や カードは、 タップで くわしく！ ほっている とちゅうでも だいじょうぶ']],
  mn_handTap:[['point','ならんだ 岩の カードは、 会った ことばなら タップで 📖 くわしく 見られるよ。 いみ・例文・形の かわり方も！'],['smile','わからない ことばが あったら、 岩の カードを タップしてね。 いま 出ている 問題の カードは 答えてからね']],
  mn_handWait:[['wink','その カードは いま 問題に 出ているの。 答えてから 見ようね'],['smile','あっ、 それを 見たら 答えが わかっちゃう！ 答えたら すぐ 📖 で 見られるよ'],['think','まずは 自分で 考えて みよう。 まちがえても だいじょうぶ、 あとで くわしく 見られるから']],

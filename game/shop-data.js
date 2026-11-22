@@ -18,7 +18,7 @@ const MIO_NIGHT=[["Good evening, boss! The lights look so pretty tonight.","こ�
 const MIO_FIRST=[
  ["Nice to meet you, boss! I'm Mio. I'm a college student, and I'm working here part-time!","はじめまして、 店長！ ミオです。 大学生で、 ここで アルバイトします！"],
  ["From today, this card shop is yours. You're the new boss!","きょうから この カードショップは あなたの お店。 新しい 店長です！"],
- ["Stand at the counter, put cards on the shelf, and dig for new cards in the mine. When you're away, I'll watch the shop!","カウンターに 立って、 売り場に カードを ならべて、 鉱山で 新しい カードを ほる。 るすの あいだは わたしが お店を 見てます！"]];
+ ["I'll stand at the register. You polish the rough stones at the workbench and turn them into cards. We put the cards on the shelf and sell them!","レジは わたしに まかせて。 店長は 下の 作業台で 原石を みがいて カードに するんです。 できた カードは 売り場に ならべて 売りましょう！"]];
 /* 留守番の メモ（英語の 練習ちゅうの ミオが のこす） */
 const MIO_MEMO=[
  ["A man bought two cards and said, \"Have a nice day!\" I said it back!","おじさんが カードを 2まい 買って 「Have a nice day!」って。 わたしも 言いかえしました！"],

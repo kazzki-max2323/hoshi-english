@@ -325,3 +325,19 @@
 .mnp .mngo:disabled{animation:none;filter:grayscale(.7);opacity:.6;cursor:default}
 @keyframes mngoPulse{0%,100%{box-shadow:0 5px 0 #b85c10,0 0 14px rgba(255,200,70,.35)}50%{box-shadow:0 5px 0 #b85c10,0 0 26px rgba(255,210,80,.7)}}
 .mnp .mnty{width:auto;margin:6px auto 0;display:block;padding:6px 14px;font-size:.78rem;font-weight:600;min-height:0}
+/* 11/22 作りなおし: 上＝お店・下＝原石の 作業台。 ふきだしは ゆっくり 浮かんで 消える */
+.shmain .shstage{margin-bottom:6px}
+.shfls{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:2}
+.shmut.fl{pointer-events:auto;max-width:58%;animation:shfloat var(--dur,8s) linear forwards;text-shadow:none}
+.shmut.fl::after{left:50%}
+@keyframes shfloat{0%{opacity:0;transform:translateY(6px)}8%{opacity:1;transform:translateY(0)}65%{opacity:1}100%{opacity:0;transform:translateY(calc(-1 * var(--rise,80px)))}}
+@media (prefers-reduced-motion:reduce){.shmut.fl{animation:shfade var(--dur,8s) linear forwards}@keyframes shfade{0%,85%{opacity:1}100%{opacity:0}}}
+.shnav{display:flex;gap:4px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
+.shnav::-webkit-scrollbar{display:none}
+.shnav button{flex:1 0 auto;min-width:3.6em;display:flex;flex-direction:column;align-items:center;gap:0;padding:4px 4px!important;min-height:0;font-size:.66rem;font-weight:700;line-height:1.15;position:relative;text-shadow:none}
+.shnav button span{font-size:1.15rem;line-height:1.2}
+.shnav button small{font-size:.6rem;opacity:.85}
+.shnav .dot{position:absolute;top:3px;right:5px;width:7px;height:7px;border-radius:50%;background:#ff5a7a}
+.shmain .shst{font-size:.78rem;margin:2px 0 6px}
+/* 作業台を スクロールしても お店が 見えるように */
+.shmain .shstage{position:sticky;top:0;z-index:4}

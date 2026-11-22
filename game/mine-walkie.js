@@ -172,8 +172,9 @@ const SEE_HI=[n=>`おかえりなさい、 店長！ ${n}まいも ほってき�
 function seeLine(I,seed){const L=SEE[I.k==='t'?'t':I.lv]||SEE.es,i=Math.abs(seed|0)%L.length;
   return L[i].replace(/\{w\}/g,head1(I)).replace(/\{ja\}/g,I.ja)}
 /* ほった カードは 📖ブックに 入れた（game/mine.js toBook） */
-const SEE_BK=[n=>`ほった カードは カードブックに 入れておきました！ 仕入れで 問題に 答えたら、 お店に 入荷しますよ`,n=>`カードブックの ポケットに しまっておきましたよ。 仕入れの 問題に 答えると その カードが とどきます！`,n=>`ブックが ${n}まい ふえましたね。 仕入れで 正解した ぶんだけ、 お店の たなに ならびます`];
-window.MINE_MIO_SEE={line:seeLine,hi:n=>pickL(SEE_HI)(n),bk:n=>pickL(SEE_BK)(n)};
+const SEE_BK=[n=>`ほった カードは カードブックに 記録しておきました！`,n=>`カードブックに ちゃんと 記録しましたよ。`];
+const SEE_ORE=[n=>`ほった ことばは 原石に なりました。 ${n}こ、 お店の 作業台で いっしょに みがきましょう！`,n=>`原石が ${n}こ！ みがいたら どんな カードに なるかな。`];
+window.MINE_MIO_SEE={line:seeLine,hi:n=>pickL(SEE_HI)(n),bk:n=>pickL(SEE_BK)(n),ore:n=>pickL(SEE_ORE)(n)};
 
 /* ミナ先生の セリフ */
 Object.assign(MINA_LINES,{

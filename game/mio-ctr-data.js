@@ -68,21 +68,15 @@ const MIOT=[
  ["Some words were tricky.","むずかしい 単語も あった。",{m:["Which ones? Maybe we can practice them together!","どれですか？ いっしょに 練習 できるかも！"],ex:'smile',o:[
   ["I'll try again tomorrow.","あした また やる。",["That's the way! A little every day. Like watering a plant.","それです！ 毎日 少しずつ。 植物に 水を やる みたいに。",'smile']],
   ["I forgot them already…","もう わすれた…",["Ha ha! That happens to me too. Then we just dig them up again!","あはは！ わたしも よく あります。 そしたら また ほりだせば いいんです！",'laugh']]]}]],ph:["a little every day","毎日 少しずつ"]},
-/* =============================================================== 🎁 仕入れ・📖 カードブック */
-{id:'pk_open',k:'pack',m:["Boss, the delivery you earned came in! \"{w}\" was in the box. You studied it, right?","店長、 勉強で とどいた 荷物！ 「{w}」が 入ってました。 勉強したんですよね？"],ex:'laugh',p:'wave',o:[
- ["Yes, I practiced it today.","うん、 きょう 練習した。",["I knew it! Cards you studied sell better. I don't know why, but they do!","やっぱり！ 勉強した カードは よく 売れるんです。 なぜか わからないけど！",'laugh']],
- ["Can you say it in a sentence?","文で 言える？",{m:["Hmm… \"I like {w}.\" Is that OK? Your turn next, boss!","うーん… 「I like {w}.」 これで いい？ つぎは 店長の 番！"],ex:'oops',o:[
+/* =============================================================== 🪨 原石の 作業台（11/22〜。 仕入れは なくした） */
+{id:'or_done',k:'ore',m:["Boss, I saw you finish \"{w}\"! You were so focused. I didn't want to bother you.","店長、 「{w}」 仕上げてましたね！ すごく 集中してたから、 話しかけないで おきました。"],ex:'smile',p:'wave',o:[
+ ["Thanks for watching the register.","レジ ありがとう。",["Leave it to me! The register is my stage. The workbench is yours.","まかせてください！ レジは わたしの ステージ。 作業台は 店長の ステージです。",'laugh']],
+ ["Can you use it in a sentence?","文で 言える？",{m:["Hmm… \"I like {w}.\" Is that OK? Your turn next, boss!","うーん… 「I like {w}.」 これで いい？ つぎは 店長の 番！"],ex:'oops',o:[
   ["Perfect!","かんぺき！",["Yay! A shop girl who can make sentences. Put that on my name tag!","やった！ 文が 作れる 店員。 名札に 書いておきます！",'laugh']],
-  ["Let's practice together.","いっしょに 練習しよう。",["Together? …OK! Study partners. I like that.","いっしょに？ …はい！ 勉強なかま。 いいですね。",'smile']]]}]],ph:["in stock","在庫あり"]},
-{id:'pk_many',k:'pack',if:()=>{try{return STOCK.todayN()>=6}catch(e){return false}},m:["Boss, so many boxes today! How much did you study? The storeroom is getting full!","店長、 きょうは 荷物が いっぱい！ どれだけ 勉強したんですか？ 倉庫が パンパン！"],ex:'wink',o:[
- ["A lot!","いっぱい！",["Amazing. Our shop grows when you grow. That's the best kind of shop!","すごい。 店長が 成長すると お店も 成長する。 いちばん いい お店です！",'laugh']],
- ["Let's put them on the floor.","売り場に ならべよう。",["Yes! Fresh cards on the shelves. The customers will line up!","はい！ 入荷したての カードを たなに。 お客さんが ならびますよ！",'smile',{go:'floor'}]]],ph:["fully stocked","在庫 たっぷり"]},
-{id:'pk_noTreasure',k:'pack',m:["Boss, did you know? Our supplier only sends cards from the card book. New cards come from the mine!","店長、 知ってました？ うちの 仕入れ先は カードブックの カードしか 送ってこないんです。 新しい カードは 鉱山から！"],ex:'smile',p:'wave',o:[
- ["Then I'll go digging.","じゃあ ほりに 行く。",["That's the spirit! Dig it, put it in the book, study it, sell it. Our shop's four steps!","その 意気！ ほって、 ブックに 入れて、 勉強して、 売る。 うちの お店の 4ステップ！",'laugh',{go:'mine'}]],
- ["Studying is our supply line.","勉強が 仕入れなんだね。",["Exactly! No coins needed. Just your brain. Very eco-friendly!","そのとおり！ コインは いらない。 店長の 頭だけ。 とっても エコ！",'laugh']]],ph:["supply","仕入れ・供給"]},
-{id:'bk_put',k:'book',m:["I saw you put \"{w}\" in the card book. Is it a special card?","「{w}」を カードブックに 入れてましたね。 特別な カード？"],ex:'smile',o:[
- ["It's my favorite.","お気に入りなんだ。",["Then it deserves a safe home. Favorites go in the book!","じゃあ 安全な おうちが ひつようですね。 お気に入りは ブックへ！",'smile']],
- ["I want to fill every page.","ぜんぶの ページを うめたい。",["Every page? That's a big goal! I'll cheer for you. Fight, boss!","ぜんぶ？ 大きな 目標！ おうえん します。 ファイト、 店長！",'laugh']]]},
+  ["Let's practice together.","いっしょに 練習しよう。",["Together? …OK! Study partners. I like that.","いっしょに？ …はい！ 勉強なかま。 いいですね。",'smile']]]}]],ph:["focused","集中している"]},
+{id:'or_letters',k:'ore',m:["Putting letters in order… it's like a puzzle, right? \"{w}\" has a cute spelling.","文字を ならべるの、 パズルみたい ですよね。 「{w}」って かわいい つづり。"],ex:'wink',o:[
+ ["My hands remember it now.","手が 覚えた。",["Your hands remember? That's the best way. My hands remember the register keys!","手が 覚えた？ それ いちばんです。 わたしの 手は レジの ボタンを 覚えてます！",'laugh']],
+ ["It was hard!","むずかしかった！",["Hard ones shine the most when they're done. Look how shiny it is!","むずかしい ほど、 できたとき ぴかぴか。 ほら、 こんなに 光ってる！",'smile']]],ph:["spelling","つづり"]},
 
 /* =============================================================== 🪙 カウンター・るすばん */
 {id:'sl_tip',k:'sell',if:e=>e.tip>0,m:["We got a tip! The customer really liked your answer. Shall we save it for… snacks? Ha ha.","チップ もらっちゃった！ お客さん、 店長の 答えが 気に入ったんですね。 これで… おやつ？ あはは。"],ex:'wink',o:[
