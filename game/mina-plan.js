@@ -93,7 +93,7 @@ function prSrc(){/* 練習で いちばん 先に かためたい ところ（�
   try{if(SENSEI.weak().length)return {miss:1,t:'苦手な 文法'}}catch(e){}
   const ud=units().filter(u=>u.doneN()>0);if(ud.length)return {miss:0,t:ud.map(u=>u.D.title).slice(0,2).join('・')};
   return null}
-/* 一度に 増やさない（11/21）: いちばん 新しく おわった 時間が 練習で 「身についた」（ちがう 日に 2回 ヒントなしで 正解）まで、 つぎの 授業は 出さない。
+/* 一度に 増やさない（11/21）: いちばん 新しく おわった 時間が 練習で 「身についた」（その 時間の 問題を 3問 1回で 正解・まちがいが のこって いない。 game/practice.js learned）まで、 つぎの 授業は 出さない。
    わかる から とばした 時間（sk）は 身についた あつかい */
 /* この しくみが できる 前（11/21 21:48）に おわった 時間は 身についた あつかい（前の 完了形などで 文の きほんが 止まらないように） */
 const GATE_T=Date.UTC(2026,10,21,12,48);
@@ -102,7 +102,7 @@ function gate(){if(!window.PRAC)return null;let last=null;
   if(!last||PRAC.learned(last.u,last.ci))return null;return Object.assign(last,{c:last.u.D.CH[last.ci]})}
 function pickToday(){const D=day(),I=todayInfo(),pr=prSrc(),G=gate();
   if(pr&&pr.miss&&!D.pr)return {k:'pr',ico:'⚡',tag:'きょうは まず 練習',t:pr.t,line:['mp_tPr',{u:pr.t}]};
-  if(G&&!D.pr)return {k:'pr',ico:'🌱',tag:'身に つける 練習',t:G.u.D.title+'　'+G.c.short,u:G.u.id,ci:G.ci,line:['mp_gate',{t:G.c.short}]};
+  if(G)return {k:'pr',ico:'🌱',tag:'身に つける 練習',t:G.u.D.title+'　'+G.c.short,u:G.u.id,ci:G.ci,line:['mp_gate',{t:G.c.short}]};
   if(I&&!D.done&&!G)return {k:'les',ico:'📘',tag:'きょうの 授業',t:I.u.D.title+'　'+I.t,
     line:I.fresh?['mp_new',{u:I.u.D.title}]:I.test?['mp_test',{u:I.u.D.title}]:['mp_hello',{u:I.u.D.title,t:I.t}]};
   if(pr&&!D.pr)return {k:'pr',ico:'⚡',tag:'きょうの 練習',t:pr.t,line:['mp_tPr2',{u:pr.t}]};
