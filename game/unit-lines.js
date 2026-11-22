@@ -60,4 +60,4 @@ Object.assign(MINA_LINES,{
 });
 /* 🤔 わからない → 授業・カード（game/unit.js dunno）に ホームで ひとこと */
 window.MINA_REACT_EXT=window.MINA_REACT_EXT||{};
-MINA_REACT_EXT.unitDunno={act:e=>['r_unitDunno',{t:e.t||''},null],desc:e=>`「${e.t||''}」が わからなくて 授業に いった`};
+MINA_REACT_EXT.unitDunno={act:e=>e.ti?['r_unitDunno',{t:e.ti},null]:null,desc:e=>`「${e.ti||'問題'}」が わからなくて 授業に いった`};

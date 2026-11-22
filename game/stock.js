@@ -65,7 +65,7 @@ let quiet=false;
 /* そのほかの 勉強（RECENT の 記録から） */
 const AFTER={sensei:[2],tutor:[2],kaiwa:[1]};
 if(window.RECENT&&RECENT.on){
-  RECENT.on('*',e=>{try{const a=AFTER[e.k];if(a){if(e.k==='gram'&&!e.ok)return;tell(creditSome(a[0],e.k,(e.en||'')+' '+(e.g||'')+' '+(e.t||'')),e.k);return}
+  RECENT.on('*',e=>{try{const a=AFTER[e.k];if(a){if(e.k==='gram'&&!e.ok)return;tell(creditSome(a[0],e.k,(e.en||'')+' '+(e.g||'')+' '+(e.ti||'')),e.k);return}
   }catch(err){}})}
 
 /* ================================================================ badge（お店の メニューの 仕入れボタン） */

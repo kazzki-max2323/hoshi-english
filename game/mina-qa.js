@@ -111,5 +111,5 @@ Object.assign(MINA_LINES,{
  r_qa:[['love','さっきの 質問、 いい 「なんで？」だったね'],['smile','聞いてくれた こと、 覚えておくね']]
 });
 window.MINA_REACT_EXT=window.MINA_REACT_EXT||{};
-MINA_REACT_EXT.qa={act:e=>[/^Yes・No/.test(e.t||'')?'r_qaYn':'r_qa',{t:e.t||''},null],desc:e=>`ミナ先生に 「${e.t||''}」と 質問した`};
+MINA_REACT_EXT.qa={act:e=>e.ti?[/^Yes・No/.test(e.ti)?'r_qaYn':'r_qa',{t:e.ti},null]:null,desc:e=>`ミナ先生に 「${e.ti||'なんで？'}」と 質問した`};
 })();

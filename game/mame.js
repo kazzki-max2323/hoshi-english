@@ -120,6 +120,6 @@ Object.assign(MINA_LINES,{
 });
 window.MINA_REACT_EXT=window.MINA_REACT_EXT||{};
 const POLITE=['would','could','wanted','might','should'];
-MINA_REACT_EXT.mame={act:e=>e.t==='have'?['r_mameHave',{},null]:!POLITE.includes(e.t)?['r_mame2',{},null]:[e.t==='would'&&TIPS.some(t=>!R.s[t.id])&&Math.random()<.5?'r_mameMore':'r_mame',{},null],desc:e=>e&&e.t==='have'?'ミナ先生の まめちしき（「〜が ある」＝have）を 読んだ':POLITE.includes(e&&e.t)?'ミナ先生の まめちしき（ていねいな 過去形）を 読んだ':'ミナ先生の まめちしき（音や ことば）を 読んだ'};
+MINA_REACT_EXT.mame={act:e=>{const w=e.ti||e.en;return w==='have'?['r_mameHave',{},null]:!POLITE.includes(w)?['r_mame2',{},null]:[w==='would'&&TIPS.some(t=>!R.s[t.id])&&Math.random()<.5?'r_mameMore':'r_mame',{},null]},desc:e=>e&&(e.ti||e.en)==='have'?'ミナ先生の まめちしき（「〜が ある」＝have）を 読んだ':POLITE.includes(e&&(e.ti||e.en))?'ミナ先生の まめちしき（ていねいな 過去形）を 読んだ':'ミナ先生の まめちしき（音や ことば）を 読んだ'};
 window.MAME={tips:TIPS,add:a=>{a.forEach(t=>{if(!TIPS.some(x=>x.id===t.id))TIPS.push(t)})},lesOf,lesHtml,seen:id=>!!R.s[id],test:id=>{const t=TIPS.find(x=>x.id===id);if(t)pop(t)}};
 })();

@@ -42,7 +42,7 @@ function react(e){const v={};let k=null,go=null;
   case 'deep':v.g=gq(e.g);k=e.stars>=3?'r_dp_3':e.stars===2?'r_dp_2':'r_dp_1';
     if(e.stars<3&&window.DEEP)go=['✏️ もう一回 たしかめる',()=>DEEP.open(e.id,{chk:1})];break;
   case 'kaiwa':Object.assign(v,{c:kwName(e.c),t:kwTitle(e.id)});k=e.good?'r_kw_good':'r_kw_fun';break;
-  case 'tutor':{const D={quiz:'r_tu_quiz',ken:'r_tu_ken',hw:'r_tu_hw',short:'r_tu_short',pochi:'r_tu_pochi'};Object.assign(v,{t:e.t||'英語',tot:e.tot||0});
+  case 'tutor':{const D={quiz:'r_tu_quiz',ken:'r_tu_ken',hw:'r_tu_hw',short:'r_tu_short',pochi:'r_tu_pochi'};Object.assign(v,{t:(typeof e.ti==='string'&&e.ti)||'英語',tot:e.tot||0});
     k=D[e.day]&&Math.random()<.6?D[e.day]:e.tot&&e.ok===e.tot&&Math.random()<.5?'r_tu_perfect':e.fun&&Math.random()<.3?'r_tu_fun':'r_tu';break}
   case 'meal':{Object.assign(v,{n:e.ja,en:e.en,c:e.c||''});let n=0;try{n=FOOD.rec().eaten[e.id]|0}catch(er){}k=n<=1&&Math.random()<.6?'r_dn_first':'r_dn';break}
   case 'snack':Object.assign(v,{n:e.ja,en:e.en||e.ja});k='r_eat';break;
