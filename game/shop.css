@@ -189,7 +189,7 @@
 .mnfx{display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle}.mnfx i{font-style:normal;font-size:.75rem;font-weight:800;background:rgba(0,0,0,.35);border-radius:8px;padding:1px 5px;color:#fff;text-shadow:none}
 .mnuse{width:100%;border:0;color:#fff;font:inherit;cursor:pointer}.mnuse:disabled{opacity:.45}.mnuse .n{color:#ffe14a}
 .mnuh{margin:4px 0 0;text-align:left;font-size:.8rem;color:#cbd2ff;font-weight:800}
-.mnmio{cursor:pointer;text-align:left;font-size:.85rem}.mnmio small{display:block;font-size:.75rem;color:#cfd6f2}
+.mnmio{cursor:pointer;text-align:left;font-size:.85rem}.mnmio small{display:block;font-size:.75rem;color:#5a5070;text-shadow:none}
 .mnhp{font-size:.8rem;color:#ffb0b8;margin-left:6px}
 .mnchb{font-size:4rem;line-height:1;animation:mnchw 1.2s ease-in-out infinite}.mnchb.open{animation:none;transform:scale(1.1)}
 @keyframes mnchw{0%,100%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(0)}}
