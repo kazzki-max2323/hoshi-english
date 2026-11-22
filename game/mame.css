@@ -3,14 +3,15 @@
   opacity:0;transform:translateY(-8px);transition:opacity .25s,transform .25s;text-shadow:none}
 #mamePop.on{opacity:1;transform:none}
 #mamePop *{text-shadow:none}
-#mamePop .mmhook{display:flex;align-items:flex-start;gap:9px;width:100%;text-align:left;padding:9px 11px;border-radius:14px;
+#mamePop .mmhook{box-sizing:border-box;display:flex;align-items:flex-start;gap:9px;width:100%;text-align:left;padding:9px 11px;border-radius:14px;
   background:#fffaf0;border:2px solid #f2c95c;box-shadow:0 4px 14px #0006;color:#3a2f1d;font:inherit;cursor:pointer}
 #mamePop .mmf{flex:0 0 auto;width:42px;height:42px;border-radius:50%;overflow:hidden;border:2px solid #f2c95c;background:#fde9c8}
 #mamePop .mmf svg{display:block;width:100%;height:100%}
 #mamePop .mmt{display:flex;flex-direction:column;gap:3px;font-size:.86rem;line-height:1.5}
 #mamePop .mmt em{font-style:normal;font-weight:700;font-size:.74rem;color:#b7791f}
 #mamePop .mmt b{color:#9a4b00}
-#mamePop .mmt small{align-self:flex-end;font-size:.72rem;color:#b7791f;font-weight:700}
+#mamePop .mmt .mmgo{align-self:flex-end;margin:2px 0 0;padding:6px 11px;border-radius:999px;border:1.5px solid #f2c95c;background:#fff3d6;font:inherit;font-size:.74rem;color:#b7791f;font-weight:700;cursor:pointer}
+#mamePop .mmt .mmgo:active{background:#fde9c8}
 #mamePop .mmbox{padding:11px 12px;border-radius:14px;background:#fffaf0;border:2px solid #f2c95c;box-shadow:0 4px 14px #0006;color:#3a2f1d;
   max-height:calc(100vh - 140px);overflow:auto;display:flex;flex-direction:column;gap:9px}
 #mamePop .mmhd{display:flex;gap:9px;align-items:flex-start}
