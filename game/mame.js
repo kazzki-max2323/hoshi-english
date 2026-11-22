@@ -6,6 +6,8 @@
    ・1つの 話は 1回だけ（ひらいたら おしまい。 3回 スルーされたら もう 出さない）。 つぎの 話まで 6分 あける
    ・授業・テスト・練習・単語帳・ホームでは 出さない（答えの じゃまを しない）。 問題の 重ねや 「2/8」が 見えたら 出さない・出ていたら とじる（quizOn）
    ・ふきだしの どこかを タップで とじる。 こたえは 「タップで こたえ ▶」の ときだけ ひらく
+   ・11/22 ユーザー「誰かと 会話中は 出さないで」: キャラの ページ（ミナ先生・雑貨屋・食堂・リク など）や 会話の とちゅう（data-stay）、 読み上げ中は 出さない・出ていたら とじる（talkOn）。
+     会話の 中で 見つけた 話は、 会話が おわって（.kend）から 出す
    ・ひらいて いる 間は 会話を 止める（game.js talkBusy が #mamePop.open を 見る）
    ・あとから 読みかえせる ように 🙋 しつもん（game/mina-qa.js）に 「ていねいな 過去形」を 1つ 足す
    きろくは localStorage 'hoshi_mame'（s: 読んだ 時刻、 n: スルーした 回数、 last: さいごに 出した 時刻） */
@@ -60,7 +62,14 @@ const GAP=6*60000;let bootAt=Date.now(),wait=null,buf=[],bufT=0;
    「2/8」の ような 問題の 番号（.qn・#mdn・#prn・#kdn など）が 見えて いたら 問題中と みなす */
 const quizOn=()=>{if($('dpov')||$('prteach')||$('mdq')||$('prq')||$('kdn'))return true;
   for(const e of document.querySelectorAll('.qn,.qtop span,[id$="n"]')){if(e.offsetParent&&/\d+\s*\/\s*\d+/.test(e.textContent||'')&&e.closest('.qtop,section,.pnl'))return true}return false};
-const okNow=()=>!NOSCR.has(H.screen)&&!quizOn()&&!$('mamePop')&&!document.hidden;
+/* 11/22 ユーザー: 誰かと 会話中は 出さない。 キャラと 向き合う ページ（TALKSCR）、 会話・ノベルの とちゅう（data-stay）、 声で 読んで いる 間は 会話中。
+   会話の おわり（.kend/.kends）が 出たら もう 会話中では ない */
+const TALKSCR=new Set(['mina','mchat','kaiwa','love','gift','tutor','zakka','food','house','fest','adv']);
+const talkOn=noVoice=>{const pn=$('panel'),end=pn&&pn.querySelector('.kend,.kends');
+  if(TALKSCR.has(H.screen))return !end;
+  if(pn&&pn.querySelector('[data-stay]')&&!end)return true;
+  if(noVoice)return false;try{if(speechSynthesis.speaking)return true}catch(e){}return false};
+const okNow=talk=>!NOSCR.has(H.screen)&&!quizOn()&&(talk||!talkOn())&&!$('mamePop')&&!document.hidden;
 /* 音・ことばの まめちしき（t.les）は 数が 多いので 15分 あける */
 const pickTip=text=>{const far=Date.now()-R.last>15*60000,t=TIPS.find(t=>!R.s[t.id]&&(R.n[t.id]||0)<3&&(!t.after||R.s[t.after])&&(!t.les||far)&&t.re.test(text));if(t){const m=text.match(t.re)||[''];t._w=((m.groups&&m.groups.w)||m[0]).trim()}return t};
 /* 11/22: ミニ授業（音と発音など）も まめちしきに。 t.les = LESSONS の id（ひらくと その 授業の 説明カードを 小さく 見せる）、 hook の {w} = 見つけた 英語（game/mini-place.js） */
@@ -68,11 +77,16 @@ const lesOf=id=>{try{return (typeof LESSONS!=='undefined'?LESSONS:[]).find(l=>l.
 const lesHtml=l=>l.steps.map(s=>`<div class="mmls"><p>${s[2]}</p>${s[3]?`<div class="fz">${s[3]}</div>`:''}</div>`).join('');
 const hookOf=t=>String(t.hook||'').replace(/\{w\}/g,esc(t._w||t.wd||''));
 function scan(){bufT=0;const txt=buf.join(' \n ');buf=[];
-  if(wait||Date.now()-R.last<GAP||Date.now()-bootAt<20000||!okNow())return;
+  if(wait||Date.now()-R.last<GAP||Date.now()-bootAt<20000||!okNow(true))return;
   const t=pickTip(txt);if(!t)return;const scr=H.screen;wait=t;
   /* セリフを 読みおわって、 ひと呼吸 おいてから */
-  H.afterTalk(()=>{wait=null;if(H.screen===scr&&okNow())pop(t)},1200,1500,()=>H.screen===scr)}
-new MutationObserver(ms=>{const mp=$('mamePop');if(mp&&(NOSCR.has(H.screen)||quizOn()))shut();
+  H.afterTalk(()=>later(t,scr,Date.now()),1200,1500)}
+/* 会話中なら、 会話が おわるまで まつ（ページを はなれたら やめる。 10分まで） */
+function later(t,scr,t0){if(H.screen!==scr||Date.now()-t0>10*60000){wait=null;return}
+  if(talkOn()||quizOn()||document.hidden){setTimeout(()=>later(t,scr,t0),1000);return}
+  /* alive を わたすと ページを はなれた とき よばれず wait が のこるので、 中で たしかめる */
+  H.afterTalk(()=>{wait=null;if(H.screen===scr&&okNow())pop(t)},1200,1500)}
+new MutationObserver(ms=>{const mp=$('mamePop');if(mp&&(NOSCR.has(H.screen)||quizOn()||talkOn(true)))shut();/* ふきだしの 読み上げで とじない よう 声は 見ない */
   for(const m of ms)for(const n of m.addedNodes){const el=n.nodeType===1?n:n.parentElement;if(!el||el.closest(SKIP))continue;
     const s=(n.nodeType===1?n.textContent:n.nodeValue)||'';if(s.length>2&&/[a-z]/i.test(s))buf.push(s.slice(0,600))}
   if(buf.length&&!bufT)bufT=setTimeout(scan,500)}).observe(document.body,{childList:true,subtree:true});
