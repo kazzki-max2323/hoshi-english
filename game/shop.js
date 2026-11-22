@@ -343,15 +343,33 @@ function ML2(k){const a=MU()[k];if(!a||!a.length)return null;const L=ML2.last||(
 function gLine(g,k,own){const i=GUESTS.indexOf(g.G),w=(MU().who||[])[i];if(w&&w.length&&Math.random()<own){let x,n=0;do{x=pickL(w)}while(w.length>1&&g.said===x&&++n<6);g.said=x;return x}return ML2(k)}
 function mut(T,who,line,ms,free){if(!line||!T.mu)return;const m=T.mu;if(m.until>Date.now()){if(!free&&m.q.length<2)m.q.push([who,line,ms]);return}
   m.who=who;m.line=line;m.until=Date.now()+(ms||Math.max(3200,1800+line[0].length*90));floatUp(T,who,line,m.until-Date.now())}
-/* 11/22: ふきだしは 浜辺の ラジオのように 話した 人の 上から ゆっくり 浮かんで 消える（タップで 読む） */
+/* 11/22: ふきだしは 浜辺の ラジオのように 話した 人の 上から ゆっくり 浮かんで 消える（タップで 読む）
+   見出し（← カードショップ）の 枠の 上まで 上がって 消える。 ふきだし どうしは 重ならない（あたらしいのが 下から 押し上げる） */
+const BUB=[];let flbRaf=0;
 function floatUp(T,who,line,ms){const box=$('shfls');if(!box)return;const sp=who==='m'?T.mio:who==='h'?T.hrSp:T.g;if(!sp)return;
   const st=box.parentNode,sx=st.clientWidth/W,sy=st.clientHeight/HH,e=document.createElement('div');
   e.className='shmut fl '+(who==='m'?'mio':'gst');e.innerHTML=`<b class="en">${esc(line[0])}</b><small class="ja">${esc(line[1]||'')}</small>`;
-  box.appendChild(e);const bw=e.offsetWidth,cx=(sp.x+7)*sx,left=Math.max(4,Math.min(st.clientWidth-bw-4,cx-bw/2));
-  e.style.left=left+'px';e.style.bottom=Math.round((HH-sp.y+2)*sy)+'px';e.style.setProperty('--dur',Math.round(ms+5000)+'ms');e.style.setProperty('--rise',Math.round(st.clientHeight*.5)+'px');
+  box.appendChild(e);const bw=e.offsetWidth,bh=e.offsetHeight,cx=(sp.x+7)*sx,left=Math.max(4,Math.min(st.clientWidth-bw-4,cx-bw/2));
+  const y0=Math.round((sp.y-2)*sy)-bh;   // ふきだしの 上の はし（ステージの 中の 位置）
+  e.style.left=left+'px';e.style.top=y0+'px';
   e.onclick=ev=>{ev.stopPropagation();who==='h'?H.say('hs',line[0]):(who==='m'?speak:gspeak)(line[0])};
-  e.addEventListener('animationend',()=>e.remove());
-  [...box.children].slice(0,-3).forEach(x=>x.remove())}
+  /* 上の はしまでの きょりを ms+5秒で のぼる */
+  const lim=flbLim(st),dur=ms+5000;BUB.push({e,x:left,w:bw,h:bh,y0,y:y0,dur,t0:performance.now(),v:Math.max(.006,(y0-lim)/dur)});
+  while(BUB.length>6){BUB.shift().e.remove()}
+  if(!flbRaf)flbRaf=requestAnimationFrame(flbTick)}
+/* 見出しの 枠の 上（パネルの 上の はし）が ステージから 見て どこか */
+function flbLim(st){const p=st.closest('.pnl'),r=st.getBoundingClientRect();if(!p)return -r.top;const pr=p.getBoundingClientRect();return Math.max(pr.top,0)-r.top+2}
+function flbTick(now){flbRaf=0;const box=$('shfls');if(!box){BUB.length=0;return}
+  for(let i=BUB.length-1;i>=0;i--)if(!BUB[i].e.isConnected)BUB.splice(i,1);
+  const st=box.parentNode,lim=flbLim(st),RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  /* あたらしい ものから 順に。 横が かさなる 新しい ふきだしの 上に 6px あけて のる */
+  for(let i=BUB.length-1;i>=0;i--){const b=BUB[i];let y=RM?b.y0:b.y0-(now-b.t0)*b.v;
+    for(let j=i+1;j<BUB.length;j++){const n=BUB[j];if(b.x<n.x+n.w&&n.x<b.x+b.w)y=Math.min(y,n.y-6-b.h)}
+    b.y=Math.min(b.y,y);   // 下には もどらない
+    const age=now-b.t0,inA=Math.min(1,age/400),span=b.y0-lim,left=b.y-lim,outA=span>0?Math.min(1,left/(span*.3)):1;
+    b.e.style.top=Math.round(b.y)+'px';b.e.style.opacity=Math.max(0,Math.min(inA,outA)).toFixed(2);
+    if(b.y<=lim||(RM&&age>b.dur)){b.e.remove();BUB.splice(i,1)}}
+  if(BUB.length)flbRaf=requestAnimationFrame(flbTick)}
 /* every frame: follow the speaker, end the bubble, and let Mio mutter when the shop is quiet */
 function mutTick(T,t){const m=T.mu,now=Date.now();if(!$('shfls'))return;
   if(m.who&&now>=m.until){m.who='';m.next=Math.max(m.next,now+1200);const n=m.q.shift();if(n){m.next=0;setTimeout(()=>{if(T.alive)mut(T,...n)},450)}}
