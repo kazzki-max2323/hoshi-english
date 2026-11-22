@@ -167,7 +167,7 @@ function spot(){let b=$('tuSpot');const w=$('window');if(!w)return;
   const k=d.k,wd=Math.round(60*k),x=Math.max(d.WW*.11,wd/2+4);b.style.width=wd+'px';
   b.style.left=Math.round(x-wd/2)+'px';b.style.top=Math.round(d.shore-d.WT+62*k-wd*57.4/72)+'px';
   const dk2=Math.max(0,Math.min(1,d.dark||0));b.style.setProperty('--dk',dk2.toFixed(2));
-  b.classList.toggle('ask',paidLeft()>0);b.classList.toggle('off',H.screen!=='home')}
+  b.classList.toggle('ask',paidLeft()>0&&!(window.RIKUH&&!RIKUH.here()));b.classList.toggle('off',H.screen!=='home')}
 setTimeout(spot,600);addEventListener('resize',()=>setTimeout(spot,200));setInterval(spot,2500);
 H.on('home',()=>setTimeout(spot,60));
 
@@ -175,10 +175,11 @@ H.on('home',()=>setTimeout(spot,60));
 function kidLine(ja,cls=''){const en=enOf(ja);
   return `<div class="lsay kth tukid ${cls}"><span class="lface kf">${FACE.riku}</span><div class="lbody"><p class="${en?'tusay':''}">${esc(ja)}${en?`<button class="ksay" data-say="${esc(en)}" aria-label="もう一度 きく">🔊</button>`:''}</p></div></div>`}
 function bindSay(root){root.querySelectorAll('[data-say]').forEach(b=>b.onclick=e=>{e.stopPropagation();talk(b.dataset.say)})}
-function open(){if(!TD.met){TD.met=1;save();return top(K.hello[0])}top()}
+function open(){if(window.RIKUH&&!RIKUH.here())return RIKUH.away();if(!TD.met){TD.met=1;save();return top(K.hello[0])}top()}
 function memT(){const T=TQ.filter(q=>TD.taught[q.id]);return T.length?pickL(T):null}
 function top(first){hush();const left=paidLeft(),mq=memT();
-  const line=first||(mq&&K.topMem&&Math.random()<.3?pickL(K.topMem).replace('{t}',mq.t):pickL(left?K.top:K.topDone));
+  const hl=!first&&window.RIKUH?RIKUH.line():'';
+  const line=first||hl||(mq&&K.topMem&&Math.random()<.3?pickL(K.topMem).replace('{t}',mq.t):pickL(left?K.top:K.topDone));
   H.show('tutor',`<section class="pnl tu">
     <div class="qtop"><button class="x" id="tux" aria-label="もどる">←</button><b>👦 家庭教師の バイト</b>${window.GIFT?GIFT.btn('riku','tugv'):'<span class="qn"></span>'}</div>
     <div id="tuhi">${kidLine(line)}</div>
@@ -679,19 +680,20 @@ Object.assign(MINA_LINES,{
  x_tuTalk:[['happy','リクくん、 せんせいと おしゃべり するのを たのしみに してるんだって'],['smile','リクくんが 「せんせいに 話したい こと ある」って 言ってたよ']],
 });
 const goTu=()=>['👦 リクの ところへ',open];
+const rk=()=>!window.RIKUH||RIKUH.here();
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
- ['x_tuNone',4,()=>!TD.met?{}:null,goTu],
- ['x_tuWeak',3,()=>{if(!TD.met||!paidLeft())return null;const st=studied(),q=TQ.find(q=>tagOf(q,st)==='weak');return q?{t:q.t}:null},goTu],
- ['x_tuToday',2,()=>TD.met&&paidLeft()&&Date.now()-TD.last>3*3600e3?{n:paidLeft()}:null,goTu],
+ ['x_tuNone',4,()=>!TD.met&&rk()?{}:null,goTu],
+ ['x_tuWeak',3,()=>{if(!TD.met||!paidLeft()||!rk())return null;const st=studied(),q=TQ.find(q=>tagOf(q,st)==='weak');return q?{t:q.t}:null},goTu],
+ ['x_tuToday',2,()=>rk()&&TD.met&&paidLeft()&&Date.now()-TD.last>3*3600e3?{n:paidLeft()}:null,goTu],
  ['x_tuGift',2,()=>{const G=sellable();return G.length?{n:giftN(),g:G[0].n}:null},()=>window.ZAKKA?['🏚️ 雑貨店へ',()=>ZAKKA.play('sell')]:goTu()],
  ['x_tuLetter',1,()=>{const nl=nextLetter();return TD.met&&nl&&nl-TD.n<=2?{n:nl-TD.n}:null},goTu],
- ['x_tuQuiz',1,()=>TD.met&&paidLeft()&&taughtN()>=4?{}:null,goTu],
- ['x_tuTalk',1,()=>TD.met&&paidLeft()&&Object.keys(TD.talks||{}).length<CH.length?{}:null,goTu],
+ ['x_tuQuiz',1,()=>rk()&&TD.met&&paidLeft()&&taughtN()>=4?{}:null,goTu],
+ ['x_tuTalk',1,()=>rk()&&TD.met&&paidLeft()&&Object.keys(TD.talks||{}).length<CH.length?{}:null,goTu],
  ['x_tuNote',1,()=>{const n=Object.keys(TD.note||{}).filter(qById).length;return TD.met&&n>=3?{n}:null},()=>['📒 ノートを 見る',()=>notebook(H.home)]],
- ['x_tuDunno',3,()=>{if(!TD.met||!paidLeft())return null;const id=Object.keys(TD.dunno||{}).find(qById);return id?{t:qById(id).t}:null},goTu],
+ ['x_tuDunno',3,()=>{if(!TD.met||!paidLeft()||!rk())return null;const id=Object.keys(TD.dunno||{}).find(qById);return id?{t:qById(id).t}:null},goTu],
  ['x_tuFunNone',0,()=>null,goTu]);
 /* the first time: Mina points at the parasol once */
-setTimeout(function first(){if(TD.met||TD.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
+setTimeout(function first(){if(TD.met||TD.told)return;if(window.RIKUH&&!RIKUH.here())return setTimeout(first,30000);const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
   TD.told=1;save();const [ex,tx]=mline('tu_first');m.say('m',ex,tx,9000,null,['👦 行ってみる',open])},70000);
 
 window.TUTOR={open,top,play,notebook,gifts,rec:()=>TD,sellable,take,funList,funN,funAll,qs:TQ,_spot:spot,_pick:pick3};
