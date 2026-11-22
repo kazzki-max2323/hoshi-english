@@ -55,7 +55,8 @@ const TIPS=[
 ];
 
 /* 出さない ところ */
-const NOSCR=new Set(['home','lesson','lessons','gram','review','sensei','mquiz','mdhint','mdafter','cards','books','settings','msearch']);
+const NOSCR=new Set(['home','lesson','lessons','gram','review','sensei','mquiz','mdhint','mdafter','cards','books','settings','msearch',
+ 'cg','hours']);   // 11/22 ユーザー「ショップでは 出ないように」: カードショップ（店・作業台・2階・鉱山・ブック）では 出さない・出ていたら とじる
 const SKIP='#dpov,#prteach,#cardTop,#cardOv,#mamePop,header,#toast,#cheerBox,.ttov,.qtop,[data-notap]';
 const GAP=6*60000;let bootAt=Date.now(),wait=null,buf=[],bufT=0;
 /* 11/22 ユーザー: 授業・テスト・練習の 問題中は 出さない。 画面の 名前だけで なく、 問題の 重ね（#dpov 授業・練習・とっくん、 #prteach 教えて）や
