@@ -107,5 +107,5 @@ function afterLesson(l){const G=notesFor(l.id);if(!G.length)return null;const g=
   return {html:say(ex,tx)+`<div class="row"><button id="lgram">✏️ この文法を テストで ためす</button></div>`,
     bind:()=>{const b=document.getElementById('lgram');if(b)b.onclick=()=>tryTest(g)}}}
 
-window.GRAMLINK={lessonsFor,notesFor,noteById,afterTest,afterLesson,tryTest,map:GRAM_LES};
+window.GRAMLINK={lessonsFor,lessonsAll:lessonsForOld,notesFor,noteById,afterTest,afterLesson,tryTest,map:GRAM_LES};
 })();

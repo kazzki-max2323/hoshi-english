@@ -49,7 +49,12 @@ const NOSCR=new Set(['home','lesson','lessons','gram','review','sensei','mquiz',
 const SKIP='#dpov,#prteach,#cardTop,#cardOv,#mamePop,header,#toast,#cheerBox,.ttov,.qtop,[data-notap]';
 const GAP=6*60000;let bootAt=Date.now(),wait=null,buf=[],bufT=0;
 const okNow=()=>!NOSCR.has(H.screen)&&!$('dpov')&&!$('prteach')&&!$('mamePop')&&!document.hidden;
-const pickTip=text=>TIPS.find(t=>!R.s[t.id]&&(R.n[t.id]||0)<3&&(!t.after||R.s[t.after])&&t.re.test(text));
+/* 音・ことばの まめちしき（t.les）は 数が 多いので 15分 あける */
+const pickTip=text=>{const far=Date.now()-R.last>15*60000,t=TIPS.find(t=>!R.s[t.id]&&(R.n[t.id]||0)<3&&(!t.after||R.s[t.after])&&(!t.les||far)&&t.re.test(text));if(t)t._w=(text.match(t.re)||[''])[0].trim();return t};
+/* 11/22: ミニ授業（音と発音など）も まめちしきに。 t.les = LESSONS の id（ひらくと その 授業の 説明カードを 小さく 見せる）、 hook の {w} = 見つけた 英語（game/mini-place.js） */
+const lesOf=id=>{try{return (typeof LESSONS!=='undefined'?LESSONS:[]).find(l=>l.id===id)||null}catch(e){return null}};
+const lesHtml=l=>l.steps.map(s=>`<div class="mmls"><p>${s[2]}</p>${s[3]?`<div class="fz">${s[3]}</div>`:''}</div>`).join('');
+const hookOf=t=>String(t.hook||'').replace(/\{w\}/g,esc(t._w||''));
 function scan(){bufT=0;const txt=buf.join(' \n ');buf=[];
   if(wait||Date.now()-R.last<GAP||Date.now()-bootAt<20000||!okNow())return;
   const t=pickTip(txt);if(!t)return;const scr=H.screen;wait=t;
@@ -63,20 +68,20 @@ new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes){const e
 let hideT=0;
 function shut(){const p=$('mamePop');if(!p)return;clearTimeout(hideT);p.classList.remove('on','open');setTimeout(()=>p.remove(),300)}
 function pop(t){R.last=Date.now();save();const p=document.createElement('div');p.id='mamePop';p.className='mame';
-  p.innerHTML=`<button class="mmhook" aria-label="まめちしきを ひらく"><span class="mmf">${face(t.x,t.hook)}</span><span class="mmt"><em>💡 ミナ先生の まめちしき</em><span>${t.hook}</span><small>タップで こたえ ▶</small></span></button>`;
+  p.innerHTML=`<button class="mmhook" aria-label="まめちしきを ひらく"><span class="mmf">${face(t.x,t.hook)}</span><span class="mmt"><em>💡 ミナ先生の まめちしき</em><span>${hookOf(t)}</span><small>タップで こたえ ▶</small></span></button>`;
   document.body.appendChild(p);void p.offsetWidth;p.classList.add('on');snd('pop');
   p.querySelector('.mmhook').onclick=e=>{e.stopPropagation();open(t)};
   /* 読まずに 流れたら スルー 1回（3回で その 話は もう 出さない。 🙋 しつもんでは いつでも 読める） */
   hideT=setTimeout(()=>{if(p.classList.contains('open'))return;R.n[t.id]=(R.n[t.id]||0)+1;save();shut()},14000)}
-function open(t){const p=$('mamePop');if(!p)return;clearTimeout(hideT);snd('talk');R.s[t.id]=Date.now();save();
+function open(t){const p=$('mamePop');if(!p)return;clearTimeout(hideT);snd('talk');R.s[t.id]=Date.now();save();const L=t.les?lesOf(t.les):null;
   try{RECENT.add('mame',{t:t.id,en:t.id})}catch(e){}
   p.classList.add('open');
-  p.innerHTML=`<div class="mmbox"><div class="mmhd"><span class="mmf">${face(t.x,t.say)}</span><p>${t.say}</p></div>
+  p.innerHTML=`<div class="mmbox">${L?`<p class="mmlt">${esc(L.t)}</p>${lesHtml(L)}`:`<div class="mmhd"><span class="mmf">${face(t.x,t.say)}</span><p>${t.say}</p></div>`}
     ${t.f?`<div class="mmtwo">${t.f.map(([a,b])=>`<div><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join('')}</div>`:''}
-    <div class="mmex">${t.ex.map(([en,ja])=>`<button data-say="${esc(en)}"><span>🔊 ${esc(en)}</span><small>${esc(ja)}</small></button>`).join('')}</div>
+    <div class="mmex">${(t.ex||[]).map(([en,ja])=>`<button data-say="${esc(en)}"><span>🔊 ${esc(en)}</span><small>${esc(ja)}</small></button>`).join('')}</div>
     <div class="mmnav"><button class="mmok">なるほど！</button></div></div>`;
   p.querySelectorAll('[data-say]').forEach(b=>b.onclick=e=>{e.stopPropagation();snd('pop');talk(b.dataset.say)});
-  p.querySelector('.mmok').onclick=e=>{e.stopPropagation();snd('step');const [ex,tx]=ML('mame_ok');
+  p.querySelector('.mmok').onclick=e=>{e.stopPropagation();snd('step');const [ex,tx]=ML(L?'mame_ok2':'mame_ok');
     p.innerHTML=`<div class="mmbox mmbye"><div class="mmhd"><span class="mmf">${face(ex,tx)}</span><p>${tx}</p></div></div>`;hideT=setTimeout(shut,2200)};
   p.onclick=e=>e.stopPropagation()}
 
@@ -97,6 +102,7 @@ Object.assign(MINA_LINES,{
  r_mameMore:[['smile','would の ほかにも 「一歩 下がる」 過去形は あるよ。 また 会話の 中で 見つけたら 教えるね'],['happy','could・might・should… ていねいな 過去形の なかま、 少しずつ 会えるよ']]
 });
 window.MINA_REACT_EXT=window.MINA_REACT_EXT||{};
-MINA_REACT_EXT.mame={act:e=>[e.t==='would'&&TIPS.some(t=>!R.s[t.id])&&Math.random()<.5?'r_mameMore':'r_mame',{},null],desc:()=>'ミナ先生の まめちしき（ていねいな 過去形）を 読んだ'};
-window.MAME={tips:TIPS,seen:id=>!!R.s[id],test:id=>{const t=TIPS.find(x=>x.id===id);if(t)pop(t)}};
+const POLITE=['would','could','wanted','might','should'];
+MINA_REACT_EXT.mame={act:e=>!POLITE.includes(e.t)?['r_mame2',{},null]:[e.t==='would'&&TIPS.some(t=>!R.s[t.id])&&Math.random()<.5?'r_mameMore':'r_mame',{},null],desc:e=>POLITE.includes(e&&e.t)?'ミナ先生の まめちしき（ていねいな 過去形）を 読んだ':'ミナ先生の まめちしき（音や ことば）を 読んだ'};
+window.MAME={tips:TIPS,add:a=>{a.forEach(t=>{if(!TIPS.some(x=>x.id===t.id))TIPS.push(t)})},lesOf,lesHtml,seen:id=>!!R.s[id],test:id=>{const t=TIPS.find(x=>x.id===id);if(t)pop(t)}};
 })();

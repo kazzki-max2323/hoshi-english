@@ -112,3 +112,6 @@
 .mdskipn{margin:6px 2px 0;font-size:.74rem;opacity:.75;line-height:1.5}
 .mdrs{display:flex;justify-content:flex-end;margin:0 0 6px}
 .mdrs button{width:auto!important;padding:5px 12px!important;font-size:.8rem}
+
+/* 単元に 入れた 前の ミニ授業の 図（game/mini-place.js）: 横いっぱいに */
+.mdfig .mdlfz{width:100%;box-sizing:border-box;background:none;padding:0;align-self:stretch}
