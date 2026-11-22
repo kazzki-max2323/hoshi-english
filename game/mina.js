@@ -324,6 +324,7 @@ function panelOpen(){const from=H.screen,MP=window.MPLAN,P=MP?MP.page(from):{htm
       <div class="mtalk" id="mtalk"></div>
       <div class="mmrow">${window.MINA_SENSE?'<button id="mmore" class="sub mmore">💬 ほかの 話も きく</button>':''}</div>
       ${window.UNK?UNK.minaBox():''}
+      ${window.MCHAT?MCHAT.minaBox():''}
     </div></details>
     <button id="mrec" class="sub mrecb">📊 きろく</button>
   </section>`);
@@ -338,7 +339,8 @@ function panelOpen(){const from=H.screen,MP=window.MPLAN,P=MP?MP.page(from):{htm
   const ms=$('msgo');if(ms)ms.onclick=()=>MSEARCH.open('');
   if(window.LOVE)LOVE.bind(panelOpen);
   if(window.GIFT)GIFT.bindBtn('mina','mgift',panelOpen);
-  if(window.UNK)UNK.minaBind(panelOpen)}
+  if(window.UNK)UNK.minaBind(panelOpen);
+  if(window.MCHAT)MCHAT.minaBind(panelOpen)}
 /* 📊 きろく: 数字・一覧は ふだん 見せず ここに。 いちばん上は 「できるように なった こと」（ことばで） */
 function recOpen(){const ww=weakWords(null,null).slice(0,12),D=day(),wg=weakGram()||gramForSentences(),su=stepUp(),S=window.STUDY;
   const accToday=D.a?Math.round(D.o/D.a*100):null,can=S?S.canList():[];
