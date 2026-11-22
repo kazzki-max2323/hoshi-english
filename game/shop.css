@@ -410,3 +410,14 @@
 .dgchip b{font-weight:700}
 .dgore1{margin:0;text-align:center;font-size:.85rem;color:#ffe9a8}
 .dgp #dgdown small{margin-left:6px}
+/* 11/22 鉱山の 休憩所: 3つから 1つ・けむりの ことば */
+.dgopts{display:flex;flex-direction:column;gap:6px}
+.pnl .dgopt{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center;text-align:left;padding:8px 12px}
+.dgopt span{grid-row:1/3;font-size:1.5rem}.dgopt b{font-size:.92rem}.dgopt small{font-size:.74rem;opacity:.85}
+.dgpicked{margin:0;text-align:center;font-size:.9rem;background:#ffffff14;border-radius:10px;padding:8px 10px}
+.dgsmoke{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;padding:6px;border-radius:12px;background:linear-gradient(#ffffff10,#ffffff04)}
+.dgsmoke>small{flex-basis:100%;text-align:center;font-size:.72rem;opacity:.85}
+.pnl .dgsw{display:flex;flex-direction:column;align-items:center;padding:4px 10px;border-radius:999px;background:#ffffff1a;border:1px solid #ffffff38;animation:dgsmk 3.6s ease-in-out var(--d,0s) infinite}
+.dgsw small{font-size:.66rem;opacity:.85}
+@keyframes dgsmk{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+@media (prefers-reduced-motion:reduce){.pnl .dgsw{animation:none}}
