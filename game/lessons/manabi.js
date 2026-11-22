@@ -1349,7 +1349,7 @@ LESSONS.push(
   tip:'I wish I could fly. の ように、I wish の 後ろは 現実から 一歩 はなれた 過去形。かなわない ねがいを 表すよ',
   steps:[
    ['m','smile','「〜だったら いいのになあ」。I wish は 現実と ちがう ことを ねがう 形だよ'],
-   ['m','think','時制を 1つ 過去に ずらして 「現実から はなす」', '<table class="fz-table"><tr><th>現実</th><th>I wish 〜</th></tr><tr><td>I can\'t fly.</td><td>I wish I <b>could</b> fly.</td></tr><tr><td>I am not tall.</td><td>I wish I <b>were</b> taller.</td></tr><tr><td>I didn\'t study.（過去）</td><td>I wish I <b>had studied</b>.</td></tr></table>'],
+   ['m','think','今の 話でも 過去の 形に して 「現実から 一歩 はなす」。 日本語の 「〜たら いいのに」も 「た」が つくね', '<table class="fz-table"><tr><th>現実</th><th>I wish 〜</th></tr><tr><td>I can\'t fly.</td><td>I wish I <b>could</b> fly.</td></tr><tr><td>I am not tall.</td><td>I wish I <b>were</b> taller.</td></tr><tr><td>I didn\'t study.（過去）</td><td>I wish I <b>had studied</b>.</td></tr></table>'],
    ['m','think','実現 できそうな ことは hope を 使う：I hope it\'s sunny tomorrow.（晴れると いいな）'],
    ['h','happy','I wish I were 20 years younger！ おばちゃんの 毎日の ねがいや'],
   ],

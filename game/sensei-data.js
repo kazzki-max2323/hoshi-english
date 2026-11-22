@@ -53,7 +53,7 @@ const SENSEI_ERR={
  rel:['jh_rel','人の ときと ものの ときで つかう ことばが ちがうよ','関係代名詞：<b>人 → who</b>、 <b>もの・動物 → which</b>、 どちらも <b>that</b> で OK。 the man which は ×'],
  part:['jh_part','boring と bored、 どっちが 「たいくつさせる」で どっちが 「たいくつしている」？','<b>〜ing ＝ 〜させる（もの・人の せいしつ）</b>、 <b>〜ed ＝ 〜させられた（気もち）</b>。 I am bored.（たいくつ） ／ The movie is boring.（つまらない 映画）'],
  indq:['jh_indq','文の 中に 入った 疑問文は、 ふつうの 文の じゅんばんに なるよ','間接疑問文は <b>疑問詞 ＋ 主語 ＋ 動詞</b>。 I know where is it. は ×、 <b>I know where it is.</b> が ○'],
- subj:['jh_subj','じっさいとは ちがう「もしも」の 話だよ。 形を 過去に','仮定法過去：<b>If I were 〜, I would 〜</b>。 じっさいと ちがう ことは 1つ 過去に ずらす。 I wish I were 〜 も おなじ'],
+ subj:['jh_subj','じっさいとは ちがう「もしも」の 話だよ。 過去の 形で 一歩 はなそう','仮定法過去：<b>If I were 〜, I would 〜</b>。 いまの 話でも、 じっさいと ちがう ことは 過去の 形で 現実から 一歩 はなす。 I wish I were 〜 も おなじ'],
  svoo:['jh_svoo','「人に ものを あげる」の じゅんばんを 思いだして','<b>give / show / tell ＋ 人 ＋ もの</b>：Give me the shell.　to を つかうなら Give the shell to me.'],
  prep:['jh_prep','曜日・月・時こくで 前置詞が ちがうよ','<b>at</b> ＋ 時こく（at six）、 <b>on</b> ＋ 曜日・日付（on Monday）、 <b>in</b> ＋ 月・年・季節（in July）'],
  art:['jh_art','あとの ことばの 音が a・i・u・e・o で はじまる ときは？','母音（ア・イ・ウ・エ・オの 音）の 前は <b>an</b>：an apple、 an egg、 an hour。 a apple は ×'],

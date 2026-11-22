@@ -116,7 +116,7 @@ sharpen:{c:['シャーペンは mechanical pencil。 カタカナ英語は 通�
  w:{1:['sharp pencil で 通じるよ。 カタカナと 同じ だから','シャープペンシルは そのまま sharp pencil だよ'],
     2:['shar-pen だよ。 みじかく して 言うよ','シャーペンを そのまま 英語に して shar-pen']}},
 /* ---------- 高校生 ---------- */
-were:{c:['ほんとは ちがう ことは 形を 1つ むかしに。 If I were a bird','ありえない 「もし」は were と would。 If I were a bird, I would fly.'],
+were:{c:['ほんとは ちがう ことは 過去の 形で 一歩 はなす。 If I were a bird','ありえない 「もし」は were と would。 If I were a bird, I would fly.'],
  w:{1:['If I am a bird, I will fly. ふつうの もし だよ','いまの 形で 言えば いいよ。 If I am a bird'],
     2:['If I bird, I fly. みじかく 言えば いいよ','be は いらないよ。 If I bird で OK']}},
 the:{c:['2回目からは the dog。 どの 犬か もう わかるから','さっきの 犬 だから the。 the は 「その」'],

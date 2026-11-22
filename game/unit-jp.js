@@ -84,7 +84,7 @@ const JP={
  hs_partc:J('「駅に 着い<b>て</b>、 電話した」と 「て」で つなぐ','駅に 着いて、 母に 電話した','<b>-ing</b> で はじめて 文を つなぐ','Arriving at the station, I called my mother.','日本語の 「〜て、」の 感じが 分詞構文'),
  jh_conj:J('「雨<b>なら</b>」「つかれた<b>ので</b>」と 文の <b>おしり</b>に つける','雨なら 家に いる','<b>If</b> it rains と 文の <b>前</b>に if・because','If it rains, I will stay home.','「なら・ので」は 後ろ、 if・because は 前'),
  hs_conj2:J('「雨だった<b>けれど</b>」「来る<b>まで</b>」と おしりに つける','雨だったけれど 出かけた','<b>Though・until</b> を 文の 前に','Though it was raining, I went out.','つなぐ ことばは 英語では 文の 先頭'),
- jh_subj:J('「もし 鳥 <b>だったら</b>」と 「たら」を つける','もし 鳥 だったら 飛べるのに','ありえない 話は 動詞を <b>1つ 過去に ずらす</b>（were・could）','If I were a bird, I could fly.','日本語の 「だっ<b>た</b>ら」の 「た」も 過去の 形。 じつは 同じ 発想'),
+ jh_subj:J('「もし 鳥 <b>だったら</b>」と 「たら」を つける','もし 鳥 だったら 飛べるのに','いまの 話でも、 ほんとうじゃない ことは <b>過去の 形で 現実から 一歩 はなす</b>（were・could）','If I were a bird, I could fly.','日本語の 「だっ<b>た</b>ら」の 「た」も 過去の 形。 じつは 同じ 発想。 ていねいな Would you〜? の 「一歩 下がる」とも なかま'),
  hs_subj2:J('「もっと 勉強して<b>いたら</b> 受かった<b>のに</b>」','もっと 勉強していたら 受かったのに','<b>had ＋ 過去分詞</b>と <b>would have ＋ 過去分詞</b>で 過去の 反対','If I had studied harder, I would have passed.','過去の 「もしも」は もう 1段 過去に さげる'),
  hs_speech:J('「彼は 『つかれた』<b>と</b> 言った」と かぎかっこで そのまま','彼は 「つかれた」と 言った','He said <b>he was</b> tired. 伝える 人から 見た 言い方に かえる','He said he was tired.','日本語は 「と」で そのまま、 英語は I → he・am → was に かえる'),
  hs_seq:J('「彼は つかれて<b>いる</b>と 言った」と 中は 今の まま','彼は つかれていると 言った','said の 後ろも <b>was</b> と 過去に そろえる','He said he was tired.','日本語の 感覚で is に すると ずれる。 前が 過去なら 後ろも 過去'),
