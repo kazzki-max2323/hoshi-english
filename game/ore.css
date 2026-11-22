@@ -1,0 +1,62 @@
+/* 🪨 原石の 作業台（game/ore.js） */
+.orebox{margin-top:4px}
+.orebn{background:linear-gradient(#4a3524,#3a2a1c);border:3px solid #e8b84a;border-radius:14px;padding:10px 10px 12px;color:#fff7e6;text-shadow:none}
+.orehd{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:8px}
+.orehd>b{font-size:1rem;white-space:nowrap}
+.orest{display:flex;align-items:center;gap:3px;font-size:.8rem}
+.orest b{margin-left:2px}
+.orest small{opacity:.8}
+.orestn{width:22px;height:22px;min-height:0;padding:0!important;border-radius:7px!important;border:2px solid transparent!important;background:radial-gradient(circle at 35% 30%,#b8b0a4,#6e665c 70%,#4a443c)!important;position:relative;overflow:hidden;box-shadow:none!important}
+.orestn i{position:absolute;left:0;right:0;bottom:0;height:var(--p);background:linear-gradient(#9fe0ff,#4aa8e0);opacity:.85}
+.orestn.on{border-color:#ffd23f!important;transform:scale(1.12)}
+.oretop{display:flex;gap:10px;align-items:center;margin-bottom:8px}
+.orecd{position:relative;flex:0 0 auto;width:84px}
+.orecd .cgc{width:84px!important;max-width:84px!important;margin:0!important}
+.orerock{position:absolute;inset:0;border-radius:8px;pointer-events:none;opacity:calc(1 - var(--p) * .9);
+  background:radial-gradient(circle at 20% 25%,#cfc8bc 0 8%,transparent 9%),radial-gradient(circle at 70% 60%,#a8a094 0 10%,transparent 11%),radial-gradient(circle at 40% 80%,#8c8478 0 9%,transparent 10%),linear-gradient(135deg,#9a9286,#6a6258 60%,#4e483f)}
+.oreinfo{flex:1;min-width:0}
+.oreinfo small{font-size:.72rem;opacity:.9}
+.oreinfo p{margin:4px 0 0;font-size:.78rem}
+.orebar{height:12px;border-radius:999px;background:#1e140c;border:2px solid #0006;margin:4px 0 2px;overflow:hidden}
+.orebar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#8fd8ff,#4aa8e0);transition:width .5s}
+.orelab{display:flex;justify-content:space-between;font-size:.68rem;opacity:.75}
+.orelab .on{opacity:1;color:#9fe0ff;font-weight:800}
+.oreq{min-height:120px}
+.oreqt{text-align:center;font-size:.82rem;margin:6px 0}
+.oreqt small{display:block;font-size:.7rem;opacity:.8}
+.oremean{display:flex;align-items:center;gap:10px;background:#fff7e0;color:#2a2340;border-radius:12px;padding:8px 12px}
+.oremean span{font-size:.78rem;opacity:.75}
+.oremean b{flex:1;font-size:1.25rem}
+.oremean button{min-height:0;padding:4px 10px!important}
+.oreslots{display:flex;justify-content:center;flex-wrap:wrap;gap:5px;margin:8px 0}
+.oreslot{width:2.1em;height:2.5em;display:flex;align-items:center;justify-content:center;border:2px solid #b08a4a;border-radius:8px;font:800 1.25rem/1 Georgia,serif;color:#2a2340;background:#3a2a1c;cursor:pointer}
+.oreslot.in{background:#fffdf4;border-color:#fffdf4}
+.oreslot.nx{border-color:#ffd23f;box-shadow:0 0 0 2px #ffd23f66}
+.oreslot.ok{background:#c8f5d0;border-color:#4ac06a}
+.oreslot.ng{background:#ffd0d0;border-color:#e05a5a;animation:oreng .3s}
+@keyframes oreng{25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.oretiles{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:6px 0 8px}
+.oretile{width:2.4em;height:2.6em;min-height:0;padding:0!important;font:800 1.3rem/1 Georgia,serif!important;color:#2a2340!important;background:#f0c050!important;border:0!important;border-radius:9px!important;box-shadow:0 3px 0 #a07020!important;text-shadow:none}
+.oretile.used{opacity:.25;box-shadow:none!important;transform:translateY(3px)}
+.oretile.hint{background:#9fe0ff!important;transform:scale(1.15)}
+.orebtns{justify-content:center;gap:8px}
+.orebtns button{min-height:0}
+.oresee{text-align:center}
+.orew{display:flex;align-items:center;justify-content:center;gap:10px}
+.orew b{font:800 2rem/1.2 Georgia,serif;color:#fff}
+.orew button{min-height:0;padding:4px 10px!important}
+.orewj{margin:2px 0 6px;font-size:1rem;font-weight:700}
+.oreex{background:#0003;border-radius:10px;padding:6px 10px;margin:0 0 8px;font-size:.85rem}
+.oreex span,.oreex small{display:block}.oreex small{opacity:.8}
+.oresee .row{justify-content:center;gap:8px}
+.oreq .cgq{color:#fff7e6}
+.oredn{text-align:center}
+.oredc{display:flex;justify-content:center;margin:4px 0}
+.oredc .cgc{max-width:150px!important}
+.orebk{margin:4px 0;font-weight:800;color:#ffe08a}
+.oremio{display:flex;align-items:center;gap:8px;text-align:left;background:#fff7e0;color:#2a2340;border-radius:12px;padding:6px 10px;margin:6px 0}
+.oremio svg,.oremio img{width:42px;height:42px;flex:0 0 auto}
+.oremio span{display:flex;flex-direction:column}.oremio small{font-size:.72rem;color:#5a5070}
+.oredn .row{justify-content:center;gap:8px}
+.oreempty{text-align:center;padding:14px 0}
+.oreempty span{font-size:2.2rem}.oreempty p{margin:4px 0;font-weight:800}.oreempty small{opacity:.85}

@@ -47,7 +47,7 @@ function hpShow(up){const el=$('mrhp');if(!el||!A)return;const h=A.hp();el.inner
 /* 🏕️ 休憩所で つかう 道具（雑貨屋の ⛏️ たな）: 🪵 たきぎ・🔋 ラジオの 電池・🗺️ 坑道の 地図 */
 const tN=id=>{try{return MINE.toolN(id)}catch(e){return 0}};
 function tools(){const el=$('mrtl');if(!el||!A)return;const L=[['wood','🪵 たきぎを くべる',!A.wood],['batt','🔋 ラジオに 電池',!A.batt],['map','🗺️ 地図を ひらく',!A.mapd]].filter(t=>tN(t[0])>0||!t[2]);
-  el.innerHTML=L.map(t=>t[2]?`<button class="sub" data-tl="${t[0]}">${t[1]} <small>×${tN(t[0])}</small></button>`:`<span class="mron">${t[1].split(' ')[0]} ${t[0]==='wood'?'火が 大きい':t[0]==='batt'?'仕入れ チャンネル':'つぎは えらべる'}</span>`).join('');
+  el.innerHTML=L.map(t=>t[2]?`<button class="sub" data-tl="${t[0]}">${t[1]} <small>×${tN(t[0])}</small></button>`:`<span class="mron">${t[1].split(' ')[0]} ${t[0]==='wood'?'火が 大きい':t[0]==='batt'?'ふくしゅう チャンネル':'つぎは えらべる'}</span>`).join('');
   el.querySelectorAll('[data-tl]').forEach(b=>b.onclick=()=>{const k=b.dataset.tl;if(!A||!MINE.takeTool(k))return;A.used&&A.used(MINE_TOOLS[k].ico);
     if(k==='wood'){A.wood=1;sf('knock');hpShow()}else if(k==='batt'){A.batt=1;A.batN=0;sf('pickup');if(RAD)radioOff();radioOn()}else{A.mapd=1;A.map&&A.map();sf('open')}
     const [,tx]=ML('mn_rest_'+k);if(tx)H.toast(`${MINE_TOOLS[k].ico} <b>${esc(MINE_TOOLS[k].n)}</b><small>${MICO()} ${esc(tx)}</small>`,3400);tools()})}
@@ -76,7 +76,7 @@ function bookWords(){try{return window.STOCK?STOCK.bookIds().filter(id=>{const I
 function radioList(){const bk=bookWords();A.rsrc=bk.length>=5?'book':'trip';if(A.rsrc==='book')return H.shuffle(bk).slice(0,60);
   let ids=(A.trip||[]).slice();if(ids.length<5){const lv=(C.info(A.ids[0])||{}).lv||'es';ids=ids.concat(H.shuffle(C.W.filter(c=>c.lv===lv&&C.owns(c.id))).slice(0,5-ids.length).map(c=>c.id))}
   /* （ブックが まだ 少ない とき）🔋 電池: お店の チャンネル＝📖ブックの ことばも 流れる */
-  if(A.batt&&window.STOCK){const bk=STOCK.pick(5,ids).filter(id=>{const I=C.info(id);return I&&(I.k==='w'||I.k==='t')});ids=ids.concat(bk);return H.shuffle(ids)}
+  if(A.batt){let bk=[];try{bk=H.shuffle(Object.keys(SHOP.bookRec()).filter(id=>{const I=C.info(id);return I&&(I.k==='w'||I.k==='t')&&!ids.includes(id)})).slice(0,5)}catch(e){}ids=ids.concat(bk);return H.shuffle(ids)}
   return H.shuffle(ids)}
 function radioOn(){if(!A)return;const list=radioList();if(!list.length){H.toast('📻 まだ 流せる ことばが ないよ');return}
   RAD={list,i:0,alive:true};const R0=RAD;const b=$('mrrad');if(b){b.classList.add('on');b.innerHTML='📻 ラジオ <b>オン</b>'}
@@ -217,5 +217,5 @@ window.MINE_REST={open,stop};
 
 Object.assign(MINA_LINES,{
  mn_rest_wood:[['happy','たき火が 大きく なったね！ ❤が 2ばいの 速さで もどるよ。 英語で "The fire is roaring."'],['smile','あったかいね。 firewood（たきぎ）は 数えられない ことば。 a piece of firewood って 言うよ']],
- mn_rest_batt:[['wow','ラジオに 仕入れの チャンネルが 入ったよ！ 📖ブックの ことばを 聞くと、 その カードが お店に とどくの'],['point','電池の あいだは、 ラジオで 聞いた カード 3まいが 仕入れに なるんだ']],
+ mn_rest_batt:[['wow','ラジオに ふくしゅうの チャンネルが 入ったよ！ 📖ブックに 記録した ことばも 流れるの'],['point','電池の あいだは、 前に 仕上げた カードの ことばも ラジオで 聞けるよ']],
  mn_rest_map:[['happy','地図を ひらいたね。 つぎの 階は 8まいの 中から おぼえたい 5まいを えらべるよ'],['think','えらぶ ときは「ほんとに 使いたい ことば」を。 それが いちばん おぼえるよ']]});

@@ -447,7 +447,7 @@ function starter(){const pool=W.filter(c=>c.lv==='es');const ids=[];
 /* the shop's front is game/shop.js */
 function open(){if(window.SHOP)return SHOP.open();H.home()}
 /* 仕入れ と 鉱山 だけ（ほかの 売り場・図鑑・道場は なくした。 古い 呼び出しは お店の 入口へ） */
-function go(t){({pack:()=>window.STOCK?STOCK.open():open(),mine:()=>window.MINE?MINE.open():open()}[t]||open)()}
+function go(t){({mine:()=>window.MINE?MINE.open():open()}[t]||open)()}   // 11/22 仕入れは なくした（pack は お店へ）
 const top=(t,right='')=>`<div class="qtop"><button class="x" id="cgb" aria-label="もどる">←</button><b>${t}</b><span class="qn">${right}</span></div>`;
 const coinTxt=n=>`🪙${n}`;
 function pay(n){if(ST.coins<n){H.toast('🪙 コインが たりないよ');sf('wrong');return false}ST.coins-=n;save();H.head();sf('buy');return true}
@@ -462,7 +462,7 @@ function packList(){const L=[];LVK.filter(lv=>lv!=='adv').forEach(lv=>L.push({k:
 const BUY_N=Infinity;
 const buyLeft=()=>1;
 const buyToday=()=>CG.buy&&CG.buy.d===today()?CG.buy.n:0;
-function packs(){if(window.STOCK)return STOCK.open();const L=packList(),free=CG.free!==today();
+function packs(){return open();const L=packList(),free=CG.free!==today();
   H.show('cg',`<section class="pnl cgp">${top('🎁 仕入れ',coinTxt(ST.coins))}
     ${free?`<button class="cgfree" id="cgfree">🎁 きょうの むりょうパック（3まい）</button>`:''}
     <p class="cgleft">仕入れは 何回でも OK</p>

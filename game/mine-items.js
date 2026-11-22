@@ -24,7 +24,7 @@ const MINE_TOOLS={
   q:["Does it protect me from everything?","なんでも 守ってくれる？","It stops one bad thing. After that, it's too dented to use again.","悪い ことを 1回 止めるの。 そのあとは へこんで もう 使えないわ。"],
   f:["Will it make me smarter?","かぶると 頭が よくなる？","It protects your head. Making it smarter is your job!","頭を 守るだけ。 かしこく するのは あなたの しごとよ！","Smart! Smart!"],
   e:["Safety first! Come back safe.","安全 第一！ ぶじに 帰ってきてね。"]},
- batt:{lv:'jh',ico:'🔋',n:'ラジオの 電池',en:'radio batteries',p:40,ef:'batt',v:3,rest:1,s:'休憩所: 単語ラジオで 📖ブックの ことばも 流れて、 聞いた カードが 3まい 仕入れに なる',
+ batt:{lv:'jh',ico:'🔋',n:'ラジオの 電池',en:'radio batteries',p:40,ef:'batt',v:3,rest:1,s:'休憩所: 単語ラジオで 📖ブックに 記録した ことばも 流れる（ふくしゅう）',
   d:["These are batteries for the little radio in the mine. With fresh batteries, it picks up the shop's channel too.","これは 鉱山の 小さな ラジオの 電池。 新しい 電池だと、 お店の チャンネルも 入るのよ。"],
   q:["What's on the shop's channel?","お店の チャンネルって なにが 流れるの？","Words from your card book. Listen to them, and Mio orders those cards for the shop.","あなたの カードブックの ことば。 聞いていると、 ミオちゃんが その カードを お店に 注文してくれるの。"],
   f:["Can I listen to music on it?","音楽も 聞ける？","Only words. It's a very serious radio.","ことばだけ。 とても まじめな ラジオなの。","Boring! Boring!"],
