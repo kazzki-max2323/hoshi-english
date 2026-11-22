@@ -70,7 +70,7 @@ const CH=[
    {s:'We ___ friends since we were children.',ja:'子どもの ころから ずっと 友だち',o:['have been','are','were'],h:'子どもの ころ から 今まで ずっと',e:'今まで つづく 状態は have been。 are だけでは 「ずっと」が 出ない'},
    {p:'「3日間 ずっと 雨が ふっている」',o:['It has been raining for three days.','It is raining since three days.','It rains for three days.'],h:'動作が 今も つづいている',e:'ずっと つづく 動作は have been ＋ -ing。 3日間は for'},
   ]},
- {ico:'✅',t:'完了「ちょうど・もう・まだ」',short:'完了',g:'jh_perfect',
+ {ico:'🏁',t:'完了「ちょうど・もう・まだ」',short:'完了',g:'jh_perfect',
   cards:[
    {x:'happy',say:'「〜した ところ」「〜して しまった」は <b>完了</b>。 今 ちょうど おわっている 感じだよ',
     f:tl([[55,66,'g','おわった！']],[[66,'']]),

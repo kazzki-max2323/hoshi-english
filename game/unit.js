@@ -68,11 +68,17 @@ function menu(key){C={m:'menu'};P=null;hush();const box=shell('',null),nx=nextCh
     ${skN?'<p class="mdskipn">「とばした」は さいしょの 1問に 正解した 時間。 タップすれば いつでも 授業が うけられるよ</p>':''}
     <div class="mdgo2">${nx!=null?`<button id="mdstart">${nx?'▶ つづきから（'+(nx+1)+'時間目）':'▶ はじめる'}</button>`:''}
       ${opt.extra?`<button id="mdex" class="sub">${opt.extra[0]}</button>`:''}<button id="mdsum" class="sub">📄 まとめ 1まいで 見る</button>
-      <button id="mdtest" class="${all?'':'sub'}">📝 まとめテスト ${R.best?stars(R.best):''}</button></div>`;
+      <button id="mdtest" class="${all?'':'sub'}">📝 まとめテスト ${R.best?stars(R.best):''}</button>
+      ${doneN()?'<button id="mdreset" class="sub">🔄 さいしょから やりなおす</button>':''}</div>`;
   box.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{snd('step');chapter(+b.dataset.ch,0)});
   const s=$('mdstart');if(s)s.onclick=()=>{snd('lesson');chapter(nx,0)};
   $('mdtest').onclick=()=>{snd('step');test()};
   $('mdsum').onclick=()=>{snd('book');sheet(menu)};
+  /* 🔄 さいしょから: ✔ も とばした も けして 1時間目から（11/22 ユーザー）。 2回 おして たしかめる */
+  const rs=$('mdreset');if(rs)rs.onclick=()=>{if(!rs.dataset.ok){snd('pop');rs.dataset.ok=1;rs.textContent='もう一度 おすと ✔を けして 1時間目から';return}
+    snd('lesson');R.ch={};R.miss={};R.qs=[];delete R.best;delete R.tn;R.pr=1;save();
+    try{RECENT.add('unitReset',{id:D.id})}catch(e){}
+    fresh=1;chapter(0,0,ML('reset'));fresh=0};
   const xb=$('mdex');if(xb)xb.onclick=()=>{snd('lesson');close();opt.extra[1]()}}
 const back=()=>P?close():menu();
 
@@ -80,7 +86,8 @@ const back=()=>P?close():menu();
 /* 一度に 増やさない（game/mina-plan.js gate）: いちばん 新しく おわった 時間が 練習で 身につくまで、 まだの 時間は 🔒 */
 /* 🔒は 「まだ 先の 時間」だけ: この 単元で いちばん うしろの おわった 時間より 前の 時間（飛ばした 時間）は しめない（11/21 ユーザー） */
 const lastDone=()=>{let m=-1;CH.forEach((c,i)=>{if(chDone(i)&&!chSkip(i))m=i});return m};
-const lockOf=ci=>{if(chDone(ci)||ci<lastDone()||!window.MPLAN||!MPLAN.gate)return null;try{return MPLAN.gate()}catch(e){return null}};
+let fresh=0;   // 🔄 さいしょから の 直後の 1時間目は 🔒に しない
+const lockOf=ci=>{if(fresh&&ci===0)return null;if(chDone(ci)||ci<lastDone()||!window.MPLAN||!MPLAN.gate)return null;try{return MPLAN.gate()}catch(e){return null}};
 function locked(G,ci){C={m:'lock'};hush();const box=shell(chT(ci),P?null:menu),[ex,tx]=MINA.line('mp_gateLes',{t:G.c.short});$('mdn').textContent='🔒';
   box.innerHTML=`${minaBox(ex,tx)}<div class="mdnav"><button id="mdlk">🌱 「${esc(G.c.short)}」を 練習する ▶</button></div><div class="mdnav"><button class="sub" id="mdlkb">☰ 時間の 一覧</button></div>`;
   $('mdlk').onclick=()=>{snd('lesson');close();PRAC.start({u:G.u.id,ci:G.ci})};$('mdlkb').onclick=()=>{snd('pop');menu()}}
