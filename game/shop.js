@@ -357,7 +357,7 @@ function mutTick(T,t){const m=T.mu,now=Date.now();if(!$('shfls'))return;
   if(m.who&&now>=m.until){m.who='';m.next=Math.max(m.next,now+1200);const n=m.q.shift();if(n){m.next=0;setTimeout(()=>{if(T.alive)mut(T,...n)},450)}}
   if(m.who)return;
   /* Mio, by herself: every 15〜25 s when no guest and no question is open */
-  if(T.g||m.q.length||now<m.next)return;const box=$('shact');if(box&&box.innerHTML&&!box.querySelector('.svx'))return;
+  if(T.g||m.q.length||now<m.next||mioUp())return;   // 2階に いる 夜は しずかconst box=$('shact');if(box&&box.innerHTML&&!box.querySelector('.svx'))return;
   m.next=now+25000+Math.random()*20000;
   if(H.playing&&T.mio.pose!=='doze'&&Math.random()<.3){mut(T,'m',recLine('play'));return}
   if(window.MIOCT&&T.mio.pose!=='doze'&&Math.random()<.6){const rx=MIOCT.mutter();if(rx){mut(T,'m',rx);return}}
@@ -378,7 +378,7 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
   H.show('cg',`<section class="pnl cgp shp shctr shmain">${top('🃏 カードショップ',`きょう 🪙${S.tday===C.today()?S.tearn:0}`,'cgx')}
     <div class="shstage"><canvas id="shcv" width="${W}" height="${HH}"></canvas><div class="shcase" id="shcase"></div><div class="shnotes" id="shnotes"></div><div class="shfls" id="shfls"></div></div>
     <div class="shnav">${navBtns()}</div>
-    <p class="shst" id="shst">${hrO?'🔔 開店中。 レジは ミオに まかせて、 原石を みがこう':hrP?'🧹 開店 じゅんび中（9時 開店）。 原石の 作業は いつでも できるよ':'🌙 閉店中（9時〜21時）。 原石の 作業は いつでも できるよ'}</p>
+    <p class="shst" id="shst">${hrO?'🔔 開店中。 レジは ミオに まかせて、 原石を みがこう':hrP?'🧹 開店 じゅんび中（9時 開店）。 原石の 作業は いつでも できるよ':'🌙 閉店中（9時〜21時）。 ミオは 2階に いるよ。 原石の 作業は いつでも できるよ'}</p>
     <div id="shact" class="shact"></div>
     <div id="orebox" class="orebox"></div></section>`);
   const cv=$('shcv'),c=cv.getContext('2d');c.imageSmoothingEnabled=false;
@@ -395,7 +395,7 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
   cv.onclick=ev=>{const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*W,y=(ev.clientY-r.top)/r.height*HH,m=T.mio;
     if(x>=PX[0]&&x<=PX[2]&&y>=PX[1]&&y<=PX[3])return recTap(T);
     if(x>=CPX[0]&&x<=CPX[2]&&y>=CPX[1]&&y<=CPX[3]){sf('step');pause(T);return caseScreen(()=>counter(true))}
-    if(window.MIOCT&&x>m.x-8&&x<m.x+22&&y>m.y-6&&y<m.y+36){sf('tap');tapMio()}};
+    if(window.MIOCT&&!mioUp()&&x>m.x-8&&x<m.x+22&&y>m.y-6&&y<m.y+36){sf('tap');tapMio()}};
   cv.style.cursor='pointer'
   let last=0;
   const tick=now=>{if(!T.alive||!cv.isConnected){T.alive=false;return}requestAnimationFrame(tick);if(now-last<140)return;last=now;T.f++;step(T);
@@ -405,7 +405,7 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
     const m=T.mio;if(m.walk){const dx=m.walk-m.x;if(Math.abs(dx)<1){m.x=m.walk;m.walk=null}else m.x+=Math.sign(dx)}
     const behind=m.y<60;
     const g=T.g;if(g&&g.y+32<=m.y+32){guest(c,g.x,g.y,g.L,g.pose,T.f>>1)}
-    if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1)}
+    if(mioUp())desk(c);else if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1)}
     if(g&&g.y+32>m.y+32)guest(c,g.x,g.y,g.L,g.pose,T.f>>1);
     showcase(c,T.f);const on=!!H.shopSongId;player(c,on,T.f);if(window.SHDECO)SHDECO.front(c,t,T.f);
     if(g&&g.bub&&!(T.mu.who==='g'&&T.mu.until>Date.now()))bub(c,g.x+11,g.y-9,g.bub);
@@ -420,14 +420,16 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
     done:id=>{T.mio.pose='cheer';T.mio.until=Date.now()+3000;const I=C.info(id);status(`✨ 「${esc(I?cnm(I):'')}」の カードが できた！`);mut(T,'m',pickL(ORE_MIO_OK),4200,1)},
     toFloor:id=>{const s=SH();if(s.floor.length>=FLOOR_N)return 'full';s.floor.push(id);save();refreshNav(T);return 'ok'}});
   T.wasOpen=hrO;
-  if(!hrO&&!old&&window.HOURS)setTimeout(()=>{if(T.alive)mut(T,'m',pickL(hrP?MIO_PREP:MIO_CLOSED),4800,1)},1400);
+  if(!hrO&&!old&&window.HOURS&&!mioUp())setTimeout(()=>{if(T.alive)mut(T,'m',pickL(hrP?MIO_PREP:MIO_CLOSED),4800,1)},1400);
   else if(!S.floor.length)setTimeout(()=>status('🏷️ 売り場が からっぽ… 🏷️から カードを ならべよう'),1200)}
 /* 店の 画面の 小さな ボタンの 列 */
+/* 🏠 夜（21〜6時）の ミオは 2階の 自分の へや（game/mio-home.js） */
+const mioUp=()=>{try{const s=MIOHOME.state();return s==='free'||s==='sleep'}catch(e){return false}};
 const refreshNav=T=>{const nv=H.panel.querySelector('.shnav');if(nv&&T.alive){nv.innerHTML=navBtns();bindNav(T)}};
 function navBtns(){const S=SH(),n=window.MIOC&&MIOC.newN&&MIOC.newN();
-  return `<button data-n="floor"><span>🏷️</span>売り場<small>${S.floor.length}/${FLOOR_N}</small></button><button data-n="store"><span>📦</span>倉庫</button><button data-n="book"><span>📖</span>ブック</button><button data-n="mine"><span>⛏️</span>鉱山</button><button data-n="talk"><span>💬</span>ミオ${n?'<i class="dot"></i>':''}</button><button data-n="gift"><span>🎁</span>あげる</button><button data-n="bgm"><span>🎵</span>BGM</button>${window.HORROR?HORROR.frontBtn():''}`}
+  return `<button data-n="floor"><span>🏷️</span>売り場<small>${S.floor.length}/${FLOOR_N}</small></button><button data-n="store"><span>📦</span>倉庫</button><button data-n="book"><span>📖</span>ブック</button><button data-n="mine"><span>⛏️</span>鉱山</button><button data-n="talk"><span>💬</span>ミオ${n?'<i class="dot"></i>':''}</button>${window.MIOHOME?'<button data-n="home"><span>🏠</span>2階</button>':''}<button data-n="gift"><span>🎁</span>あげる</button><button data-n="bgm"><span>🎵</span>BGM</button>${window.HORROR?HORROR.frontBtn():''}`}
 function bindNav(T){const P=()=>pause(T);
-  const A={floor:()=>{P();floor()},store:()=>{P();store()},book:()=>{P();CBOOK.open()},mine:()=>{T.alive=false;MINE.open()},talk:()=>{P();MIOC.open(open)},gift:()=>{P();GIFT.pick({to:'mio',back:open})},bgm:()=>{P();bgm()}};
+  const A={floor:()=>{P();floor()},store:()=>{P();store()},book:()=>{P();CBOOK.open()},mine:()=>{T.alive=false;MINE.open()},talk:()=>{P();MIOC.open(open)},gift:()=>{P();GIFT.pick({to:'mio',back:open})},bgm:()=>{P();bgm()},home:()=>{P();MIOHOME.open(open)}};
   H.panel.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{sf('step');A[b.dataset.n]()});
   if(window.HORROR){const hb=$('hrbk');if(hb){HORROR.frontBind(open);const g=hb.onclick;hb.onclick=()=>{P();g&&g()}}}}
 const hrMina=k=>{try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<.35){const [ex,tx]=ML(k);if(tx)setTimeout(()=>MINA.say('m',ex,tx,6000),2500)}}catch(e){}};

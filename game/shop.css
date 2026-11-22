@@ -348,3 +348,15 @@
 .hrssign b{font-size:1.8rem;letter-spacing:2px;color:#fff}.hrssign small{color:#ffe8c8}
 .hrsen{font-weight:800;margin:6px 0 2px;text-shadow:none}.hrsja{margin:0 0 10px;opacity:.9;text-shadow:none}
 .hrst{font-size:.85rem;margin:0 0 12px}
+/* 🏠 ミオの 2階（game/mio-home.js） */
+.mhp .shstage{margin-bottom:6px}
+.mhbtn{justify-content:center;gap:8px;flex-wrap:wrap;margin-top:8px}
+.mhbtn button{position:relative}
+.mhbtn .dot{position:absolute;top:4px;right:6px;width:8px;height:8px;border-radius:50%;background:#ff5a7a}
+.mhch{display:flex;flex-direction:column;gap:6px;margin:8px 0}
+.mhch button{display:flex;flex-direction:column;align-items:flex-start;text-align:left}
+.mhch button small{font-size:.72rem;opacity:.85}
+.mhnote{background:#fffdf4;color:#2a2340;border-radius:10px;padding:10px 12px;margin:8px 0;transform:rotate(-1deg);text-shadow:none}
+.mhnote p{margin:2px 0}.mhnote .en{font-weight:800}.mhnote small{display:block;text-align:right;color:#5a5070}
+.mhnight{background:linear-gradient(#141a3a,#232a52)!important}
+.mhnar{text-align:center;font-size:.95rem;line-height:1.6;margin:22px 8px;text-shadow:none}
