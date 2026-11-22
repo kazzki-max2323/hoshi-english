@@ -181,6 +181,7 @@ function teach(q,u,ci){if(ci==null)ci=q.c;const box=layer('🤔 教えて'),good
     <div class="mdcard prtc"><p class="prth">👀 見る ところ</p><p>${esc(q.h)}</p></div>
     <div class="mdcard prtc"><p class="prth">📘 なぜ 「${esc(good)}」？</p><p>${esc(q.e)}</p></div>
     <div class="mdcard prtc"><p class="prth">🙅 ほかの 答えは なぜ ちがう？</p><ul class="prtno">${others}</ul></div>
+    ${c&&c.jp&&UNIT.jpBox?`<div class="mdcard prtc"><p class="prth">🇯🇵 日本語と くらべると</p>${UNIT.jpBox(c.jp)}</div>`:''}
     ${kt?KATA.chip(kt):''}
     ${c?`<div class="mdnav"><button id="prtles">📘 ${ci+1}時間目「${esc(c.t)}」の 授業を 見る</button></div>`:''}
     <div class="mdnav"><button class="sub" id="prtbk">← 問題に もどる</button>${window.MINAQA?'<button class="sub" id="prtqa">🙋 ほかの 「なんで？」</button>':''}</div>`;

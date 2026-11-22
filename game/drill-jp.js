@@ -152,20 +152,20 @@ const DET={ynNeg:D_YN,ynPos:D_YN,ynPair:D_YN,ynJa:D_YN,
 /* les = ワンポイントレッスン（p: 見る ところ, ex: 🔊 例） */
 const CATS=[
  {id:'yn',ico:'🙆',t:'はい・いいえ',sub:'Don\'t you〜? に どう 答える？',ks:['ynNeg','ynPos','ynPair','ynJa'],n:20,nw:1,g:'jp',hint:'質問は 見ない。 答えが 「する」なら Yes、 「しない」なら No',
-  les:{p:['🚫 Yes ＝ 「はい」、 No ＝ 「いいえ」と <b>訳さない</b>。 Yes は 「後ろに <b>肯定</b>（I do）が 来るよ」、 No は 「後ろに <b>否定</b>（I don\'t）が 来るよ」の 合図','🙈 <b>質問は 見ない</b>。 先に 決めるのは <b>I do か I don\'t か</b> だけ','🙆 I do（する・そう）→ <b>Yes</b> が 自動で つく　🙅 I don\'t（しない・ちがう）→ <b>No</b> が 自動で つく','🧷 Yes・No は I do・I don\'t の <b>形を くずさない ために 前に くっついてる</b> 感じ。 だから Yes, I don\'t. や No, I do. は ない'],
+  les:{jp:['「はい・いいえ」は 相手の 言った ことに 合ってるか どうか','Yes・No は 後ろが 肯定（I do）か 否定（I don\'t）か の ふだ'],p:['🚫 Yes ＝ 「はい」、 No ＝ 「いいえ」と <b>訳さない</b>。 Yes は 「後ろに <b>肯定</b>（I do）が 来るよ」、 No は 「後ろに <b>否定</b>（I don\'t）が 来るよ」の 合図','🙈 <b>質問は 見ない</b>。 先に 決めるのは <b>I do か I don\'t か</b> だけ','🙆 I do（する・そう）→ <b>Yes</b> が 自動で つく　🙅 I don\'t（しない・ちがう）→ <b>No</b> が 自動で つく','🧷 Yes・No は I do・I don\'t の <b>形を くずさない ために 前に くっついてる</b> 感じ。 だから Yes, I don\'t. や No, I do. は ない'],
    ex:[["Don't you like cats? — Yes, I do.",'ねこ 好きじゃ ないの？ — （いや、）好きだよ'],["Don't you like cats? — No, I don't.",'— うん、 好きじゃ ない'],['Do you like cats? — No, I don\'t.','質問が かわっても 答えは 同じ']]}},
  {id:'art',ico:'🍎',t:'a / the / なし',sub:'はじめて？ もう わかってる？',ks:['art'],n:15,g:'jp',hint:'はじめて 出る → a、 どれか わかってる → the、 数えない → なし',
-  les:{p:['🆕 はじめて 出る 1つ → <b>a</b>（アイウエオの 音なら an）','👉 どれの ことか わかってる・1つしか ない → <b>the</b>','💧 数えない もの（water・music）・スポーツ → <b>なし</b>'],ex:[['I have a dog. The dog is white.','犬を かってる。 その 犬は 白い'],['Look at the moon.','月を 見て'],['I like music.','音楽が すき']]}},
+  les:{jp:['a・the に あたる ことばが ない','名詞の 前で 「はじめて？ わかってる？」を 毎回 決める'],p:['🆕 はじめて 出る 1つ → <b>a</b>（アイウエオの 音なら an）','👉 どれの ことか わかってる・1つしか ない → <b>the</b>','💧 数えない もの（water・music）・スポーツ → <b>なし</b>'],ex:[['I have a dog. The dog is white.','犬を かってる。 その 犬は 白い'],['Look at the moon.','月を 見て'],['I like music.','音楽が すき']]}},
  {id:'num',ico:'🔢',t:'1つ？ 2つ いじょう？',sub:'dog か dogs か',ks:['num'],n:15,g:'jp',hint:'いくつ ある？ 2つ いじょうなら -s・are',
-  les:{p:['☝️ 1つ → <b>a dog</b>（a が 1つの しるし）','✌️ 2つ いじょう → <b>dogs</b>（-s）。 child → children・man → men','🟰 主語が 2つ いじょうなら be も <b>are</b>'],ex:[['I have two dogs.','犬を 2ひき かってる'],['Three children are here.','子どもが 3人 いる']]}},
+  les:{jp:['「犬が いる」は 1ぴきでも 3びきでも 同じ','2つ いじょうなら かならず -s'],p:['☝️ 1つ → <b>a dog</b>（a が 1つの しるし）','✌️ 2つ いじょう → <b>dogs</b>（-s）。 child → children・man → men','🟰 主語が 2つ いじょうなら be も <b>are</b>'],ex:[['I have two dogs.','犬を 2ひき かってる'],['Three children are here.','子どもが 3人 いる']]}},
  {id:'subj',ico:'👤',t:'主語を はぶけない',sub:'「寒いね」も It\'s cold.',ks:['subj'],n:15,g:'jp',hint:'だれが？ 何が？ 天気・時間・寒さ なら it',
-  les:{p:['👤 英語の 文は かならず <b>主語</b>から','🙋 だれか いる → I・you・he・we…','🌧 天気・時間・寒さ・きょり → 意味の ない <b>it</b> で 席を うめる'],ex:[["It's cold.",'寒いね'],["I'll go.",'行くよ'],['Is it far?','遠い？']]}},
+  les:{jp:['「寒いね」「行くよ」と 主語なしで いい','主語は かならず。 だれも いなければ it'],p:['👤 英語の 文は かならず <b>主語</b>から','🙋 だれか いる → I・you・he・we…','🌧 天気・時間・寒さ・きょり → 意味の ない <b>it</b> で 席を うめる'],ex:[["It's cold.",'寒いね'],["I'll go.",'行くよ'],['Is it far?','遠い？']]}},
  {id:'s3x',ico:'🐝',t:'3人称の s',sub:'主語を he・she・it に おきかえ',ks:['s3x','s3'],n:15,g:'jp',hint:'主語を he・she・it・they に おきかえて みて',
-  les:{p:['🐝 主語が <b>he・she・it（1人・1つ）</b>で 今の こと → 動詞に <b>-s</b>','🔁 長い 主語は おきかえる: Ken and I → we ／ my parents → they ／ everyone → he','🙅 I・you・we・they には つかない'],ex:[['Everyone knows him.','みんな 彼を 知ってる'],['My parents work in Tokyo.','両親は 東京で はたらいてる']]}},
+  les:{jp:['動詞は だれが しても 同じ 形','he・she・it の 今の 話だけ -s'],p:['🐝 主語が <b>he・she・it（1人・1つ）</b>で 今の こと → 動詞に <b>-s</b>','🔁 長い 主語は おきかえる: Ken and I → we ／ my parents → they ／ everyone → he','🙅 I・you・we・they には つかない'],ex:[['Everyone knows him.','みんな 彼を 知ってる'],['My parents work in Tokyo.','両親は 東京で はたらいてる']]}},
  {id:'now',ico:'⏰',t:'今？ いつも？',sub:'「〜している」は 2つの 意味',ks:['now'],n:15,g:'jp',hint:'今 この しゅんかん？ それとも ふだん・ずっと？',
-  les:{p:['🎬 ちょうど 今 している 最中 → <b>be ＋ -ing</b>（now・Look!・Listen!）','🔁 ふだん・ずっとの こと → <b>そのまま</b>（every day・usually・仕事・住んでる）','🧊 know・have（かう）・like は -ing に しない'],ex:[['I am playing tennis now.','今 テニスを してる'],['My father works in a bank.','父は 銀行で はたらいてる'],['I know his name.','名前を 知ってる']]}},
+  les:{jp:['「〜している」で 今も ふだんも 言える','今 この しゅんかん だけ be ＋ -ing'],p:['🎬 ちょうど 今 している 最中 → <b>be ＋ -ing</b>（now・Look!・Listen!）','🔁 ふだん・ずっとの こと → <b>そのまま</b>（every day・usually・仕事・住んでる）','🧊 know・have（かう）・like は -ing に しない'],ex:[['I am playing tennis now.','今 テニスを してる'],['My father works in a bank.','父は 銀行で はたらいてる'],['I know his name.','名前を 知ってる']]}},
  {id:'order',ico:'🔀',t:'ことばの 順番',sub:'だれが → どうする が 先',ks:['order'],n:15,g:'jp',hint:'まず 「だれが → どうする」。 くわしい ことは 後ろ',
-  les:{p:['1️⃣ <b>だれが → どうする → 何を</b> を 先に','2️⃣ だれと・どこで・いつ は その 後ろ','3️⃣ 「赤い ぼうしの〜」の 説明も <b>後ろから</b>'],ex:[['I played tennis with my friend in Tokyo.','東京で 友だちと テニスを した'],['the girl in the red hat','赤い ぼうしの 女の子']]}},
+  les:{jp:['「日曜に 公園で テニスを する」と 動詞が さいご','「だれが → どうする」を 先に 言って、 くわしい ことは 後ろ'],p:['1️⃣ <b>だれが → どうする → 何を</b> を 先に','2️⃣ だれと・どこで・いつ は その 後ろ','3️⃣ 「赤い ぼうしの〜」の 説明も <b>後ろから</b>'],ex:[['I played tennis with my friend in Tokyo.','東京で 友だちと テニスを した'],['the girl in the red hat','赤い ぼうしの 女の子']]}},
 ];
 window.SKJP={T,KN,DET,CATS};
 })();

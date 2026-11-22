@@ -105,6 +105,7 @@ function chapter(ci,i,pre){const c=CH[ci];if(!c)return menu();if(!i){const G=loc
     </div>
     <div class="mddots">${c.cards.map((x,j)=>`<i class="${j===i?'on':j<i?'past':''}"></i>`).join('')}<i class="q">✏️</i></div>
     <div class="mdnav"><button id="mdprev" class="sub" ${i?'':'disabled'}>◀ もどる</button><button id="mdnext">${i<N-1?'つぎへ ▶':'✏️ たしかめ 3問'}</button></div>`;
+  if(k.jpc)try{UNIT.jpSeen(k.jk)}catch(e){}
   bindSay(box);if(k.ex&&k.ex[0])setTimeout(()=>{if(live()&&C.m==='card'&&C.ci===ci&&C.i===i)talk(k.ex[0][0])},500);
   $('mdprev').onclick=()=>{snd('back');chapter(ci,i-1)};
   $('mdnext').onclick=()=>{snd('step');i<N-1?chapter(ci,i+1):chQuiz(ci)}}
@@ -176,7 +177,7 @@ function peek(ci,bk,pre){const c=CH[ci];C={m:'peek'};hush();const box=shell(chT(
 function sheet(bk){C={m:'sheet'};hush();const box=shell('📄 まとめ 1まい',bk||menu),[ex,tx]=ML('sheet');$('mdn').textContent='';
   box.innerHTML=`${minaBox(ex,tx)}<div class="mdsheet">${CH.map((c,i)=>c.sum?`<div class="mdsec">
       <button class="mdsh" data-ch="${i}"><i>${c.ico}</i><span><small>${i+1}時間目</small>${esc(c.t)}</span><em>授業 ▶</em></button>
-      <p class="mdpt">${c.sum.pt}</p><div class="mdfig">${c.sum.f}</div>${c.sum.memo?`<p class="mdmemo">💡 ${c.sum.memo}</p>`:''}</div>`:'').join('')}</div>
+      <p class="mdpt">${c.sum.pt}</p><div class="mdfig">${c.sum.f}</div>${c.sum.memo?`<p class="mdmemo">💡 ${c.sum.memo}</p>`:''}${c.jp?`<p class="mdmemo mdjpm">🇯🇵 ${c.jp.d}</p>`:''}</div>`:'').join('')}</div>
     <div class="mdnav"><button id="mdst">📝 まとめテスト</button></div>`;
   box.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{snd('step');P=null;chapter(+b.dataset.ch,0)});
   $('mdst').onclick=()=>{snd('step');P=null;test()};

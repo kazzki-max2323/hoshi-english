@@ -115,3 +115,14 @@
 
 /* 単元に 入れた 前の ミニ授業の 図（game/mini-place.js）: 横いっぱいに */
 .mdfig .mdlfz{width:100%;box-sizing:border-box;background:none;padding:0;align-self:stretch}
+/* 🇯🇵 日本語と くらべる（game/unit-jp.js）。 明るい 地なので text-shadow:none */
+.ujp{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;text-shadow:none}
+.ujpc{border-radius:10px;padding:9px 9px 8px;background:#fff;border:2px solid #d8d2ee;display:flex;flex-direction:column;gap:5px;text-align:left;text-shadow:none}
+.ujpc.j{border-color:#f4a3a3;background:#fff4f2}.ujpc.e{border-color:#8fc9f2;background:#eef7ff}
+.ujpc>b{font-size:.82rem;color:#2a2340;font-weight:800}
+.ujpc>span{font-size:.82rem;line-height:1.5;color:#2a2340}.ujpc>span b{color:#c2410c}
+.ujpc>em{font-style:normal;font-size:.78rem;line-height:1.4;color:#5b4b8a;background:rgba(255,255,255,.75);border-radius:6px;padding:3px 6px}
+.ujpc.e>em{font-family:Georgia,serif}
+.ujpd{margin:6px 0 0;background:#fff6c9;color:#2a2340;text-shadow:none;border-left:5px solid #ffb347;border-radius:8px;padding:7px 10px;font-size:.84rem;line-height:1.5}
+.prtc .ujp{margin-top:4px}
+@media (max-width:360px){.ujp{grid-template-columns:1fr}}
