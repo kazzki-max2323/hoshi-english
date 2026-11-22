@@ -117,7 +117,7 @@ function onDone(e){const want=DONE_K[e.k];if(!want)return;const ks=[].concat(wan
   if(justDone)setTimeout(nextBtn,1900)}
 function nextBtn(){if(H.screen==='mina')return;const host=$('dpov')||H.panel.querySelector('section');if(!host||host.querySelector('.stnext'))return;
   const it=curItem(),b=document.createElement('div');b.className='stnext';
-  b.innerHTML=`<button>${it?`👩‍🏫 つぎへ：${ICO[it.k]||''} ${esc(it.t)} ▶`:'👩‍🏫 ミナ先生に ほうこく ▶'}</button>`;
+  b.innerHTML=`<button>${it?`${MICO()} つぎへ：${ICO[it.k]||''} ${esc(it.t)} ▶`:MICO()+' ミナ先生に ほうこく ▶'}</button>`;
   b.querySelector('button').onclick=()=>{SFX.step();try{window.DEEP&&$('dpov')&&DEEP.close()}catch(e){}MINA.open()};
   const top=host.querySelector(':scope>.lsay.big,:scope>.box+.ct');if(top)top.after(b);else host.appendChild(b);setTimeout(()=>{try{b.scrollIntoView({block:'nearest',behavior:'smooth'})}catch(e){}},50)}
 if(window.RECENT)RECENT.on('*',e=>{try{onDone(e)}catch(er){console.error(er)}});
@@ -290,7 +290,7 @@ function lessonCan(l){const g=gidOf(l);if(!g)return '';const c=canWord(g);return
 
 /* ホームの ミナ先生も さそう（game/mina-sense.js の ルール） */
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
- ['x_stAsk',2,()=>day().min||SD.min?null:{},()=>['👩‍🏫 ミナ先生の ページへ',()=>MINA.open()]],
+ ['x_stAsk',2,()=>day().min||SD.min?null:{},()=>[MICO()+' ミナ先生の ページへ',()=>MINA.open()]],
  ['x_stNext',3,()=>{if(!day().min)return null;const it=curItem();return it?{t:tname(it)}:null},()=>['▶ はじめる',()=>MINA.open()]],
  ['x_stCan',1,()=>{const c=recentCan();return c?{c}:null},()=>['📊 きろくを 見る',()=>MINA.recOpen()]]);
 window.STUDY={page,bind,path,start,startStep,build,setMin,day,pathOf,pathN,curG,canList,canWord,stage,en,why,whyBox,easy,cmpCard,gidOf,lessonCan,gName,rest,rec:()=>SD,

@@ -23,7 +23,7 @@ const GIFT_TAGN={food:'食べもの',sweet:'あまい もの',dog:'犬の もの
    ask=どこで 手に 入れたの？  why=なんで これ？  hint=好きな もの（苦手だった とき 教えてくれる。 さいごは しるし）
    bye=[うれしい とき, ふつう・苦手の とき]  fun=へんな 答えへの 反応 */
 const GIFT_PEOPLE={
- mina:{n:'ミナ先生',ico:'👩‍🏫',v:{p:1.25,r:.95},love:['z:g_pearl','z:g_pin','z:g_cookie','t:words'],like:['sweet','cute','book','nature','art','shiny'],no:['dog'],
+ mina:{n:'ミナ先生',get ico(){return MICO()},v:{p:1.25,r:.95},love:['z:g_pearl','z:g_pin','z:g_cookie','t:words'],like:['sweet','cute','book','nature','art','shiny'],no:['dog'],
   hi:["Hm? You're hiding something behind your back.","ん？ うしろに なにか かくしてるでしょ。"],
   r:{3:[["For me? Oh, I love this {w}! Thank you so much!","わたしに？ わあ、 この {n}、 大好き！ 本当に ありがとう！"],["Is this really for me? ...I'm so happy I could cry.","ほんとに わたしに？ …うれしくて なきそう。"]],
    2:[["What a nice {w}! Thank you. I'll keep it on my desk.","すてきな {n}！ ありがとう。 机の 上に かざるね。"],["Oh, how sweet of you! Thank you!","まあ、 やさしいね！ ありがとう！"]],

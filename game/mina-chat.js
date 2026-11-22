@@ -49,7 +49,7 @@ function end(){if(!live())return;const c=P.c,M=MD(),first=!M.n[c.id];M.n[c.id]=(
   $('mcans').innerHTML=`<div class="kres">${c.ph?`<p class="mcph"><small>📝 きょうの フレーズ</small><b>${esc(c.ph[0])}</b><span>${esc(c.ph[1])}</span></p>`:''}
     ${first?'<p class="kendn">❤️ ミナ先生と なかよし +1</p>':''}
     <div class="kmina"><span class="lface">${MINA.face('m',ex,MINA.poseFor(ex,tx))}</span><p>${esc(tx)}</p></div>
-    <div class="row">${avail()?'<button id="mcmore" class="sub">☕ もっと 話す</button>':''}<button id="mcback">👩‍🏫 もどる</button></div></div>`;
+    <div class="row">${avail()?'<button id="mcmore" class="sub">☕ もっと 話す</button>':''}<button id="mcback">${MICO()} もどる</button></div></div>`;
   try{SFX.done()}catch(e){}scroll();
   const mm=$('mcmore');if(mm)mm.onclick=()=>{SFX.step();open()};$('mcback').onclick=()=>{SFX.back();const b=P.back;P=null;b()}}
 /* ひらく（id を わたすと その おしゃべり） */

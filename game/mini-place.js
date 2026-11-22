@@ -63,7 +63,7 @@ const WORD_LES={
 const BY_WORD={};Object.entries(WORD_LES).forEach(([id,ws])=>{if(!lesOf(id))return;ws.forEach(w=>{(BY_WORD[w]=BY_WORD[w]||[]).push(id)})});
 function wordBox(I){const h=String(I&&(I.h||I.en)||'').toLowerCase().trim();const ids=BY_WORD[h];if(!ids)return '';const l=lesOf(ids[0]);if(!l)return '';
   let ml='';try{if(window.MINA&&MINA.line)ml=MINA.line('wi_les',{w:I.en||h,t:l.t})[1]||''}catch(e){}
-  return `<details class="wiles"><summary>📘 ミナ先生の コツ <small>${esc(l.t)}</small></summary>${ml?`<p class="wirm">👩‍🏫 ${esc(ml)}</p>`:''}
+  return `<details class="wiles"><summary>📘 ミナ先生の コツ <small>${esc(l.t)}</small></summary>${ml?`<p class="wirm">${MICO()} ${esc(ml)}</p>`:''}
     ${l.steps.map(s=>`<div class="wils"><p>${s[2]}</p>${s[3]?`<div class="fz">${s[3]}</div>`:''}</div>`).join('')}</details>`}
 (window.WI_MORE=window.WI_MORE||[]).push(wordBox);
 

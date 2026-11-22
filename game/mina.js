@@ -203,6 +203,9 @@ function poseFor(ex,text){const t=String(text||'').replace(/<[^>]+>/g,'');
   return pickP(POSE_EX[ex]||POSE_EX.smile)}
 function minaPose(ex,pose){if(pose===undefined)pose=poseFor(ex);return POSE[pose]||''}
 function face(who,ex,pose){return who==='m'?minaFace(ex,pose):hamaFace(ex)}
+/* 文字の 中に おく 小さい ミナ先生の 顔（👩‍🏫 の かわり）。どこでも MICO() */
+function mico(ex){return `<span class="mico" aria-hidden="true">${minaFace(ex||'smile','')}</span>`}
+window.MICO=mico;
 /* ハマ子の顔（ミナ先生は minaFace） */
 function hamaFace(ex){const m=false;
   const eyes={smile:'<circle cx="27" cy="35" r="1.9"/><circle cx="37" cy="35" r="1.9"/>',
@@ -313,7 +316,7 @@ function bindTalk(o,t){if(!t.go)return;$('mgo').onclick=()=>{SFX.step();if(windo
 function panelOpen(){const from=H.screen,MP=window.MPLAN,P=MP?MP.page(from):{html:'',auto:false};
   const love=window.LOVE?LOVE.btn():'',loveDot=/class="dot"/.test(love);
   H.show('mina',`<section class="pnl minap">
-    <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>👩‍🏫 ミナ先生</b>${window.GIFT?GIFT.btn('mina','mgift'):'<span></span>'}</div>
+    <div class="qtop"><button class="x" id="mx" aria-label="もどる">←</button><b>${MICO()} ミナ先生</b>${window.GIFT?GIFT.btn('mina','mgift'):'<span></span>'}</div>
     ${P.html}
     ${love}
     ${window.MSEARCH?'<button id="msgo" class="msgo"><span>🔍</span><b>英語で さがす</b><small>カード・文法・授業</small></button>':''}
@@ -378,6 +381,6 @@ setFace('smile');const f0=$('minaFace');if(f0)f0.onclick=()=>{SFX.talk();panelOp
 /* ---------- review words for the radio ---------- */
 function reviewPick(lv){if(Math.random()>.15)return null;const ww=weakWords(lv,null);return ww.length?pickL(ww.slice(0,8)).en:null}
 
-window.MINA={recOpen,poseFor,busy,say:sayRow,canTalk,canAnnounce,announce,sinceAnn:()=>performance.now()-annAt,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,line,
+window.MINA={ico:mico,recOpen,poseFor,busy,say:sayRow,canTalk,canAnnounce,announce,sinceAnn:()=>performance.now()-annAt,reviewPick,open:panelOpen,face,weakWords,hamaVisit,level,weakKeys,rec:()=>MD,pick:pickL,line,
   _test:{say:()=>{talkAt=talkGap},hama:()=>{hamaAt=hamaGap;MD.hama={d:'',n:0}},hello:()=>{opened=false}}};
 })();

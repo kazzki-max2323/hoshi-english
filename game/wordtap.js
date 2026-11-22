@@ -116,8 +116,8 @@ function open(id,w){sf('card');
   const bk=document.querySelector('.cgdvback');if(bk)bk.classList.add('wtback');
   WT.n++;WT.last=(C.info(id)||{}).en||w;WT.at=Date.now();save();
   /* はじめての ときは ミナ先生が つかいかたを ひとこと */
-  if(!WT.first){WT.first=1;save();setTimeout(()=>{const [,tx]=ML('wt_first');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,6000)},1100)}
-  else if(WT.n===5||WT.n===30||WT.n===100){setTimeout(()=>{const [,tx]=ML('wt_count',{n:WT.n});if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4500)},1100)}}
+  if(!WT.first){WT.first=1;save();setTimeout(()=>{const [,tx]=ML('wt_first');if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,6000)},1100)}
+  else if(WT.n===5||WT.n===30||WT.n===100){setTimeout(()=>{const [,tx]=ML('wt_count',{n:WT.n});if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4500)},1100)}}
 /* 11/21 ユーザー「この 画面からも 単語タップで 飛ぶ。 戻るのは 直前の 画面」:
    カードの くわしく（例文・なりたち・おなじ 根っこ・いっしょに など）の 英単語も タップで 次の カードへ。
    いまの カードは 消さずに かくして 上に 重ねる（スタック）ので、 ← ・とじる・外側タップで 1まい 前の カードに そのまま もどる */
@@ -128,8 +128,8 @@ function stack(host,id,w){
   open(id,w);const o=$('cardTop');
   if(!o||o===host){restore();return}
   WT.chain=(WT.chain|0)+1;const d=document.querySelectorAll('[data-wthid]').length;if(d>(WT.deep|0))WT.deep=d;save();
-  if(!WT.chainTold){WT.chainTold=1;save();setTimeout(()=>{const [,tx]=ML('wt_chainFirst');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,5500)},1100)}
-  else if(d===3&&!WT.deepTold){WT.deepTold=1;save();setTimeout(()=>{const [,tx]=ML('wt_chainDeep');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4500)},1100)}
+  if(!WT.chainTold){WT.chainTold=1;save();setTimeout(()=>{const [,tx]=ML('wt_chainFirst');if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,5500)},1100)}
+  else if(d===3&&!WT.deepTold){WT.deepTold=1;save();setTimeout(()=>{const [,tx]=ML('wt_chainDeep');if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4500)},1100)}
   /* 上の カードが とじたら、 かくした カードを もとに もどす */
   const mo=new MutationObserver(()=>{if(o.isConnected)return;mo.disconnect();restore()});mo.observe(document.body,{childList:true});
   function restore(){if(!host.isConnected)return;if(hid&&!$(hid))host.id=hid;delete host.dataset.wthid;host.style.display='';
@@ -142,7 +142,7 @@ function tryOpen(el,x,y,isBtn){if(!el)return false;const host=!isBtn&&inCard(el)
   if(!id){if(hit.w.length>=4&&!/^[A-Z]/.test(hit.w)||hit.w.length>=4&&isBtn)tip(x,y,`${hit.w} は まだ カードに ない ことば`);return false}
   if(host){if(id===host.dataset.id)return false;stack(host,id,hit.w);return true}
   if(quizLock(isBtn?el.closest(BTN):el,isBtn)){sf('back');tip(x,y,'答えたら しらべられるよ');if(!WT.lockTold){WT.lockTold=1;save();
-    setTimeout(()=>{const [,tx]=ML('wt_lock');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4500)},400)}return 'lock'}
+    setTimeout(()=>{const [,tx]=ML('wt_lock');if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4500)},400)}return 'lock'}
   open(id,hit.w);return true}
 
 /* ふつうの 文: タップ */

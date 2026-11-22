@@ -251,7 +251,7 @@ function choices(list,fn,cls='',dk){if(!live())return;
 
 function partOfDay(){const h=(typeof GH==='function'?GH():new Date().getHours());return h<5?'night':h<11?'morning':h<16?'day':h<19?'evening':'night'}
 function hiLine(){const T=(K.hiTime||{})[partOfDay()];return T&&Math.random()<.4?pickL(T):pickL(K.hi)}
-const DAYNAME={visit:'👩‍🏫 きょうは ミナ先生の 参観日',quiz:'🎤 きょうは リクの クイズの日',ken:'🧢 きょうは ケンも いっしょ',hw:'✏️ きょうは 宿題の日',short:'🏃 きょうは ちょっとだけ',pochi:'🐕 きょうは ポチも いっしょ'};
+const DAYNAME={get visit(){return MICO()+' きょうは ミナ先生の 参観日'},quiz:'🎤 きょうは リクの クイズの日',ken:'🧢 きょうは ケンも いっしょ',hw:'✏️ きょうは 宿題の日',short:'🏃 きょうは ちょっとだけ',pochi:'🐕 きょうは ポチも いっしょ'};
 function intro(){const d=P.day;if(DAYNAME[d])sys(DAYNAME[d]);
   const greet=then=>{const ops=shuffle(K.open).slice(0,3);
     afterTalk(()=>choices(ops.map(o=>[o[0]]),i=>{you(ops[i][0]);SFX.step();setTimeout(()=>{kid(ops[i][1],'😊');afterTalk(then)},500)}),300,600)};
@@ -428,7 +428,7 @@ function afterQ(q,fn){const st=[];const taught=P.taught.includes(q);
 
 /* Mina speaks in the room (the visiting day) */
 function mina(t,lab){if(!live())return;const d=document.createElement('div');d.className='lsay tuwh tuvis';const [ex]=mline('tu_visitHi');
-  d.innerHTML=`<span class="lface">${MINA.face('m',ex||'smile')}</span><div class="lbody"><small>${lab||'👩‍🏫 ミナ先生（うしろで 見学中）'}</small><p>${esc(t)}</p></div>`;
+  d.innerHTML=`<span class="lface">${MINA.face('m',ex||'smile')}</span><div class="lbody"><small>${lab||MICO()+' ミナ先生（うしろで 見学中）'}</small><p>${esc(t)}</p></div>`;
   $('tulog').appendChild(d);scrollLog()}
 
 /* 📒 Riku's notebook: which heading should he write? */
@@ -550,7 +550,7 @@ function finish(){if(!live())return;
         :`<p class="zkres"><small>きょうの バイト代は おしまい（1日 ${PER_DAY}回まで）。 教えた ことは のこるよ</small></p>`}
       <details class="mfold" open><summary>📒 きょう 教えた こと</summary><div class="tutl">${rows}</div></details>
       ${P.quiz?`<p class="tusys">🎤 リクの クイズ ${P.quiz.ok}/${P.quiz.n}もん せいかい</p>`:''}${P.ken?`<p class="tusys">🧢 ケンにも ${P.ken}回 教えた</p>`:''}
-      ${P.visit.length?`<details class="mfold" open><summary>👩‍🏫 ミナ先生の 参観ノート</summary><div class="tutl">${P.visit.map(v=>`<div class="tutr tuvn"><span><b>${esc(v[0])}</b><small>${esc(v[1])}</small></span></div>`).join('')}</div></details>`:''}
+      ${P.visit.length?`<details class="mfold" open><summary>${MICO()} ミナ先生の 参観ノート</summary><div class="tutl">${P.visit.map(v=>`<div class="tutr tuvn"><span><b>${esc(v[0])}</b><small>${esc(v[1])}</small></span></div>`).join('')}</div></details>`:''}
       ${P.notes.length||P.prints?`<p class="tusys">${P.notes.length?`📒 ノートに ${P.notes.length}ページ`:''}${P.notes.length&&P.prints?'・':''}${P.prints?`📝 宿題プリント ${P.prints}もん`:''}</p>`:''}
       ${P.dunno.length?`<p class="tusys">🔎 いっしょに しらべた ${P.dunno.length}こ（また こんど リクが 聞きに くるよ）</p>`:''}
       ${letter?`<button id="tulet" class="tulb">✉️ リクから 手紙も もらった！ <small>ひらく</small></button>`:''}
