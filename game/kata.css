@@ -1,0 +1,52 @@
+/* 🧩 英語の 型（game/kata.js）。 明るい 紙の カードなので 文字の 影は なし */
+#kataPop{position:fixed;inset:0;z-index:95;background:rgba(5,6,20,.6);display:flex;align-items:center;justify-content:center;padding:14px;box-sizing:border-box;
+  opacity:0;transition:opacity .2s;text-shadow:none}
+#kataPop.on{opacity:1}
+#kataPop *{text-shadow:none}
+#kataPop .ktcard{width:100%;max-width:440px;max-height:calc(100% - 20px);overflow-y:auto;background:#fffaf0;border:2px solid #f2c95c;border-radius:16px;
+  box-shadow:0 6px 22px #0008;color:#2a2340;padding:12px 13px;display:flex;flex-direction:column;gap:10px;box-sizing:border-box;animation:lsin .25s ease-out}
+#kataPop .kthd{display:flex;align-items:center;gap:8px}
+#kataPop .kthd em{font-style:normal;font-weight:700;font-size:.78rem;color:#b7791f}
+#kataPop .ktnew{font-size:.74rem;font-weight:700;color:#0f766e;background:#d9f7ee;border-radius:999px;padding:2px 8px}
+#kataPop .ktx{margin-left:auto;width:32px;height:32px;border-radius:50%;border:0;background:#f3ead6;color:#7a5a20;font-size:1rem;cursor:pointer}
+#kataPop h3{margin:0;display:flex;align-items:center;gap:8px;font-size:1.08rem;line-height:1.4;color:#2a2340}
+#kataPop h3 i{font-style:normal;font-size:1.4rem}
+#kataPop .ktfig{background:#f7f3ff}
+#kataPop .ktjp{background:#fff;border:1.5px solid #e6dcc4;border-radius:12px;padding:8px 11px}
+#kataPop .ktjp b{font-size:.78rem;color:#b45309}
+#kataPop .ktjp p{margin:3px 0 0;font-size:.88rem;line-height:1.6;color:#3a2f1d}
+#kataPop .ktjp p b{font-size:inherit;color:#c2410c}
+#kataPop .ktex{display:flex;flex-direction:column;gap:6px}
+#kataPop .ktex button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;padding:7px 10px;border-radius:10px;
+  background:#fff;border:1.5px solid #f0d98a;color:#2a2340;font:inherit;cursor:pointer}
+#kataPop .ktex span{font-family:Georgia,serif;font-size:.95rem}
+#kataPop .ktex small{font-size:.75rem;color:#6b6080}
+#kataPop .ktmina{display:flex;gap:9px;align-items:flex-start}
+#kataPop .ktf{flex:0 0 auto;width:44px;height:44px;border-radius:50%;overflow:hidden;border:2px solid #f2c95c;background:#fde9c8}
+#kataPop .ktf svg{display:block;width:100%;height:100%}
+#kataPop .ktmina p{margin:0;flex:1;background:#fff6e0;border-radius:4px 14px 14px 14px;padding:8px 11px;font-size:.88rem;line-height:1.6;color:#2a2340}
+#kataPop .ktmina p b{color:#c2410c}
+#kataPop .ktnav{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+#kataPop .ktnav button{padding:8px 14px;border-radius:999px;border:0;font:inherit;font-weight:700;cursor:pointer;background:#f2a93b;color:#fff}
+#kataPop .ktnav button.sub{background:#fff;color:#7a5a20;border:1.5px solid #e6c97a}
+/* つまずいた ところに 出る 小さな チップ */
+.ktchip{display:flex!important;align-items:center;gap:9px;width:100%;text-align:left;padding:8px 11px!important;border-radius:12px!important;
+  background:#fffaf0!important;border:2px solid #f2c95c!important;color:#3a2f1d!important;text-shadow:none!important;font:inherit;cursor:pointer;box-sizing:border-box}
+.ktchip *{text-shadow:none!important}
+.ktchip i{font-style:normal;font-size:1.25rem;flex:none}
+.ktchip span{flex:1;display:flex;flex-direction:column;gap:1px;font-weight:700;font-size:.9rem;line-height:1.4;color:#2a2340}
+.ktchip small{font-size:.72rem;font-weight:700;color:#b7791f}
+.ktchip b{flex:none;color:#b7791f}
+.ktchip.new{border-color:#f59e0b!important;box-shadow:0 0 0 3px #f59e0b33}
+.ktchip.sm{padding:6px 10px!important}.ktchip.sm span{font-size:.84rem}
+.kdfix .ktchip{margin-top:6px}
+#mamePop .ktchip{margin:0}
+/* あつめた 型の 一覧 */
+.ktgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.ktgrid button{display:flex!important;align-items:center;gap:7px;text-align:left;padding:9px 10px!important;border-radius:12px!important;font:inherit;cursor:pointer;
+  background:#fffaf0!important;border:2px solid #f2c95c!important;color:#2a2340!important;text-shadow:none!important}
+.ktgrid button i{font-style:normal;font-size:1.2rem;flex:none}
+.ktgrid button span{font-size:.82rem;line-height:1.4;font-weight:700;color:#2a2340}
+.ktgrid button.ktyet{background:#ffffff14!important;border:2px dashed #ffffff40!important;opacity:.75}
+.ktgrid button.ktyet span{color:#e8e4ff;font-weight:400}
+.ktfoot{margin:6px 0 0;font-size:.8rem;color:#cfc8f0;text-align:center}

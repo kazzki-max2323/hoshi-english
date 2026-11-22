@@ -86,7 +86,8 @@ function open(t){const p=$('mamePop');if(!p)return;clearTimeout(hideT);snd('talk
   p.innerHTML=`<div class="mmbox">${L?`<p class="mmlt">${esc(L.t)}</p>${lesHtml(L)}`:`<div class="mmhd"><span class="mmf">${face(t.x,t.say)}</span><p>${t.say}</p></div>`}
     ${t.f?`<div class="mmtwo">${t.f.map(([a,b])=>`<div><b>${esc(a)}</b><span>${esc(b)}</span></div>`).join('')}</div>`:''}
     <div class="mmex">${(t.ex||[]).map(([en,ja])=>`<button data-say="${esc(en)}"><span>🔊 ${esc(en)}</span><small>${esc(ja)}</small></button>`).join('')}</div>
-    <div class="mmnav"><button class="mmok">なるほど！</button></div></div>`;
+    ${window.KATA&&KATA.of({mame:t.id})?KATA.chip(KATA.of({mame:t.id}),'sm'):''}
+    <div class="mmnav"><button class="mmok">なるほど！</button></div></div>`;if(window.KATA)KATA.bind(p);
   p.querySelectorAll('[data-say]').forEach(b=>b.onclick=e=>{e.stopPropagation();snd('pop');talk(b.dataset.say)});
   p.querySelector('.mmok').onclick=e=>{e.stopPropagation();snd('step');const [ex,tx]=ML(t.ok||(L?'mame_ok2':'mame_ok'));
     p.innerHTML=`<div class="mmbox mmbye"><div class="mmhd"><span class="mmf">${face(ex,tx)}</span><p>${tx}</p></div></div>`;hideT=setTimeout(shut,2200)};
