@@ -154,13 +154,32 @@ const DET={
  ing:{t:'-ing は 様子の ことば → be が いる',ch:3,b:'playing・eating は もう 動詞じゃなくて <b>「している 様子」</b>の ことば（happy の 仲間）。 だから happy と 同じで <b>be が いる</b>。 be の あとの 動詞は -ing に して 「している」',
   ok:['They are playing tennis.','She is cooking now.'],ng:['They playing tennis.','She is cook now.'],tip:'happy に 入れかえて みて: They are happy. ← 同じ 形'},
 };
+/* 🚦 動詞チェック（game/verb-check.js）を まぜる */
+if(window.SKVC){Object.assign(T,SKVC.T);Object.assign(KN,SKVC.KN);Object.assign(DET,SKVC.DET)}
 const KS=Object.keys(T);
-function make(k){for(let n=0;n<20;n++){try{const q=T[k]();if(q&&q.o[0]!==q.o[1]){q.k=k;return q}}catch(e){}}return null}
+/* 📂 カテゴリー（11/22 ユーザー「特別練習の 中に、 全ての 練習、 動詞の チェック問題 など カテゴリー分けして」）
+   all = 今までの 問題 ぜんぶ（動詞チェックも 入る）。 ほかは 型を しぼって 20問。 きろくは R.cat[id] = {n, best, t} */
+const CATS=[
+ {id:'all',ico:'⚡',t:'ぜんぶの 練習',sub:'今までの 問題 ぜんぶ',ks:KS,n:N},
+ {id:'vc',ico:'🚦',t:'動詞チェック',sub:'主語の すぐ後ろは とくべつ？ ふつう？',ks:['vcKind','vcQ','vcNeg'],n:20,nw:1},
+ {id:'do',ico:'🙋',t:'do の 出番',sub:'Do / does / did ・ don\'t',ks:['doQ','doesV','doNeg','doesntV','didV'],n:20},
+ {id:'be',ico:'🌊',t:'be の 文',sub:'Are you〜? ・ isn\'t ・ -ing',ks:['beQ','beNeg','beQp','ing'],n:20},
+ {id:'yv',ico:'🔍',t:'様子？ 動詞？',sub:'be が いる？ いらない？',ks:['which','beAdj','one','willX'],n:20},
+ {id:'form',ico:'✏️',t:'動詞の 形',sub:'-s ・ 過去形 ・ will / can の あと',ks:['s3','past','modV','willBe'],n:20},
+].map(c=>Object.assign(c,{ks:c.ks.filter(k=>T[k])})).filter(c=>c.ks.length);
+const catOf=id=>CATS.find(c=>c.id===id)||CATS[0];
+R.cat=R.cat||{};
+const qkey=q=>(q.s||'')+'|'+q.ja+'|'+q.o[0];
+/* 同じ 問題は 一巡（その回の あいだ）するまで 出さない（まちがいの 出しなおしは べつ） */
+function make(k,seen){let last=null;for(let n=0;n<20;n++){try{const q=T[k]();if(q&&q.o[0]!==q.o[1]){q.k=k;last=q;if(!seen||!seen.has(qkey(q))){seen&&seen.add(qkey(q));return q}}}catch(e){}}return last}
 /* 型を 3〜4問ずつ。 まちがいの 多い 型を 先に 多めに */
-function plan(){const w=KS.slice().sort((a,b)=>(R.miss[b]||0)-(R.miss[a]||0)),top=w.filter(k=>R.miss[k]).slice(0,3);
-  const order=top.concat(shuffle(KS.filter(k=>!top.includes(k))));const L=[];
-  while(L.length<N+20)order.forEach(k=>{const m=2+(Math.random()*2|0)+(top.includes(k)?1:0);for(let i=0;i<m;i++){const q=make(k);if(q)L.push(q)}});
-  return L}
+function plan(c){const ks=c.ks,n=c.n,seen=new Set(),w=ks.slice().sort((a,b)=>(R.miss[b]||0)-(R.miss[a]||0)),top=w.filter(k=>R.miss[k]).slice(0,ks.length>4?3:1);
+  const order=top.concat(shuffle(ks.filter(k=>!top.includes(k))));const L=[];
+  while(L.length<n+20)order.forEach(k=>{const m=2+(Math.random()*2|0)+(top.includes(k)?1:0);for(let i=0;i<m;i++){const q=make(k,seen);if(q)L.push(q)}});
+  return {L,seen}}
+/* ミナ先生の おすすめ: まちがいが 多い 型の カテゴリー（なければ まだ やっていない もの） */
+function rec(){let best=null,bs=0;CATS.forEach(c=>{if(c.id==='all')return;const m=c.ks.reduce((a,k)=>a+(R.miss[k]||0),0)-((R.cat[c.id]||{}).n||0)*2;if(m>bs){bs=m;best=c}});
+  return best}
 
 /* ================================================================ がめん */
 let G=null;
@@ -175,27 +194,48 @@ function shell(){let o=$('dpov');if(o)o.remove();try{window.DEEP&&DEEP.close()}c
   o.onclick=e=>{if(e.target===o){snd('back');G&&G.i>0?finish(1):close()}};
   return $('kdbox')}
 const minaBox=(ex,tx)=>`<div class="mdsay"><span class="lface">${face(ex,tx)}</span><p>${tx}</p></div>`;
-function open(back){R.n=(R.n||0)+1;save();const box=shell();G=null;$('kdn').textContent='';
-  const [ex,tx]=ML(R.n<=1?'kd_first':'kd_start',{n:N});
-  box.innerHTML=`${minaBox(ex,tx)}<div class="kdhow"><p>🇯🇵 日本語を 見て、 正しい ほうを <b>すぐ</b> タップ</p><p>⏱ 3びょう いないなら <b>はやい！</b></p><p>❌ まちがえた 形は 少し あとで また 出るよ</p><p>✋ で いつでも おわれる</p></div>
-    <div class="mdnav"><button id="kdgo">⚡ スタート（${N}問）</button></div>`;
-  $('kdgo').onclick=()=>{snd('lesson');start(back)}}
-function start(back){G={L:plan(),i:0,ok:0,fast:0,streak:0,best:0,miss:{},seen:0,back};ask()}
-function ask(){const g=G;if(!g||!$('kdbox'))return;if(g.i>=N)return finish();
-  const q=g.L[g.i]||make(pick(KS));g.L[g.i]=q;g.t0=performance.now();g.lock=0;
-  $('kdn').textContent=`${g.i+1}/${N}`;$('kdbar').style.width=(g.i/N*100)+'%';
+/* 入口: カテゴリーを えらぶ（id を わたすと その カテゴリーの はじめへ） */
+function open(id){if(typeof id==='string'&&CATS.some(c=>c.id===id))return intro(id);menu()}
+function menu(){const box=shell();G=null;$('kdn').textContent='';$('kdbar').style.width='0';
+  const r=rec(),vcNew=!(R.cat.vc||{}).n&&CATS.some(c=>c.id==='vc');
+  const [ex,tx]=!R.n?ML('kd_first0'):vcNew?ML('kd_menuVc'):r?ML('kd_menuRec',{t:r.t}):ML('kd_menu');
+  const row=c=>{const k=R.cat[c.id]||{};return `<button class="kdcat${c.id==='all'?' big':''}" data-c="${c.id}"><i>${c.ico}</i><span><b>${esc(c.t)}</b><small>${esc(c.sub)}</small></span>${c.nw&&!k.n?'<em class="kdnew">NEW</em>':r&&r.id===c.id?'<em class="kdrec">おすすめ</em>':k.best!=null?`<em class="kdbest">⭕${k.best}/${c.n}</em>`:''}</button>`};
+  box.innerHTML=`${minaBox(ex,tx)}<div class="kdcats">${CATS.map(row).join('')}</div>`;
+  box.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{snd('step');intro(b.dataset.c)})}
+function intro(id){const c=catOf(id),box=$('kdbox')||shell();G=null;$('kdn').textContent='';
+  const first=!(R.cat[c.id]||{}).n,[ex,tx]=ML(c.id==='all'?(R.n?'kd_start':'kd_first'):'kd_c_'+c.id+(first?'1':''),{n:c.n});
+  box.innerHTML=`<p class="kdct">${c.ico} ${esc(c.t)}</p>${minaBox(ex,tx)}
+    ${c.id==='vc'?`<div class="kdhow kdvc"><p>👀 見るのは <b>主語の すぐ後ろ</b> だけ</p>
+      <p>🚀 <b>とくべつな 動詞</b>（be・can・will・should・have＋過去分詞）<br>→ 自分で 前へ（<i>Can Ken swim?</i>）・ not も すぐ後ろ</p>
+      <p>🙋 <b>ふつうの 動詞</b>（play・like・go・have＝かう…）<br>→ do / does / did の 出番（<i>Does Ken swim?</i>）・ 動詞は 原形</p>
+      <p>☝️ 主語が 長くても（<i><u>My big brother</u> is</i>）、 主語の かたまりの すぐ後ろ</p></div>`
+     :`<div class="kdhow"><p>🇯🇵 日本語を 見て、 正しい ほうを <b>すぐ</b> タップ</p><p>⏱ 3びょう いないなら <b>はやい！</b></p><p>❌ まちがえた 形は 少し あとで また 出るよ</p><p>🤔 わからない ときは 教えて ・ ✋ で いつでも おわれる</p></div>`}
+    <div class="mdnav"><button class="sub" id="kdmn">← えらびなおす</button><button id="kdgo">${c.ico} スタート（${c.n}問）</button></div>`;
+  $('kdmn').onclick=()=>{snd('back');menu()};
+  $('kdgo').onclick=()=>{snd('lesson');start(c.id)}}
+function start(id){const c=catOf(id),p=plan(c);R.n=(R.n||0)+1;save();
+  G={c,n:c.n,L:p.L,seenQ:p.seen,i:0,ok:0,fast:0,streak:0,best:0,miss:{},seen:0};ask()}
+function ask(){const g=G;if(!g||!$('kdbox'))return;if(g.i>=g.n)return finish();
+  const q=g.L[g.i]||make(pick(g.c.ks),g.seenQ);g.L[g.i]=q;g.t0=performance.now();g.lock=0;q.tch=0;
+  $('kdn').textContent=`${g.i+1}/${g.n}`;$('kdbar').style.width=(g.i/g.n*100)+'%';
   const [a,b]=q.s?q.s.split('___'):['',''],ord=Math.random()<.5?[0,1]:[1,0];
   $('kdbox').innerHTML=`<div class="kdq">
-      <p class="kdja">${esc(q.ja)}</p>
+      ${q.sj?`<p class="kdja kden2">${sjHtml(q)}</p>`:`<p class="kdja">${esc(q.ja)}</p>`}
       ${q.s?`<p class="kden">${esc(a)}<u>　？　</u>${esc(b)}</p>`:`<p class="kden kdpick">${esc(q.p||'正しい 文は？')}</p>`}
       <div class="kdopts${q.s?'':' full'}">${ord.map(i=>`<button data-o="${i}">${esc(q.o[i])}</button>`).join('')}</div>
-      <div class="kdfb" id="kdfb">${g.streak>=3?`<span class="kdst">🔥 ${g.streak} れんぞく</span>`:''}</div></div>`;
-  $('kdbox').querySelectorAll('[data-o]').forEach(bt=>bt.onclick=()=>answer(+bt.dataset.o,bt))}
+      <div class="kdfb" id="kdfb">${g.streak>=3?`<span class="kdst">🔥 ${g.streak} れんぞく</span>`:''}</div>
+      <button class="mddunno prteachb kdteach" id="kdtb">🤔 教えて</button></div>`;
+  $('kdbox').querySelectorAll('[data-o]').forEach(bt=>bt.onclick=()=>answer(+bt.dataset.o,bt));
+  $('kdtb').onclick=()=>{snd('book');q.tch=1;teach(q)}}
+/* 動詞チェックの 文: 主語の かたまりを わくで かこむ（とくべつ？ふつう？ では すぐ後ろの ことばに 下線） */
+function sjHtml(q){const rest=q.ja.slice(q.sj.length).trim(),m=q.w&&rest.indexOf(q.w)===0;
+  return `<span class="kdsj">${esc(q.sj)}</span> ${m?`<u>${esc(q.w)}</u>${esc(rest.slice(q.w.length))}`:esc(rest)}`}
 const full=q=>q.s?q.s.replace('___',q.o[0]):q.o[0];
-const say=q=>{const f=full(q);if(/^[A-Za-z]/.test(f))talk(f);else if(q.k==='which')talk(q.ja.split('（')[0])};
+const say=q=>{const f=full(q);if(/^[A-Za-z]/.test(f))talk(f);else if(q.k==='which')talk(q.ja.split('（')[0]);else if(q.sj)talk(q.ja)};
 function answer(k,bt){const g=G;if(!g||g.lock)return;g.lock=1;const q=g.L[g.i],dt=(performance.now()-g.t0)/1000;
+  const tb=$('kdtb');if(tb)tb.remove();
   $('kdbox').querySelectorAll('[data-o]').forEach(x=>{x.disabled=true;if(+x.dataset.o===0)x.classList.add('right')});
-  if(k===0){g.ok++;g.streak++;g.best=Math.max(g.best,g.streak);const fast=dt<=3;if(fast)g.fast++;snd('correct');
+  if(k===0){g.ok++;g.streak++;g.best=Math.max(g.best,g.streak);const fast=!q.tch&&dt<=(q.ft||3);if(fast)g.fast++;snd('correct');
     const sp=g.streak>0&&g.streak%10===0?ML('kd_streak',{n:g.streak})[1]:'';
     $('kdfb').innerHTML=`<span class="kdok">⭕ ${fast?'<b>はやい！</b>':''}</span>${sp?`<span class="kdsp">${esc(sp)}</span>`:''}`;
     say(q);g.i++;setTimeout(()=>{if(G===g)ask()},sp?1500:fast?650:900);return}
@@ -203,27 +243,29 @@ function answer(k,bt){const g=G;if(!g||g.lock)return;g.lock=1;const q=g.L[g.i],d
   try{window.SENSEI&&SENSEI.gram(/^be|one|willBe|ing/.test(q.k)?'jh_be':q.k==='s3'?'jh_3s':'jh_do',0)}catch(e){}
   /* 4問あとに そのまま、 8問あとに 同じ 型の 言いかえ */
   g.L.splice(g.i+4,0,Object.assign({},q,{again:1}));const v=make(q.k);if(v)g.L.splice(g.i+9,0,v);
-  $('kdfb').innerHTML=`<div class="kdfix"><p>⭕ <b>${esc(full(q))}</b></p><button class="kdwhy" id="kdwhy">💡 ${esc(q.why)}<i>くわしく ▶</i></button></div><div class="mdnav"><button id="kdnx">つぎへ ▶</button></div>`;
-  say(q);g.i++;$('kdnx').onclick=()=>{snd('step');hush();ask()};
+  $('kdfb').innerHTML=`<div class="kdfix"><p>⭕ <b>${esc(full(q))}</b></p><button class="kdwhy" id="kdwhy">💡 ${esc(q.why)}<i>くわしく ▶</i></button></div><div class="mdnav"><button class="sub" id="kdte">🤔 教えて</button><button id="kdnx">つぎへ ▶</button></div>`;
+  say(q);g.i++;$('kdnx').onclick=()=>{snd('step');hush();ask()};$('kdte').onclick=()=>{snd('book');teach(q)};
   $('kdwhy').onclick=()=>{snd('book');detail(q.k,q)}}
-function finish(quit){const g=G;if(!g)return close();const n=g.i,ok=g.ok;G=null;hush();
+function finish(quit){const g=G;if(!g)return close();const n=g.i,ok=g.ok,c=g.c,N=g.n;G=null;hush();try{window.PRAC&&PRAC.closeTeach(1)}catch(e){}
   R.tot=(R.tot||0)+n;R.ok=(R.ok||0)+ok;if(!quit)R.full=(R.full||0)+1;const rate=n?ok/n:0;
-  if(!quit&&(!R.best||ok>R.best))R.best=ok;R.t=Date.now();save();
-  try{RECENT.add('skdrill',{n,ok,fast:g.fast})}catch(e){}
+  if(!quit&&c.id==='all'&&(!R.best||ok>R.best))R.best=ok;R.t=Date.now();
+  const cr=R.cat[c.id]=R.cat[c.id]||{};if(n){cr.n=(cr.n||0)+1;cr.t=Date.now();if(!quit&&(cr.best==null||ok>cr.best))cr.best=ok}save();
+  try{RECENT.add('skdrill',{n,ok,fast:g.fast,c:c.id==='all'?'':c.t})}catch(e){}
   const weak=Object.keys(g.miss).sort((a,b)=>g.miss[b]-g.miss[a]).slice(0,3);
-  const coin=Math.round(ok/5)+(n>=N&&rate>=.9?5:0);
+  const coin=Math.round(ok/5)+(n>=N&&rate>=.9?(N>=50?5:2):0);
   const key=!n?'kd_quit0':quit?'kd_quit':rate>=.95?'kd_perfect':rate>=.8?'kd_good':'kd_more';
-  const [ex,tx]=ML(key,{n,ok,f:g.fast});
+  const [ex,tx]=ML(c.id==='vc'&&n&&!quit?(rate>=.9?'kd_vcGood':'kd_vcMore'):key,{n,ok,f:g.fast});
   $('kdn').textContent='';$('kdbar').style.width=(n/N*100)+'%';
-  $('kdbox').innerHTML=`<div class="kres mdres"><p class="kend good">${quit?'✋ ここまで！':'⚡ 50問 おわり！'}</p>
+  $('kdbox').innerHTML=`<div class="kres mdres"><p class="kend good">${quit?'✋ ここまで！':`${c.ico} ${N}問 おわり！`}</p>
     <div class="snscore"><span>⭕ <b>${ok}</b>/${n}</span><span>⏱ はやい <b>${g.fast}</b></span><span>🔥 さいこう <b>${g.best}</b>れんぞく</span></div>
     ${coin?`<p class="kpay">🪙 <b>${coin}まい</b></p>`:''}${minaBox(ex,tx)}
     ${weak.length?`<p class="mdnote2">📘 まちがえた 型</p><div class="kdweak">${weak.map(k=>`<button data-dk="${k}">${esc(KN[k]||k)} ×${g.miss[k]} <i>💡</i></button>`).join('')}</div>`:''}
     ${whyNew()?'<button class="sub kdwhyt" id="kdwt">🤔 なんで こんなに 決まってるの？ <small>ミナ先生の おはなし</small></button>':''}
-    <div class="mdnav"><button id="kdag">⚡ もう一回</button>${window.SHIKUMI?'<button class="sub" id="kdsh">🧩 英語のしくみ</button>':''}<button class="sub" id="kdc">✖ とじる</button></div></div>`;
+    <div class="mdnav"><button id="kdag">${c.ico} もう一回</button><button class="sub" id="kdmn">📂 ほかの 練習</button></div>
+    <div class="mdnav">${window.SHIKUMI?'<button class="sub" id="kdsh">🧩 英語のしくみ</button>':''}<button class="sub" id="kdc">✖ とじる</button></div></div>`;
   if(coin)setTimeout(()=>{try{const b=$('kdbox').getBoundingClientRect();H.coinBurst(b.left+b.width/2,Math.min(b.top+60,innerHeight-60),coin)}catch(e){ST.coins+=coin}},400);
   quit?snd('pop'):snd('done');
-  $('kdag').onclick=()=>{snd('lesson');R.n++;save();shell();start()};
+  $('kdag').onclick=()=>{snd('lesson');shell();start(c.id)};$('kdmn').onclick=()=>{snd('step');menu()};
   const sh=$('kdsh');if(sh)sh.onclick=()=>{snd('book');close();SHIKUMI.open()};
   $('kdc').onclick=()=>{snd('back');close()};
   const wt=$('kdwt');if(wt)wt.onclick=()=>{snd('step');close();MCHAT.open('why',()=>MINA.open())};
@@ -253,10 +295,16 @@ function detail(k,q){const d=DET[k];if(!d)return;const sec=document.querySelecto
   const back=()=>{snd('back');hush();o.remove()};$('kddx').onclick=back;$('kddb').onclick=back;
   const cb=$('kdcard');if(cb)cb.onclick=()=>{snd('book');cb.remove();const box=$('kdcards');
     box.innerHTML=c.cards.map(x=>`<div class="mdcard">${minaBox(x.x||'smile',x.say)}${x.f?`<div class="mdfig">${x.f}</div>`:''}${x.ex?`<div class="mdens">${x.ex.map(e=>`<button class="mden" data-say="${esc(e[0])}"><span>🔊 ${esc(e[0])}</span><small>${esc(e[1])}</small></button>`).join('')}</div>`:''}</div>`).join('');bind(box)}}
+/* 🤔 教えて（game/practice.js の PRAC.teach を つかう: 正しい 答え → 見る ところ → なぜ → ほかの 答えは なぜ ちがう → 英語のしくみの その 時間） */
+const strip=h=>String(h||'').replace(/<[^>]+>/g,'');
+function teach(q){if(!window.PRAC)return detail(q.k,q);const d=DET[q.k]||{},U=window.SHIKUMI;
+  const t=q.tq||{s:q.s,p:q.s?'':(q.p||'正しい 文は？'),ja:q.s?q.ja:'',o:q.o.slice(),h:q.why,e:strip(d.b)||q.why,w:{},c:d.ch};
+  if(!q.tq){if(!q.s&&q.k!=='which')t.p=q.ja+(q.p?' '+q.p:'');if(q.k==='which')t.p=q.ja+' '+q.p;t.w[q.o[1]]=(d.ng&&d.ng.length?'よくある まちがい。 ':'')+q.why}
+  PRAC.teach(t,U&&U.D?U:null,t.c)}
 /* ホームに もどった ときの ミナ先生の ひとこと（game/mina-react.js）。 まだ 聞いて なければ 「なんで？」の おしゃべりへ（☕ その 話を もっと） */
 window.MINA_REACT_EXT=window.MINA_REACT_EXT||{};
-MINA_REACT_EXT.skdrill={act:e=>e.n?[whyNew()?'r_kd_why':'r_kd',{n:e.n|0,ok:e.ok|0},null]:null,desc:()=>'特別練習を した'};
-window.SKDRILL={open,close,detail,rec:()=>R,make,T,KN,DET};
+MINA_REACT_EXT.skdrill={act:e=>e.n?[e.c==='動詞チェック'?'r_kd_vc':whyNew()?'r_kd_why':'r_kd',{n:e.n|0,ok:e.ok|0},null]:null,desc:e=>`特別練習${e.c?'（'+e.c+'）':''}を した`};
+window.SKDRILL={open,close,detail,teach,rec:()=>R,make,T,KN,DET,CATS};
 
 /* ================================================================ ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
@@ -274,12 +322,31 @@ Object.assign(MINA_LINES,{
  x_kdWhy:[['think','特別練習を してて、 「なんで he の ときだけ s なの？」って 思わなかった？ じつは あれ、 1000年 前の なごり なんだよ'],['smile','動詞が かならず いる わけ、 he の s の わけ… 英語の 「なんで？」の 話、 ゆっくり しない？']],
  r_kd_why:[['smile','特別練習、 {ok}問 正解！ …ねえ、 やってて 「なんで こんなに きっちり 決まってるの？」って 思わなかった？'],['think','{n}問 連発 おつかれさま。 he の s とか、 なんで あるんだろうね。 じつは わけが あるんだよ']],
  r_kd:[['proud','特別練習、 {n}問で {ok}問 正解！ とっさに 出る 力、 ついてきたね'],['happy','⚡ 特別練習 おつかれさま。 He plays… もう 耳が なれてきたでしょ？'],['smile','連発 {n}問！ 「なんか へん」って 感じられたら、 それが 身についた しるしだよ']],
+ kd_first0:[['happy','特別練習へ ようこそ！ 考えなくても 口から 出るように 連発する 部屋だよ。 まずは ⚡ぜんぶ か、 🚦動詞チェックが おすすめ'],['proud','わかるのと、 とっさに 出るのは べつの 力。 やりたい 練習を えらんでね']],
+ kd_menu:[['smile','きょうは どの 練習に する？ まよったら ⚡ぜんぶ でも いいよ'],['happy','練習の 部屋だよ。 にがてな ところだけ えらんで 連発も できるの'],['think','ぜんぶ やる？ それとも 1つに しぼる？ しぼると 早く 身につくよ']],
+ kd_menuVc:[['happy','🚦 動詞チェックを 作ったよ！ 見るのは 「主語の すぐ後ろ」 だけ。 そこが とくべつな 動詞か ふつうの 動詞か、 ぱっと 見分ける 練習'],['love','英語って 動詞の 種類を いつも 気に しないと いけなくて つかれるよね。 だから 見る ところを 1つに しぼった 🚦 動詞チェック、 やってみて']],
+ kd_menuRec:[['think','「{t}」で ちょっと まちがいが 多いみたい。 しぼって 連発すると すっと 出るように なるよ'],['smile','きょうの おすすめは 「{t}」。 もちろん ほかのでも いいよ']],
+ kd_c_vc1:[['happy','日本語は 動詞の 種類を 気に しないから、 英語で つかれるのは あたりまえ。 だから 見る ところは 1つ。 <b>主語の すぐ後ろ</b> だけ！'],['think','主語が My big brother みたいに 長くても、 「2番目の ことば」じゃ なくて 主語の かたまりの すぐ後ろ を 見てね']],
+ kd_c_vc:[['smile','主語の すぐ後ろ、 とくべつ？ ふつう？ {n}問 いくよ'],['happy','とくべつなら 自分で 前へ、 ふつうなら do。 1つの チェックで ぜんぶ きまるよ']],
+ kd_c_do1:[['happy','do の 出番 だけを 連発！ ふつうの 動詞の 質問と not は ぜんぶ do / does / did が 運ぶよ'],['think','do が 出たら 後ろは 原形。 -s も 過去も do が もっていくの']],
+ kd_c_do:[['smile','do の 出番、 {n}問！ 「ふつうの 動詞 → do」だよ'],['proud','do・does・did、 ぱっと 出るかな？']],
+ kd_c_be1:[['happy','be の 文 だけ 連発するよ。 be の 文は 自分で 前に 出て、 not も すぐ後ろ。 do は 来ない'],['think','hungry や playing みたいな 様子の ことばには be。 be が いれば do は いらないよ']],
+ kd_c_be:[['smile','be の 文、 {n}問！ Are you〜? ・ isn\'t ・ -ing'],['happy','be が 前に 出るだけ。 シンプルに いこう']],
+ kd_c_yv1:[['think','sick は 様子、 sleep は 動詞。 にてるけど be が いるか いらないか が かわるの。 very を つけて 言えたら 様子だよ'],['happy','様子か 動詞か の 見分け だけ 連発！ ここが わかると be の まちがいが へるよ']],
+ kd_c_yv:[['smile','様子？ 動詞？ {n}問。 まよったら very を つけてみてね'],['think','be が いる？ いらない？ ぱっと 決めよう']],
+ kd_c_form1:[['happy','動詞の 形 だけ 連発！ he の -s、 過去形、 will・can の あとの 原形'],['think','前の ことばが 後ろの 形を きめる。 それを 体で 覚えよう']],
+ kd_c_form:[['smile','動詞の 形、 {n}問 いくよ'],['proud','-s？ 原形？ 過去形？ ぱっと えらんでね']],
+ kd_vcGood:[['wow','{n}問で {ok}問！ 主語の すぐ後ろ、 もう ちゃんと 見えてるね'],['love','とくべつと ふつう、 ほとんど まよわなかったね。 これで do の 出番が 自然に わかるよ']],
+ kd_vcMore:[['smile','{n}問で {ok}問。 has が 2つの 顔を もってたり、 ちょっと ずるい 問題も あったよね。 何回か やると 目が なれるよ'],['love','まよったら 「この ことば、 自分で 前に 出られる？」って 聞いてみて。 出られたら とくべつ']],
+ r_kd_vc:[['proud','動詞チェック、 {n}問で {ok}問 正解！ 主語の すぐ後ろを 見る くせ、 ついてきたね'],['happy','🚦 動詞チェック おつかれさま。 とくべつか ふつうか、 1つ 見るだけで 楽に なったでしょ？']],
+ x_kdVc:[['happy','⚡特別練習に 🚦動詞チェックが 入ったよ。 主語の すぐ後ろ だけ 見る 練習。 疲れにくく なるよ'],['think','英語で つかれる ときは、 主語の すぐ後ろ だけ 見て。 🚦動詞チェックで 練習できるよ']],
  x_kdAgain:[['smile','⚡特別練習、 きのうより 速く なってるかも。 ためしてみる？'],['proud','この前の 特別練習、 {ok}問 正解だったね。 また 連発しよう']],
 });
 try{const RL=MINA_SENSE._rules,go=()=>['⚡ 特別練習',()=>open()];
   RL.push(['x_kdTry',3,()=>!R.n&&window.SHIKUMI&&SHIKUMI.doneN()>0?{}:null,go]);
   RL.push(['x_kdMw',3,()=>(R.miss.which||0)+(R.miss.willX||0)+(R.miss.willBe||0)>0?{}:null,go]);
   RL.push(['x_kdWhy',3,()=>R.tot&&whyNew()?{}:null,()=>['☕ なんで？の はなし',()=>MCHAT.open('why',()=>MINA.open())]]);
+  RL.push(['x_kdVc',3,()=>R.n&&!(R.cat&&R.cat.vc&&R.cat.vc.n)?{}:null,()=>['🚦 動詞チェック',()=>open('vc')]]);
   RL.push(['x_kdAgain',2,()=>R.n&&R.t&&Date.now()-R.t>864e5?{ok:R.best||0}:null,go]);
 }catch(e){}
 })();

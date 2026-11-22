@@ -170,7 +170,7 @@ function practicePage(){const pr=prSrc(),L=units().filter(u=>u.doneN()>0),[ex,tx
   const body=`${pr?rowB('id="mppgo"','⚡','きょうの 練習',esc(pr.t)+' ▶','big'):''}
     ${U.length>1?`<h4 class="sth">📘 授業を えらんで 練習</h4><div class="mplist">${U.map(u=>rowB(`data-pu="${u.id}"`,u.D.ico,esc(u.D.title),'10問')).join('')}</div>`:''}
     ${mn?rowB('id="mppmn"','📒','ミニ授業の まちがいノート',mn+'問'):''}
-    ${window.SKDRILL?rowB('id="mppkd"','🔁','れんぱつ 練習','英語の しくみ・50問まで'):''}
+    ${window.SKDRILL?rowB('id="mppkd"','🔁','れんぱつ 練習','ぜんぶ・🚦動詞チェック など'):''}
     ${tk.length?rowB('id="mpptk"','🎯','苦手 とっくん','5問'):''}
     ${L.length?`<h4 class="sth">📝 まとめテスト</h4><div class="mplist">${L.map(u=>rowB(`data-t="${u.id}"`,u.D.ico,esc(u.D.title),u.stars?u.stars(u.rec().best||0):'')).join('')}</div>`:''}`;
   sub('⚡ 練習',ex,tx,body);

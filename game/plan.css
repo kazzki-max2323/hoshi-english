@@ -113,3 +113,17 @@ body.fab-on #prteach .dpp{padding-bottom:74px}
 .qalist button i{font-style:normal;font-size:1.3rem;flex:none}.qalist button span{flex:1;font-size:.95rem;line-height:1.45}
 .qalist button small{flex:none;color:#55e0b4}.qalist button.seen{opacity:.85}
 .qaqt{margin:0;background:#fff6e0;color:#2a2340;text-shadow:none;border-radius:12px;padding:10px 12px;font-weight:800;line-height:1.5}
+/* 📂 特別練習の カテゴリー（game/shikumi-drill.js menu） */
+.kdcats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kdcat{position:relative;display:flex!important;align-items:center;gap:8px;text-align:left;padding:10px 10px!important;border-radius:14px!important;min-height:64px}
+.kdcat.big{grid-column:1/-1;background:rgba(255,210,63,.18)!important;border-color:rgba(255,210,63,.75)!important}
+.kdcat i{font-style:normal;font-size:1.5rem;flex:none}
+.kdcat span{display:flex;flex-direction:column;gap:2px;min-width:0}.kdcat b{font-size:.95rem}.kdcat small{font-size:.72rem;opacity:.8;font-weight:600;line-height:1.3}
+.kdcat em{position:absolute;top:-7px;right:8px;font-style:normal;font-size:.66rem;font-weight:800;border-radius:99px;padding:1px 7px;text-shadow:none}
+.kdnew{background:#ff3d6e;color:#fff}.kdrec{background:#ffd23f;color:#3a1d00}.kdbest{background:#2a3570;color:#bfe9ff}
+.kdct{margin:0;text-align:center;font-weight:800;font-size:1.05rem;color:#ffe7a8}
+.kdhow.kdvc{font-size:.86rem;line-height:1.6}.kdhow.kdvc p+p{margin-top:6px}.kdhow i{font-style:normal;font-family:Georgia,serif;font-weight:700;color:#1d4ed8}.kdhow u{text-decoration:none;border:2px solid #7c6bd6;border-radius:6px;padding:0 3px}
+.kdja.kden2{font-family:Georgia,'Times New Roman',serif;font-size:1.2rem;line-height:1.7}
+.kdsj{border:2px solid #7c6bd6;border-radius:8px;padding:0 5px;background:#efeaff}
+.kdja.kden2 u{text-decoration:none;border-bottom:3px solid #e8590c;color:#c2410c}
+.kdteach{margin-top:0!important}

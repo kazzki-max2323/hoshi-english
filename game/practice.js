@@ -140,7 +140,7 @@ function nextOne(){try{const T=MPLAN.pickToday();if(T.k==='les')return ['📘 �
 
 /* ================================================================ 🤔 教えて */
 let onTeachClose=null;
-const whyOf=(q,o)=>{const W=window.TEACH_WHY||{},w=W[qText(q)];return w&&w[o]||''};
+const whyOf=(q,o)=>{if(q.w&&q.w[o])return q.w[o];const W=window.TEACH_WHY||{},w=W[qText(q)];return w&&w[o]||''};
 function closeTeach(silent){const t=$('prteach');if(t)t.remove();hush();const f=onTeachClose;onTeachClose=null;if(f&&!silent)setTimeout(f,300)}
 function layer(title){let t=$('prteach');if(t)t.remove();t=document.createElement('div');t.id='prteach';document.body.appendChild(t);
   t.innerHTML=`<section class="pnl dpp mdp prt" role="dialog" aria-label="教えて"><div class="qtop"><button class="x" id="prtx" aria-label="問題に もどる">←</button><b>${title}</b><span></span></div><div class="mdbox" id="prtbox"></div></section>`;
