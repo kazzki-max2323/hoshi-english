@@ -85,7 +85,7 @@ function advice(){const ww=weakWords(),opts=[];
   const su=stepUp();if(su&&MD.said.step!==today())opts.push(['stepUp',su,su]);
   const ra=recentAcc();if(ra!=null&&ra<55)opts.push(['slowDown',{}]);
   if(ww.length>=3)opts.push(['review',{n:Math.min(ww.length,10)}]);
-  if(window.LESSON){const l=LESSON.suggest(1)[0];if(l)opts.push(['lesson',{t:'「'+l.t+'」'},l])}
+  /* ミニ授業を すすめるのは やめた（11/22: えらぶ ものは 📘授業だけ） */
   return opts}
 
 /* a line for what she sees now (game/mina-sense.js): [key, values, null, go] or null */
@@ -292,9 +292,8 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
   if(H.screen==='home'){talkAt+=dt;hamaAt+=dt}
   if(!canTalk())return;
   if(!opened){opened=true;const [ex,tx,go]=hello();sayRow('m',ex,tx,go?10000:8000,null,go);return}
-  if(gramMissNow){const g=gramMissNow;gramMissNow=null;const L=window.GRAMLINK?GRAMLINK.lessonsFor(g.id):[];
-    /* a lesson about it? she points there (game/gram-link.js) */
-    if(L.length){const [ex,tx]=line('gramMissLes',{g:'「'+g.g+'」',t:'「'+L[0].t+'」'});sayRow('m',ex,tx,9000,null,['📖 授業を ひらく',()=>LESSON.open(L[0].id,panelOpen)]);return}
+  if(gramMissNow){const g=gramMissNow;gramMissNow=null;
+    /* 11/22: ミニ授業へは さそわない */
     const [ex,tx]=line('gramMiss',{g:'「'+g.g+'」'});sayRow('m',ex,tx);return}
   if(Q.length){const [k,v,ex]=Q.shift();const [e2,tx]=line(k,v);sayRow('m',ex||e2,tx);return}
   const hamaOk=MD.hama.d!==today()||MD.hama.n<2;

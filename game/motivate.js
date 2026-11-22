@@ -56,7 +56,7 @@ const NK_UP={2:'名前、 ちゃんと おぼえたよ。 これからも よろ
   5:'もう おともだち だね。 ハマ子さんにも 自慢しちゃった',6:'あなたは わたしの 自慢の 生徒だよ',7:'わたしたち、 名コンビ だと 思う！',
   8:'ねえ、 ここまで 来てくれて ほんとに ありがとう',9:'あなたが 英語で 話す日が たのしみ',10:'ずっと いっしょに 勉強しようね。 今夜は 花火を あげるよ'};
 /* lines she says only when you are close */
-const NK_LINES=[[3,'love','あなたの がんばり、 ちゃんと 見てるよ'],[3,'happy','きょうも 来てくれて ありがとう'],[4,'love','ミニ授業、 また いっしょに やろうね'],
+const NK_LINES=[[3,'love','あなたの がんばり、 ちゃんと 見てるよ'],[3,'happy','きょうも 来てくれて ありがとう'],[4,'love','授業、 また いっしょに やろうね'],
   [5,'smile','ハマ子さん、 あなたの こと よく 話してるよ'],[6,'love','先生に なって よかったって、 あなたを 見てると 思うんだ'],
   [7,'think','ひみつだけど… わたしも むかしは 英語が にがて だったの'],[7,'happy','わたしが 英語を 好きに なったのは、 洋楽の 歌詞が きっかけ なんだ'],
   [8,'love','あなたと いると、 時間が すぐ たっちゃう'],[9,'proud','あなたなら どこまでも いけるよ'],[10,'love','これからも ずっと、 となりで 応援してるね']];
@@ -183,6 +183,9 @@ setInterval(()=>{const now=performance.now(),dt=now-lastT;lastT=now;if(document.
   /* 思い出しクイズ・ハマ子の 挑戦状は 11/21 に やめた（⚡練習に まとめる） */},1000);
 nkUnlock();chips();
 
-window.MOTI={nkName:()=>NK_NAME[MV.nk.lv-1],nkNeed,nkMax:NK.length,pendCard,pendShow,coins,gain:n=>{if(inLesson)inLesson.gain+=n;else nkOut(n)},rec:()=>MV,openCards,chips,
+/* 11/22: ミニ授業は えらぶ 所に 出さなく なったので、 📘単元の 1時間が おわった ときも スタンプ（1日 1つの 時間に 1こ）と なかよしを 小さく */
+function unitDone(key,st){let h='';try{const r=stampRow({id:'u:'+key});if(r)h+=r}catch(e){console.error(e)}
+  try{nkOut((st&&st.miss)?4:6)}catch(e){console.error(e)}return h}
+window.MOTI={unitDone,nkName:()=>NK_NAME[MV.nk.lv-1],nkNeed,nkMax:NK.length,pendCard,pendShow,coins,gain:n=>{if(inLesson)inLesson.gain+=n;else nkOut(n)},rec:()=>MV,openCards,chips,
   _test:{quiz:()=>{MV.qz.n=0;MV.qz.now=null;return quizStart()},hama:()=>{MV.hc.d='';MINA.rec().hama={d:'',n:0};return hcStart()},nk:p=>nkOut(p),stamps:n=>{MV.st.n=n;save()}}};
 })();

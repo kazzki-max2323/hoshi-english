@@ -153,7 +153,7 @@ function quiz(l,back,st,qs){st=st||{help:0,stg:0};qs=qs&&qs.length?qs:l.quiz.map
       $('lreset').onclick=()=>{picked.length=0;H.panel.querySelectorAll('[data-c]').forEach(x=>x.disabled=false);draw()}}
     else H.panel.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{const i=+b.dataset.o,ok=i===q.a;H.panel.querySelectorAll('[data-o]').forEach(x=>x.disabled=true);
       H.panel.querySelector(`[data-o="${q.a}"]`).classList.add('right');if(!ok)b.classList.add('wrong');fb(ok,q.o[q.a],q.o[i])})};
-  const finish=()=>{const D=done(),first=!D[l.id];D[l.id]=1;save();const sk=mark(),pay=first?PAY[l.lv]:0,nx=suggest(4).filter(x=>x.id!==l.id)[0],N=qs.length;
+  const finish=()=>{const D=done(),first=!D[l.id];D[l.id]=1;save();const sk=mark(),pay=first?PAY[l.lv]:0,N=qs.length;
     /* extra prizes from game/bonus.js and game/motivate.js: each gives {html, after} or nothing */
     const info={first,miss,n:N,pay,sk},ext=LESSON_AFTER.map(f=>{try{return f(l,info)}catch(e){console.error(e);return null}}).filter(Boolean);
     /* この授業の 文法を 文法テストで ためす（game/gram-link.js） */
@@ -167,7 +167,6 @@ function quiz(l,back,st,qs){st=st||{help:0,stg:0};qs=qs&&qs.length?qs:l.quiz.map
       ${sug?`<div class="lsay by-m lsug"><span class="lface">${MINA.face('m','think')}</span><div class="lbody"><p>${MINA.line(sug[0])[1]}</p><button id="lsug" class="sub">${sug[1]}</button></div></div>`:''}
       ${gk?gk.html:''}
       ${ext.length?`<div class="bwin bsm">${ext.map(x=>`<div class="brow">${x.html}</div>`).join('')}</div>`:''}
-      ${nx?`<p class="note">つぎの 授業も やってみる？</p>${row(nx)}`:''}
       <div class="row"><button id="lagain" class="sub">もう一度</button><button id="lback" data-back>${back===H.home?'ホームへ':'ミナ先生へ'}</button></div>
     </section>`);
     SFX.done();if(pay){const r=H.panel.getBoundingClientRect();setTimeout(()=>H.coinBurst(r.left+r.width/2,r.top+70,pay),300)}
