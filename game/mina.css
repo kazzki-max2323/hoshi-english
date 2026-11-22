@@ -209,3 +209,9 @@
 /* 文字の 中の 小さい ミナ先生（MICO） */
 .mico{display:inline-block;width:1.35em;height:1.35em;flex:0 0 auto;border-radius:50%;overflow:hidden;vertical-align:-.32em;background:#ffe9c7;box-shadow:0 0 0 1.5px #ffcf5a;line-height:0;text-shadow:none}
 .mico svg{width:100%;height:100%;display:block}
+/* ☕ 話した おしゃべり（もう一度 見る、 game/mina-chat.js） */
+.mcfold{margin-top:8px}
+.mcl{display:flex;flex-direction:column;gap:6px;padding:4px 10px 10px}
+.mcl .mclm{margin:2px 0 4px;font-size:.8rem;color:var(--mute);display:flex;align-items:center;gap:6px}
+.mcli{text-align:left;padding:9px 12px;border-radius:10px;font-size:.86rem;font-weight:700}
+.mc>.kmina{margin:6px 0 10px}
