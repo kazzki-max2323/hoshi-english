@@ -137,3 +137,9 @@ body.fab-on #prteach .dpp{padding-bottom:74px}
 .kdthink p{margin:0;font-size:.9rem;font-weight:700;line-height:1.5}.kdthink small{display:block;font-size:.75rem;color:#7c6bd6}
 .kdmis{margin:4px 0 2px!important;font-family:inherit!important;font-size:.9rem!important;font-weight:700;color:#b45309;line-height:1.5;text-align:left}
 .mdlkm{text-align:center}.mdlkm p{text-shadow:none}.mdlkdots{font-size:1.4rem;letter-spacing:6px;margin:4px 0!important}
+/* 🧩 型の 練習（⚡練習ページの いちばん上）: 「重要」を 派手に（11/22 ユーザー「だいじな 練習だから 重要って 派手に」） */
+.mprow.mpkata{border:3px solid #ffd23f!important;background:linear-gradient(135deg,rgba(255,210,63,.28),rgba(255,92,92,.22))!important;box-shadow:0 0 0 2px rgba(255,92,92,.45),0 0 18px rgba(255,210,63,.55)!important;animation:mpglow 1.6s ease-in-out infinite alternate}
+.mprow.mpkata b{text-shadow:none}
+.mpimp{display:inline-block;margin-left:8px;vertical-align:middle;font-style:normal;font-size:.8rem;font-weight:900;letter-spacing:.08em;color:#fff;background:linear-gradient(#ff4d4d,#d90429);border:2px solid #fff;border-radius:8px;padding:2px 8px;text-shadow:none;transform:rotate(-4deg);box-shadow:0 2px 0 #7a0010;animation:mpimp .9s ease-in-out infinite alternate}
+@keyframes mpimp{from{transform:rotate(-4deg) scale(1)}to{transform:rotate(-4deg) scale(1.12)}}
+@keyframes mpglow{from{box-shadow:0 0 0 2px rgba(255,92,92,.45),0 0 10px rgba(255,210,63,.4)}to{box-shadow:0 0 0 2px rgba(255,92,92,.7),0 0 24px rgba(255,210,63,.8)}}
