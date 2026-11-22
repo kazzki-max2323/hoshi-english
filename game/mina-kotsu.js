@@ -40,5 +40,44 @@ function next(o){o=o||{};const A=all();if(!A.length)return '';
   /* 半分は 手で 書いた 授業の あとの ひとことから（声に 出す・思い出す など、 いま すぐ できる もの） */
   const E=L.filter(x=>!x[0].startsWith('l:')),x=E.length&&Math.random()<.55?pickL(E):pickL(L);
   R.s[x[0]]=1;save();return esc(x[1])}
-window.KOTSU={next,END,all,rec:()=>R};
+
+/* ---------- ☕ コツの お話（11/22 3回目）: 前の ミニ授業の 「勉強の やり方」「学び方の 科学」と、 単元にも カードにも 入らなかった 英語の おもしろ話を、
+   ミナ先生が 1つ えらんで おしゃべりで 話す（問題は なし）。 ☕ おしゃべり ページの 1行から ---------- */
+const TALK_CATS=['yarikata','kagaku'];
+/* 浜辺に 合わない もの（試験の 点数の 話など）は 入れない */
+const TALK_SKIP=['adv-eiken-toeic','adv-paraphrase','adv-clil','jh-directions'];
+const TALK_MORE=['jh-keyword','jh-chunk','es-word-web','jh-word-family','hs-gogen-word-parts','jh-proverbs','hs-gesture-culture','jh-mirror-order','hs-adj-order','jh-no-skip-subject','jh-read-numbers','jh-keep-talking','es-hama-bd'];
+const LVI={es:0,jh:1,hs:2,adv:3};
+function talks(){if(typeof LESSONS==='undefined')return [];return LESSONS.filter(l=>(TALK_CATS.includes(l.cat)||TALK_MORE.includes(l.id))&&!TALK_SKIP.includes(l.id))}
+R.t=R.t||{};
+function talkPick(){const A=talks();if(!A.length)return null;let lv=1;try{lv=LVI[MINA.level()]??1}catch(e){}
+  let L=A.filter(l=>!R.t[l.id]);if(!L.length){R.t={};L=A}
+  /* いまの レベルの まわり（±1）から */
+  const near=L.filter(l=>Math.abs((LVI[l.lv]??1)-lv)<=1);return pickL(near.length?near:L)}
+function talk(back){const H=window.HE,l=talkPick();if(!H||!l)return;back=back||(()=>MINA.open());R.t[l.id]=Date.now();save();
+  const $=id=>document.getElementById(id),ML=(k,v)=>{try{return MINA.line(k,v||{})}catch(e){return ['smile','']}};
+  const [ex0,tx0]=ML(TALK_CATS.includes(l.cat)?'kt_start':'kt_startFun',{t:l.t});
+  const st=[['m',ex0,tx0]].concat(l.steps);let k=0;
+  const say=s=>`<div class="lsay by-${s[0]==='h'?'h':'m'}"><span class="lface">${MINA.face(s[0]==='h'?'h':'m',s[1])}</span><div class="lbody"><p>${s[2]}</p>${s[3]?`<div class="fz">${s[3]}</div>`:''}</div></div>`;
+  H.show('mina',`<section class="pnl minap mpsub ktalk">
+    <div class="qtop"><button class="x" id="ktbk" aria-label="もどる">←</button><b>☕ ${esc(l.t)}</b><span></span></div>
+    <div class="ktlog" id="ktlog"></div><div class="row"><button id="ktnx">つぎ ▶</button></div></section>`);
+  const nx=$('ktnx'),log=$('ktlog'),snd=n=>{try{BEACH.sfx[n]()}catch(e){}};
+  const step=()=>{if(k<st.length){log.insertAdjacentHTML('beforeend',say(st[k++]));log.lastElementChild.scrollIntoView({block:'nearest',behavior:'smooth'});
+      if(k>=st.length)nx.textContent='なるほど！';return}
+    const [ex,tx]=ML('kt_end',{t:l.t});log.insertAdjacentHTML('beforeend',say(['m',ex,tx]));nx.textContent='☕ もどる';nx.onclick=()=>{snd('pop');back()};};
+  nx.onclick=()=>{snd('step');step()};$('ktbk').onclick=()=>{snd('pop');back()};
+  step();step()}
+
+/* ---------- 🍬 ハマ子さんの 語呂: ホームに 来た ときに 歌って いく（HAMA_TALKS に 足す） ---------- */
+try{if(typeof HAMA_TALKS!=='undefined'&&typeof LESSONS!=='undefined'){const strip=t=>String(t).replace(/<[^>]+>/g,'');
+  LESSONS.filter(l=>l.cat==='hama').forEach(l=>HAMA_TALKS.push({when:'any',goro:l.id,lines:l.steps.slice(0,4).map(s=>[s[0]==='h'?'h':'m',s[1],strip(s[2])])}))}}catch(e){console.error(e)}
+
+Object.assign(MINA_LINES,{
+ kt_start:[['smile','きょうは 「{t}」の 話を するね。 のんびり 聞いて'],['happy','勉強の コツの 話。 「{t}」だよ'],['think','ミナが 好きな コツを 1つ。 「{t}」'],['love','お茶でも 飲みながら。 「{t}」の 話']],
+ kt_startFun:[['wow','英語の おもしろ話を 1つ。 「{t}」'],['happy','ちょっと 寄り道。 「{t}」の 話、 聞いて？'],['smile','授業では やらない 話を するね。 「{t}」']],
+ x_ktTalk:[['smile','ひまなら、 勉強の コツの 話でも する？'],['happy','ミナの 好きな 英語の おもしろ話、 聞いてく？'],['think','ちょっと ひと休みして コツの 話は どう？']],
+ kt_end:[['happy','おしまい。 1つだけ ためして みてね'],['love','聞いてくれて ありがとう。 また 話そうね'],['proud','これで 「{t}」、 もう 知ってる 人だね'],['smile','ぜんぶ やらなくて いいよ。 気に入った ところだけ つかってね']],
+});
+window.KOTSU={next,END,all,rec:()=>R,talk,talks};
 })();

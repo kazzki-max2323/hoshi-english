@@ -203,3 +203,6 @@
 .mcph b,.mcph small,.mcph span{text-shadow:none}
 .mcph b{font-family:"Libre Baskerville",Georgia,serif;font-size:.95rem}
 .mcph span{font-size:.78rem}
+
+/* ☕ コツの お話（game/mina-kotsu.js） */
+.ktalk .ktlog{display:flex;flex-direction:column;gap:10px;max-height:58vh;overflow-y:auto;padding:4px 2px}

@@ -168,11 +168,13 @@ function practicePage(){const pr=prSrc(),L=units().filter(u=>u.doneN()>0),[ex,tx
 function chatPage(){const [ex,tx]=ML('mp_ct');
   const body=`${window.MINAQA?rowB('id="mpqa"','🙋','ミナ先生に しつもん','よく ある 「なんで？」','big'):''}
     ${window.MCHAT?rowB('id="mpcl"','☕','ミナ先生と おしゃべり','日本語で のんびり'):''}
+    ${window.KOTSU&&KOTSU.talk?rowB('id="mpkt"','💡','コツの お話','勉強の コツ・英語の おもしろ話'):''}
     ${window.SENSEI?rowB('id="mpce"','🗣️','英語で 話す','ミナ先生が 先生役'):''}
     ${window.SENSEI?rowB('id="mpcs"','🎬','場面を えらぶ','会話の 一覧'):''}`;
   sub('☕ おしゃべり',ex,tx,body);
   const q=$('mpqa');if(q)q.onclick=()=>{SFX.talk();MINAQA.list(chatPage)};
   const a=$('mpcl');if(a)a.onclick=()=>{SFX.talk();MCHAT.open(null,MINA.open)};
+  const kt=$('mpkt');if(kt)kt.onclick=()=>{SFX.talk();KOTSU.talk(chatPage)};
   const b=$('mpce');if(b)b.onclick=()=>{SFX.talk();MP.ct=0;chatScene()};
   const c=$('mpcs');if(c)c.onclick=()=>{SFX.pop();SENSEI.open()}}
 function chatScene(){let lv='es';try{lv=MINA.level();if(lv==='adv')lv='hs'}catch(e){}
@@ -198,6 +200,8 @@ try{const RL=MINA_SENSE._rules,drop=['x_stAsk','x_stNext','x_lesToday','x_lesStr
   RL.push(['x_mpToday',6,F=>{const D=day(),I=todayInfo();return !D.done&&I&&!I.fresh?{u:I.u.D.title,t:I.t}:null},go]);
   RL.push(['x_mpNew',4,F=>{const D=day(),I=todayInfo();return !D.done&&I&&I.fresh?{u:I.u.D.title}:null},go]);
   RL.push(['x_mpWeak',3,F=>{const u=units().find(u=>u.missOf()>=2);return u?{u:u.D.title}:null},()=>['💪 特別授業',()=>special()]]);
+  /* ☕ コツの お話（game/mina-kotsu.js）: きょうの 授業が おわった 日に ときどき */
+  RL.push(['x_ktTalk',2,F=>day().done&&window.KOTSU&&KOTSU.talk?{}:null,()=>['💡 コツの お話',()=>KOTSU.talk(()=>MINA.open())]]);
   RL.push(['x_mpRev',2,F=>units().some(u=>u.doneN()>0&&u.rec().t&&Date.now()-u.rec().t>2*864e5)?{}:null,()=>['⚡ 練習',()=>practice()]]);
 }catch(e){console.error(e)}
 
