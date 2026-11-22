@@ -153,7 +153,7 @@ function lessonsPage(){const I=todayInfo(),D=day(),L=units().filter(u=>u.started
 function practicePage(){const pr=prSrc(),L=units().filter(u=>u.doneN()>0),[ex,tx]=ML(pr?'mp_pr':'mp_pr0');let tk=[];try{tk=SENSEI.weak()}catch(e){}
   const U=window.PRAC?units().filter(u=>PRAC.has(u.id)):[],L2=units()
   /* 11/22 ユーザー「連発練習を 目立つ ところへ、 メインに して」→ いちばん 上に 大きく */
-  const body=`${window.SKDRILL?rowB('id="mppkd"','🔁','れんぱつ 練習','カテゴリー別 ▶','big'):''}
+  const body=`${window.SKDRILL?rowB('id="mppkd"','🧩','型の 練習 <em class="mpimp">重要</em>','カテゴリー別 ▶','big mpkata'):''}
     ${tk.length?rowB('id="mpptk"','🔥','苦手 練習','会話で まよった 文法 5問'):''}
     ${pr?rowB('id="mppgo"','⚡','きょうの 練習',esc(pr.t)):''}
     ${U.length?`<h4 class="sth">📘 授業を えらんで 練習</h4><div class="mplist">${U.map(u=>rowB(`data-pu="${u.id}"`,u.D.ico,esc(u.D.title),'10問')).join('')}</div>`:''}

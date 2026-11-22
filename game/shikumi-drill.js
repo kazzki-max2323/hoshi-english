@@ -212,8 +212,8 @@ let G=null;
 function close(){const o=$('dpov');if(o)o.remove();G=null;hush()}
 function shell(){let o=$('dpov');if(o)o.remove();try{window.DEEP&&DEEP.close()}catch(e){}
   o=document.createElement('div');o.id='dpov';document.body.appendChild(o);
-  o.innerHTML=`<section class="pnl dpp mdp kdp" role="dialog" aria-label="特別練習">
-    <div class="qtop"><button class="x" id="kdx" aria-label="やめる">✋</button><b>⚡ 特別練習</b><span class="qn" id="kdn"></span></div>
+  o.innerHTML=`<section class="pnl dpp mdp kdp" role="dialog" aria-label="型の練習">
+    <div class="qtop"><button class="x" id="kdx" aria-label="やめる">✋</button><b>🧩 型の 練習</b><span class="qn" id="kdn"></span></div>
     <div class="kdbar"><i id="kdbar"></i></div>
     <div class="mdbox" id="kdbox"></div></section>`;
   $('kdx').onclick=()=>{snd('back');G&&G.i>0?finish(1):close()};
@@ -337,12 +337,12 @@ function teach(q){if(!window.PRAC)return detail(q.k,q);const d=DET[q.k]||{},U=wi
   PRAC.teach(t,U&&U.D?U:null,t.c)}
 /* ホームに もどった ときの ミナ先生の ひとこと（game/mina-react.js）。 まだ 聞いて なければ 「なんで？」の おしゃべりへ（☕ その 話を もっと） */
 window.MINA_REACT_EXT=window.MINA_REACT_EXT||{};
-MINA_REACT_EXT.skdrill={act:e=>e.n?[e.c==='動詞チェック'?'r_kd_vc':e.c==='はい・いいえ'?'r_kd_yn':whyNew()?'r_kd_why':'r_kd',{n:e.n|0,ok:e.ok|0},null]:null,desc:e=>`特別練習${e.c?'（'+e.c+'）':''}を した`};
+MINA_REACT_EXT.skdrill={act:e=>e.n?[e.c==='動詞チェック'?'r_kd_vc':e.c==='はい・いいえ'?'r_kd_yn':whyNew()?'r_kd_why':'r_kd',{n:e.n|0,ok:e.ok|0},null]:null,desc:e=>`型の練習${e.c?'（'+e.c+'）':''}を した`};
 window.SKDRILL={open,close,detail,teach,rec:()=>R,make,T,KN,DET,CATS};
 
 /* ================================================================ ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
- kd_first:[['happy','特別練習へ ようこそ！ 考えなくても 口から 出るように、 {n}問 連発で いくよ。 まちがえても すぐ また 出すから 大丈夫'],['proud','わかるのと、 とっさに 出るのは べつの 力。 きょうは その 「とっさ」を きたえよう']],
+ kd_first:[['happy','型の練習へ ようこそ！ 考えなくても 口から 出るように、 {n}問 連発で いくよ。 まちがえても すぐ また 出すから 大丈夫'],['proud','わかるのと、 とっさに 出るのは べつの 力。 きょうは その 「とっさ」を きたえよう']],
  kd_start:[['smile','{n}問 連発！ ゆっくり 考えず、 ぱっと えらんでね'],['happy','きょうも 手伝い役の 練習、 いこう！ 「前の ことばで 後ろが きまる」だよ'],['think','do？ be？ 原形？ ぱっと 見て えらべるかな']],
  kd_det:[['smile','「{t}」の しくみ、 じっくり 見ていこう'],['happy','なんで？って 思えるの、 いいことだよ。 わけが わかると わすれないからね'],['think','ここが わかると、 にた 問題が ぜんぶ 解けるように なるよ']],
  x_kdMw:[['think','動詞か 様子か、 まよったら very を つけてみて。 very sick は 言える、 very eat は 言えない。 言えたら be が いるよ'],['smile','「〜に なる」の 「なる」は be の しごと。 will be sick、 覚えてる？']],
@@ -352,11 +352,11 @@ Object.assign(MINA_LINES,{
  kd_more:[['smile','{n}問で {ok}問 正解。 大丈夫、 連発は くりかえすほど 速く なるの'],['love','まちがえた 型は 次も 多めに 出すね。 何回か やると すっと 出るように なるよ']],
  kd_quit:[['smile','{n}問 やったね。 ちょっとずつでも 毎日 やると とっさに 出るように なるよ'],['happy','ここまで {ok}問 正解！ また 続きを やろう']],
  kd_quit0:[['smile','また やりたく なったら いつでも 来てね']],
- x_kdTry:[['happy','💪特別授業の 横に ⚡特別練習を 作ったよ。 do や be を 連発で とっさに 出す 練習！'],['think','わかってるのに とっさに 出ない ときは、 ⚡特別練習で 連発しよう']],
- x_kdWhy:[['think','特別練習を してて、 「なんで he の ときだけ s なの？」って 思わなかった？ じつは あれ、 1000年 前の なごり なんだよ'],['smile','動詞が かならず いる わけ、 he の s の わけ… 英語の 「なんで？」の 話、 ゆっくり しない？']],
- r_kd_why:[['smile','特別練習、 {ok}問 正解！ …ねえ、 やってて 「なんで こんなに きっちり 決まってるの？」って 思わなかった？'],['think','{n}問 連発 おつかれさま。 he の s とか、 なんで あるんだろうね。 じつは わけが あるんだよ']],
- r_kd:[['proud','特別練習、 {n}問で {ok}問 正解！ とっさに 出る 力、 ついてきたね'],['happy','⚡ 特別練習 おつかれさま。 He plays… もう 耳が なれてきたでしょ？'],['smile','連発 {n}問！ 「なんか へん」って 感じられたら、 それが 身についた しるしだよ']],
- kd_first0:[['happy','特別練習へ ようこそ！ 考えなくても 口から 出るように 連発する 部屋だよ。 まずは ⚡ぜんぶ か、 🚦動詞チェックが おすすめ'],['proud','わかるのと、 とっさに 出るのは べつの 力。 やりたい 練習を えらんでね']],
+ x_kdTry:[['happy','💪特別授業の 横に 🧩型の練習を 作ったよ。 do や be を 連発で とっさに 出す 練習！'],['think','わかってるのに とっさに 出ない ときは、 🧩型の練習で 連発しよう']],
+ x_kdWhy:[['think','型の練習を してて、 「なんで he の ときだけ s なの？」って 思わなかった？ じつは あれ、 1000年 前の なごり なんだよ'],['smile','動詞が かならず いる わけ、 he の s の わけ… 英語の 「なんで？」の 話、 ゆっくり しない？']],
+ r_kd_why:[['smile','型の練習、 {ok}問 正解！ …ねえ、 やってて 「なんで こんなに きっちり 決まってるの？」って 思わなかった？'],['think','{n}問 連発 おつかれさま。 he の s とか、 なんで あるんだろうね。 じつは わけが あるんだよ']],
+ r_kd:[['proud','型の練習、 {n}問で {ok}問 正解！ とっさに 出る 力、 ついてきたね'],['happy','🧩 型の 練習 おつかれさま。 He plays… もう 耳が なれてきたでしょ？'],['smile','連発 {n}問！ 「なんか へん」って 感じられたら、 それが 身についた しるしだよ']],
+ kd_first0:[['happy','型の練習へ ようこそ！ 考えなくても 口から 出るように 連発する 部屋だよ。 まずは ⚡ぜんぶ か、 🚦動詞チェックが おすすめ'],['proud','わかるのと、 とっさに 出るのは べつの 力。 やりたい 練習を えらんでね']],
  kd_menu:[['smile','きょうは どの 練習に する？ まよったら ⚡ぜんぶ でも いいよ'],['happy','練習の 部屋だよ。 にがてな ところだけ えらんで 連発も できるの'],['think','ぜんぶ やる？ それとも 1つに しぼる？ しぼると 早く 身につくよ']],
  kd_menuVc:[['happy','🚦 動詞チェックを 作ったよ！ 見るのは 「主語の すぐ後ろ」 だけ。 そこが とくべつな 動詞か ふつうの 動詞か、 ぱっと 見分ける 練習'],['love','英語って 動詞の 種類を いつも 気に しないと いけなくて つかれるよね。 だから 見る ところを 1つに しぼった 🚦 動詞チェック、 やってみて']],
  kd_menuRec:[['think','「{t}」で ちょっと まちがいが 多いみたい。 しぼって 連発すると すっと 出るように なるよ'],['smile','きょうの おすすめは 「{t}」。 もちろん ほかのでも いいよ']],
@@ -373,7 +373,7 @@ Object.assign(MINA_LINES,{
  kd_vcGood:[['wow','{n}問で {ok}問！ 主語の すぐ後ろ、 もう ちゃんと 見えてるね'],['love','とくべつと ふつう、 ほとんど まよわなかったね。 これで do の 出番が 自然に わかるよ']],
  kd_vcMore:[['smile','{n}問で {ok}問。 has が 2つの 顔を もってたり、 ちょっと ずるい 問題も あったよね。 何回か やると 目が なれるよ'],['love','まよったら 「この ことば、 自分で 前に 出られる？」って 聞いてみて。 出られたら とくべつ']],
  r_kd_vc:[['proud','動詞チェック、 {n}問で {ok}問 正解！ 主語の すぐ後ろを 見る くせ、 ついてきたね'],['happy','🚦 動詞チェック おつかれさま。 とくべつか ふつうか、 1つ 見るだけで 楽に なったでしょ？']],
- x_kdVc:[['happy','⚡特別練習に 🚦動詞チェックが 入ったよ。 主語の すぐ後ろ だけ 見る 練習。 疲れにくく なるよ'],['think','英語で つかれる ときは、 主語の すぐ後ろ だけ 見て。 🚦動詞チェックで 練習できるよ']],
+ x_kdVc:[['happy','🧩型の練習に 🚦動詞チェックが 入ったよ。 主語の すぐ後ろ だけ 見る 練習。 疲れにくく なるよ'],['think','英語で つかれる ときは、 主語の すぐ後ろ だけ 見て。 🚦動詞チェックで 練習できるよ']],
  kd_menuJp:[['happy','「日本語と ちがう ところ」を 7つ 入れたよ。 いちばん まよう 🙆はい・いいえ から いこう！'],['love','英語が つかれるのは、 日本語で 気に しない ことを 毎回 きめるから。 1つずつ 「ここだけ 見る」で 練習しよう']],
  te_open0:[['love','聞いてくれて うれしい！ どこで まよったか、 いっしょに 見よう'],['smile','いい 質問。 ゆっくり 説明するね']],
  kd_think:[['think','まよってる？ 見る ところは ここ だけ'],['smile','ゆっくりで いいよ。 ヒント'],['think','ちょっと ひとこと']],
@@ -394,10 +394,10 @@ Object.assign(MINA_LINES,{
  kd_ynGood:[['wow','{n}問で {ok}問！ 質問に まどわされなく なったね。 これ、 大人でも まちがえるんだよ'],['love','Yes と No、 もう 迷わないね。 答えの 中身 だけ 見る くせ、 ついてるよ']],
  kd_ynMore:[['smile','{n}問で {ok}問。 日本語の 「はい」に 何回か つられちゃったね。 でも それが ふつう。 何回か やると 体が なれるよ'],['love','まよったら、 質問を 手で かくして 「自分は する？ しない？」だけ 考えてみて'],['think','Yes を 「はい」、 No を 「いいえ」と 訳すと つられちゃうの。 Yes は 「I do が 来るよ」、 No は 「I don\'t が 来るよ」の ふだ だと 思ってみて']],
  r_kd_yn:[['proud','はい・いいえの 練習、 {n}問で {ok}問 正解！ Don\'t you〜? も こわくないね'],['happy','🙆 はい・いいえ おつかれさま。 質問は 見ない、 答えの 中身 だけ、 だよ'],['smile','Yes・No の 日本語訳は 気に しない。 I do か I don\'t を 決めたら、 ふだは 自動で つくからね']],
- x_kdYn:[['love','日本語の 「はい・いいえ」と 英語の Yes・No、 じつは 決め方が ちがうの。 ⚡特別練習の 🙆はい・いいえ で ためしてみて'],['think','Don\'t you like cats? って 聞かれたら、 好きなら Yes？ No？ ⚡特別練習で 練習できるよ']],
- x_kdAgain:[['smile','⚡特別練習、 きのうより 速く なってるかも。 ためしてみる？'],['proud','この前の 特別練習、 {ok}問 正解だったね。 また 連発しよう']],
+ x_kdYn:[['love','日本語の 「はい・いいえ」と 英語の Yes・No、 じつは 決め方が ちがうの。 🧩型の練習の 🙆はい・いいえ で ためしてみて'],['think','Don\'t you like cats? って 聞かれたら、 好きなら Yes？ No？ 🧩型の練習で 練習できるよ']],
+ x_kdAgain:[['smile','🧩型の練習、 きのうより 速く なってるかも。 ためしてみる？'],['proud','この前の 型の練習、 {ok}問 正解だったね。 また 連発しよう']],
 });
-try{const RL=MINA_SENSE._rules,go=()=>['⚡ 特別練習',()=>open()];
+try{const RL=MINA_SENSE._rules,go=()=>['🧩 型の 練習',()=>open()];
   RL.push(['x_kdTry',3,()=>!R.n&&window.SHIKUMI&&SHIKUMI.doneN()>0?{}:null,go]);
   RL.push(['x_kdMw',3,()=>(R.miss.which||0)+(R.miss.willX||0)+(R.miss.willBe||0)>0?{}:null,go]);
   RL.push(['x_kdWhy',3,()=>R.tot&&whyNew()?{}:null,()=>['☕ なんで？の はなし',()=>MCHAT.open('why',()=>MINA.open())]]);
