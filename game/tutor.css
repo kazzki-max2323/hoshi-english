@@ -85,3 +85,10 @@
 .tuord .tudk{font-size:.78rem;border-style:dashed!important;background:rgba(255,255,255,.04)!important}
 .tushake{animation:tushk .4s}
 @keyframes tushk{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+/* 👦 リクの 時間（hours.js RIKUH）: いない ときは リクと 「？」を かくして 小さな 札 */
+#tuSpot.away .tuKid,#tuSpot.away .tuQ{display:none}
+.tuAwayTag{position:absolute;left:58%;top:62%;transform:translate(-50%,-50%) rotate(-4deg);font:800 8px/1 sans-serif;font-style:normal;letter-spacing:.4px;color:#fff;background:#3f6fd8;border:1px solid #fff6dd;border-radius:3px;padding:2px 4px;white-space:nowrap;pointer-events:none;text-shadow:none}
+.tunotep{position:relative;margin:12px auto 10px;max-width:320px;padding:12px 40px 10px 14px;background:#fff8e6;color:#3a2a1a;border:1px dashed #c9952a;border-radius:8px;transform:rotate(-1.5deg);text-shadow:none;text-align:left}
+.tunotep small{color:#8a6a3a}.tunotep .hrsen,.tunotep .hrsja{color:#3a2a1a;text-shadow:none}
+.tunotep .ksay{position:absolute;right:8px;top:10px}
+.tuaway .hrst{line-height:1.6}
