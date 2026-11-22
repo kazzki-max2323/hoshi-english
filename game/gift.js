@@ -18,7 +18,7 @@ const TIER=[['meh','ちょっと 苦手みたい','😅'],['ok','ふつうに �
 const GF=(()=>{try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}').gift;if(s&&s.seen)return s}catch(e){}
   return {n:0,gave:{},seen:{},hint:{},end:{},fun:0}})();
 /* 毎回 かわる 会話の ための きろく（2026-11-18）: last=前に あげた 品 day=あげた 日 fk=前の 展開 long=見た 長い 会話 ret=お返し from=お返しで もらった 品の 相手 ev=できごとの 回数 */
-['last','day','fk','long','retDay','from','ev'].forEach(k=>{if(!GF[k])GF[k]={}});if(!GF.ret)GF.ret=0;
+['last','day','fk','long','retDay','from','ev','qr'].forEach(k=>{if(!GF[k])GF[k]={}});if(!GF.ret)GF.ret=0;if(GF.sl==null)GF.sl=0;
 _saveHooks.push(()=>{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'{}');s.gift=GF;localStorage.setItem(SAVE_KEY,JSON.stringify(s))});
 
 /* ---------- what you have ---------- */
@@ -125,8 +125,9 @@ function play(it,to,back){hush();if(typeof it==='string')it=byRef(it);if(!it||!P
   const p=PP[to],t=tier(to,it.key);
   const last=GF.last[to]&&GF.last[to].k!==it.key?GF.last[to]:null;
   C={it,to,p,t,back:back||H.home,fun:0,typed:0,step:0,hint:false,ex:'smile',opts:[],last,k:(GF.gave[to]||0)+1,ev:[],ret:null,longId:''};
-  /* 11/20 ユーザー「英文が 多くて つかれる」: ふだんは さらっと（わたして → 1〜2行の 反応で おわり）。 4回に 1回くらい いつもの 長い 会話。 はじめての 1回と ○回目の 記念日は 長い ほう */
-  C.short=GF.n>0&&!GIFT_COUNT[C.k]&&Math.random()<.75;
+  /* 11/22 ユーザー「プレゼントの 会話が 長い、 ワンパターン」: ふだんは さらっと（わたして → ひとことの 反応で おわり）。
+     ボタンを えらぶ 会話は 5回に 1回くらい（GF.sl=さらっとが 続いた 回数）。 ふざけた 選択肢は その 会話の 4回に 1回だけ（C.joke） */
+  C.short=!((GF.sl>=4&&Math.random()<.5)||GF.sl>=6);C.joke=!C.short&&Math.random()<.25;
   H.show('gift',`<section class="pnl lsn kw zk gf" data-stay>
     <div class="qtop"><button class="x" id="gfx" aria-label="やめる">←</button><b>🎁 ${esc(p.n)}に ${it.ico}</b><span class="qn" id="gfq"></span></div>
     <div class="lslog kwlog" id="gflog"></div>
@@ -137,8 +138,7 @@ function play(it,to,back){hush();if(typeof it==='string')it=byRef(it);if(!it||!P
 
 /* ---------- はじまり（毎回 かわる） ---------- */
 function opener(){const {p,it,to}=C,O=GIFT_OPEN;
-  if(C.short){const lv=(()=>{try{const l=MINA.level();return l==='adv'?'hs':l}catch(e){return 'es'}})(),a=GIFT_HAND.filter(x=>x[0]===lv),h=pickL(a.length?a:GIFT_HAND);
-    $('gfq').textContent='🎁';you(h[1]);sf('step');return setTimeout(()=>{if(live())react()},650)}
+  if(C.short)return quickOpen();
   const k=GF.n===0?'hi':wpick([['hi',3],['you',2],['eyes',1.5],['guess',1.5],['wrap',it.wrap?4:0],['again',GF.day[to]===today()?4:0],['mem',C.last&&C.last.t>=2?2:0]]);
   if(k!=='hi')C.ev.push('o_'+k);
   const lvOpts=(a,fun,go,fgo)=>{const o=a.map(x=>({e:x[0],j:x[1],ok:1,lv:x[2],go}));if(fun){const f=pickL(fun);o.splice(Math.random()*(o.length+1)|0,0,{e:f[0],j:f[1],ok:0,go:fgo})}return o};
@@ -156,12 +156,26 @@ function opener(){const {p,it,to}=C,O=GIFT_OPEN;
   else if(k==='again'){them(sty(pickL(O.again.them)),'😳');afterTalk(()=>ask(lvOpts(shuffle(O.again.me.slice()),O.again.fun,react,huh(O.again.huh,react))),300,700)}
   else {them(sty(pickL(O.mem.them)),'😊');afterTalk(()=>ask(handOpts()),300,700)}}
 
+/* 同じ 人に 同じ セリフを しばらく 出さない くじ（GF.qr[相手] に 最近の 14こ） */
+function qline(pool){const R=GF.qr[C.to]=GF.qr[C.to]||[],c=pool.filter(x=>!R.includes(x[0])),l=pickL(c.length?c:pool);
+  R.push(l[0]);while(R.length>14)R.shift();return l}
+/* さらっと の 出だし: 自分が わたす／相手が 気づく／だまって わたす／つつみ／きょう 2回目／前の 品 … 毎回 くじ（前回と 同じ 形は 出にくい） */
+function quickOpen(){const {p,it,to}=C,Q=GIFT_Q,own=Q.own[to]||{};
+  const lv=(()=>{try{const l=MINA.level();return l==='adv'?'hs':l}catch(e){return 'es'}})();
+  const ways=[['hand',3],['notice',2.5],['silent',1.2],['wrap',it.wrap?3:0],['again',GF.day[to]===today()?2:0],['mem',C.last&&C.last.t>=2?1.2:0]];
+  const k=GF.n===0?'hand':wpick(ways.map(x=>[x[0],x[0]===GF.qo?x[1]*.25:x[1]]));GF.qo=k;
+  $('gfq').textContent='🎁';
+  if(k==='hand'){const a=GIFT_HAND.concat(GIFT_HAND_X,Q.hand).filter(x=>x[0]===lv);you(qline((a.length?a:GIFT_HAND).map(x=>[x[1],x[2]]))[0]);sf('step');return setTimeout(()=>{if(live())react()},650)}
+  if(k==='silent'){sf('step');return setTimeout(()=>{if(live())react()},300)}
+  const pool=own[k]||(own.notice&&k!=='notice'?own.notice:null)||(k==='notice'?Q.notice.map(sty).concat([p.hi]):Q[k].map(sty));
+  them(qline(own.notice&&k==='notice'?pool.concat([p.hi]):pool),k==='wrap'?'🎀':'❓');C.qk=k;afterTalk(react,300,600)}
+
 /* the choices: [english, japanese, ok, level, what happens] */
 function handOpts(){const tg=TAGS[C.it.key]||[],tl=[].concat(...tg.map(t=>GIFT_HAND_TAG[t]||[]));
   const o=['es','jh','hs'].map(lv=>{const a=GIFT_HAND.concat(GIFT_HAND_X).filter(x=>x[0]===lv),b=tl.filter(x=>x[0]===lv);
     const h=b.length&&Math.random()<.4?pickL(b):pickL(a);return {e:h[1],j:h[2],ok:1,lv,go:react}});
   const f=pickL(GIFT_HAND_FUN);o.splice(Math.random()*4|0,0,{e:f[0],j:f[1],ok:0,go:()=>{them(sty(pickL(GIFT_HAND_HUH)),'😅','k-oops');afterTalk(react,300,600)}});return o}
-function ask(opts,hint){if(!live())return;C.opts=opts;C.step++;$('gfq').textContent='💬 '+C.step;const on=jaOn();
+function ask(opts,hint){if(!live())return;if(!C.joke){const g=opts.filter(o=>o.ok);if(g.length)opts=g}C.opts=opts;C.step++;$('gfq').textContent='💬 '+C.step;const on=jaOn();
   $('gfans').innerHTML=`${hint?`<p class="khint">💡 たとえば：<b>${esc(hint)}</b></p>`:''}
     <div class="lopts kopts zkopts">${opts.map((o,i)=>`<button data-o="${i}">${o.lv?`<i class="zlv zlv-${o.lv}">${LVM[o.lv]}</i> `:''}${esc(o.e)}${on&&o.j?`<small>${esc(o.j)}</small>`:''}</button>`).join('')}</div>`;
   $('gfans').querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>choose(+b.dataset.o));}
@@ -174,21 +188,25 @@ function choose(i,typedText){if(!live())return;const o=C.opts[i];$('gfans').inne
   setTimeout(()=>{if(live())o.go(o)},550)}
 
 /* their face and words when they see it */
-function react(){const {p,t,it,to}=C;C.ex=EX[t];let line=pickL(p.r[t]),fx=TIER[t][2];
+function react(){const {p,t,it,to}=C;C.ex=EX[t];
+  /* 反応は キャラの セリフ＋共通の セリフ（口ぐせつき）から くじ。 しばらく 同じのは 出ない */
+  const own=GIFT_Q.own[to],pool=own&&own.r?own.r[t].concat(p.r[t]):GIFT_Q.r[t].map(sty).concat(p.r[t],p.r[t]);
+  let line=qline(pool),fx=TIER[t][2];
   /* the present the shop made for them, Riku's own present, Nora's own goods */
   const ZT=typeof ZAKKA_THANKS!=='undefined'&&ZAKKA_THANKS[to];
-  if(ZT&&it.src==='z'){const id=it.key.slice(2),a=Array.isArray(ZT)?(zItem(id)&&zItem(id).to===to?ZT:null):ZT[id];if(a&&a.length){line=pickL(a);fx='😍'}}
+  if(ZT&&it.src==='z'){const id=it.key.slice(2),a=Array.isArray(ZT)?(zItem(id)&&zItem(id).to===to?ZT:null):ZT[id];if(a&&a.length&&Math.random()<.5){line=qline(a);fx='😍'}}
   if(to==='riku'&&it.src==='t'){line=p.own;fx='😆'}
-  if(to==='nora'&&it.src==='z'){them(p.shop,'😆');afterTalk(()=>{them(line,fx,t>=2?'k-good':'');after()},300,700);return}
+  if(to==='nora'&&it.src==='z'&&(!C.short||Math.random()<.3)){them(p.shop,'😆');afterTalk(()=>{them(line,fx,t>=2?'k-good':'');after()},300,700);return}
   t>=2?sf('pickup'):t===1?sf('step'):sf('tease');
   them(line,fx,t>=2?'k-good':t===0?'k-oops':'');
   const tg=(TAGS[it.key]||[]).filter(x=>GIFT_SEE[x]);
-  if(it.wrap&&t>=1&&!C.ev.includes('o_wrap'))afterTalk(()=>{them(sty(["And the wrapping is beautiful, too!","つつみ紙も すてき！"]),'🎀','k-good');after()},300,700);
-  else if(t>=2&&tg.length&&Math.random()<.35)afterTalk(()=>{them(sty(pickL(GIFT_SEE[pickL(tg)])),'✨','k-good');after()},300,700);
+  if(it.wrap&&t>=1&&!C.ev.includes('o_wrap')&&C.qk!=='wrap'&&(!C.short||Math.random()<.3))afterTalk(()=>{them(sty(["And the wrapping is beautiful, too!","つつみ紙も すてき！"]),'🎀','k-good');after()},300,700);
+  else if(t>=2&&tg.length&&Math.random()<(C.short?.15:.35))afterTalk(()=>{them(sty(pickL(GIFT_SEE[pickL(tg)])),'✨','k-good');after()},300,700);
   else after()}
 /* ---------- そのあとの 展開（毎回 かわる。 前回と 同じ 展開は 出にくい） ---------- */
 /* さらっと の おわり: 苦手な ときは ときどき 好きな ものを 教えてくれる・たまに お返し */
-function shortEnd(){const {t,to,p}=C;C.ev.push('f_quick');
+function shortEnd(){const {t,to,p}=C;if(!C.ev.includes('f_quick'))C.ev.push('f_quick');
+  const cnt=GIFT_COUNT[C.k];if(cnt&&!C.cnt){C.cnt=1;C.ev.push('f_count');them(sty(cnt),'🎉','k-good');return afterTalk(end,500,900)}
   if(t===0&&Math.random()<.5){C.hint=true;const nw=!GF.hint[to];GF.hint[to]=p.hint[2];save();them(p.hint,'💡','k-good');
     if(nw)setTimeout(()=>H.toast(`📔 ${esc(p.n)}の 好きな もの：<b>${esc(TAGN[p.hint[2]])}</b><small>好きな物ノートに のこしたよ</small>`,3400),900);return afterTalk(end,500,900)}
   const R=GIFT_RETURN[to]||GIFT_RETURN['*'],ch=GF.retDay[to]===today()?0:t>=2?.15:0;
@@ -250,7 +268,7 @@ function giveBack(r){const {to}=C;GF.retDay[to]=today();GF.ret++;let ico='🪙',
 
 /* the last word */
 function closing(){const {t,p}=C;
-  if(Math.random()<.18){C.ev.push('c_skip');return end()}
+  if(Math.random()<.5){C.ev.push('c_skip');return end()}
   const X=t>=2?GIFT_CLOSE_X.good:GIFT_CLOSE_X.meh;
   if(Math.random()<.5){const x=pickL(X),o=closeOpts(t,p);const i=o.findIndex(y=>y.ok&&y.lv===x[3]);if(i>=0)o[i]={e:x[0],j:x[1],ok:1,lv:x[3],go:end};return ask(shuffle(o))}
   ask(shuffle(closeOpts(t,p)))}
@@ -270,7 +288,7 @@ function end(){if(!live())return;const {p,t,it,to}=C;
   useUp(it);
   const key=C.fun>=2?'fun':TIER[t][0],ek=to+':'+key,newEnd=!GF.end[ek];GF.end[ek]=1;
   const firstSeen=seen(to,it.key)==null;(GF.seen[to]=GF.seen[to]||{})[it.key]=t;
-  GF.n++;GF.gave[to]=(GF.gave[to]||0)+1;if(C.fun)GF.fun+=C.fun;
+  GF.sl=C.short?GF.sl+1:0;GF.n++;GF.gave[to]=(GF.gave[to]||0)+1;if(C.fun)GF.fun+=C.fun;
   try{RECENT.add('gift',{to,toN:(PP[to]||{}).n||'',en:it.w||'',ja:it.n||'',ico:it.ico||'',tier:t})}catch(e){}
   /* なかよし */
   let heart='';
@@ -287,7 +305,9 @@ function end(){if(!live())return;const {p,t,it,to}=C;
   if(C.hint&&to!=='mina')k='gf_endHint';
   /* きょうの 展開に 合わせた ひとこと（7わり） */
   const EVK=[['ret','gf_endRet'],['f_long','gf_endLong'],['f_count','gf_endCount'],['o_eyes','gf_endEyes'],['g_hit','gf_endGuess'],['g_miss','gf_endGuess'],['o_again','gf_endAgain'],['o_mem','gf_endMem'],['f_mem','gf_endMem'],['f_topic','gf_endTopic'],['o_wrap','gf_endWrap'],['o_you','gf_endYou'],['f_quick','gf_endQuick'],['f_none','gf_endQuick'],['c_skip','gf_endQuick']].find(x=>C.ev.includes(x[0]));
-  if(EVK&&!C.hint&&Math.random()<.7)k=EVK[1];
+  if(EVK&&!C.hint&&!(C.short&&to==='mina'&&EVK[0]==='f_quick')&&Math.random()<.7)k=EVK[1];
+  /* さらっと の ときは 反応に 合わせた 短い ひとこと（ゆっくり 会話の ときは 上の とおり） */
+  if(C.short&&!C.hint&&to!=='mina'&&!C.ev.includes('ret')&&!C.ev.includes('f_count'))k=Math.random()<.75?['gf_q0','gf_q1','gf_q2','gf_q3'][t]:'gf_endQuick';
   if(GF.n===1)k='gf_endFirst';if(C.typed>=2)k='gf_endTyped';
   const v={c:p.n,n:it.n,w:it.w,like:TAGN[GF.hint[to]]||'',k:C.k,r:C.ret?C.ret.n:'',last:C.last?C.last.n:''};
   const ends=['love','like','ok','meh','fun'],got=ends.filter(e=>GF.end[to+':'+e]).length;
@@ -306,7 +326,7 @@ function end(){if(!live())return;const {p,t,it,to}=C;
     const b=C.back;
     $('gfok').onclick=()=>{sf('back');hush();C=null;b()};
     const m=$('gfmore');if(m)m.onclick=()=>{sf('step');hush();C=null;pick({back:b})};
-    setTimeout(()=>$('gfans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1500)}
+    setTimeout(()=>$('gfans').scrollIntoView({behavior:'smooth',block:'end'}),100)},C.short?900:1500)}
 
 /* ================================================================ 📔 好きな物ノート */
 function note(back){hush();const P=people();
@@ -334,10 +354,10 @@ Object.assign(MINA_LINES,{
  gf_endFun:[['happy','{c}、 わらってたね。 へんな 答えでも 会話は つづくよ'],['think','あはは、 じょうだんの プレゼントに なっちゃった。 つぎは ちゃんと 「This is for you.」で わたしてみて']],
  gf_endFirst:[['love','はじめての プレゼント！ 「This is for you.」 ちゃんと 言えたね。 好きな物ノートに 反応が のこるよ'],['happy','プレゼントって、 英語で 話す いい きっかけに なるでしょ？ ほかの 人にも あげてみて']],
  gf_endTyped:[['wow','自分で 英語を 書いて わたしたの？ それが いちばん 力が つくよ'],['proud','えらぶ だけじゃ なくて 自分の ことばで 言えたね！']],
- gf_minaLove:[['love','…えへへ。 ほんとに うれしかった。 ありがとう。 「I saw this and thought of you.」って 言われると、 だれでも うれしいんだよ'],['love','わたしの 好きな もの、 おぼえてて くれたの？ もう… 先生、 きょうは ずっと にこにこ しちゃう']],
- gf_minaLike:[['happy','ありがとう！ 机に かざって おくね。 「I\'m glad you like it.」も ちゃんと 言えてたよ'],['smile','プレゼント、 うれしかった。 お礼を 言われたら 「You\'re welcome.」 だね']],
- gf_minaOk:[['smile','ありがとう！ 気持ちが うれしいよ。 「Thank you for thinking of me.」って 言う ことも あるんだ'],['happy','あなたが えらんで くれた ことが うれしいな']],
- gf_minaMeh:[['worry','あはは… ありがとう！ 犬の ものは ポチに あげると よろこぶかもね'],['smile','気持ちは ちゃんと 受けとったよ。 こんどは あまい ものが いいな… なんてね']],
+ gf_minaLove:[['love','…えへへ。 ほんとに うれしかった。 ありがとう。 「I saw this and thought of you.」って 言われると、 だれでも うれしいんだよ'],['love','わたしの 好きな もの、 おぼえてて くれたの？ もう… 先生、 きょうは ずっと にこにこ しちゃう'],['love','えへへ… 大事に するね。 きょうの 授業、 いつもより がんばっちゃう'],['happy','わたしの 好きな もの、 よく 知ってるね。 ちょっと てれる']],
+ gf_minaLike:[['happy','ありがとう！ 机に かざって おくね。 「I\'m glad you like it.」も ちゃんと 言えてたよ'],['smile','プレゼント、 うれしかった。 お礼を 言われたら 「You\'re welcome.」 だね'],['happy','ありがとう。 さっそく つかわせて もらうね'],['smile','うれしいな。 「Thank you so much!」って 言ってたの、 聞こえた？']],
+ gf_minaOk:[['smile','ありがとう！ 気持ちが うれしいよ。 「Thank you for thinking of me.」って 言う ことも あるんだ'],['happy','あなたが えらんで くれた ことが うれしいな'],['smile','ありがとう。 気持ちが いちばんの プレゼントだよ'],['happy','ふふ、 なにを くれるのか ドキドキ しちゃった']],
+ gf_minaMeh:[['worry','あはは… ありがとう！ 犬の ものは ポチに あげると よろこぶかもね'],['smile','気持ちは ちゃんと 受けとったよ。 こんどは あまい ものが いいな… なんてね'],['smile','ありがとう！ 気持ちは ちゃんと とどいたよ'],['think','うーん、 これは だれか ほかの 人の ほうが よろこぶかも？ なんてね']],
  gf_note:[['smile','みんなの 好きな もの、 少しずつ わかってきたね'],['think','苦手だった 人には 「What do you like?」と 聞いてみよう。 教えて くれるよ']],
  x_gfHave:[['smile','{n}、 だれかに あげてみない？ 「This is for you.」で わたせるよ'],['happy','もちものに {n}が あるよ。 プレゼントすると 英語の 会話が はじまるんだ']],
  x_gfHint:[['think','{c}は {like}が 好き なんだって。 なにか あげてみたら？'],['smile','好きな物ノートに よると、 {c}は {like}が 好きみたい']],
@@ -355,9 +375,13 @@ Object.assign(MINA_LINES,{
  gf_endTopic:[['happy','品物の 話で もりあがったね。 「How does it look on me?」「Can you play it?」… 品に よって 質問が かわるんだ'],['think','プレゼントの あとに 「Have you tried it?」「Let\'s share it.」 そんな 会話が できると 自然だよ']],
  gf_endWrap:[['happy','つつんで あげると 「Can I open it now?」って 聞かれるね。 答えは 「Sure! Open it!」 だよ'],['smile','ラッピングも プレゼントの うち。 「Go ahead.」＝「どうぞ」も 言えたね']],
  gf_endYou:[['smile','自分から 「Do you have a minute?」って 話しかけたね。 話の はじめ方、 じょうずだよ'],['happy','「Can I give you something?」で 話を はじめるのも いいね']],
- gf_endQuick:[['smile','きょうは さらっと わたせたね。 短くても 気持ちは ちゃんと つたわるよ'],['smile','プレゼントは ふだん さらっと わたせるよ。 4回に 1回くらいは ゆっくり おしゃべりに なるから、 お楽しみに'],['happy','あっさり 受けとって もらえたね。 毎回 ちがう 会話に なるから、 また あげてみて']],
+ gf_endQuick:[['smile','きょうは さらっと わたせたね。 短くても 気持ちは ちゃんと つたわるよ'],['smile','プレゼントは ふだん さらっと わたせるよ。 5回に 1回くらいは ゆっくり おしゃべりに なるから、 お楽しみに'],['happy','あっさり 受けとって もらえたね。 毎回 ちがう 会話に なるから、 また あげてみて'],['smile','さっと わたして、 さっと よろこんでもらう。 それで じゅうぶんだよ'],['think','{c}の いまの ひとこと、 🔊で もう一回 聞けるよ。 短い 英語ほど まねしやすいんだ']],
+ gf_q3:[['wow','{c}、 大よろこび！ {n}、 ぴったり だったね'],['love','あの 顔 見た？ 好きな ものを わかってるって すてきだね'],['happy','「I love it!」って 言ってたね。 いちばん うれしい ときの ことばだよ'],['proud','{c}の 好きな もの、 もう ばっちり わかってるね'],['happy','大当たり！ 好きな物ノートにも 😍が ついたよ']],
+ gf_q2:[['smile','{c}、 よろこんでたね。 さらっと わたせて いい かんじ'],['happy','「Thank you so much.」 so を つけると 気持ちが 大きく なるんだよ'],['smile','{n}、 気に いって もらえたね。 プレゼント上手！'],['happy','いい 顔 してたね、 {c}。 つぎは 大好きな ものも さがしてみよう']],
+ gf_q1:[['smile','ふつうに うれしかった みたい。 もっと 好きな もの、 なにかな？'],['think','{c}の 「Thanks!」、 ちょっと あっさり だったね。 好きな物ノートを 見てみて'],['smile','気持ちは つたわったよ。 ほかの 品も ためしてみよう'],['think','{n}は ふつう かあ。 人に よって 好みが ちがうのが おもしろいね']],
+ gf_q0:[['worry','あはは… ちょっと 苦手 だったかな。 「It\'s the thought that counts.」＝気持ちが だいじ、 だよ'],['think','{n}は {c}の 好みじゃ なかった みたい。 ゆっくり 話す 日に 「What do you like?」って 聞けると いいね'],['smile','苦手でも ちゃんと 受けとって くれたね。 {c}、 やさしい'],['think','つぎは ちがう ものを あげてみよう。 好きな物ノートに 😅が ついたよ']],
  x_gfRet:[['happy','この前 {c}から お返し もらったんでしょ？ プレゼントって まわっていくんだね'],['smile','お返しの 品、 もちものに 入ってるよ。 だれかに また あげても いいんだ']],
- x_gfVary:[['think','プレゼントの 会話、 毎回 ちがうでしょ？ 目を とじて もらったり、 当てっこ したり。 いろんな 英語が 出てくるよ'],['smile','同じ 人に 何回も あげると、 前の 品の 話を してくれる ことも あるよ']],
+ x_gfVary:[['think','プレゼントの 会話、 毎回 ちがうでしょ？ 目を とじて もらったり、 当てっこ したり。 いろんな 英語が 出てくるよ'],['smile','同じ 人に 何回も あげると、 前の 品の 話を してくれる ことも あるよ'],['smile','プレゼントは ふだん さっと わたせるよ。 たまに ゆっくり おしゃべりに なる 日も あるんだ']],
  x_gfMina:[['love','ねえ… わたしにも なにか くれるの？ …なんてね。 えへへ'],['smile','プレゼントを わたす 英語、 3つ 言える？ 「This is for you.」「I got this for you.」「I saw this and thought of you.」']]
 });
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
