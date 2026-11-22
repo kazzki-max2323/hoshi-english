@@ -60,3 +60,16 @@
 .oredn .row{justify-content:center;gap:8px}
 .oreempty{text-align:center;padding:14px 0}
 .oreempty span{font-size:2.2rem}.oreempty p{margin:4px 0;font-weight:800}.oreempty small{opacity:.85}
+/* 🏖️ 浜辺と 波うちぎわの 原石（タップで ひろう） */
+#oreBeach{position:absolute;inset:0;pointer-events:none;z-index:3}
+#oreBeach.off{display:none}
+.orebs{position:absolute;width:30px;height:30px;min-height:0;margin:-15px 0 0 -15px;padding:0!important;border:0!important;background:none!important;box-shadow:none!important;pointer-events:auto;cursor:pointer}
+.orebs i{position:absolute;left:8px;top:9px;width:14px;height:11px;border-radius:45% 55% 40% 50%;background:radial-gradient(circle at 35% 30%,#e8f6ff,#9fb8c8 45%,#5a6a78);box-shadow:0 0 8px 3px rgba(190,235,255,.75);animation:orebsGlow 1.8s ease-in-out infinite}
+.orebs::after{content:"✦";position:absolute;left:18px;top:0;font-size:10px;color:#fff;animation:orebsTw 1.8s ease-in-out infinite}
+.orebs.sea i{animation:orebsGlow 1.8s ease-in-out infinite,orebsBob 2.6s ease-in-out infinite}
+.orebs.got{animation:orebsGot .45s ease-out forwards}
+@keyframes orebsGlow{50%{box-shadow:0 0 12px 5px rgba(190,235,255,.95)}}
+@keyframes orebsTw{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1.1)}}
+@keyframes orebsBob{50%{transform:translateY(-3px) rotate(-6deg)}}
+@keyframes orebsGot{to{transform:translateY(-24px) scale(1.4);opacity:0}}
+@media (prefers-reduced-motion:reduce){.orebs i,.orebs::after{animation:none}}
