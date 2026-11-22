@@ -104,3 +104,7 @@
 .uarul{margin:0;padding:8px 10px 8px 26px;background:#fff;color:#2a2340;text-shadow:none;border-radius:10px;font-size:.9rem;line-height:1.6}
 .uarul li+li{margin-top:4px}
 .mdchs button.lock{opacity:.6}
+.mdchs button.skip{border-style:dashed!important}
+.mdchs button.skip i{opacity:.7}
+.mdskip{font-style:normal;margin-left:6px;padding:0 6px;border-radius:6px;background:rgba(255,255,255,.14);font-size:.68rem}
+.mdskipn{margin:6px 2px 0;font-size:.74rem;opacity:.75;line-height:1.5}
