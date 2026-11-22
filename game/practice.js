@@ -192,7 +192,7 @@ function qaOne(x){const box=layer('🙋 '+esc(x.q));try{RECENT.add('qa',{t:x.q})
   box.innerHTML=`<div class="mdcard qaq"><p class="qaqt">🙋 ${esc(x.q)}</p></div>`+x.cards.map(k=>`<div class="mdcard">${minaBox(k.x||'smile',k.say)}${k.f?`<div class="mdfig">${k.f}</div>`:''}${k.ex?`<div class="mdens">${k.ex.map(e=>enBtn(e[0],e[1])).join('')}</div>`:''}</div>`).join('')+
     `<div class="mdnav"><button class="sub" id="prtqa">🙋 ほかの 質問</button><button id="prtbk">✏️ 問題に もどる</button></div>`;
   bindSay(box);box.scrollTop=0;$('prtqa').onclick=()=>{snd('pop');qaList()};$('prtbk').onclick=()=>{snd('step');closeTeach()}}
-window.PRAC={start,has,teach,closeTeach,learned,items,rec:()=>R,onClose:f=>{onTeachClose=f},_close:close};
+window.PRAC={start,has,teach,closeTeach,learned,chState,items,rec:()=>R,onClose:f=>{onTeachClose=f},_close:close};
 
 /* ---------- セリフ ---------- */
 Object.assign(MINA_LINES,{
