@@ -2,7 +2,7 @@
    11/22 ユーザー「動詞だけ do とか 使うから 動詞は 特別？」→「日本語では 助動詞・動詞・その他を 意識しないから 英語では 疲れる」
    → 見る ところを 1つに しぼる: 「主語の すぐ後ろ」が
       とくべつな 動詞（be・can・will・should・have＋過去分詞）→ 自分で 前に 出る・not も すぐ後ろ
-      ふつうの 動詞（play・like・go・have＝かう…）→ do / does / did の 出番、 動詞は 原形
+      ふつうの 動詞（play・like・go・have＝もつ…）→ do / does / did の 出番、 動詞は 原形
    主語が 2語 いじょう（My big brother・The girl in the red hat）でも 「主語の すぐ後ろ」（2番目の ことば では ない）。
    型: vcKind（とくべつ？ ふつう？）・ vcQ（質問に すると？）・ vcNeg（not を 入れると？）。 1問 = shikumi-drill と 同じ 形 ＋ sj（主語）・ w（すぐ後ろの ことば）・ tq（🤔教えて 用） */
 (()=>{
@@ -51,10 +51,10 @@ function gen(noI){const s=pick(SJ.filter(x=>!noI||x[0]!=='I')),S=s[0],L=low(s);
   o.note=v[0]==='have'?`この ${form} は 「かっている・もっている」の ふつうの 動詞（has ＋ 過去分詞 とは べつ）`:past?`${form} は ${v[0]} の 過去形 → did が 過去を もっていく`:'';
   return o}
 
-const SPN='とくべつな 動詞',ORN='ふつうの 動詞';
+const SPN='とくべつ（be動詞・助動詞）',ORN='ふつう（一般動詞）';
 const look=o=>`主語「${o.S}」の すぐ後ろ → 「${o.w}」${o.S.includes(' ')?`（主語が ${o.S.split(' ').length}語 でも、 見るのは 主語の すぐ後ろ）`:''}`;
-const expl=o=>o.sp?`「${o.w}」は とくべつな 動詞。 自分で 前に 出て 質問（${o.Q}）、 not も すぐ後ろ（${o.N}）。 do の 出番は ないよ${o.note?'。 '+o.note:''}`
-  :`「${o.w}」は ふつうの 動詞。 自分では 前に 出られないので、 ${o.D} が かわりに 出る（${o.Q} ／ ${o.N}）。 ${o.D} が ${o.D==='did'?'過去の しるし':o.D==='does'?'-s':'時制'}を もっていくので、 動詞は 原形 ${o.base}${o.note?'。 '+o.note:''}`;
+const expl=o=>o.sp?`「${o.w}」は とくべつな 動詞（${o.k==='be'||o.k==='ing'?'be動詞':'助動詞'}）。 自分で 前に 出て 質問（${o.Q}）、 not も すぐ後ろ（${o.N}）。 do の 出番は ないよ${o.note?'。 '+o.note:''}`
+  :`「${o.w}」は ふつうの 動詞（一般動詞）。 自分では 前に 出られないので、 ${o.D} が かわりに 出る（${o.Q} ／ ${o.N}）。 ${o.D} が ${o.D==='did'?'過去の しるし':o.D==='does'?'-s':'時制'}を もっていくので、 動詞は 原形 ${o.base}${o.note?'。 '+o.note:''}`;
 const tq=(o,ok,bad,why,p)=>({p,o:[ok,bad],h:look(o),e:expl(o),w:{[bad]:why},c:o.sp?10:5});
 const base=o=>({ja:o.stmt,sj:o.S,ft:5,ch:o.sp?10:5});
 const T={
@@ -67,9 +67,9 @@ const T={
    return Object.assign(base(o),{p,o:[o.N,o.bN],why:o.sp?`${o.w} は とくべつ → すぐ後ろに not`:`${o.w} は ふつう → ${nt(o.D)} ＋ 原形`,tq:tq(o,o.N,o.bN,o.wN,p)})},
 };
 const KN={vcKind:'とくべつ？ ふつう？',vcQ:'動詞チェック: 質問',vcNeg:'動詞チェック: not'};
-const D0={ch:10,b:'見るのは <b>主語の すぐ後ろ</b> だけ。 そこが <b>とくべつな 動詞</b>（am・is・are・was・were・can・will・should・have＋過去分詞）なら、 自分で 前に 出て 質問に なり、 not も すぐ後ろに つく。 <b>ふつうの 動詞</b>（play・like・go…）は 自分で 動けないので、 <b>do / does / did</b> が かわりに 前に 出て、 動詞は 原形に もどるよ',
+const D0={ch:10,b:'見るのは <b>主語の すぐ後ろ</b> だけ。 そこが <b>とくべつな 動詞＝ be動詞＋助動詞</b>（am・is・are・was・were・can・will・should・have＋過去分詞）なら、 自分で 前に 出て 質問に なり、 not も すぐ後ろに つく。 <b>ふつうの 動詞＝ 一般動詞</b>（play・like・go…）は 自分で 動けないので、 <b>do / does / did</b> が かわりに 前に 出て、 動詞は 原形に もどるよ',
   ok:['Ken can swim. → Can Ken swim?','Ken swims. → Does Ken swim?','My big brother is busy. → Is my big brother busy?'],ng:['Does Ken can swim?','Swims Ken?','Is my big brother like dogs?'],
-  tip:'主語が 長くても（The girl in the red hat）、 主語の かたまりの すぐ後ろを 見る。 「2番目の ことば」とは かぎらないよ'};
+  tip:'主語が 長くても（The girl in the red hat）、 主語の かたまりの すぐ後ろを 見る。 be動詞は 助動詞じゃ ないけど、 動き方が 同じ だから 同じ チーム'};
 const DET={vcKind:Object.assign({t:'主語の すぐ後ろが とくべつ？ ふつう？'},D0),
  vcQ:Object.assign({t:'質問: とくべつなら 前へ、 ふつうなら do'},D0),
  vcNeg:Object.assign({t:'not: とくべつなら すぐ後ろ、 ふつうなら don\'t'},D0,{ok:["Ken can't swim.","Ken doesn't swim.","Tom and Amy weren't at home."],ng:["Ken doesn't can swim.",'Ken swims not.',"Ken isn't like dogs."]})};
