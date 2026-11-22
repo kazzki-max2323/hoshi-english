@@ -146,8 +146,8 @@ W("I'll wait here ___ you come back.",{by:'by は 「〜までに（期限）」
 W('___ it rains, we will play the game.',{Unless:'unless は 「〜でなければ」',"So that":'so that は 「〜するように」'});
 W('It was ___ hot that we went swimming.',{such:'such は 名詞と（such a hot day）。 様子の ことばだけなら so',very:'very 〜 that とは 言わない。 so 〜 that'});
 /* ---------- 💭 仮定法 ---------- */
-W('If I ___ a lot of money, I would buy a boat.',{have:'じっさいは ない 話（仮定法）なので 過去形 had','will have':'if の 中に will は 使わない'});
-W('I wish I ___ swim.',{can:'I wish の あとは 過去の 形 could',will:'I wish の あとは 過去の 形'});
+W('If I ___ a lot of money, I would buy a boat.',{have:'じっさいは ない 話は 過去の 形で 一歩 はなす → had','will have':'if の 中に will は 使わない'});
+W('I wish I ___ swim.',{can:'いまは 飛べない（ほんとうじゃない）から 過去の 形で 一歩 はなす → could',will:'ほんとうじゃない ねがいは 過去の 形で 一歩 はなす → could'});
 W('If I ___ you, I would say sorry.',{am:'わたしは あなたじゃない（ありえない）ので were',be:'仮定法では were'});
 W('If you had asked me, I ___ helped you.',{would:'過去の ことの もしもは would have',"will have":'仮定法の 答えは would have'});
 W('I wish I ___ harder when I was young.',{studied:'若いころ（過去）の ねがいは had studied','have studied':'I wish の あとに have は 来ない'});

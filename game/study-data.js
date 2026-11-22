@@ -101,7 +101,7 @@ const STUDY_CMP={
  jh_rel:['jh_conj','when で 文を つないだね。 who は 人の あとに 文を つないで 説明するよ','I have a friend.','I have a friend who lives in Canada.'],
  jh_part:['jh_prog','sleeping は 「ねている」だったね。 名詞の あとに 置くと 「ねている 〜」に なるよ','The baby is sleeping.','the baby sleeping in the bed'],
  jh_indq:['jh_wh','Where is the station? を 文の 中に 入れると 語順が where the station is に かわるよ','Where is the station?','Do you know where the station is?'],
- jh_subj:['jh_conj','If は 「もし」だったね。 ありえない ゆめの 話は 1つ 過去に ずらすよ','If it rains, I will stay.','If I had wings, I could fly.'],
+ jh_subj:['jh_conj','If は 「もし」だったね。 ありえない ゆめの 話は、 今の 話でも 過去の 形で 一歩 はなすよ','If it rains, I will stay.','If I had wings, I could fly.'],
  jh_svoo:['jh_3s','show ＋もの の あいだに 「だれに」を はさめるよ','He showed his photos.','He showed me his photos.'],
  jh_art:['es_plural','a は 「1つの」だったね。 the は 「その（もう わかってる）」だよ','I saw a dog.','The dog was big.'],
  hs_5:['jh_svoo','SVOO は 「人に ものを」。 文の 形は ぜんぶで 5つの パターンに 分けられるよ','He gave me a book.','The leaves turned red.'],

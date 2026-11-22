@@ -409,13 +409,13 @@ const TUTOR_Q=[
 /* ===================================================== 高校生 */
 {id:'were',lv:'hs',g:'hs_subj2',les:['hs-kateiho-kyori','hs-i-wish'],t:'If I were 〜',
  q:'おねえちゃんの 教科書に あったの。 「もし 鳥 だったら 空を とぶのに」って？',
- o:[['ほんとは ちがう ことは 形を 1つ むかしに。 If I were a bird, I would fly.',1],
+ o:[['ほんとは ちがう ことは 過去の 形で 一歩 はなす。 If I were a bird, I would fly.',1],
     ['If I am a bird, I will fly. だよ',0,'If I am a bird, I will fly!','ほんとに 鳥かも しれない 人'],
     ['If I bird, I fly. だよ',0,'If I bird, I fly!','「ぼく、 とり する」']],
- ok:['わかった！ ありえない ときは 形を むかしに！','If I were a bird, I would fly to you.'],
+ ok:['わかった！ ありえない ときは 過去の 形で 一歩 はなれる！','If I were a bird, I would fly to you.'],
  help:'でも 歌で 「If I were a bird」って あったよ。 I なのに were…',
- mina:'ほんとは ちがう ことは、 時間を 1つ むかしに ずらすよ',
- pt:'ありえない 「もし」は 形を 1つ むかしに（If I were 〜, I would 〜）',
+ mina:'今の 話でも、 ほんとは ちがう ことは 過去の 形で 一歩 はなすよ。 日本語の 「鳥だったら」の 「た」と 同じ',
+ pt:'ありえない 「もし」は 過去の 形で 一歩 はなす（If I were 〜, I would 〜）',
  m:{q:'「お金もち だったら いいのに」は？',o:[['I wish I were rich.',1],['I wish I am rich.',0,'I wish I am rich! …もう お金もち？']],ok:['アイ ウィッシュ！','I wish I were rich.']}},
 
 {id:'the',lv:'hs',g:'jh_art',les:['hs-article-a-the'],t:'a と the',
