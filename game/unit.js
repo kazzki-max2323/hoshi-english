@@ -65,12 +65,13 @@ function open(o){o=o||{};P=null;C={m:'menu'};R.n=(R.n||0)+1;R.t=Date.now();save(
   menu(R.n<=1?'hello':null)}
 function menu(key){C={m:'menu'};P=null;hush();const box=shell('',null),nx=nextCh(),all=nx==null,G0=(()=>{try{return window.MPLAN&&MPLAN.gate?MPLAN.gate():null}catch(e){return null}})(),ld=lastDone(),lk=i=>!!G0&&!chDone(i)&&i>ld;
   const skN=CH.filter((c,i)=>chSkip(i)).length,k=key||(R.best>=3?'master':all?'allDone':skN?'skipped':'again'),[ex,tx]=ML(k,{k:skN});
-  box.innerHTML=`${minaBox(ex,tx)}
+  /* ▶ つづきから は 見出しの すぐ下に 大きく（11/22 ユーザー「上のほうに」） */
+  box.innerHTML=`${nx!=null?`<button id="mdstart" class="mdgo">${nx?'▶ つづきから（'+(nx+1)+'時間目）':'▶ はじめる'}<small>${esc(CH[nx].t)}</small></button>`:''}
+    ${minaBox(ex,tx)}
     ${doneN()?'<div class="mdrs"><button id="mdreset" class="sub">🔄 さいしょから やりなおす</button></div>':''}
     <div class="mdchs">${CH.map((c,i)=>`<button data-ch="${i}" class="${chSkip(i)?'skip':chDone(i)?'done':''}${i===nx?' now':''}${lk(i)?' lock':''}"><i>${chSkip(i)?'⏭':chDone(i)?'✔':lk(i)?'🔒':c.ico}</i><span><small>${i+1}時間目${chSkip(i)?'<em class="mdskip">とばした</em>':''}</small>${esc(c.t)}</span></button>`).join('')}</div>
     ${skN?'<p class="mdskipn">「とばした」は さいしょの 1問に 正解した 時間。 タップすれば いつでも 授業が うけられるよ</p>':''}
-    <div class="mdgo2">${nx!=null?`<button id="mdstart">${nx?'▶ つづきから（'+(nx+1)+'時間目）':'▶ はじめる'}</button>`:''}
-      ${opt.extra?`<button id="mdex" class="sub">${opt.extra[0]}</button>`:''}<button id="mdsum" class="sub">📄 まとめ 1まいで 見る</button>
+    <div class="mdgo2">${opt.extra?`<button id="mdex" class="sub">${opt.extra[0]}</button>`:''}<button id="mdsum" class="sub">📄 まとめ 1まいで 見る</button>
       <button id="mdtest" class="${all?'':'sub'}">📝 まとめテスト ${R.best?stars(R.best):''}</button></div>`;
   box.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{snd('step');chapter(+b.dataset.ch,0)});
   const s=$('mdstart');if(s)s.onclick=()=>{snd('lesson');chapter(nx,0)};
