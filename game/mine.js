@@ -80,7 +80,8 @@ function pickFloor(fl,not=[]){const out=[],used=new Set(not);
 const fresh=id=>{const s=C.star(id);return s<=1&&!learned(id)&&!(R().x&&R().x[id])};
 function needOf(id){if(C.weak(id))return 6;const s=C.star(id);if(learned(id)||s>=4)return 3;if(s>=2)return 4;return fresh(id)?5:4}
 
-function open(){const M=MN();
+/* 11/22 作りなおし: 鉱山は ローグライクの game/dungeon.js（ここは 道具・記録の しくみだけ のこす） */
+function open(){if(window.DUNGEON)return DUNGEON.open();const M=MN();
   const TLs=toolList();let mk=myHp()<20&&window.FOOD?'fd_tired':!M.v2?'mn_v2':!M.digOnly?'mn_digOnly':!M.moreQ?'mn_moreQ':'mn_open';if(mk==='mn_digOnly'){M.digOnly=1;C.save()}if(mk==='mn_moreQ'){M.moreQ=1;C.save()}
   if(mk==='mn_open'&&Math.random()<.35)mk=TLs.length?'mn_tools':'mn_noTools';
   const [ex,tx]=ML(mk,{f:M.bestF||0});

@@ -360,3 +360,47 @@
 .mhnote p{margin:2px 0}.mhnote .en{font-weight:800}.mhnote small{display:block;text-align:right;color:#5a5070}
 .mhnight{background:linear-gradient(#141a3a,#232a52)!important}
 .mhnar{text-align:center;font-size:.95rem;line-height:1.6;margin:22px 8px;text-shadow:none}
+/* ⛏️ ローグライクの 鉱山（game/dungeon.js） */
+.dgp{text-shadow:none}
+.dgtop .dgbag{min-height:0;padding:4px 10px!important;font-size:1.1rem}
+.dghp{font-weight:800}.dghp.low{color:#ff8a9a;animation:oreng .6s infinite}
+.dglane{display:flex;align-items:center;gap:6px;margin:2px 0 8px}
+.dglane i{width:22px;height:8px;border-radius:999px;background:#ffffff26}
+.dglane i.ok{background:#7ad37a}.dglane i.now{background:#ffd23f}
+.dglane span{margin-left:auto;font-size:.8rem}
+.dgscene{position:relative;height:74px;border-radius:12px;margin-bottom:8px;overflow:hidden;background:linear-gradient(#2a2018,#4a3624 60%,#5a4430);display:flex;align-items:center;justify-content:center;gap:26px;font-size:2rem}
+.dgscene.dark{background:linear-gradient(#0c0a14,#221a2a)}.dgscene.water{background:linear-gradient(#123048,#2a5a78)}.dgscene.glow{background:linear-gradient(#2a1a3a,#4a2a5a)}.dgscene.bright{background:linear-gradient(#5a4a30,#8a6a44)}.dgscene.rail{background:linear-gradient(#3a2a1a,#5a4228)}.dgscene.door{background:linear-gradient(#3a2a10,#7a5a20)}
+.dgscene .dgn{position:absolute;right:8px;bottom:4px;font-size:.7rem;opacity:.8}
+.dgscene.hit .dgme{animation:dgswing .35s}.dgscene.hit .dgrock{animation:oreng .35s}
+@keyframes dgswing{50%{transform:rotate(-40deg) translateX(8px)}}
+.dgfly{position:absolute;left:50%;top:30%;transform:translateX(-50%);font-size:1rem;color:#ffe08a;animation:dgfly 1.3s ease-out forwards;pointer-events:none;white-space:nowrap}
+.dgfly.bad{color:#ff8a9a}
+@keyframes dgfly{to{transform:translate(-50%,-34px);opacity:0}}
+.dgqbox .cgq{color:#fff7e6}
+.dgq{text-align:center;font-weight:800;margin:10px 0}
+.dgpaths{display:flex;flex-direction:column;gap:8px}
+.dgpath{display:grid!important;grid-template-columns:2.4em 1fr;grid-template-rows:auto auto;text-align:left;align-items:center;column-gap:8px;padding:10px 12px!important}
+.dgpath span{grid-row:1/3;font-size:1.8rem}.dgpath b{font-size:1rem}.dgpath small{font-size:.75rem;opacity:.85}.dgpath em{grid-column:2;font-style:normal;font-size:.72rem;color:#ffd0a0}
+.dgfoot{justify-content:center;margin-top:10px}
+.dgov .dgev,.dgbagov{background:#2a2340;color:#fff7e6;border:3px solid #e8b84a;border-radius:14px;padding:14px;max-width:340px;margin:auto;text-align:center;text-shadow:none}
+.dgev .dgei{font-size:2.6rem}.dgev>b{display:block;font-size:1.1rem;margin:4px 0}
+.dgev .dgeb p{margin:4px 0}.dgev .en{font-weight:800}.dgev .dghint{font-size:.8rem;opacity:.85}
+.dgeb2{justify-content:center;gap:8px;flex-wrap:wrap;margin-top:10px}
+.dgcard{display:flex;justify-content:center}.dgcard .cgc{max-width:110px!important}
+.dgbagov{max-height:80vh;overflow:auto;text-align:left}
+.dgbagov>b{display:block;text-align:center;font-size:1.05rem}
+.dglbl{font-size:.78rem;margin:10px 0 4px;opacity:.85}
+.dgit{display:grid!important;grid-template-columns:2em 1fr;width:100%;text-align:left;margin:4px 0;padding:6px 10px!important;column-gap:6px}
+.dgit span{grid-row:1/3;font-size:1.4rem;align-self:center}.dgit small{font-size:.72rem;opacity:.85}
+#dgbx{display:block;margin:10px auto 0}
+.dgglow{box-shadow:0 0 0 3px #9fe0ff,0 0 14px #9fe0ff!important}
+.dgrest{display:flex;flex-direction:column;align-items:center;margin:6px 0}
+.dgrest span{font-size:2.4rem}.dgrest small{opacity:.85}
+.dgckn{background:#3a5a2a;border-radius:10px;padding:8px;text-align:center;font-weight:800}
+.dgsum{text-align:center;font-size:.85rem}
+.dgck{display:block;width:100%;margin:6px 0}
+.dgfall{text-align:center}
+.dglost{background:#5a2a2a;border-radius:10px;padding:8px 10px;margin:8px 0;text-align:center}.dglost p{margin:4px 0 0}
+#cardOv.dgov{justify-content:center;padding-bottom:20px}
+#cardOv.dgov .dgev,#cardOv.dgov .dgbagov{background:#2a2340!important;opacity:1;text-shadow:none;width:calc(100% - 24px)}
+#cardOv.dgov .dgev button:not(.sub){background:#e8a030;border-color:#ffd88a;color:#2a1a08}

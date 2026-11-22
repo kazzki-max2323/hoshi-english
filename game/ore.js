@@ -106,7 +106,9 @@ const exOf=I=>{try{const w=window.WI;if(!w||!w.exOf)return null;const e=w.exOf(I
 
 /* 🔤 アルファベットの ならべかえ。 arr=そのまま ／ arr2=よけいな 文字 1つ ／ arr3=よけいな 文字 2つ・自動で 読まない ／ ear=聞いて ならべる（意味は あとで） */
 const ABC='abcdefghijklmnopqrstuvwxyz';
-function arrange(o,I,box,k){const w=word(I),need=[...w],extra=k==='arr'?0:k==='arr3'?2:1;
+function arrange(o,I,box,k){return arrangeQ(I,box,k,ok=>next(o,ok))}
+/* ほかの 画面（⛏️鉱山）でも つかう: cb(ok) */
+function arrangeQ(I,box,k,cb){const w=word(I),need=[...w],extra=k==='arr'?0:k==='arr3'?2:1;
   let tiles=need.map(c=>({c,u:0}));for(let i=0;i<extra;i++){let c;do{c=pickL([...ABC])}while(need.includes(c)&&Math.random()<.7);tiles.push({c,u:0})}
   for(let t=0;t<8;t++){tiles=H.shuffle(tiles);if(tiles.slice(0,need.length).map(x=>x.c).join('')!==w)break}
   const put=[];let miss=false,over=false;const ear=k==='ear';
@@ -121,7 +123,7 @@ function arrange(o,I,box,k){const w=word(I),need=[...w],extra=k==='arr'?0:k==='a
     T.forEach((b,i)=>b.classList.toggle('used',!!tiles[i].u))};
   const done=()=>{over=true;S.forEach(s=>s.classList.add('ok'));sf('correct');say(I);
     if(ear){const m=box.querySelector('.oremean b');if(m)m.textContent=I.ja}
-    setTimeout(()=>next(o,!miss),1100)};
+    setTimeout(()=>cb(!miss),1100)};
   const check=()=>{if(put.map(i=>tiles[i].c).join('')===w)return done();
     /* まちがい: 正しい ところまで のこして、 ちがう 文字から あとは もどす */
     miss=true;sf('wrong');let f=put.findIndex((t,i)=>tiles[t].c!==need[i]);if(f<0)f=0;
@@ -191,5 +193,5 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
 Object.assign(MINA_LINES,{r_ore:[['proud','さっき 原石を みがいて 「{w}」の カードに したね。 「{ja}」、 もう 書けるかな？'],['happy','「{w}」の カード、 できたね！ つづりを 手で 覚えると わすれにくいよ'],['smile','作業台で 「{w}」を 仕上げたね。 ゆっくり 1つずつで いいからね']]});
 try{(window.MINA_REACT_EXT=window.MINA_REACT_EXT||{}).ore={act:e=>e.en?['r_ore',{w:e.en,ja:e.ja||''},goBench()]:null,desc:e=>`原石を みがいて 「${e.en||''}」の カードに した`}}catch(e){}
 
-window.ORE={bench,list,add,has,spots,fromMine,pickNew,rec:R,word,recd,total,STEPS};
+window.ORE={arrangeQ,okWord,bench,list,add,has,spots,fromMine,pickNew,rec:R,word,recd,total,STEPS};
 })();
