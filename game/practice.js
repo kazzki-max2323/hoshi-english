@@ -5,7 +5,7 @@
        おわりは 「よくできた」＋ 結果 1行 ＋ つぎの 1つ（ごほうびは 小さく）
    - 🤔 教えて: どの 問題でも（答える 前・正解の あと・まちがいの あと）。 正しい 文 → 見る ところ → なぜ この 答え → ほかの 答えは なぜ ちがう（game/teach-why.js）
        → 📘 その 時間の 授業カードを その場で 見る → ← で 問題に もどる。 重ね #prteach（問題は うしろで そのまま）
-   - 「身についた」の 記録: 練習で その 時間の 問題を ヒントなしで 正解した 日（ch[uid|ci].d）。 4回目（一度に 増やさない）で 使う
+   - 「身についた」: その 時間の 問題を 3問 ヒントなしで 正解・なおっていない まちがい なし（learned）。 一度に 増やさない（mina-plan.js gate）で 使う
    セリフ pr_ ・ te_ は この ファイルの さいご。 きろくは localStorage 'hoshi_prac' */
 (()=>{
 const {S:ST,sfx:SFX}=BEACH;
@@ -55,8 +55,15 @@ function rec(it,ok,first){const k=keyOf(it.u,it.q),r=R.q[k]=R.q[k]||{m:0,k:0,n:0
   else{if(!ok){r.m++;const ur=it.u.rec();ur.miss=ur.miss||{};ur.miss[it.ci]=(ur.miss[it.ci]||0)+1;try{it.u.save()}catch(e){}}
     r.k=0;r.n=0;r.due=Date.now()+DAY}
   save()}
-/* その 時間は 身についた？（ちがう 日に 2回、 ヒントなしで 正解） */
-const learned=(u,ci)=>{const c=R.ch[chKey(u,ci)];return !!(c&&c.d.length>=2)};
+/* その 時間は 身についた？（11/22 ゆるめた: 前は 「ちがう 日に 2回」だけで、 1回 ノーミスでも ひらかなかった）
+   - その 時間の 問題を 3問 ヒントなしで 正解（いちばん 新しい 答えで）して、 まだ なおっていない まちがいが ない
+   - または ちがう 日に 2回 ヒントなしで 正解（前の しくみ）
+   いまの 記録（R.q）から 数えるので、 前に やった 練習も そのまま 数える */
+const LEARN_N=3;
+function chState(u,ci){const qs=u.D.CH[ci]?u.D.CH[ci].q.slice():[];(u.D.MIX||[]).forEach(q=>{if(q.c===ci)qs.push(q)});
+  let ok=0,bad=0;const seen=new Set();qs.forEach(q=>{const k=keyOf(u,q);if(seen.has(k))return;seen.add(k);const r=R.q[k];if(!r)return;
+    if((r.k||0)>=1)ok++;else if(r.m)bad++});return {ok,bad,need:Math.min(LEARN_N,seen.size||LEARN_N)}}
+const learned=(u,ci)=>{const c=R.ch[chKey(u,ci)];if(c&&c.d.length>=2)return true;const s=chState(u,ci);return s.ok>=s.need&&!s.bad};
 
 /* ---------- 重ね（授業と 同じ #dpov） ---------- */
 let G=null;
@@ -73,7 +80,8 @@ const live=g=>G===g&&$('prq');
 /* ---------- はじめる ---------- */
 function start(o){o=o||{};const list=choose(o.u,o.n||N,o.ci);if(!list.length)return false;
   const u=o.u&&UNIT.get(o.u);
-  G={list,i:0,st:{ok:0,hint:0,miss:0},bad:[],again:new Set(),title:u?`⚡ 練習：${u.D.title}`:'⚡ 練習',o};
+  let g0=null;try{g0=window.MPLAN&&MPLAN.gate()}catch(e){}
+  G={list,i:0,st:{ok:0,hint:0,miss:0},bad:[],again:new Set(),title:u?`⚡ 練習：${u.D.title}`:'⚡ 練習',o,g0};
   shell();const [ex,tx]=ML(o.u?'pr_startU':'pr_start',{u:u?u.D.title:'',n:list.length});
   $('prq').innerHTML=minaBox(ex,tx);snd('lesson');const g=G;setTimeout(()=>{if(live(g))ask()},900);return true}
 
@@ -118,17 +126,22 @@ function end(quit){const g=G;if(!g||g.done)return;g.done=1;hush();closeTeach(tru
   try{const P=MPLAN.rec();if(P.day){P.day.pr=1;localStorage.setItem('hoshi_plan',JSON.stringify(P))}}catch(e){}
   try{RECENT.add('practice',{n:N,miss:g.st.miss})}catch(e){}
   const perfect=!g.st.miss&&!g.st.hint,coin=Math.min(10,Math.ceil((g.st.ok+g.st.hint)/2));
-  const [ex,tx]=ML(quit?'pr_quit':perfect?'pr_perfect':g.st.miss?'pr_miss':'pr_good',{n:g.st.ok,N});
+  /* 🔒 だった つぎの 授業が この 練習で ひらいた？ / まだなら あと 何問 */
+  let open=null,gw=null;try{const g1=MPLAN.gate();if(g.g0&&!g1)open=g.g0;else if(g1)gw=g1}catch(e){}
+  let [ex,tx]=ML(quit?'pr_quit':perfect?'pr_perfect':g.st.miss?'pr_miss':'pr_good',{n:g.st.ok,N});
+  if(open)[ex,tx]=ML('pr_unlock',{t:open.c.short});
+  else if(gw){const s=chState(gw.u,gw.ci);[ex,tx]=ML(s.bad?'pr_gateBad':'pr_gateLeft',{t:gw.c.short,n:Math.max(1,s.need-s.ok)})}
   const bad=[];g.bad.forEach(it=>{if(!bad.includes(it))bad.push(it)});
-  const nx=nextOne();
+  const nx=open?['📘 つぎの 授業へ ▶',()=>MPLAN.today()]:gw?[`🌱 「${esc(gw.c.short)}」を もう少し ▶`,()=>start({u:gw.u.id,ci:gw.ci})]:nextOne();
   $('prn').textContent='';
-  $('mdbox').innerHTML=`<div class="kres mdres"><p class="kend good">${perfect?'🌟 よくできた！':quit?'✋ ここまで':'✔ 練習 おわり'}</p>
+  $('mdbox').innerHTML=`<div class="kres mdres"><p class="kend good">${open?'🔓 つぎの 授業が ひらいたよ！':perfect?'🌟 よくできた！':quit?'✋ ここまで':'✔ 練習 おわり'}</p>
     <div class="snscore"><span>⭕ 1回で <b>${g.st.ok}</b></span><span>💡 ヒントで <b>${g.st.hint}</b></span><span>📘 解説 <b>${g.st.miss}</b></span></div>
     ${coin?`<p class="kpay sm">🪙 ${coin}まい</p>`:''}${minaBox(ex,tx)}
     ${bad.length?`<p class="mdnote2">🔁 つぎも 出すね（タップで 🤔 教えて）</p><div class="prbad">${bad.slice(0,6).map((it,i)=>`<button data-b="${i}">${esc(fullOf(it.q)||it.q.o[0])}</button>`).join('')}</div>`:''}
     ${nx?`<div class="mdnav"><button id="prnx">${nx[0]}</button></div>`:''}
     <div class="mdnav"><button class="sub" id="pragain">⚡ もう ${N} 問</button><button class="sub" id="prc">✖ とじる</button></div></div>`;
-  perfect?snd('done'):snd('pop');
+  if(open)try{RECENT.add('unlock',{t:open.c.short})}catch(e){}
+  perfect||open?snd('done'):snd('pop');
   if(coin)setTimeout(()=>{try{const b=$('mdbox').getBoundingClientRect();H.coinBurst(b.left+b.width/2,Math.min(b.top+60,innerHeight-60),coin)}catch(e){ST.coins+=coin}},400);
   bindSay($('mdbox'));
   $('mdbox').querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>{const it=bad[+b.dataset.b];snd('book');teach(it.q,it.u,it.ci)});
@@ -192,6 +205,9 @@ Object.assign(MINA_LINES,{
  pr_perfect:[['proud','ぜんぶ 1回で せいかい！ もう 身に ついてきてるね'],['love','すごい、 ノーミス！ わたしも うれしい']],
  pr_good:[['happy','よく できました！ ヒントで 気づけたのも ちゃんと 力に なってるよ'],['smile','おつかれさま。 どんどん 手に なじんでるね']],
  pr_miss:[['smile','おつかれさま！ まちがえた 形は つぎの 練習で また 出すね。 そこが のびしろ だよ'],['love','まちがえた ところが わかったのが いちばんの 収穫。 🤔 で 見なおしても いいよ']],
+ pr_unlock:[['proud','「{t}」、 もう 身に ついたね！ つぎの 授業が ひらいたよ'],['love','やったね！ 「{t}」は もう だいじょうぶ。 つぎの 授業へ 行こう']],
+ pr_gateLeft:[['smile','いい 調子！ 「{t}」を あと {n}問 1回で せいかい したら、 つぎの 授業が ひらくよ'],['happy','もう ちょっと！ 「{t}」を あと {n}問 ヒントなしで 答えられたら つぎへ 進もう']],
+ pr_gateBad:[['smile','おつかれさま！ 「{t}」で まちがえた 問題を 1回で 答えられたら、 つぎの 授業が ひらくよ'],['love','まちがえた 形を もう一回 やろう。 そこが できたら つぎの 授業へ 進めるよ']],
  pr_quit:[['smile','ここまでで OK！ やった ぶんは ちゃんと 記録したよ'],['love','とちゅうでも だいじょうぶ。 また やろうね']],
  te_open:[['smile','「{t}」の ところだね。 いっしょに 1つずつ 見よう'],['think','どこで まよったか、 ゆっくり 見ていこう。 「{t}」の 話だよ'],['love','聞いてくれて うれしい！ 「{t}」、 ていねいに 話すね']],
  te_les:[['smile','「{t}」の 授業の カードだよ。 見おわったら 問題に もどろう'],['happy','授業を ちょっと 見かえそう。 下の ボタンで 問題に もどれるよ']]
@@ -199,10 +215,12 @@ Object.assign(MINA_LINES,{
 /* ホームの ひとこと（game/mina-react.js）: さっき 練習した・🤔 で 聞いた */
 window.MINA_REACT_EXT=window.MINA_REACT_EXT||{};
 MINA_REACT_EXT.practice={act:e=>[e.miss?'r_prMiss':'r_prOk',{n:e.n||0},null],desc:e=>`練習を ${e.n||0}問 した`};
+MINA_REACT_EXT.unlock={act:e=>['r_unlock',{t:e.t||''},null],desc:e=>`練習で 「${e.t||''}」が 身について つぎの 授業が ひらいた`};
 MINA_REACT_EXT.teach={act:e=>['r_teach',{t:e.t||''},null],desc:e=>`「${e.t||''}」を 🤔 教えて で 聞いた`};
 Object.assign(MINA_LINES,{
  r_prOk:[['proud','さっきの 練習、 いい 調子だったね'],['happy','練習 おつかれさま。 手が 覚えてきてるよ']],
  r_prMiss:[['smile','さっきの 練習で まちがえた 形、 つぎも 出すから 安心してね'],['love','まちがえても いいの。 練習は そのための 場所だよ']],
+ r_unlock:[['proud','「{t}」、 練習で ちゃんと 身に ついたね。 つぎの 授業、 いっしょに やろう'],['love','つぎの 授業が ひらいたね！ 「{t}」が できたから、 きっと 楽に わかるよ']],
  r_teach:[['love','さっき 「{t}」を 聞いてくれたね。 わからない ことを 聞けるのが いちばん えらいよ'],['smile','「{t}」、 すっきり した？ また いつでも 🤔 を おしてね']]
 });
 })();
