@@ -133,7 +133,7 @@ T.order=()=>{const x=pick(ORD);return {ja:x[0],o:[x[1],x[2]],why:x[3],mis:`日�
 
 /* ================================================================ 名前・くわしく（DET）・カテゴリー */
 const KN={ynNeg:'はい・いいえ（ないの？）',ynPos:'はい・いいえ（ふつう）',ynPair:'Yes の 後ろは 肯定',ynJa:'Yes / No の 意味',art:'a / the / なし',num:'1つ？ 2つ いじょう？',subj:'主語を はぶけない',s3x:'3人称の s',now:'今？ いつも？',order:'ことばの 順番'};
-const D_YN={t:'はい・いいえ: 質問は 見ない',b:'英語の Yes / No は <b>自分の 答えの 中身</b> だけで きまるの。 答えが 「する・そう」なら <b>Yes</b>、 「しない・ちがう」なら <b>No</b>。 日本語は 「相手の 言った ことに 合ってる？」で 「はい」を えらぶから、 否定の 質問（〜ないの？）で 逆に なるんだよ。 だから Yes を 「はい」、 No を 「いいえ」と 訳すと こんがらがる。 Yes は <b>肯定チームの ふだ</b>（I do と セット）、 No は <b>否定チームの ふだ</b>（I don\'t と セット）',
+const D_YN={t:'はい・いいえ: 質問は 見ない',b:'英語の Yes / No は <b>自分の 答えの 中身</b> だけで きまるの。 答えが 「する・そう」なら <b>Yes</b>、 「しない・ちがう」なら <b>No</b>。 日本語は 「相手の 言った ことに 合ってる？」で 「はい」を えらぶから、 否定の 質問（〜ないの？）で 逆に なるんだよ。 だから Yes を 「はい」、 No を 「いいえ」と 訳すと こんがらがる。 Yes は <b>肯定チームの ふだ</b>（I do と セット）、 No は <b>否定チームの ふだ</b>（I don\'t と セット）。 後ろの 形を くずさない ために、 前に くっついてるんだよ',
   ok:["Don't you like cats? — Yes, I do.（好き）","Don't you like cats? — No, I don't.（好きじゃない）","Do you like cats? — Yes, I do.（好き）"],ng:["Yes, I don't.","No, I do."],tip:'Yes・No を はい・いいえ と 訳さない。 I do か I don\'t を 決めれば、 Yes・No は 自動で ついてくる'};
 const DET={ynNeg:D_YN,ynPos:D_YN,ynPair:D_YN,ynJa:D_YN,
  art:{t:'a / the / なし',ch:6,b:'<b>a</b> は 「たくさん ある 中の 1つ（はじめて 出る）」、 <b>the</b> は 「どれの ことか もう わかってる」。 music・water・tennis みたいに <b>数えない もの</b>には a を つけないよ。 「ア・イ・ウ・エ・オ」の 音で はじまる ことばは <b>an</b>',
@@ -152,7 +152,7 @@ const DET={ynNeg:D_YN,ynPos:D_YN,ynPair:D_YN,ynJa:D_YN,
 /* les = ワンポイントレッスン（p: 見る ところ, ex: 🔊 例） */
 const CATS=[
  {id:'yn',ico:'🙆',t:'はい・いいえ',sub:'Don\'t you〜? に どう 答える？',ks:['ynNeg','ynPos','ynPair','ynJa'],n:20,nw:1,g:'jp',hint:'質問は 見ない。 答えが 「する」なら Yes、 「しない」なら No',
-  les:{p:['🚫 Yes ＝ 「はい」、 No ＝ 「いいえ」と <b>訳さない</b>。 Yes は 「後ろに <b>肯定</b>（I do）が 来るよ」、 No は 「後ろに <b>否定</b>（I don\'t）が 来るよ」の 合図','🙈 <b>質問は 見ない</b>。 先に 決めるのは <b>I do か I don\'t か</b> だけ','🙆 I do（する・そう）→ <b>Yes</b> が 自動で つく　🙅 I don\'t（しない・ちがう）→ <b>No</b> が 自動で つく','☝️ だから Yes, I don\'t. や No, I do. は ない'],
+  les:{p:['🚫 Yes ＝ 「はい」、 No ＝ 「いいえ」と <b>訳さない</b>。 Yes は 「後ろに <b>肯定</b>（I do）が 来るよ」、 No は 「後ろに <b>否定</b>（I don\'t）が 来るよ」の 合図','🙈 <b>質問は 見ない</b>。 先に 決めるのは <b>I do か I don\'t か</b> だけ','🙆 I do（する・そう）→ <b>Yes</b> が 自動で つく　🙅 I don\'t（しない・ちがう）→ <b>No</b> が 自動で つく','🧷 Yes・No は I do・I don\'t の <b>形を くずさない ために 前に くっついてる</b> 感じ。 だから Yes, I don\'t. や No, I do. は ない'],
    ex:[["Don't you like cats? — Yes, I do.",'ねこ 好きじゃ ないの？ — （いや、）好きだよ'],["Don't you like cats? — No, I don't.",'— うん、 好きじゃ ない'],['Do you like cats? — No, I don\'t.','質問が かわっても 答えは 同じ']]}},
  {id:'art',ico:'🍎',t:'a / the / なし',sub:'はじめて？ もう わかってる？',ks:['art'],n:15,g:'jp',hint:'はじめて 出る → a、 どれか わかってる → the、 数えない → なし',
   les:{p:['🆕 はじめて 出る 1つ → <b>a</b>（アイウエオの 音なら an）','👉 どれの ことか わかってる・1つしか ない → <b>the</b>','💧 数えない もの（water・music）・スポーツ → <b>なし</b>'],ex:[['I have a dog. The dog is white.','犬を かってる。 その 犬は 白い'],['Look at the moon.','月を 見て'],['I like music.','音楽が すき']]}},
