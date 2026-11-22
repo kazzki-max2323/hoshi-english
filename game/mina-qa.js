@@ -26,7 +26,7 @@ const QA=[
  {id:'yes_no',ico:'🙆',q:'Yes・No って 「はい・いいえ」 じゃ ないの？',drill:'yn',cards:[
   {x:'think',say:'じつは そこが 落とし穴。 日本語の 「はい・いいえ」は <b>相手の 言った ことに 合ってるか</b>で 決めるよね。 でも 英語の Yes・No は <b>後ろに 来る 文が 肯定か 否定か</b>の 合図なの',
    f:two(['日本語','ねこ 好きじゃ ないの？ — はい、 好きじゃ ない','r'],['英語','Don\'t you like cats? — No, I don\'t.','g'])+note('日本語の 「はい」が 英語では No に なる')},
-  {x:'smile',say:'だから Yes・No の 日本語訳は <b>気に しない ほうが いい</b>の。 Yes は I do の <b>肯定チームの ふだ</b>、 No は I don\'t の <b>否定チームの ふだ</b>。 いつも セットで くっついてるよ',
+  {x:'smile',say:'だから Yes・No の 日本語訳は <b>気に しない ほうが いい</b>の。 Yes は I do の <b>肯定チームの ふだ</b>、 No は I don\'t の <b>否定チームの ふだ</b>。 Yes・No は、 後ろの <b>I do・I don\'t の 形を くずさない ために、 前に くっついてる</b> 感じ。 だから Yes と I don\'t は 組めないの',
    f:row([B('Yes,','m'),B('I','s'),B('do.','v')],'o')+row([B('No,','m'),B('I','s'),B('don\'t.','v')],'o')+note('Yes, I don\'t. や No, I do. は ない')},
   {x:'proud',say:'答える ときは Yes・No から 考えなくて だいじょうぶ。 先に <b>I do か I don\'t か</b> を 決めれば、 Yes・No は 自動で ついてくる。 質問が Do you〜? でも Don\'t you〜? でも 答えは 同じだよ',
    f:tbl([['好き','Yes, I do.'],['好きじゃ ない','No, I don\'t.']]),
