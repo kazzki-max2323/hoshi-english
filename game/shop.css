@@ -403,3 +403,10 @@
 #cardOv.dgov{justify-content:center;padding-bottom:20px}
 #cardOv.dgov .dgev,#cardOv.dgov .dgbagov{background:#2a2340!important;opacity:1;text-shadow:none;width:calc(100% - 24px)}
 #cardOv.dgov .dgev button:not(.sub){background:#e8a030;border-color:#ffd88a;color:#2a1a08}
+/* 11/22 鉱山: 拾った アイテムの チップ（タップで せつめい）・階段わきの 原石 */
+.dgchips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:2px 0}
+.dgchips>small{flex-basis:100%;text-align:center;font-size:.72rem;opacity:.85}
+.pnl .dgchip{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:999px;font-size:.78rem;background:#ffffff14;border:1px solid #ffffff40}
+.dgchip b{font-weight:700}
+.dgore1{margin:0;text-align:center;font-size:.85rem;color:#ffe9a8}
+.dgp #dgdown small{margin-left:6px}
