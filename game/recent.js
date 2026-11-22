@@ -1,6 +1,6 @@
 /* 🕘 さっき なにが あったか（RECENT）: ミオ・ミナ先生など キャラが 「直前の 行動・手に 入れた 物・いま 起きている こと」に 反応する ための 共通の 記録
    ─ 使い方 ─────────────────────────────────────────────
-   RECENT.add(k, d)          記録する。 k = 種類（下の 一覧）、 d = {en, ja, ico, …}。 自動で t（時刻）と id（記録の 番号）が つく。 d に id が あれば name に うつる（料理・会話・カードの id は e.name で 読む）
+   RECENT.add(k, d)          記録する。 k = 種類（下の 一覧）、 d = {en, ja, ico, …}。 自動で t（時刻）と id（記録の 番号）が つく（d の t は ti に のこる）。 d に id が あれば name に うつる（料理・会話・カードの id は e.name で 読む）
    RECENT.last(k, ms)        いちばん 新しい k（k は 配列でも 可。 ms 以内だけ。 なければ null）
    RECENT.list(ms, k)        ms 以内の 記録（新しい 順）。 k で しぼれる
    RECENT.count(k, ms)       ms 以内の k の 数
@@ -46,6 +46,8 @@ const hit=(e,k,ms,now)=>(!k||k.includes(e.k))&&(!ms||now-e.t<=ms);
 function add(k,d){const now=Date.now(),e=Object.assign({},d||{},{k,t:now,id:now.toString(36)+Math.random().toString(36).slice(2,5)});
   /* d の id（料理・会話・カードの id など）は 記録の id で 上書きされるので name に のこす */
   if(d&&d.id!=null&&e.name==null)e.name=d.id;
+  /* d の t（時間の 名前・質問など）も 時刻で 上書きされるので ti に のこす（11/22 「1795323423101が 身について」の 直し） */
+  if(d&&d.t!=null&&e.ti==null)e.ti=d.t;
   R.L.unshift(e);
   let n=0;R.L=R.L.filter(x=>x.k!==k||++n<=PERK).slice(0,MAXN);
   save();[k,'*'].forEach(q=>(L.get(q)||[]).forEach(f=>{try{f(e)}catch(er){}}));return e}

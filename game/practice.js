@@ -220,8 +220,8 @@ Object.assign(MINA_LINES,{
 /* ホームの ひとこと（game/mina-react.js）: さっき 練習した・🤔 で 聞いた */
 window.MINA_REACT_EXT=window.MINA_REACT_EXT||{};
 MINA_REACT_EXT.practice={act:e=>[e.miss?'r_prMiss':'r_prOk',{n:e.n||0},null],desc:e=>`練習を ${e.n||0}問 した`};
-MINA_REACT_EXT.unlock={act:e=>['r_unlock',{t:e.t||''},null],desc:e=>`練習で 「${e.t||''}」が 身について つぎの 授業が ひらいた`};
-MINA_REACT_EXT.teach={act:e=>['r_teach',{t:e.t||''},null],desc:e=>`「${e.t||''}」を 🤔 教えて で 聞いた`};
+MINA_REACT_EXT.unlock={act:e=>e.ti?['r_unlock',{t:e.ti},null]:null,desc:e=>`練習で 「${e.ti||'前の 時間'}」が 身について つぎの 授業が ひらいた`};
+MINA_REACT_EXT.teach={act:e=>e.ti?['r_teach',{t:e.ti},null]:null,desc:e=>`「${e.ti||'問題'}」を 🤔 教えて で 聞いた`};
 Object.assign(MINA_LINES,{
  r_prOk:[['proud','さっきの 練習、 いい 調子だったね'],['happy','練習 おつかれさま。 手が 覚えてきてるよ']],
  r_prMiss:[['smile','さっきの 練習で まちがえた 形、 つぎも 出すから 安心してね'],['love','まちがえても いいの。 練習は そのための 場所だよ']],
