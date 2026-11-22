@@ -172,8 +172,8 @@ const SENSEI_SLOT={
  who:[['My brother','お兄さん','he','your brother'],['My sister','お姉さん','she','your sister'],['Sora','ソラ','he','Sora'],['Hana','ハナさん','she','Hana'],['Gen','ゲンじい','he','Gen'],['My friend','友だち','she','your friend'],['My dad','お父さん','he','your dad'],['My mom','お母さん','she','your mom']],
  /* 規則動詞 */
  vr:[['play tennis','テニスを する','plays tennis','played tennis','played tennis','playing tennis','playd tennis'],['watch TV','テレビを 見る','watches TV','watched TV','watched TV','watching TV','watchd TV'],['cook dinner','夕ごはんを 作る','cooks dinner','cooked dinner','cooked dinner','cooking dinner','cookd dinner'],
-   ['clean my room','部屋を そうじする','cleans my room','cleaned my room','cleaned my room','cleaning my room','cleant my room'],['study English','英語を 勉強する','studies English','studied English','studied English','studying English','studyed English'],['walk on the beach','浜辺を 歩く','walks on the beach','walked on the beach','walked on the beach','walking on the beach','walkd on the beach'],
-   ['listen to music','音楽を きく','listens to music','listened to music','listened to music','listening to music','listend to music'],['visit my grandma','おばあちゃんに 会いに 行く','visits my grandma','visited my grandma','visited my grandma','visiting my grandma','visitd my grandma']],
+   ['clean the room','部屋を そうじする','cleans the room','cleaned the room','cleaned the room','cleaning the room','cleant the room'],['study English','英語を 勉強する','studies English','studied English','studied English','studying English','studyed English'],['walk on the beach','浜辺を 歩く','walks on the beach','walked on the beach','walked on the beach','walking on the beach','walkd on the beach'],
+   ['listen to music','音楽を きく','listens to music','listened to music','listened to music','listening to music','listend to music'],['visit friends','友だちに 会いに 行く','visits friends','visited friends','visited friends','visiting friends','visitd friends']],
  /* 不規則動詞 */
  vi:[['go to the beach','浜辺に 行く','goes to the beach','went to the beach','gone to the beach','going to the beach','goed to the beach'],['eat curry','カレーを 食べる','eats curry','ate curry','eaten curry','eating curry','eated curry'],['swim in the sea','海で およぐ','swims in the sea','swam in the sea','swum in the sea','swimming in the sea','swimmed in the sea'],
    ['see a dolphin','イルカを 見る','sees a dolphin','saw a dolphin','seen a dolphin','seeing a dolphin','seed a dolphin'],['buy a hat','ぼうしを 買う','buys a hat','bought a hat','bought a hat','buying a hat','buyed a hat'],['make a sand castle','すなの お城を 作る','makes a sand castle','made a sand castle','made a sand castle','making a sand castle','maked a sand castle'],
@@ -182,7 +182,12 @@ const SENSEI_SLOT={
  hnow:()=>{const d=new Date(),gh=(typeof GH==="function"?GH():d.getHours()+d.getMinutes()/60),h=Math.floor(gh)%12||12,m=Math.floor((gh%1)*60);return [[m?h+':'+String(m).padStart(2,'0'):h+" o'clock",h+'時'+(m?m+'分':'')]]},
  adj:[['big','大きい','bigger','biggest'],['small','小さい','smaller','smallest'],['fast','速い','faster','fastest'],['old','古い','older','oldest'],['tall','高い','taller','tallest'],['long','長い','longer','longest'],['cute','かわいい','cuter','cutest'],['hot','暑い','hotter','hottest']],
  adjL:[['beautiful','きれい'],['popular','人気'],['interesting','おもしろい'],['expensive','高い（ねだん）'],['difficult','むずかしい'],['important','大切'],['famous','有名'],['delicious','おいしい']],
- feel:[['happy','うれしい'],['sad','かなしい'],['tired','つかれた'],['hungry','おなかが すいた'],['sleepy','ねむい'],['excited','わくわく'],['nervous','きんちょう'],['surprised','びっくり']],
+ /* 「How are you today?」に 答えられる ことばだけ（surprised・nervous は 調子の 答えに ならないので 入れない） */
+ feel:[['fine','げんき'],['good','いい 調子'],['great','さいこう'],['happy','うれしい'],['sad','かなしい'],['tired','つかれた'],['hungry','おなかが すいた'],['sleepy','ねむい'],['excited','わくわく']],
+ /* しゅみ・すきな こと（My hobby is 〜ing. / I enjoy 〜ing. に 入れても 自然な もの）。 形は 動詞と おなじ */
+ hob:[['play tennis','テニスを する','plays tennis','played tennis','played tennis','playing tennis','playd tennis'],['read books','本を 読む','reads books','read books','read books','reading books','readed books'],['cook','料理する','cooks','cooked','cooked','cooking','cookd'],
+   ['play games','ゲームを する','plays games','played games','played games','playing games','playd games'],['listen to music','音楽を きく','listens to music','listened to music','listened to music','listening to music','listend to music'],['sing songs','歌を うたう','sings songs','sang songs','sung songs','singing songs','singed songs'],
+   ['take pictures','写真を とる','takes pictures','took pictures','taken pictures','taking pictures','taked pictures'],['play the piano','ピアノを ひく','plays the piano','played the piano','played the piano','playing the piano','playd the piano'],['watch movies','映画を 見る','watches movies','watched movies','watched movies','watching movies','watchd movies']],
 };
 
 /* ミナ先生の ひとこと 質問（文法ドリル）。会話の とちゅうに 入る（場面の dr ノード）ほか、「苦手 とっくん」でも つかう。
@@ -264,7 +269,7 @@ const SENSEI_DRILL=(()=>{const D=(s,j,good,bad,re,rj)=>Array.isArray(re)?{s,j,go
   D("What do you want to do this summer?","この夏は なにが したい？",["I want to {vi}.","I want to travel."],[["I want {vi}.",'inf'],["I want to {vi_ed}.",'inf']],"Nice plan!","いい 計画！"),
   D("Why do you study English?","どうして 英語を 勉強するの？",["To talk with people around the world.","Because I want to travel."],[["For talk with people.",'inf']],"Wonderful reason.","すてきな 理由")],
  jh_ger:[
-  D("What do you enjoy doing?","なにを するのが すき？",["I enjoy {vr_ing}.","I enjoy {vi_ing}."],[["I enjoy to {vr}.",'ger'],["I enjoy {vr}.",'ger']],"Me too!","わたしも！")],
+  D("What do you enjoy doing?","なにを するのが すき？",["I enjoy {hob_ing}.","I enjoy walking on the beach."],[["I enjoy to {hob}.",'ger'],["I enjoy {hob}.",'ger']],"Me too!","わたしも！")],
  jh_comp:[
   D("Which is bigger, a whale or a dolphin?","クジラと イルカ、 どっちが 大きい？",["A whale is bigger.","A whale is bigger than a dolphin."],[["A whale is more bigger.",'comp'],["A whale is big than a dolphin.",'comp']],"Right! Much bigger.","正解！ ずっと 大きい"),
   D("Which season do you like the best?","どの 季節が いちばん すき？",["I like summer the best.","Summer is the best!"],[["I like summer the most best.",'sup']],"Summer! Beach season!","夏！ 浜辺の 季節！")],

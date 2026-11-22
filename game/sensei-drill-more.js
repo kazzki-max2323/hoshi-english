@@ -141,7 +141,7 @@ const ADD={
   D("Did you enjoy the festival?","お祭り、 たのしかった？",["Yes, I enjoyed dancing.","Yes, I enjoyed eating takoyaki."],[["Yes, I enjoyed to dance.",'ger'],["Yes, I enjoyed dance.",'ger']],"I'm glad!","よかった！"),
   D("When did you finish your homework?","宿題は いつ おわった？",["I finished doing it at eight.","I finished it at eight."],[["I finished to do it at eight.",'ger']],"Good job!","えらい！"),
   D("What do you like doing on rainy days?","雨の 日は なにを するのが すき？",["I like reading books.","I like watching movies."],[["I like read books.",'ger'],["I like watch movies.",'ger']],"Cozy!","いいね、 のんびり"),
-  D("What is your hobby?","しゅみは なに？",["My hobby is {vr_ing}.","My hobby is {vi_ing}."],[["My hobby is {vr}.",'ger']],"Nice hobby!","すてきな しゅみ！"),
+  D("What is your hobby?","しゅみは なに？",["My hobby is {hob_ing}.","My hobby is swimming."],[["My hobby is {hob}.",'ger']],"Nice hobby!","すてきな しゅみ！"),
   D("Is swimming fun?","およぐのって たのしい？",["Yes, swimming is fun!","Swimming is my favorite."],[["Yes, swim is fun!",'ger']],"I agree!","わたしも そう 思う！")],
  jh_comp:[
   D("Which is longer, the Shinano River or the Tone River?","信濃川と 利根川、 どっちが 長い？",["The Shinano River is longer.","The Shinano River."],[["The Shinano River is more long.",'comp'],["The Shinano River is long than the Tone.",'comp']],"Right! It's the longest in Japan.","正解！ 日本で いちばん 長いの"),

@@ -399,9 +399,9 @@ return [
 
 {id:'jh-hobby',lv:'jh',ico:'🎨',t:'好きな ことを 語ろう',d:'動名詞と 不定詞',g:['jh_ger','jh_inf'],start:'a',nodes:{
   a:{s:"What do you like doing in your free time?",j:"ひまな とき なにを するのが すき？",o:[
-    G("I like {vr_ing}.","Oh, me too!","へえ、 わたしも！",'b',["like"]),
+    G("I like {hob_ing}.","Oh, me too!","へえ、 わたしも！",'b',["like"]),
     G("I enjoy drawing pictures.","Drawing! Can you draw me?","絵！ わたしを かいて くれる？",'c',["drawing","enjoy"]),
-    X("I enjoy to draw pictures.",'ger'),X("I like {vr_x}.",'ger','like の あとは 〜ing か to 〜')]},
+    X("I enjoy to draw pictures.",'ger'),X("I like {hob}.",'ger','like の あとは 〜ing か to 〜')]},
   b:{s:"When did you start it?",j:"いつ はじめたの？",o:[
     G("I started it two years ago.","Two years! You must be good at it.","2年！ じょうず なんだろうな",'d',["started","ago"]),
     G("I began when I was little.","Since you were little! Wow.","小さい ころから！ すごい",'d',["began","little"]),
