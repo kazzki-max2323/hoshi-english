@@ -420,3 +420,11 @@
 .wttip.go{opacity:0}
 button.wtheld{transform:scale(.97);filter:brightness(1.15)}
 button,[role="button"]{-webkit-touch-callout:none}
+/* 📘 ミナ先生の コツ（前の ミニ授業の 中身、 game/mini-place.js）: とじた たたみ */
+.wiles{background:rgba(140,170,255,.1);border-left:3px solid #8caaff;border-radius:6px;padding:4px 8px;margin:6px 0}
+.wiles summary{font-size:.82rem;font-weight:700;cursor:pointer}
+.wiles summary small{font-weight:400;opacity:.85;margin-left:4px}
+.wiles .wirm{font-size:.74rem;opacity:.85;margin:4px 0}
+.wiles .wils p{margin:5px 0 4px;font-size:.8rem;line-height:1.55}
+.wiles .wils b{color:#ffd27a}
+.wiles .fz{margin:2px 0 6px}

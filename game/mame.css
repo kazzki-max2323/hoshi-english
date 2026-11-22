@@ -28,3 +28,8 @@
 #mamePop .mmex small{font-size:.74rem;color:#6b6080}
 #mamePop .mmnav{display:flex;justify-content:center}
 #mamePop .mmok{padding:8px 22px;border-radius:999px;border:0;background:#f2a93b;color:#fff;font:inherit;font-weight:700;cursor:pointer}
+
+/* ミニ授業から 来た まめちしき（音・ことば）: 説明カードを 小さく ならべる */
+#mamePop .mmlt{margin:0;font-weight:700;color:#9a4b00;font-size:.9rem}
+#mamePop .mmls p{margin:0 0 5px;font-size:.86rem;line-height:1.6}
+#mamePop .mmls b{color:#9a4b00}

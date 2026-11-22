@@ -34,7 +34,7 @@ const enW=s=>(String(s).toLowerCase().match(/[a-z][a-z']*/g)||[]).filter(w=>w.le
 const hasW=(text,ws)=>{const t=' '+String(text).toLowerCase().replace(/<[^>]+>/g,' ').replace(/[^a-z']+/g,' ')+' ';return ws.filter(w=>t.includes(' '+w+' ')).length};
 
 /* ---------- the lesson pictures that go with a grammar (game/lessons via game/gram-link.js) ---------- */
-function lesFigs(id){const out=[];try{(window.GRAMLINK?GRAMLINK.lessonsFor(id):[]).forEach(l=>l.steps.forEach((s,i)=>{if(s[3])out.push({t:s[2],fig:s[3],l})}))}catch(e){}return out}
+function lesFigs(id){const out=[];try{(window.GRAMLINK?(GRAMLINK.lessonsAll||GRAMLINK.lessonsFor)(id):[]).forEach(l=>l.steps.forEach((s,i)=>{if(s[3])out.push({t:s[2],fig:s[3],l})}))}catch(e){}return out}
 /* example sentences: the note's and the ones from the talks */
 function examples(id,n){const out=n.ex.map(e=>({en:e[0],ja:e[1]}));
   try{(DR[id]||[]).forEach(d=>d.good.forEach(g=>{const en=S().fill(g,{});if(en&&!/\{/.test(en)&&!out.some(x=>x.en===en))out.push({en,ja:''})}))}catch(e){}

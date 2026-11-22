@@ -258,6 +258,8 @@ function more(I){const h=I.h,WI=window.WI,out=[];
   const mm=window.WMEMO?WMEMO.get(h):'';
   if(mm){let ml='';try{if(window.MINA&&Math.random()<.35)ml=MINA.line('wi_memo',{w:h})[1]}catch(e){}
     out.push(`<div class="wimm"><p>🧠 覚え方: ${esc(mm)}</p>${ml?`<p class="wirm">👩‍🏫 ${esc(ml)}</p>`:''}</div>`)}
+  /* 📘 ミナ先生の コツ（前の ミニ授業の 中身。 game/mini-place.js） */
+  (window.WI_MORE||[]).forEach(fn=>{try{const v=fn(I);if(v)out.push(v)}catch(e){console.error(e)}});
   const tips=[];if(x.tip)tips.push(esc(x.tip));
   const wr=WRONG.find(w=>w.a===h||w.b===h);if(wr&&tips.length<2)tips.push(`×「${esc(wr.a)} ${esc(wr.b)}」→ ⭕「${esc(wr.ok)}」 ${esc(wr.why)}`);
   if(x.tip&&(f.p==='np'||f.rows.some(r=>x.tip.includes(String(r[0]).split(/[ /]/).pop()))))f.tips=[];
