@@ -141,13 +141,26 @@ function sub(title,ex,tx,body){H.show('mina',`<section class="pnl minap mpsub">
 const rowB=(id,ico,b,s,cls)=>`<button class="mprow ${cls||''}" ${id}><span>${ico}</span><b>${b}</b>${s?`<small>${s}</small>`:''}</button>`;
 
 /* 📘 授業: つぎの 授業（大きく）・ 習っている／おわった 単元（見かえせる）。 💡コツの たな（ミニ授業）は 11/22 に 外した */
-function lessonsPage(){const I=todayInfo(),D=day(),L=units().filter(u=>u.started()),G=gate(),[ex,tx]=G?ML('mp_gateLes',{t:G.c.short}):ML(L.length?'mp_les':'mp_les0');
-  const body=`${G?rowB('id="mplgt"','🌱',esc(G.u.D.title)+'　'+esc(G.c.short),'身に つける 練習 ▶','big'):I?rowB('id="mplgo"','📘',esc(I.u.D.title)+'　'+esc(I.t),D.done?'もう 1時間':'つぎの 授業 ▶','big'):''}
-    ${L.length?`<h4 class="sth">📚 習っている 授業</h4><div class="mplist">${L.map(u=>rowB(`data-u="${u.id}"`,u.D.ico,esc(u.D.title),u.done()?'おわった・見かえす':'つづき')).join('')}</div>`:''}`;
-  sub('📘 授業',ex,tx,body);
+function lesBig(){const I=todayInfo(),D=day(),G=gate();
+  return `<div id="mplbig">${G?rowB('id="mplgt"','🌱',esc(G.u.D.title)+'　'+esc(G.c.short),'身に つける 練習 ▶','big'):I?rowB('id="mplgo"','📘',esc(I.u.D.title)+'　'+esc(I.t),D.done?'もう 1時間':'つぎの 授業 ▶','big'):''}</div>`}
+function lesBigBind(){const G=gate();
   const g=$('mplgo');if(g)g.onclick=()=>{SFX.lesson();today()};
-  const gt=$('mplgt');if(gt)gt.onclick=()=>{SFX.lesson();PRAC.start({u:G.u.id,ci:G.ci})};
+  const gt=$('mplgt');if(gt&&G)gt.onclick=()=>{SFX.lesson();PRAC.start({u:G.u.id,ci:G.ci})}}
+function lessonsPage(){const L=units().filter(u=>u.started()),G=gate(),[ex,tx]=G?ML('mp_gateLes',{t:G.c.short}):ML(L.length?'mp_les':'mp_les0');
+  const body=`${lesBig()}
+    ${L.length?`<h4 class="sth">📚 習っている 授業</h4><div class="mplist">${L.map(u=>rowB(`data-u="${u.id}"`,u.D.ico,esc(u.D.title),u.done()?'おわった・見かえす':'つづき')).join('')}</div>`:''}`;
+  sub('📘 授業',ex,tx,body);lesBigBind();
   H.panel.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{SFX.lesson();const u=UNIT.get(b.dataset.u);if(u)u.open()})}
+
+/* 授業・練習の 重ね（#dpov）を とじたら、 下に のこっている 「つぎの 授業」「きょうは これ」を いまの 進み具合に 直す
+   （11/22 ユーザー「次の授業がへん」: 授業の 間に 下の ページが 古い まま で、 おわった 時間を 出していた） */
+function refreshCards(){try{
+  if($('mplbig')){$('mplbig').outerHTML=lesBig();lesBigBind()}
+  const g=$('mpgo');if(g){const T=pickToday();g.className='mpgo k'+T.k;
+    g.innerHTML=`<span class="mpico">${T.ico}</span><span class="mptx"><small>${T.tag}</small><b>${esc(T.t)}</b></span><span class="mpplay"><i>▶</i></span>`;
+    g.onclick=()=>{SFX.lesson();runToday(T)}}
+  if($('lcard'))homeCard()}catch(e){console.error(e)}}
+new MutationObserver(ms=>{for(const m of ms)for(const n of m.removedNodes)if(n.id==='dpov'&&!$('dpov')){setTimeout(refreshCards,0);return}}).observe(document.body,{childList:true});
 
 /* ⚡ 練習: きょうの 練習（ミナ先生が えらぶ）・ ⚡れんぱつ・ 📝まとめテスト */
 function practicePage(){const pr=prSrc(),L=units().filter(u=>u.doneN()>0),[ex,tx]=ML(pr?'mp_pr':'mp_pr0');let tk=[];try{tk=SENSEI.weak()}catch(e){}
@@ -210,5 +223,5 @@ try{const RL=MINA_SENSE._rules,drop=['x_stAsk','x_stNext','x_lesToday','x_lesStr
   RL.push(['x_mpRev',2,F=>units().some(u=>u.doneN()>0&&u.rec().t&&Date.now()-u.rec().t>2*864e5)?{}:null,()=>['⚡ 練習',()=>practice()]]);
 }catch(e){console.error(e)}
 
-window.MPLAN={gate,page,bind,today,special,study,review,chat,practice,pickToday,runToday,lessonsPage,practicePage,chatPage,cur,todayInfo,units,doneToday:()=>!!day().done,rec:()=>MP,_stop:stopCd};
+window.MPLAN={gate,page,bind,today,special,study,review,chat,practice,pickToday,runToday,lessonsPage,practicePage,chatPage,refreshCards,cur,todayInfo,units,doneToday:()=>!!day().done,rec:()=>MP,_stop:stopCd};
 })();
