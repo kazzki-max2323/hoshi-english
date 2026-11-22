@@ -91,7 +91,10 @@ const lastDone=()=>{let m=-1;CH.forEach((c,i)=>{if(chDone(i)&&!chSkip(i))m=i});r
 let fresh=0;   // 🔄 さいしょから の 直後の 1時間目は 🔒に しない
 const lockOf=ci=>{if(fresh&&ci===0)return null;if(chDone(ci)||ci<lastDone()||!window.MPLAN||!MPLAN.gate)return null;try{return MPLAN.gate()}catch(e){return null}};
 function locked(G,ci){C={m:'lock'};hush();const box=shell(chT(ci),P?null:menu),[ex,tx]=MINA.line('mp_gateLes',{t:G.c.short});$('mdn').textContent='🔒';
-  box.innerHTML=`${minaBox(ex,tx)}<div class="mdnav"><button id="mdlk">🌱 「${esc(G.c.short)}」を 練習する ▶</button></div><div class="mdnav"><button class="sub" id="mdlkb">☰ 時間の 一覧</button></div>`;
+  let st=null;try{st=PRAC.chState(G.u,G.ci)}catch(e){}
+  /* どこまで できたか（行き止まりに しない: あと 何問 ＋ 練習ボタン） */
+  const meter=st?`<div class="mdcard mdlkm"><p class="prth">🌱 「${esc(G.c.short)}」の 練習</p><p class="mdlkdots">${Array.from({length:st.need},(x,i)=>i<st.ok?'⭕':'⚪').join(' ')}</p><p>${st.ok>=st.need&&st.bad?`まちがえた 問題が ${st.bad}問 のこってるよ。 練習で 1回で 答えられたら ひらくよ`:`1回で せいかいした 問題 <b>${Math.min(st.ok,st.need)}</b> / ${st.need}　あと <b>${Math.max(0,st.need-st.ok)}問</b> で ひらくよ`}</p></div>`:'';
+  box.innerHTML=`${minaBox(ex,tx)}${meter}<div class="mdnav"><button id="mdlk">🌱 「${esc(G.c.short)}」を 練習する ▶</button></div><div class="mdnav"><button class="sub" id="mdlkb">☰ 時間の 一覧</button></div>`;
   $('mdlk').onclick=()=>{snd('lesson');close();PRAC.start({u:G.u.id,ci:G.ci})};$('mdlkb').onclick=()=>{snd('pop');menu()}}
 function chapter(ci,i,pre){const c=CH[ci];if(!c)return menu();if(!i){const G=lockOf(ci);if(G)return locked(G,ci)}C={m:'card',ci,i};hush();
   const box=shell(chT(ci),P?null:menu),k=c.cards[i],N=c.cards.length;
