@@ -2,6 +2,7 @@
 .kmina{display:flex;align-items:flex-start;gap:8px}
 .kmina p{margin:0;flex:1;background:#fff6e0;color:#2a2340;text-shadow:none;border-radius:4px 14px 14px 14px;padding:7px 11px;font-size:.84rem;line-height:1.55}
 .kmina p b{color:#c2410c}
+.kmina p small{color:#5a5070;text-shadow:none}
 .klist{max-height:min(40vh,330px);overflow:auto}
 .krow .ci{font-size:1.6rem}
 .kjat{display:flex;align-items:center;justify-content:center;gap:6px;font-size:.74rem;color:var(--mute)}
