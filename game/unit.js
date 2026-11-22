@@ -25,6 +25,8 @@ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(R))}catch(e){}};
 const ML=(k,v)=>{v=Object.assign({u:D.title,N:CH.length},v||{});
   try{const own=LK+k;if(LK!=='u_'&&MINA_LINES[own])return MINA.line(own,v);return MINA.line('u_'+k,v)}catch(e){return ['smile','']}};
 const chDone=i=>!!(R.ch[i]&&R.ch[i].d);
+/* はじめの 「ちょっと 聞かせて」で 正解して とばした 時間（まだ 授業は うけていない）。 ✔ とは 分けて 見せる（11/22 ユーザー） */
+const chSkip=i=>!!(R.ch[i]&&R.ch[i].sk&&!R.ch[i].c);
 const doneN=()=>CH.filter((c,i)=>chDone(i)).length;
 const nextCh=()=>{const i=CH.findIndex((c,i)=>!chDone(i));return i<0?null:i};
 const gidOf=ci=>(CH[ci]&&CH[ci].g)||GID;
@@ -60,9 +62,10 @@ function open(o){o=o||{};P=null;C={m:'menu'};R.n=(R.n||0)+1;R.t=Date.now();save(
   if(o.ch!=null)return chapter(o.ch,0);
   menu(R.n<=1?'hello':null)}
 function menu(key){C={m:'menu'};P=null;hush();const box=shell('',null),nx=nextCh(),all=nx==null,G0=(()=>{try{return window.MPLAN&&MPLAN.gate?MPLAN.gate():null}catch(e){return null}})(),ld=lastDone(),lk=i=>!!G0&&!chDone(i)&&i>ld;
-  const k=key||(R.best>=3?'master':all?'allDone':'again'),[ex,tx]=ML(k);
+  const skN=CH.filter((c,i)=>chSkip(i)).length,k=key||(R.best>=3?'master':all?'allDone':skN?'skipped':'again'),[ex,tx]=ML(k,{k:skN});
   box.innerHTML=`${minaBox(ex,tx)}
-    <div class="mdchs">${CH.map((c,i)=>`<button data-ch="${i}" class="${chDone(i)?'done':''}${i===nx?' now':''}${lk(i)?' lock':''}"><i>${chDone(i)?'✔':lk(i)?'🔒':c.ico}</i><span><small>${i+1}時間目</small>${esc(c.t)}</span></button>`).join('')}</div>
+    <div class="mdchs">${CH.map((c,i)=>`<button data-ch="${i}" class="${chSkip(i)?'skip':chDone(i)?'done':''}${i===nx?' now':''}${lk(i)?' lock':''}"><i>${chSkip(i)?'⏭':chDone(i)?'✔':lk(i)?'🔒':c.ico}</i><span><small>${i+1}時間目${chSkip(i)?'<em class="mdskip">とばした</em>':''}</small>${esc(c.t)}</span></button>`).join('')}</div>
+    ${skN?'<p class="mdskipn">「とばした」は さいしょの 1問に 正解した 時間。 タップすれば いつでも 授業が うけられるよ</p>':''}
     <div class="mdgo2">${nx!=null?`<button id="mdstart">${nx?'▶ つづきから（'+(nx+1)+'時間目）':'▶ はじめる'}</button>`:''}
       ${opt.extra?`<button id="mdex" class="sub">${opt.extra[0]}</button>`:''}<button id="mdsum" class="sub">📄 まとめ 1まいで 見る</button>
       <button id="mdtest" class="${all?'':'sub'}">📝 まとめテスト ${R.best?stars(R.best):''}</button></div>`;
@@ -76,7 +79,7 @@ const back=()=>P?close():menu();
 /* ---------- 1時間の カード ---------- */
 /* 一度に 増やさない（game/mina-plan.js gate）: いちばん 新しく おわった 時間が 練習で 身につくまで、 まだの 時間は 🔒 */
 /* 🔒は 「まだ 先の 時間」だけ: この 単元で いちばん うしろの おわった 時間より 前の 時間（飛ばした 時間）は しめない（11/21 ユーザー） */
-const lastDone=()=>{let m=-1;CH.forEach((c,i)=>{if(chDone(i))m=i});return m};
+const lastDone=()=>{let m=-1;CH.forEach((c,i)=>{if(chDone(i)&&!chSkip(i))m=i});return m};
 const lockOf=ci=>{if(chDone(ci)||ci<lastDone()||!window.MPLAN||!MPLAN.gate)return null;try{return MPLAN.gate()}catch(e){return null}};
 function locked(G,ci){C={m:'lock'};hush();const box=shell(chT(ci),P?null:menu),[ex,tx]=MINA.line('mp_gateLes',{t:G.c.short});$('mdn').textContent='🔒';
   box.innerHTML=`${minaBox(ex,tx)}<div class="mdnav"><button id="mdlk">🌱 「${esc(G.c.short)}」を 練習する ▶</button></div><div class="mdnav"><button class="sub" id="mdlkb">☰ 時間の 一覧</button></div>`;
