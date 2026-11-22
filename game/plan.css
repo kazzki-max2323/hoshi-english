@@ -143,3 +143,7 @@ body.fab-on #prteach .dpp{padding-bottom:74px}
 .mpimp{display:inline-block;margin-left:8px;vertical-align:middle;font-style:normal;font-size:.8rem;font-weight:900;letter-spacing:.08em;color:#fff;background:linear-gradient(#ff4d4d,#d90429);border:2px solid #fff;border-radius:8px;padding:2px 8px;text-shadow:none;transform:rotate(-4deg);box-shadow:0 2px 0 #7a0010;animation:mpimp .9s ease-in-out infinite alternate}
 @keyframes mpimp{from{transform:rotate(-4deg) scale(1)}to{transform:rotate(-4deg) scale(1.12)}}
 @keyframes mpglow{from{box-shadow:0 0 0 2px rgba(255,92,92,.45),0 0 10px rgba(255,210,63,.4)}to{box-shadow:0 0 0 2px rgba(255,92,92,.7),0 0 24px rgba(255,210,63,.8)}}
+/* ワンポイントの 🇯🇵 日本語と くらべる 1行（les.jp） */
+.kdles .kdjp{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:2px 0 6px!important}
+.kdjp span{border-radius:8px;padding:5px 8px;font-size:.8rem;line-height:1.45;color:#2a2340;text-shadow:none}
+.kdjp span:first-child{background:#fff4f2;border:1.5px solid #f4a3a3}.kdjp span:last-child{background:#eef7ff;border:1.5px solid #8fc9f2}

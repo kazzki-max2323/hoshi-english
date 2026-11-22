@@ -180,16 +180,16 @@ const KS=Object.keys(T);
 const CATS=[
  {id:'all',ico:'⚡',t:'ぜんぶの 練習',sub:'今までの 問題 ぜんぶ',ks:KS,n:N},
  {id:'vc',ico:'🚦',t:'動詞チェック',sub:'主語の すぐ後ろは とくべつ？ ふつう？',ks:['vcKind','vcQ','vcNeg'],n:20,g:'v',hint:'主語の すぐ後ろの ことば、 自分で 前に 出られる？',
-  les:{p:['👀 見るのは <b>主語の すぐ後ろ</b> だけ（主語が 長くても、 主語の かたまりの すぐ後ろ）','🚀 <b>とくべつな 動詞</b>＝ <b>be動詞＋助動詞</b>（am・is・are・can・will・should・have＋過去分詞）→ 自分で 前へ・ not も すぐ後ろ','🙋 <b>ふつうの 動詞</b>＝ <b>一般動詞</b>（play・like・go・have＝もつ）→ do / does / did の 出番・ 動詞は 原形','🤝 be動詞は 助動詞じゃ ないけど、 動き方が 同じ だから 同じ チーム'],
+  les:{jp:['「できる？」「好き？」と どれも おしりに 「？」','主語の すぐ後ろの ことばで、 質問の 作り方が 2つに 分かれる'],p:['👀 見るのは <b>主語の すぐ後ろ</b> だけ（主語が 長くても、 主語の かたまりの すぐ後ろ）','🚀 <b>とくべつな 動詞</b>＝ <b>be動詞＋助動詞</b>（am・is・are・can・will・should・have＋過去分詞）→ 自分で 前へ・ not も すぐ後ろ','🙋 <b>ふつうの 動詞</b>＝ <b>一般動詞</b>（play・like・go・have＝もつ）→ do / does / did の 出番・ 動詞は 原形','🤝 be動詞は 助動詞じゃ ないけど、 動き方が 同じ だから 同じ チーム'],
    ex:[['Ken can swim. → Can Ken swim?','助動詞: 自分で 前へ'],['Ken is busy. → Is Ken busy?','be動詞: 自分で 前へ'],['Ken swims. → Does Ken swim?','一般動詞: does が 前へ']]}},
  {id:'do',ico:'🙋',t:'do の 出番',sub:'Do / does / did ・ don\'t',ks:['doQ','doesV','doNeg','doesntV','didV'],n:20,g:'v',hint:'ふつうの 動詞の 文？ → do・does・did。 do の あとは 原形',
-  les:{p:['🙋 ふつうの 動詞（一般動詞）の 質問・ not は <b>do / does / did</b> が 運ぶ','🎒 -s も 過去も do が もっていく → 動詞は <b>原形</b>','🐝 he・she は does、 過去は did'],ex:[['Does she play tennis?','テニス する？'],["I didn't go.",'行かなかった']]}},
+  les:{jp:['「する？」「しない」と 動詞の おしりを かえる','一般動詞は 自分で 動けない。 do が 前に 出て not も もつ'],p:['🙋 ふつうの 動詞（一般動詞）の 質問・ not は <b>do / does / did</b> が 運ぶ','🎒 -s も 過去も do が もっていく → 動詞は <b>原形</b>','🐝 he・she は does、 過去は did'],ex:[['Does she play tennis?','テニス する？'],["I didn't go.",'行かなかった']]}},
  {id:'be',ico:'🌊',t:'be の 文',sub:'Are you〜? ・ isn\'t ・ -ing',ks:['beQ','beNeg','beQp','ing'],n:20,g:'v',hint:'様子の ことば・ -ing → be の 文。 be を 前に 出すだけ',
-  les:{p:['🌊 様子の ことば（hungry）・ -ing の 文は <b>be</b> が 動詞','❓ 質問は be を 前へ、 not は be の すぐ後ろ','🙅 be の 文に do は 来ない'],ex:[['Are you hungry?','おなか すいた？'],["He isn't busy.",'彼は いそがしく ない']]}},
+  les:{jp:['「おなか すいた？」は 様子の ことばで そのまま 文','様子の 文は be が 動詞。 be を 前に 出せば 質問'],p:['🌊 様子の ことば（hungry）・ -ing の 文は <b>be</b> が 動詞','❓ 質問は be を 前へ、 not は be の すぐ後ろ','🙅 be の 文に do は 来ない'],ex:[['Are you hungry?','おなか すいた？'],["He isn't busy.",'彼は いそがしく ない']]}},
  {id:'yv',ico:'🔍',t:'様子？ 動詞？',sub:'be が いる？ いらない？',ks:['trap','which','one','beAdj','willX'],n:20,g:'v',hint:'very を つけて 言えたら 様子 → be が いる',
-  les:{p:['🔍 <b>very</b> を つけて 言えたら 様子（very sick）→ <b>be が いる</b>','🏃 「何を する？」なら 動詞（eat・sleep）→ be は いらない','🌱 「〜に なる」の 「なる」は be（will be sick）'],ex:[['I am sick.','具合が わるい'],['I sleep.','ねむる'],['You will be sleepy.','ねむく なるよ']]}},
+  les:{jp:['「わたし、 ねむい」で 文に なる','動詞の 席が 空いていたら be で うめる'],p:['🔍 <b>very</b> を つけて 言えたら 様子（very sick）→ <b>be が いる</b>','🏃 「何を する？」なら 動詞（eat・sleep）→ be は いらない','🌱 「〜に なる」の 「なる」は be（will be sick）'],ex:[['I am sick.','具合が わるい'],['I sleep.','ねむる'],['You will be sleepy.','ねむく なるよ']]}},
  {id:'form',ico:'✏️',t:'動詞の 形',sub:'-s ・ 過去形 ・ will / can の あと',ks:['s3','past','modV','willBe'],n:20,g:'v',hint:'前の ことばが 後ろの 形を きめる。 will・can の あとは 原形',
-  les:{p:['🐝 he・she の 今 → <b>-s</b>','⏪ 手伝い役が いない 過去 → 動詞が <b>過去形</b>','🔗 will・can の あと → <b>原形</b>（be も）'],ex:[['She plays tennis.','テニスを する'],['We played tennis yesterday.','きのう した'],['He can swim.','およげる']]}},
+  les:{jp:['動詞は だれが しても 同じ。 「た」を 足せば 過去','he・she の 今は -s、 過去は 形を かえる、 will の あとは 原形'],p:['🐝 he・she の 今 → <b>-s</b>','⏪ 手伝い役が いない 過去 → 動詞が <b>過去形</b>','🔗 will・can の あと → <b>原形</b>（be も）'],ex:[['She plays tennis.','テニスを する'],['We played tennis yesterday.','きのう した'],['He can swim.','およげる']]}},
 ].concat(window.SKJP?SKJP.CATS:[]).map(c=>Object.assign(c,{ks:c.ks.filter(k=>T[k])})).filter(c=>c.ks.length);
 const catOf=id=>CATS.find(c=>c.id===id)||CATS[0];
 /* 型 → カテゴリーの ヒント（ぜんぶの 練習でも つかう） */
@@ -239,7 +239,7 @@ function intro(id){const c=catOf(id),box=$('kdbox')||shell();G=null;$('kdn').tex
   $('kdmn').onclick=()=>{snd('back');menu()};
   $('kdgo').onclick=()=>{snd('lesson');start(c.id)}}
 /* 💡 ワンポイント レッスン（問題の 前に 毎回。 3行 ＋ 🔊 例） */
-const lesHtml=l=>`<div class="kdles"><p class="kdlt">💡 ワンポイント レッスン</p>${l.p.map(x=>`<p>${x}</p>`).join('')}</div>${l.ex?`<div class="mdens">${l.ex.map(e=>`<button class="mden" data-say="${esc(e[0])}"><span>🔊 ${esc(e[0])}</span><small>${esc(e[1])}</small></button>`).join('')}</div>`:''}`;
+const lesHtml=l=>`<div class="kdles"><p class="kdlt">💡 ワンポイント レッスン</p>${l.jp?`<p class="kdjp"><span>🇯🇵 ${l.jp[0]}</span><span>🔤 ${l.jp[1]}</span></p>`:''}${l.p.map(x=>`<p>${x}</p>`).join('')}</div>${l.ex?`<div class="mdens">${l.ex.map(e=>`<button class="mden" data-say="${esc(e[0])}"><span>🔊 ${esc(e[0])}</span><small>${esc(e[1])}</small></button>`).join('')}</div>`:''}`;
 function start(id){const c=catOf(id),p=plan(c);R.n=(R.n||0)+1;save();
   G={c,n:c.n,L:p.L,seenQ:p.seen,i:0,ok:0,fast:0,streak:0,best:0,miss:{},seen:0};ask()}
 function ask(){const g=G;if(!g||!$('kdbox'))return;if(g.i>=g.n)return finish();
