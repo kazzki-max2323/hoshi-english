@@ -20,6 +20,8 @@ function make(D,opt){opt=opt||{};
 const CH=D.CH,GID=D.gid,KEY=opt.key||('hoshi_unit_'+D.id),LK=opt.lk||'u_';
 const R=(()=>{try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&typeof s==='object')return s}catch(e){}return {}})();
 R.ch=R.ch||{};R.qs=R.qs||[];R.miss=R.miss||{};
+/* 「まず ちょっと 聞かせて」で とばした（sk）だけの 時間は やっていない あつかいに もどす（11/22 ユーザー: やっていないのに ✔） */
+Object.keys(R.ch).forEach(k=>{const c=R.ch[k];if(c&&c.sk&&!c.c)delete R.ch[k]});
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(R))}catch(e){}};
 /* セリフ: md_ などの その 単元だけの セリフが あれば それ、 なければ ふつうの u_ */
 const ML=(k,v)=>{v=Object.assign({u:D.title,N:CH.length},v||{});
@@ -64,12 +66,12 @@ function open(o){o=o||{};P=null;C={m:'menu'};R.n=(R.n||0)+1;R.t=Date.now();save(
 function menu(key){C={m:'menu'};P=null;hush();const box=shell('',null),nx=nextCh(),all=nx==null,G0=(()=>{try{return window.MPLAN&&MPLAN.gate?MPLAN.gate():null}catch(e){return null}})(),ld=lastDone(),lk=i=>!!G0&&!chDone(i)&&i>ld;
   const skN=CH.filter((c,i)=>chSkip(i)).length,k=key||(R.best>=3?'master':all?'allDone':skN?'skipped':'again'),[ex,tx]=ML(k,{k:skN});
   box.innerHTML=`${minaBox(ex,tx)}
+    ${doneN()?'<div class="mdrs"><button id="mdreset" class="sub">🔄 さいしょから やりなおす</button></div>':''}
     <div class="mdchs">${CH.map((c,i)=>`<button data-ch="${i}" class="${chSkip(i)?'skip':chDone(i)?'done':''}${i===nx?' now':''}${lk(i)?' lock':''}"><i>${chSkip(i)?'⏭':chDone(i)?'✔':lk(i)?'🔒':c.ico}</i><span><small>${i+1}時間目${chSkip(i)?'<em class="mdskip">とばした</em>':''}</small>${esc(c.t)}</span></button>`).join('')}</div>
     ${skN?'<p class="mdskipn">「とばした」は さいしょの 1問に 正解した 時間。 タップすれば いつでも 授業が うけられるよ</p>':''}
     <div class="mdgo2">${nx!=null?`<button id="mdstart">${nx?'▶ つづきから（'+(nx+1)+'時間目）':'▶ はじめる'}</button>`:''}
       ${opt.extra?`<button id="mdex" class="sub">${opt.extra[0]}</button>`:''}<button id="mdsum" class="sub">📄 まとめ 1まいで 見る</button>
-      <button id="mdtest" class="${all?'':'sub'}">📝 まとめテスト ${R.best?stars(R.best):''}</button>
-      ${doneN()?'<button id="mdreset" class="sub">🔄 さいしょから やりなおす</button>':''}</div>`;
+      <button id="mdtest" class="${all?'':'sub'}">📝 まとめテスト ${R.best?stars(R.best):''}</button></div>`;
   box.querySelectorAll('[data-ch]').forEach(b=>b.onclick=()=>{snd('step');chapter(+b.dataset.ch,0)});
   const s=$('mdstart');if(s)s.onclick=()=>{snd('lesson');chapter(nx,0)};
   $('mdtest').onclick=()=>{snd('step');test()};
@@ -236,13 +238,13 @@ function probe(p){P=p;const qs=CH.map((c,ci)=>{const q=shuffle(c.q)[0];return q}
   run(qs,{title:'🧭 まず ちょっと 聞かせて',say:ML('probe',{n:qs.length}),check:1,probe:1,
   /* 🤔 わからない: それまでに 1回で 正解した 時間は とばして、 この 問題の 時間を すぐ はじめる */
   jump:(q,T)=>{const ok=new Set(T.qs.slice(0,T.i).filter(x=>!T.bad.includes(x)&&!(T.bad2||[]).includes(x)).map(x=>x.c));
-    CH.forEach((c,ci)=>{if(ci&&ci!==q.c&&ok.has(ci)&&!chDone(ci))R.ch[ci]={d:1,c:0,sk:1}});R.pr=1;save();
+    R.pr=1;save();
     try{RECENT.add('unitDunno',{id:D.id,ci:q.c,t:CH[q.c].short,probe:1})}catch(e){}
     P=p;R.n=(R.n||0)+1;R.t=Date.now();save();chapter(q.c,0,ML('dunnoGo',{t:CH[q.c].short}))},
   end:(st,bad)=>{
     const miss=new Set(bad.concat(C.bad2||[]).map(q=>q.c));let sk=0;
     /* さいしょの 時間は かならず やる。 1回で 正解した 時間だけ 「もう わかる」に */
-    CH.forEach((c,ci)=>{if(ci&&!miss.has(ci)&&!chDone(ci)){R.ch[ci]={d:1,c:0,sk:1};sk++}});
+    /* 11/22: とばさない（やっていない 時間に ✔ が つくので）。 聞くだけ */
     R.pr=1;save();
     const [ex,tx]=ML(sk?'probeSkip':'probeAll',{k:sk});
     C={m:'end'};$('mdbox').innerHTML=`${minaBox(ex,tx)}<div class="mdnav"><button id="mdpr">▶ はじめよう</button></div>`;

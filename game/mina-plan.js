@@ -1,7 +1,7 @@
 /* 👩‍🏫 ミナ先生が えらんで はじめる しくみ（MPLAN）
    ユーザーの 希望（2026-11-20）: 「何分？」は なし。 えらぶのは ミナ先生。 全部で いくつ・のこり いくつは 見せない
    - 🔥 きょうの授業（大きく。 自動では はじまらない: ユーザーの 希望 11/20）: ちょっと ふくしゅう 2問 → いまの 単元の つぎの 1時間 → おまけ（音・ことば・勉強の コツの ミニ授業）
-       はじめての 単元は さいしょに 1問ずつ 聞いて、 わかる 時間は とばす（UNIT.probe）
+       はじめての 単元も 1時間目から（11/22: 「まず ちょっと 聞かせて」で とばすのは やめた）
    - 💪 特別授業: 苦手が いちばん 多い 単元を、 まちがえた 時間から 通しで
    - 📖 勉強: きょうの授業とは べつの 単元の 1時間（なければ 音・ことばの ミニ授業）
    - 📚 復習: 単元の まちがい → ミニ授業の まちがいノート → 苦手とっくん → 習った 単元 を じゅんばんに
@@ -45,7 +45,6 @@ function warmFrom(u){/* ほかの 単元（まちがいが ある もの 優先�
 function today(){const D=day(),I=todayInfo();if(!I)return;const u=I.u,label='🔥 きょうの 授業';
   const P={label,then:()=>D.done?null:omakeBtn(),done:()=>{D.done=1;D.n++;keep();try{RECENT.add('plan',{k:'today',u:u.id})}catch(e){}}};
   if(D.done){/* もう1時間: ふくしゅう・おまけ なし */P.then=null;u.go(P);return}
-  if(I.fresh&&u.D.CH.length>2&&!u.rec().pr){u.probe(P);return}
   const W=warmFrom(u),start=()=>u.go(Object.assign({},P,{test:I.test}));
   if(W)W.src.warmRun(W.qs,label,start);else start()}
 
@@ -69,7 +68,6 @@ function specialName(){const u=weakUnit();return u?u.D.title:''}
 function study(){const c=cur(),L=units().filter(u=>u!==c&&!u.done()),u=L.find(u=>u.started())||L[0];
   if(!u){const l=omake();if(l){SFX.lesson();LESSON.open(l.id,MINA.open)}else today();return}
   const P={label:'📖 勉強',then:()=>omakeBtn()};
-  if(!u.started()&&u.D.CH.length>2&&!u.rec().pr){u.probe(P);return}
   u.go(Object.assign(P,{test:u.nextCh()==null}))}
 
 /* ---------- 📚 復習: いろいろな ところから じゅんばんに 1つ ---------- */
