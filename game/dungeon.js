@@ -17,6 +17,9 @@ const ML=(k,v)=>{try{return MINA.line(k,v||{})}catch(e){return ['smile','']}};
 const DG=()=>{const r=C.rec();if(!r.dg||typeof r.dg!=='object')r.dg={best:0,ck:{},runs:0,falls:0,it:{}};r.dg.ck=r.dg.ck||{};r.dg.it=r.dg.it||{};return r.dg};
 const save=()=>C.save();
 const HPMAX=80;
+/* 11/22: 下の 階へ 進むだけで ❤が へる（深いほど 多い）。 休憩所の たき火は 少しだけ */
+const stepCost=f=>Math.min(14,5+Math.floor(f/15));
+const REST_HEAL=2;
 const hp=()=>{try{return FOOD.hp()}catch(e){return D?D.hp0:HPMAX}};
 const setHp=n=>{try{FOOD.setHp(n)}catch(e){if(D)D.hp0=n}};
 const word=I=>String(I.en).split(',')[0].trim();
@@ -35,6 +38,9 @@ const DG_ITEMS={
  potion:{ico:'🧪',n:'元気の くすり',s:'❤ +40'},
  charm:{ico:'🧿',n:'しあわせの お守り',s:'この 階の できごとが いい ほうに かたよる'}};
 const itN=id=>DG().it[id]||0;
+/* 11/22: 拾った アイテムは 絵文字だけで なく タップで 名前と はたらきが わかる チップに */
+const itChips=o=>Object.keys(o).filter(k=>o[k]>0&&DG_ITEMS[k]).map(k=>`<button class="dgchip" data-iti="${k}">${DG_ITEMS[k].ico}<b>${DG_ITEMS[k].n}</b>${o[k]>1?`×${o[k]}`:''}</button>`).join('');
+const bindChips=()=>H.panel.querySelectorAll('[data-iti]').forEach(b=>b.onclick=e=>{e.stopPropagation();const t=DG_ITEMS[b.dataset.iti];sf('pop');H.toast(`${t.ico} <b>${esc(t.n)}</b><small>${esc(t.s)}<br>🎒 アイテムから いつでも つかえる</small>`,4200)});
 const itAdd=(id,n=1)=>{DG().it[id]=itN(id)+n;save()};
 const itTake=id=>{if(!itN(id))return false;DG().it[id]--;if(DG().it[id]<=0)delete DG().it[id];save();return true};
 
@@ -44,7 +50,7 @@ const PATHS=[
  {k:'dark',ico:'🌑',n:'暗い 道',s:'わなが 多い。 宝も 多い',ev:.8,trap:.3,tr:1.6},
  {k:'water',ico:'💧',n:'水の 道',s:'いずみと 宝石が 多い',ev:.65,trap:.12,tr:1,spring:1},
  {k:'rail',ico:'🛤️',n:'古い 線路',s:'トロッコで 何階も 下りられる かも…',ev:.6,trap:.2,tr:1,rail:1},
- {k:'glow',ico:'✨',n:'光る 穴',s:'原石が 見つかりやすい',ev:.7,trap:.18,tr:1,ore:1},
+ {k:'glow',ico:'✨',n:'光る 穴',s:'原石が とても 見つかりやすい',ev:.7,trap:.18,tr:1,ore:1},
  {k:'door',ico:'🚪',n:'かぎの 扉',s:'かぎが いる。 中は 宝の へや',ev:.9,trap:.05,tr:2.2,key:1}];
 const pathOf=k=>PATHS.find(p=>p.k===k)||PATHS[0];
 
@@ -68,7 +74,7 @@ function open(){const G=DG(),h=hp();
     ${cks.map(f=>`<button class="dgck sub" data-ck="${f}" ${h>0?'':'disabled'}>🪜 地下${f}階から <b>🪙${ckCost(f)}</b></button>`).join('')}
     ${bagLine()}
     <details class="shmore"><summary>鉱山の しくみ</summary><ol class="mncs">
-      <li>ことば 5つに 2問ずつ 答えると、 1階 下へ。 階段の 下で 休める</li>
+      <li>ことば 5つに 2問ずつ 答えると、 1階 下へ。 階段を おりるたびに ❤が へる（深いほど 多い）。 休憩所の たき火は ❤+2だけ</li>
       <li>まちがえると ❤が へる。 ❤0で たおれると、 その回に 拾った 物の 半分を なくす（帰れば ぜんぶ もちかえれる）</li>
       <li>階ごとに 分かれ道。 ことば 1つごとに 宝・🪨原石・わな・しかけ…（さけられない わなも ある）</li>
       <li>🎒 アイテムは いつでも つかえる。 ここだけの アイテムも たくさん</li>
@@ -125,7 +131,7 @@ function nextWord(){D.wi++;D.wi>=5?stairs():ask()}
 
 /* ================================================================ できごと（ことば 1つ ごと） */
 function encounter(go){const p=pathOf(D.path),r=Math.random();if(r>p.ev+(D.b.charm?.1:0))return go();
-  const W=[['gem',30],['chest',10*p.tr],['ore',(p.ore?14:6)],['tcard',3*p.tr],['item',5*p.tr],['trap',p.trap*100*(D.b.charm?.5:1)],['spring',p.spring?14:4],['gamble',5],['merchant',3],['echo',8],...(p.rail?[['rail',12]]:[]),...(nightDeep()?[['ghost',4]]:[])];
+  const W=[['gem',30],['chest',10*p.tr],['ore',(p.ore?30:12)],['tcard',3*p.tr],['item',5*p.tr],['trap',p.trap*100*(D.b.charm?.5:1)],['spring',p.spring?14:4],['gamble',5],['merchant',3],['echo',8],...(p.rail?[['rail',12]]:[]),...(nightDeep()?[['ghost',4]]:[])];
   const tot=W.reduce((a,w)=>a+w[1],0);let x=Math.random()*tot,k='echo';for(const [n,w] of W){if(x<w){k=n;break}x-=w}
   EV[k](go)}
 const nightDeep=()=>{try{const h=GH();return h<4}catch(e){return false}};
@@ -194,17 +200,25 @@ function stairs(){if(!D)return;D.floor++;rest()}
 function rest(skip){if(!D)return;const G=DG(),f=D.floor;D.b.luck=0;D.b.mag=0;D.b.charm=0;
   let ck='';if(f%100===0&&!G.ck[f]){G.ck[f]=1;ck=`<p class="dgckn">🪜 地下${f}階の 区切りが ひらいた！ 次からは コインで ここから はじめられる</p>`;try{SFX.fanfare(3)}catch(e){}}
   if(f>G.best)G.best=f;save();
-  const rec=4,h0=hp();setHp(Math.min(HPMAX,h0+rec));
-  const L=pickL(REST_MIO),g=D.got;
+  const rec=REST_HEAL,h0=hp();setHp(Math.min(HPMAX,h0+rec));
+  const cost=stepCost(f),lowHp=hp()<=cost*2,L=pickL(lowHp?REST_MIO_LOW:REST_MIO),g=D.got;
+  /* 階段の わきの 原石（2わり） */
+  let ore1=false;if(!skip&&Math.random()<.2){const id=oreWord(f);if(id){g.ore.push(id);ore1=true}}
   H.show('cg',`<section class="pnl cgp shp dgp" data-stay>${hdr()}
     <div class="dgrest"><span>🏕️</span><b>地下${f}階の 休憩所</b><small>たき火で ひとやすみ ❤ +${rec}</small></div>${ck}
     <div class="kmina mnmio"><span class="lface">${MIO.face('smile')}</span><p>📡 <b>${esc(L[0])}</b><br><small>${esc(L[1])}</small></p></div>
-    <p class="dgsum">ここまで: 🪙${g.coins} ${g.ore.length?`・ 🪨原石 ${g.ore.length}`:''} ${g.cards.length?`・ 🎁宝カード ${g.cards.length}`:''} ${Object.keys(g.it).length?`・ ${Object.keys(g.it).map(k=>DG_ITEMS[k].ico).join('')}`:''}</p>
-    <button id="dgdown" class="mngo"><span class="mngoi">⬇️</span><span class="mngot2">地下${f}階へ すすむ</span></button>
+    <p class="dgsum">ここまで: 🪙${g.coins} ${g.ore.length?`・ 🪨原石 ${g.ore.length}`:''} ${g.cards.length?`・ 🎁宝カード ${g.cards.length}`:''} </p>${Object.keys(g.it).some(k=>g.it[k]>0)?`<div class="dgchips"><small>拾った アイテム（タップで せつめい）</small>${itChips(g.it)}</div>`:''}
+    ${ore1?`<p class="dgore1">🪨 階段の わきで 原石を 見つけた！</p>`:''}
+    <button id="dgdown" class="mngo"><span class="mngoi">⬇️</span><span class="mngot2">地下${f}階へ すすむ</span><small>❤ -${cost}</small></button>
     <div class="row dgfoot"><button class="sub" id="dgbag2">🎒 アイテム</button><button id="dgback" class="sub">🏠 帰る（ぜんぶ もちかえる）</button></div></section>`);
   bindTop();$('dgbag2').onclick=()=>{sf('open');bag()};$('dgback').onclick=()=>{sf('step');finish('home')};
-  $('dgdown').onclick=()=>{if(hp()<1){H.toast('❤が ないよ。 食べ物で 回復しよう');return}sf('step');branch()};
+  bindChips();
+  $('dgdown').onclick=()=>{if(hp()<=cost){sf('wrong');H.toast(`❤が たりないよ（すすむには ❤${cost+1}いじょう）<small>🎒の 食べ物で 回復するか、 🏠 帰ろう</small>`,4200);return}
+    const h=hp()-cost;setHp(h);sf('step');H.toast(`⬇️ 階段を おりた ❤ -${cost}`,1600);
+    if(!G.stepTold){G.stepTold=1;save();const [,tx]=ML('dg_step',{n:cost});if(tx)setTimeout(()=>H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,5200),900)}
+    branch()};
   if(f===101||f===201)setTimeout(()=>{const [,tx]=ML(f===101?'dg_jh':'dg_hs');if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4800)},700)}
+const REST_MIO_LOW=[["Boss, your heart is low! Please come home.","店長、 ❤が 少ないよ！ もう 帰ってきて"],["Going down takes energy. Eat something, OK?","下りるだけでも つかれるよ。 何か 食べてね"],["I'm worried… The shop needs you!","しんぱいだよ… お店には 店長が ひつようなんだから！"]];
 const REST_MIO=[["Boss, are you OK? Don't push too hard!","店長、 だいじょうぶ？ むりしないでね！"],["I can hear you on the radio! The shop is fine. Mio is on it!","無線、 聞こえてます！ お店は だいじょうぶ。 ミオに おまかせ！"],["Did you find any stones? Bring them home safe!","原石、 見つかった？ ぶじに もって帰ってきてね！"],["Eat something warm. Over and out!","あったかい もの 食べてね。 以上、 通信おわり！"],["How deep are you? Wow… Be careful!","いま 何階？ わあ… 気をつけて！"]];
 
 /* ================================================================ たおれた → 浜辺で 見つかる（半分 なくす） */
@@ -232,17 +246,18 @@ function finish(why,lost){if(!D)return;const d=D;D=null;C.closeOv();const g=d.go
     ${fall?`<p class="dgfall">たおれている ところを ミオに 見つけてもらった。 ❤10で 気が ついた</p>
       <div class="dglost"><b>なくした 物（半分）</b><p>${lost.coins?`🪙${lost.coins} `:''}${lost.ore.length?`🪨原石 ${lost.ore.length} `:''}${lost.cards.length?`🎁宝カード ${lost.cards.length} `:''}${Object.keys(lost.it).filter(k=>lost.it[k]).map(k=>DG_ITEMS[k].ico+'×'+lost.it[k]).join(' ')}${!lost.coins&&!lost.ore.length&&!lost.cards.length&&!Object.keys(lost.it).length?'なし':''}</p></div>`:''}
     <div class="mnres"><p>🪜 地下${d.from}階 → 地下${d.floor}階 ・ ${d.q}問中 <b>${d.ok}</b>問 正解</p>
-      <p>${g.coins?`🪙 +${g.coins} `:''}${oreN?`🪨 原石 ${oreN}こ `:''}${g.cards.length?`🎁 宝カード ${g.cards.length}まい `:''}${it.map(k=>DG_ITEMS[k].ico+'×'+g.it[k]).join(' ')}</p></div>
+      <p>${g.coins?`🪙 +${g.coins} `:''}${oreN?`🪨 原石 ${oreN}こ `:''}${g.cards.length?`🎁 宝カード ${g.cards.length}まい `:''}</p>${it.length?`<div class="dgchips">${itChips(g.it)}</div>`:''}</div>
     ${g.cards.length?`<div class="mnhand sm">${g.cards.map(id=>`<div class="mnt" data-id="${esc(id)}">${C.face(id,{mini:1,marks:false})}</div>`).join('')}</div>`:''}
     ${oreN?'<p class="note">🪨 原石は お店の 下の 作業台で みがくと カードに なるよ</p>':''}
     <div class="kmina"><span class="lface">${MINA.face('m',ex)}</span><p>${tx}</p></div>
     <button id="dgok" class="big">🃏 お店に もどる</button></section>`);
-  C.peekIn(H.panel.querySelector('.mnhand'),{from:'mine'});
+  C.peekIn(H.panel.querySelector('.mnhand'),{from:'mine'});bindChips();
   $('dgok').onclick=()=>{sf('step');SHOP.open()};
   sf(fall?'step':'done')}
 
 /* ================================================================ ミナ先生 */
 Object.assign(MINA_LINES,{
+ dg_step:[['point','階段を おりると ❤が {n} へるよ。 深く なるほど たくさん へるから、 ❤が 少なく なったら 休憩所で 「帰る」 を えらぼう'],['think','下へ 行くだけでも ❤を つかうの。 食べ物を もっていくと 深くまで 行けるよ']],
  dg_new:[['wow','鉱山が 新しく なったよ！ ことば 5つに 2問ずつ 答えて どんどん 下へ。 分かれ道・宝・わな… なにが あるかは 運しだい！'],['point','まちがえると ❤が へるよ。 ❤0で たおれると 拾った 物の 半分を なくすから、 あぶなく なったら 帰ろうね']],
  dg_open:[['smile','さあ、 きょうは 何階まで 行けるかな？ 最高は 地下{f}階'],['think','あぶないと 思ったら 休憩所で 「帰る」。 帰れば ぜんぶ もちかえれるよ']],
  dg_open2:[['happy','鉱山は 答えれば 答えるほど 深く 行ける。 たくさん 練習しよう！'],['point','🎒 アイテムは 問題の とちゅうでも つかえるよ。 🫙 ほたるの びんは こたえが 光るの']],
