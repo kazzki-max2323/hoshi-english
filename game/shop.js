@@ -374,11 +374,11 @@ function pause(T){if(!T)return;const box=$('shact');T.alive=false;T.paused=Date.
   if(T.talk&&T.talk.alive&&box&&box.querySelector('button'))T.keep=box;else if(T.talk){T.talk.alive=false;T.talk=null}}
 function toFloor(){pause(CT);floor()}
 function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.paused<15*6e4?CT:null;if(CT){CT.alive=false;if(!old&&CT.talk){CT.talk.alive=false;CT.talk=null}}const S=SH();cleanFloor();
-  const dayN=window.ORE&&!old?ORE.daily():0;
+  const hrO=window.HOURS?HOURS.isOpen('cg'):true,hrP=window.HOURS&&HOURS.isPrep('cg');
   H.show('cg',`<section class="pnl cgp shp shctr shmain">${top('🃏 カードショップ',`きょう 🪙${S.tday===C.today()?S.tearn:0}`,'cgx')}
     <div class="shstage"><canvas id="shcv" width="${W}" height="${HH}"></canvas><div class="shcase" id="shcase"></div><div class="shnotes" id="shnotes"></div><div class="shfls" id="shfls"></div></div>
     <div class="shnav">${navBtns()}</div>
-    <p class="shst" id="shst">🔔 お店を あけたよ。 レジは ミオに まかせて、 原石を みがこう</p>
+    <p class="shst" id="shst">${hrO?'🔔 開店中。 レジは ミオに まかせて、 原石を みがこう':hrP?'🧹 開店 じゅんび中（9時 開店）。 原石の 作業は いつでも できるよ':'🌙 閉店中（9時〜21時）。 原石の 作業は いつでも できるよ'}</p>
     <div id="shact" class="shact"></div>
     <div id="orebox" class="orebox"></div></section>`);
   const cv=$('shcv'),c=cv.getContext('2d');c.imageSmoothingEnabled=false;
@@ -419,7 +419,8 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
   if(window.ORE)ORE.bench($('orebox'),{
     done:id=>{T.mio.pose='cheer';T.mio.until=Date.now()+3000;const I=C.info(id);status(`✨ 「${esc(I?cnm(I):'')}」の カードが できた！`);mut(T,'m',pickL(ORE_MIO_OK),4200,1)},
     toFloor:id=>{const s=SH();if(s.floor.length>=FLOOR_N)return 'full';s.floor.push(id);save();refreshNav(T);return 'ok'}});
-  if(dayN)setTimeout(()=>{if(T.alive)mut(T,'m',ORE.dayLine(dayN),5200,1)},1400);
+  T.wasOpen=hrO;
+  if(!hrO&&!old&&window.HOURS)setTimeout(()=>{if(T.alive)mut(T,'m',pickL(hrP?MIO_PREP:MIO_CLOSED),4800,1)},1400);
   else if(!S.floor.length)setTimeout(()=>status('🏷️ 売り場が からっぽ… 🏷️から カードを ならべよう'),1200)}
 /* 店の 画面の 小さな ボタンの 列 */
 const refreshNav=T=>{const nv=H.panel.querySelector('.shnav');if(nv&&T.alive){nv.innerHTML=navBtns();bindNav(T)}};
@@ -429,6 +430,11 @@ function bindNav(T){const P=()=>pause(T);
   const A={floor:()=>{P();floor()},store:()=>{P();store()},book:()=>{P();CBOOK.open()},mine:()=>{T.alive=false;MINE.open()},talk:()=>{P();MIOC.open(open)},gift:()=>{P();GIFT.pick({to:'mio',back:open})},bgm:()=>{P();bgm()}};
   H.panel.querySelectorAll('[data-n]').forEach(b=>b.onclick=()=>{sf('step');A[b.dataset.n]()});
   if(window.HORROR){const hb=$('hrbk');if(hb){HORROR.frontBind(open);const g=hb.onclick;hb.onclick=()=>{P();g&&g()}}}}
+const hrMina=k=>{try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<.35){const [ex,tx]=ML(k);if(tx)setTimeout(()=>MINA.say('m',ex,tx,6000),2500)}}catch(e){}};
+const MIO_OPEN=[["We're open! Welcome to Shiosai!","開店でーす！ しおさいへ ようこそ！"],["Open sign, on! Let's have a nice day, boss.","OPENの 札、 よし！ いい 1日に しましょう、 店長。"]];
+const MIO_CLOSE=[["Closing time! Good work today, boss.","閉店の 時間！ きょうも おつかれさまでした、 店長。"],["I'll turn the sign to CLOSED. You can keep polishing, OK?","札を CLOSEDに しますね。 原石は そのまま みがいて いいですよ。"]];
+const MIO_PREP=[["Good morning! We open at nine. Did you pick up stones on the beach?","おはようございます！ 9時に 開店です。 浜辺で 原石、 ひろってきました？"],["Getting ready… I'll wipe the counter. You can polish stones!","開店じゅんび… わたしは カウンターを ふきますね。 店長は 原石を どうぞ！"]];
+const MIO_CLOSED=[["We're closed, but the workbench is always open for you.","閉店中だけど、 作業台は いつでも あいてますよ。"],["It's quiet after closing. Perfect for polishing stones.","閉店後は しずか。 原石みがきに ぴったりですね。"]];
 const ORE_MIO_OK=[["A new card! Nice work, boss!","新しい カード！ おつかれさま、 店長！"],["Wow, shiny! I'll make room on the shelf.","わあ、 ぴかぴか！ 売り場、 あけておきますね。"],["You did it! That one looks great.","やったね！ その カード、 すてき。"]];
 /* 売り場から もどったとき: さっきの つづき */
 function resume(T){if(T.keep){const k=T.keep;T.keep=null;if(T.talk&&T.talk.alive)$('shact').replaceWith(k);else T.talk=null}
@@ -455,6 +461,9 @@ function mioIdle(T){const m=T.mio,now=Date.now();if(now<m.until||m.walk)return;i
 /* the guest walks: door → shelf → table → (counter) → door */
 function step(T){const now=Date.now();mioIdle(T);
   if(!T.g&&window.HORROR&&HORROR.step(T,now))return;
+  /* 🕘 開店・閉店（game/hours.js）: 閉まっている あいだは お客さんが 来ない */
+  const op=window.HOURS?HOURS.isOpen('cg'):true;if(op!==T.wasOpen){T.wasOpen=op;if(op){T.next=Math.min(T.next,now+6000);T.status('🔔 開店！ レジは ミオに まかせて、 原石を みがこう');mut(T,'m',pickL(MIO_OPEN),4200,1);hrMina('hr_cgOpen')}else{T.status('🌙 閉店の 時間。 原石の 作業は いつでも できるよ');mut(T,'m',pickL(MIO_CLOSE),4200,1);hrMina('hr_cgClosed')}}
+  if(!T.g&&!op){T.next=Math.max(T.next,now+5000);return}
   if(!T.g){const tk=T.talk&&!T.talk.done;if(tk)T.next=Math.max(T.next,now+8000);if(now>=T.next&&!T.busy&&!tk){const G=pickL(GUESTS);
       /* 4〜5人に 1人くらいは カードを 売りに 来る お客さん（続けては 来ない。 そのあとの お客さんは 早めに 来る） */
       const seller=false;   // 11/22: 仕入れ・買い取りは なし（カードは 原石から だけ）T.lastSeller=seller;

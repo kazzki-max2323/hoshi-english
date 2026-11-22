@@ -341,3 +341,10 @@
 .shmain .shst{font-size:.78rem;margin:2px 0 6px}
 /* 作業台を スクロールしても お店が 見えるように */
 .shmain .shstage{position:sticky;top:0;z-index:4}
+/* 🕘 閉まっている お店（game/hours.js） */
+.hrstag{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%) rotate(-4deg);font:800 9px/1 sans-serif;font-style:normal;letter-spacing:.5px;color:#fff;background:#7a3a2a;border:1px solid #f0d6b0;border-radius:3px;padding:2px 4px;pointer-events:none;text-shadow:none}
+.hrsp{text-align:center}
+.hrssign{display:inline-flex;flex-direction:column;align-items:center;margin:14px auto 10px;padding:10px 26px;background:#7a3a2a;border:3px solid #f0d6b0;border-radius:10px;transform:rotate(-3deg);text-shadow:none}
+.hrssign b{font-size:1.8rem;letter-spacing:2px;color:#fff}.hrssign small{color:#ffe8c8}
+.hrsen{font-weight:800;margin:6px 0 2px;text-shadow:none}.hrsja{margin:0 0 10px;opacity:.9;text-shadow:none}
+.hrst{font-size:.85rem;margin:0 0 12px}

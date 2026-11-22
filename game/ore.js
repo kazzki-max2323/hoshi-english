@@ -3,7 +3,7 @@
    - 1まい 12問くらい（約5分）。 アルファベットの ならべかえが 中心で、 あいだに 意味・聞きとり・英語で・つづり の 4択
    - まちがえたり 🤔わからない を つかうと、 さいごに ならべかえが 1問 ふえる（3問まで。 失敗は なし）
    - 仕上がった カードは 📖ブックに 自動で 記録（ブックは 図鑑。 カードは 減らない・ブックから 出せない）。 カードは 🏷️売り場へ か 📦倉庫へ
-   - 原石は 1日 5つくらい（いまは 開店前に ミオと ひろってきた 形。 浜辺・海で ひろう 形は 第2弾）と ⛏️鉱山で 見つかる 分
+   - 原石は 浜辺・波うちぎわで 1日 5こ（タップで ひろう）と ⛏️鉱山で 見つかる 分
    - 練習の あいだは イベントも ミオの わりこみも なし（単語の 習得 いちばん）
    保存は CG の 記録 C.rec().ore = {q:[{id,p,x,src,at}], day, done} */
 (()=>{
@@ -31,9 +31,31 @@ function pickNew(lv){const my=Math.max(0,LVK.indexOf(lv||C.myLv())),r=Math.rando
 function add(id,src){if(!id||has(id)||!C.info(id))return false;R().q.push({id,p:0,x:0,src:src||'',at:Date.now()});save();return true}
 /* 鉱山で 見つかった 原石（game/mine.js）。 単語カードは ここに 来る */
 const fromMine=id=>{const I=C.info(id);if(!I||I.k!=='w'||!okWord(I)||recd(id))return false;return add(id,'mine')};
-/* その日の 原石（開店前の カード あつめ）。 ふえた 数を かえす */
-function daily(){const O=R(),d=C.today();if(O.day===d)return 0;O.day=d;let n=0;
-  for(let k=0;k<DAY_N&&O.q.length<HOLD_MAX;k++){const id=pickNew();if(id&&add(id,'day'))n++}save();return n}
+/* ================================================================ 🏖️ 浜辺と 海の 原石（1日 5こ。 砂の 上に 3こ・波うちぎわに 2こ。 タップで ひろう）
+   その日の 置き場所は O.bs（[{x,y,sea}]、 浜辺の 窓の 中の わりあい）。 ひろったら 消える */
+function shoreY(){try{const d=SCENE.dbg();return (d.shore-d.WT)/d.WH}catch(e){return .6}}
+function makeSpots(){const out=[],far=(x,y)=>out.every(o=>Math.abs(o.x-x)>.1||Math.abs(o.y-y)>.06)&&(ST.radios||[]).every(r=>r.x==null||Math.abs(r.x-x)>.07||Math.abs(r.y-y)>.06);
+  for(let t=0;t<400&&out.length<3;t++){const x=.06+Math.random()*.88,y=.68+Math.random()*.2;let ok=true;try{ok=H.okSpot(x,y)}catch(e){}if(ok&&far(x,y))out.push({x:+x.toFixed(3),y:+y.toFixed(3),sea:0})}
+  for(let t=0;t<200&&out.length<DAY_N;t++){const x=.08+Math.random()*.84,dy=.012+Math.random()*.02;if(far(x,shoreY()-dy))out.push({x:+x.toFixed(3),y:dy,sea:1})}
+  return out}
+function spots(){const O=R(),d=C.today();if(O.bday!==d){O.bday=d;O.bs=makeSpots();save()}return Array.isArray(O.bs)?O.bs:(O.bs=[])}
+let layer=null;
+function beach(){const w=document.getElementById('window');if(!w)return;
+  if(!layer||!layer.isConnected){layer=document.createElement('div');layer.id='oreBeach';w.appendChild(layer)}
+  let met=false;try{met=!!SHOP.rec().met}catch(e){}
+  const L=met?spots():[],sy=shoreY(),home=H.screen==='home';layer.classList.toggle('off',!home);
+  const key=L.map(o=>o.x+','+o.y).join('|')+'@'+sy.toFixed(3);if(layer._k===key)return;layer._k=key;
+  layer.innerHTML=L.map((o,i)=>`<button class="orebs ${o.sea?'sea':''}" data-i="${i}" style="left:${o.x*100}%;top:${((o.sea?sy-o.y:o.y)*100).toFixed(2)}%" aria-label="原石"><i></i></button>`).join('');
+  layer.querySelectorAll('.orebs').forEach(b=>b.onclick=e=>{e.stopPropagation();if(H.screen!=='home')return;pick(+b.dataset.i,b)})}
+function pick(i,b){const L=spots(),o=L[i];if(!o)return;
+  if(R().q.length>=HOLD_MAX){sf('pop');H.toast('🪨 作業台が いっぱい<small>カードショップで みがいてから また ひろおう</small>');return}
+  const id=pickNew();if(!id){H.toast('🪨 もう 原石に なる ことばが ないみたい');return}
+  L.splice(i,1);add(id,o.sea?'sea':'beach');save();sf('pickup');
+  b.classList.add('got');setTimeout(()=>{layer._k='';beach()},450);
+  const left=L.length;H.toast(`🪨 ${o.sea?'波うちぎわで ':''}原石を ひろった！<small>${left?`きょうは あと ${left}こ ・ `:'きょうの 分は ぜんぶ ・ '}🃏 お店の 作業台で みがこう</small>`,2600);
+  const O=R();O.picked=(O.picked||0)+1;save();
+  if(O.picked===1)mina('ore_beach',{},1);else if(!left)mina('ore_beachAll',{},.6)}
+setInterval(beach,2500);setTimeout(beach,1200);try{H.on('home',()=>setTimeout(beach,0))}catch(e){}
 
 /* ================================================================ 12問の ならび（ならべかえが 中心） */
 const STEPS=['see','arr','mean','arr','listen','arr2','rev','arr2','spell','arr3','ear','arr3'];
@@ -149,11 +171,7 @@ const DONE=[["It's finished! Look how it shines, boss!","できた！ 見て、 
  ["Done! I'm sure you'll never forget this word now.","完成！ この ことば、 もう ぜったい わすれませんね。"],
  ["Beautiful! This one goes in the book, right?","きれい！ これも ブックに 記録ですね。"],
  ["You made a card from a stone. That's real magic, boss.","石から カードを つくっちゃった。 店長、 まほう使いみたい。"]];
-const EMPTY=['あしたの 朝、 また ミオと 原石を ひろいに 行こう','⛏️ 鉱山でも 原石が 見つかるよ','いまは お店の ようすを ながめて ひとやすみ'];
-const DAY_MIO=[["Good morning, boss! We picked up {n} stones before opening. Let's polish them!","おはよう、 店長！ 開店前に 原石を {n}こ ひろいましたね。 みがきましょう！"],
- ["Look, {n} new stones today! I wonder what words are inside.","見て、 きょうの 原石が {n}こ！ 中に どんな ことばが ねむってるかな。"],
- ["{n} stones from this morning. One at a time, slowly is best.","けさの 原石が {n}こ。 1つずつ、 ゆっくりが いちばんですよ。"]];
-const dayLine=n=>{const x=pickL(DAY_MIO);return [x[0].replace('{n}',n),x[1].replace('{n}',n)]};
+const EMPTY=['🏖️ 浜辺や 波うちぎわで 光っている 原石を ひろってこよう（1日 5こ）','⛏️ 鉱山でも 原石が 見つかるよ','いまは お店の ようすを ながめて ひとやすみ'];
 
 /* ================================================================ ミナ先生 */
 Object.assign(MINA_LINES,{
@@ -161,6 +179,8 @@ Object.assign(MINA_LINES,{
  ore_first:[['proud','はじめての カード、 仕上がったね！ 「{w}」は もう きみの ことば'],['happy','原石が カードに なった！ 「{w}」、 声に 出して 言えるかな？']],
  ore_done:[['happy','「{w}」も 仕上がったね。 これで {n}まい目'],['smile','ならべかえで つづりを 手で 覚えるの、 いいでしょ？ 「{w}」、 もう 書けるね'],['proud','{n}まい目の カード！ 少しずつ、 でも 確かに ふえてるよ']],
  ore_allDone:[['proud','きょうの 原石、 ぜんぶ 仕上がったね！ よく がんばりました'],['happy','原石 ぜんぶ カードに なった！ あとは お店を ながめて ひとやすみしよう']],
+ ore_beach:[['wow','原石を ひろったね！ 浜辺と 波うちぎわに 1日 5こ 光ってるよ。 カードショップの 作業台で みがいてね'],['point','ひろった 原石は お店の 作業台へ。 開店前に ひろって、 開店したら みがく。 店長の 1日だね']],
+ ore_beachAll:[['happy','きょうの 原石、 ぜんぶ ひろったね！ あとは お店で ゆっくり みがこう'],['smile','5こ ぜんぶ ひろえたね。 あしたの 朝も また 光ってるよ']],
  ore_mine:[['wow','鉱山で 原石を 見つけたね！ お店の 作業台で みがくと カードに なるよ'],['smile','ほった 原石は お店の 作業台へ。 ならべかえで みがいてね']],
  x_ore:[['smile','カードショップに 原石が {n}こ まってるよ。 1つ みがきに 行く？'],['think','作業台の 原石、 1つだけでも みがいてみない？ 5分くらいで カードに なるよ']]});
 const goBench=()=>['🪨 作業台へ',()=>CG.open()];
@@ -171,5 +191,5 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
 Object.assign(MINA_LINES,{r_ore:[['proud','さっき 原石を みがいて 「{w}」の カードに したね。 「{ja}」、 もう 書けるかな？'],['happy','「{w}」の カード、 できたね！ つづりを 手で 覚えると わすれにくいよ'],['smile','作業台で 「{w}」を 仕上げたね。 ゆっくり 1つずつで いいからね']]});
 try{(window.MINA_REACT_EXT=window.MINA_REACT_EXT||{}).ore={act:e=>e.en?['r_ore',{w:e.en,ja:e.ja||''},goBench()]:null,desc:e=>`原石を みがいて 「${e.en||''}」の カードに した`}}catch(e){}
 
-window.ORE={bench,list,add,has,daily,fromMine,pickNew,rec:R,dayLine,word,recd,total,STEPS};
+window.ORE={bench,list,add,has,spots,fromMine,pickNew,rec:R,word,recd,total,STEPS};
 })();
