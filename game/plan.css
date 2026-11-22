@@ -127,3 +127,12 @@ body.fab-on #prteach .dpp{padding-bottom:74px}
 .kdsj{border:2px solid #7c6bd6;border-radius:8px;padding:0 5px;background:#efeaff}
 .kdja.kden2 u{text-decoration:none;border-bottom:3px solid #e8590c;color:#c2410c}
 .kdteach{margin-top:0!important}
+/* 🇯🇵 日本語と ちがう ところ・ワンポイント・まよったら ひとこと・つまずき（game/drill-jp.js） */
+.kdgh{margin:4px 2px -2px;font-size:.85rem;color:#ffe7a8}
+.kdles{background:#f7f3ff;color:#2a2340;text-shadow:none;border-radius:12px;padding:10px 14px;font-size:.88rem;line-height:1.6}
+.kdles p{margin:0}.kdles p+p{margin-top:5px}.kdles b{color:#c2410c}.kdlt{font-weight:800;color:#5b4b8a;margin-bottom:6px!important}
+.kdgl{display:block;font-family:inherit;font-size:.85rem;font-weight:700;color:#5b4b8a;margin-top:2px}
+.kdthink{display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;background:#fff6e0;color:#2a2340;text-shadow:none;border-radius:12px;padding:8px 12px;animation:lsin .25s ease-out}
+.kdthink .lface{flex:none;width:40px;height:40px}.kdthink .lface svg{width:100%;height:100%}
+.kdthink p{margin:0;font-size:.9rem;font-weight:700;line-height:1.5}.kdthink small{display:block;font-size:.75rem;color:#7c6bd6}
+.kdmis{margin:4px 0 2px!important;font-family:inherit!important;font-size:.9rem!important;font-weight:700;color:#b45309;line-height:1.5;text-align:left}

@@ -149,11 +149,11 @@ function layer(title){let t=$('prteach');if(t)t.remove();t=document.createElemen
 /* q = 単元の 問題（o[0] が 正解）、 u = 単元、 ci = 時間 */
 function teach(q,u,ci){if(ci==null)ci=q.c;const box=layer('🤔 教えて'),good=q.o[0],f=fullOf(q),c=u&&u.D.CH[ci];
   R.te=(R.te||0)+1;save();try{RECENT.add('teach',{u:u&&u.id,ci,t:c&&c.short})}catch(e){}
-  const [ex,tx]=ML('te_open',{t:c?c.short:''});
+  const [ex,tx]=ML(c?'te_open':'te_open0',{t:c?c.short:''});
   const others=q.o.slice(1).map(o=>{const w=whyOf(q,o),bad=q.s?q.s.replace('___',o):o;
     return `<li><s>${esc(q.s?bad:o)}</s><span>${w?esc(w):'これは 使えない 形。 上の ルールと くらべてみてね'}</span></li>`}).join('');
   box.innerHTML=`${minaBox(ex,tx)}
-    <div class="mdcard prtc"><p class="prth">⭕ 正しい 答え</p>${f?enBtn(f,q.ja||''):`<p class="prtgood">${esc(good)}</p>`}${q.p&&f?`<small class="mdja">${esc(q.p)}</small>`:''}</div>
+    <div class="mdcard prtc"><p class="prth">⭕ 正しい 答え</p>${f?enBtn(f,q.ja||''):`<p class="prtgood">${esc(good)}</p>`}${q.p?`<small class="mdja">${esc(q.p)}</small>`:''}</div>
     <div class="mdcard prtc"><p class="prth">👀 見る ところ</p><p>${esc(q.h)}</p></div>
     <div class="mdcard prtc"><p class="prth">📘 なぜ 「${esc(good)}」？</p><p>${esc(q.e)}</p></div>
     <div class="mdcard prtc"><p class="prth">🙅 ほかの 答えは なぜ ちがう？</p><ul class="prtno">${others}</ul></div>
