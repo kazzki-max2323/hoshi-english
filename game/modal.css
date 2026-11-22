@@ -108,3 +108,5 @@
 .mdchs button.skip i{opacity:.7}
 .mdskip{font-style:normal;margin-left:6px;padding:0 6px;border-radius:6px;background:rgba(255,255,255,.14);font-size:.68rem}
 .mdskipn{margin:6px 2px 0;font-size:.74rem;opacity:.75;line-height:1.5}
+.mdrs{display:flex;justify-content:flex-end;margin:0 0 6px}
+.mdrs button{width:auto!important;padding:5px 12px!important;font-size:.8rem}
