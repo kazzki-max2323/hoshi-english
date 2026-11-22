@@ -56,13 +56,18 @@ function rec(it,ok,first){const k=keyOf(it.u,it.q),r=R.q[k]=R.q[k]||{m:0,k:0,n:0
     r.k=0;r.n=0;r.due=Date.now()+DAY}
   save()}
 /* その 時間は 身についた？（11/22 ゆるめた: 前は 「ちがう 日に 2回」だけで、 1回 ノーミスでも ひらかなかった）
-   - その 時間の 問題を 3問 ヒントなしで 正解（いちばん 新しい 答えで）して、 まだ なおっていない まちがいが ない
+   - その 時間の 問題を 3問 ヒントなしで 正解（練習の いちばん 新しい 答え、 または 授業の ✏️たしかめ）して、 まだ なおっていない まちがいが ない
    - または ちがう 日に 2回 ヒントなしで 正解（前の しくみ）
    いまの 記録（R.q）から 数えるので、 前に やった 練習も そのまま 数える */
 const LEARN_N=3;
 function chState(u,ci){const qs=u.D.CH[ci]?u.D.CH[ci].q.slice():[];(u.D.MIX||[]).forEach(q=>{if(q.c===ci)qs.push(q)});
   let ok=0,bad=0;const seen=new Set();qs.forEach(q=>{const k=keyOf(u,q);if(seen.has(k))return;seen.add(k);const r=R.q[k];if(!r)return;
-    if((r.k||0)>=1)ok++;else if(r.m)bad++});return {ok,bad,need:Math.min(LEARN_N,seen.size||LEARN_N)}}
+    if((r.k||0)>=1)ok++;else if(r.m)bad++});
+  const need=Math.min(LEARN_N,seen.size||LEARN_N);
+  /* 授業の ✏️たしかめ（3問）で 1回で せいかい した 数も 数える（11/22 ユーザー: たしかめで 3問 1回で せいかい したのに 0/3）。
+     qk が ない 前の 記録は、 その 時間で まちがえて いなければ 身についた あつかい */
+  try{const uc=(u.rec().ch||{})[ci],um=(u.rec().miss||{})[ci]||0;if(uc&&uc.d){const lk=uc.qk!=null?uc.qk:(um?0:need);if(lk>ok){ok=Math.min(lk,need);if(!um)bad=0}}}catch(e){}
+  return {ok,bad,need}}
 const learned=(u,ci)=>{const c=R.ch[chKey(u,ci)];if(c&&c.d.length>=2)return true;const s=chState(u,ci);return s.ok>=s.need&&!s.bad};
 
 /* ---------- 重ね（授業と 同じ #dpov） ---------- */
