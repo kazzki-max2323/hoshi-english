@@ -235,7 +235,7 @@ function more(I){const h=I.h,WI=window.WI,out=[];
   /* 🔤 略語の 元の ことば（なりたちに もう 書いて ある 語は そちらに まかせる） */
   const ab=window.ABBR&&!(WI.root&&WI.root(h,hasHead))&&ABBR.html(h);
   if(ab){let ml='';try{if(window.MINA&&Math.random()<.4)ml=MINA.line('wi_abbr',{w:I.en||h})[1]}catch(e){}
-    out.push(`<div class="wirt"><p>🔤 元の ことば: ${ab}</p><p class="wirs">${esc(I.en||h)} は この 頭文字を ならべた 略語</p>${ml?`<p class="wirm">👩‍🏫 ${esc(ml)}</p>`:''}</div>`)}
+    out.push(`<div class="wirt"><p>🔤 元の ことば: ${ab}</p><p class="wirs">${esc(I.en||h)} は この 頭文字を ならべた 略語</p>${ml?`<p class="wirm">${MICO()} ${esc(ml)}</p>`:''}</div>`)}
   if(x.d||pn)out.push(`<p class="wid">${pn?`<i class="wipos">${pn}</i>`:''}${x.d?esc(x.d):''}</p>`);
   if(ex)out.push(`<div class="wiex"><p class="en">${esc(ex[0])} <button class="wisay" data-wisay="${esc(ex[0])}" aria-label="例文を 聞く">🔊</button></p><p class="ja">${esc(ex[1])}</p></div>`);
   if(f.rows.length)out.push(`<div class="wifm">${f.rows.map(r=>`<span><b>${esc(r[0])}</b><small>${esc(r[1])}</small></span>`).join('')}</div>`);
@@ -248,7 +248,7 @@ function more(I){const h=I.h,WI=window.WI,out=[];
   /* 🧩 なりたち: 部品 → なぜ その 意味に なるか → おなじ 根っこの なかま（データは game/winfo-roots*.js） */
   const rt=WI.root?WI.root(h,hasHead):null,dv=DERIV.find(d=>d.d===h),fam=DERIV.filter(d=>d.b===h).slice(0,4);
   if(rt){const ml=rootMina(rt);
-    out.push(`<div class="wirt"><p>🧩 なりたち: ${WI.rootHtml(rt.parts,esc)}</p>${rt.story?`<p class="wirs">${esc(rt.story)}</p>`:''}${rt.fam.length?`<p class="wirf">🌱 おなじ 根っこ: ${rt.fam.slice(0,5).map(w=>`<b>${esc(w)}</b>`).join(', ')}</p>`:''}${ml?`<p class="wirm">👩‍🏫 ${esc(ml)}</p>`:''}</div>`);
+    out.push(`<div class="wirt"><p>🧩 なりたち: ${WI.rootHtml(rt.parts,esc)}</p>${rt.story?`<p class="wirs">${esc(rt.story)}</p>`:''}${rt.fam.length?`<p class="wirf">🌱 おなじ 根っこ: ${rt.fam.slice(0,5).map(w=>`<b>${esc(w)}</b>`).join(', ')}</p>`:''}${ml?`<p class="wirm">${MICO()} ${esc(ml)}</p>`:''}</div>`);
     if(x.tip){const t=x.tip.split('。').map(z=>z.trim()).filter(z=>z&&!(/＋/.test(z)&&/^[a-z@]/i.test(z))).join('。 ');x.tip=t}}
   else if(dv){const P=CG_PARTS[dv.p],bc=cardOfHead(dv.b),bj=bc?String(bc.ja).split(/[・、,，（(]/)[0].trim():'',pre=!/^-/.test(P[0]);
     const bp=`<b>${esc(dv.b)}</b>${bj?`（${esc(bj)}）`:''}`,pp=`<b>${esc(P[0])}</b>（${esc(P[1])}）`;
@@ -257,7 +257,7 @@ function more(I){const h=I.h,WI=window.WI,out=[];
   /* 🧠 覚え方（データは game/winfo-memo.js） */
   const mm=window.WMEMO?WMEMO.get(h):'';
   if(mm){let ml='';try{if(window.MINA&&Math.random()<.35)ml=MINA.line('wi_memo',{w:h})[1]}catch(e){}
-    out.push(`<div class="wimm"><p>🧠 覚え方: ${esc(mm)}</p>${ml?`<p class="wirm">👩‍🏫 ${esc(ml)}</p>`:''}</div>`)}
+    out.push(`<div class="wimm"><p>🧠 覚え方: ${esc(mm)}</p>${ml?`<p class="wirm">${MICO()} ${esc(ml)}</p>`:''}</div>`)}
   /* 📘 ミナ先生の コツ（前の ミニ授業の 中身。 game/mini-place.js） */
   (window.WI_MORE||[]).forEach(fn=>{try{const v=fn(I);if(v)out.push(v)}catch(e){console.error(e)}});
   const tips=[];if(x.tip)tips.push(esc(x.tip));
@@ -326,7 +326,7 @@ function lookTalk(I,from){const L=CG.look;let k='',v={w:(I.en||'').split(',')[0]
   else if([10,30,50,100,200,300,500,1000].includes(L.n))k='cg_lookN';
   else if(from&&Math.random()<.12)k='cg_lookFrom_'+from;
   else if(Math.random()<.04)k='cg_lookAny';
-  if(!k)return;setTimeout(()=>{try{const [,tx]=MINA.line(k,v);if(tx&&!/^cg_look/.test(tx))H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)}catch(e){}},900)}
+  if(!k)return;setTimeout(()=>{try{const [,tx]=MINA.line(k,v);if(tx&&!/^cg_look/.test(tx))H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)}catch(e){}},900)}
 
 /* ================================================================ combos in a list of cards */
 const DECK_N=15;

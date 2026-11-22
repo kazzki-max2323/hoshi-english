@@ -146,7 +146,7 @@ function draw(say0){const k=K(),nw=Object.keys(k.nw).filter(id=>C.info(id)),book
     if(i>=0){sel.splice(i,1);sf('tap')}else if(sel.length>=MAXSEL){sf('wrong');H.toast(`えらべるのは ${MAXSEL}まいまで<small>はずす ときは もう一度 タップ</small>`,1800);return}else{sel.push(id);sf('card')}
     b.classList.toggle('on',sel.includes(id));bar()});
   bar();
-  if(!C.rec().stkTold){C.rec().stkTold=1;C.save();setTimeout(()=>{const [,tx]=ML('stk_first');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4600)},1200)}}
+  if(!C.rec().stkTold){C.rec().stkTold=1;C.save();setTimeout(()=>{const [,tx]=ML('stk_first');if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4600)},1200)}}
 
 /* 📊 きょう 勉強して とどいた 数（7日の 棒 ＋ きょうの 内わけ）。 文字は DOM で くっきり */
 function graph(k,src){const days=[],now=new Date();

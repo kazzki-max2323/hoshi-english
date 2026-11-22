@@ -110,7 +110,7 @@ function dive(){try{SHOP.leave()}catch(e){}
     fx:{mag:0,comp:0,gold:0,guard:0},hard:0,dark:0,chests:0,bads:[],used:[],swaps:0,lowTold:0,badTold:0,stories:0,fall:0};
   diveScreen();
   newFloor();
-  if(!MN().handTold){MN().handTold=1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_handTap');H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},1600)}}
+  if(!MN().handTold){MN().handTold=1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_handTap');H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},1600)}}
 function diveScreen(){if(!D)return;D.alive=true;
   H.show('cg',`<section class="pnl cgp mnp mnd" data-stay>
     <div class="qtop"><button class="x" id="mnx" aria-label="もちかえる">←</button><b id="mnl">⛏️ 地下1階</b><span class="qn" id="mnh"></span></div>
@@ -151,7 +151,7 @@ function hud(){if(!D||!$("mnl"))return;const L=layerOf(),dug=D.cards.filter(x=>x
   const cd=D.got.length,dp=$('mndep');if(dp)dp.textContent='B'+D.floor;
   const lb=$('mnloot');lb.innerHTML=D.coins||cd||D.events.length||Object.keys(D.loot).length?`<button data-lo="coin">🎒 <b>${D.coins}枚</b></button>${Object.entries(D.loot).map(([ico,n])=>`<button data-lo="g" data-ico="${ico}">${ico}${n>1?`<b>×${n}</b>`:''}</button>`).join('')}${cd?`<button data-lo="cards">🎴<b>×${cd}</b></button>`:''}${D.events.length?`<button data-lo="ev">✨<b>×${D.events.length}</b></button>`:''}`:'<span class="mnnone">🎒 まだ なにも ない</span>';
   lb.querySelectorAll('[data-lo]').forEach(b=>b.onclick=()=>lootInfo(b.dataset.lo,b.dataset.ico));
-  if(lb.querySelector('[data-lo]')&&!MN().lootTold){MN().lootTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_lootTap');H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},2200)}
+  if(lb.querySelector('[data-lo]')&&!MN().lootTold){MN().lootTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_lootTap');H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},2200)}
   const fx=[[D.luck>0,'🔦',D.luck],[D.fx.mag>0,'🔍',D.fx.mag],[D.fx.comp>0,'🧭',D.fx.comp],[D.fx.gold>0,'⛏️',D.fx.gold],[D.fx.guard>0,'⛑️',D.fx.guard],[D.hard>0,'🧱',D.hard],[D.dark>0,'🌑',D.dark]].filter(x=>x[0]);
   $('mnst').innerHTML=`🎴 <b>${dug}</b> / ${HAND}まい ほりだした${D.inRedo?' <em>もう一回</em>':''}${fx.length?`<span class="mnfx">${fx.map(x=>`<i>${x[1]}${x[2]}</i>`).join('')}</span>`:''}`;
   const ub=$('mnuse');if(ub)ub.innerHTML=`🎒 つかう${useN()?` <small>${useN()}</small>`:''}`;
@@ -162,9 +162,9 @@ function hud(){if(!D||!$("mnl"))return;const L=layerOf(),dug=D.cards.filter(x=>x
 function answered(){const b=$("mnq");return !b||D.busy||!!b.querySelector(".mnintro")||!!b.querySelector('.cgqx:not([hidden]),.cgqc button.ok,.mnw.ok,.mnw.ng,.mnty input.ok,.mnty input.ng')}
 function handLook(i){if(!D)return;const id=D.hand[i];if(!id)return;
   const x=D.cards[i];if(x&&!x.met&&!x.dug){sf('knock');gotTag('🪨','まだ 岩の 中…','');return}
-  if(i===D.cur&&!answered()){sf('tap');const [,tx]=ML('mn_handWait');H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,3000);return}
+  if(i===D.cur&&!answered()){sf('tap');const [,tx]=ML('mn_handWait');H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,3000);return}
   sf('card');C.detail(id,null,{from:'mine'});const M=MN();M.looks=(M.looks||0)+1;C.save();
-  if(M.looks===3||(M.looks>3&&Math.random()<.08))setTimeout(()=>{const [,tx]=ML('mn_handLook',{w:head1(C.info(id))});if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,3600)},600)}
+  if(M.looks===3||(M.looks>3&&Math.random()<.08))setTimeout(()=>{const [,tx]=ML('mn_handLook',{w:head1(C.info(id))});if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,3600)},600)}
 /* まちがえた あとの 「📖 しらべる」: 答えの カードと、 えらんだ・ならんでいた ことば */
 function lookIds(q,I){const out=[I.id];if(!q||q.t==='miss'||!q.ch)return out;
   q.ch.forEach((s,i)=>{if(i===q.ans)return;const c=C.W.find(c=>c.lv===I.lv&&(c.en===s||c.h===s||c.ja===s))||C.W.find(c=>c.en===s||c.h===s);if(c&&!out.includes(c.id))out.push(c.id)});return out}
@@ -172,7 +172,7 @@ function lookRow(x,ids){if(!x||!ids.length)return;const r=document.createElement
   r.innerHTML=`<span>📖 しらべる</span>${ids.map(id=>{const I=C.info(id);return I?`<button data-look="${esc(id)}">${esc(head1(I))}</button>`:''}).join('')}`;
   const nx=x.querySelector('.nx');x.insertBefore(r,nx||null);
   r.querySelectorAll('[data-look]').forEach(b=>b.onclick=()=>{sf('card');C.detail(b.dataset.look,null,{from:'mine'})});
-  const M=MN();if(!M.lookTold){M.lookTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_lookRow');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4000)},700)}}
+  const M=MN();if(!M.lookTold){M.lookTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_lookRow');if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4000)},700)}}
 /* つぎの 問題: 左から じゅんばん → まちがえた カード → つぎの 周 → つぎの 形 */
 /* つぎの 問題: まだ ほりだして いない カードを 左から じゅんばんに。 はじめての ことばは さいしょに 1回 見せてから */
 function next(){if(!D||D.falling)return;
@@ -203,7 +203,7 @@ function intro(box,x,I,go){const lv=CG_LV[I.lv];
   $('mnsay').onclick=()=>{sf('tap');sayW(I)};
   $('mnmore').onclick=()=>{sf('card');C.detail(I.id,null,{from:'mine'})};
   $('mngo2').onclick=()=>{sf('step');go()};
-  const M=MN();if(!M.introTold){M.introTold=1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_intro',{w:head1(I)});if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},900)}}
+  const M=MN();if(!M.introTold){M.introTold=1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_intro',{w:head1(I)});if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},900)}}
 function make(t,I){const h=I.h,plain=/^[a-z]{3,12}$/.test(h);
   if(t==='scramble'&&plain)return scramble(I);
   if(t==='miss'&&plain&&h.length>=4)return missQ(I);
@@ -251,12 +251,12 @@ function scramble(I){const w=I.h;
       box.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{if(over)return;const x=ls[+b.dataset.k];if(x.used)return;got+=x.ch;x.used=got.length;sf('tap');
         if(got.length<w.length)return draw();over=true;const ok=got===w;draw();box.querySelectorAll('button').forEach(y=>y.disabled=true);
         if(ok){sf('correct');sayW(I);box.querySelector('.mnw').classList.add('ok');setTimeout(()=>done({ok:true}),750);
-          const M=MN();M.scrOk=(M.scrOk||0)+1;if(M.scrOk===5||M.scrOk%40===0)setTimeout(()=>{const [,tx]=ML('mn_scrOk',{w:w});if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,3600)},900)}
+          const M=MN();M.scrOk=(M.scrOk||0)+1;if(M.scrOk===5||M.scrOk%40===0)setTimeout(()=>{const [,tx]=ML('mn_scrOk',{w:w});if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,3600)},900)}
         else{sf('wrong');box.querySelector('.mnw').classList.add('ng');const e=box.querySelector('.cgqx');e.hidden=false;
           e.innerHTML=`<p>正しくは <b>${esc(w)}</b>（${esc(I.ja)}）<br><small>${esc(w.split('').join(' - '))} と 声に 出して おぼえよう</small></p><button class="nx">つぎへ ▶</button>`;sayW(I);lookRow(e,[I.id]);
           e.querySelector('.nx').onclick=()=>{sf('step');done({ok:false})}}})};
     draw();
-    const M=MN();if(!M.scrTold){M.scrTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_scramble');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4400)},700)}}}
+    const M=MN();if(!M.scrTold){M.scrTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_scramble');if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4400)},700)}}}
 /* 例文の あなうめ（文カードの 例文から） */
 function sentQ(I){const h=I.h;if(!/^[a-z]+$/.test(h))return null;const re=new RegExp('\\b'+h+'\\b','i');
   const ss=C.SENT.filter(s=>re.test(s.en));if(!ss.length)return null;const s=pickL(ss);
@@ -275,7 +275,7 @@ function after(id,ok){if(!D||D.busy)return;D.busy=true;D.q++;D.hp--;keepHp(D.hp)
   const M=MN();M.q++;if(ok)M.ok++;
   const x=D.cards[D.cur];if(x&&x.id===id){x.tries++;if(ok)x.hits++;else{x.miss++;x.need=Math.min(8,x.need+1)}}
   ['mag','comp'].forEach(k=>{if(D.fx[k]>0)D.fx[k]--});
-  if(D.hp>0&&D.hp<=12&&!D.lowTold&&window.FOOD&&FOOD.bagList().length){D.lowTold=1;setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_lowHp');H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},900)}
+  if(D.hp>0&&D.hp<=12&&!D.lowTold&&window.FOOD&&FOOD.bagList().length){D.lowTold=1;setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_lowHp');H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},900)}
   if(ok){D.ok++;D.swing=6;sf('tap');setTimeout(()=>{if(!D)return;D.crack=0;
       if(D.hard>0){D.hard--;D.crack=2;sf('knock');gotTag('🧱','カチン！ かたい 岩',D.hard?`あと ${D.hard}`:'');if(x&&x.hits>0)x.hits--}
       else{const g=D.fx.gold>0;if(g)D.fx.gold--;D.depth+=g?2:1;burst();sf('knock');if(g&&x&&!x.dug)x.hits++}
@@ -284,7 +284,7 @@ function after(id,ok){if(!D||D.busy)return;D.busy=true;D.q++;D.hp--;keepHp(D.hp)
   else{D.swing=6;D.crack=Math.min(2,D.crack+1);setTimeout(()=>{sf('tap')},300);C.save();hud();setTimeout(()=>next(),200)}}
 /* 1まい ほりだした！ 自分の ものに なる */
 function dug(x){x.dug=true;const isNew=!C.owns(x.id);C.give(x.id);const bk=toBook(x.id);D.got.push({id:x.id,isNew,bk});cardTag(x.id,isNew,true,bk);
-  const n=D.cards.filter(y=>y.dug).length;if(n<HAND&&!MN().dugTold){MN().dugTold=1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_dug',{w:head1(C.info(x.id))});if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},7000)}}
+  const n=D.cards.filter(y=>y.dug).length;if(n<HAND&&!MN().dugTold){MN().dugTold=1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_dug',{w:head1(C.info(x.id))});if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},7000)}}
 /* what you find. カードは めったに 出ない（出たら 大きな お祝い）。 true を かえすと お祝いの あとで つぎへ */
 function find(){const L=layerOf(D.depth),r=Math.random(),lk=D.luck>0?.12:0;if(D.luck>0)D.luck--;const dk=D.dark>0;if(dk)D.dark--;
   /* 📦 宝箱（🧭で 出やすい）と 悪い できごと（深いほど）は 先に きめる */
@@ -313,7 +313,7 @@ function lootInfo(kind,ico){if(!D)return;sf('card');const back='<button class="m
   if(kind==='g'){const G=MINE_GEM.find(g=>g[0]===ico),I=GEM_INFO[ico]||['','','',''],n=D.loot[ico]||0;if(!G)return;
     h=`<div class="mnlo"><div class="mnlobig">${ico}</div><p class="mnlon">${esc(G[1])} <b>×${n}</b></p>${I[0]?`<p class="mnloen">${esc(I[0])}</p>`:''}
       <p class="mnlod">${esc(I[1])}</p><p class="mnlov">💰 <b>+${D.lootV[ico]||0}枚</b><small>（1こ ${G[2]}枚＋深さ ぶん）</small></p>
-      ${I[3]?`<p class="mnlot"><b>${I[2]==='Mio'?'🧑‍🎓 ミオ':'👩‍🏫 ミナ先生'}</b> ${esc(I[3])}</p>`:''}${back}</div>`}
+      ${I[3]?`<p class="mnlot"><b>${I[2]==='Mio'?'🧑‍🎓 ミオ':MICO()+' ミナ先生'}</b> ${esc(I[3])}</p>`:''}${back}</div>`}
   else if(kind==='coin'){const ev=D.events.reduce((a,e)=>a+(e.coin||0),0);
     h=`<div class="mnlo"><p class="mnlon">🎒 もちかえる コイン <b>${D.coins}枚</b></p>
       <div class="mnlol">${Object.entries(D.loot).map(gemRow).join('')||'<p class="mnlod">石や 宝石は まだ ないよ</p>'}
@@ -341,7 +341,7 @@ function cardTag(id,isNew,dg,bk){const M=MN();M.cards=(M.cards||0)+1;C.save();D.
   el.innerHTML=`<button class="mncd" data-id="${esc(id)}"><span class="gi">🎴</span><span class="cn"><small>${dg?'ほりだした！':'カードを 見つけた！'}${isNew?' <em>NEW</em>':''}${bk?' 📖ブックへ':''}</small><b>${esc(head1(I))}</b><i>${esc(I.ja)}</i></span><span class="tp">📖</span></button>`;
   const b=el.firstChild;b.onclick=()=>{sf('card');C.detail(id,null,{from:'mine'})};
   clearTimeout(el._t);el._t=setTimeout(()=>{if(b.isConnected)b.classList.add('out');setTimeout(()=>{if(b.isConnected)b.remove()},400)},6500);
-  if(!MN().cardTold){MN().cardTold=1;C.save();setTimeout(()=>{if(!D)return;try{const [,tx]=ML('mn_card',{w:head1(I)});H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)}catch(e){}},7200)}}
+  if(!MN().cardTold){MN().cardTold=1;C.save();setTimeout(()=>{if(!D)return;try{const [,tx]=ML('mn_card',{w:head1(I)});H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)}catch(e){}},7200)}}
 /* 宝カードを 見つけた！（めったに ない ので 大きな お祝い） */
 function celebrate(id,isNew,treasure){const M=MN();M.cards=(M.cards||0)+1;C.save();D.pop={ico:treasure?'🎁':'🎴',t:0,big:1};
   try{SFX.fanfare(treasure?3:2)}catch(e){sf('done')}
@@ -385,12 +385,12 @@ function useMenu(){if(!D)return;const F=foods(),T=toolList(),bag=window.FOOD?FOO
 function eatNow(id){if(!D||!FOOD.take(id))return;const s=FOOD_SNACKS[id];const a=D.hp;D.hp=Math.min(ME_HP,D.hp+(s.hp||0));keepHp(D.hp);D.used.push(s.ico);
   try{RECENT.add('snack',{id,en:s.en,ja:s.n,ico:s.ico,mine:1})}catch(e){}
   sf('eat');setTimeout(()=>sf('gulp'in SFX?'gulp':'pop'),450);C.closeOv();gotTag(s.ico,'もぐもぐ',`❤+${D.hp-a}`);
-  const [,tx]=ML('mn_useFood',{t:s.n});H.toast(`${s.ico} <b>${esc(s.n)}</b> ❤ ${a} → <b>${D.hp}</b><small>👩‍🏫 ${esc(tx)}</small>`,3200);hud()}
+  const [,tx]=ML('mn_useFood',{t:s.n});H.toast(`${s.ico} <b>${esc(s.n)}</b> ❤ ${a} → <b>${D.hp}</b><small>${MICO()} ${esc(tx)}</small>`,3200);hud()}
 function useTool(id){const t=MINE_TOOLS[id];if(!D||!t||t.ef==='key'||t.auto||t.rest||!takeTool(id))return;D.used.push(t.ico);C.closeOv();
   if(t.ef==='lamp')D.luck+=t.v;else if(t.ef==='rope'){D.depth+=t.v;burst()}else if(t.ef==='guard')D.fx.guard+=t.v;else D.fx[t.ef]=(D.fx[t.ef]||0)+t.v;
   if(t.ef==='lamp'&&D.dark){D.dark=0}
   sf(t.ef==='rope'?'knock':'pickup');gotTag(t.ico,t.n,t.ef==='rope'?`+${t.v}m`:'');
-  const [,tx]=ML('mn_useTool',{t:t.n,en:t.en});H.toast(`${t.ico} <b>${esc(t.n)}</b><small>${esc(t.s)}<br>👩‍🏫 ${esc(tx)}</small>`,3400);hud()}
+  const [,tx]=ML('mn_useTool',{t:t.n,en:t.en});H.toast(`${t.ico} <b>${esc(t.n)}</b><small>${esc(t.s)}<br>${MICO()} ${esc(tx)}</small>`,3400);hud()}
 
 /* ================================================================ 📦 宝箱 */
 const SNACK_POOL=()=>typeof FOOD_SNACKS==='undefined'?[]:Object.keys(FOOD_SNACKS).filter(id=>FOOD_SNACKS[id].lv!=='hs');
@@ -424,7 +424,7 @@ function reveal(o,tier,I){if(!D)return;const dp=D.depth,got=[];
 /* ================================================================ 悪い できごと（見つけた 物は 取られない） */
 function bad(){const ok=MINE_BAD.filter(b=>!b.min||D.depth>=b.min),B=pickL(ok);
   if(D.fx.guard>0){D.fx.guard--;D.bads.push('guard');sf('knock');gotTag('⛑️','ふせいだ！','');
-    const [,tx]=ML('mn_badGuard');H.toast(`⛑️ <b>ヘルメットで ふせいだ！</b><small>${B.ico} ${esc(B.n)}… でも へっちゃら！<br>👩‍🏫 ${esc(tx)}</small>`,3400);hud();return false}
+    const [,tx]=ML('mn_badGuard');H.toast(`⛑️ <b>ヘルメットで ふせいだ！</b><small>${B.ico} ${esc(B.n)}… でも へっちゃら！<br>${MICO()} ${esc(tx)}</small>`,3400);hud();return false}
   D.bads.push(B.id);D.events.push({ico:B.ico,n:B.n,t:B.t});
   if(B.back)D.depth=Math.max(0,D.depth-B.back);
   if(B.hard)D.hard+=B.hard;
@@ -433,7 +433,7 @@ function bad(){const ok=MINE_BAD.filter(b=>!b.min||D.depth>=b.min),B=pickL(ok);
   D.pop={ico:B.ico,t:0,big:1};D.crack=2;sf('wrong');fly(B.ico,'bad');gotTag(B.ico,B.n,B.back?`-${B.back}m`:B.hp?`❤-${B.hp}`:'');
   try{H.say('jh',B.en)}catch(e){}
   H.toast(`${B.ico} <b>${esc(B.n)}</b><small>「${esc(B.en)}」 ${esc(B.ja)}<br>${esc(B.t)}</small>`,4200);
-  const M=MN();if(!D.badTold&&(M.badTold||0)<4){D.badTold=1;M.badTold=(M.badTold||0)+1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_bad',{t:B.n});H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},4600)}
+  const M=MN();if(!D.badTold&&(M.badTold||0)<4){D.badTold=1;M.badTold=(M.badTold||0)+1;C.save();setTimeout(()=>{if(!D)return;const [,tx]=ML('mn_bad',{t:B.n});H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4200)},4600)}
   hud();return false}
 
 /* ================================================================ pixel art（11/18 描きなおし: 石づみの 坑道・はしらと はり・ランタン・トロッコ・大きな 岩・ヘッドランプ） */
@@ -576,7 +576,7 @@ function fall(go){const p=H.panel&&H.panel.querySelector('section');if(p){p.clas
 /* 🏕️ 休憩所（game/mine-rest.js）。 つぎの 5まいへ・帰る */
 function rest(ids){if(!D)return;D.falling=0;const nf=D.floor+1;const M=MN();if(nf>(M.bestF||0)){M.bestF=nf;C.save()}
   const api={floor:nf,ids,trip:D.got.filter(g=>!/^[tsp]:/.test(g.id)).map(g=>g.id),hp:()=>D.hp,setHp:n=>{D.hp=Math.max(0,Math.min(ME_HP,n));keepHp(D.hp)},max:ME_HP,layer:()=>{const f=D.floor;D.floor=nf;const L=layerOf();D.floor=f;return L},
-    dig:()=>{if(!D)return;diveScreen();newFloor();const [,tx]=ML('mn_newFloor',{f:D.floor});setTimeout(()=>{if(D&&tx)H.toast(`🪜 <b>地下${D.floor}階</b><small>👩‍🏫 ${esc(tx)}</small>`,3200)},500)},
+    dig:()=>{if(!D)return;diveScreen();newFloor();const [,tx]=ML('mn_newFloor',{f:D.floor});setTimeout(()=>{if(D&&tx)H.toast(`🪜 <b>地下${D.floor}階</b><small>${MICO()} ${esc(tx)}</small>`,3200)},500)},
     home:()=>{if(!D)return;D.floor=nf;finish('home')},used:ico=>D.used.push(ico),map:()=>{if(D)D.mapNext=1}};
   if(window.MINE_REST)MINE_REST.open(api);else api.dig()}
 /* ================================================================ back home: ミオが ほった ことばを 見て ひとこと（ほった カードは もう 📖ブックに 入っている） */

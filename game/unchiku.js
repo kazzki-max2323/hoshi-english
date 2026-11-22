@@ -22,7 +22,7 @@ const PL={
  food:{ico:'🍽️',n:'しおかぜ食堂',who:'マルコさん'},
  zakka:{ico:'🏚️',n:'ながれぎ雑貨店',who:'ノラさん',c:'z'},
  word:{ico:'🃏',n:'ことばカード',who:'ミオ',c:'w'},
- mina:{ico:'👩‍🏫',n:'ミナ先生',who:'ミナ先生',c:'m'}};
+ mina:{get ico(){return MICO()},n:'ミナ先生',who:'ミナ先生',c:'m'}};
 /* [英語, 日本語] or null */
 function get(pl,id){if(pl==='zakka'){const t=UNK_ZAKKA[id];return t||null}
   if(pl==='word'){const t=UNK_WORD[String(id).toLowerCase()];return t||null}
@@ -111,7 +111,7 @@ const toBook=()=>['📜 うんちく図鑑',()=>book(H.home)];
 const toStore=()=>['📦 倉庫を 見る',()=>{try{CG.open();setTimeout(()=>SHOP.store('unk'),60)}catch(e){}}];
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_triNew',3,()=>!UK.v&&Object.keys(UK.h).length<3?{}:null,toBook],
- ['x_triToday',2,()=>{const i=todayIdx();return heard('mina',i)?null:{t:UNK_MINA[i][0]}},()=>['👩‍🏫 きょうの うんちく',()=>MINA.open()]],
+ ['x_triToday',2,()=>{const i=todayIdx();return heard('mina',i)?null:{t:UNK_MINA[i][0]}},()=>[MICO()+' きょうの うんちく',()=>MINA.open()]],
  ['x_triWord',1,()=>{const a=heardOf('w');if(!a.length)return null;const w=pickL(a);return {w,j:shortJ(get('word',w)[1])}},toBook],
  ['x_triZakka',1,()=>{const a=heardOf('z');if(!a.length)return null;const id=pickL(a),it=zakkaList().flatMap(g=>g[2]).find(x=>x.id===id);return it?{n:it.n,j:shortJ(get('zakka',id)[1])}:null},toBook],
  ['x_triCard',1,()=>{try{return SHOP.rec().met&&heardOf('w').length<3?{}:null}catch(e){return null}},toStore]);

@@ -240,7 +240,7 @@ function book(back){back=back||(()=>SHOP.open());try{speechSynthesis.cancel()}ca
     ${deep()?'<button class="big" id="hrctr">🧑‍💼 カウンターに 立つ</button>':''}
     <p class="mchd">🃏 お店の できごと</p>
     <div class="mcls hrls">${shop.map(t=>li(t,false)).join('')}</div>
-    <p class="mchd">👩‍🏫 ミナ先生の 夜の 話</p>
+    <p class="mchd">${MICO()} ミナ先生の 夜の 話</p>
     <div class="mcls hrls">${M.map(t=>li(t,true)).join('')}</div>
     <details class="mfold"><summary>⛏️ 鉱山の できごと <small>${ms.length}/${HR_MINE.length}</small></summary><div class="hrmine">${HR_MINE.map(x=>R.mine[x.id]?`<span title="${esc(x.n)}">${x.ico} ${esc(x.n)}</span>`:'<span class="no">？ ？？？</span>').join('')}</div><p class="note">深夜に 鉱山で ほると たまに。 🕯️ ろうそくで 出やすく なるよ</p></details>
     <details class="mfold"><summary>📷 心霊写真 <small>${R.ph.length}まい</small></summary>${R.ph.length?`<div class="hrphs">${R.ph.slice().reverse().map(photoCard).join('')}</div>`:'<p class="note">📷 使いきりカメラを もって 深夜の お店の 会話を おえると とれるよ</p>'}</details>

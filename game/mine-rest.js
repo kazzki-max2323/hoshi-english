@@ -50,7 +50,7 @@ function tools(){const el=$('mrtl');if(!el||!A)return;const L=[['wood','🪵 た
   el.innerHTML=L.map(t=>t[2]?`<button class="sub" data-tl="${t[0]}">${t[1]} <small>×${tN(t[0])}</small></button>`:`<span class="mron">${t[1].split(' ')[0]} ${t[0]==='wood'?'火が 大きい':t[0]==='batt'?'仕入れ チャンネル':'つぎは えらべる'}</span>`).join('');
   el.querySelectorAll('[data-tl]').forEach(b=>b.onclick=()=>{const k=b.dataset.tl;if(!A||!MINE.takeTool(k))return;A.used&&A.used(MINE_TOOLS[k].ico);
     if(k==='wood'){A.wood=1;sf('knock');hpShow()}else if(k==='batt'){A.batt=1;A.batN=0;sf('pickup');if(RAD)radioOff();radioOn()}else{A.mapd=1;A.map&&A.map();sf('open')}
-    const [,tx]=ML('mn_rest_'+k);if(tx)H.toast(`${MINE_TOOLS[k].ico} <b>${esc(MINE_TOOLS[k].n)}</b><small>👩‍🏫 ${esc(tx)}</small>`,3400);tools()})}
+    const [,tx]=ML('mn_rest_'+k);if(tx)H.toast(`${MINE_TOOLS[k].ico} <b>${esc(MINE_TOOLS[k].n)}</b><small>${MICO()} ${esc(tx)}</small>`,3400);tools()})}
 
 /* たき火の そばに うかぶ 5まい: タップで 📖 くわしく */
 function floats(){const el=$('mrfl');if(!el)return;const P=[[3,4],[22,15],[41,3],[60,15],[79,4]];
@@ -58,7 +58,7 @@ function floats(){const el=$('mrfl');if(!el)return;const P=[[3,4],[22,15],[41,3]
   el.querySelectorAll('.mrfc').forEach(b=>b.onclick=()=>{const id=b.dataset.id,I=C.info(id);if(!I)return;
     /* 11/18 ユーザー「タップしたら この画面に」: 1回目から くわしく 画面（ひらくと 読む） */
     A.tap[id]=1;b.classList.add('lit');C.peek(id,{from:'mine'});
-    const M=CG.rec().mn||{};if(!M.floatTold){M.floatTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_float');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,3600)},800)}})}
+    const M=CG.rec().mn||{};if(!M.floatTold){M.floatTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_float');if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,3600)},800)}})}
 
 /* 🍙 食べる */
 function eat(){const L=window.FOOD?FOOD.bagList():[],bag=window.FOOD?FOOD.rec().bag:{};
@@ -69,7 +69,7 @@ function eat(){const L=window.FOOD?FOOD.bagList():[],bag=window.FOOD?FOOD.rec().
   o.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{const id=b.dataset.f;if(!A||!FOOD.take(id))return;const s=FOOD_SNACKS[id],a=A.hp();A.setHp(a+(s.hp||0));A.used&&A.used(s.ico);
     try{RECENT.add('snack',{id,en:s.en,ja:s.n,ico:s.ico,mine:1})}catch(e){}
     sf('eat');setTimeout(()=>sf('gulp'in SFX?'gulp':'pop'),450);C.closeOv();hpShow(true);
-    const [,tx]=ML('mn_restEat',{t:s.n});H.toast(`${s.ico} <b>${esc(s.n)}</b> ❤ ${a} → <b>${A.hp()}</b><small>👩‍🏫 ${esc(tx)}</small>`,3200)})}
+    const [,tx]=ML('mn_restEat',{t:s.n});H.toast(`${s.ico} <b>${esc(s.n)}</b> ❤ ${a} → <b>${A.hp()}</b><small>${MICO()} ${esc(tx)}</small>`,3200)})}
 
 /* 📻 単語ラジオ: 英語 → 少し まって 日本語の 字幕。 きょう ほった ことば（たりなければ 同じ レベルから） */
 function bookWords(){try{return window.STOCK?STOCK.bookIds().filter(id=>{const I=C.info(id);return I&&(I.k==='w'||I.k==='t')}):[]}catch(e){return []}}
@@ -81,9 +81,9 @@ function radioList(){const bk=bookWords();A.rsrc=bk.length>=5?'book':'trip';if(A
 function radioOn(){if(!A)return;const list=radioList();if(!list.length){H.toast('📻 まだ 流せる ことばが ないよ');return}
   RAD={list,i:0,alive:true};const R0=RAD;const b=$('mrrad');if(b){b.classList.add('on');b.innerHTML='📻 ラジオ <b>オン</b>'}
   const M=CG.rec().mn||{};M.radio=(M.radio||0)+1;C.save();
-  if(!M.radioTold){M.radioTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_radio');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,3800)},600)}
-  else if(A.rsrc==='book'&&!M.radioBookTold){M.radioBookTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_radioBook');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,4000)},600)}
-  else if(A.rsrc==='trip'&&Math.random()<.5)setTimeout(()=>{const [,tx]=ML('mn_radioFew');if(tx)H.toast(`👩‍🏫 <b>ミナ先生</b><small>${esc(tx)}</small>`,3800)},600);
+  if(!M.radioTold){M.radioTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_radio');if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,3800)},600)}
+  else if(A.rsrc==='book'&&!M.radioBookTold){M.radioBookTold=1;C.save();setTimeout(()=>{const [,tx]=ML('mn_radioBook');if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,4000)},600)}
+  else if(A.rsrc==='trip'&&Math.random()<.5)setTimeout(()=>{const [,tx]=ML('mn_radioFew');if(tx)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,3800)},600);
   /* ミオの ラジオ DJ（ときどき。 声は MIO.say） */
   const dj=window.MIO&&(M.radio===1||Math.random()<.35);
   const step=()=>{if(!R0.alive||RAD!==R0||!$('mrcap'))return;const id=R0.list[R0.i%R0.list.length],I=C.info(id);R0.i++;
