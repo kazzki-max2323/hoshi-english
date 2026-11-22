@@ -229,14 +229,16 @@ function settings(){
 function resetSteps(){const box=$('rst');if(!box)return;
   const step=(html,on)=>{box.innerHTML=html;on()};
   const s0=()=>step(`<button id="rs0" class="sub">🗑️ 全て リセット</button>`,()=>{$('rs0').onclick=()=>{SFX.pop();s1()}});
-  const s1=()=>step(`<p>コイン・覚えた 単語・カード・ラジオ など、<b>セーブデータが 全部 消えるよ</b>。いい？</p>
+  const s1=()=>step(`<p>コイン・覚えた 単語・カード・授業の ✔・ラジオ など、<b>セーブデータが 全部 消えるよ</b>。いい？</p>
     <div class="seg"><button id="rsn">やめる</button><button id="rsy" class="warn">リセットする</button></div>`,()=>{$('rsn').onclick=()=>{SFX.pop();s0()};$('rsy').onclick=()=>{SFX.pop();s2()}});
   const s2=()=>step(`<p><b>本当に いい？</b> 消したら もとに もどせないよ。</p>
     <div class="seg"><button id="rsn">やめる</button><button id="rsy" class="warn">消して 最初から</button></div>`,()=>{$('rsn').onclick=()=>{SFX.pop();s0()};$('rsy').onclick=wipeAll});
   s0()}
 function wipeAll(){
   try{Storage.prototype.setItem=function(){}}catch(e){}   // nothing may write the old save back before the reload
-  try{localStorage.removeItem(SAVE_KEY);localStorage.removeItem('hoshiEco')}catch(e){}
+  /* この アプリの キーは みんな hoshi で はじまる（hoshienglish・hoshiEco・hoshi_unit_*・hoshi_plan など）。 授業の ✔ も ここで 消える（11/22） */
+  try{const ks=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&/^hoshi/.test(k))ks.push(k)}
+    ks.concat([SAVE_KEY]).forEach(k=>localStorage.removeItem(k))}catch(e){}
   location.reload()}
 /* tapping anywhere outside the panel works like its ← button (and that tap does nothing else).
    Result screens without ← mark their "back" button with data-back. Mini games have neither, so they ignore it.
