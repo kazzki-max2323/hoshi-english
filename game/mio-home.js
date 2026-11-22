@@ -20,58 +20,55 @@ const lover=()=>{try{const M=MIOC.rec();return stage()>=5&&!M.alt}catch(e){retur
 const state=()=>{const h=gh();return h>=9&&h<21?'shop':h>=21?'free':h<6?'sleep':'morning'};
 const canStay=()=>{const h=gh();return h>=21||h<5};
 
-/* ================================================================ 2階の へや（ドット絵 200x116） */
-const W=200,HH=116;
-const PR=(c,x,y,w,h,col)=>{c.fillStyle=col;c.fillRect(x,y,w,h)};
-function room(c,s,f){const h=gh(),nt=h>=19||h<5,dusk=h>=17&&h<19,dark=s==='sleep';
-  PR(c,0,0,W,HH,'#f3e6d0');PR(c,0,0,W,4,'#d8c4a4');for(let x=0;x<W;x+=16)PR(c,x,4,1,72,'#ead8bc');
-  PR(c,0,76,W,40,'#b98a5a');for(let y=80;y<HH;y+=8)PR(c,0,y,W,1,'#a87a4c');
-  /* まど（空は 時間で） */
-  PR(c,84,14,40,30,'#8a6a4a');const sky=nt?'#1a2350':dusk?'#f0a070':'#9fd8ff';PR(c,86,16,36,26,sky);
-  if(nt){for(const [sx,sy] of [[90,20],[101,24],[114,19],[118,30],[95,33]])if((f+sx)%5)PR(c,sx,sy,1,1,'#fff6c0');PR(c,110,22,5,5,'#fff3b0');PR(c,112,22,3,3,sky)}
-  else{PR(c,86,34,36,8,'#4ab0e0');PR(c,92,20,8,3,'#fff')}
-  PR(c,103,16,2,26,'#8a6a4a');PR(c,86,28,36,1,'#8a6a4a');PR(c,82,13,4,34,'#f6a5b5');PR(c,122,13,4,34,'#f6a5b5');
-  /* つくえと ランプと 本 */
-  PR(c,14,60,46,4,'#8a5a32');PR(c,16,64,3,14,'#7a4a28');PR(c,55,64,3,14,'#7a4a28');PR(c,20,54,6,6,'#5ab4ff');PR(c,26,55,5,5,'#ff8a7a');PR(c,31,53,4,7,'#ffd23f');
-  PR(c,46,50,2,10,'#6a5a4a');PR(c,42,46,10,5,s==='free'?'#ffe08a':'#d8c49a');
-  /* かべの カードと ポスター */
-  PR(c,20,18,26,18,'#fff');PR(c,22,20,22,14,'#7ad0e8');PR(c,24,30,18,2,'#2a6fc0');PR(c,136,22,6,8,'#fff');PR(c,138,24,2,4,'#ff7a8a');PR(c,144,22,6,8,'#fff');PR(c,146,24,2,4,'#5ab4ff');PR(c,152,22,6,8,'#fff');PR(c,154,24,2,4,'#ffd23f');
-  /* ベッド */
-  PR(c,140,62,54,6,'#fff');PR(c,140,68,54,14,'#7ab4e8');PR(c,140,68,54,2,'#9ac8f0');PR(c,140,82,54,3,'#5a8ac0');PR(c,140,58,6,26,'#a87a4c');PR(c,190,62,4,22,'#a87a4c');
-  PR(c,146,60,14,6,'#fffdf4');
-  /* ラグと 植木 */
-  PR(c,70,90,58,14,'#f0b8c8');PR(c,72,92,54,10,'#f8d0dc');PR(c,4,62,8,14,'#c07a4a');PR(c,2,52,12,10,'#5aa85a');PR(c,5,48,6,6,'#7ac87a');
-  if(dark){c.fillStyle='rgba(10,14,40,.55)';c.fillRect(0,0,W,HH)}
-  else if(nt&&s!=='shop'){const g=c.createRadialGradient(47,50,0,47,50,50);g.addColorStop(0,'rgba(255,214,140,.35)');g.addColorStop(1,'rgba(255,214,140,0)');c.fillStyle=g;c.fillRect(0,0,W,HH)}}
-function mioIn(c,s,f){
-  if(s==='free'){MIO.draw(c,30,30,f%40<30?'stand':'wave',f>>1);return}
-  if(s==='morning'){MIO.draw(c,100,46,f%30<20?'stand':'cheer',f>>1);return}
-  if(s==='sleep'){/* ねている: まくらの 上に 頭、 ふとんが ゆっくり 上下 */
-    PR(c,147,58,10,8,'#a8663a');PR(c,149,61,7,5,'#ffe0cc');PR(c,151,63,2,1,'#3a2a2a');PR(c,154,63,2,1,'#3a2a2a');PR(c,145,56,3,3,'#ffd23f');
-    const b=(f>>3)%2;PR(c,152,66-b,36,4,'#9ac8f0');c.fillStyle='#cfe3ff';c.font='6px monospace';c.fillText((f>>2)%3?'z':'Z',162,54-((f>>2)%3)*2);return}
-  /* shop: つくえに メモ */
-  PR(c,34,58,8,3,'#fffdf4');PR(c,35,59,5,1,'#5a5070')}
+/* ================================================================ 2階の へや（ドット絵 200x116。 中身は game/mio-room.js） */
+const W=MIOROOM.W,HH=MIOROOM.HH;
+const roomO=()=>{const M=HR();M.obj=M.obj||{};return {stg:stage(),love:lover(),gifts:MIOROOM.gifts(),seen:M.obj,hl:null}};
 
 /* ================================================================ 画面 */
 let anim=null;
-function open(back){back=back||(()=>SHOP.open());const s=state(),M=HR();
-  const st={shop:'ミオは 下の お店で レジに 立ってるよ。 へやは からっぽ（つくえに メモが ある）',free:'ミオは つくえで 英語の 勉強中',sleep:'しーっ… ミオは ぐっすり ねてる',morning:'ミオは 開店の じゅんび中'}[s];
-  const talked=M.td===CG.today();
+function open(back){back=back||(()=>SHOP.open());const s=state(),M=HR(),RO=roomO();
+  const st={shop:'ミオは 下の お店で レジに 立ってるよ。 へやは からっぽ（つくえに メモが ある）',free:'ミオは いすに すわって 英語の 勉強中',sleep:'しーっ… ミオは ぐっすり ねてる',morning:'ミオは 開店の じゅんび中'}[s];
+  const talked=M.td===CG.today(),all=MIOROOM.ids(RO),found=all.filter(id=>RO.seen[id]).length;
   H.show('cg',`<section class="pnl cgp shp mhp">
     <div class="qtop"><button class="x" id="mhx" aria-label="もどる">←</button><b>🏠 2階（ミオの へや）</b><span class="qn">${pad(gh())}</span></div>
-    <div class="shstage"><canvas id="mhcv" width="${W}" height="${HH}"></canvas></div>
+    <div class="shstage mhst"><canvas id="mhcv" width="${W}" height="${HH}"></canvas></div>
     <p class="shst">${st}</p>
+    <p class="mhfind" id="mhfind">${found<all.length?`👆 へやの 物を タップ <small>🔍 ${found}/${all.length}</small>`:`🔍 へやの 物 ぜんぶ 見た！`}</p>
     <div id="mhbox"></div>
     <div class="row mhbtn">${s==='free'||s==='morning'?`<button id="mhtalk">💬 話しかける${talked?'':'<i class="dot"></i>'}</button>`:''}${s==='shop'?'<button id="mhnote" class="sub">📝 メモを 見る</button>':''}${canStay()?`<button id="mhstay">🌙 となりの へやに 泊まる</button>`:''}</div>
     ${canStay()?'':'<p class="note">🌙 夜 9時から 朝 5時までは となりの へやに 泊まれるよ</p>'}
   </section>`);
   $('mhx').onclick=()=>{sf('back');stop();back()};
   const cv=$('mhcv'),c=cv.getContext('2d');c.imageSmoothingEnabled=false;let f=0,last=0;stop();
-  const a=anim={on:true};const tick=now=>{if(!a.on||!cv.isConnected)return;requestAnimationFrame(tick);if(now-last<160)return;last=now;f++;const s2=state();room(c,s2,f);mioIn(c,s2,f)};requestAnimationFrame(tick);
-  if($('mhtalk'))$('mhtalk').onclick=()=>{sf('step');talk(s,back)};
+  const a=anim={on:true};const tick=now=>{if(!a.on||!cv.isConnected)return;requestAnimationFrame(tick);if(now-last<160)return;last=now;f++;MIOROOM.draw(c,state(),f,RO)};requestAnimationFrame(tick);
+  cv.onclick=e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*HH,s2=state(),id=MIOROOM.hit(x,y,s2,RO);if(!id)return;
+    if(id==='mio'){sf('step');MIOROOM.mioTalk({until:Date.now()+2600});return talk(s2,back)}
+    RO.hl={id,until:Date.now()+1400};look(id,s2,RO,back)};
+  if($('mhtalk'))$('mhtalk').onclick=()=>{sf('step');MIOROOM.mioTalk({until:Date.now()+2600});talk(s,back)};
   if($('mhnote'))$('mhnote').onclick=()=>{sf('flip');const n=pickL(NOTES);box(`<div class="mhnote"><p class="en">${esc(n[0])}</p><p class="ja">${esc(n[1])}</p><small>– Mio</small></div>`);speak(n[0])};
   if($('mhstay'))$('mhstay').onclick=()=>{sf('step');stop();stay(back)};
-  if(s==='sleep')mina('mh_sleep',.4);else if(!M.seen.v){M.seen.v=1;save();mina('mh_new',1)}}
+  if(s==='sleep')mina('mh_sleep',.4);else if(!M.seen.v){M.seen.v=1;save();mina('mh_new',1)}else if(!M.seen.r2){M.seen.r2=1;save();mina('mh_room',1)}}
+/* 👆 へやの 物を しらべる: 物の 英語の 名前 → ミオが いれば ミオの ひとこと（英語＋和訳）、 いなければ 説明 */
+function look(id,s,RO,back){const o=MIOROOM.obj(id,s,RO);if(!o)return;sf('tap');const M=HR(),here=s==='free'||s==='morning',isNew=!RO.seen[id];
+  if(isNew){RO.seen[id]=1;save();const all=MIOROOM.ids(RO),n=all.filter(k=>RO.seen[k]).length,fe=$('mhfind');
+    if(fe)fe.innerHTML=n<all.length?`👆 へやの 物を タップ <small>🔍 ${n}/${all.length}</small>`:'🔍 へやの 物 ぜんぶ 見た！';
+    if(n===all.length&&!M.seen.allObj){M.seen.allObj=1;save();let hh='';try{hh=MIOC.gain(1,'room')||''}catch(e){}setTimeout(()=>{try{H.toast(`🔍 ミオの へやを ぜんぶ 見た！ ${hh}`,3600)}catch(e){}},600);mina('mh_allObj',1)}}
+  const tag=`<p class="mhtag"><span>${o.ico}</span> <b data-en="${esc(o.en)}">${esc(o.en)}</b> ＝ ${esc(o.ja)}</p>`;
+  let extra='';
+  if(id==='cork')extra=`<div class="mhmemos">${o.memos.map((m,i)=>`<div class="mhnote" data-en="${esc(m[0])}" style="transform:rotate(${[-2,1.5,-1][i]}deg)"><p class="en">${esc(m[0])}</p><p class="ja">${esc(m[1])}</p></div>`).join('')}</div>`;
+  if(id==='gifts')extra=o.list.length?`<div class="mhgifts">${o.list.map((g,i)=>`<button class="sub" data-g="${i}">${g.ico}<small>${esc(g.n)}</small></button>`).join('')}</div>`:'';
+  if(id==='book'&&s==='free')extra=`<div class="row mhbtn"><button id="mhstudy" class="sub">📝 いっしょに 英語で おしゃべり</button></div>`;
+  if(s==='sleep'){box(`${tag}<p class="mhnar2">${esc(o.n)}</p><p class="note">（しーっ… ミオが ねてる）</p>`)}
+  else if(here&&o.line){box(`${tag}${say(o.line,o.line[0].includes('…')?'oops':'smile',id==='gifts'&&o.list.length?'peace':'')}${extra}`);speak(o.line[0]);MIOROOM.mioTalk({until:Date.now()+2600})}
+  else box(`${tag}<p class="mhnar2">${esc(o.n)}</p>${extra}`);
+  const b=$('mhbox');if(!b)return;
+  b.querySelectorAll('[data-g]').forEach(x=>x.onclick=()=>{sf('tap');const g=o.list[+x.dataset.g],L=MIOROOM.giftLine(g,RO.love);
+    const sub=b.querySelector('#mhgl');const html=here&&s!=='sleep'?say(L,g.t>=2?'laugh':'smile',g.t>=3?'peace':''):`<div class="mhnote"><p class="en">${esc(g.ico)} ${esc(g.w)}</p><p class="ja">${esc(g.n)}（${['ちょっと 苦手みたい','ふつうに うれしい','よろこんで くれた','大よろこび！'][g.t]}）</p></div>`;
+    if(sub)sub.innerHTML=html;else b.insertAdjacentHTML('beforeend',`<div id="mhgl">${html}</div>`);if(here)speak(L[0]);
+    b.querySelectorAll('#mhgl [data-en]').forEach(y=>y.onclick=()=>speak(y.dataset.en))});
+  const stb=$('mhstudy');if(stb)stb.onclick=()=>{sf('step');stop();try{MIOS.start(()=>open(back))}catch(e){}};
+  if(id==='gifts'&&o.list.length&&!M.seen.gsh){M.seen.gsh=1;save();mina('mh_gifts',1)}
+  if(id==='deco'&&Math.random()<.5)mina('mh_deco',.6)}
 const pad=h=>`${String(Math.floor(h)).padStart(2,'0')}:${String(Math.floor((h%1)*60)).padStart(2,'0')}`;
 const stop=()=>{if(anim)anim.on=false};
 const box=html=>{const b=$('mhbox');if(b){b.innerHTML=html;b.querySelectorAll('[data-en]').forEach(x=>x.onclick=()=>speak(x.dataset.en))}};
@@ -120,7 +117,9 @@ function morning(E,back){/* 朝 7時に なる（日を またいだら 日づ�
 function mina(k,p){try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<p){const [ex,tx]=ML(k);if(tx)setTimeout(()=>MINA.say('m',ex,tx,6500),1500)}}catch(e){}}
 
 /* ================================================================ ことば */
-const NOTES=[["I'm at the register! Snacks are in the second drawer. Help yourself.","レジに いまーす！ おやつは 2番目の 引き出し。 どうぞ。"],
+const NOTES=[["Boss, if you come up here, check the corkboard. I wrote today's English memo!","店長、 2階に 来たら コルクボードを 見て。 きょうの 英語メモ 書いたよ！"],
+ ["Momo (the seal) is guarding my room. Please say hi to Momo.","モモ（あざらし）が へやを 守ってます。 モモに あいさつ してあげて。"],
+ ["I'm at the register! Snacks are in the second drawer. Help yourself.","レジに いまーす！ おやつは 2番目の 引き出し。 どうぞ。"],
  ["Today's word: \"cozy\" = いごこちが いい. My room is cozy, right?","きょうの ことば: cozy ＝ いごこちが いい。 わたしの へや、 cozy でしょ？"],
  ["Don't read my diary! …Just kidding. I don't have one.","日記は 読まないでね！ …うそ。 日記なんて ないです。"],
  ["Water the plant, please! Its name is Leafy.","植木に 水を おねがい！ 名前は リーフィーです。"]];
@@ -176,6 +175,10 @@ Object.assign(MINA_LINES,{
  mh_after:[['happy','泊まったんだね。 ミオちゃんと 夜の おしゃべり、 たのしかった？'],['smile','お泊まり おつかれさま。 夜に 覚えた 英語は よく のこるんだよ']],
  mh_afterHorror:[['think','夜中に ふしぎな こと… こわかった？ でも ミオちゃんと いっしょなら だいじょうぶ'],['smile','"See you soon." ＝ また すぐ 会おう。 おばけも 英語を 勉強してるのかな']],
  mh_afterLove:[['smile','…なんだか しあわせそうな 顔してるね。 先生は なにも 聞かないでおくね'],['happy','すてきな 夜だった みたいだね。 英語の あまい ことば、 ちゃんと 覚えておいてね']],
+ mh_room:[['wow','ミオちゃんの へや、 小物が いっぱい！ タップすると 英語の 名前と ミオちゃんの ひとことが 聞けるよ'],['smile','へやの 物を 英語で 言えると、 毎日の 英語が ぐっと ふえるよ。 clock・bookshelf・rug… しらべてみて']],
+ mh_allObj:[['happy','ミオちゃんの へや、 ぜんぶ しらべたね！ 物の 名前を 英語で 言える 人は つよいよ'],['wow','へやの 物 ぜんぶ 見つけたね。 自分の へやの 物も 英語で 言ってみよう。 desk・lamp・bed…']],
+ mh_gifts:[['smile','あげた プレゼント、 ミオちゃん ちゃんと かざってるんだね。 大事に されてる'],['happy','かざりだなに プレゼントが ならんでるね。 It\'s my treasure. ＝ わたしの 宝物']],
+ mh_deco:[['smile','季節の かざりだね。 行事の ことばは 英語でも 覚えやすいよ'],['wow','ミオちゃん、 季節ごとに へやを かざってるんだね。 かわいい']],
  r_stay:[['smile','きのうは ミオちゃんの ところに 泊まったんだね。 「{t}」… どんな 夜だった？'],['happy','お泊まりの 夜の 話、 こんど 先生にも 聞かせてね']]});
 try{(window.MINA_REACT_EXT=window.MINA_REACT_EXT||{}).stay={act:e=>['r_stay',{t:e.ti||''},['🏠 2階へ',()=>{CG.open();setTimeout(()=>open(),60)}]],desc:e=>`ミオの 2階に 泊まった（${e.ti||''}）`}}catch(e){}
 
