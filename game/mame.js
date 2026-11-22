@@ -4,7 +4,8 @@
    ・画面に 新しく 出た 英文を 見張って（MutationObserver）、 TIPS の re に 合ったら、 読みおわってから（HE.afterTalk）小さく 出す
    ・さいしょは かならず would（ほかは 「would と 同じ しくみ」なので would を 見た あと）
    ・1つの 話は 1回だけ（ひらいたら おしまい。 3回 スルーされたら もう 出さない）。 つぎの 話まで 6分 あける
-   ・授業・テスト・練習・単語帳・ホームでは 出さない（答えの じゃまを しない）
+   ・授業・テスト・練習・単語帳・ホームでは 出さない（答えの じゃまを しない）。 問題の 重ねや 「2/8」が 見えたら 出さない・出ていたら とじる（quizOn）
+   ・ふきだしの どこかを タップで とじる。 こたえは 「タップで こたえ ▶」の ときだけ ひらく
    ・ひらいて いる 間は 会話を 止める（game.js talkBusy が #mamePop.open を 見る）
    ・あとから 読みかえせる ように 🙋 しつもん（game/mina-qa.js）に 「ていねいな 過去形」を 1つ 足す
    きろくは localStorage 'hoshi_mame'（s: 読んだ 時刻、 n: スルーした 回数、 last: さいごに 出した 時刻） */
@@ -55,7 +56,11 @@ const TIPS=[
 const NOSCR=new Set(['home','lesson','lessons','gram','review','sensei','mquiz','mdhint','mdafter','cards','books','settings','msearch']);
 const SKIP='#dpov,#prteach,#cardTop,#cardOv,#mamePop,header,#toast,#cheerBox,.ttov,.qtop,[data-notap]';
 const GAP=6*60000;let bootAt=Date.now(),wait=null,buf=[],bufT=0;
-const okNow=()=>!NOSCR.has(H.screen)&&!$('dpov')&&!$('prteach')&&!$('mamePop')&&!document.hidden;
+/* 11/22 ユーザー: 授業・テスト・練習の 問題中は 出さない。 画面の 名前だけで なく、 問題の 重ね（#dpov 授業・練習・とっくん、 #prteach 教えて）や
+   「2/8」の ような 問題の 番号（.qn・#mdn・#prn・#kdn など）が 見えて いたら 問題中と みなす */
+const quizOn=()=>{if($('dpov')||$('prteach')||$('mdq')||$('prq')||$('kdn'))return true;
+  for(const e of document.querySelectorAll('.qn,.qtop span,[id$="n"]')){if(e.offsetParent&&/\d+\s*\/\s*\d+/.test(e.textContent||'')&&e.closest('.qtop,section,.pnl'))return true}return false};
+const okNow=()=>!NOSCR.has(H.screen)&&!quizOn()&&!$('mamePop')&&!document.hidden;
 /* 音・ことばの まめちしき（t.les）は 数が 多いので 15分 あける */
 const pickTip=text=>{const far=Date.now()-R.last>15*60000,t=TIPS.find(t=>!R.s[t.id]&&(R.n[t.id]||0)<3&&(!t.after||R.s[t.after])&&(!t.les||far)&&t.re.test(text));if(t){const m=text.match(t.re)||[''];t._w=((m.groups&&m.groups.w)||m[0]).trim()}return t};
 /* 11/22: ミニ授業（音と発音など）も まめちしきに。 t.les = LESSONS の id（ひらくと その 授業の 説明カードを 小さく 見せる）、 hook の {w} = 見つけた 英語（game/mini-place.js） */
@@ -67,7 +72,8 @@ function scan(){bufT=0;const txt=buf.join(' \n ');buf=[];
   const t=pickTip(txt);if(!t)return;const scr=H.screen;wait=t;
   /* セリフを 読みおわって、 ひと呼吸 おいてから */
   H.afterTalk(()=>{wait=null;if(H.screen===scr&&okNow())pop(t)},1200,1500,()=>H.screen===scr)}
-new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes){const el=n.nodeType===1?n:n.parentElement;if(!el||el.closest(SKIP))continue;
+new MutationObserver(ms=>{const mp=$('mamePop');if(mp&&(NOSCR.has(H.screen)||quizOn()))shut();
+  for(const m of ms)for(const n of m.addedNodes){const el=n.nodeType===1?n:n.parentElement;if(!el||el.closest(SKIP))continue;
     const s=(n.nodeType===1?n.textContent:n.nodeValue)||'';if(s.length>2&&/[a-z]/i.test(s))buf.push(s.slice(0,600))}
   if(buf.length&&!bufT)bufT=setTimeout(scan,500)}).observe(document.body,{childList:true,subtree:true});
 
@@ -75,9 +81,11 @@ new MutationObserver(ms=>{for(const m of ms)for(const n of m.addedNodes){const e
 let hideT=0;
 function shut(){const p=$('mamePop');if(!p)return;clearTimeout(hideT);p.classList.remove('on','open');setTimeout(()=>p.remove(),300)}
 function pop(t){R.last=Date.now();save();const p=document.createElement('div');p.id='mamePop';p.className='mame';
-  p.innerHTML=`<button class="mmhook" aria-label="まめちしきを ひらく"><span class="mmf">${face(t.x,t.hook)}</span><span class="mmt"><em>💡 ミナ先生の まめちしき</em><span>${hookOf(t)}</span><small>タップで こたえ ▶</small></span></button>`;
+  /* 11/22: ふきだしの どこかを タップで とじる。 こたえは 右下の 「タップで こたえ ▶」の ときだけ ひらく */
+  p.innerHTML=`<div class="mmhook" role="button" aria-label="まめちしきを とじる"><span class="mmf">${face(t.x,t.hook)}</span><span class="mmt"><em>💡 ミナ先生の まめちしき</em><span>${hookOf(t)}</span><button class="mmgo" aria-label="まめちしきの こたえを ひらく">タップで こたえ ▶</button></span></div>`;
   document.body.appendChild(p);void p.offsetWidth;p.classList.add('on');snd('pop');
-  p.querySelector('.mmhook').onclick=e=>{e.stopPropagation();open(t)};
+  p.querySelector('.mmgo').onclick=e=>{e.stopPropagation();open(t)};
+  p.querySelector('.mmhook').onclick=e=>{e.stopPropagation();snd('back');R.n[t.id]=(R.n[t.id]||0)+1;save();shut()};
   /* 読まずに 流れたら スルー 1回（3回で その 話は もう 出さない。 🙋 しつもんでは いつでも 読める） */
   hideT=setTimeout(()=>{if(p.classList.contains('open'))return;R.n[t.id]=(R.n[t.id]||0)+1;save();shut()},14000)}
 function open(t){const p=$('mamePop');if(!p)return;clearTimeout(hideT);snd('talk');R.s[t.id]=Date.now();save();const L=t.les?lesOf(t.les):null;
