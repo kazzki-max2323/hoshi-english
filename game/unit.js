@@ -186,7 +186,7 @@ function sheet(bk){C={m:'sheet'};hush();const box=shell('📄 まとめ 1まい'
 const stars=n=>`<span class="mdstar">${'★'.repeat(n)}<i>${'★'.repeat(3-n)}</i></span>`;
 function score(st){return `<div class="snscore"><span>⭕ 1回で <b>${st.ok}</b></span><span>💡 ヒントで <b>${st.hint}</b></span><span>📘 解説 <b>${st.miss}</b></span></div>`}
 function pay(n){setTimeout(()=>{try{const b=$('mdbox').getBoundingClientRect();H.coinBurst(b.left+b.width/2,Math.min(b.top+60,innerHeight-60),n)}catch(e){ST.coins+=n}},400)}
-function chEnd(ci,st,bad){const c=CH[ci],first=!chDone(ci);R.ch[ci]=R.ch[ci]||{};R.ch[ci].d=1;R.ch[ci].c=(R.ch[ci].c||0)+1;R.ch[ci].t=Date.now();save();
+function chEnd(ci,st,bad){const c=CH[ci],first=!chDone(ci);R.ch[ci]=R.ch[ci]||{};R.ch[ci].d=1;R.ch[ci].qk=Math.max(R.ch[ci].qk||0,st.ok);/* たしかめで 1回で せいかい した 数（身についた に 数える、practice.js chState） */R.ch[ci].c=(R.ch[ci].c||0)+1;R.ch[ci].t=Date.now();save();
   study('l',[gidOf(ci)]);
   try{RECENT.add('unit',{id:D.id,ci,t:c.short,miss:st.miss})}catch(e){}
   const coin=first?5:2,[ex,tx]=ML(st.miss?'chMiss':'chDone',{t:c.short}),nx=nextCh(),nxt=ci+1<CH.length?ci+1:nx,Pl=P;
