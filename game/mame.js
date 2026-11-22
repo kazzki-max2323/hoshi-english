@@ -41,7 +41,14 @@ const TIPS=[
  {id:'should',after:'would',re:/\b(you|we|I) should\b/i,x:'smile',
   hook:'<b>should</b> って、 むかしは <b>shall の 過去形</b>だったって 知ってた？',
   say:'shall は 「〜する ことに なっている」と いう 強い ことば。 過去の 形で 一歩 下がって、 <b>「〜した ほうが いいよ」</b>と いう やさしい アドバイスに なったの。 must より ずっと やわらか',
-  ex:[['You should try this.','これ、 ためして みたら いいよ'],['We should go home.','そろそろ 帰ったほうが いいね']]}
+  ex:[['You should try this.','これ、 ためして みたら いいよ'],['We should go home.','そろそろ 帰ったほうが いいね']]},
+ /* 11/22: 「〇〇が ある・いる＝have」（ユーザーが チャットで We don't have class on Sunday. の have に 気づいて 「昔からの 謎が とけた」）。
+    完了形（have＋過去分詞）には 出さない ように、 have の すぐ 後ろが 名詞の ときだけ（a/an/class/time/lunch…） */
+ {id:'have',re:/\b(?:I|you|we|they|he|she|it|who|don't|doesn't|didn't|also|still|usually|always|often|never|really)\s+(?<w>(?:have|has)\s+(?:(?:a|an|no|any|some)\s+[a-z]+|class(?:es)?|time|lunch|breakfast|dinner|fun|homework|plans?|questions?|money|brothers?|sisters?|pets?|friends?|kids|children|school|work|tests?))\b/i,x:'think',wd:'have class',ok:'mame_okHave',
+  hook:'「{w}」の <b>have</b>、 完了形じゃ ないよ。 日本語なら 「〜が ある・いる」って 言う ところ。 なんで 「持っている」なんだと 思う？',
+  say:'日本語は 「授業が ある」って <b>物を 主語</b>に するよね。 英語は <b>「だれが 持っているか」</b>で 言うのが 好きなの。 だから 「授業が ある」は We have class.（わたしたちは 授業を 持っている）。 have は ふつうの 動詞だから、 「ない」は <b>don\'t have</b> だよ',
+  f:[['月曜は 授業が ある','We have class on Monday.'],['日曜は 授業が ない','We don\'t have class on Sunday.']],
+  ex:[['I have time today.','きょうは 時間が ある'],['I have a brother.','お兄さん（弟）が いる'],['Do you have any questions?','質問は ある？'],["Let's have lunch.",'お昼に しよう（have＝食べる も ある）']]}
 ];
 
 /* 出さない ところ */
@@ -50,11 +57,11 @@ const SKIP='#dpov,#prteach,#cardTop,#cardOv,#mamePop,header,#toast,#cheerBox,.tt
 const GAP=6*60000;let bootAt=Date.now(),wait=null,buf=[],bufT=0;
 const okNow=()=>!NOSCR.has(H.screen)&&!$('dpov')&&!$('prteach')&&!$('mamePop')&&!document.hidden;
 /* 音・ことばの まめちしき（t.les）は 数が 多いので 15分 あける */
-const pickTip=text=>{const far=Date.now()-R.last>15*60000,t=TIPS.find(t=>!R.s[t.id]&&(R.n[t.id]||0)<3&&(!t.after||R.s[t.after])&&(!t.les||far)&&t.re.test(text));if(t)t._w=(text.match(t.re)||[''])[0].trim();return t};
+const pickTip=text=>{const far=Date.now()-R.last>15*60000,t=TIPS.find(t=>!R.s[t.id]&&(R.n[t.id]||0)<3&&(!t.after||R.s[t.after])&&(!t.les||far)&&t.re.test(text));if(t){const m=text.match(t.re)||[''];t._w=((m.groups&&m.groups.w)||m[0]).trim()}return t};
 /* 11/22: ミニ授業（音と発音など）も まめちしきに。 t.les = LESSONS の id（ひらくと その 授業の 説明カードを 小さく 見せる）、 hook の {w} = 見つけた 英語（game/mini-place.js） */
 const lesOf=id=>{try{return (typeof LESSONS!=='undefined'?LESSONS:[]).find(l=>l.id===id)||null}catch(e){return null}};
 const lesHtml=l=>l.steps.map(s=>`<div class="mmls"><p>${s[2]}</p>${s[3]?`<div class="fz">${s[3]}</div>`:''}</div>`).join('');
-const hookOf=t=>String(t.hook||'').replace(/\{w\}/g,esc(t._w||''));
+const hookOf=t=>String(t.hook||'').replace(/\{w\}/g,esc(t._w||t.wd||''));
 function scan(){bufT=0;const txt=buf.join(' \n ');buf=[];
   if(wait||Date.now()-R.last<GAP||Date.now()-bootAt<20000||!okNow())return;
   const t=pickTip(txt);if(!t)return;const scr=H.screen;wait=t;
@@ -81,7 +88,7 @@ function open(t){const p=$('mamePop');if(!p)return;clearTimeout(hideT);snd('talk
     <div class="mmex">${(t.ex||[]).map(([en,ja])=>`<button data-say="${esc(en)}"><span>🔊 ${esc(en)}</span><small>${esc(ja)}</small></button>`).join('')}</div>
     <div class="mmnav"><button class="mmok">なるほど！</button></div></div>`;
   p.querySelectorAll('[data-say]').forEach(b=>b.onclick=e=>{e.stopPropagation();snd('pop');talk(b.dataset.say)});
-  p.querySelector('.mmok').onclick=e=>{e.stopPropagation();snd('step');const [ex,tx]=ML(L?'mame_ok2':'mame_ok');
+  p.querySelector('.mmok').onclick=e=>{e.stopPropagation();snd('step');const [ex,tx]=ML(t.ok||(L?'mame_ok2':'mame_ok'));
     p.innerHTML=`<div class="mmbox mmbye"><div class="mmhd"><span class="mmf">${face(ex,tx)}</span><p>${tx}</p></div></div>`;hideT=setTimeout(shut,2200)};
   p.onclick=e=>e.stopPropagation()}
 
@@ -94,15 +101,25 @@ if(window.MINAQA&&window.UNIT&&UNIT.F){const {B,row,two,tbl,note}=UNIT.F;
     f:two(['Will you〜?','〜して くれる？','o'],['Would you〜?','〜して いただけますか？','g'])},
    {x:'happy',say:'同じ しくみの なかま。 could（can）・might（may）・should（shall）も、 I wanted to ask…（聞きたかったんですが）も ぜんぶ 「一歩 下がる」 過去形',
     f:tbl([['Could you〜?','もし できたら…（ていねいな おねがい）'],['It might rain.','ひょっとしたら ふるかも'],['You should〜','〜した ほうが いいよ'],['I was wondering if〜','〜かなと 思いまして']]),
-    ex:[['Could you help me?','手伝って いただけますか？'],['I wanted to ask you something.','ちょっと お聞きしたい ことが あって']]}]})}
+    ex:[['Could you help me?','手伝って いただけますか？'],['I wanted to ask you something.','ちょっと お聞きしたい ことが あって']]}]});
+  MINAQA.all.splice(Math.min(5,MINAQA.all.length),0,{id:'have_aru',ico:'🎒',q:'We don\'t have class. の have って なに？ 完了形？',go:['shikumi',5],cards:[
+   {x:'think',say:'この have は 完了形（have＋過去分詞）じゃ なくて、 ふつうの 動詞の <b>「持っている」</b>。 後ろに class（名詞）が 来てるよね',
+    f:row([B('We','s'),B('have','v'),B('class','o'),B('on Monday.')],'o')+note('授業を 持っている ＝ 授業が ある')},
+   {x:'smile',say:'日本語は 「授業が ある」と <b>物を 主語</b>に するけど、 英語は <b>「だれが 持っているか」</b>で 言うのが 好きなの。 時間が ある・兄弟が いる・質問が ある… みんな have',
+    f:tbl([['時間が ある','I have time.'],['お兄さんが いる','I have a brother.'],['質問は ある？','Do you have any questions?'],['熱が ある','I have a fever.']])},
+   {x:'proud',say:'have は ふつうの 動詞だから、 「ない」「ある？」は <b>do の 出番</b>。 don\'t have・Do you have〜? に なるよ。 have lunch（お昼を 食べる）みたいに 「食べる」の 意味も ある、 はたらきものの 動詞なんだ',
+    f:row([B('We','s'),B('don\'t','m'),B('have','v'),B('class','o'),B('on Sunday.')],'o')+note('日曜は 授業が ない'),
+    ex:[["We don't have class on Sunday.",'日曜は 授業が ない'],['Do you have time?','時間 ある？']]}]})}
 
 Object.assign(MINA_LINES,{
  mame_ok:[['happy','でしょ？ 知ると 英語の 見え方が かわるよね'],['love','これで あなたも ていねいな 英語の なかまいり'],['proud','つぎに 聞いたら 「あ、 一歩 下がってる」って 思い出してね'],['smile','授業じゃ ないから、 気楽に 覚えておいてね']],
  r_mame:[['happy','さっきの まめちしき、 覚えてる？ 過去の 形は 一歩 下がって ていねい、 だったね'],['love','ていねいな 過去形の 話、 先生 あれ 大好きなんだ'],['smile','お店で Would you〜? を 聞いたら、 さっきの 話を 思い出してみて'],['proud','would・could、 もう 「なんで？」って ならないね']],
+ mame_okHave:[['happy','でしょ？ 「〜が ある」は have、 これで 英語の 文が ぐっと 作りやすく なるよ'],['proud','時間が ある・兄弟が いる・質問が ある… ぜんぶ have で 言えちゃうね'],['love','先生も 中学生の とき、 これに 気づいて 「あっ！」って なったんだ'],['smile','つぎに have を 見たら 「だれが 持ってる？」って 考えてみてね']],
+ r_mameHave:[['happy','さっきの まめちしき、 覚えてる？ 「授業が ある」は We have class. だったね'],['smile','英語は 「だれが 持っているか」で 言うのが 好き。 have を 見たら 思い出してね'],['proud','「ない」は don\'t have。 have は ふつうの 動詞だから do の 出番だよ'],['love','I have time for you. …なんてね。 「あなたの ための 時間が ある」って 意味だよ']],
  r_mameMore:[['smile','would の ほかにも 「一歩 下がる」 過去形は あるよ。 また 会話の 中で 見つけたら 教えるね'],['happy','could・might・should… ていねいな 過去形の なかま、 少しずつ 会えるよ']]
 });
 window.MINA_REACT_EXT=window.MINA_REACT_EXT||{};
 const POLITE=['would','could','wanted','might','should'];
-MINA_REACT_EXT.mame={act:e=>!POLITE.includes(e.t)?['r_mame2',{},null]:[e.t==='would'&&TIPS.some(t=>!R.s[t.id])&&Math.random()<.5?'r_mameMore':'r_mame',{},null],desc:e=>POLITE.includes(e&&e.t)?'ミナ先生の まめちしき（ていねいな 過去形）を 読んだ':'ミナ先生の まめちしき（音や ことば）を 読んだ'};
+MINA_REACT_EXT.mame={act:e=>e.t==='have'?['r_mameHave',{},null]:!POLITE.includes(e.t)?['r_mame2',{},null]:[e.t==='would'&&TIPS.some(t=>!R.s[t.id])&&Math.random()<.5?'r_mameMore':'r_mame',{},null],desc:e=>e&&e.t==='have'?'ミナ先生の まめちしき（「〜が ある」＝have）を 読んだ':POLITE.includes(e&&e.t)?'ミナ先生の まめちしき（ていねいな 過去形）を 読んだ':'ミナ先生の まめちしき（音や ことば）を 読んだ'};
 window.MAME={tips:TIPS,add:a=>{a.forEach(t=>{if(!TIPS.some(x=>x.id===t.id))TIPS.push(t)})},lesOf,lesHtml,seen:id=>!!R.s[id],test:id=>{const t=TIPS.find(x=>x.id===id);if(t)pop(t)}};
 })();
