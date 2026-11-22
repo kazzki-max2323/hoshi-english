@@ -188,12 +188,16 @@ function chEnd(ci,st,bad){const c=CH[ci],first=!chDone(ci);R.ch[ci]=R.ch[ci]||{}
   try{RECENT.add('unit',{id:D.id,ci,t:c.short,miss:st.miss})}catch(e){}
   const coin=first?5:2,[ex,tx]=ML(st.miss?'chMiss':'chDone',{t:c.short}),nx=nextCh(),nxt=ci+1<CH.length?ci+1:nx,Pl=P;
   C={m:'end'};$('mdn').textContent='✔';
-  const then=Pl&&Pl.then?Pl.then(st):null;
+  const then=Pl&&Pl.then?Pl.then(st):null,stop=!!(Pl&&Pl.stop),
+    /* 11/22: おまけの ミニ授業は やめて、 ミナ先生が ふきだしで コツを ひとこと（game/mina-kotsu.js） */
+    tip=Pl&&Pl.tip?(()=>{try{return Pl.tip(st)||''}catch(e){return ''}})():'',
+    /* スタンプ・なかよし（game/motivate.js）。 前は ミニ授業だけ だった */
+    stp=window.MOTI&&MOTI.unitDone?MOTI.unitDone(D.id+':'+ci,st):'';
   $('mdbox').innerHTML=`<div class="kres mdres"><p class="kend good">${st.miss?'✔':'🌟 よくできた！'} ${ci+1}時間目 おわり</p>${score(st)}
-    <p class="kpay sm">🪙 ${coin}まい</p>${minaBox(ex,tx)}
+    <p class="kpay sm">🪙 ${coin}まい${stp?`　<small class="mdstp">${stp}</small>`:''}</p>${minaBox(ex,tx+(tip?`<span class="mdkotsu">💡 ${tip}</span>`:''))}
     ${then?`<div class="mdnav"><button id="mdthen">${then[0]}</button></div>`:''}
-    <div class="mdnav">${st.miss?`<button class="sub" id="mdre">🔁 カードを もう一回</button>`:''}${then?'':nxt!=null?`<button id="mdnc">▶ ${nxt+1}時間目へ</button>`:`<button id="mdt">📝 まとめテストへ</button>`}</div>
-    ${then?`<div class="mdnav"><button class="sub" id="mdc">✖ きょうは ここまで</button></div>`:`<div class="mdnav"><button class="sub" id="mdm">☰ 時間の 一覧</button></div>`}</div>`;
+    <div class="mdnav">${st.miss?`<button class="sub" id="mdre">🔁 カードを もう一回</button>`:''}${then||stop?'':nxt!=null?`<button id="mdnc">▶ ${nxt+1}時間目へ</button>`:`<button id="mdt">📝 まとめテストへ</button>`}</div>
+    ${then||stop?`<div class="mdnav"><button class="sub" id="mdc">✖ きょうは ここまで</button></div>`:`<div class="mdnav"><button class="sub" id="mdm">☰ 時間の 一覧</button></div>`}</div>`;
   snd('done');pay(coin);
   if(Pl&&Pl.done)try{Pl.done(st)}catch(e){console.error(e)}
   const re=$('mdre');if(re)re.onclick=()=>{snd('step');P=Pl;chapter(ci,0)};
@@ -225,7 +229,7 @@ function testEnd(st,bad){const N=st.ok+st.hint+st.miss,perfect=st.ok===N,s=perfe
   $('mdc').onclick=()=>{snd('back');close()}}
 
 /* ---------- ミナ先生が えらんで はじめる（game/mina-plan.js） ---------- */
-/* p = {ci: 時間（なければ つぎ）, warm: さいしょの ちょっと ふくしゅう（問題の 配列）, label, then(st)→[ボタン, fn], done(st,isTest)} */
+/* p = {ci: 時間（なければ つぎ）, warm: さいしょの ちょっと ふくしゅう（問題の 配列）, label, then(st)→[ボタン, fn], done(st,isTest), stop: おわりは 「きょうは ここまで」だけ, tip(st)→ミナ先生の ひとこと コツ（html）} */
 function go(p){p=p||{};P=p;R.n=(R.n||0)+1;R.t=Date.now();save();
   const ci=p.ci!=null?p.ci:nextCh();
   if(p.test||ci==null){return run0(()=>test())}

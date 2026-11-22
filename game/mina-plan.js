@@ -1,10 +1,12 @@
 /* 👩‍🏫 ミナ先生が えらんで はじめる しくみ（MPLAN）
    ユーザーの 希望（2026-11-20）: 「何分？」は なし。 えらぶのは ミナ先生。 全部で いくつ・のこり いくつは 見せない
-   - 🔥 きょうの授業（大きく。 自動では はじまらない: ユーザーの 希望 11/20）: ちょっと ふくしゅう 2問 → いまの 単元の つぎの 1時間 → おまけ（音・ことば・勉強の コツの ミニ授業）
+   - 🔥 きょうの授業（大きく。 自動では はじまらない: ユーザーの 希望 11/20）: ちょっと ふくしゅう 2問 → いまの 単元の つぎの 1時間 → おわり（ミナ先生の ひとこと コツ。 11/22 おまけの ミニ授業は やめた）
        はじめての 単元も 1時間目から（11/22: 「まず ちょっと 聞かせて」で とばすのは やめた）
    - 💪 特別授業: 苦手が いちばん 多い 単元を、 まちがえた 時間から 通しで
-   - 📖 勉強: きょうの授業とは べつの 単元の 1時間（なければ 音・ことばの ミニ授業）
-   - 📚 復習: 単元の まちがい → ミニ授業の まちがいノート → 苦手とっくん → 習った 単元 を じゅんばんに
+   - 📖 勉強: きょうの授業とは べつの 単元の 1時間（なければ きょうの授業）
+   - 📚 復習: 単元の まちがい → 苦手とっくん → 習った 単元 を じゅんばんに
+   11/22 ユーザー「授業の 選択が 多いと あれも これも に なる」: ミニ授業（🎁おまけ・💡コツの たな・まちがいノート）は えらぶ 所に 出さない。
+     中身は 単元・ミナ先生の ひとこと（game/mina-kotsu.js）・まめちしき・☕おしゃべりへ 移していく。 🔍さがす からは 読める
    - ☕ おしゃべり: 先生役の 会話 か 長い おしゃべり
    単元の じゅんばんは ORDER（先に 習うと あとが 楽に なる じゅん。 まだ ない 単元は とばす）
    セリフは game/unit-lines.js（mp_ ・ x_mp）。 きろくは localStorage 'hoshi_plan' */
@@ -29,22 +31,16 @@ const chOf=u=>{const i=u.nextCh();return i==null?null:u.D.CH[i]};
 function todayInfo(){const u=cur();if(!u)return null;const c=chOf(u),fresh=!u.started();
   return {u,c,fresh,test:!c,t:c?c.short:'まとめテスト'}}
 
-/* ---------- おまけ: 音・ことば・勉強の コツの ミニ授業（文法の ミニ授業は 単元に 入った） ---------- */
-const lesDone=id=>!!((MINA.rec().les||{})[id]);
-function omake(){if(typeof LESSONS==='undefined')return null;let lv='jh';try{lv=MINA.level()}catch(e){}
-  const tip=Math.random()<.3,cats=tip?['yarikata','kagaku']:['oto','kotsu','hama'];
-  const ok=l=>cats.includes(l.cat)&&!lesDone(l.id),same=LESSONS.filter(l=>ok(l)&&l.lv===lv),any=LESSONS.filter(ok);
-  return pickL(same.length?same:any)||null}
-function omakeBtn(){const l=omake();if(!l)return ['👩‍🏫 ミナ先生に ほうこく ▶',()=>MINA.open()];
-  return [`🎁 おまけ：${esc(l.t)} ▶`,()=>{try{LESSON.open(l.id,MINA.open)}catch(e){MINA.open()}}]}
+/* ---------- 授業の おわり: おまけの ミニ授業は やめて（11/22）、 ミナ先生が コツを ひとこと（game/mina-kotsu.js） ---------- */
+const kotsu=st=>window.KOTSU?KOTSU.next({miss:st&&st.miss}):'';
 
 /* ---------- 🔥 きょうの授業 ---------- */
 function warmFrom(u){/* ほかの 単元（まちがいが ある もの 優先）か この 単元の おわった 時間から 2問 */
   const L=units().filter(x=>x.doneN()>0),w=L.filter(x=>x.missOf()>0),src=pickL(w.length?w:L);if(!src)return null;
   const qs=src.warmQs(2);return qs.length?{src,qs}:null}
 function today(){const D=day(),I=todayInfo();if(!I)return;const u=I.u,label='🔥 きょうの 授業';
-  const P={label,then:()=>D.done?null:omakeBtn(),done:()=>{D.done=1;D.n++;keep();try{RECENT.add('plan',{k:'today',u:u.id})}catch(e){}}};
-  if(D.done){/* もう1時間: ふくしゅう・おまけ なし */P.then=null;u.go(P);return}
+  const P={label,stop:1,tip:st=>D.done?'':kotsu(st),done:()=>{D.done=1;D.n++;keep();try{RECENT.add('plan',{k:'today',u:u.id})}catch(e){}}};
+  if(D.done){/* もう1時間: ふくしゅう・ひとこと なし */P.tip=null;u.go(P);return}
   const W=warmFrom(u),start=()=>u.go(Object.assign({},P,{test:I.test}));
   if(W)W.src.warmRun(W.qs,label,start);else start()}
 
@@ -66,15 +62,13 @@ function specialName(){const u=weakUnit();return u?u.D.title:''}
 
 /* ---------- 📖 勉強: べつの 単元の 1時間 ---------- */
 function study(){const c=cur(),L=units().filter(u=>u!==c&&!u.done()),u=L.find(u=>u.started())||L[0];
-  if(!u){const l=omake();if(l){SFX.lesson();LESSON.open(l.id,MINA.open)}else today();return}
-  const P={label:'📖 勉強',then:()=>omakeBtn()};
+  if(!u){today();return}
+  const P={label:'📖 勉強',stop:1,tip:st=>kotsu(st)};
   u.go(Object.assign(P,{test:u.nextCh()==null}))}
 
 /* ---------- 📚 復習: いろいろな ところから じゅんばんに 1つ ---------- */
 function review(){const opts=[];
   const um=units().filter(u=>u.missOf()>0);if(um.length)opts.push(()=>um[0].review({label:'⚡ 練習'}));
-  try{if(REVIEW.missN()>0)opts.push(()=>{SFX.lesson();REVIEW.drill('miss',MINA.open,5)})}catch(e){}
-  try{if(REVIEW.dueIds().length)opts.push(()=>{SFX.lesson();REVIEW.drill('today',MINA.open)})}catch(e){}
   try{const w=SENSEI.weak();if(w.length)opts.push(()=>{SFX.step();SENSEI.tokkun(w.slice(0,3),0,'mina')})}catch(e){}
   const ud=units().filter(u=>u.doneN()>0);if(ud.length)opts.push(()=>pickL(ud).review({label:'⚡ 練習'}));
   if(!opts.length){const [ex,tx]=ML('mp_none');try{MINA.say(ex,tx,5000)}catch(e){}today();return}
@@ -96,7 +90,6 @@ function chat(){let lv='es';try{lv=MINA.level();if(lv==='adv')lv='hs'}catch(e){}
    4. ぜんぶ おわった → ☕ おしゃべり */
 function prSrc(){/* 練習で いちばん 先に かためたい ところ（なければ null） */
   const um=units().filter(u=>u.missOf()>0).sort((a,b)=>b.missOf()-a.missOf());if(um.length)return {miss:1,t:um[0].D.title};
-  try{if(REVIEW.missN()>0)return {miss:1,t:'まちがいノート'}}catch(e){}
   try{if(SENSEI.weak().length)return {miss:1,t:'苦手な 文法'}}catch(e){}
   const ud=units().filter(u=>u.doneN()>0);if(ud.length)return {miss:0,t:ud.map(u=>u.D.title).slice(0,2).join('・')};
   return null}
@@ -147,34 +140,26 @@ function sub(title,ex,tx,body){H.show('mina',`<section class="pnl minap mpsub">
   $('mpbk').onclick=()=>{SFX.pop();MINA.open()}}
 const rowB=(id,ico,b,s,cls)=>`<button class="mprow ${cls||''}" ${id}><span>${ico}</span><b>${b}</b>${s?`<small>${s}</small>`:''}</button>`;
 
-/* 📘 授業: つぎの 授業（大きく）・ 習っている／おわった 単元（見かえせる）・ 💡コツの たな */
-const COTS=[['kotsu','💡','覚え方の コツ'],['oto','👄','音と 発音'],['yarikata','📝','勉強の やり方'],['kagaku','🧠','学び方の 科学'],['hama','🍬','ハマ子の 語呂'],['zu','🖼️','図で わかる 文法']];
+/* 📘 授業: つぎの 授業（大きく）・ 習っている／おわった 単元（見かえせる）。 💡コツの たな（ミニ授業）は 11/22 に 外した */
 function lessonsPage(){const I=todayInfo(),D=day(),L=units().filter(u=>u.started()),G=gate(),[ex,tx]=G?ML('mp_gateLes',{t:G.c.short}):ML(L.length?'mp_les':'mp_les0');
   const body=`${G?rowB('id="mplgt"','🌱',esc(G.u.D.title)+'　'+esc(G.c.short),'身に つける 練習 ▶','big'):I?rowB('id="mplgo"','📘',esc(I.u.D.title)+'　'+esc(I.t),D.done?'もう 1時間':'つぎの 授業 ▶','big'):''}
-    ${L.length?`<h4 class="sth">📚 習っている 授業</h4><div class="mplist">${L.map(u=>rowB(`data-u="${u.id}"`,u.D.ico,esc(u.D.title),u.done()?'おわった・見かえす':'つづき')).join('')}</div>`:''}
-    <details class="mfold mpcot"><summary>💡 コツの たな<small>音・覚え方・勉強の やり方</small></summary><div class="mfbody" id="mpcotb"></div></details>`;
+    ${L.length?`<h4 class="sth">📚 習っている 授業</h4><div class="mplist">${L.map(u=>rowB(`data-u="${u.id}"`,u.D.ico,esc(u.D.title),u.done()?'おわった・見かえす':'つづき')).join('')}</div>`:''}`;
   sub('📘 授業',ex,tx,body);
   const g=$('mplgo');if(g)g.onclick=()=>{SFX.lesson();today()};
   const gt=$('mplgt');if(gt)gt.onclick=()=>{SFX.lesson();PRAC.start({u:G.u.id,ci:G.ci})};
-  H.panel.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{SFX.lesson();const u=UNIT.get(b.dataset.u);if(u)u.open()});
-  const f=H.panel.querySelector('.mpcot');f.ontoggle=()=>{if(!f.open||$('mpcotb').children.length)return;SFX.pop();
-    if(typeof LESSONS==='undefined')return;
-    $('mpcotb').innerHTML=COTS.map(([c,ico,n])=>{const ls=LESSONS.filter(l=>l.cat===c);return ls.length?`<details class="mfold"><summary>${ico} ${n}<small>${ls.length}</small></summary><div class="mfbody">${ls.map(LESSON.row).join('')}</div></details>`:''}).join('');
-    LESSON.bindRows(lessonsPage)}}
+  H.panel.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>{SFX.lesson();const u=UNIT.get(b.dataset.u);if(u)u.open()})}
 
 /* ⚡ 練習: きょうの 練習（ミナ先生が えらぶ）・ ⚡れんぱつ・ 📝まとめテスト */
 function practicePage(){const pr=prSrc(),L=units().filter(u=>u.doneN()>0),[ex,tx]=ML(pr?'mp_pr':'mp_pr0');let tk=[];try{tk=SENSEI.weak()}catch(e){}
-  const U=window.PRAC?units().filter(u=>PRAC.has(u.id)):[];let mn=0;try{mn=REVIEW.missN()}catch(e){}
+  const U=window.PRAC?units().filter(u=>PRAC.has(u.id)):[]
   const body=`${pr?rowB('id="mppgo"','⚡','きょうの 練習',esc(pr.t)+' ▶','big'):''}
     ${U.length>1?`<h4 class="sth">📘 授業を えらんで 練習</h4><div class="mplist">${U.map(u=>rowB(`data-pu="${u.id}"`,u.D.ico,esc(u.D.title),'10問')).join('')}</div>`:''}
-    ${mn?rowB('id="mppmn"','📒','ミニ授業の まちがいノート',mn+'問'):''}
     ${window.SKDRILL?rowB('id="mppkd"','🔁','れんぱつ 練習','ぜんぶ・🚦動詞チェック など'):''}
     ${tk.length?rowB('id="mpptk"','🎯','苦手 とっくん','5問'):''}
     ${L.length?`<h4 class="sth">📝 まとめテスト</h4><div class="mplist">${L.map(u=>rowB(`data-t="${u.id}"`,u.D.ico,esc(u.D.title),u.stars?u.stars(u.rec().best||0):'')).join('')}</div>`:''}`;
   sub('⚡ 練習',ex,tx,body);
   const g=$('mppgo');if(g)g.onclick=()=>{SFX.lesson();practice()};
   H.panel.querySelectorAll('[data-pu]').forEach(b=>b.onclick=()=>{SFX.lesson();PRAC.start({u:b.dataset.pu})});
-  const mnb=$('mppmn');if(mnb)mnb.onclick=()=>{SFX.lesson();REVIEW.drill('miss',MINA.open,5)};
   const kd=$('mppkd');if(kd)kd.onclick=()=>{SFX.lesson();day().pr=1;keep();SKDRILL.open()};
   const t=$('mpptk');if(t)t.onclick=()=>{SFX.step();day().pr=1;keep();SENSEI.tokkun(tk.slice(0,3),0,'mina')};
   H.panel.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{SFX.lesson();const u=UNIT.get(b.dataset.t);if(u){u.open();u.test()}})}
@@ -202,8 +187,13 @@ function homeCard(){const v=H.panel.querySelector('.home .row');if(!v)return;con
 H.on('home',()=>setTimeout(homeCard,0));if(H.screen==='home')setTimeout(homeCard,0);
 
 /* ---------- ホームの ミナ先生の ひとこと: 「何分？」と ミニ授業の きょうの1本 は やめて、 こっちに ---------- */
-try{const RL=MINA_SENSE._rules,drop=['x_stAsk','x_stNext','x_lesToday','x_lesStreakKeep','x_lesMore','x_lesStreakLost','x_dpWeak','x_dpCurious','x_dpCheck','x_dpMaster'];
-  for(let i=RL.length-1;i>=0;i--)if(drop.includes(RL[i][0]))RL.splice(i,1);
+try{const RL=MINA_SENSE._rules,drop=['x_stAsk','x_stNext','x_lesToday','x_lesStreakKeep','x_lesMore','x_lesStreakLost','x_dpWeak','x_dpCurious','x_dpCheck','x_dpMaster',
+    /* 11/22: ミニ授業を すすめる ひとことは やめる（えらぶ ものは 📘授業だけ） */
+    'x_lesStreakDone','x_lesCount','x_lesLevel','x_lesCat','x_lesNone','x_lesRecent','x_lesKey','x_lesLvDone','x_lesNew','x_lesGram','x_gramLes','x_gramLesBoth','x_gramLesPeek',
+    'x_tipMiss','x_tipWeekend','x_rvToday','x_rvMiss','x_rvStar','x_rvDue','x_hamaCh'],
+    /* コツの ひとことは のこす。 でも 「📖 授業を ひらく」の ボタンは つけない（言うだけ） */
+    talkOnly=['x_tipDone','x_tipNew','x_tipSleep','x_tipMorning','x_oops','x_lesQuiz','x_stamp'];
+  for(let i=RL.length-1;i>=0;i--){if(drop.includes(RL[i][0]))RL.splice(i,1);else if(talkOnly.includes(RL[i][0]))RL[i][3]=null}
   const go=()=>['🔥 きょうの 授業',()=>today()];
   RL.push(['x_mpToday',6,F=>{const D=day(),I=todayInfo();return !D.done&&I&&!I.fresh?{u:I.u.D.title,t:I.t}:null},go]);
   RL.push(['x_mpNew',4,F=>{const D=day(),I=todayInfo();return !D.done&&I&&I.fresh?{u:I.u.D.title}:null},go]);

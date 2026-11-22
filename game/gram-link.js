@@ -80,8 +80,10 @@ const owned=id=>true /* 文法ノートは ぜんぶ ひらいている */,clear
 const notes=()=>has()?GLV.flatMap(lv=>(GRAMMAR[lv]?GRAMMAR[lv].notes:[]).map((n,i)=>({lv,i,n}))):[];
 const noteById=id=>notes().find(g=>g.n.id===id);
 
-/* lessons for a grammar note (ones not cleared yet come first) */
-function lessonsFor(noteId){if(!has())return [];const a=(GRAM_LES[noteId]||[]).map(lesById).filter(Boolean);
+/* lessons for a grammar note (ones not cleared yet come first)
+   11/22: ミニ授業へは もう さそわない（えらぶ ものは 📘単元の 授業だけ）。 文法の 中身は 単元に 入る ので、 ここは いつも 空。 もとの しらべ方は lessonsForOld */
+function lessonsFor(noteId){return []}
+function lessonsForOld(noteId){if(!has())return [];const a=(GRAM_LES[noteId]||[]).map(lesById).filter(Boolean);
   return a.filter(l=>!lesDone(l.id)).concat(a.filter(l=>lesDone(l.id)))}
 /* grammar notes for a lesson: the note of the same level first, then the others */
 function notesFor(lesId){const l=has()&&lesById(lesId);if(!l)return [];

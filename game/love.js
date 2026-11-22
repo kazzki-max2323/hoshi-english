@@ -46,12 +46,13 @@ const fitOf=t=>{const M=mood();return M[4].includes(t)?2:M[5].includes(t)?0:1};
 function roll(){const d=dk();if(LV.rd===d)return;LV.rd=d;
   if(!LV.fight&&!alt()&&LV.st>=1&&LV.st<=4&&LV.day!==d&&!ready()&&LV.n>=3&&Math.random()<.08){LV.fight={i:Math.random()*LOVE_FIGHTS.length|0,d,tries:0}}save()}
 /* the English it takes to go up a stage */
-const lesDone=()=>{try{return LESSON.count()[0]}catch(e){return 0}};
+/* 授業の 数: 📘単元の おわった 時間 ＋ 前の ミニ授業（11/22 ミニ授業は えらぶ 所に 出さなく なったので 単元も 数える） */
+const lesDone=()=>{let n=0;try{n+=LESSON.count()[0]}catch(e){}try{UNIT.list.forEach(u=>{n+=u.doneN()||0})}catch(e){}return n};
 const words=lv=>Object.keys(ST.learned||{}).filter(k=>k.startsWith(lv+':')).length;
 const phN=()=>Object.keys(LV.ph).length;
 const LVN={es:'小学生',jh:'中学生',hs:'高校生',adv:'ハイレベル'};
 function conds(st=LV.st){const c=STG[st]&&STG[st].cond;if(!c)return [];const out=[];
-  if(c.les)out.push({t:'📖 ミニ授業',have:lesDone(),need:c.les});
+  if(c.les)out.push({t:'📘 授業',have:lesDone(),need:c.les});
   if(c.ph)out.push({t:'📔 恋の フレーズ',have:phN(),need:c.ph});
   if(c.w)out.push({t:`📕 ${LVN[c.w[0]]}の 単語を おぼえる`,have:words(c.w[0]),need:c.w[1]});
   out.forEach(o=>o.ok=o.have>=o.need);return out}

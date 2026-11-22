@@ -61,7 +61,7 @@ const LOVE_TITLES=[
 /* [種類, 英語, 訳, 約束の 中身] */
 const LOVE_PROMISES=[
  ['come',"Promise you'll come see me tomorrow?","あしたも 会いに 来るって 約束してくれる？",'あした ふたりの 時間に 来る'],
- ['lesson',"Will you do one mini lesson tomorrow? Promise?","あした ミニ授業を 1つ やる？ 約束ね？",'ミニ授業を 1つ やる'],
+ ['lesson',"Will you do one lesson tomorrow? Promise?","あした 授業を 1つ やる？ 約束ね？",'授業を 1つ やる'],
  ['words',"Promise me you'll learn five new words.","新しい 単語を 5つ おぼえるって 約束して。",'単語を 5つ おぼえる']];
 
 /* 🧳 ライバル と ❓ 先生からの 質問（ランダムイベントに 足す） */
