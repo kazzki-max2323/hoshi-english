@@ -23,6 +23,16 @@ const QA=[
    f:row([B('I','s'),B('am','v'),B('happy','o')],'o')+note('be は 「＝」の つなぎ役'),ex:[['I am happy.','わたしは しあわせ'],['She is tired.','彼女は つかれている']]},
   {x:'proud',say:'見分け方は かんたん。 <b>very を つけられたら 様子の ことば</b>。 very happy・very tired は 言えるけど、 very play は 言えないよね',
    f:two(['very ○','happy・tired・busy<br>→ be が いる','g'],['very ×','play・eat・swim<br>→ そのまま 動詞','r'])}]},
+ {id:'yes_no',ico:'🙆',q:'Yes・No って 「はい・いいえ」 じゃ ないの？',drill:'yn',cards:[
+  {x:'think',say:'じつは そこが 落とし穴。 日本語の 「はい・いいえ」は <b>相手の 言った ことに 合ってるか</b>で 決めるよね。 でも 英語の Yes・No は <b>後ろに 来る 文が 肯定か 否定か</b>の 合図なの',
+   f:two(['日本語','ねこ 好きじゃ ないの？ — はい、 好きじゃ ない','r'],['英語','Don\'t you like cats? — No, I don\'t.','g'])+note('日本語の 「はい」が 英語では No に なる')},
+  {x:'smile',say:'だから Yes・No の 日本語訳は <b>気に しない ほうが いい</b>の。 Yes は I do の <b>肯定チームの ふだ</b>、 No は I don\'t の <b>否定チームの ふだ</b>。 いつも セットで くっついてるよ',
+   f:row([B('Yes,','m'),B('I','s'),B('do.','v')],'o')+row([B('No,','m'),B('I','s'),B('don\'t.','v')],'o')+note('Yes, I don\'t. や No, I do. は ない')},
+  {x:'proud',say:'答える ときは Yes・No から 考えなくて だいじょうぶ。 先に <b>I do か I don\'t か</b> を 決めれば、 Yes・No は 自動で ついてくる。 質問が Do you〜? でも Don\'t you〜? でも 答えは 同じだよ',
+   f:tbl([['好き','Yes, I do.'],['好きじゃ ない','No, I don\'t.']]),
+   ex:[["Don't you like cats? — Yes, I do.",'（ううん、）好きだよ'],["Do you like cats? — Yes, I do.",'好きだよ（答えは 同じ）']]},
+  {x:'happy',say:'ひとつ だけ おまけ。 相手の かんちがいを 強く 打ち消す ときは <b>No, no, I DO like cats!</b>（ちがう ちがう、 ほんとに 好きなの！）って 言う ことも ある。 この No は 「その 思いこみ ちがうよ」の No で、 ふつうの 答え方とは べつ。 まずは 「ふだと 文は セット」で OK',
+   ex:[["No, no, I DO like cats!",'ちがう ちがう、 ほんとに 好きなんだって！']]}]},
  {id:'do_what',ico:'🐝',q:'do って なに？ なんで 疑問文に do が いるの？',go:['shikumi',5],cards:[
   {x:'think',say:'be の 文は be を 前に 出せば 質問に なるよね（Are you 〜?）。 でも play や like は 前に 出せないの。 Play you tennis? とは 言わない',
    f:row([B('Are','m'),B('you','s'),B('happy?')],'o')+row([B('Play','x'),B('you','s'),B('tennis?')],'x')},
@@ -84,19 +94,22 @@ function list(back){const box=shell('🙋 ミナ先生に しつもん',back||nu
   box.innerHTML=minaBox(ex,tx)+`<div class="qalist">${QA.map((x,i)=>`<button data-q="${i}" class="${R.h[x.id]?'seen':''}"><i>${x.ico}</i><span>${esc(x.q)}</span>${R.h[x.id]?'<small>✔</small>':''}</button>`).join('')}</div>`;
   box.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{snd('talk');ask(+b.dataset.q,back)})}
 function ask(i,back){const x=QA[i];if(!x)return;R.h[x.id]=Date.now();save();try{RECENT.add('qa',{t:x.q})}catch(e){}
-  const box=shell('🙋 '+esc(x.q),()=>list(back)),u=UNIT.get(x.go[0]),c=u&&u.D.CH[x.go[1]];
+  const box=shell('🙋 '+esc(x.q),()=>list(back)),u=x.go&&UNIT.get(x.go[0]),c=u&&u.D.CH[x.go[1]];
   box.innerHTML=`<div class="mdcard qaq"><p class="qaqt">🙋 ${esc(x.q)}</p></div>`+x.cards.map(k=>`<div class="mdcard">${minaBox(k.x||'smile',k.say)}${k.f?`<div class="mdfig">${k.f}</div>`:''}${k.ex?`<div class="mdens">${k.ex.map(e=>enBtn(e[0],e[1])).join('')}</div>`:''}</div>`).join('')+
-    `${minaBox(...ML('qa_end'))}<div class="mdnav">${c?`<button id="qago">📘 授業で くわしく：${esc(c.short)}</button>`:''}</div><div class="mdnav"><button class="sub" id="qaother">🙋 ほかの 質問</button></div>`;
+    `${minaBox(...ML(x.drill==='yn'?'qa_endYn':'qa_end'))}<div class="mdnav">${c?`<button id="qago">📘 授業で くわしく：${esc(c.short)}</button>`:''}${x.drill&&window.SKDRILL?`<button id="qadr">⚡ 特別練習で ためす</button>`:''}</div><div class="mdnav"><button class="sub" id="qaother">🙋 ほかの 質問</button></div>`;
   box.querySelectorAll('[data-say]').forEach(b=>b.onclick=e=>{e.stopPropagation();snd('pop');talk(b.dataset.say)});box.scrollTop=0;
   $('qaother').onclick=()=>{snd('pop');list(back)};
-  const g=$('qago');if(g)g.onclick=()=>{snd('lesson');close();u.open({ch:x.go[1]})}}
+  const g=$('qago');if(g)g.onclick=()=>{snd('lesson');close();u.open({ch:x.go[1]})};
+  const d=$('qadr');if(d)d.onclick=()=>{snd('lesson');close();SKDRILL.open(x.drill)}}
 window.MINAQA={list,ask,all:QA};
 
 Object.assign(MINA_LINES,{
  qa_list:[['smile','どれでも 聞いてね。 「なんで？」って 思えるのは、 英語を ちゃんと 見てる しょうこ だよ'],['happy','よく 聞かれる 「なんで？」を あつめたよ。 気に なる ものから どうぞ'],['love','聞いてくれるの、 先生 いちばん うれしいんだ']],
  qa_end:[['smile','すっきり した？ もっと 知りたかったら 下の 授業へ どうぞ'],['happy','これで 「なんで？」が 1つ 解けたね'],['love','いい 質問だったよ。 また いつでも 聞いてね']],
+ qa_endYn:[['love','Yes・No は ふだ。 I do か I don\'t を 決めたら、 ふだは 勝手に くっついてくるよ'],['proud','もう 「はい・いいえ」に 訳さなくて いいからね。 下の ⚡特別練習で ためしてみて']],
+ r_qaYn:[['happy','さっきの Yes・No の 話、 すっきり した？ 訳さない ほうが 楽でしょ'],['love','Yes は 肯定チーム、 No は 否定チームの ふだ。 先生 この 考え方、 大好きなんだ'],['smile','Don\'t you〜? って 聞かれても、 もう 自分が する？ しない？ だけ 考えれば いいね']],
  r_qa:[['love','さっきの 質問、 いい 「なんで？」だったね'],['smile','聞いてくれた こと、 覚えておくね']]
 });
 window.MINA_REACT_EXT=window.MINA_REACT_EXT||{};
-MINA_REACT_EXT.qa={act:e=>['r_qa',{t:e.t||''},null],desc:e=>`ミナ先生に 「${e.t||''}」と 質問した`};
+MINA_REACT_EXT.qa={act:e=>[/^Yes・No/.test(e.t||'')?'r_qaYn':'r_qa',{t:e.t||''},null],desc:e=>`ミナ先生に 「${e.t||''}」と 質問した`};
 })();
