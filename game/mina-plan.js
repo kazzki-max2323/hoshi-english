@@ -167,12 +167,14 @@ function practicePage(){const pr=prSrc(),L=units().filter(u=>u.doneN()>0),[ex,tx
 /* ☕ おしゃべり: 長い おしゃべり・ 英語で 話す */
 function chatPage(){const [ex,tx]=ML('mp_ct');
   const body=`${window.MINAQA?rowB('id="mpqa"','🙋','ミナ先生に しつもん','よく ある 「なんで？」','big'):''}
+    ${window.KATA?rowB('id="mpkata"','🧩','英語の 型','1まいで 思い出す'):''}
     ${window.MCHAT?rowB('id="mpcl"','☕','ミナ先生と おしゃべり','日本語で のんびり'):''}
     ${window.KOTSU&&KOTSU.talk?rowB('id="mpkt"','💡','コツの お話','勉強の コツ・英語の おもしろ話'):''}
     ${window.SENSEI?rowB('id="mpce"','🗣️','英語で 話す','ミナ先生が 先生役'):''}
     ${window.SENSEI?rowB('id="mpcs"','🎬','場面を えらぶ','会話の 一覧'):''}`;
   sub('☕ おしゃべり',ex,tx,body);
   const q=$('mpqa');if(q)q.onclick=()=>{SFX.talk();MINAQA.list(chatPage)};
+  const kk=$('mpkata');if(kk)kk.onclick=()=>{SFX.pop();KATA.list(chatPage)};
   const a=$('mpcl');if(a)a.onclick=()=>{SFX.talk();MCHAT.open(null,MINA.open)};
   const kt=$('mpkt');if(kt)kt.onclick=()=>{SFX.talk();KOTSU.talk(chatPage)};
   const b=$('mpce');if(b)b.onclick=()=>{SFX.talk();MP.ct=0;chatScene()};

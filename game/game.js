@@ -243,7 +243,7 @@ function wipeAll(){
 /* tapping anywhere outside the panel works like its ← button (and that tap does nothing else).
    Result screens without ← mark their "back" button with data-back. Mini games have neither, so they ignore it.
    A running long talk / the novel (data-stay) ignores it too, so a stray tap can't end it; once its ending shows (.kend/.kends) it closes like the rest */
-document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#cardTop,.cgdvback,#meteor,#bbadge,#minaPop,#dpov,#prteach,#backFab,#bmPop,.ttov,#mamePop'))return;
+document.addEventListener('pointerdown',e=>{if(screen==='home'||e.target.closest('#panel,#toast,header,#nowplay,#cheerBox,#cardOv,#cardTop,.cgdvback,#meteor,#bbadge,#minaPop,#dpov,#prteach,#backFab,#bmPop,.ttov,#mamePop,#kataPop'))return;
   if(panel.querySelector('[data-stay]')&&!panel.querySelector('.kend,.kends'))return;
   const x=panel.querySelector('.qtop .x')||panel.querySelector('[data-back]');if(!x)return;
   e.preventDefault();e.stopPropagation();x.click();
@@ -330,7 +330,7 @@ FX.meteor=()=>{let night=false;try{night=SC.dbg().dark>.6}catch(e){}if(night&&!$
      return sp(u)}}}
 /* 会話の つぎの セリフは 前の セリフを 読みおわってから（音が オフなら すぐ）。 alive() が false に なったら 何もしない */
 var SPK={on:false,id:0,max:0};
-function talkBusy(){if(document.querySelector('#cardTop.wtcard'))return true;if(document.querySelector('#mamePop.open'))return true;/* 💡まめちしきを 読んでいる 間も（mame.js） *//* 英単語タップの カードを 見ている 間は 会話を 進めない（wordtap.js） */
+function talkBusy(){if(document.querySelector('#cardTop.wtcard'))return true;if(document.getElementById('kataPop'))return true;/* 🧩 型カード（kata.js） */if(document.querySelector('#mamePop.open'))return true;/* 💡まめちしきを 読んでいる 間も（mame.js） *//* 英単語タップの カードを 見ている 間は 会話を 進めない（wordtap.js） */
   if(!ST.sound)return false;if(clip)return true;const ss=window.speechSynthesis;
   return !!ss&&(SPK.on||ss.speaking||ss.pending)&&Date.now()<SPK.max}
 function afterTalk(fn,gap=500,minMs=700,alive){const t0=Date.now();

@@ -96,8 +96,8 @@ function list(back){const box=shell('🙋 ミナ先生に しつもん',back||nu
 function ask(i,back){const x=QA[i];if(!x)return;R.h[x.id]=Date.now();save();try{RECENT.add('qa',{t:x.q})}catch(e){}
   const box=shell('🙋 '+esc(x.q),()=>list(back)),u=x.go&&UNIT.get(x.go[0]),c=u&&u.D.CH[x.go[1]];
   box.innerHTML=`<div class="mdcard qaq"><p class="qaqt">🙋 ${esc(x.q)}</p></div>`+x.cards.map(k=>`<div class="mdcard">${minaBox(k.x||'smile',k.say)}${k.f?`<div class="mdfig">${k.f}</div>`:''}${k.ex?`<div class="mdens">${k.ex.map(e=>enBtn(e[0],e[1])).join('')}</div>`:''}</div>`).join('')+
-    `${minaBox(...ML(x.drill==='yn'?'qa_endYn':'qa_end'))}<div class="mdnav">${c?`<button id="qago">📘 授業で くわしく：${esc(c.short)}</button>`:''}${x.drill&&window.SKDRILL?`<button id="qadr">⚡ 特別練習で ためす</button>`:''}</div><div class="mdnav"><button class="sub" id="qaother">🙋 ほかの 質問</button></div>`;
-  box.querySelectorAll('[data-say]').forEach(b=>b.onclick=e=>{e.stopPropagation();snd('pop');talk(b.dataset.say)});box.scrollTop=0;
+    `${minaBox(...ML(x.drill==='yn'?'qa_endYn':'qa_end'))}${window.KATA&&KATA.of({qa:x.id})?KATA.chip(KATA.of({qa:x.id})):''}<div class="mdnav">${c?`<button id="qago">📘 授業で くわしく：${esc(c.short)}</button>`:''}${x.drill&&window.SKDRILL?`<button id="qadr">⚡ 特別練習で ためす</button>`:''}</div><div class="mdnav"><button class="sub" id="qaother">🙋 ほかの 質問</button></div>`;
+  box.querySelectorAll('[data-say]').forEach(b=>b.onclick=e=>{e.stopPropagation();snd('pop');talk(b.dataset.say)});box.scrollTop=0;if(window.KATA)KATA.bind(box);
   $('qaother').onclick=()=>{snd('pop');list(back)};
   const g=$('qago');if(g)g.onclick=()=>{snd('lesson');close();u.open({ch:x.go[1]})};
   const d=$('qadr');if(d)d.onclick=()=>{snd('lesson');close();SKDRILL.open(x.drill)}}

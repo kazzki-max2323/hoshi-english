@@ -256,7 +256,9 @@ function answer(k,bt){const g=G;if(!g||g.lock)return;g.lock=1;clearTimeout(g.ht)
   try{window.SENSEI&&SENSEI.gram(/^be|one|willBe|ing/.test(q.k)?'jh_be':q.k==='s3'?'jh_3s':'jh_do',0)}catch(e){}
   /* 4問あとに そのまま、 8問あとに 同じ 型の 言いかえ */
   g.L.splice(g.i+4,0,Object.assign({},q,{again:1}));const v=make(q.k);if(v)g.L.splice(g.i+9,0,v);
-  $('kdfb').innerHTML=`<div class="kdfix"><p>⭕ <b>${esc(full(q))}</b></p>${q.mis?`<p class="kdmis">🔎 ${esc(q.mis)}</p>`:''}<button class="kdwhy" id="kdwhy">💡 ${esc(q.why)}<i>くわしく ▶</i></button></div><div class="mdnav"><button class="sub" id="kdte">🤔 教えて</button><button id="kdnx">つぎへ ▶</button></div>`;
+  /* 🧩 英語の 型（game/kata.js）: まちがえた 型の カードを さっと */
+  const kt=window.KATA?KATA.of({k:q.k}):null;
+  $('kdfb').innerHTML=`<div class="kdfix"><p>⭕ <b>${esc(full(q))}</b></p>${q.mis?`<p class="kdmis">🔎 ${esc(q.mis)}</p>`:''}<button class="kdwhy" id="kdwhy">💡 ${esc(q.why)}<i>くわしく ▶</i></button>${kt?KATA.chip(kt,'sm'):''}</div><div class="mdnav"><button class="sub" id="kdte">🤔 教えて</button><button id="kdnx">つぎへ ▶</button></div>`;if(kt)KATA.bind($('kdfb'));
   say(q);g.i++;$('kdnx').onclick=()=>{snd('step');hush();ask()};$('kdte').onclick=()=>{snd('book');teach(q)};
   $('kdwhy').onclick=()=>{snd('book');detail(q.k,q)}}
 function finish(quit){const g=G;if(!g)return close();const n=g.i,ok=g.ok,c=g.c,N=g.n;G=null;hush();try{window.PRAC&&PRAC.closeTeach(1)}catch(e){}
@@ -311,7 +313,7 @@ function detail(k,q){const d=DET[k];if(!d)return;const sec=document.querySelecto
 /* 🤔 教えて（game/practice.js の PRAC.teach を つかう: 正しい 答え → 見る ところ → なぜ → ほかの 答えは なぜ ちがう → 英語のしくみの その 時間） */
 const strip=h=>String(h||'').replace(/<[^>]+>/g,'');
 function teach(q){if(!window.PRAC)return detail(q.k,q);const d=DET[q.k]||{},U=window.SHIKUMI;
-  const t=q.tq||{s:q.s,p:q.s?'':(q.p||'正しい 文は？'),ja:q.s?q.ja:'',o:q.o.slice(),h:q.why,e:strip(d.b)||q.why,w:{},c:d.ch};
+  const t=q.tq||{s:q.s,p:q.s?'':(q.p||'正しい 文は？'),ja:q.s?q.ja:'',o:q.o.slice(),h:q.why,e:strip(d.b)||q.why,w:{},c:d.ch};t.k=q.k;
   if(!q.tq){if(!q.s&&q.k!=='which')t.p=q.ja+(q.p?' '+q.p:'');if(q.k==='which')t.p=q.ja+' '+q.p;t.w[q.o[1]]=q.mis||(d.ng&&d.ng.length?'よくある まちがい。 ':'')+q.why;
     if(q.qen){t.p=q.qen+'（'+q.ja+'） '+q.p;t.ja=''}if(q.hint||HINT[q.k])t.h=(q.hint||HINT[q.k])+(q.why?'　→ '+q.why:'')}
   PRAC.teach(t,U&&U.D?U:null,t.c)}

@@ -168,6 +168,8 @@ function layer(title){let t=$('prteach');if(t)t.remove();t=document.createElemen
 function teach(q,u,ci){if(ci==null)ci=q.c;const box=layer('🤔 教えて'),good=q.o[0],f=fullOf(q),c=u&&u.D.CH[ci];
   R.te=(R.te||0)+1;save();try{RECENT.add('teach',{u:u&&u.id,ci,t:c&&c.short})}catch(e){}
   const [ex,tx]=ML(c?'te_open':'te_open0',{t:c?c.short:''});
+  /* 🧩 英語の 型（game/kata.js）: この 問題の 型の カード */
+  const kt=window.KATA?KATA.of({k:q.k,u:u&&u.id,ci}):null;
   const others=q.o.slice(1).map(o=>{const w=whyOf(q,o),bad=q.s?q.s.replace('___',o):o;
     return `<li><s>${esc(q.s?bad:o)}</s><span>${w?esc(w):'これは 使えない 形。 上の ルールと くらべてみてね'}</span></li>`}).join('');
   box.innerHTML=`${minaBox(ex,tx)}
@@ -175,10 +177,11 @@ function teach(q,u,ci){if(ci==null)ci=q.c;const box=layer('🤔 教えて'),good
     <div class="mdcard prtc"><p class="prth">👀 見る ところ</p><p>${esc(q.h)}</p></div>
     <div class="mdcard prtc"><p class="prth">📘 なぜ 「${esc(good)}」？</p><p>${esc(q.e)}</p></div>
     <div class="mdcard prtc"><p class="prth">🙅 ほかの 答えは なぜ ちがう？</p><ul class="prtno">${others}</ul></div>
+    ${kt?KATA.chip(kt):''}
     ${c?`<div class="mdnav"><button id="prtles">📘 ${ci+1}時間目「${esc(c.t)}」の 授業を 見る</button></div>`:''}
     <div class="mdnav"><button class="sub" id="prtbk">← 問題に もどる</button>${window.MINAQA?'<button class="sub" id="prtqa">🙋 ほかの 「なんで？」</button>':''}</div>`;
   bindSay(box);box.scrollTop=0;
-  const qa=$('prtqa');if(qa)qa.onclick=()=>{snd('talk');qaList()};
+  const qa=$('prtqa');if(qa)qa.onclick=()=>{snd('talk');qaList()};if(kt)KATA.bind(box);
   $('prtbk').onclick=()=>{snd('step');closeTeach()};
   const l=$('prtles');if(l)l.onclick=()=>{snd('book');lesson(q,u,ci)}}
 /* その 時間の 授業カードを その場で（単元の 「カードを 見る」と 同じ 見た目） */
@@ -195,9 +198,9 @@ function qaList(){const box=layer('🙋 ミナ先生に しつもん'),[ex,tx]=M
   box.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{snd('talk');qaOne(Q[+b.dataset.q])});$('prtbk').onclick=()=>{snd('step');closeTeach()}}
 function qaOne(x){const box=layer('🙋 '+esc(x.q));try{RECENT.add('qa',{t:x.q})}catch(e){}
   box.innerHTML=`<div class="mdcard qaq"><p class="qaqt">🙋 ${esc(x.q)}</p></div>`+x.cards.map(k=>`<div class="mdcard">${minaBox(k.x||'smile',k.say)}${k.f?`<div class="mdfig">${k.f}</div>`:''}${k.ex?`<div class="mdens">${k.ex.map(e=>enBtn(e[0],e[1])).join('')}</div>`:''}</div>`).join('')+
-    `<div class="mdnav"><button class="sub" id="prtqa">🙋 ほかの 質問</button><button id="prtbk">✏️ 問題に もどる</button></div>`;
-  bindSay(box);box.scrollTop=0;$('prtqa').onclick=()=>{snd('pop');qaList()};$('prtbk').onclick=()=>{snd('step');closeTeach()}}
-window.PRAC={start,has,teach,closeTeach,learned,chState,items,rec:()=>R,onClose:f=>{onTeachClose=f},_close:close};
+    `${window.KATA&&KATA.of({qa:x.id})?KATA.chip(KATA.of({qa:x.id})):''}<div class="mdnav"><button class="sub" id="prtqa">🙋 ほかの 質問</button><button id="prtbk">✏️ 問題に もどる</button></div>`;
+  bindSay(box);if(window.KATA)KATA.bind(box);box.scrollTop=0;$('prtqa').onclick=()=>{snd('pop');qaList()};$('prtbk').onclick=()=>{snd('step');closeTeach()}}
+window.PRAC={start,has,teach,closeTeach,qaOne,learned,chState,items,rec:()=>R,onClose:f=>{onTeachClose=f},_close:close};
 
 /* ---------- セリフ ---------- */
 Object.assign(MINA_LINES,{
