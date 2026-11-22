@@ -94,7 +94,7 @@ H.on('answer',(c,ok)=>{if(c.kind==='s'&&!ok){const G=find(c.en);if(!G.length)ret
   setTimeout(()=>{if(!window.MINA||!MINA.canTalk())return;
     const k=cleared(g.id)?'gs_missClear':'gs_missOwn';
     const [ex,tx]=MINA.line(k,{g:'「'+esc(g.n.t)+'」',en:esc(c.en),r:esc(g.n.r[0])});
-    MINA.say('m',ex,tx,11000,null,['📚 ノートを ひらく',()=>H.gramNote(g.lv,g.i)])},2800)}
+    MINA.say('m',ex,tx,11000,null,(window.GGO&&GGO.at(g.id)?GGO.lessonBtn(g.id):null))},2800)}
 });
 
 /* grammar in a whole talk (the end of a conversation): owned ones and locked ones, up to 4 */

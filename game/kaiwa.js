@@ -236,7 +236,7 @@ function end(N){if(!live())return;const s=P.s,c=P.c,first=!KD.done[s.id];
     const r=$('kans').getBoundingClientRect();H.coinBurst(r.left+r.width/2,r.top+20,pay);good?SFX.done():(SFX.tease?SFX.tease():SFX.pop());
     $('kans').querySelectorAll('[data-w]').forEach(b=>b.onclick=()=>H.say(b.dataset.lv,b.dataset.w));
     $('kans').querySelectorAll('[data-kg]').forEach(b=>b.onclick=()=>{const g=GS().byId(b.dataset.kg),back=()=>{const f=P&&P.from;P=null;f==='rec'?list():H.home()};SFX.book();try{speechSynthesis.cancel()}catch(e){}
-      H.gramNote(g.lv,g.i)});
+      if(window.GGO){P=null;GGO.lesson(g.id)}else H.gramNote(g.lv,g.i)});
     const kg=$('kgift');if(kg)kg.onclick=()=>{const f=P.from;SFX.open();try{speechSynthesis.cancel()}catch(e){}P=null;GIFT.pick({to:s.c,back:f==='rec'?list:H.home})};
     const from=P.from;$('kagain').onclick=()=>{SFX.step();play(s.id,from)};$('kmore').onclick=()=>{SFX.back();from==='rec'?list():H.home()};
     setTimeout(()=>$('kans').scrollIntoView({behavior:'smooth',block:'end'}),100)},1600)}

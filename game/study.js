@@ -89,10 +89,10 @@ function start(it,fromPlan){if(!it)return;stopCd();const D=day();
     case 'miss':SFX.lesson();REVIEW.drill('miss',MINA.open,5);break;
     case 'rev':SFX.lesson();REVIEW.drill('today',MINA.open);break;
     case 'les':SFX.lesson();LESSON.open(it.id,MINA.open);break;
-    case 'tok':SFX.step();SENSEI.tokkun([it.id],0,'mina');break;
+    case 'tok':SFX.step();window.GGO?GGO.prac(it.id):SENSEI.tokkun([it.id],0,'mina');break;
     case 'talk':SFX.talk();SENSEI.play(it.id,'mina');break;
-    case 'note':{const g=gOf(it.id);if(!g)break;SFX.book();H.gramFrom(g.lv,MINA.open);H.gramNote(g.lv,g.i);break}
-    case 'deep':SFX.step();DEEP.open(it.id,it.chk?{chk:1}:undefined);break}}catch(e){console.error(e)}}
+    case 'note':{const g=gOf(it.id);if(!g)break;SFX.lesson();if(window.GGO&&GGO.at(it.id)){GGO.lesson(it.id);break}H.gramFrom(g.lv,MINA.open);H.gramNote(g.lv,g.i);break}
+    case 'deep':SFX.step();window.GGO&&GGO.at(it.id)?GGO.lesson(it.id):DEEP.open(it.id,it.chk?{chk:1}:undefined);break}}catch(e){console.error(e)}}
 function startStep(id,s){start(stepItem(id,s),false)}
 
 /* ---------- おわったら: 道の しるし・予定を すすめる・「つぎへ」ボタン ---------- */
