@@ -30,11 +30,14 @@ const qText=q=>q.s||q.p;
 const keyOf=(u,q)=>u.id+'|'+qText(q)+'|'+q.o[0];
 const chKey=(u,ci)=>u.id+'|'+ci;
 
-/* ---------- 問題の あつまり: おわった 時間の 問題 ---------- */
-function items(only){const out=[];(window.UNIT?UNIT.list:[]).forEach(u=>{if(only&&u.id!==only)return;const r=u.rec(),CH=u.D.CH;
-  const done=ci=>!!(r.ch&&r.ch[ci]&&r.ch[ci].d);
-  CH.forEach((c,ci)=>{if(done(ci))c.q.forEach(q=>out.push({u,q,ci}))});
-  (u.D.MIX||[]).forEach(q=>{if(q.c!=null&&done(q.c))out.push({u,q,ci:q.c})})});return out}
+/* ---------- 問題の あつまり ----------
+   11/22 ユーザー「練習は 初めから できるように して」: 授業を えらんだ ときは まだ 習っていない 時間も ぜんぶ 出す。
+   えらばない（きょうの 練習）ときは 習った 時間から。 まだ 1つも 習っていなければ ぜんぶから */
+function items(only,doneOnly){const pick=all=>{const out=[];(window.UNIT?UNIT.list:[]).forEach(u=>{if(only&&u.id!==only)return;const r=u.rec(),CH=u.D.CH;
+    const ok=ci=>all||!!(r.ch&&r.ch[ci]&&r.ch[ci].d);
+    CH.forEach((c,ci)=>{if(ok(ci))c.q.forEach(q=>out.push({u,q,ci}))});
+    (u.D.MIX||[]).forEach(q=>{if(q.c!=null&&ok(q.c))out.push({u,q,ci:q.c})})});return out};
+  if(doneOnly)return pick(0);if(only)return pick(1);const d=pick(0);return d.length?d:pick(1)}
 const has=only=>items(only).length>0;
 /* どれだけ 出したいか: まちがえて まだ なおっていない ＞ ふくしゅうの 日が 来た ＞ その 時間に まちがいが ある ＞ ほか */
 const GAPS=[1,3,7,14,30];
@@ -87,7 +90,8 @@ function start(o){o=o||{};const list=choose(o.u,o.n||N,o.ci);if(!list.length)ret
   const u=o.u&&UNIT.get(o.u);
   let g0=null;try{g0=window.MPLAN&&MPLAN.gate()}catch(e){}
   G={list,i:0,st:{ok:0,hint:0,miss:0},bad:[],again:new Set(),title:u?`⚡ 練習：${u.D.title}`:'⚡ 練習',o,g0};
-  shell();const [ex,tx]=ML(o.u?'pr_startU':'pr_start',{u:u?u.D.title:'',n:list.length});
+  const fresh=u?!u.doneN():!items(null,1).length;
+  shell();const [ex,tx]=ML(fresh?(u?'pr_startNew':'pr_startNew0'):o.u?'pr_startU':'pr_start',{u:u?u.D.title:'',n:list.length});
   $('prq').innerHTML=minaBox(ex,tx);snd('lesson');const g=G;setTimeout(()=>{if(live(g))ask()},900);return true}
 
 function ask(){const g=G;if(!live(g))return;const it=g.list[g.i];if(!it)return end();const q=it.q;
@@ -205,6 +209,8 @@ window.PRAC={start,has,teach,closeTeach,qaOne,learned,chState,items,rec:()=>R,on
 /* ---------- セリフ ---------- */
 Object.assign(MINA_LINES,{
  pr_start:[['smile','練習 {n}問 いくよ。 まちがえた ところが 多めに 出るからね'],['happy','さあ、 手に なじませよう！ わからなかったら いつでも 🤔 を おしてね'],['think','習った ことを 思い出す 練習だよ。 ゆっくりで いいからね']],
+ pr_startNew:[['smile','「{u}」は まだ 授業で やってない ところも 入ってるよ。 わからなかったら 🤔 教えて で すぐ 授業に とべるからね'],['happy','いきなり 「{u}」の 練習！ いいね。 まよったら 🤔 教えて を おしてね']],
+ pr_startNew0:[['smile','まだ 授業の 前だけど、 練習から いこう！ わからない ときは 🤔 教えて で ていねいに 説明するよ'],['happy','練習から はじめるの、 いいと 思う。 {n}問 いくよ']],
  pr_startU:[['smile','「{u}」だけで {n}問 いくよ'],['happy','「{u}」を かためよう！ わからない ときは 🤔 教えて']],
  pr_ok:[['happy','せいかい！'],['love','そう！ ばっちり'],['proud','いいね、 手が 覚えてきた'],['smile','うん、 それ！']],
  pr_okHint:[['smile','せいかい！ ヒントで 気づけたね'],['happy','そう、 それ！ 見る ところ、 つかめてきたね']],

@@ -54,9 +54,18 @@ const WP=[['sick','a','具合が わるい','具合が わるく なるだろう
  ['angry','a','おこっている','おこるだろう'],['sad','a','かなしい','かなしく なるだろう'],['cry','v','泣く','泣くだろう'],['laugh','v','笑う','笑うだろう'],['late','a','おくれている','おくれるだろう'],
  ['win','v','勝つ','勝つだろう'],['happy','a','うれしい','よろこぶだろう'],['swim','v','およぐ','およぐだろう'],['hungry','a','おなかが すいている','おなかが すくだろう'],['eat','v','食べる','食べるだろう'],
  ['busy','a','いそがしい','いそがしく なるだろう'],['run','v','走る','走るだろう'],['kind','a','やさしい',null],['like','v','すき',null,'日本語は 「すき」でも 英語の like は 動詞'],['afraid','a','こわがっている',null],['work','v','はたらく','はたらくだろう'],['ready','a','用意が できている',null],['help','v','手伝う','手伝うだろう']];
+/* 日本語訳の わな（11/22 ユーザー: like・want・know・live は 動詞、 hungry・sleepy は 様子 が まぎらわしい） */
+WP.push(['want','v','ほしい',null,'日本語の 「ほしい」は 様子っぽいけど、 want は 動詞（very want ✕）'],['know','v','知っている',null,'「知っている」は 「〜ている」でも know は 動詞'],
+ ['live','v','住んでいる',null,'「住んでいる」でも live は 動詞'],['need','v','必要だ',null,'「必要だ」は 様子っぽいけど need は 動詞'],['love','v','大すき',null,'「大すき」でも love は 動詞'],
+ ['remember','v','覚えている',null,'「覚えている」でも remember は 動詞'],['understand','v','わかる',null,'understand は 動詞'],
+ ['hungry','a','おなかが すいている','おなかが すくだろう','「すいている」は 動詞っぽいけど hungry は 様子（very hungry ⭕）'],['afraid','a','こわい',null,'「こわい」→ afraid は 様子。 I am afraid of〜'],['full','a','おなかが いっぱい',null,'full は 様子（very full ⭕）']);
 const vOK=(i)=>VERB.filter(v=>v.j[i]);
 /* ================================================================ 問題の 型
    1問 = {k: 型, ja, s: ___ の 文（なければ 文を えらぶ）, o: [正解, まちがい], why} */
+/* [日本語, 英語, うしろ, 3単現（動詞なら）] */
+const TRAP=[['犬が ほしい','want','a dog','wants'],['ねこが 好き','like','cats','likes'],['答えを 知っている','know','the answer','knows'],['東京に 住んでいる','live','in Tokyo','lives'],
+ ['水が 必要だ','need','water','needs'],['その 話を 覚えている','remember','the story','remembers'],['あなたが 大すき','love','you','loves'],['犬を かっている','have','a dog','has'],
+ ['おなかが すいている','hungry',''],['つかれている','tired',''],['犬が こわい','afraid','of dogs'],['ねむい','sleepy',''],['おこっている','angry',''],['おくれている','late',''],['おなかが いっぱい','full','']];
 const T={
  /* 3単現の -s */
  s3:()=>{const s=pick(SUBJ),v=pick(vOK(0)),ok=is3(s)?v.s:v.v,ng=is3(s)?v.v:v.s;
@@ -94,14 +103,21 @@ const T={
    return {ja:jaS(s,a.j[0]),o:[`${s[0]} ${b} ${a.a}.`,`${s[0]} ${a.a}.`],why:`${a.a} は 動詞じゃない → be で うめる`}},
  /* 動詞は 1つ（文を えらぶ） */
  one:()=>{const s=pick(SUBJ),v=pick(vOK(0)),b=beNow(s),vv=is3(s)?v.s:v.v;
-   return {ja:jaS(s,v.j[0]),o:[`${s[0]} ${vv} ${v.o}.`,`${s[0]} ${b} ${v.v} ${v.o}.`],why:`${v.v} が 動詞 → be は いらない（動詞は 1つ）`}},
+   return {ja:jaS(s,v.j[0]),o:[`${s[0]} ${vv} ${v.o}.`,`${s[0]} ${b} ${v.v} ${v.o}.`],why:`${v.v} が 動詞 → be は いらない（動詞は 1つ）`,mis:`「${v.j[0]}」の 日本語に つられて ${b} を 入れたかな。 ${v.v} が もう 動詞 → 動詞は 1つ`}},
  /* will ＋ be ＋ 様子（文を えらぶ） */
  willBe:()=>{const s=pick(SUBJ),a=pick(ADJ),r=Math.random();
    const ng=r<.5?`${s[0]} will ${a.a}.`:`${s[0]} will ${beNow(s)} ${a.a}.`;
    return {ja:jaS(s,a.j[4]),o:[`${s[0]} will be ${a.a}.`,ng],why:r<.5?`様子の ことばには be。 will の あとは 原形 be`:`will の あとは 原形 → be`}},
  /* 様子？ 動詞？ を 見分ける */
  which:()=>{const w=pick(WP),a=w[1]==='a';
-   return {ja:`${w[0]}（${w[2]}）`,p:'は 様子の ことば？ 動詞？',o:a?['様子の ことば','動詞']:['動詞','様子の ことば'],why:w[4]||(a?`very ${w[0]} と 言える → 様子。 文では be が いる`:`very ${w[0]} とは 言えない → 動詞。 be は いらない`)}},
+   return {ja:`${w[0]}（${w[2]}）`,p:'は 様子の ことば？ 動詞？',o:a?['様子の ことば','動詞']:['動詞','様子の ことば'],why:w[4]||(a?`very ${w[0]} と 言える → 様子。 文では be が いる`:`very ${w[0]} とは 言えない → 動詞。 be は いらない`),
+   mis:a?`日本語の 「${w[2]}」に つられたかな。 very ${w[0]} と 言える → ${w[0]} は 様子の ことば（文では be が いる）`:`日本語の 「${w[2]}」に つられたかな。 very ${w[0]} とは 言えない → ${w[0]} は 動詞（be は いらない）`}},
+ /* 日本語訳の わなを 文で（「ほしい」「好き」→ 動詞、 「すいている」「つかれている」→ 様子） */
+ trap:()=>{const x=pick(TRAP),s=pick(x[3]?[['I','わたし','1'],['She','彼女','3'],['We','わたしたち','p']]:[['I','わたし','1'],['He','彼','3'],['They','彼ら','p']]);
+   if(x[3]){const v=is3(s)?x[3]:x[1];return {ja:`${s[1]}は ${x[0]}`,o:[`${s[0]} ${v} ${x[2]}.`,`${s[0]} ${beNow(s)} ${x[1]} ${x[2]}.`],why:`${x[1]} は 動詞 → be は いらない`,
+     mis:`日本語の 「${x[0].split(' ').pop()}」に つられて be を 入れたかな。 ${x[1]} は 動詞（very ${x[1]} ✕）→ be は いらない`,hint:'very を つけて 言える？ 言えなければ 動詞 → be なし'}}
+   const b=beNow(s);return {ja:`${s[1]}は ${x[0]}`,o:[`${s[0]} ${b} ${x[1]}${x[2]?' '+x[2]:''}.`,`${s[0]} ${x[1]}${x[2]?' '+x[2]:''}.`],why:`${x[1]} は 様子 → be が いる`,
+     mis:`${/ている$/.test(x[0])?`日本語の 「${x[0]}」は 動詞っぽいけど、 `:`「${x[0]}」の `}${x[1]} は 様子の ことば（very ${x[1]} ⭕）→ be が いる`,hint:'very を つけて 言える？ 言えたら 様子 → be が いる'}},
  /* will の あと: 様子なら be、 動詞なら そのまま（文を えらぶ） */
  willX:()=>{const s=pick(SUBJ),w=pick(WP.filter(x=>x[3])),a=w[1]==='a';
    return {ja:jaS(s,w[3]),o:a?[`${s[0]} will be ${w[0]}.`,`${s[0]} will ${w[0]}.`]:[`${s[0]} will ${w[0]}.`,`${s[0]} will be ${w[0]}.`],
@@ -114,7 +130,7 @@ const T={
    return Math.random()<.5?{ja:jaS(s,'今 '+v.j[8]),s:`${s[0]} ${b} ___ ${v.o} now.`,o:[v.ing,v.v],why:'be の あとは -ing で 「している」'}
      :{ja:jaS(s,'今 '+v.j[8]),o:[`${s[0]} ${b} ${v.ing} ${v.o} now.`,`${s[0]} ${v.ing} ${v.o} now.`],why:'-ing は 様子の ことば → be が いる'}},
 };
-const KN={s3:'-s',doQ:'Do/Does の 質問',doesV:'does → 原形',doNeg:"don't / doesn't",doesntV:"doesn't → 原形",didV:'did → 原形',past:'過去形',beQ:'be の 質問',beNeg:'be の 否定',beQp:'was / were の 質問',beAdj:'様子には be',one:'動詞は 1つ',willBe:'will be ＋ 様子',modV:'will・can → 原形',ing:'be ＋ -ing',which:'様子？ 動詞？',willX:'will の あと be？'};
+const KN={s3:'-s',doQ:'Do/Does の 質問',doesV:'does → 原形',doNeg:"don't / doesn't",doesntV:"doesn't → 原形",didV:'did → 原形',past:'過去形',beQ:'be の 質問',beNeg:'be の 否定',beQp:'was / were の 質問',beAdj:'様子には be',one:'動詞は 1つ',willBe:'will be ＋ 様子',modV:'will・can → 原形',ing:'be ＋ -ing',which:'様子？ 動詞？',trap:'日本語の わな',willX:'will の あと be？'};
 
 /* 💡 ひとことを タップで くわしく（11/20 ユーザー「解説は シンプルで いい。 深掘り したく なったら タップで 詳細」）
    t 見出し, b 説明（なぜ そう なるか）, ok/ng ⭕❌の 例, tip ワンポイント, ch 英語のしくみの 何時間目（0から）。 カードは その場で 見られる */
@@ -147,6 +163,8 @@ const DET={
   ok:['I will be tired.','She will be busy.'],ng:['I will tired.','I will am tired.'],tip:'can be・want to be・have been も 同じ しくみ'},
  modV:{t:'will・can の あとは 原形',ch:4,b:'will・can・should などの 助動詞は <b>後ろの 動詞を 原形に する</b> セット。 -s も 過去形も つかない。 he・she でも 同じだよ',
   ok:['She can swim.','He will play tennis.'],ng:['She can swims.','He will plays tennis.'],tip:'助動詞じしんにも -s は つかない（cans ✕）'},
+ trap:{t:'日本語の わな: 「ほしい」は 動詞、 「すいている」は 様子',ch:2,mw:1,b:'日本語の 形に つられないで。 <b>want（ほしい）・like（好き）・know（知っている）・live（住んでいる）・need（必要だ）</b>は 英語では 動詞 → be は いらない。 <b>hungry（すいている）・tired（つかれている）・afraid（こわい）・sleepy（ねむい）</b>は 様子の ことば → be が いる',
+  ok:['I want a dog.','I know the answer.','I am hungry.','I am afraid of dogs.'],ng:['I am want a dog.','I am know the answer.','I hungry.'],tip:'very を つけて 言えたら 様子（very hungry ⭕・ very want ✕）'},
  which:{t:'様子の ことば？ 動詞？ の 見分け方',ch:2,mw:1,b:'<b>様子の ことば</b>は 「どんな 状態か」を 言う ことば（sick・tired・happy）。 動詞じゃないから 文では <b>be が いる</b>。 <b>動詞</b>は 「何を するか」（eat・cry・sleep）。 動詞が あれば be は いらないよ',
   ok:['I am sick.','I eat breakfast.','I like dogs.'],ng:['I sick.','I am eat breakfast.','I am like dogs.'],tip:'sleep（ねむる）は 動詞、 sleepy（ねむい）は 様子。 にている ペアに 注意'},
  willX:{t:'will の あと: 様子なら be、 動詞なら そのまま',ch:2,mw:1,b:'will の あとには 原形の 動詞が 1つ いる。 <b>動詞</b>（cry・sleep）なら それが 入って おしまい。 <b>様子の ことば</b>（sick・sleepy）は 動詞じゃないから、 <b>be</b> を 入れて 動詞の 席を うめるの。 日本語の 「〜に なる」の 「なる」は be が うけもつよ',
@@ -168,7 +186,7 @@ const CATS=[
   les:{p:['🙋 ふつうの 動詞の 質問・ not は <b>do / does / did</b> が 運ぶ','🎒 -s も 過去も do が もっていく → 動詞は <b>原形</b>','🐝 he・she は does、 過去は did'],ex:[['Does she play tennis?','テニス する？'],["I didn't go.",'行かなかった']]}},
  {id:'be',ico:'🌊',t:'be の 文',sub:'Are you〜? ・ isn\'t ・ -ing',ks:['beQ','beNeg','beQp','ing'],n:20,g:'v',hint:'様子の ことば・ -ing → be の 文。 be を 前に 出すだけ',
   les:{p:['🌊 様子の ことば（hungry）・ -ing の 文は <b>be</b> が 動詞','❓ 質問は be を 前へ、 not は be の すぐ後ろ','🙅 be の 文に do は 来ない'],ex:[['Are you hungry?','おなか すいた？'],["He isn't busy.",'彼は いそがしく ない']]}},
- {id:'yv',ico:'🔍',t:'様子？ 動詞？',sub:'be が いる？ いらない？',ks:['which','beAdj','one','willX'],n:20,g:'v',hint:'very を つけて 言えたら 様子 → be が いる',
+ {id:'yv',ico:'🔍',t:'様子？ 動詞？',sub:'be が いる？ いらない？',ks:['trap','which','one','beAdj','willX'],n:20,g:'v',hint:'very を つけて 言えたら 様子 → be が いる',
   les:{p:['🔍 <b>very</b> を つけて 言えたら 様子（very sick）→ <b>be が いる</b>','🏃 「何を する？」なら 動詞（eat・sleep）→ be は いらない','🌱 「〜に なる」の 「なる」は be（will be sick）'],ex:[['I am sick.','具合が わるい'],['I sleep.','ねむる'],['You will be sleepy.','ねむく なるよ']]}},
  {id:'form',ico:'✏️',t:'動詞の 形',sub:'-s ・ 過去形 ・ will / can の あと',ks:['s3','past','modV','willBe'],n:20,g:'v',hint:'前の ことばが 後ろの 形を きめる。 will・can の あとは 原形',
   les:{p:['🐝 he・she の 今 → <b>-s</b>','⏪ 手伝い役が いない 過去 → 動詞が <b>過去形</b>','🔗 will・can の あと → <b>原形</b>（be も）'],ex:[['She plays tennis.','テニスを する'],['We played tennis yesterday.','きのう した'],['He can swim.','およげる']]}},

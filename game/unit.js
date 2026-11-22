@@ -119,7 +119,7 @@ function chQuiz(ci){const qs=pick(CH[ci].q,3);run(qs,{ci,title:`${CH[ci].ico} ${
 function test(){const all=CH.flatMap(c=>c.q).concat(D.MIX);
   let qs=[];CH.forEach((c,ci)=>{if(qs.length<8)qs.push(...pick(all.filter(q=>q.c===ci&&!qs.includes(q)),1))});
   qs.push(...pick(all.filter(q=>!qs.includes(q)),Math.max(0,8-qs.length)));
-  run(shuffle(qs),{test:1,title:'📝 まとめテスト',start:'testStart',end:testEnd})}
+  run(shuffle(qs),{test:1,title:'📝 まとめテスト',start:doneN()?'testStart':'testStartNew',end:testEnd})}
 
 /* ---------- 問題を 1つずつ ---------- */
 function run(qs,o){C={m:'q',qs,o,i:0,st:{ok:0,hint:0,miss:0},bad:[]};const T=C;
