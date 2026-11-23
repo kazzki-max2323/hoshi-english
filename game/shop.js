@@ -106,29 +106,42 @@ function intro(){const S=SH();let i=0;
   step()}
 
 /* ================================================================ back from the mine: Mio's report */
+/* 11/24 閉店中（浜辺の 時計で 21〜9時）は お店も 閉まっている。 るすの あいだ 開いていた 時間だけ 数える。
+   ゲームの 時計は 画面が 見えている ときだけ 進むので、 3びょうごとに 「いま 開いている？」を 見て 時間を 足していく（hoshi_shAway） */
+const AWK='hoshi_shAway';
+const awRd=()=>{try{const o=JSON.parse(localStorage.getItem(AWK)||'null');return o&&typeof o==='object'?o:null}catch(e){return null}};
+const awWr=o=>{try{localStorage.setItem(AWK,JSON.stringify(o))}catch(e){}};
+const cgOpen=()=>{try{return !window.HOURS||HOURS.isOpen('cg')}catch(e){return true}};
+function awTick(){const S=SH();if(!S.away)return null;const now=Date.now();let o=awRd();
+  if(!o||o.a!==S.away)o={a:S.away,o:0,c:0,t:S.away,old:1};   // 前の 版で 出かけた ときは そのまま 開いていた あつかい
+  const d=Math.max(0,now-(o.t||now));if(o.old||cgOpen())o.o+=d;else o.c+=d;o.t=now;awWr(o);return o}
+setInterval(()=>{try{awTick()}catch(e){}},3000);
 function awaySales(min){const S=SH(),n=Math.min(12,Math.floor(min/1.5)),sold=[];let guests=0;
   for(let k=0;k<n;k++){guests++;if(!S.floor.length)continue;if(Math.random()<.55){const id=pickL(S.floor),p=price(id);if(sell(id,p))sold.push([id,p])}}
   S.guests+=guests;return {guests,sold}}
-function report(){const S=SH(),min=Math.max(0,(Date.now()-S.away)/6e4);S.away=0;save();
-  const r=awaySales(min),coins=r.sold.reduce((a,x)=>a+x[1],0);
-  try{RECENT.add('away',{sold:r.sold.length,guests:r.guests,coins})}catch(e){}
+function report(){const S=SH(),all=Math.max(0,(Date.now()-S.away)/6e4),aw=awTick()||{o:all*6e4,c:0};S.away=0;save();try{localStorage.removeItem(AWK)}catch(e){}
+  const opn=Math.min(all,aw.o/6e4),cls=Math.min(all,aw.c/6e4);
+  const r=awaySales(opn),coins=r.sold.reduce((a,x)=>a+x[1],0);
+  r.closed=cls>=1?1:0;r.allClosed=r.closed&&opn<1.5?1:0;r.cmin=Math.round(cls);
+  try{RECENT.add('away',{sold:r.sold.length,guests:r.guests,coins,closed:r.closed,allClosed:r.allClosed})}catch(e){}
   const wd=id=>{const I=C.info(id);return I&&I.en?String(I.en).split(',')[0].trim():''};
   const M=window.MIOMEMO?MIOMEMO.make(r,wd):{lines:[r.sold.length?pickL(MIO_MEMO):pickL(MIO_MEMO_QUIET)],ph:null,sign:['– Mio','ミオ']};
   const memo=M.lines;S.memo=M;save();const memoEn=memo.map(x=>x[0]).join(' ');
-  const ex=r.sold.length?'laugh':r.guests?'smile':'oops',pose=r.sold.length?'peace':'';
+  const ex=r.sold.length?'laugh':r.guests?'smile':r.allClosed?'smile':'oops',pose=r.sold.length?'peace':'';
   H.show('cg',`<section class="pnl cgp shp">${top('📋 るすばんの 報告','','shb')}
     <div class="shrep"><div class="shrf">${MIO.face(ex,pose)}</div>
-      <div><p class="shrn">お客さん <b>${r.guests}</b>人 ・ 売れた カード <b>${r.sold.length}</b>まい</p>
+      <div>${r.allClosed?`<p class="shrn">🌙 閉店中 だったので、 お店も おやすみ</p><p class="shrcl">お客さんは 来ないよ（カードショップは 9〜21時）</p>`:`<p class="shrn">お客さん <b>${r.guests}</b>人 ・ 売れた カード <b>${r.sold.length}</b>まい</p>${r.closed?`<p class="shrcl">🌙 閉店中の 時間は お店も おやすみ</p>`:''}`}
       ${r.sold.length?`<div class="shsold">${r.sold.map(([id])=>C.face(id,{mini:1,marks:false})).join('')}</div><p class="shcoin">🪙 +${coins}</p>`:''}</div></div>
     <div class="shmemo"><b>📝 ミオの メモ</b>${memo.map((x,i)=>`<p class="en${i?' ps':''}">${esc(x[0])}</p><p class="ja">${esc(x[1])}</p>`).join('')}
       ${M.ph?`<div class="wd"><p class="en">📌 Today's phrase: <b>${esc(M.ph[0])}</b> ＝ ${esc(M.ph[1])}</p><p class="ja">${esc(M.ph[2])}</p></div>`:''}
       <p class="sg">${esc(M.sign[0])}</p><button class="sub" id="shsay">🔊 読む</button></div>
     <button id="shok" class="big">お店に もどる</button></section>`);
   if(r.sold.length){sf('coinIn');setTimeout(()=>sf('buy'),300)}else sf('talk');
+  if(r.closed)try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<.6){const [ex2,tx2]=ML(r.allClosed?'sh_awayClosed':'sh_awayPart');if(tx2)setTimeout(()=>MINA.say('m',ex2,tx2,6000),2200)}}catch(e){}
   C.peekIn(H.panel.querySelector('.shsold'),{from:'report'});
   $('shsay').onclick=()=>speak(memoEn+(M.ph?' '+M.ph[2]:''));$('shb').onclick=$('shok').onclick=()=>{sf('step');open()}}
 /* the mine calls this when you leave for it */
-function leave(){SH().away=Date.now();if(CT)CT.paused=0;save()}
+function leave(){const t=Date.now();SH().away=t;awWr({a:t,o:0,c:0,t});if(CT)CT.paused=0;save()}
 
 /* ================================================================ 📦 the storeroom */
 let stF='all';
@@ -657,6 +670,8 @@ const LF_SAY={
  lofi_tide:['「満ち潮の ゆりかご」は いちばん ゆっくりな 曲。 深呼吸して、 ゆっくり いこう','満ち潮は high tide、 引き潮は low tide。 月が 海を 引っぱってるんだよ']};
 /* 🎵 お店の BGM の ミナ先生の セリフ */
 Object.assign(MINA_LINES,{
+ sh_awayClosed:[['smile','閉店中に 鉱山へ 行ってたから、 お店も おやすみ だったね。 お客さんは 9時から 21時のあいだに 来るよ'],['think','"We were closed." … 閉まっていたら 売り上げは ゼロ。 開店中に 鉱山へ 行くと ミオさんが 売ってくれるよ'],['happy','夜の あいだ ミオさんは 2階で ゆっくり できたね。 "Take it easy." だね']],
+ sh_awayPart:[['smile','るすの とちゅうで 閉店の 時間に なったね。 開いていた あいだの 分だけ ミオさんが 売ってくれたよ'],['point','"while the shop was open" … 「お店が 開いていた あいだ」。 閉店中の 時間は お客さんは 来ないよ']],
  sh_caseNew:[['wow','お知らせ！ カードショップの 店内に ガラスの かざりだなが できたよ。 カウンターの 左下の ケースを タップして、 とっておきの カードを 3まい かざってね'],['happy','カードショップに かざりだなが 来たよ。 レアな カードを かざると、 お客さんが 立ちどまって 見てくれるんだって']],
  x_shCase:[['smile','レアな カード、 もってるよね。 カードショップの かざりだなに かざってみない？ お客さんが よろこぶよ'],['happy','「かざる」は 英語で display。 お店の ガラスケースは display case って いうんだよ。 3まい かざれるよ']],
  x_shCaseOn:[['happy','かざりだなの 「{w}」、 お客さんが 見とれてたって。 ミオさんが 言ってたよ'],['smile','「{w}」は 「{ja}」。 かざって おくと、 見るたびに おぼえられるね'],['wow','お店の ケースの 「{w}」、 キラッて 光ってたよ。 店長さん、 いい センスだね']],

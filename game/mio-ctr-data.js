@@ -110,7 +110,11 @@ const MIOT=[
   ["Good luck!","がんばって！",["Challenge accepted! …This might take a week.","挑戦、 受けて 立ちます！ …1週間 かかるかも。",'laugh']],
   ["I'll give you a hint later.","あとで ヒント あげる。",["No hints! …OK, maybe one tiny hint. Later.","ヒントは なし！ …いや、 ちっちゃい ヒント ひとつ だけ。 あとで。",'wink']]]}],
  ["I liked Today's phrase.","Today's phrase が よかった。",["Really? I choose them very carefully. Every phrase is a little gift for you.","ほんとに？ すごく 考えて えらんでるんです。 どの フレーズも 店長への 小さな プレゼント。",'wink']]],ph:["Challenge accepted!","受けて 立つ！"]},
-{id:'aw_none',k:'away',if:e=>!e.sold,m:["Sorry, boss. Nobody bought anything while you were away… I think the seagulls scared them.","ごめんなさい、 店長。 るすの あいだ なにも 売れなくて… カモメが おどかした んだと 思います。"],ex:'oops',o:[
+{id:'aw_closed',k:'away',if:e=>e.allClosed,m:["Welcome back, boss. The shop was closed, so I was upstairs. Was it dark in the mine?","おかえりなさい、 店長。 閉店中 だったので 2階に いました。 鉱山、 暗かった？"],ex:'smile',o:[
+ ["Yes, very dark.","うん、 すごく 暗かった。",["Next time, take a flashlight from Nora's shop. Safety first!","次は ノラさんの お店で ライトを。 安全 第一！",'wink']],
+ ["Did you sleep well?","よく ねむれた？",["Yes! I dreamed about English words. They were dancing. Ha ha.","はい！ 英単語の 夢を 見ました。 おどってました。 あはは。",'laugh']],
+ ["Sorry to keep you up.","おこしちゃって ごめん。",["Don't worry. I was reading anyway. \"Night owl\" — that's me!","気にしないで。 どうせ 本を 読んでました。 「夜ふかしさん」は わたしです！",'smile']]],ph:["night owl","夜ふかしの 人"]},
+{id:'aw_none',k:'away',if:e=>!e.sold&&!e.allClosed,m:["Sorry, boss. Nobody bought anything while you were away… I think the seagulls scared them.","ごめんなさい、 店長。 るすの あいだ なにも 売れなくて… カモメが おどかした んだと 思います。"],ex:'oops',o:[
  ["It's not your fault.","ミオの せいじゃ ないよ。",["Thank you… You're too kind. I'll shout \"Welcome!\" louder next time.","ありがとう… やさしすぎます。 次は もっと 大きな 声で 「いらっしゃいませ！」って 言います。",'smile']],
  ["Let's put out more cards.","カードを もっと ならべよう。",["Yes! A full shelf is a happy shelf. Let's do it!","はい！ いっぱいの たなは ハッピーな たな。 やりましょう！",'laugh',{go:'floor'}]]],ph:["It's not your fault.","きみの せいじゃ ないよ。"]},
 
