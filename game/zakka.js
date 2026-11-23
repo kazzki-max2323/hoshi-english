@@ -211,6 +211,10 @@ function greet(){
     g.push(fit?[`Do you hear the music? It's "${ng.en}." It's perfect for ${PE[ph]}.`,`音楽、 聞こえる？ 「${ng.n}」よ。 ${PJ[ph]}に ぴったりなの。`]:[`Today's song is "${ng.en}." Pip picked it!`,`きょうの 曲は 「${ng.n}」。 ピップが えらんだのよ！`],
       gOwned(ng)?[`Oh, you have "${ng.en}," too, don't you? We have the same taste.`,`「${ng.n}」、 あなたも もってるわよね？ 好みが にてるわ。`]:[`Do you like this song? Look at the records shelf. You can ask me about it.`,`この 曲、 気に入った？ レコードの たなを 見てね。 曲の こと、 聞いてくれて いいのよ。`])}}
   if((h=>h>=21||h<5)((typeof GH==='function'?GH():new Date().getHours())))g.push(["It's late! I'm almost closing, but come in.","おそい 時間ね！ もうすぐ 閉店だけど、 どうぞ。"]);
+  /* 💰 11/23 値上げ: さいしょの 1回だけ ノラさんが わけを 話す */
+  if(ZD.met&&!ZD.priceNora){ZD.priceNora=1;save();return pickL([
+    ["I've been finding better things lately, so the prices went up a little. Good things are worth saving for!","さいきん いい 品物が 入るように なってね、 値段も 少し 上がったの。 いい ものは ためて 買う かちが あるわよ！"],
+    ["Everything on the shelf is handpicked now. It costs more, but I promise it's worth it.","たなの 品物は ぜんぶ わたしが えらびぬいたの。 少し 高いけど、 その ぶん いい ものよ。"]])}
   return pickL(g)}
 function noraLine(en,ja){const on=jaOn();
   return `<div class="lsay kth zkhi"><span class="lface kf">${NORA.ico}</span><div class="lbody"><p class="ken">${esc(en)}<button class="ksay" data-say="${esc(en)}" aria-label="もう一度 きく">🔊</button></p><small class="kja ${on?'on':''}">${esc(ja)}</small>${on?'':'<button class="kjab">訳を 見る</button>'}</div></div>`}
@@ -610,7 +614,7 @@ function album(back){
   H.show('zakka',`<section class="pnl zk">
     <div class="qtop"><button class="x" id="zkx" aria-label="もどる">←</button><b>📮 絵はがき</b><span class="qn">${ZD.pc.length}/${PCS.length}</span></div>
     <div class="zkalb">${PCS.map((p,i)=>ZD.pc.includes(i)?`<button data-p="${i}"><span>${p[0]}</span><small>${esc(p[1])}</small></button>`:`<button class="no" disabled><span>？</span><small>？？？</small></button>`).join('')}</div>
-    ${pcDone()?'':'<p class="note">雑貨屋で 1まい 10コイン。 まだ ない 絵はがきが 出るよ</p>'}
+    ${pcDone()?'':'<p class="note">雑貨屋で 1まい 40コイン。 まだ ない 絵はがきが 出るよ</p>'}
   </section>`);
   $('zkx').onclick=()=>{SFX.back();back()};
   H.panel.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{SFX.book();postcard(+b.dataset.p,()=>album(back))})}
@@ -804,6 +808,9 @@ Object.assign(MINA_LINES,{
  x_zkRotate:[['think','雑貨屋の レコード、 あと {min}分くらいで 入れかわるよ'],['smile','雑貨屋の たなは 日替わりで、 時間帯でも かわるんだ。 のぞくたびに ちがう 品物に 会えるよ']],
  x_zkLvMark:[['smile','雑貨屋の 品物には 小・中・高の マークが あるよ。 マークの レベルの 英語で 話せるんだ'],['think','いまの あなたには {lv}の マークの 品物が ちょうど いいかも。 ノラさんと 話してみて'],['happy','小の マークは みじかい 英語、 高の マークは 大人の ていねいな 英語だよ']],
  x_zkCheckout:[['smile','ノラさんの お会計は ふだん ボタンで さらっと。 5回に 1回くらい 英語で 話しかけて くるよ。 「Cash or card?」「Will that be all?」… なんて 聞かれても あわてないでね'],['happy','雑貨屋の お会計、 英語で 話したい 日は 「💬 ノラさんと 英語で 買う」を おしてね。 いつでも 会話に できるよ'],['think','お会計で 「Do you need a bag?」が 出る ときと 出ない ときが あるよ。 ほんとの お店も そうなんだ'],['happy','「Here\'s your change.」は 「おつりです」。 雑貨屋の お会計で 聞けるかも']],
+ /* 💰 11/23 値上げ: ためて 買う */
+ zk_priceUp:[['think','お知らせ。 雑貨屋と 食堂の 品物、 値段が 上がったよ。 そのぶん、 コインを ためて 買えた ときは きっと うれしいはず'],['smile','ノラさんの お店も マルコさんの 食堂も、 ちょっと 高く なったよ。 ほしい ものを 決めて、 授業や 鉱山で コツコツ ためよう']],
+ x_zkSave:[['think','雑貨屋の {ico} {t}、 あと 🪙{n}まいで 買えるよ。 ためて 買うと うれしさ 倍だね'],['smile','{ico} {t}を ねらってる？ のこり 🪙{n}まい。 授業や 鉱山で ためちゃおう'],['point','{ico} {t}は 🪙{p}まい。 いま {have}まいだから、 あと {n}まい。 いっしょに がんばろう']],
  x_zkJuke:[['smile','もってる 曲は 雑貨屋の 🎵 レコードの たなで 試聴できるよ。 BGMに なるのは カードショップの 中'],['happy','曲を {n}曲 もってるね。 カードショップの BGM、 気分で かえてみよう']],
 });
 const whoN=to=>((typeof GIFT_PEOPLE!=='undefined'&&GIFT_PEOPLE[to])||(window.KAIWA&&KAIWA.chars[to])||{n:'浜辺の だれか'}).n;
@@ -833,6 +840,7 @@ if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(
  ['x_zkLvMark',2,()=>ZD.met?{lv:GLV[{es:'es',jh:'jh',hs:'hs',adv:'hs'}[myLv()]||'es']}:null,goTab('music')],
  ['x_zkCheckout',1,()=>ZD.met&&ZD.ck?{}:null,goShop],
  ['x_zkNow',2,()=>{if(!ZD.met)return null;const id=bgmSong();return id?{song:trackShort(id)}:null},goTab('music')],
+ ['x_zkSave',2,()=>{if(!ZD.met)return null;const a=today().day.filter(i=>i.p>ST.coins&&i.p-ST.coins<=ST.coins+300&&!ZD.own[i.id]);if(!a.length)return null;const it=pickL(a);return {ico:it.ico,t:it.n,p:it.p,have:ST.coins,n:it.p-ST.coins}},goShop],
  ['x_zkJuke',1,()=>ST.music.length?{n:ST.music.length}:null,goTab('music')]);
 /* the shop button left the home screen (2026-11): Mina tells once that everything moved into the hut */
 setTimeout(function moved(){if(ZD.moved)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(moved,15000);
@@ -843,6 +851,9 @@ setTimeout(function daily(){if(ZD.daily)return;const m=window.MINA;if(!m||!m.can
 /* the shop got its own music (2026-11): Mina tells once */
 setTimeout(function bgmNew(){if(ZD.bgmTold)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(bgmNew,15000);
   ZD.bgmTold=1;save();if(!ZD.met)return;const [ex,tx]=mline('zk_bgmNew');m.say('m',ex,tx,10000,null,['🏚️ 聞きに 行く',()=>open('music')])},28000);
+/* the prices went up (2026-11-23): Mina tells once */
+setTimeout(function priceUp(){if(ZD.priceTold)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(priceUp,15000);
+  ZD.priceTold=1;save();if(!ZD.met)return;const [ex,tx]=mline('zk_priceUp');m.say('m',ex,tx,10000,null,['🏚️ のぞいてみる',()=>open('zakka')])},34000);
 /* the first time: Mina points at the hut once */
 setTimeout(function first(){if(ZD.met||ZD.told)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first,20000);
   ZD.told=1;save();const [ex,tx]=mline('zk_first');m.say('m',ex,tx,9000,null,['🏚️ のぞいてみる',open])},45000);
