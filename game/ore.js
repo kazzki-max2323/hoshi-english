@@ -89,9 +89,9 @@ function draw(){if(!alive())return;const el=X.el,o=list().find(x=>x.id===cur);
 /* ================================================================ 1問 */
 function ask(o,I){const box=X.el.querySelector('#oreq'),k=stepOf(o);
   if(k==='see')return see(o,I,box);
-  if(k.startsWith('arr')||k==='ear')return arrange(o,I,box,k==='ear'&&!ST.sound?'arr3':k);
-  let t=k;if(t==='listen'&&!ST.sound)t='mean';if(t==='spell'&&!/^[a-z]{3,}$/.test(I.h))t='rev';
-  const q=C.quiz(o.id,{type:t});C.ask(box,q,r=>next(o,r.ok&&!r.hint),{tag:'原石'})}
+  if(k.startsWith('arr')||k==='ear')return arrange(o,I,box,k==='ear'?'arr3':k);
+  let t=k;if(t==='listen')t='mean';if(t==='spell'&&!/^[a-z]{3,}$/.test(I.h))t='rev';
+  const q=C.quiz(o.id,{type:t});C.ask(box,q,r=>next(o,r.ok&&!r.hint),{tag:'原石',quiet:1})}
 /* はじめの 1問: その ことばを 見て・聞いて 読む */
 function see(o,I,box){const ex=exOf(I);
   box.innerHTML=`<div class="oresee"><p class="oreqt">まずは この ことばを 見て 聞こう</p>
@@ -106,9 +106,10 @@ const exOf=I=>{try{const w=window.WI;if(!w||!w.exOf)return null;const e=w.exOf(I
 
 /* 🔤 アルファベットの ならべかえ。 arr=そのまま ／ arr2=よけいな 文字 1つ ／ arr3=よけいな 文字 2つ・自動で 読まない ／ ear=聞いて ならべる（意味は あとで） */
 const ABC='abcdefghijklmnopqrstuvwxyz';
-function arrange(o,I,box,k){return arrangeQ(I,box,k,ok=>next(o,ok))}
+function arrange(o,I,box,k){return arrangeQ(I,box,k,ok=>next(o,ok),{quiet:1})}
 /* ほかの 画面（⛏️鉱山）でも つかう: cb(ok) */
-function arrangeQ(I,box,k,cb){const w=word(I),need=[...w],extra=k==='arr'?0:k==='arr3'?2:1;
+/* opt.quiet: 自動で 読まない（原石の 作業中は 最初と 仕上がりだけ 読む。🔊は おせば 読む） */
+function arrangeQ(I,box,k,cb,opt={}){const w=word(I),need=[...w],extra=k==='arr'?0:k==='arr3'?2:1;
   let tiles=need.map(c=>({c,u:0}));for(let i=0;i<extra;i++){let c;do{c=pickL([...ABC])}while(need.includes(c)&&Math.random()<.7);tiles.push({c,u:0})}
   for(let t=0;t<8;t++){tiles=H.shuffle(tiles);if(tiles.slice(0,need.length).map(x=>x.c).join('')!==w)break}
   const put=[];let miss=false,over=false;const ear=k==='ear';
@@ -121,7 +122,7 @@ function arrangeQ(I,box,k,cb){const w=word(I),need=[...w],extra=k==='arr'?0:k===
   const S=[...box.querySelectorAll('.oreslot')],T=[...box.querySelectorAll('.oretile')];
   const paint=()=>{S.forEach((s,i)=>{const t=put[i];s.textContent=t!=null?tiles[t].c:'';s.classList.toggle('in',t!=null);s.classList.toggle('nx',i===put.length)});
     T.forEach((b,i)=>b.classList.toggle('used',!!tiles[i].u))};
-  const done=()=>{over=true;S.forEach(s=>s.classList.add('ok'));sf('correct');say(I);
+  const done=()=>{over=true;S.forEach(s=>s.classList.add('ok'));sf('correct');if(!opt.quiet)say(I);
     if(ear){const m=box.querySelector('.oremean b');if(m)m.textContent=I.ja}
     setTimeout(()=>cb(!miss),1100)};
   const check=()=>{if(put.map(i=>tiles[i].c).join('')===w)return done();
@@ -138,7 +139,7 @@ function arrangeQ(I,box,k,cb){const w=word(I),need=[...w],extra=k==='arr'?0:k===
     const i=tiles.findIndex(t=>!t.u&&t.c===need[put.length]);if(i<0)return;miss=true;sf('pickup');
     const b=T[i];b.classList.add('hint');setTimeout(()=>{b.classList.remove('hint');place(i)},420)};
   box.querySelector('[data-say]').onclick=()=>{sf('pickup');say(I)};
-  paint();if(k!=='arr3')setTimeout(()=>{if(box.isConnected)say(I)},300)}
+  paint();if(k!=='arr3'&&!opt.quiet)setTimeout(()=>{if(box.isConnected)say(I)},300)}
 
 /* ================================================================ つぎへ・仕上げ */
 function next(o,ok,noRec){if(!has(o.id))return;if(!noRec)try{C.record(o.id,ok)}catch(e){}
@@ -158,7 +159,7 @@ function finish(o){const O=R(),id=o.id,I=C.info(id);O.q=O.q.filter(x=>x.id!==id)
     <p class="oremio">${MIO.face('laugh','peace')}<span><b>${esc(L[0])}</b><small>${esc(L[1])}</small></span></p>
     <p class="oreqt">できた カードは どうする？</p>
     <div class="row"><button id="orefl">🏷️ 売り場へ</button><button id="orest" class="sub">📦 倉庫へ</button></div></div>`;
-  C.peekIn(X.el.querySelector('.oredc'),{from:'ore'});try{MIO.say(L[0])}catch(e){}
+  C.peekIn(X.el.querySelector('.oredc'),{from:'ore'});setTimeout(()=>{if(alive())say(I)},400);setTimeout(()=>{if(alive())try{MIO.say(L[0])}catch(e){}},1900)
   const go=fl=>{sf('step');let r='';if(fl){r=ctx.toFloor?ctx.toFloor(id):'';if(r==='full')H.toast('🏷️ 売り場が いっぱい<small>倉庫に 入れておいたよ</small>');else H.toast(`🏷️ 「${esc(word(I))}」を 売り場に ならべたよ`,1800)}
     else H.toast(`📦 「${esc(word(I))}」を 倉庫に 入れたよ`,1800);
     cur=nx?list()[0].id:null;draw();
