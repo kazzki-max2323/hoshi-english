@@ -82,9 +82,12 @@ function open(){const G=DG(),h=hp();
   </section>`);
   $('dgx').onclick=()=>{sf('back');SHOP.open()};
   if(window.FOOD)FOOD.mineBind(open);
+  bindBag();
   $('dggo').onclick=()=>{if(hp()<1)return;sf('open');start(1)};
   H.panel.querySelectorAll('[data-ck]').forEach(b=>b.onclick=()=>{const f=+b.dataset.ck,p=ckCost(f);if(hp()<1)return;if(ST.coins<p){sf('wrong');H.toast('🪙 コインが たりないよ');return}ST.coins-=p;H.head();sf('buy');start(f)})}
-const bagLine=()=>{const L=Object.keys(DG_ITEMS).filter(itN);return L.length?`<p class="mntl">🎒 ${L.map(id=>`${DG_ITEMS[id].ico}<b>×${itN(id)}</b>`).join(' ')} <small>ここだけの アイテム</small></p>`:''};
+/* 11/23: 入口の 🎒 も タップで 名前と はたらき（鉱山の 中と 同じ DG_ITEMS） */
+const bagLine=()=>{const L=Object.keys(DG_ITEMS).filter(itN);return L.length?`<p class="mntl">🎒 ${L.map(id=>`<button class="mnit" data-ite="${id}" aria-label="${esc(DG_ITEMS[id].n)}">${DG_ITEMS[id].ico}<b>×${itN(id)}</b></button>`).join('')} <small class="mnith">ここだけの アイテム・タップで せつめい</small></p>`:''};
+const bindBag=()=>H.panel.querySelectorAll('[data-ite]').forEach(b=>b.onclick=e=>{e.stopPropagation();const t=DG_ITEMS[b.dataset.ite];sf('pop');H.toast(`${t.ico} <b>${esc(t.n)}</b> ×${itN(b.dataset.ite)}<small>${esc(t.s)}<br>${window.MICO?MICO()+' ':''}鉱山の 中で 🎒から いつでも つかえるよ</small>`,4200)});
 
 function start(f){try{SHOP.leave()}catch(e){}const G=DG();G.runs++;save();
   D={floor:f,from:f,path:null,ws:[],wi:0,qi:0,last:'',got:{coins:0,gems:{},ore:[],cards:[],it:{}},b:{guard:0,luck:0,feather:0,see:0,charm:0,mag:0},q:0,ok:0,miss:0,missed:[],events:[],alive:true};
