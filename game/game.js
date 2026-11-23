@@ -268,8 +268,12 @@ new MutationObserver(fabKick).observe(panel,{childList:true,subtree:true,attribu
 /* moving things (answer bubbles, residents, mini-game targets) answer the moment a finger touches them.
    A normal click needs the finger to go down and up on the same element, which fails when it drifts away in between. */
 const FAST='.ab.opt,.ab.line,#ar .shell,#ar .st,#ar .crab,#ar .tile,#ar [data-d]';let eatUntil=0;
-document.addEventListener('pointerdown',e=>{if(e.button>0)return;let t=e.target.closest(FAST);if(!t)return;
-  e.preventDefault();t.click();eatUntil=performance.now()+600},true);
+/* 🪨 原石の 作業台（と 鉱山の ならべかえ）も 押した 瞬間に 反応。 ボタンの 長押しで カードが 開かないよう ここで とめる */
+const FAST_ORE='#oreq button,.orear button,.orear .oreslot';
+document.addEventListener('pointerdown',e=>{if(e.button>0)return;let t=e.target.closest(FAST),ore=0;if(!t){t=e.target.closest(FAST_ORE);ore=1}if(!t)return;
+  e.preventDefault();if(ore)e.stopImmediatePropagation();t.click();eatUntil=performance.now()+5000},true);
+/* 長く 押していても あとから くる click を 食べる（指を はなした 直後まで のばす） */
+['pointerup','pointercancel'].forEach(k=>document.addEventListener(k,()=>{if(performance.now()<eatUntil)eatUntil=performance.now()+400},true));
 document.addEventListener('click',e=>{if(e.isTrusted&&performance.now()<eatUntil){eatUntil=0;e.stopPropagation();e.preventDefault()}},true);
 document.addEventListener('keydown',e=>{if(screen==='cards'&&cardKeys&&!document.querySelector('.ttov'))cardKeys(e)});
 
