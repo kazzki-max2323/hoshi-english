@@ -451,3 +451,27 @@
 #cardOv.dgov .dgthr button{display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:8px 0!important;background:#ffffff14!important;border:2px solid #ffffff40!important;color:#fff}
 .dgthr i{display:block;width:10px;height:54px;border-radius:5px;background:var(--c);box-shadow:0 0 0 1px #0006}
 .dgfade{opacity:.25!important;text-decoration:line-through}
+/* 11/23 鉱山の ドット絵（game/dungeon-art.js）・階の ぬし・落盤・ゾーン */
+.dgscene.dgart{height:auto;aspect-ratio:3/1;background:#120c08;padding:0}
+.dgcv{position:absolute;inset:0;width:100%;height:100%;image-rendering:pixelated;image-rendering:crisp-edges}
+.dgscene .dgzn{position:absolute;left:8px;top:5px;font-size:.68rem;background:#0008;color:#fff;border-radius:999px;padding:1px 8px}
+.dgscene .dgn{background:#0008;color:#fff;border-radius:999px;padding:1px 8px;opacity:1}
+.dgscene .dgpetn{position:absolute;left:8px;bottom:4px;font-size:.8rem}
+.dgzone{text-align:center;margin:4px 0 0;font-size:.85rem;opacity:.9}
+.dgzone.new{font-size:1rem;font-weight:800;color:#ffe08a;animation:dgzin .9s ease-out}
+@keyframes dgzin{from{transform:scale(1.4);opacity:0}}
+.dgboss{display:inline-block;font-size:3.4rem;animation:dgbob 1.6s ease-in-out infinite}
+.dgboss.hit{animation:dgbhit .4s}
+@keyframes dgbob{50%{transform:translateY(-4px)}}
+@keyframes dgbhit{20%{transform:translateX(-8px) rotate(-8deg);filter:brightness(2.2)}60%{transform:translateX(6px)}}
+.dgev.boss{border-color:#ff7a7a!important}
+.dgbhp{font-size:1rem;letter-spacing:1px;margin:2px 0}
+.dgweak{color:#ffb070;font-weight:800}
+.dgtime{height:10px;border-radius:999px;background:#ffffff22;overflow:hidden;margin:6px 0}
+.dgtime i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff5a5a,#ffd23f);transition:width .1s linear}
+.dgrc{font-weight:800}
+@media (prefers-reduced-motion:reduce){.dgboss{animation:none}}
+/* 11/23 ✨ とくべつな 品 */
+.dgit.sp,.dgchip.sp{border-color:#ffd23f!important;background:linear-gradient(90deg,#ffd23f22,#ff9ae022)!important}
+.dgev.sp{border-color:#ffd23f!important;box-shadow:0 0 24px #ffd23f66}
+.dgev.sp .dgei{animation:dgbob 1.6s ease-in-out infinite;filter:drop-shadow(0 0 8px #ffe28a)}
