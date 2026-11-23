@@ -185,6 +185,7 @@
 .shtoc{display:block;width:100%;margin-top:8px}
 /* ⛏️ 鉱山の 🎒 つかう・🔀 入れかえ・📦 宝箱（game/mine.js）。 文字は 影なしで くっきり */
 .mntl{margin:0;font-size:.9rem;text-shadow:none}.mntl b{color:#ffe14a;margin-right:4px}.mntl small{color:#cbd2ff;font-size:.72rem}
+.pnl .mnit{display:inline-flex;align-items:center;gap:2px;padding:3px 8px;margin:0 3px 2px 0;border-radius:999px;font-size:.9rem;background:#ffffff14;border:1px solid #ffffff40;text-shadow:none}.pnl .mnit b{color:#ffe14a;margin:0}.mntl .mnith{display:inline-block;white-space:nowrap}
 .mndrow{display:flex;gap:6px}.mndrow button{flex:1;padding:8px 4px!important;font-size:.85rem!important}.mndrow small{background:#ffe14a;color:#1d1a3a;border-radius:8px;padding:0 5px;font-weight:800;font-size:.7rem}
 .mnfx{display:inline-flex;gap:4px;margin-left:6px;vertical-align:middle}.mnfx i{font-style:normal;font-size:.75rem;font-weight:800;background:rgba(0,0,0,.35);border-radius:8px;padding:1px 5px;color:#fff;text-shadow:none}
 .mnuse{width:100%;border:0;color:#fff;font:inherit;cursor:pointer}.mnuse:disabled{opacity:.45}.mnuse .n{color:#ffe14a}
