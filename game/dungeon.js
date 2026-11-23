@@ -85,7 +85,7 @@ const pathOf=k=>PATHS.find(p=>p.k===k)||PATHS[0];
 /* ================================================================ ことばの えらび方 */
 const LVS=['es','jh','hs','adv'];
 function lvAt(f){const r=Math.random();if(f<=100)return r<.9?'es':'jh';if(f<=200)return r<.5?'jh':'hs';if(f<=300)return r<.6?'hs':'adv';return r<.3?'hs':'adv'}
-function words5(f){const out=[],hs=new Set();for(let t=0;t<80&&out.length<5;t++){const lv=lvAt(f),c=pickL(C.W.filter(x=>x.lv===lv));if(!c||hs.has(c.h)||!c.ja)continue;hs.add(c.h);out.push(c.id)}return out}
+function words5(f){const out=[],hs=new Set(),used=new Set(D?[...D.seenW,...(D.ws||[])]:[]);for(let t=0;t<80&&out.length<5;t++){const lv=lvAt(f),c=pickL(C.W.filter(x=>x.lv===lv));if(!c||hs.has(c.h)||!c.ja||(t<60&&used.has(c.id)))continue;hs.add(c.h);out.push(c.id)}return out}
 /* 原石に なる まだ ない ことば（その 深さの レベル） */
 /* 11/23: 📖ブックに 記録ずみの ことばも 原石に なる（4わり）。 お店で 少し みがく（3問）だけで 売れる カードに。 mix=true で まぜる */
 function polWord(f){if(!window.ORE)return null;const lv=lvAt(f),ok=c=>ORE.recd(c.id)&&!ORE.has(c.id)&&ORE.okWord(c)&&!D.got.ore.includes(c.id);
@@ -201,7 +201,7 @@ function ask(){if(!D)return;const id=D.ws[D.wi],I=C.info(id);if(!I)return nextWo
   try{DGART.mount(H.panel.querySelector('.dgscene'),{f:D.floor,path:D.path,pet:D.pet,crack:D.qi?1:0,fresh:D.qi===0&&D.wi>0&&D.brk})}catch(e){}D.brk=0;
   if(t==='arr')return ORE.arrangeQ(I,box,Math.random()<.5?'arr2':'arr',ok=>answered(id,ok));
   const q=C.quiz(id,{type:t});C.ask(box,q,r=>answered(id,r.ok&&!r.hint),{tag:'⛏️'})}
-function answered(id,ok){if(!D)return;D.q++;try{C.record(id,ok)}catch(e){}if(!D.seenW.includes(id))D.seenW.push(id);
+function answered(id,ok){if(!D)return;D.q++;if(D.qi)qLog(id);try{C.record(id,ok)}catch(e){}if(!D.seenW.includes(id))D.seenW.push(id);
   const sc=document.querySelector('.dgscene');
   if(ok){D.ok++;if(sc){sc.classList.remove('hit');void sc.offsetWidth;sc.classList.add('hit')}sf('knock');try{DGART.hit();DGART.crack(D.qi?3:1);if(D.qi)setTimeout(()=>{try{DGART.breakRock()}catch(e){}},260)}catch(e){}
     if(D.b.beads){const a=hp();if(a<HPMAX){setHp(Math.min(HPMAX,a+3));upd();setTimeout(()=>flyTxt('📿 ❤ +3'),380)}}
@@ -230,8 +230,16 @@ const MIO_COMBO=[["Wow, combo ten! You're on fire, boss!","わあ、 10れんさ
 /* はじめて 見た しかけ・アイテムは ミナ先生が ひとこと（1回だけ） */
 function tell(k){const G=DG();G.told=G.told||{};if(G.told[k])return;G.told[k]=1;save();const [,tx]=ML('dg_'+k);if(tx)setTimeout(()=>H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,5600),900)}
 /* しかけの 中の 1問（この 回に 答えた ことばの ふくしゅう）。 cb(ok) */
-const revW=()=>D.seenW.length?pickL(D.seenW):pickL(D.ws.length?D.ws:words5(D.floor));
-function quickQ(box,cb,id){id=id||revW();const I=C.info(id);if(!I){cb(true);return}
+/* 11/23 ユーザー「同じ 単語が 何度も 出てくる」: しかけの 問題は 「さいきん 出した 8つ」を さけ、 1回の 鉱山で 同じ ことばは 2回まで。
+   ふくしゅう（この 回に 答えた ことば）が つきたら 新しい ことばを まぜる */
+const qLog=id=>{D.qlog=D.qlog||[];D.qlog.push(id);if(D.qlog.length>8)D.qlog.shift()};
+function revW(){D.rc=D.rc||{};const rec=new Set(D.qlog||[]),ok=id=>!rec.has(id)&&(D.rc[id]||0)<2&&C.info(id);
+  let pool=[...new Set([...D.seenW,...D.ws])].filter(ok);
+  if(pool.length<2)pool=pool.concat(words5(D.floor).filter(ok));
+  if(!pool.length)pool=words5(D.floor);
+  const m=Math.min(...pool.map(id=>D.rc[id]||0));pool=pool.filter(id=>(D.rc[id]||0)===m);
+  const id=pickL(pool);D.rc[id]=(D.rc[id]||0)+1;qLog(id);return id}
+function quickQ(box,cb,id){if(id)qLog(id);else id=revW();const I=C.info(id);if(!I){cb(true);return}
   const t=pickL(['mean','rev','rev',...(ST.sound?['listen']:[])]);const q=C.quiz(id,{type:t});
   C.ask(box,q,r=>{const ok=r.ok&&!r.hint;try{C.record(id,ok)}catch(e){}cb(ok)},{tag:'⛏️',fast:1})}
 /* しかけ用の 画面（上に 絵と 説明・下に 問題や ボタン） */
@@ -593,5 +601,5 @@ Object.assign(MINA_LINES,{
  dg_special:[['wow','✨ とくべつな 品！ 鉱山でも めったに 見つからないの。 つかうと とても 強いけど、 雑貨店の ノラさんに 高く 売る ことも できるよ'],['happy','とくべつな 品だね！ つかうか、 売るか… なやむね。 雑貨店の 💰売る に ⛏️ 鉱山の タブが あるよ']],
  dg_hs:[['wow','地下200階の 下！ 高校と ハイレベルの ことばの 世界。 すごいところまで 来たね'],['proud','200階 とっぱ！ ここまで 来られる 人は なかなか いないよ']]});
 
-window.DUNGEON={open,items:DG_ITEMS,rec:DG,itN,itTake,sellP,isSp,_ev:(k,go)=>D&&EV[k](go||(()=>{})),_go:f=>start(f),_boss:()=>D&&boss(()=>{})};
+window.DUNGEON={open,items:DG_ITEMS,rec:DG,itN,itTake,sellP,isSp,_ev:(k,go)=>D&&EV[k](go||(()=>{})),_go:f=>start(f),_rev:()=>D&&revW(),_boss:()=>D&&boss(()=>{})};
 })();
