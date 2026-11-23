@@ -38,7 +38,7 @@ function draw(){const {g,z,t}=S;
   S.top.forEach((h,i)=>{px(i*4,0,4,h,z.wall2);px(i*4,h,4,1,z.wall)});
   S.bot.forEach((h,i)=>{px(i*4,Hh-h-6,4,h+6,z.wall2);px(i*4,Hh-h-6,4,1,z.rock[2])});
   decoFront();
-  rock();miner();pet();
+  if(!S.o.stage)rock();miner();pet();
   /* しずく */
   if(t%9===0&&S.drips.length<3)S.drips.push({x:20+Math.random()*(W-40),y:8,v:0});
   S.drips=S.drips.filter(d=>{d.v+=.35;d.y+=d.v;px(d.x,d.y,1,2,'#9fd8ff');return d.y<Hh-8});
@@ -48,7 +48,7 @@ function draw(){const {g,z,t}=S;
   const tn=TINT[S.o.path];if(tn)px(0,0,W,Hh,tn);
   if(t-S.miss<4)px(0,0,W,Hh,'#ff304040');
   /* 鉱夫の ライトの 光 */
-  const lg=g.createRadialGradient(70,40,4,70,40,70);lg.addColorStop(0,z.light+'30');lg.addColorStop(1,'#0000');g.fillStyle=lg;g.fillRect(0,0,W,Hh)}
+  const lx=S.o.stage?36:70,lg=g.createRadialGradient(lx,40,4,lx,40,70);lg.addColorStop(0,z.light+'30');lg.addColorStop(1,'#0000');g.fillStyle=lg;g.fillRect(0,0,W,Hh)}
 function decoBack(){const {z,t,deco}=S;
   if(z.deco==='roots')deco.slice(0,5).forEach(d=>{for(let i=0;i<4+d.s*6;i++)px(d.x+Math.sin(i*.8+d.s*5)*2,6+i*2,1,2,'#7a5a30')});
   if(z.deco==='torch')[30,150].forEach((x,i)=>{px(x,22,2,8,'#5a3a1a');const fl=(t+i*3)%6<3;px(x-1,17,4,5,fl?'#ffb030':'#ff8020');px(x,15+(fl?0:1),2,3,'#ffe080')});
@@ -59,7 +59,7 @@ function decoFront(){const {z,t}=S;
   if(z.deco==='lake'){for(let x=0;x<W;x+=2){const y=Hh-9+Math.sin(x*.15+t*.25)*1.2;px(x,y,2,9,'#2a6a9a');if((x+t)%14<2)px(x,y,2,1,'#a8e0ff')}}
   if(z.deco==='lava'){for(let x=0;x<W;x+=2){const y=Hh-6+Math.sin(x*.2+t*.2);const hot=(x*3+t*2)%40<20;px(x,y,2,6,hot?'#ff6a20':'#d0401a');if((x+t*3)%50<1)px(x,y-2,1,1,'#ffd060')}}}
 /* 鉱夫（黄色い ヘルメット・ライト）。 hit の あと 4コマ つるはしを ふる */
-function miner(){const t=S.t,dt=t-S.hitT,x=64,y=Hh-26,bob=Math.sin(t*.3)>0?0:1;
+function miner(){const t=S.t,dt=t-S.hitT,x=S.o.stage?30:64,y=Hh-26,bob=Math.sin(t*.3)>0?0:1;
   px(x+2,y+18,3,4,'#3a3050');px(x+7,y+18,3,4,'#3a3050');           // あし
   px(x+1,y+9+bob,10,9,'#3f6fbf');px(x+1,y+15+bob,10,2,'#2a4a8a');  // ふく
   px(x+3,y+3+bob,7,6,'#f2c8a0');px(x+8,y+5+bob,1,1,'#2a1a10');     // かお
@@ -77,7 +77,7 @@ function rock(){const z=S.z,t=S.t,db=t-S.broke;if(db>=0&&db<6)return;
   /* 宝石の つぶ */
   const gem=['#ff5a7a','#5ad0ff','#7aff8a','#ffd84a'][S.o.f%4];px(x+20,y+12,2,2,gem);if(t%16<8)px(x+20,y+12,1,1,'#fff');
   const c=S.crack;if(c>=1){px(x+14,y+4,1,6,'#201810');px(x+15,y+9,1,4,'#201810')}if(c>=2){px(x+16,y+12,5,1,'#201810');px(x+8,y+14,6,1,'#201810');px(x+20,y+13,1,5,'#201810')}if(c>=3){px(x+6,y+20,8,1,'#201810');px(x+22,y+18,1,7,'#201810');px(x+11,y+15,1,7,'#201810')}}
-function pet(){if(!S.o.pet)return;const t=S.t,x=36+(Math.sin(t*.05)*6|0),y=Hh-15,b=(t>>2)%2;
+function pet(){if(!S.o.pet)return;const t=S.t,x=(S.o.stage?8:36)+(Math.sin(t*.05)*6|0),y=Hh-15,b=(t>>2)%2;
   px(x,y+2,8,5,'#e8a050');px(x+6,y,4,4,'#e8a050');px(x+6,y-1,1,1,'#e8a050');px(x+9,y-1,1,1,'#e8a050');px(x+8,y+1,1,1,'#201810');px(x-2,y+1-b,2,2,'#e8a050');px(x+1,y+7,1,1+b,'#c07a30');px(x+6,y+7,1,2-b,'#c07a30')}
 function burst(n,cols,x=118,y=Hh-24){if(!S)return;for(let i=0;i<n;i++)S.parts.push({x,y,vx:(Math.random()-.4)*3,vy:-Math.random()*3-1,l:8+Math.random()*8|0,s:Math.random()<.3?2:1,c:pickC(cols)})}
 const pickC=a=>a[Math.random()*a.length|0];
@@ -86,5 +86,5 @@ function crack(n){if(S)S.crack=n}
 function breakRock(){if(!S)return;S.broke=S.t;S.crack=0;burst(16,[...S.z.rock,'#ffe080'])}
 function miss(){if(S)S.miss=S.t}
 function setPet(p){if(S)S.o.pet=p}
-window.DGART={mount,hit,crack,breakRock,miss,setPet,zone,zoneI,ZONES};
+window.DGART={burst:(n,c,x,y)=>burst(n,c||['#ffe080','#fff','#ffb040'],x,y),mount,hit,crack,breakRock,miss,setPet,zone,zoneI,ZONES};
 })();
