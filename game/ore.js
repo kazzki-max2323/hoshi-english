@@ -3,7 +3,7 @@
    - 1まい 12問くらい（約5分）。 アルファベットの ならべかえが 中心で、 あいだに 意味・聞きとり・英語で・つづり の 4択
    - まちがえたり 🤔わからない を つかうと、 さいごに ならべかえが 1問 ふえる（3問まで。 失敗は なし）
    - 仕上がった カードは 📖ブックに 自動で 記録（ブックは 図鑑。 カードは 減らない・ブックから 出せない）。 カードは 🏷️売り場へ か 📦倉庫へ
-   - 原石は 浜辺・波うちぎわで 1日 5こ（タップで ひろう）と ⛏️鉱山で 見つかる 分
+   - 原石は 浜辺・波うちぎわで 1日 5こ（浜辺の 朝6時に 光る。 タップで ひろう）と ⛏️鉱山で 見つかる 分
    - 練習の あいだは イベントも ミオの わりこみも なし（単語の 習得 いちばん）
    保存は CG の 記録 C.rec().ore = {q:[{id,p,x,src,at}], day, done} */
 (()=>{
@@ -38,7 +38,11 @@ function makeSpots(){const out=[],far=(x,y)=>out.every(o=>Math.abs(o.x-x)>.1||Ma
   for(let t=0;t<400&&out.length<3;t++){const x=.06+Math.random()*.88,y=.68+Math.random()*.2;let ok=true;try{ok=H.okSpot(x,y)}catch(e){}if(ok&&far(x,y))out.push({x:+x.toFixed(3),y:+y.toFixed(3),sea:0})}
   for(let t=0;t<200&&out.length<DAY_N;t++){const x=.08+Math.random()*.84,dy=.012+Math.random()*.02;if(far(x,shoreY()-dy))out.push({x:+x.toFixed(3),y:dy,sea:1})}
   return out}
-function spots(){const O=R(),d=C.today();if(O.bday!==d){O.bday=d;O.bs=makeSpots();save()}return Array.isArray(O.bs)?O.bs:(O.bs=[])}
+/* 11/23 新しい 日の 原石は 「朝」に 光る: 日づけが かわっても、 浜辺の 時計が 朝6時を すぎるまでは 前の 日の 残りの まま（0〜6時は ふえない） */
+const MORN=6,gh=()=>{try{return GH()}catch(e){return new Date().getHours()}};
+function spots(){const O=R(),d=C.today();if(O.bday!==d&&(gh()>=MORN||!O.bday)){const first=!O.bday;O.bday=d;O.bs=makeSpots();save();
+    if(!first)setTimeout(()=>{if(H.screen==='home')mina('ore_morning',{},.5)},1500)}
+  return Array.isArray(O.bs)?O.bs:(O.bs=[])}
 let layer=null;
 function beach(){const w=document.getElementById('window');if(!w)return;
   if(!layer||!layer.isConnected){layer=document.createElement('div');layer.id='oreBeach';w.appendChild(layer)}
@@ -182,8 +186,9 @@ Object.assign(MINA_LINES,{
  ore_first:[['proud','はじめての カード、 仕上がったね！ 「{w}」は もう きみの ことば'],['happy','原石が カードに なった！ 「{w}」、 声に 出して 言えるかな？']],
  ore_done:[['happy','「{w}」も 仕上がったね。 これで {n}まい目'],['smile','ならべかえで つづりを 手で 覚えるの、 いいでしょ？ 「{w}」、 もう 書けるね'],['proud','{n}まい目の カード！ 少しずつ、 でも 確かに ふえてるよ']],
  ore_allDone:[['proud','きょうの 原石、 ぜんぶ 仕上がったね！ よく がんばりました'],['happy','原石 ぜんぶ カードに なった！ あとは お店を ながめて ひとやすみしよう']],
- ore_beach:[['wow','原石を ひろったね！ 浜辺と 波うちぎわに 1日 5こ 光ってるよ。 カードショップの 作業台で みがいてね'],['point','ひろった 原石は お店の 作業台へ。 開店前に ひろって、 開店したら みがく。 店長の 1日だね']],
- ore_beachAll:[['happy','きょうの 原石、 ぜんぶ ひろったね！ あとは お店で ゆっくり みがこう'],['smile','5こ ぜんぶ ひろえたね。 あしたの 朝も また 光ってるよ']],
+ ore_beach:[['wow','原石を ひろったね！ 浜辺と 波うちぎわに 毎朝 5こ 光ってるよ。 カードショップの 作業台で みがいてね'],['point','ひろった 原石は お店の 作業台へ。 開店前に ひろって、 開店したら みがく。 店長の 1日だね']],
+ ore_beachAll:[['happy','きょうの 原石、 ぜんぶ ひろったね！ あとは お店で ゆっくり みがこう'],['smile','5こ ぜんぶ ひろえたね。 あしたの 朝6時ごろ、 また 光りだすよ'],['point','ぜんぶ ひろえたね！ 新しい 原石は あしたの 朝。 夜の あいだは お店で みがこう']],
+ ore_morning:[['wow','おはよう！ 浜辺に 新しい 原石が 光ってるよ。 波うちぎわも 見てみて'],['smile','朝の 浜辺、 原石が きらきら してる。 開店前に ひろって おこう'],['happy','新しい 1日だね。 きょうの 原石 5こ、 さがしに 行こう']],
  ore_mine:[['wow','鉱山で 原石を 見つけたね！ お店の 作業台で みがくと カードに なるよ'],['smile','ほった 原石は お店の 作業台へ。 ならべかえで みがいてね']],
  x_ore:[['smile','カードショップに 原石が {n}こ まってるよ。 1つ みがきに 行く？'],['think','作業台の 原石、 1つだけでも みがいてみない？ 5分くらいで カードに なるよ']]});
 const goBench=()=>['🪨 作業台へ',()=>CG.open()];
