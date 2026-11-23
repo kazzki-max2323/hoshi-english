@@ -73,3 +73,5 @@
 @keyframes orebsBob{50%{transform:translateY(-3px) rotate(-6deg)}}
 @keyframes orebsGot{to{transform:translateY(-24px) scale(1.4);opacity:0}}
 @media (prefers-reduced-motion:reduce){.orebs i,.orebs::after{animation:none}}
+/* 11/23 📖 ブックの ことばの 原石（少し みがくだけ） */
+.orestn.pl{background:radial-gradient(circle at 35% 30%,#fff1b8,#c9a24a 70%,#8a6a2a)!important}

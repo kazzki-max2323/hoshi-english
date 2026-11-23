@@ -431,3 +431,7 @@
 .dgsw small{font-size:.66rem;opacity:.85}
 @keyframes dgsmk{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @media (prefers-reduced-motion:reduce){.pnl .dgsw{animation:none}}
+/* 11/23 🎒は 下の 列へ（左上の ← と まぎらわしいので）・🎵 鉱山の BGM */
+.dgfoot{display:flex;gap:8px}.dgfoot .dgbagb,.dgfoot .dghomeb{flex:1}.dgfoot .dgmusb{flex:0 0 auto;min-width:52px;font-size:1.15rem}
+.dgfoot .dgmusb.on{border-color:#9fe0ff!important;color:#fff}
+.dgmo.on{border-color:#ffd23f!important;background:#ffd23f22!important}
