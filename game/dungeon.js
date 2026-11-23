@@ -19,6 +19,9 @@ const save=()=>C.save();
 const HPMAX=80;
 /* 11/22: 下の 階へ 進むだけで ❤が へる（深いほど 多い）。 休憩所の たき火は 少しだけ */
 const stepCost=f=>Math.min(14,5+Math.floor(f/15));
+/* 11/24 ユーザー「体力が 全然 へらない」: つるはしを ふるう（1問 答える）たびに ❤ -2（まちがいは いつもの ダメージだけ）。
+   1階 ≒ 10問＋階段 ≒ ❤25 → まんたん 80 で 1回 5〜10分 くらい。 ほる つかれで ❤0 に なったら たおれずに 「へとへと」で ぜんぶ もちかえる */
+const DIG=2;
 const hp=()=>{try{return FOOD.hp()}catch(e){return D?D.hp0:HPMAX}};
 const setHp=n=>{try{FOOD.setHp(n)}catch(e){if(D)D.hp0=n}};
 const word=I=>String(I.en).split(',')[0].trim();
@@ -207,15 +210,28 @@ function ask(){if(!D)return;const id=D.ws[D.wi],I=C.info(id);if(!I)return nextWo
 function answered(id,ok){if(!D)return;D.q++;if(D.qi)qLog(id);try{C.record(id,ok)}catch(e){}if(!D.seenW.includes(id))D.seenW.push(id);
   const sc=document.querySelector('.dgscene');
   if(ok){D.ok++;if(sc){sc.classList.remove('hit');void sc.offsetWidth;sc.classList.add('hit')}sf('knock');try{DGART.hit();DGART.crack(D.qi?3:1);if(D.qi)setTimeout(()=>{try{DGART.breakRock()}catch(e){}},260)}catch(e){}
-    if(D.b.beads){const a=hp();if(a<HPMAX){setHp(Math.min(HPMAX,a+3));upd();setTimeout(()=>flyTxt('📿 ❤ +3'),380)}}
+    dig();if(D.b.beads&&!D.tired){const a=hp();if(a<HPMAX){setHp(Math.min(HPMAX,a+3));upd();setTimeout(()=>flyTxt('📿 ❤ +3'),380)}}
     D.combo++;if(D.combo>D.cmax)D.cmax=D.combo;if(D.combo%5===0)comboGift()}
   else{D.miss++;try{DGART.miss()}catch(e){}if(!D.missed.includes(id))D.missed.push(id);if(D.b.feather>0){D.b.feather--;flyTxt('🪶 金の 羽で セーフ！')}else{if(D.combo>=5)setTimeout(()=>flyTxt(`🔥${D.combo}れんさ おわり`,'bad'),420);D.combo=0;const dmg=6+Math.floor(D.floor/40);hurt(dmg,'まちがえて')}}
   if(!D||D.fallen)return;
+  if(D.tired)return setTimeout(tired,900);
+  lowWarn();
   setTimeout(()=>{if(!D)return;D.qi++;if(D.qi<2)return ask();D.qi=0;D.wi++;D.brk=1;encounter(()=>{if(!D)return;D.wi>=D.ws.length?stairs():ask()})},ok?500:900)}
 function hurt(n,why){if(D)D.badT=Date.now();const h=Math.max(0,hp()-n);setHp(h);sf('wrong');flyTxt(`❤ -${n}`,'bad');const e=document.querySelector('.dghp');if(e){e.textContent='❤'+h;e.classList.toggle('low',h<=15)}
   const p=H.panel.querySelector('section');if(p){p.classList.remove('mnshake');void p.offsetWidth;p.classList.add('mnshake')}
   if(h<=0&&itTake('dscale')){setHp(40);upd();sf('fanfare');try{SFX.fanfare(2)}catch(e){}setTimeout(()=>H.toast('🐉 竜の うろこが 光った！<small>❤40で 立ちあがった（うろこは くだけた）</small>',3600),300);return}
   if(h<=0){D.fallen=1;setTimeout(collapse,900)}}
+/* ⛏️ ほる つかれ（正解の とき）。 0に なったら D.tired → tired() */
+function dig(){if(!D)return;const a=hp();if(a<=0)return;const h=Math.max(0,a-DIG);setHp(h);upd();setTimeout(()=>flyTxt(`⛏️ ❤ -${DIG}`,'dig'),120);
+  const G=DG();if(!G.digTold){G.digTold=1;save();setTimeout(()=>{const [,tx]=ML('dg_dig',{n:DIG});if(tx&&D)H.toast(`${MICO()} <b>ミナ先生</b><small>${esc(tx)}</small>`,5600)},1200)}
+  if(h<=0)D.tired=1}
+/* ❤20 を 切ったら ミオが 無線で 1回だけ 声を かける */
+function lowWarn(){if(!D||D.lowTold)return;const h=hp();if(h>20||h<=0)return;D.lowTold=1;const L=pickL(DIG_MIO_LOW);
+  setTimeout(()=>{if(!D)return;H.toast(`📡 <b>ミオ</b> ${esc(L[0])}<small>${esc(L[1])}</small>`,4800);try{MIO.say(L[0])}catch(e){}},700)}
+const DIG_MIO_LOW=[["Boss, you sound tired. Come back soon, OK?","店長、 つかれた 声だよ。 そろそろ 帰ってきてね"],["Your heart is getting low! Eat something or come home!","❤が へってきたよ！ 何か 食べるか 帰ってきて！"],["Don't dig too hard! I made tea for you.","ほりすぎ ちゅうい！ お茶 いれて まってるよ"]];
+/* へとへと: たおれない。 ぜんぶ もちかえる */
+function tired(){if(!D)return;C.closeOv();const G=DG();G.tired=(G.tired||0)+1;save();setHp(5);
+  card('😮‍💨','もう へとへと…',`<p>つるはしが 重くて もう ふれない。 きょうは ここまで！</p><p class="dgmio">📡 ミオ「<b>Great work, boss! I'm coming to get you.</b>」<br><small>おつかれさま、 店長！ むかえに 行くね</small></p><p class="dghint">ほる つかれで ❤0 の ときは なにも なくさないよ</p>`,[['🎒 ぜんぶ もって 帰る',()=>finish('tired')]]);try{MIO.say("Great work, boss! I'm coming to get you.")}catch(e){}}
 function flyTxt(t,cls=''){const st=document.querySelector('.dgscene')||H.panel;if(!st)return;const e=document.createElement('b');e.className='dgfly '+cls;e.textContent=t;st.appendChild(e);setTimeout(()=>e.remove(),1400)}
 function nextWord(){D.wi++;D.wi>=D.ws.length?stairs():ask()}
 
@@ -321,7 +337,7 @@ const EV={
   if(!T.must&&(D.b.guard>0||itN('compass')>0)){if(D.b.guard>0)D.b.guard--;else itTake('compass');sf('pickup');return card('🛡️',`${T.n}… でも よけた！`,`<p>${D.b.guard>=0?'まもりの 道具の おかげ':''}</p>`,[['ふう…',go]])}
   if(itN('dice'))return card('⚠️',`${T.n}だ！`,`<p>🎲 やりなおしの サイコロで ふりなおす？</p><p class="dghint">べつの できごとに かわる（いいことか どうかは 運しだい）</p>`,[['🎲 ふりなおす',()=>{itTake('dice');sf('pickup');let k='trap';for(let t=0;t<8&&k==='trap';t++)k=roll()||'gem';flyTxt('🎲 コロコロ…');EV[k](go)}],['そのまま',()=>T.f(go),'sub']]);
   T.f(go)},
- spring:go=>{card('⛲','ふしぎな いずみ','<p>すきとおった 水が わいている。 のむ？</p>',[['のむ',()=>{if(Math.random()<.85){const a=hp();setHp(Math.min(HPMAX,a+20));sf('eat');card('💧','元気が 出た！',`<p>❤ ${a} → ${hp()}</p>`,[['つづける',go]])}else{hurt(5,'');if(!D.fallen)card('🤢','にがい！','<p>❤ -5 … ただの 鉱泉だった</p>',[['つづける',go]])}}],['のまない',go,'sub']])},
+ spring:go=>{card('⛲','ふしぎな いずみ','<p>すきとおった 水が わいている。 のむ？</p>',[['のむ',()=>{if(Math.random()<.85){const a=hp();setHp(Math.min(HPMAX,a+12));sf('eat');card('💧','元気が 出た！',`<p>❤ ${a} → ${hp()}</p>`,[['つづける',go]])}else{hurt(5,'');if(!D.fallen)card('🤢','にがい！','<p>❤ -5 … ただの 鉱泉だった</p>',[['つづける',go]])}}],['のまない',go,'sub']])},
  gamble:go=>{card('🎩','もぐらの 手品師','<p>"Which cup?" 3つの カップの どれかに 金貨が 1まい。</p>',[0,1,2].map(i=>[['🥤','🥤','🥤'][i]+' '+(i+1),()=>{const win=Math.random()<.34*luck();if(win){const v=20+D.floor*2;D.got.coins+=v;sf('coinIn');card('🪙','あたり！',`<p>"Lucky you!" 🪙 +${v}</p>`,[['つづける',go]])}else{sf('pop');card('💨','はずれ…','<p>"Better luck next time!"（また こんど！）</p>',[['つづける',go]])}},'sub']))},
  merchant:go=>{const id=itemPick(),t=DG_ITEMS[id],p=30+Math.floor(D.floor/2)+((t.r||1)-1)*10;
   card('🐹','行商人の ハムさん',`<p>"Want to buy ${t.ico}? Only ${p} coins!"</p><p>${t.n}: ${esc(t.s)}</p><small>（もちあるいている コイン 🪙${ST.coins}）</small>`,[[`🪙${p}で 買う`,()=>{if(ST.coins<p){sf('wrong');H.toast('🪙 コインが たりないよ');return go()}ST.coins-=p;H.head();itAdd(id);sf('buy');go()}],['"No, thanks."',go,'sub']])},
@@ -494,7 +510,7 @@ function useIt(id){if(!D||!itN(id))return;
   if(id==='dice'){H.toast('🎲 もっているだけで OK<small>わなが 出たら ふりなおすか きいてくるよ</small>',3000);return}
   if(id==='orb'){if(!itTake(id))return;C.closeOv();sf('pickup');if(D.st==='floor'){preRoll(D.wi);H.toast('🔮 この 階の できごとが 見えた！<small>ことばの 列の 絵を 見てね</small>',2600);const ln=document.querySelector('.dglane');if(ln){const t=document.createElement('div');t.innerHTML=hdr();const nl=t.querySelector('.dglane');if(nl)ln.replaceWith(nl)}}else{D.b.orb=1;H.toast('🔮 つぎの 階で 見えるよ',2200)}tell('orb');return}
   if(!itTake(id))return;C.closeOv();sf('pickup');
-  ({compass:()=>{itAdd('compass');H.toast('🧭 コンパスは もっているだけで わなを 1回 よけるよ')},clover:()=>{D.b.clover+=3},mirror:()=>{D.b.twin=1;tell('mirror')},crown:()=>{D.b.crown=1},hglass:()=>{D.b.feather+=5},star:()=>{D.b.star=1},tear:()=>{setHp(HPMAX);D.b.beads=1},beads:()=>{D.b.beads=1},gpick:()=>{D.b.gpick=1},crystal:()=>setHp(HPMAX),candle:()=>{D.b.see=1},feather:()=>{D.b.feather+=3},okey:()=>{itAdd('okey');H.toast('🗝️ かぎは 扉や 宝箱で 自動で つかうよ')},potion:()=>setHp(Math.min(HPMAX,hp()+40)),charm:()=>{D.b.charm=1}}[id]||(()=>{}))();
+  ({compass:()=>{itAdd('compass');H.toast('🧭 コンパスは もっているだけで わなを 1回 よけるよ')},clover:()=>{D.b.clover+=3},mirror:()=>{D.b.twin=1;tell('mirror')},crown:()=>{D.b.crown=1},hglass:()=>{D.b.feather+=5},star:()=>{D.b.star=1},tear:()=>{setHp(HPMAX);D.b.beads=1},beads:()=>{D.b.beads=1},gpick:()=>{D.b.gpick=1},crystal:()=>setHp(HPMAX),candle:()=>{D.b.see=1},feather:()=>{D.b.feather+=3},okey:()=>{itAdd('okey');H.toast('🗝️ かぎは 扉や 宝箱で 自動で つかうよ')},potion:()=>setHp(Math.min(HPMAX,hp()+30)),charm:()=>{D.b.charm=1}}[id]||(()=>{}))();
   if(id!=='compass'&&id!=='okey')H.toast(`${DG_ITEMS[id].ico} ${DG_ITEMS[id].n}を つかった`);upd()}
 function upd(){const e=document.querySelector('.dghp');if(e){const h=hp();e.textContent='❤'+h;e.classList.toggle('low',h<=15)}}
 
@@ -550,7 +566,7 @@ const giveIt=id=>{id=id||itemPick();D.got.it[id]=(D.got.it[id]||0)+1;itAdd(id);r
 /* その 休憩所の 3つの えらびかた: [ico, 名前, せつめい, する こと(done)] */
 function restOpts(R,f){const cv=25+f*2;
   if(R.k==='fire')return [['❤','ゆっくり 休む','❤ +6',d=>{d(heal(6))}],['🎒','まわりを さがす','アイテムを 1つ',d=>{const t=giveIt();d(`${t.ico} ${t.n}を 見つけた！`)}],['📦','宝箱を あける','たき火の そばの 古い 箱',d=>chestOpen(1,()=>d(''))]];
-  if(R.k==='spring')return [['💧','たっぷり のむ','❤ +15',d=>{d(heal(15))}],['🧪','びんに くむ','🧪 元気の くすりを 1つ',d=>{const t=giveIt('potion');d(`${t.ico} ${t.n}を 手に 入れた`)}],['💎','泉の 底を さがす','宝石が しずんでいる かも',d=>{const v=Math.round((20+f*2)*luck());D.got.coins+=v;sf('coin');d(`💎 🪙${v} ぶんの 宝石！`)}]];
+  if(R.k==='spring')return [['💧','たっぷり のむ','❤ +12',d=>{d(heal(12))}],['🧪','びんに くむ','🧪 元気の くすりを 1つ',d=>{const t=giveIt('potion');d(`${t.ico} ${t.n}を 手に 入れた`)}],['💎','泉の 底を さがす','宝石が しずんでいる かも',d=>{const v=Math.round((20+f*2)*luck());D.got.coins+=v;sf('coin');d(`💎 🪙${v} ぶんの 宝石！`)}]];
   if(R.k==='mole'){const k1=itemPick(),ks=[k1,itemPick([k1])],pr=k=>30+Math.floor(f/2)+((DG_ITEMS[k].r||1)-1)*10;
     const own=Object.keys(DG_ITEMS).filter(itN),sell=own.length?pickL(own):null,sp=15+Math.floor(f/3);
     const buy=k=>[DG_ITEMS[k].ico,`${DG_ITEMS[k].n}を 買う`,`🪙${pr(k)} ・ ${DG_ITEMS[k].s}`,d=>{if(ST.coins<pr(k)){sf('wrong');H.toast('🪙 コインが たりないよ');return false}ST.coins-=pr(k);H.head();sf('buy');itAdd(k);d(`"Thank you!" ${DG_ITEMS[k].ico} ${DG_ITEMS[k].n}を 買った`)}];
@@ -625,11 +641,11 @@ function finish(why,lost){if(!D)return;const d=D;D=null;C.closeOv();const g=d.go
   let oreN=0,polN=0;g.ore.forEach(id=>{try{const p=isPol(id);if(window.ORE&&ORE.fromMine(id)){oreN++;if(p)polN++}}catch(e){}});
   g.cards.forEach(id=>{try{SHOP.bookRec()[id]=1}catch(e){}});save();
   try{const M=MINE.rec();M.dives=(M.dives||0)+1;if(d.floor>(M.bestF||0))M.bestF=d.floor;save()}catch(e){}
-  try{RECENT.add('mine',{depth:d.floor,best:G.best,fl:d.floor,bestF:G.best,ok:d.ok,q:d.q,cards:g.cards.concat(g.ore),rare:g.cards.length>0,coins:g.coins,hp:why==='fall'?'hp':'',chest:0,bad:0,used:[],story:0})}catch(e){}
-  const fall=why==='fall',it=Object.keys(g.it).filter(k=>g.it[k]>0);
-  const [ex,tx]=ML(fall?'dg_fall':newC&&Math.random()<.6?'dg_backCombo':oreN?'dg_backOre':'dg_back',{f:d.floor,n:oreN,c:d.cmax});
+  try{RECENT.add('mine',{depth:d.floor,best:G.best,fl:d.floor,bestF:G.best,ok:d.ok,q:d.q,cards:g.cards.concat(g.ore),rare:g.cards.length>0,coins:g.coins,hp:why==='fall'||why==='tired'?'hp':'',chest:0,bad:0,used:[],story:0})}catch(e){}
+  const fall=why==='fall',tir=why==='tired',it=Object.keys(g.it).filter(k=>g.it[k]>0);
+  const [ex,tx]=ML(fall?'dg_fall':tir?'dg_tired':newC&&Math.random()<.6?'dg_backCombo':oreN?'dg_backOre':'dg_back',{f:d.floor,n:oreN,c:d.cmax});
   H.show('cg',`<section class="pnl cgp shp dgp">
-    <div class="qtop"><span></span><b>${fall?'🏖️ 浜辺で 目が さめた…':'🎒 もちかえった'}</b><span class="qn">地下${d.floor}階まで</span></div>
+    <div class="qtop"><span></span><b>${fall?'🏖️ 浜辺で 目が さめた…':tir?'😮‍💨 へとへとで 帰った':'🎒 もちかえった'}</b><span class="qn">地下${d.floor}階まで</span></div>
     ${fall?`<p class="dgfall">たおれている ところを ミオに 見つけてもらった。 ❤10で 気が ついた</p>
       <div class="dglost"><b>なくした 物（半分）</b><p>${lost.coins?`🪙${lost.coins} `:''}${lost.ore.length?`🪨原石 ${lost.ore.length} `:''}${lost.cards.length?`🎁宝カード ${lost.cards.length} `:''}${Object.keys(lost.it).filter(k=>lost.it[k]).map(k=>DG_ITEMS[k].ico+'×'+lost.it[k]).join(' ')}${!lost.coins&&!lost.ore.length&&!lost.cards.length&&!Object.keys(lost.it).length?'なし':''}</p></div>`:''}
     <div class="mnres"><p>🪜 地下${d.from}階 → 地下${d.floor}階 ・ ${d.q}問中 <b>${d.ok}</b>問 正解</p>${d.cmax>=3?`<p>🔥 さいこう ${d.cmax}れんさ${newC?' <b class="mnnew">NEW!</b>':''}</p>`:''}
@@ -648,7 +664,9 @@ Object.assign(MINA_LINES,{
  dg_well:[['smile','ふしぎな 井戸だね。 英語では wish（願う）。 "I wish…" は 「〜だったら いいのに」の 気もちだよ'],['think','井戸に コインを 投げて 願いごと… なにが おきるかは 運しだい！']],
  dg_smoke:[['smile','けむりに うかんでいるのは きょう まちがえた ことば。 答えなくて いいから、 ちょっと ながめてみて'],['think','まちがえた ことばは 見かえすだけでも 覚えやすく なるよ。 タップで カードが 見られるよ']],
  dg_step:[['point','階段を おりると ❤が {n} へるよ。 深く なるほど たくさん へるから、 ❤が 少なく なったら 休憩所で 「帰る」 を えらぼう'],['think','下へ 行くだけでも ❤を つかうの。 食べ物を もっていくと 深くまで 行けるよ']],
- dg_new:[['wow','鉱山が 新しく なったよ！ ことば 5つに 2問ずつ 答えて どんどん 下へ。 分かれ道・宝・わな… なにが あるかは 運しだい！'],['point','まちがえると ❤が へるよ。 ❤0で たおれると 拾った 物の 半分を なくすから、 あぶなく なったら 帰ろうね']],
+ dg_dig:[['point','鉱山では 1問 ほるたびに ❤が {n} へるよ。 ❤0に なっても ほる つかれなら 「へとへと」で 帰るだけ。 なにも なくさないから あんしんしてね'],['smile','つるはしを ふると つかれるの。 まんたんで 5〜10分 くらい ほれるよ。 🎒の 食べ物で 回復も できるからね']],
+ dg_tired:[['smile','おつかれさま！ 地下{f}階まで ほりきったね。 ❤は 2分で 1ずつ もどるから、 また あとで 行こう'],['proud','へとへとに なるまで がんばったね。 それだけ 英語を 答えたって ことだよ'],['point','ほる つかれで 帰った ときは ぜんぶ もちかえれるよ。 食べ物を もっていくと もっと 深くまで 行けるね']],
+ dg_new:[['wow','鉱山が 新しく なったよ！ ことば 5つに 2問ずつ 答えて どんどん 下へ。 分かれ道・宝・わな… なにが あるかは 運しだい！'],['point','1問 ほるごとに ❤が 少し へって、 まちがえると もっと へるよ。 わなや まちがいで ❤0に なると 拾った 物の 半分を なくすから、 あぶなく なったら 帰ろうね']],
  dg_open:[['smile','さあ、 きょうは 何階まで 行けるかな？ 最高は 地下{f}階'],['think','あぶないと 思ったら 休憩所で 「帰る」。 帰れば ぜんぶ もちかえれるよ']],
  dg_open2:[['happy','鉱山は 答えれば 答えるほど 深く 行ける。 たくさん 練習しよう！'],['point','🎒 アイテムは 問題の とちゅうでも つかえるよ。 🫙 ほたるの びんは こたえが 光るの']],
  dg_back:[['happy','おかえり！ 地下{f}階まで 行ったんだね'],['proud','たくさん 答えたね。 鉱山の 問題は そのまま 単語の 練習だよ']],

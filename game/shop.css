@@ -375,6 +375,7 @@
 @keyframes dgswing{50%{transform:rotate(-40deg) translateX(8px)}}
 .dgfly{position:absolute;left:50%;top:30%;transform:translateX(-50%);font-size:1rem;color:#ffe08a;animation:dgfly 1.3s ease-out forwards;pointer-events:none;white-space:nowrap}
 .dgfly.bad{color:#ff8a9a}
+.dgfly.dig{font-size:.8rem;color:#ffd0a0;top:42%}
 @keyframes dgfly{to{transform:translate(-50%,-34px);opacity:0}}
 .dgqbox .cgq{color:#fff7e6}
 .dgq{text-align:center;font-weight:800;margin:10px 0}
