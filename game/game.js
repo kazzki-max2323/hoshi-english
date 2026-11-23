@@ -90,7 +90,7 @@ addEventListener('resize',()=>setTimeout(fitDock,80));
    鉱山に 出ると とまり、 お店に もどると また ながれる。 雑貨屋の 試聴や 先生の リクエストは その 画面に いる あいだだけ */
 let musWhere=null;   // 'shop' = お店の BGM ／ ほかは その曲を かけた 画面の 名前
 /* お店の 中＝カードショップの 画面（鉱山と、 ホームから 開いた カードブック .cbout は のぞく） */
-const inShop=()=>screen==='cg'&&!panel.querySelector('.mnp,.cbout');
+const inShop=()=>screen==='cg'&&!panel.querySelector('.mnp,.cbout,.dgp');   // 11/23 鉱山(.dgp)は 鉱山の BGM（dungeon.js）
 const songOk=id=>!!id&&typeof TRACKS!=='undefined'&&!!TRACKS[id]&&ST.music.includes(id);
 /* 🎶 その 場所の BGM（いまは 雑貨屋だけ）: placeBgm[画面名] = {id:()=>曲, v:音量(0〜1)}。 曲は もっていなくても ながれる。
    試聴（その 画面で かけた 曲）が 先。 とめると BGMに もどる */

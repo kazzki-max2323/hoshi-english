@@ -28,9 +28,10 @@ function pickNew(lv){const my=Math.max(0,LVK.indexOf(lv||C.myLv())),r=Math.rando
   for(const d of [0,-1,1,-2,2,3,-3]){const j=li+d;if(j<0||j>3)continue;
     const pool=C.W.filter(c=>c.lv===LVK[j]&&!recd(c.id)&&!has(c.id)&&!heads.has(c.h)&&okWord(c));if(pool.length)return pickL(pool).id}
   return null}
-function add(id,src){if(!id||has(id)||!C.info(id))return false;R().q.push({id,p:0,x:0,src:src||'',at:Date.now()});save();return true}
+function add(id,src,pol){if(!id||has(id)||!C.info(id))return false;R().q.push({id,p:0,x:0,src:src||'',at:Date.now(),...(pol?{pol:1}:{})});save();return true}
 /* 鉱山で 見つかった 原石（game/mine.js）。 単語カードは ここに 来る */
-const fromMine=id=>{const I=C.info(id);if(!I||I.k!=='w'||!okWord(I)||recd(id))return false;return add(id,'mine')};
+/* 11/23: 📖ブックに 記録ずみの ことばも 鉱山から 来る（pol=みがくだけ・3問で 売れる カードに） */
+const fromMine=id=>{const I=C.info(id);if(!I||I.k!=='w'||!okWord(I))return false;return add(id,'mine',recd(id))};
 /* ================================================================ 🏖️ 浜辺と 海の 原石（1日 5こ。 砂の 上に 3こ・波うちぎわに 2こ。 タップで ひろう）
    その日の 置き場所は O.bs（[{x,y,sea}]、 浜辺の 窓の 中の わりあい）。 ひろったら 消える */
 function shoreY(){try{const d=SCENE.dbg();return (d.shore-d.WT)/d.WH}catch(e){return .6}}
@@ -63,8 +64,11 @@ setInterval(beach,2500);setTimeout(beach,1200);try{H.on('home',()=>setTimeout(be
 
 /* ================================================================ 12問の ならび（ならべかえが 中心） */
 const STEPS=['see','arr','mean','arr','listen','arr2','rev','arr2','spell','arr3','ear','arr3'];
-const total=o=>STEPS.length+(o.x||0);
-const stepOf=o=>o.p<STEPS.length?STEPS[o.p]:'arr2';
+/* 📖 記録ずみの 原石（o.pol）は 少し みがくだけ: 3問（まちがえても ふえるのは 1問まで） */
+const PSTEPS=['arr','mean','arr2'];
+const steps=o=>o.pol?PSTEPS:STEPS;
+const total=o=>steps(o).length+(o.x||0);
+const stepOf=o=>o.p<steps(o).length?steps(o)[o.p]:'arr2';
 const stage=o=>{const f=o.p/total(o);return f<.4?0:f<.8?1:2};
 const STAGE=['けずる','みがく','仕上げ'];
 const left=o=>Math.max(1,Math.round((total(o)-o.p)*25/60));   // 1問 25びょうくらい
@@ -75,17 +79,17 @@ const say=I=>{try{H.say(I.lv,word(I))}catch(e){}};
 function bench(el,ctx){X={el,ctx:ctx||{}};const L=list();if(!L.find(o=>o.id===cur))cur=L.length?L[0].id:null;draw()}
 const alive=()=>X&&X.el&&X.el.isConnected;
 function stones(){const L=list();if(!L.length)return '';const sh=L.slice(0,7);
-  return `<span class="orest">${sh.map(o=>`<button class="orestn ${o.id===cur?'on':''} ${o.p?'wk':''}" data-o="${esc(o.id)}" aria-label="原石"><i style="--p:${Math.round(o.p/total(o)*100)}%"></i></button>`).join('')}${L.length>sh.length?`<small>+${L.length-sh.length}</small>`:''}<b>${L.length}</b></span>`}
+  return `<span class="orest">${sh.map(o=>`<button class="orestn ${o.id===cur?'on':''} ${o.p?'wk':''} ${o.pol?'pl':''}" data-o="${esc(o.id)}" aria-label="原石"><i style="--p:${Math.round(o.p/total(o)*100)}%"></i></button>`).join('')}${L.length>sh.length?`<small>+${L.length-sh.length}</small>`:''}<b>${L.length}</b></span>`}
 function draw(){if(!alive())return;const el=X.el,o=list().find(x=>x.id===cur);
   if(!o){el.innerHTML=`<div class="orebn"><div class="orehd"><b>🪨 原石の 作業台</b></div>
       <div class="oreempty"><span>🪨</span><p>原石は いま ないよ</p><small>${esc(pickL(EMPTY))}</small></div></div>`;return}
   const I=C.info(o.id),pc=Math.round(o.p/total(o)*100),sg=stage(o);
   el.innerHTML=`<div class="orebn">
     <div class="orehd"><b>🪨 原石の 作業台</b>${stones()}</div>
-    <div class="oretop"><div class="orecd" style="--p:${pc/100}">${C.face(o.id,{lock:1,mini:1,marks:false})}<i class="orerock"></i></div>
-      <div class="oreinfo"><small>原石 → カード（1まい 約5分）</small><div class="orebar"><i style="width:${Math.max(4,pc)}%"></i></div>
+    <div class="oretop"><div class="orecd" style="--p:${pc/100}">${C.face(o.id,{lock:!o.pol,mini:1,marks:false})}<i class="orerock"></i></div>
+      <div class="oreinfo"><small>${o.pol?'📖 ブックの ことば ・ 少し みがくだけ（3問）':'原石 → カード（1まい 約5分）'}</small><div class="orebar"><i style="width:${Math.max(4,pc)}%"></i></div>
         <div class="orelab">${STAGE.map((t,i)=>`<span class="${i===sg?'on':''}">${t}</span>`).join('')}</div>
-        <p>あと ${left(o)}分くらい ・ ${o.p+1}/${total(o)}問目</p></div></div>
+        <p>${o.pol?'すぐ 売れるよ':`あと ${left(o)}分くらい`} ・ ${o.p+1}/${total(o)}問目</p></div></div>
     <div class="oreq" id="oreq"></div></div>`;
   el.querySelectorAll('[data-o]').forEach(b=>b.onclick=()=>{if(b.dataset.o===cur)return;sf('tap');cur=b.dataset.o;draw()});
   ask(o,I)}
@@ -147,19 +151,19 @@ function arrangeQ(I,box,k,cb,opt={}){const w=word(I),need=[...w],extra=k==='arr'
 
 /* ================================================================ つぎへ・仕上げ */
 function next(o,ok,noRec){if(!has(o.id))return;if(!noRec)try{C.record(o.id,ok)}catch(e){}
-  if(!ok&&(o.x||0)<EXTRA_MAX)o.x=(o.x||0)+1;o.p++;save();
+  if(!ok&&(o.x||0)<(o.pol?1:EXTRA_MAX))o.x=(o.x||0)+1;o.p++;save();
   if(o.p>=total(o))return finish(o);
   if(alive())draw()}
-function finish(o){const O=R(),id=o.id,I=C.info(id);O.q=O.q.filter(x=>x.id!==id);O.done=(O.done||0)+1;
+function finish(o){const O=R(),id=o.id,I=C.info(id),pol=!!o.pol;O.q=O.q.filter(x=>x.id!==id);if(pol)O.pdone=(O.pdone||0)+1;else O.done=(O.done||0)+1;
   C.give(id);try{SHOP.bookRec()[id]=1}catch(e){}save();
   try{RECENT.add('ore',{id,en:word(I),ja:String(I.ja).split(/[、,]/)[0]})}catch(e){}
   try{SFX.fanfare(1)}catch(e){sf('done')}
   const ctx=X&&X.ctx||{};if(ctx.done)try{ctx.done(id)}catch(e){}
   if(!alive())return;
-  const L=pickL(DONE),nx=list().length;
+  const L=pickL(pol?PDONE:DONE),nx=list().length;
   X.el.innerHTML=`<div class="orebn oredn"><div class="orehd"><b>✨ 仕上がった！</b>${stones()}</div>
     <div class="oredc">${C.face(id,{big:1,ja:1,marks:false})}</div>
-    <p class="orebk">📖 カードブックに 記録したよ</p>
+    <p class="orebk">${pol?'✨ みがいて 売れる カードに なった（📖 ブックには 記録ずみ）':'📖 カードブックに 記録したよ'}</p>
     <p class="oremio">${MIO.face('laugh','peace')}<span><b>${esc(L[0])}</b><small>${esc(L[1])}</small></span></p>
     <p class="oreqt">できた カードは どうする？</p>
     <div class="row"><button id="orefl">🏷️ 売り場へ</button><button id="orest" class="sub">📦 倉庫へ</button></div></div>`;
@@ -167,7 +171,8 @@ function finish(o){const O=R(),id=o.id,I=C.info(id);O.q=O.q.filter(x=>x.id!==id)
   const go=fl=>{sf('step');let r='';if(fl){r=ctx.toFloor?ctx.toFloor(id):'';if(r==='full')H.toast('🏷️ 売り場が いっぱい<small>倉庫に 入れておいたよ</small>');else H.toast(`🏷️ 「${esc(word(I))}」を 売り場に ならべたよ`,1800)}
     else H.toast(`📦 「${esc(word(I))}」を 倉庫に 入れたよ`,1800);
     cur=nx?list()[0].id:null;draw();
-    mina(O.done===1?'ore_first':!nx?'ore_allDone':'ore_done',{w:word(I),n:O.done},O.done===1?1:.3)};
+    if(pol)mina(O.pdone===1?'ore_polFirst':!nx?'ore_allDone':'ore_polDone',{w:word(I),n:O.pdone},O.pdone===1?1:.3);
+    else mina(O.done===1?'ore_first':!nx?'ore_allDone':'ore_done',{w:word(I),n:O.done},O.done===1?1:.3)};
   X.el.querySelector('#orefl').onclick=()=>go(1);X.el.querySelector('#orest').onclick=()=>go(0)}
 function mina(k,v,p){try{if(window.MINA&&MINA.canAnnounce&&MINA.canAnnounce()&&Math.random()<p){const [ex,tx]=ML(k,v);if(tx)setTimeout(()=>MINA.say('m',ex,tx,6500),1200)}}catch(e){}}
 
@@ -178,6 +183,10 @@ const DONE=[["It's finished! Look how it shines, boss!","できた！ 見て、 
  ["Done! I'm sure you'll never forget this word now.","完成！ この ことば、 もう ぜったい わすれませんね。"],
  ["Beautiful! This one goes in the book, right?","きれい！ これも ブックに 記録ですね。"],
  ["You made a card from a stone. That's real magic, boss.","石から カードを つくっちゃった。 店長、 まほう使いみたい。"]];
+const PDONE=[["Shiny again! This one's ready to sell.","またぴかぴか！ これ、 すぐ 売れますよ。"],
+ ["You remembered it well! A quick polish was enough.","ちゃんと 覚えてましたね！ さっと みがくだけで できた。"],
+ ["An old friend from the book. Let's put it on the shelf!","ブックの なじみの ことば。 売り場に ならべましょう！"],
+ ["Nice review, boss. Customers will love this one.","いい ふくしゅうでしたね、 店長。 お客さん よろこびますよ。"]];
 const EMPTY=['🏖️ 浜辺や 波うちぎわで 光っている 原石を ひろってこよう（1日 5こ）','⛏️ 鉱山でも 原石が 見つかるよ','いまは お店の ようすを ながめて ひとやすみ'];
 
 /* ================================================================ ミナ先生 */
@@ -185,6 +194,8 @@ Object.assign(MINA_LINES,{
  ore_new:[['wow','カードショップが 新しく なったよ！ お店の 下が 🪨原石の 作業台。 ならべかえで みがいて カードに するの'],['point','原石は まだ 覚えていない ことば。 1つ 5分くらい 練習すると、 ぴかぴかの カードに なって 📖ブックに 記録されるよ']],
  ore_first:[['proud','はじめての カード、 仕上がったね！ 「{w}」は もう きみの ことば'],['happy','原石が カードに なった！ 「{w}」、 声に 出して 言えるかな？']],
  ore_done:[['happy','「{w}」も 仕上がったね。 これで {n}まい目'],['smile','ならべかえで つづりを 手で 覚えるの、 いいでしょ？ 「{w}」、 もう 書けるね'],['proud','{n}まい目の カード！ 少しずつ、 でも 確かに ふえてるよ']],
+ ore_polFirst:[['proud','ブックの ことば 「{w}」を みがいて、 売れる カードに したね。 覚えた ことばの ふくしゅうにも なるよ'],['happy','「{w}」、 ちゃんと 覚えてたね！ 3問で ぴかぴか。 売り場に ならべてみよう']],
+ ore_polDone:[['smile','「{w}」も みがけたね。 覚えた ことばを もう一度 さわると、 もっと わすれにくく なるよ'],['happy','「{w}」、 さっと 仕上がったね。 ふくしゅうしながら お店も もうかる！']],
  ore_allDone:[['proud','きょうの 原石、 ぜんぶ 仕上がったね！ よく がんばりました'],['happy','原石 ぜんぶ カードに なった！ あとは お店を ながめて ひとやすみしよう']],
  ore_beach:[['wow','原石を ひろったね！ 浜辺と 波うちぎわに 毎朝 5こ 光ってるよ。 カードショップの 作業台で みがいてね'],['point','ひろった 原石は お店の 作業台へ。 開店前に ひろって、 開店したら みがく。 店長の 1日だね']],
  ore_beachAll:[['happy','きょうの 原石、 ぜんぶ ひろったね！ あとは お店で ゆっくり みがこう'],['smile','5こ ぜんぶ ひろえたね。 あしたの 朝6時ごろ、 また 光りだすよ'],['point','ぜんぶ ひろえたね！ 新しい 原石は あしたの 朝。 夜の あいだは お店で みがこう']],

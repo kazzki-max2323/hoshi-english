@@ -88,7 +88,7 @@ function bgm(say){const own=songs(),cur=H.shopSongId,ln=say||pickL(MIO_BGM[!own.
     ${own.length?`<div class="zkbag">${own.map(id=>{const m=CATALOG.music.find(x=>x[0]===id)||[id,0,'🎵'],on=cur===id;
       return `<div class="ritem ${on?'has':''}"><span class="ri">${m[2]}</span><span class="rn"><b>${esc(songName(id))}</b>${on?'<small>🎵 いま ながれているよ</small>':''}</span><span class="rbtn"><button class="play ${on?'on':''}" data-bg="${on?'':id}">${on?'■ とめる':'▶ ながす'}</button></span></div>`}).join('')}</div>`
       :`<p class="note">🎵 レコードは 浜辺の 右はしの ながれぎ雑貨店で 買えるよ</p>`}
-    <p class="note">レコードは お店の 中だけで ながれるよ（鉱山や 浜辺では とまる）。 カウンターの 🎶 レコードプレイヤーを タップしても オン・オフ できるよ</p>
+    <p class="note">レコードは お店の 中で ながれるよ（浜辺では とまる。 鉱山では 鉱山の 🎵 ボタンで えらべる）。 カウンターの 🎶 レコードプレイヤーを タップしても オン・オフ できるよ</p>
   </section>`);
   bindBubble();speak(ln[0]);$('shb').onclick=()=>{sf('back');open()};
   H.panel.querySelectorAll('[data-bg]').forEach(b=>b.onclick=()=>{const id=b.dataset.bg||null;sf('pop');H.shopSong(id);try{RECENT.add('bgm',{id,ja:id?songName(id):''})}catch(e){}bgm(pickL(MIO_BGM[id?'on':'off']))})}
