@@ -340,10 +340,10 @@ rec:{t:'おすすめを きく',start:'a',nodes:{
   O("I want to remember English phrases.",null,null,null,'recM',{j:"英語の フレーズを おぼえたい です。",if:c=>!Z.own('note')&&c.it.id!=='note',act:c=>{c.it=Z.item('note')}}),
   O("I like surprises.",null,null,null,'recM',{j:"びっくりが 好きです。",if:c=>c.it.id!=='fortune',act:c=>{c.it=Z.item('fortune')}}),
   O("Nothing. Thanks anyway!",null,"Ha ha. Come back when you find something!","あはは。 見つかったら また 来てね！",'eThink',{j:"とくに ないです。 ありがとう！"})]},
- cheap:{s:"Our fortune cookies are only 5 coins. There's an English message inside each one.",j:"おみくじ クッキーなら 5まいよ。 1つ 1つに 英語の ことばが 入ってるの。",enter:c=>{c.it=Z.item('fortune')},o:[
+ cheap:{s:"Our fortune cookies are only 20 coins. There's an English message inside each one.",j:"おみくじ クッキーなら 20まいよ。 1つ 1つに 英語の ことばが 入ってるの。",enter:c=>{c.it=Z.item('fortune')},o:[
   O("Sounds fun! I'll take one.",'takeIt',"Here you are!","はい、 どうぞ！",'@buy:pre',{j:"たのしそう！ 1つ ください。"}),
-  O("Do you have anything else?",'anythingElse',"Postcards are 10 coins. And dog chews are 10, too.","絵はがきは 10まい。 わんこの ガムも 10まいよ。",'cheap2'),
-  O("Five coins? Too expensive!",null,"Too expensive?! It's the cheapest thing in the shop! Ha ha.","高すぎる？！ お店で いちばん 安いのよ！ あはは。",'cheap2',{ok:0,j:"5まい？ 高すぎ！",pip:"Cheap! Cheap!",fx:'🤑'})]},
+  O("Do you have anything else?",'anythingElse',"Postcards are 40 coins. And dog chews are 40, too.","絵はがきは 40まい。 わんこの ガムも 40まいよ。",'cheap2'),
+  O("Twenty coins? Too expensive!",null,"Too expensive?! It's the cheapest thing in the shop! Ha ha.","高すぎる？！ お店で いちばん 安いのよ！ あはは。",'cheap2',{ok:0,j:"20まい？ 高すぎ！",pip:"Cheap! Cheap!",fx:'🤑'})]},
  cheap2:{s:"Which one would you like?",j:"どれに する？",o:[
   O("A fortune cookie, please.",null,null,null,'@buy:price',{j:"おみくじ クッキーを ください。",act:c=>{c.it=Z.item('fortune')}}),
   O("A postcard, please.",null,null,null,'@buy:price',{j:"絵はがきを ください。",if:()=>!Z.pcDone(),act:c=>{c.it=Z.item('pc')}}),

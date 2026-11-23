@@ -17,6 +17,7 @@ const sf=k=>{try{SFX[k]&&SFX[k]()}catch(e){}};
 const val=(x,c)=>typeof x==='function'?x(c):x;
 const ML=(k,v)=>{try{return MINA.line(k,v||{})}catch(e){return ['smile','']}};
 const DISH=FOOD_DISHES,SN=FOOD_SNACKS,BANDS=FOOD_BANDS,DRINK=FOOD_DRINKS;
+const LARGE=60;   // 大もりの たし分（11/23 値上げで 15→60）
 const LVJ={es:'小',jh:'中',hs:'高'};
 const MAX=80,REGEN=120000;   // 2分で ❤1
 
@@ -124,6 +125,8 @@ function greet(M){const b=band(),g=[
   ["Sit anywhere you like. Order in English, and I'll tell you a story about the dish.","すきな 席に どうぞ。 英語で 注文してくれたら、 料理の お話を してあげよう。"],
   ["No takeout here, friend. Food tastes best fresh from the pan!","ここは 持ち帰り なしだよ。 料理は フライパンから 出たてが いちばん！"],
   ["I cooked on ships for twenty years. Every dish here comes from a different port.","20年 船で コックを していたんだ。 ここの 料理は ぜんぶ ちがう 港の 味さ。"]];
+  /* 💰 11/23 値上げ: さいしょの 1回だけ マルコさんが わけを 話す */
+  if(Object.keys(FD.eaten).length&&!FD.priceTold){FD.priceTold=1;save();return ["I use the best fish and vegetables from the market now. The prices went up, but every plate is worth it. Trust me!","いまは 市場で いちばん いい 魚と 野菜を つかってるんだ。 値段は 上がったけど、 どの お皿も その かちが あるよ。 まかせて！"]}
   if(FD.v>1&&Object.keys(FD.eaten).length)g.push(["Welcome back! What will it be this time?","おかえり！ こんどは なにに する？"]);
   if(hp()<25)g.push(["You look tired! Been digging in the mine? A good meal will fix that.","つかれた 顔だね！ 鉱山で ほってたのかい？ しっかり 食べれば 元気に なるさ。"],["You look tired! Been digging in the mine? A good meal will fix that.","つかれた 顔だね！ 鉱山で ほってたのかい？ しっかり 食べれば 元気に なるさ。"]);
   if(b==='am')g.push(["Breakfast is the most important meal of the day. That's what my mother always said!","朝ごはんは 一日で いちばん 大事な ごはん。 母さんの 口ぐせさ！"]);
@@ -238,10 +241,10 @@ function prefNode(c){const d=c.d,o=d.o,lv=d.lv;
        yes(L(c,["A little spicy, please.","Medium, please.","Medium, please — just a little kick."]),L(c,["ちょっと からいので。","ふつうで おねがいします。","ふつうで。 ちょっと ピリッと くらい。"]),"Good choice. Just right.","いい えらび方だ。 ちょうど いいよ。",{x:L(c,['a little ＝ ちょっと','medium ＝ 中くらい','a kick ＝ ピリッと くる 感じ']),act:c=>{c.spice=1}}),
        yes(L(c,["Very spicy, please!","Hot, please!","Make it hot, please. I love spicy food."]),L(c,["すごく からいので！","から口で！","から口で。 からい 料理が 大好きなんです。"]),"Brave! I'll bring some water too.","勇気が あるね！ 水も もってくるよ。",{x:'hot ＝ （味が）からい。 あつい ことにも つかうよ',act:c=>{c.spice=2}}),
        O(L(c,["Hot like the sun!","As hot as a volcano, please!","Make it hotter than the sun, please."]),L(c,["お日さまくらい からく！","火山みたいに からく！","太陽より からく して ください。"]),0,"The sun? My kitchen would melt! Ha ha. Pick a normal one, OK?","太陽？ ちゅうぼうが とけちゃうよ！ はは。 ふつうのから えらんでね。",'pref',{x:'ここは mild / medium / hot から えらぼう'})]};
-  if(o==='size'){const big=ST.coins>=d.p+15;return {h:'大きさを 聞かれているよ。 regular（ふつう）か large（大もり）',
+  if(o==='size'){const big=ST.coins>=d.p+LARGE;return {h:'大きさを 聞かれているよ。 regular（ふつう）か large（大もり）',
     s:L(c,["Regular or large?","Would you like a regular or a large?","Would you like a regular portion, or are you hungry enough for a large?"]),j:L(c,["ふつう？ 大もり？","ふつうに する？ 大もりに する？","ふつうの 量に する？ それとも 大もりが いけそうかい？"]),
     o:[yes(L(c,["Regular, please.","A regular, please.","A regular portion is fine, thanks."]),L(c,["ふつうで。","ふつうで おねがいします。","ふつうの 量で だいじょうぶです。"]),"Regular it is.","ふつうだね。",{x:'regular ＝ ふつうの（大きさ）'}),
-       ...(big?[yes(L(c,["Large, please!","A large, please. I'm really hungry.","I'll go for the large. I've been digging all day."]),L(c,["大もりで！","大もりで。 すごく おなかが すいてて。","大もりに します。 一日中 ほってたので。"]),"That's the spirit! Large, extra 15 coins.","その いきだ！ 大もりは 15まい たすよ。",{x:L(c,['large ＝ 大きい','hungry ＝ おなかが すいた','go for ～ ＝ ～に する（思いきって）']),act:c=>{c.large=1}})]:[]),
+       ...(big?[yes(L(c,["Large, please!","A large, please. I'm really hungry.","I'll go for the large. I've been digging all day."]),L(c,["大もりで！","大もりで。 すごく おなかが すいてて。","大もりに します。 一日中 ほってたので。"]),"That's the spirit! Large, extra sixty coins.","その いきだ！ 大もりは 60まい たすよ。",{x:L(c,['large ＝ 大きい','hungry ＝ おなかが すいた','go for ～ ＝ ～に する（思いきって）']),act:c=>{c.large=1}})]:[]),
        O(L(c,["Super mega large!","The biggest plate in the world, please!","Could you serve it in a bathtub?"]),L(c,["スーパー メガ 大もり！","世界一 大きい お皿で！","おふろおけで 出して もらえますか？"]),0,"Ha ha! My plates aren't that big. Regular or large?","はは！ そんなに 大きい お皿は ないよ。 ふつうか 大もりで ね。",'pref',{x:'regular か large で こたえよう'})]}}
   if(o==='egg')return {h:'たまごの 焼き方を 聞かれているよ',
     s:L(c,["How do you like your egg?","How would you like your eggs?","How would you like your eggs done?"]),j:L(c,["たまごは どうする？","たまごは どう しますか？","たまごの 焼き方は どうしましょう？"]),
@@ -344,7 +347,7 @@ function scene(c){const d=c.d,D=one(d.en),T=art(d.en),b=c.b,dr=DRINK[b];
   return N}
 const cap=s=>s?s[0].toUpperCase()+s.slice(1):s;
 const M0=c=>c.M;
-const price=c=>c.d.p+(c.large?15:0);
+const price=c=>c.d.p+(c.large?LARGE:0);
 
 /* ---------- the talk ---------- */
 let P=null,gen=0;const live=()=>P&&$('fdlog');
