@@ -127,8 +127,10 @@ function start(T,k,t){const S=HR_SIGNS[k],now=Date.now();if(!S)return;
   T.hr={k,t,t0:now,until:now+(t?4200:5200),ask:0,parts:[]};
   const R=REC();R.sg[k]=(R.sg[k]||0)+1;save();
   play(SGSND[k]);if(k==='bell')setTimeout(()=>play('chime'),2600);
-  T.status&&T.status(S.st);
   const m=T.mio;
+  /* 夜の ミオは 2階（SHOP.mioUp）。 物音で おりてきて、 おさまったら また 2階へ */
+  let dn=0;if(!T.down&&window.SHOP&&SHOP.mioUp&&SHOP.mioUp(T)){T.down=1;dn=1;clearTimeout(T.upTm);m.walk=null;m.x=150;m.y=44;m.pose="stand"}
+  T.status&&T.status((dn?'🌙 物音で ミオが 2階から おりてきた… ':'')+S.st);
   if(k==='sheet'||k==='ghostin'){T.hrSp={x:14,y:k==='sheet'?34:30};if(k==='sheet'){T.hrMx=m.x;m.walk=null;m.x=-60;m.pose='stand';m.until=now+6e4}}
   if(k==='doze'||k==='yawn'){m.walk=null;m.pose='doze';m.until=now+(k==='doze'?3800:5200)}
   else if(k!=='sheet'){m.pose='stand';m.until=now+5000}
@@ -145,7 +147,8 @@ function ask(T){const e=T.hr,box=$('shact');if(!box||!e)return;e.ask=1;e.until=D
 function restore(T){if(T.hrMx!=null){T.mio.x=T.hrMx;T.hrMx=null;T.mio.until=0}T.hrSp=null}
 function endSign(T,quiet){const e=T.hr;restore(T);T.hr=null;T.hrNext=Date.now()+60000+Math.random()*60000;
   const box=$('shact');if(box&&box.querySelector('.hrask'))box.innerHTML='';
-  if(e&&!quiet){T.status&&T.status('…しずかに なった。 お客さんを まとう');if(Math.random()<.6)SHOP.mut(T,'m',pickL(PHEW),2800,1)}}
+  if(e&&!quiet){T.status&&T.status(T.down?'…しずかに なった。 ミオは 2階へ もどっていった':'…しずかに なった。 お客さんを まとう');if(T.down||Math.random()<.6)SHOP.mut(T,'m',pickL(PHEW),2800,1)}
+  if(T.down){clearTimeout(T.upTm);T.upTm=setTimeout(()=>{if(!T.hr)T.down=0},quiet?0:3200)}}
 const PHEW=[["…Phew. Let's pretend that didn't happen.","…ふう。 なかった ことに しよう。"],["Is it over? …I think it's over.","おわった？ …おわった よね。"],["I'm not scared. My hands are just cold.","こわくないよ。 手が つめたい だけ。"],["Boss, stay close tonight, OK?","店長、 今夜は そばに いてね？"]];
 
 /* ---------------------------------------------------------------- ドット絵 */

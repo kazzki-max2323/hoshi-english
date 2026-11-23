@@ -341,7 +341,8 @@ const MU=()=>typeof SHOP_MUTTER!=='undefined'?SHOP_MUTTER:{};
 function ML2(k){const a=MU()[k];if(!a||!a.length)return null;const L=ML2.last||(ML2.last={});let x,n=0;do{x=pickL(a)}while(a.length>1&&L[k]===x&&++n<6);L[k]=x;return x}
 /* a guest's line: sometimes their own（GUESTS と 同じ じゅんばんの who） */
 function gLine(g,k,own){const i=GUESTS.indexOf(g.G),w=(MU().who||[])[i];if(w&&w.length&&Math.random()<own){let x,n=0;do{x=pickL(w)}while(w.length>1&&g.said===x&&++n<6);g.said=x;return x}return ML2(k)}
-function mut(T,who,line,ms,free){if(!line||!T.mu)return;const m=T.mu;if(m.until>Date.now()){if(!free&&m.q.length<2)m.q.push([who,line,ms]);return}
+function mut(T,who,line,ms,free){if(!line||!T.mu)return;if(who==='m'&&mioUp(T))return;   // 2階に いる ミオは しゃべらない
+  const m=T.mu;if(m.until>Date.now()){if(!free&&m.q.length<2)m.q.push([who,line,ms]);return}
   m.who=who;m.line=line;m.until=Date.now()+(ms||Math.max(3200,1800+line[0].length*90));floatUp(T,who,line,m.until-Date.now())}
 /* 11/22: ふきだしは 浜辺の ラジオのように 話した 人の 上から ゆっくり 浮かんで 消える（タップで 読む）
    見出し（← カードショップ）の 枠の 上まで 上がって 消える。 ふきだし どうしは 重ならない（あたらしいのが 下から 押し上げる） */
@@ -375,7 +376,7 @@ function mutTick(T,t){const m=T.mu,now=Date.now();if(!$('shfls'))return;
   if(m.who&&now>=m.until){m.who='';m.next=Math.max(m.next,now+1200);const n=m.q.shift();if(n){m.next=0;setTimeout(()=>{if(T.alive)mut(T,...n)},450)}}
   if(m.who)return;
   /* Mio, by herself: every 15〜25 s when no guest and no question is open */
-  if(T.g||m.q.length||now<m.next||mioUp())return;   // 2階に いる 夜は しずかconst box=$('shact');if(box&&box.innerHTML&&!box.querySelector('.svx'))return;
+  if(T.g||m.q.length||now<m.next||mioUp(T))return;   // 2階に いる 夜は しずかconst box=$('shact');if(box&&box.innerHTML&&!box.querySelector('.svx'))return;
   m.next=now+25000+Math.random()*20000;
   if(H.playing&&T.mio.pose!=='doze'&&Math.random()<.3){mut(T,'m',recLine('play'));return}
   if(window.MIOCT&&T.mio.pose!=='doze'&&Math.random()<.6){const rx=MIOCT.mutter();if(rx){mut(T,'m',rx);return}}
@@ -413,7 +414,7 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
   cv.onclick=ev=>{const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*W,y=(ev.clientY-r.top)/r.height*HH,m=T.mio;
     if(x>=PX[0]&&x<=PX[2]&&y>=PX[1]&&y<=PX[3])return recTap(T);
     if(x>=CPX[0]&&x<=CPX[2]&&y>=CPX[1]&&y<=CPX[3]){sf('step');pause(T);return caseScreen(()=>counter(true))}
-    if(window.MIOCT&&!mioUp()&&x>m.x-8&&x<m.x+22&&y>m.y-6&&y<m.y+36){sf('tap');tapMio()}};
+    if(window.MIOCT&&!mioUp(T)&&x>m.x-8&&x<m.x+22&&y>m.y-6&&y<m.y+36){sf('tap');tapMio()}};
   cv.style.cursor='pointer'
   let last=0;
   const tick=now=>{if(!T.alive||!cv.isConnected){T.alive=false;return}requestAnimationFrame(tick);if(now-last<140)return;last=now;T.f++;step(T);
@@ -423,7 +424,7 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
     const m=T.mio;if(m.walk){const dx=m.walk-m.x;if(Math.abs(dx)<1){m.x=m.walk;m.walk=null}else m.x+=Math.sign(dx)}
     const behind=m.y<60;
     const g=T.g;if(g&&g.y+32<=m.y+32){guest(c,g.x,g.y,g.L,g.pose,T.f>>1)}
-    if(mioUp())desk(c);else if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1)}
+    if(mioUp(T))desk(c);else if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1)}
     if(g&&g.y+32>m.y+32)guest(c,g.x,g.y,g.L,g.pose,T.f>>1);
     showcase(c,T.f);const on=!!H.shopSongId;player(c,on,T.f);if(window.SHDECO)SHDECO.front(c,t,T.f);
     if(g&&g.bub&&!(T.mu.who==='g'&&T.mu.until>Date.now()))bub(c,g.x+11,g.y-9,g.bub);
@@ -438,11 +439,12 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
     done:id=>{T.mio.pose='cheer';T.mio.until=Date.now()+3000;const I=C.info(id);status(`✨ 「${esc(I?cnm(I):'')}」の カードが できた！`);mut(T,'m',pickL(ORE_MIO_OK),4200,1)},
     toFloor:id=>{const s=SH();if(s.floor.length>=FLOOR_N)return 'full';s.floor.push(id);save();refreshNav(T);return 'ok'}});
   T.wasOpen=hrO;
-  if(!hrO&&!old&&window.HOURS&&!mioUp())setTimeout(()=>{if(T.alive)mut(T,'m',pickL(hrP?MIO_PREP:MIO_CLOSED),4800,1)},1400);
+  if(!hrO&&!old&&window.HOURS&&!mioUp(T))setTimeout(()=>{if(T.alive)mut(T,'m',pickL(hrP?MIO_PREP:MIO_CLOSED),4800,1)},1400);
   else if(!S.floor.length)setTimeout(()=>status('🏷️ 売り場が からっぽ… 🏷️から カードを ならべよう'),1200)}
 /* 店の 画面の 小さな ボタンの 列 */
 /* 🏠 夜（21〜6時）の ミオは 2階の 自分の へや（game/mio-home.js） */
-const mioUp=()=>{try{const s=MIOHOME.state();return s==='free'||s==='sleep'}catch(e){return false}};
+/* T.down: 深夜の 物音で ミオが 2階から おりてきて いる あいだ（game/horror.js） */
+const mioUp=T=>{if(T&&T.down)return false;try{const s=MIOHOME.state();return s==='free'||s==='sleep'}catch(e){return false}};
 const refreshNav=T=>{const nv=H.panel.querySelector('.shnav');if(nv&&T.alive){nv.innerHTML=navBtns();bindNav(T)}};
 function navBtns(){const S=SH(),n=window.MIOC&&MIOC.newN&&MIOC.newN();
   return `<button data-n="floor"><span>🏷️</span>売り場<small>${S.floor.length}/${FLOOR_N}</small></button><button data-n="store"><span>📦</span>倉庫</button><button data-n="book"><span>📖</span>ブック</button><button data-n="mine"><span>⛏️</span>鉱山</button><button data-n="talk"><span>💬</span>ミオ${n?'<i class="dot"></i>':''}</button>${window.MIOHOME?'<button data-n="home"><span>🏠</span>2階</button>':''}<button data-n="gift"><span>🎁</span>あげる</button><button data-n="bgm"><span>🎵</span>BGM</button>${window.HORROR?HORROR.frontBtn():''}`}
@@ -709,5 +711,5 @@ setTimeout(function first7(){const S=SH();if(S.caseTold||!S.met)return;const m=w
   S.caseTold=1;save();const [ex,tx]=ML('sh_caseNew');m.say('m',ex,tx,10000,null,goShop('case')())},44000);
 
 H.on('home',()=>{if(CT){CT.alive=false;CT.paused=0}});
-window.SHOP={premium,premList,wantRec,mut:(T,who,line,ms,free)=>mut(T,who,line,ms,free),ct:()=>CT,open,leave,price,allCards,counter,floor,toFloor,pause:()=>pause(CT),store,rec:SH,inBook,free,stock,storeCards,bookRec:BOOKR,cleanFloor,rare,inCase,caseRec:CASER,caseScreen};
+window.SHOP={mioUp:T=>mioUp(T),premium,premList,wantRec,mut:(T,who,line,ms,free)=>mut(T,who,line,ms,free),ct:()=>CT,open,leave,price,allCards,counter,floor,toFloor,pause:()=>pause(CT),store,rec:SH,inBook,free,stock,storeCards,bookRec:BOOKR,cleanFloor,rare,inCase,caseRec:CASER,caseScreen};
 })();
