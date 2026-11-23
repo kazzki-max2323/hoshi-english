@@ -435,3 +435,19 @@
 .dgfoot{display:flex;gap:8px}.dgfoot .dgbagb,.dgfoot .dghomeb{flex:1}.dgfoot .dgmusb{flex:0 0 auto;min-width:52px;font-size:1.15rem}
 .dgfoot .dgmusb.on{border-color:#9fe0ff!important;color:#fff}
 .dgmo.on{border-color:#ffd23f!important;background:#ffd23f22!important}
+/* 11/23 鉱山の しかけ・アイテム 追加: 🔥れんさ・🔮 水晶の 予告・かくし部屋・色の 糸・鉱脈 */
+.dglane i.pv{width:auto;height:auto;min-width:22px;background:none;font-style:normal;font-size:.9rem;line-height:1;text-align:center;opacity:.95}
+.dglane i.pv.now{outline:2px solid #ffd23f;border-radius:6px}
+.dgcb{font-style:normal;font-weight:800;font-size:.82rem;color:#ffd07a;margin-left:4px}
+.dgcb.hot{color:#ff9a4a;animation:oreng .8s infinite}
+.dgscene.secret{background:linear-gradient(#3a1a10,#8a4a1a)}
+.pnl .dgbomb{display:block;width:100%;margin:8px 0 0}.dgbomb small{opacity:.8}
+.dgev .en.dgsign{background:#f4e4bc;color:#3a2410;border-radius:8px;padding:8px 10px;margin:6px 0;border:2px solid #8a6a3a}
+.dgev .dgmio{font-size:.85rem;background:#ffffff12;border-radius:8px;padding:6px 8px}
+.dgev .dgpot{font-size:1.2rem;font-weight:800;color:#ffe08a}
+.dgev .dgghp{font-size:1.1rem;letter-spacing:2px}
+.dgg .dggq:empty{display:none}.dgg .dggq{margin-top:6px;text-align:left}.dgg .dggq .cgq{color:#fff7e6}
+.dgthr{display:flex;justify-content:center;gap:12px;margin:10px 0 4px}
+#cardOv.dgov .dgthr button{display:flex;flex-direction:column;align-items:center;gap:4px;width:64px;padding:8px 0!important;background:#ffffff14!important;border:2px solid #ffffff40!important;color:#fff}
+.dgthr i{display:block;width:10px;height:54px;border-radius:5px;background:var(--c);box-shadow:0 0 0 1px #0006}
+.dgfade{opacity:.25!important;text-decoration:line-through}
