@@ -310,7 +310,7 @@ const SELL_HI=[["What would you like to sell, dear? Show me.","なにを 売り�
 function sellList(tab){hush();pvDone(false);if(tab)sellTab=tab;const all=sellItems(),cnt=k=>all.filter(x=>!x.lock&&(k==='all'||x.cat===k)).length;
   if(sellTab!=='all'&&!all.some(x=>x.cat===sellTab))sellTab='all';
   const [en,ja]=Z.pickV('sellHi',SELL_HI),list=all.filter(x=>sellTab==='all'||x.cat===sellTab);
-  const row=(x,i)=>`<div class="ritem zkbi zksl ${x.lock?'off':''} ${x.bgm?'has':''}"><span class="ri">${x.ico}</span><span class="rn"><b>${esc(x.n)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}${x.line?`<small class="zkslp">${x.line}</small>`:''}</span><span class="rbtn">${x.lock?'':`<button data-sl="${all.indexOf(x)}">${x.btn}</button>`}</span></div>`;
+  const row=(x,i)=>`<div class="ritem zkbi zksl ${x.lock?'off':''} ${x.bgm?'has':''}" data-dt="${all.indexOf(x)}" role="button" tabindex="0"><span class="ri">${x.ico}</span><span class="rn"><b>${esc(x.n)}</b>${x.sub?`<small>${esc(x.sub)}</small>`:''}${x.line?`<small class="zkslp">${x.line}</small>`:''}<small class="zkdth">ⓘ タップで くわしく</small></span><span class="rbtn">${x.lock?'':`<button data-sl="${all.indexOf(x)}">${x.btn}</button>`}</span></div>`;
   H.show('zakka',`<section class="pnl zk">
     <div class="qtop"><button class="x" id="zkx" aria-label="もどる">←</button><b>💰 売る ものを えらぶ</b><span class="qn"></span></div>
     <div id="zkhi">${noraLine(en,ja)}</div>
@@ -321,7 +321,21 @@ function sellList(tab){hush();pvDone(false);if(tab)sellTab=tab;const all=sellIte
   bindLine($('zkhi'));talk(en,NORA);
   $('zkx').onclick=()=>{SFX.back();hush();shop()};
   H.panel.querySelectorAll('[data-st]').forEach(b=>b.onclick=()=>{SFX.pop();sellList(b.dataset.st)});
-  H.panel.querySelectorAll('[data-sl]').forEach(b=>b.onclick=()=>{const x=all[+b.dataset.sl];if(!x)return;SFX.pop();sellTap(x)})}
+  H.panel.querySelectorAll('[data-sl]').forEach(b=>b.onclick=e=>{e.stopPropagation();const x=all[+b.dataset.sl];if(!x)return;SFX.pop();sellTap(x)});
+  H.panel.querySelectorAll('[data-dt]').forEach(r=>r.onclick=()=>{const x=all[+r.dataset.dt];if(!x)return;SFX.pop();sellDetail(x)})}
+/* 11/23 ユーザー「タップで 詳細 みたい」: 売る 一覧の 行を タップすると 品物の せつめい（売る ボタンとは べつ） */
+function sellDetail(x){let body='',kind='';const it=x.it;
+  if(x.pk==='dg'&&window.DUNGEON){const t=DUNGEON.items[x.dg]||{},r=t.r||1;kind=['','⛏️ 鉱山の アイテム（よく 出る）','⛏️ 鉱山の アイテム（ときどき 出る）','⛏️ 鉱山の アイテム（めずらしい）','✨ 鉱山の とくべつな 品（ごくまれ）'][r];
+    body=`<p class="zkdtu"><b>つかうと</b>${esc(t.s||'')}</p><p class="note">鉱山の 中で 🎒アイテム から つかえるよ。 いま ${DUNGEON.itN(x.dg)}こ もっている</p>`}
+  else if(x.pk==='bot'){kind='🍾 からの びん';body='<p>ボトルメールの 手紙を 読んだ あとの びん。 ノラさんが 花びんに つかうので 1本 2まいで 買いとってくれる</p>'}
+  else if(it){const d=it.d||it.a;kind={bk:'📚 本・手帳',gf:'🎁 プレゼント',tg:'🧒 リクからの お礼',g:it.kind==='radio'?'📻 ラジオ':it.kind==='music'?'🎵 レコード':'🧺 雑貨'}[x.pk]||'';
+    body=(it.en||it.w?`<p class="en">${esc(it.title||it.en||it.w)}</p>`:'')+(d&&d[1]?`<p>${esc(d[1])}</p>`:'')+(x.sub?`<p class="note">${esc(x.sub)}</p>`:'')}
+  else body=x.sub?`<p>${esc(x.sub)}</p>`:'';
+  const o=CG.ov(`<div class="zkdt"><div class="zkdti">${x.ico}</div><b>${esc(x.n)}</b>${kind?`<small class="zkdtk">${kind}</small>`:''}<div class="zkdtb">${body}</div>
+    ${x.paid?`<p class="note">買った ねだん 🪙${x.paid.toLocaleString()}</p>`:''}
+    <div class="row">${x.lock?'':`<button id="zkdts">${x.get?`売る 🪙${x.get.toLocaleString()}`:'ひきとって もらう'}</button>`}<button id="zkdtx" class="sub">とじる</button></div></div>`,'zkdtov');
+  o.querySelector('#zkdtx').onclick=()=>{SFX.back();CG.closeOv()};
+  const sb=o.querySelector('#zkdts');if(sb)sb.onclick=()=>{CG.closeOv();SFX.pop();sellTap(x)}}
 
 /* ================================================================ 💨 さらっと お会計（2026-11-20 ユーザー「会計は 疲れる。 5回に1回に」）
    ふだんは ボタンだけで 買う・売る（ノラさんは ひとこと だけ）。 5回に 1回 くらい いつもの 英語の 会話に なる。
