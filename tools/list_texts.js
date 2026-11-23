@@ -1,16 +1,18 @@
 // 「読み上げる英語」の一覧を、音声ファイルごとに書き出す（make_audio.py が使う）
 // node tools/list_texts.js <出力フォルダ>
-//   es / jh / hs / adv … レベルの単語とセリフ   pop … キャラクター・流行りの英文
+//   es / jh / hs / adv … レベルの単語とセリフ   basic … あとから足した きほんの 単語   pop … キャラクター・流行りの英文
 //   season … 季節の単語帳とセリフ   gram … 文法ノートの例文   star … 星空ラジオ   folk … 浜辺の住人   cheer … おうえんメッセージ   cards … カード図鑑   (suika は手で作った一覧)
 const fs=require('fs'),path=require('path');
 global.LEVELS={};
 const load=f=>eval(fs.readFileSync(path.join(__dirname,'..',f),'utf8').replace(/^const (SEASON_BOOKS|FOLK|CHEER|CARDS_DATA)=/m,'global.$1='));
 ['es','jh','jh-more','hs','hs-more','adv','adv-more'].forEach(f=>load(`game/levels/${f}.js`));['pop','season','folk','cheer','talk'].forEach(f=>load(`game/extras/${f}.js`));
 load('game/cards-data.js');
+const before=new Set(['es','jh','hs','adv'].flatMap(k=>LEVELS[k].books.flatMap(b=>b.w).map(w=>w[0])));
+load('game/levels/basic-add.js');   // 11/21 に足した きほんの 単語（the・a・you など）は basic にまとめる
 const out=process.argv[2]||'.',lists={};
 const add=(k,t,v)=>{(lists[k]=lists[k]||new Map()).set(t,v)};
 for(const k of ['es','jh','hs','adv']){const L=LEVELS[k];
-  L.books.flatMap(b=>b.w).forEach(w=>add(k,w[0],'af_heart'));   // 単語：女性の声
+  L.books.flatMap(b=>b.w).forEach(w=>add(before.has(w[0])?k:'basic',w[0],'af_heart'));   // 単語：女性の声
   L.talk.forEach(t=>add(k,t[0],'am_michael'));                    // ラジオのセリフ：男性の声
   L.pop.forEach(t=>add('pop',t[0],'am_michael'))}
 for(const s of Object.values(SEASON_BOOKS)){s.w.forEach(w=>add('season',w[0],'af_heart'));s.talk.forEach(t=>add('season',t[0],'am_michael'))}

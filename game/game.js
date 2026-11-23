@@ -3,6 +3,10 @@
 /* names read the English way sound wrong (Gen = "jen", Mina = "my-na", Pochi = "pah-chai"): spelled for the voice only */
 const SAY_NAMES={Gen:'Ghen',Tome:'Toh-meh',Mina:'Meena',Hana:'Hahna',Pochi:'Poh-chee',Kanio:'Kah-nee-oh',Kamekichi:'Kah-meh-kee-chee',Hamako:'Hah-mah-ko',Riku:'Reeku',Mimi:'Meemee',Nora:'Norah'};
 const sayNames=t=>String(t).replace(new RegExp('\\b('+Object.keys(SAY_NAMES).join('|')+')\\b','g'),m=>SAY_NAMES[m]);
+/* a lone "a" (the article card, "1つの・ある → a") is read as the letter name "ei" by every device voice: say "uh" instead.
+   all the speakers in the app make a SpeechSynthesisUtterance, so it is fixed once here */
+(()=>{const S=window.SpeechSynthesisUtterance;if(!S)return;const fix=t=>/^\s*a\s*[.!?]?\s*$/i.test(t)?'uh':t;
+  const U=function(t){return new S(fix(String(t??'')))};U.prototype=S.prototype;window.SpeechSynthesisUtterance=U})();
 (()=>{
 const {scene:SC,sfx:SFX,S:ST}=BEACH;
 const panel=$('panel');
@@ -34,7 +38,7 @@ const allWords=lv=>LEVELS[lv].books.flatMap(b=>b.w);
    played through Web Audio so it also works inside app web views without speech synthesis */
 const AUD={};
 /* which sprite holds which line: every sprite's small .json index is read up front */
-const SPRITES=['trim','fix','v_es','v_jh','v_hs','v_adv','v_cards','v_season','v_star','v_jh2a','v_jh2b','v_jh2c','v_jh2d','v_hs2a','v_hs2b','v_hs2c','v_hs2d','v_adv2a','v_adv2b','v_adv2c','v_adv2d','es','jh','hs','adv','suika','pop','season','star','folk','gram','jh2a','jh2b','jh2c','jh2d','hs2a','hs2b','hs2c','hs2d','adv2a','adv2b','adv2c','adv2d','cheer','cards','talk2es','talk2jh','talk2hs','talk2adv'],IDX={};
+const SPRITES=['trim','fix','basic','v_es','v_jh','v_hs','v_adv','v_cards','v_season','v_star','v_jh2a','v_jh2b','v_jh2c','v_jh2d','v_hs2a','v_hs2b','v_hs2c','v_hs2d','v_adv2a','v_adv2b','v_adv2c','v_adv2d','es','jh','hs','adv','suika','pop','season','star','folk','gram','jh2a','jh2b','jh2c','jh2d','hs2a','hs2b','hs2c','hs2d','adv2a','adv2b','adv2c','adv2d','cheer','cards','talk2es','talk2jh','talk2hs','talk2adv'],IDX={};
 const idxP=Promise.all(SPRITES.map(k=>fetch(`audio/${k}.json`).then(r=>r.json()).then(m=>{for(const t in m)if(!(t in IDX))IDX[t]=k}).catch(()=>{})));let idxOk=false;idxP.then(()=>{idxOk=true});
 function loadAud(lv){if(AUD[lv])return AUD[lv].p;const a=AUD[lv]={};
   a.p=Promise.all([fetch(`audio/${lv}.json`).then(r=>r.json()),fetch(`audio/${lv}.mp3`).then(r=>r.arrayBuffer())])
