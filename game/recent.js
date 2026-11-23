@@ -17,7 +17,7 @@
    book   カードブックに 入れた   {id, en, ja}
    sell   カウンターで 売れた     {id, en, ja, p(コイン), by:'me'|'mio', kind(やりとりの 形), miss, tip}
    buyin  カウンターで カードを 買い取った {id, en, ja, p(はらった コイン), by:'me'|'mio', kind, miss, isNew, guest}
-   away   るすばんの 報告を 見た  {sold, guests, coins}
+   away   るすばんの 報告を 見た  {sold, guests, coins, closed, allClosed}（閉店中の 時間は 数えない）
    meal   食堂で 食べた          {id, en, ja, ico, c(国)}
    snack  もちものの 食べ物を 食べた {id, en, ja, ico}
    zbuy   雑貨店で 買った        {id, en, ja, ico, kind}

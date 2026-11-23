@@ -44,6 +44,19 @@ const MEMO_NONE=[
  ["Zero customers… so I practiced my \"Welcome!\" voice. Three different versions!","お客さん ゼロ… だから 「Welcome!」の 声を 練習。 3パターン！"],
  ["Nobody came. I wrote twenty new words in my notebook. Productive!","だれも 来なかったので、 ノートに 新しい 単語を 20こ 書きました。 有意義！"],
  ["The beach was empty today. Even the crabs were taking a day off.","きょうの 浜辺は がらがら。 カニさんも お休みでした。"]];
+/* ①' 閉店中だけ だった とき（11/24: 21〜9時は お店も おやすみ。 ミオは 2階） */
+const MEMO_CLOSED=[
+ ["The shop was closed, so I was upstairs. Did you see the stars from the mine? …Oh, you can't. Ha ha.","閉店中 だったので、 2階に いました。 鉱山から 星、 見えました？ …あ、 見えないか。 あはは。"],
+ ["We were closed while you were away. I read an English book in bed. I fell asleep on page three.","るすの あいだは 閉店中。 ベッドで 英語の 本を 読みました。 3ページめで ねちゃいました。"],
+ ["Closed means closed! I locked the door and checked it twice. Good night, boss.","閉店は 閉店！ ドアの かぎ、 2回 たしかめました。 おやすみなさい、 店長。"],
+ ["No customers tonight. The shop was sleeping, and so was I. Zzz…","今夜は お客さん なし。 お店も ねてたし、 わたしも ねてました。 ぐう…"],
+ ["It was after closing time, so I wrote in my diary. In English! Well, half English.","閉店後 だったので、 日記を 書きました。 英語で！ …半分 だけ。"],
+ ["The sign said \"CLOSED,\" so nobody came. I listened to the waves from my window.","「CLOSED」の 札だったので、 だれも 来ませんでした。 窓から 波の 音を 聞いてました。"]];
+/* ①'' とちゅうで 閉店に なった とき（{n} は つかわない。 2行目に そえる） */
+const MEMO_PART=[
+ ["After closing time, I went upstairs and counted the coins. Twice!","閉店の あとは 2階で コインを 数えました。 2回も！"],
+ ["At nine, I flipped the sign to \"CLOSED.\" Flip! It felt so professional.","9時に 札を 「CLOSED」に くるっ。 プロっぽかった！"],
+ ["When the shop closed, I said \"Good night\" to the shelves. Is that weird?","お店を しめる とき、 たなに 「Good night」って 言いました。 へん ですか？"]];
 /* ② ミオの ひとこと: どの 段階でも */
 const MEMO_ANY=[
  ["I swept the floor three times. It's very clean now.","ゆかを 3回 はきました。 とっても きれいです。"],
@@ -107,14 +120,15 @@ function make(r,word){const S=SHOP.rec();S.mm=S.mm||[];
   const ws=r.sold.map(([id])=>word(id)).filter(Boolean);
   const v={w:ws[0]||'card',w2:ws[1]||ws[0]||'card',n:r.sold.length,g:r.guests,p:r.sold[0]?r.sold[0][1]:10};
   const fill=s=>String(s).replace(/\{(\w+)\}/g,(m,k)=>v[k]!=null?v[k]:m);
+  if(r.allClosed){const a=fresh(MEMO_CLOSED,'c',S),b=fresh(MEMO_STG[st],'b',S);return {lines:[a,b],ph:null,sign:MEMO_SIGN[st]}}
   let A=r.sold.length?MEMO_SOLD.filter(a=>(ws.length>1||!a[0].includes('{w2}'))&&(r.sold.length>1||!a[0].includes('{n}'))):r.guests?MEMO_LOOK:MEMO_NONE;
   const a=fresh(A,'a',S);
   const pool=MEMO_ANY.concat(MEMO_STG[st],MEMO_STG[st],st>0?MEMO_STG[st-1]:[]);
-  const b=fresh(pool,'b',S);
+  const b=r.closed&&Math.random()<.7?fresh(MEMO_PART,'q',S):fresh(pool,'b',S);
   let lv='es';try{lv=MINA.level()}catch(e){}
   const ph=Math.random()<.6?fresh(MEMO_PHRASE[lv]||MEMO_PHRASE.es,'p',S):null;
   return {lines:[[fill(a[0]),fill(a[1])],b],ph,sign:MEMO_SIGN[st]}}
-const count=()=>MEMO_SOLD.length+MEMO_LOOK.length+MEMO_NONE.length+MEMO_ANY.length+MEMO_STG.flat().length+Object.values(MEMO_PHRASE).flat().length;
+const count=()=>MEMO_CLOSED.length+MEMO_PART.length+MEMO_SOLD.length+MEMO_LOOK.length+MEMO_NONE.length+MEMO_ANY.length+MEMO_STG.flat().length+Object.values(MEMO_PHRASE).flat().length;
 window.MIOMEMO={make,count};
 })();
 /* ミナ先生の セリフ（メモの フレーズ） */
