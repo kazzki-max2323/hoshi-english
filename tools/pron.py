@@ -43,11 +43,14 @@ TEXT = {
     'export': [('ˈɛkspɔːɹt', 'ɛkspˈɔːɹt')], 'conscript': [('kˈɑːnskɹɪpt', 'kənskɹˈɪpt')],
     'separate': [('sˈɛpɹət', 'sˈɛpɚɹˌeɪt')], 'graduate': [('ɡɹˈædʒuːət', 'ɡɹˈædʒuːˌeɪt')],
     'suspect': [('sˈʌspɛkt', 'səspˈɛkt')], 'insult': [('ˈɪnsʌlt', 'ɪnsˈʌlt')],
+    # 1語だけの a は アルファベットの「エイ」になる → 冠詞の「ア」
+    'a': [('ˈeɪ', 'ˈʌ')],
 }
 
 SAY = {t: t.replace(' / ', ', ') for t in [
     'adapt / adopt', 'affect / effect', 'economic / economical', 'sensible / sensitive',
-    'industrial / industrious', 'respectful / respective', 'imaginary / imaginative']}
+    'industrial / industrious', 'respectful / respective', 'imaginary / imaginative', 'am / are / is']}
+SAY['be, was/were, been'] = 'be, was, were, been'
 
 
 def phonemes(text, tok):
