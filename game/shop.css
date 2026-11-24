@@ -341,7 +341,9 @@
 .shnav .dot{position:absolute;top:3px;right:5px;width:7px;height:7px;border-radius:50%;background:#ff5a7a}
 .shmain .shst{font-size:.78rem;margin:2px 0 6px}
 /* 作業台を スクロールしても お店が 見えるように */
-.shmain .shstage{position:sticky;top:0;z-index:4}
+.shmain .shstage{position:sticky;top:7px;z-index:4}
+/* 11/24 上に くっついても 金の わくと ひさしが 切れないように、 上の すきまを うめる（下を 流れる 作業台が 見えない） */
+.shmain .shstage::before{content:'';position:absolute;left:-14px;right:-14px;top:-10px;height:10px;background:rgba(11,13,36,.96);pointer-events:none}
 /* 🕘 閉まっている お店（game/hours.js） */
 .hrstag{position:absolute;left:50%;top:38%;transform:translate(-50%,-50%) rotate(-4deg);font:800 9px/1 sans-serif;font-style:normal;letter-spacing:.5px;color:#fff;background:#7a3a2a;border:1px solid #f0d6b0;border-radius:3px;padding:2px 4px;pointer-events:none;text-shadow:none}
 .hrsp{text-align:center}
