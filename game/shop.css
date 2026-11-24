@@ -330,6 +330,7 @@
 /* 11/22 作りなおし: 上＝お店・下＝原石の 作業台。 ふきだしは ゆっくり 浮かんで 消える */
 .shmain .shstage{margin-bottom:6px}
 .shfls{position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:5}
+.shflTop{position:fixed;inset:auto;z-index:4}
 .shmain .shstage{overflow:visible}.shmain .shstage canvas{border-radius:10px}
 .shmut.fl{pointer-events:auto;max-width:58%;animation:none;text-shadow:none;opacity:0;will-change:top,opacity}
 .shmut.fl::after{left:50%}

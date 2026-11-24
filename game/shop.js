@@ -360,8 +360,12 @@ function mut(T,who,line,ms,free){if(!line||!T.mu)return;if(who==='m'&&mioUp(T))r
 /* 11/22: ふきだしは 浜辺の ラジオのように 話した 人の 上から ゆっくり 浮かんで 消える（タップで 読む）
    見出し（← カードショップ）の 枠の 上まで 上がって 消える。 ふきだし どうしは 重ならない（あたらしいのが 下から 押し上げる） */
 const BUB=[];let flbRaf=0;
-function floatUp(T,who,line,ms){const box=$('shfls');if(!box)return;const sp=who==='m'?T.mio:who==='h'?T.hrSp:T.g;if(!sp)return;
-  const st=box.parentNode,sx=st.clientWidth/W,sy=st.clientHeight/HH,e=document.createElement('div');
+/* 11/24 ふきだしは パネルの スクロールで 切れないように、 body の 上の 重ね（#shflTop, fixed）に 出して ステージに 合わせて 動かす。
+   お店の 枠を 飛びこえて 画面の 上の ほうまで のぼれる */
+function flbLayer(st){let L=document.getElementById('shflTop');if(!L){L=document.createElement('div');L.id='shflTop';L.className='shfls shflTop';document.body.appendChild(L)}
+  if(st){const r=st.getBoundingClientRect();L.style.left=r.left+'px';L.style.top=r.top+'px';L.style.width=r.width+'px';L.style.height=r.height+'px'}return L}
+function floatUp(T,who,line,ms){const anc=$('shfls');if(!anc)return;const sp=who==='m'?T.mio:who==='h'?T.hrSp:T.g;if(!sp)return;
+  const st=anc.parentNode,box=flbLayer(st),sx=st.clientWidth/W,sy=st.clientHeight/HH,e=document.createElement('div');
   e.className='shmut fl '+(who==='m'?'mio':'gst');e.innerHTML=`<b class="en">${esc(line[0])}</b><small class="ja">${esc(line[1]||'')}</small>`;
   box.appendChild(e);const bw=e.offsetWidth,bh=e.offsetHeight,cx=(sp.x+7)*sx,left=Math.max(4,Math.min(st.clientWidth-bw-4,cx-bw/2));
   const y0=Math.round((sp.y-2)*sy)-bh;   // ふきだしの 上の はし（ステージの 中の 位置）
@@ -372,10 +376,11 @@ function floatUp(T,who,line,ms){const box=$('shfls');if(!box)return;const sp=who
   while(BUB.length>6){BUB.shift().e.remove()}
   if(!flbRaf)flbRaf=requestAnimationFrame(flbTick)}
 /* 見出しの 枠の 上（パネルの 上の はし）が ステージから 見て どこか */
-function flbLim(st){const p=st.closest('.pnl'),r=st.getBoundingClientRect();if(!p)return -r.top;const pr=p.getBoundingClientRect();return Math.max(pr.top,0)-r.top+2}
-function flbTick(now){flbRaf=0;const box=$('shfls');if(!box){BUB.length=0;return}
+/* 11/24: 枠の 上で 消さず、 画面の 上の はし（ステータスバーの すぐ下）まで のぼる */
+function flbLim(st){const r=st.getBoundingClientRect();return 4-r.top}
+function flbTick(now){flbRaf=0;const anc=$('shfls');if(!anc){BUB.length=0;const L=document.getElementById('shflTop');if(L)L.innerHTML='';return}
   for(let i=BUB.length-1;i>=0;i--)if(!BUB[i].e.isConnected)BUB.splice(i,1);
-  const st=box.parentNode,lim=flbLim(st),RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  const st=anc.parentNode;flbLayer(st);const lim=flbLim(st),RM=matchMedia('(prefers-reduced-motion:reduce)').matches;
   /* あたらしい ものから 順に。 横が かさなる 新しい ふきだしの 上に 6px あけて のる */
   for(let i=BUB.length-1;i>=0;i--){const b=BUB[i];let y=RM?b.y0:b.y0-(now-b.t0)*b.v;
     for(let j=i+1;j<BUB.length;j++){const n=BUB[j];if(b.x<n.x+n.w&&n.x<b.x+b.w)y=Math.min(y,n.y-6-b.h)}
