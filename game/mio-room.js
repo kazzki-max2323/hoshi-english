@@ -117,10 +117,10 @@ function front(c,s,f,o){const h=gh(),lamp=s==='free'||(s==='morning'&&h<7),dc=de
 function mio(c,s,f){const h=gh();
   if(s==='free'){/* いすに すわって 勉強（足は つくえの 向こう） */
     const late=h>=23||h<1,doze=late&&f%70>52,tap=o=>o&&o.until>Date.now();
-    MIO.draw(c,48,36,doze?'doze':tap(mio.talk)?'wave':'stand',f>>1);
+    MIO.draw(c,48,36,doze?'doze':tap(mio.talk)?'wave':'stand',f>>1,{night:1,dy:10});   // すわっている ので 下げる（足は つくえの 向こう）
     if(!doze&&!tap(mio.talk)){PR(c,60+((f>>1)%3),51,1,4,'#ffd23f');PR(c,60+((f>>1)%3),55,1,1,'#3a2a2a')}
     return}
-  if(s==='morning'){MIO.draw(c,90,58,f%30<20?'stand':'cheer',f>>1);return}
+  if(s==='morning'){MIO.draw(c,90,58,f%30<20?'stand':'cheer',f>>1,{night:gh()<6});return}
   if(s==='sleep'){/* ねている: まくらの 上に 頭、 ふとんが ゆっくり 上下 */
     PR(c,147,58,10,8,'#a8663a');PR(c,149,61,7,5,'#ffe0cc');PR(c,151,63,2,1,'#3a2a2a');PR(c,154,63,2,1,'#3a2a2a');
     const b=(f>>3)%2;PR(c,152,66-b,36,4,'#9ac8f0');c.fillStyle='#cfe3ff';c.font='6px monospace';c.fillText((f>>2)%3?'z':'Z',162,54-((f>>2)%3)*2)}}
@@ -139,7 +139,7 @@ function light(c,s,f,o){const h=gh(),nt=h>=19||h<5,dusk=h>=17&&h<19;
 /* b = [x,y,w,h]（キャンバスの 中）。 上ほど 先に あたる */
 const BOX=[
  ['clock',[128,8,14,14]],['poster',[145,6,24,20]],['gifts',[127,26,46,16]],['photo',[72,48,9,11],o=>o.stg>=2],['cork',[27,11,32,24]],['lamp',[32,42,11,16]],
- ['book',[46,53,18,6]],['mug',[64,48,12,11]],['mio',[44,34,22,22],(o,s)=>s==='free'],['mio',[88,56,18,34],(o,s)=>s==='morning'],
+ ['book',[46,53,18,6]],['mug',[64,48,12,11]],['mio',[44,34,22,22],(o,s)=>s==='free'],['mio',[86,42,22,48],(o,s)=>s==='morning'],
  ['plant',[6,1,14,18]],['shelf',[2,18,24,58]],['window',[80,11,48,33]],['rec',[96,51,28,25]],['hanger',[126,41,13,34]],['plush',[164,55,25,10]],
  ['bed',[140,56,56,30]],['deco',[166,80,30,34]],['cards',[27,81,17,14]],['lights',[0,0,200,10],o=>o.stg>=3],['desk',[30,58,50,18]],['rug',[64,88,60,16]]];
 function hit(x,y,s,o){for(const [id,b,ok] of BOX){if(ok&&!ok(o,s))continue;if(x>=b[0]&&x<b[0]+b[2]&&y>=b[1]&&y<b[1]+b[3])return id}return null}

@@ -368,7 +368,7 @@ function floatUp(T,who,line,ms){const anc=$('shfls');if(!anc)return;const sp=who
   const st=anc.parentNode,box=flbLayer(st),sx=st.clientWidth/W,sy=st.clientHeight/HH,e=document.createElement('div');
   e.className='shmut fl '+(who==='m'?'mio':'gst');e.innerHTML=`<b class="en">${esc(line[0])}</b><small class="ja">${esc(line[1]||'')}</small>`;
   box.appendChild(e);const bw=e.offsetWidth,bh=e.offsetHeight,cx=(sp.x+7)*sx,left=Math.max(4,Math.min(st.clientWidth-bw-4,cx-bw/2));
-  const y0=Math.round((sp.y-2)*sy)-bh;   // ふきだしの 上の はし（ステージの 中の 位置）
+  const y0=Math.round((sp.y-(who==='m'&&window.MIOPX?18:2))*sy)-bh;   // ミオは 背が 高い（48）   // ふきだしの 上の はし（ステージの 中の 位置）
   e.style.left=left+'px';e.style.top=y0+'px';
   e.onclick=ev=>{ev.stopPropagation();who==='h'?H.say('hs',line[0]):(who==='m'?speak:gspeak)(line[0])};
   /* 上の はしまでの きょりを ms+5秒で のぼる */
@@ -413,7 +413,7 @@ function toFloor(){pause(CT);floor()}
 function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.paused<15*6e4?CT:null;if(CT){CT.alive=false;if(!old&&CT.talk){CT.talk.alive=false;CT.talk=null}}const S=SH();cleanFloor();
   const hrO=window.HOURS?HOURS.isOpen('cg'):true,hrP=window.HOURS&&HOURS.isPrep('cg');
   H.show('cg',`<section class="pnl cgp shp shctr shmain">${top('🃏 カードショップ',`きょう 🪙${S.tday===C.today()?S.tearn:0}`,'cgx')}
-    <div class="shstage"><canvas id="shcv" width="${W}" height="${HH}"></canvas><div class="shcase" id="shcase"></div><div class="shnotes" id="shnotes"></div><div class="shfls" id="shfls"></div></div>
+    <div class="shstage"><canvas id="shcv" width="${W*2}" height="${HH*2}"></canvas><div class="shcase" id="shcase"></div><div class="shnotes" id="shnotes"></div><div class="shfls" id="shfls"></div></div>
     <div class="shnav">${navBtns()}</div>
     <p class="shst" id="shst">${hrO?'🔔 開店中。 レジは ミオに まかせて、 原石を みがこう':hrP?'🧹 開店 じゅんび中（9時 開店）。 原石の 作業は いつでも できるよ':'🌙 閉店中（9時〜21時）。 ミオは 2階に いるよ。 原石の 作業は いつでも できるよ'}</p>
     <div id="shact" class="shact"></div>
@@ -432,17 +432,17 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
   cv.onclick=ev=>{const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*W,y=(ev.clientY-r.top)/r.height*HH,m=T.mio;
     if(x>=PX[0]&&x<=PX[2]&&y>=PX[1]&&y<=PX[3])return recTap(T);
     if(x>=CPX[0]&&x<=CPX[2]&&y>=CPX[1]&&y<=CPX[3]){sf('step');pause(T);return caseScreen(()=>counter(true))}
-    if(window.MIOCT&&!mioUp(T)&&x>m.x-8&&x<m.x+22&&y>m.y-6&&y<m.y+36){sf('tap');tapMio()}};
+    if(window.MIOCT&&!mioUp(T)&&x>m.x-8&&x<m.x+22&&y>m.y-20&&y<m.y+36){sf('tap');tapMio()}};
   cv.style.cursor='pointer'
   let last=0;
-  const tick=now=>{if(!T.alive||!cv.isConnected){T.alive=false;return}requestAnimationFrame(tick);if(now-last<140)return;last=now;T.f++;step(T);
+  const tick=now=>{if(!T.alive||!cv.isConnected){T.alive=false;return}requestAnimationFrame(tick);if(now-last<140)return;last=now;T.f++;step(T);c.setTransform(2,0,0,2,0,0);c.imageSmoothingEnabled=false;   // 2倍の こまかさ（ミオの ドット絵は game/mio-pix.js）
     const d=night(),t=d>.6?'night':d>.25?'dusk':'day';
     room(c,t,T.f);if(window.SHDECO)SHDECO.back(c,t,T.f);table(c,SH().floor.length,t);
     /* Mio: behind the counter, or out on the floor sweeping */
     const m=T.mio;if(m.walk){const dx=m.walk-m.x;if(Math.abs(dx)<1){m.x=m.walk;m.walk=null}else m.x+=Math.sign(dx)}
     const behind=m.y<60;
     const g=T.g;if(g&&g.y+32<=m.y+32){guest(c,g.x,g.y,g.L,g.pose,T.f>>1)}
-    if(mioUp(T))desk(c);else if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1)}
+    const mo={night:!!T.down};if(mioUp(T))desk(c);else if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1,mo);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1,mo)}
     if(g&&g.y+32>m.y+32)guest(c,g.x,g.y,g.L,g.pose,T.f>>1);
     showcase(c,T.f);const on=!!H.shopSongId;player(c,on,T.f);if(window.SHDECO)SHDECO.front(c,t,T.f);
     if(g&&g.bub&&!(T.mu.who==='g'&&T.mu.until>Date.now()))bub(c,g.x+11,g.y-9,g.bub);
@@ -457,6 +457,8 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
     done:id=>{T.mio.pose='cheer';T.mio.until=Date.now()+3000;const I=C.info(id);status(`✨ 「${esc(I?cnm(I):'')}」の カードが できた！`);mut(T,'m',pickL(ORE_MIO_OK),4200,1)},
     toFloor:id=>{const s=SH();if(s.floor.length>=FLOOR_N)return 'full';s.floor.push(id);save();refreshNav(T);return 'ok'}});
   T.wasOpen=hrO;
+  /* 👗 きょうの 服（日替わり。 game/mio-pix.js）: その日 はじめて 会った とき ひとこと */
+  if(!old&&hrO&&window.MIOPX&&MIOPX.hello&&!mioUp(T))setTimeout(()=>{if(!T.alive||mioUp(T))return;const l=MIOPX.hello();if(l){mut(T,'m',l,4600);T.mio.pose='wave';T.mio.until=Date.now()+2400}},2600);
   if(!hrO&&!old&&window.HOURS&&!mioUp(T))setTimeout(()=>{if(T.alive)mut(T,'m',pickL(hrP?MIO_PREP:MIO_CLOSED),4800,1)},1400);
   else if(!S.floor.length)setTimeout(()=>status('🏷️ 売り場が からっぽ… 🏷️から カードを ならべよう'),1200)}
 /* 店の 画面の 小さな ボタンの 列 */
