@@ -278,7 +278,8 @@ function caseArt(){const box=$('shcase');if(!box)return;const st=box.parentNode,
   box.innerHTML=cs.map((id,i)=>{if(!id)return '';const I=C.info(id);if(!I)return '';const m=C.art(I)[0];
     return `<i style="left:${(CX[i]+6)*k}px;top:${(CY+6.5)*k}px;font-size:${Math.max(9,8*k)}px">${esc(m)}</i>`}).join('')}
 /* a guest (grown-ups of the beach) */
-function guest(c,x,y,L,pose,f){x=Math.round(x);y=Math.round(y);const s=L.skin,st=pose==='walk'?f%2:0;
+function guest(c,x,y,L,pose,f){if(window.MIOPX&&MIOPX.guest)return MIOPX.guest(c,x,y,L,pose,f);   // ミオと 同じ 絵柄（game/mio-pix.js）
+  x=Math.round(x);y=Math.round(y);const s=L.skin,st=pose==='walk'?f%2:0;
   if(L.pants){PR(c,x+3,y+20,8,5,L.low);PR(c,x+4,y+25,2,5-st,L.low);PR(c,x+8,y+25,2,5-(1-st),L.low)}else{PR(c,x+3,y+20,8,4,L.low);PR(c,x+2,y+23,10,3,L.low);PR(c,x+4,y+26,2,4-st,s);PR(c,x+8,y+26,2,4-(1-st),s)}
   PR(c,x+3,y+30-st,3,2,L.shoe);PR(c,x+8,y+30-(1-st),3,2,L.shoe);
   PR(c,x+3,y+11,8,9,L.coat||L.shirt);if(L.coat)PR(c,x+6,y+11,2,9,L.shirt);if(L.bag)PR(c,x+10,y+12,2,8,L.bag);
@@ -368,7 +369,7 @@ function floatUp(T,who,line,ms){const anc=$('shfls');if(!anc)return;const sp=who
   const st=anc.parentNode,box=flbLayer(st),sx=st.clientWidth/W,sy=st.clientHeight/HH,e=document.createElement('div');
   e.className='shmut fl '+(who==='m'?'mio':'gst');e.innerHTML=`<b class="en">${esc(line[0])}</b><small class="ja">${esc(line[1]||'')}</small>`;
   box.appendChild(e);const bw=e.offsetWidth,bh=e.offsetHeight,cx=(sp.x+7)*sx,left=Math.max(4,Math.min(st.clientWidth-bw-4,cx-bw/2));
-  const y0=Math.round((sp.y-(who==='m'&&window.MIOPX?18:2))*sy)-bh;   // ミオは 背が 高い（48）   // ふきだしの 上の はし（ステージの 中の 位置）
+  const y0=Math.round((sp.y-(window.MIOPX&&who!=='h'?18:2))*sy)-bh;   // ミオと お客さんは 背が 高い（48）   // ふきだしの 上の はし（ステージの 中の 位置）
   e.style.left=left+'px';e.style.top=y0+'px';
   e.onclick=ev=>{ev.stopPropagation();who==='h'?H.say('hs',line[0]):(who==='m'?speak:gspeak)(line[0])};
   /* 上の はしまでの きょりを ms+5秒で のぼる */
@@ -428,7 +429,7 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
   const status=t=>{const e=$('shst');if(e)e.innerHTML=t};T.status=status;
   /* 💬 ミオを タップ（または ボタン）で 話しかける（game/mio-ctr.js） */
   T.mut=line=>mut(T,'m',line,3200,1);
-  const tapMio=()=>MIOCT.tap(T,$('shact'));
+  const tapMio=()=>{if(window.MIODOKI&&MIODOKI.shopRoll(T))return MIODOKI.shop(T,$('shact'));MIOCT.tap(T,$('shact'))};   // 💓 めったに ない ドキッと（game/mio-doki.js）
   cv.onclick=ev=>{const r=cv.getBoundingClientRect(),x=(ev.clientX-r.left)/r.width*W,y=(ev.clientY-r.top)/r.height*HH,m=T.mio;
     if(x>=PX[0]&&x<=PX[2]&&y>=PX[1]&&y<=PX[3])return recTap(T);
     if(x>=CPX[0]&&x<=CPX[2]&&y>=CPX[1]&&y<=CPX[3]){sf('step');pause(T);return caseScreen(()=>counter(true))}
@@ -445,7 +446,7 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
     const mo={night:!!T.down};if(mioUp(T))desk(c);else if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1,mo);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1,mo)}
     if(g&&g.y+32>m.y+32)guest(c,g.x,g.y,g.L,g.pose,T.f>>1);
     showcase(c,T.f);const on=!!H.shopSongId;player(c,on,T.f);if(window.SHDECO)SHDECO.front(c,t,T.f);
-    if(g&&g.bub&&!(T.mu.who==='g'&&T.mu.until>Date.now()))bub(c,g.x+11,g.y-9,g.bub);
+    if(g&&g.bub&&!(T.mu.who==='g'&&T.mu.until>Date.now()))bub(c,g.x+11,g.y-(window.MIOPX?25:9),g.bub);
     lights(c,t);if(t!=='day'&&!(g&&g.x<75&&g.x+14>72&&g.y<84&&g.y+32>81))PR(c,72,81,3,3,'#ffe2a0');if(window.SHDECO)SHDECO.lit(c,t,T.f);if(window.HORROR)HORROR.draw(c,T,t);if(t!=='day'){if(on)glow(c,182,93,12,t==='night'?.28:.18);PR(c,173,97,2,1,on?'#7aff9a':'#5a4a3a')}
     if(H.playing&&now>=(T.noteAt||0)){T.noteAt=now+500+Math.random()*400;note()}
     caseArt();mutTick(T,t)};

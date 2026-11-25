@@ -47,6 +47,8 @@ function open(back){back=back||(()=>SHOP.open());const s=state(),M=HR(),RO=roomO
   if($('mhtalk'))$('mhtalk').onclick=()=>{sf('step');MIOROOM.mioTalk({until:Date.now()+2600});talk(s,back)};
   if($('mhnote'))$('mhnote').onclick=()=>{sf('flip');const n=pickL(NOTES);box(`<div class="mhnote"><p class="en">${esc(n[0])}</p><p class="ja">${esc(n[1])}</p><small>– Mio</small></div>`);speak(n[0])};
   if($('mhstay'))$('mhstay').onclick=()=>{sf('step');stop();stay(back)};
+  /* 💓 見られて はずかしい できごと（game/mio-doki.js、 1日 1回 ときどき） */
+  if((s==='free'||s==='morning')&&window.MIODOKI&&MIODOKI.homeRoll(s)){setTimeout(()=>{const b=$('mhbox');if(b&&!b.innerHTML)MIODOKI.home(s,b)},900);return}
   if(s==='sleep')mina('mh_sleep',.4);else if(!M.seen.v){M.seen.v=1;save();mina('mh_new',1)}else if(!M.seen.r2){M.seen.r2=1;save();mina('mh_room',1)}}
 /* 👆 へやの 物を しらべる: 物の 英語の 名前 → ミオが いれば ミオの ひとこと（英語＋和訳）、 いなければ 説明 */
 function look(id,s,RO,back){const o=MIOROOM.obj(id,s,RO);if(!o)return;sf('tap');const M=HR(),here=s==='free'||s==='morning',isNew=!RO.seen[id];

@@ -534,3 +534,12 @@
 .dgbbar span{position:absolute;inset:0;font-size:.7rem;font-weight:800;line-height:12px}
 @media (prefers-reduced-motion:reduce){.dgst .dgact,.dgboss,.dgbang,.dgwb{animation:none!important}}
 .dgrst .dgract{position:absolute;right:18%;bottom:12%;font-size:2.6rem;filter:drop-shadow(0 0 10px #ffb04088);animation:dgbob 2.4s ease-in-out infinite}
+/* 💓 ドキッと できごと（game/mio-doki.js） */
+.dkbox{background:#fff8ef;border:2px solid #f0c8d0;border-radius:12px;padding:8px 10px;margin:6px 0;color:#2a2340;text-shadow:none}
+.dkhd{margin:0 0 6px;font-weight:800;font-size:.9rem;color:#c0506a;text-shadow:none}
+.dkbox .mhnar2{color:#2a2340;text-shadow:none;margin:6px 2px}
+.dkbox .row{margin-top:6px}
+.dkw{margin:6px 0;font-size:.92rem;color:#2a2340;text-shadow:none}
+.dkbox .row button{background:#ffc93c;border:2px solid #e0a420;color:#2a2340;font-weight:800;text-shadow:none}
+.dkbox .mhch button{background:#fff;border:2px solid #4a78b0;color:#2a2340;text-shadow:none}
+.dkbox .mhch button small{color:#5a5070}
