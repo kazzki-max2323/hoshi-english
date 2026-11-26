@@ -58,7 +58,7 @@ function speak(en){try{MIO.say(en)}catch(e){}}
 /* お客さんの 声: その 人の 女の人・男の人の 声で（GUESTS の v）。 デバイスに その 声が なければ 高さで 近づける */
 const gspeak=en=>{try{const G=CT&&CT.g&&CT.g.G,v=G&&G.v;if(!v||!window.speechSynthesis)return C.speak(en);if(!ST.sound||!en)return;
   speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(sayNames(String(en)));u.lang='en-US';
-  const pv=window.MIO&&MIO.vpick?MIO.vpick(v.s,GUESTS.indexOf(G)>>1):null;if(pv)u.voice=pv;
+  const pv=window.MIO&&MIO.vpick?MIO.vpick(v.s,G.anon?G.seed:GUESTS.indexOf(G)>>1):null;if(pv)u.voice=pv;
   u.pitch=Math.max(.1,Math.min(2,pv?v.p:v.p+(v.s==='m'?-.3:.35)));u.rate=(ST.slow?.75:.95)*(v.r||1);
   u.volume=Math.min(1,(ST.vol&&ST.vol.voice!=null)?ST.vol.voice:1);speechSynthesis.speak(u)}catch(e){}};
 function bubble(en,ja,ex='smile',pose=''){return `<div class="cgnagi shm"><span class="cgnf cgm">${MIO.face(ex,pose)}</span><div class="cgnb"><b>ミオ</b><p class="en">${esc(en)}</p><p class="ja" ${jaOn?'':'hidden'}>${esc(ja)}</p></div></div>`}
@@ -510,15 +510,15 @@ function step(T){const now=Date.now();mioIdle(T);
   /* 🕘 開店・閉店（game/hours.js）: 閉まっている あいだは お客さんが 来ない */
   const op=window.HOURS?HOURS.isOpen('cg'):true;if(op!==T.wasOpen){T.wasOpen=op;if(op){T.next=Math.min(T.next,now+6000);T.status('🔔 開店！ レジは ミオに まかせて、 原石を みがこう');mut(T,'m',pickL(MIO_OPEN),4200,1);hrMina('hr_cgOpen')}else{T.status('🌙 閉店の 時間。 原石の 作業は いつでも できるよ');mut(T,'m',pickL(MIO_CLOSE),4200,1);hrMina('hr_cgClosed')}}
   if(!T.g&&!op){T.next=Math.max(T.next,now+5000);return}
-  if(!T.g){const tk=T.talk&&!T.talk.done;if(tk)T.next=Math.max(T.next,now+8000);if(now>=T.next&&!T.busy&&!tk){const G=pickL(GUESTS);
+  if(!T.g){const tk=T.talk&&!T.talk.done;if(tk)T.next=Math.max(T.next,now+8000);if(now>=T.next&&!T.busy&&!tk){const PG=window.MIOPX&&MIOPX.pickGuest?MIOPX.pickGuest():null,G=PG?PG.G:pickL(GUESTS),GL=PG?PG.L:GUEST_LOOK[G.l];   // 👗 見た目は 組み合わせ（game/look-mix.js）
       /* 4〜5人に 1人くらいは カードを 売りに 来る お客さん（続けては 来ない。 そのあとの お客さんは 早めに 来る） */
       const seller=false;   // 11/22: 仕入れ・買い取りは なし（カードは 原石から だけ）T.lastSeller=seller;
       const offer=seller?SHSV.offer(G):null;
       /* 🖼️ たまーに ケースの カードが ほしい お客さん（続けては 来ない） */
       const cw=null;   // 11/22: 作業の じゃまを しない（ケースを ほしがる お客は 来ない）T.lastCase=!!cw;
-      T.g=cw?{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],[34,56],[34,56,'case',3400],[34,46],...TO_CTR],bub:'',st:0,wait:0,caseWant:cw}
-        :offer?{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],[92,46],...TO_CTR],bub:'',st:0,wait:0,seller:1,offer}
-        :{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],...(caseN()&&Math.random()<.45?[[34,56],[34,56,'case',2800],[34,46]]:[]),[56,46],[56,46,'look',2500],[92,46],[92,46,'think',2600]],bub:'',st:0,wait:0};
+      T.g=cw?{G,L:GL,x:14,y:32,pose:'walk',path:[[14,46],[34,56],[34,56,'case',3400],[34,46],...TO_CTR],bub:'',st:0,wait:0,caseWant:cw}
+        :offer?{G,L:GL,x:14,y:32,pose:'walk',path:[[14,46],[92,46],...TO_CTR],bub:'',st:0,wait:0,seller:1,offer}
+        :{G,L:GL,x:14,y:32,pose:'walk',path:[[14,46],...(caseN()&&Math.random()<.45?[[34,56],[34,56,'case',2800],[34,46]]:[]),[56,46],[56,46,'look',2500],[92,46],[92,46,'think',2600]],bub:'',st:0,wait:0};
       T.status(offer?`🔔 ${esc(T.g.G.n)}が カードを もって 来た！`:`🔔 ${esc(T.g.G.n)}が 来た！`);sf('knock');setTimeout(()=>{if(T.g)T.g.bub=offer?'🎴':''},1500);T.g.bub='!';
       if(T.mio.y<60){T.mio.pose='wave';T.mio.until=now+2500}
       const nt=night()>.6;if(offer){if(Math.random()<.5)mut(T,'m',ML2('sellInMio'),2600);mut(T,'g',ML2('g_sellIn'))}
@@ -735,6 +735,10 @@ setTimeout(function first8(){const S=SH();if(S.decoTold||!S.met||!window.SHDECO)
   S.decoTold=1;save();const [ex,tx]=ML('sh_decoNew');m.say('m',ex,tx,10000,null,goShop('counter')())},50000);
 setTimeout(function first7(){const S=SH();if(S.caseTold||!S.met)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first7,20000);
   S.caseTold=1;save();const [ex,tx]=ML('sh_caseNew');m.say('m',ex,tx,10000,null,goShop('case')())},44000);
+
+/* 👗 ミオの 服が 組み合わせに・お客さんが ふえた（2026-11-27）: Mina tells you once */
+setTimeout(function first9(){const S=SH();if(S.lookTold||!S.met||!window.MIOPX||!MIOPX.pickGuest)return;const m=window.MINA;if(!m||!m.canAnnounce||!m.canAnnounce())return setTimeout(first9,20000);
+  S.lookTold=1;save();const [ex,tx]=ML('sh_lookNew');m.say('m',ex,tx,10000,null,goShop('counter')())},58000);
 
 H.on('home',()=>{if(CT){CT.alive=false;CT.paused=0}});
 window.SHOP={mioUp:T=>mioUp(T),premium,premList,wantRec,mut:(T,who,line,ms,free)=>mut(T,who,line,ms,free),ct:()=>CT,open,leave,price,allCards,counter,floor,toFloor,pause:()=>pause(CT),store,rec:SH,inBook,free,stock,storeCards,bookRec:BOOKR,cleanFloor,rare,inCase,caseRec:CASER,caseScreen};
