@@ -167,7 +167,19 @@ const SHOP_MUTTER={
   /* カード集めの タク */
   [["Is there anything rare?","なにか レアなの ある？"],["I need one more for my set!","セットまで あと 1まい！"],["I collect every card!","ぜんぶ 集めてるんだ！"],["Got it… got it… need it!","持ってる… 持ってる… ほしい！"]],
   /* パン屋の メイ */
-  [["I just baked some bread!","パン、 焼きたてだよ！"],["Any cards about food?","食べ物の カード ある？"],["It smells like the sea here.","ここ、 海の においが する。"],["Break time! Just ten minutes.","休けい！ 10分だけね。"]]]};
+  [["I just baked some bread!","パン、 焼きたてだよ！"],["Any cards about food?","食べ物の カード ある？"],["It smells like the sea here.","ここ、 海の においが する。"],["Break time! Just ten minutes.","休けい！ 10分だけね。"]],
+  /* 郵便屋さんの ポール */
+  [["Mail for you! Just kidding.","郵便です！ …なんてね。"],["I walk all over this town.","この 町じゅう 歩いてるよ。"],["One more street, then lunch!","あと 1本 回ったら お昼！"],["Do you have a card that says \"letter\"?","「letter」の カード ある？"]],
+  /* 看護師の サラ */
+  [["I just finished my night shift.","夜勤が 終わった ところ。"],["Drink some water, OK?","お水 ちゃんと 飲んでね。"],["Cards help me relax.","カードを 見ると ほっと する。"],["I'm off today. Finally!","きょうは お休み。 やっと！"]],
+  /* 大工の ダイさん */
+  [["This shelf is well made.","この たな、 いい つくりだな。"],["I built a house by the beach.","浜辺に 家を 建てたんだ。"],["Measure twice, cut once!","2回 はかって、 1回で 切る！"],["Got any cards about tools?","道具の カード あるかい？"]],
+  /* 花屋の リリー */
+  [["I brought some flowers for Mio!","ミオさんに お花 もってきたの！"],["Sunflowers are my favorite.","ひまわりが いちばん 好き。"],["The shop looks so pretty today.","きょうの お店、 すごく かわいい。"],["Any cards about plants?","植物の カード ある？"]],
+  /* 写真家の トム */
+  [["The light is perfect right now.","いま、 光が ちょうど いい。"],["Can I take a picture of the shop?","お店の 写真、 とっても いい？"],["Click! Oh, sorry. Habit.","カシャッ！ あ、 ごめん。 くせで。"],["I'm looking for animal cards.","動物の カードを さがしてるんだ。"]],
+  /* 大学生の ユキ */
+  [["I have an English test next week.","来週 英語の テストなの。"],["This song in my headphones is so good.","ヘッドホンの この 曲、 すごく いい。"],["I study here sometimes. It's quiet.","ときどき ここで 勉強するの。 しずかだから。"],["One word a day. That's my rule.","1日 1単語。 それが わたしの ルール。"]]]};
 
 /* ミナ先生の セリフ */
 Object.assign(MINA_LINES,{

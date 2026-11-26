@@ -34,21 +34,25 @@ const ramp=h=>{if(h.length===4)h='#'+[...h.slice(1)].map(c=>c+c).join('');const 
   return [hx(R+(255-R)*.35,G+(255-G)*.35,B+(255-B)*.35),hx(R,G,B),hx(R*.8,G*.8,B*.8),hx(R*.62,G*.62,B*.62)]};
 const C0=C;
 function build(opt){const C=opt.pal?Object.assign({},C0,Object.fromEntries(Object.entries(opt.pal).filter(e=>e[1]).map(([k,v])=>[k,ramp(v)]))):C0;const AP=opt.arm||'down',stp=opt.step|0;const R=[];const add=(n,f,c,o={})=>R.push(Object.assign({n,f,c},o));
-const HS=opt.hair||'bob';
+const HS=opt.hair||'bob',HA={pony:'short',bunhi:'short',crop:'short',mside:'short',sidepony:'short',lowtwin:'bob'}[HS]||HS;   // 新しい 髪型は 土台の 形を かりる（HA）
 const BOB=pip([[8,17],[32,17],[32.4,29],[30.5,32],[27,31],[13,31],[9.5,32],[7.6,29]]);
 const HB={bob:BOB,short:pip([[9.4,17],[30.6,17],[30.4,22],[9.6,22]]),oldbun:pip([[9.4,17],[30.6,17],[30.4,23],[9.6,23]]),
  long:pip([[8,17],[32,17],[33.2,42],[29.6,45],[10.4,45],[6.8,42]]),
  flip:pip([[8,17],[32,17],[32.6,27],[35.4,30.6],[31.6,31.8],[27,30],[13,30],[8.4,31.8],[4.6,30.6],[7.4,27]]),
  inner:pip([[8,17],[32,17],[32.2,28],[30,31.8],[26.6,31],[13.4,31],[10,31.8],[7.8,28]]),
  twin:pip([[8,17],[32,17],[31.6,24],[8.4,24]]),
- wavy:or(BOB,ell(7.6,21,1.6,2.2),ell(7.2,26.6,1.8,2.4),ell(32.4,21,1.6,2.2),ell(32.8,26.6,1.8,2.4),ell(10.6,31.4,2.2,1.6),ell(29.4,31.4,2.2,1.6))}[HS]||BOB;
+ wavy:or(BOB,ell(7.6,21,1.6,2.2),ell(7.2,26.6,1.8,2.4),ell(32.4,21,1.6,2.2),ell(32.8,26.6,1.8,2.4),ell(10.6,31.4,2.2,1.6),ell(29.4,31.4,2.2,1.6))}[HA]||BOB;
 const extra=[];
 if(HS==='oldbun')extra.push(ell(20,4.2,4.2,3.2));
 if(HS==='halfup')extra.push(ell(20,4.2,3.4,2.8));
 if(HS==='buns')extra.push(ell(10.6,6.4,3.6,3.4),ell(29.4,6.4,3.6,3.4));
 if(HS==='twin')extra.push(pip([[9,18],[5.4,21],[3.4,27],[5,32.6],[7.6,27.6],[9.6,22]]),pip(mir([[9,18],[5.4,21],[3.4,27],[5,32.6],[7.6,27.6],[9.6,22]])));
+if(HS==='pony')extra.push(pip([[28.4,10],[32.6,11.4],[35,17],[35.4,26],[33.8,34],[31.4,37.4],[31.8,30],[31.2,22],[29.6,15]]));
+if(HS==='bunhi')extra.push(ell(20,3.4,4.8,3.6));
+if(HS==='sidepony')extra.push(pip([[29.4,16],[32.4,19],[33.2,26],[32,33],[29.4,38.6],[28.8,32],[30,26],[29.2,21]]));
+if(HS==='lowtwin')extra.push(pip([[9.6,26],[6.4,29],[5.6,35],[6.8,41],[8.8,36],[10.4,30]]),pip(mir([[9.6,26],[6.4,29],[5.6,35],[6.8,41],[8.8,36],[10.4,30]])));
 if(HS==='side')extra.push(pip([[29,14],[33,22],[33.8,30],[31.4,33],[30,27]]));
-add('hairB',or(HS==='short'||HS==='oldbun'?ell(20,15.4,11.2,10.6):ell(20,17,12,12.5),HB,...extra),C.hair);
+add('hairB',or(HA==='short'||HA==='oldbun'?ell(20,15.4,11.2,10.6):ell(20,17,12,12.5),HB,...extra),C.hair);
 add('neck',pip([[18,28],[22,28],[22.3,33.5],[17.7,33.5]]),C.skin);
 const O=Object.assign({top:'shirt',sl:'long',apron:'apron',sk:'skirt',hem:69.5,socks:1,shoe:'shoe',cuff:'cuff',neck:'v'},opt.o||{});
 const T=C[O.top];const hem=O.hem;
@@ -109,14 +113,14 @@ const LKS={short:[[9.4,13],[12.4,13],[12.6,19.6],[10.4,21.4]],oldbun:[[9.4,13],[
  flip:[[8.8,13],[12.6,13],[12.8,22],[12,27],[9.4,30.4],[6,30.6],[8.2,28]],
  inner:[[8.8,13],[12.6,13],[12.8,22],[13.2,28],[13.8,31.2],[10.4,31.8],[8.6,28.6]],
  twin:[[8.8,13],[12.6,13],[12.8,20],[12.2,24],[9.4,24]]};
-const LK=LKS[HS]||LKS.bob;
+const LK=LKS[HA]||LKS.bob;
 add('lockL',pip(LK),C.hair);if(HS!=='tuck')add('lockR',pip(mir(LK)),C.hair);
 const BG={short:pip([[10.4,14],[11.5,9],[15,6],[20,5],[25,6],[28.5,9],[29.6,14],[27.6,11.4],[25.4,12.6],[23.4,10.6],[21,12.2],[18.6,10.4],[16.2,12.4],[13.8,10.8],[11.8,13.6]]),
  oldbun:pip([[11,13.4],[12,9],[15,6.6],[20,5.6],[25,6.6],[28,9],[29,13.4],[26.4,10.2],[20,9.2],[13.6,10.2]]),
  center:or(pip([[10.2,15],[11.5,9.5],[15,6],[19.6,5],[20.2,7],[18.4,9.2],[15.6,12.2],[13.2,16.4],[11.4,17.4]]),pip(mir([[10.2,15],[11.5,9.5],[15,6],[19.6,5],[20.2,7],[18.4,9.2],[15.6,12.2],[13.2,16.4],[11.4,17.4]])),pip([[15,6],[25,6],[22,7.6],[18,7.6]])),
  side:pip([[10.2,15],[11.5,9.5],[15,6],[20,5],[25,6],[28.5,9.5],[29.8,13.6],[27.6,12],[24.2,11.4],[20.4,12],[17,13.6],[13.8,16.8],[11.2,17.6]]),
  tuck:pip([[10.2,15],[11.5,9.5],[15,6],[20,5],[25,6],[28.5,9.5],[29,12.4],[27.4,11.2],[25.4,14.2],[23,11.4],[20.6,13.8],[17.4,11.6],[14.4,15],[12,16]])};
-add('bang',BG[HS]||pip([[10.2,15],[11.5,9.5],[15,6],[20,5],[25,6],[28.5,9.5],[29.8,16.4],[28.4,13.4],[26.6,11.6],[25.4,14.8],[23,11.4],[20.6,13.8],[17.4,11.6],[14.4,15],[12,16]]),C.hair);
+add('bang',BG[{crop:'oldbun',mside:'side'}[HS]||HS]||pip([[10.2,15],[11.5,9.5],[15,6],[20,5],[25,6],[28.5,9.5],[29.8,16.4],[28.4,13.4],[26.6,11.6],[25.4,14.8],[23,11.4],[20.6,13.8],[17.4,11.6],[14.4,15],[12,16]]),C.hair);
 if(opt.acc==='band')add('band',pip([[8.2,14.4],[9.8,8.6],[14,5],[20,3.4],[26,5],[30.2,8.6],[31.8,14.4],[29.4,11.8],[25,9.4],[20,8.8],[15,9.4],[10.6,11.8]]),C.band);
 if(opt.acc==='band')add('knot',or(pip([[30,8.6],[36,6],[35,11.8]]),pip([[30.6,11],[35.4,14.8],[31.6,15.6]])),C.band);
 if(opt.acc==='kachu')add('band',pip([[9,14.6],[10.2,9.4],[14.2,5.8],[20,4.4],[25.8,5.8],[29.8,9.4],[31,14.6],[29.6,13.6],[28.2,10.2],[25,7.6],[20,6.4],[15,7.6],[11.8,10.2],[10.4,13.6]]),C.band);
@@ -125,6 +129,10 @@ if(opt.acc==='cap'){add('band',and(ell(20,10,11.4,7.6),(x,y)=>y<11),C.gcap);add(
 if(opt.beard){add('beard',or(pip([[11.4,21.6],[14.2,25.8],[17.6,28.4],[22.4,28.4],[25.8,25.8],[28.6,21.6],[28.8,25.4],[26,30],[22.6,31.8],[17.4,31.8],[14,30],[11.2,25.4]]),pip([[16.6,24.2],[23.4,24.2],[22.6,25.8],[17.4,25.8]])),C.beard,{noHi:1})}
 if(O.bag)add('bag',or(pip([[25.6,46],[31.4,45.4],[32,53.4],[25.4,53.8]]),chain([[15,33.4],[28.4,46]],1)),C.gbag);
 if(opt.acc==='hat'){add('band',and(ell(20,6.6,9.2,6.2),(x,y)=>y<9.8),C.straw);add('brim',and(ell(20,10.2,16,3.4),(x,y)=>true),C.straw,{noHi:1});add('hb',and(ell(20,6.6,9.2,6.2),(x,y)=>y>=7.4&&y<9.8),C.red)}
+if(opt.acc==='beanie'){add('band',and(ell(20,11,11.8,9.4),(x,y)=>y<12.4),C.band);add('brim',pip([[8.4,10.4],[31.6,10.4],[31.8,13.4],[8.2,13.4]]),C.band,{noHi:1});add('pom',ell(20,1.8,2.6,2.2),C.shirt)}
+if(opt.acc==='phones'){add('band',chain([[9.6,19],[10.4,10],[14,5],[20,3.6],[26,5],[29.6,10],[30.4,19]],1.4),C.band);add('cup',or(ell(9.4,21.6,2.9,3.8),ell(30.6,21.6,2.9,3.8)),C.band,{noHi:1})}
+if(opt.acc==='beret')add('band',or(and(ell(19,8,12.4,5.4),(x,y)=>y<10.6),ell(20,2.4,1.2,1.2)),C.band);
+if(O.scarf){add('scarf',or(pip([[14.2,29.6],[25.8,29.6],[27,34.6],[13,34.6]]),pip([[21.6,33.8],[25.2,33.8],[25.8,45.6],[22.2,45.2]])),C[O.scarf]);}
 // ラスタライズ
 const own=[];const img=[];for(let y=0;y<H;y++){own.push(Array(W).fill(-1));img.push(Array(W).fill(null))}
 R.forEach((r,i)=>{for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(r.f(x+.5,y+.5))own[y][x]=i});
@@ -157,11 +165,11 @@ if(O.frill)for(let x=8;x<32;x++)if(is(x,Math.floor(hem)-1,'skirt')&&x%2)P(x,Math
 if(AP==='down')for(let y=36;y<47;y++){if(is(14,y,'torso'))P(14,y,T[2]);if(is(25,y,'torso'))P(25,y,T[2])}
 if(hem<80)[[16,77],[17,78],[22,77],[23,78]].forEach(([x,y])=>P(x,y,C.skin[2]));
 // 髪のつや（天使の輪）とすじ
-if(opt.acc!=='hat'){[[14,10],[15,9],[16,9],[17,8],[18,8],[19,8]].forEach(([x,y])=>P(x,y,C.hair[0]));P(20,8,C.hair[0]);}
+if(!['hat','beanie','cap','beret'].includes(opt.acc)){[[14,10],[15,9],[16,9],[17,8],[18,8],[19,8]].forEach(([x,y])=>P(x,y,C.hair[0]));P(20,8,C.hair[0]);}
 if(opt.acc==='pin'){[[26,10],[25,11],[26,11],[27,11],[26,12],[28,13],[27,14],[28,14],[29,14],[28,15]].forEach(([x,y],i)=>P(x,y,i===2||i===7?'#fff6c0':'#ffc93c'));}
 if(opt.acc==='none'||opt.acc==='pin'){[[19,5],[20,6],[20,7]].forEach(([x,y])=>P(x,y,C.hair[3]))}
 if(opt.acc==='hat'){for(let x=5;x<36;x+=3)if(is(x,10,'brim'))P(x,10,C.straw[2]);for(let x=12;x<29;x+=3)if(is(x,5,'band'))P(x,5,C.straw[2]);}
-(opt.acc==='hat'?[]:[[16,9],[22,8],[26,10]]).forEach(([x,y])=>{P(x,y,C.hair[2]);P(x+1,y+1,C.hair[2])});
+(['hat','beanie','cap','beret'].includes(opt.acc)?[]:[[16,9],[22,8],[26,10]]).forEach(([x,y])=>{P(x,y,C.hair[2]);P(x+1,y+1,C.hair[2])});
 for(let y=17;y<29;y++){P(10,y,C.hair[2]);if(HS!=='tuck')P(29,y,C.hair[2])}
 if(HS==='halfup'){[[18,6],[19,6],[20,6],[21,6],[22,6]].forEach(([x,y])=>P(x,y,'#ffc93c'));P(20,3,C.hair[0]);P(19,3,C.hair[0]);}
 if(HS==='buns'){[[9,9],[10,10],[11,10],[12,10],[28,10],[29,10],[30,10],[31,9]].forEach(([x,y])=>P(x,y,'#ffc93c'));P(9,5,C.hair[0]);P(10,4,C.hair[0]);P(28,4,C.hair[0]);P(29,4,C.hair[0]);}
@@ -171,6 +179,13 @@ if(HS==='braid'){for(let x=10;x<31;x++){const y=Math.round(10.6-Math.sqrt(Math.m
 if(HS==='wavy'){[[9,20],[10,22],[9,24],[30,20],[29,22],[30,24],[12,28],[27,28]].forEach(([x,y])=>P(x,y,C.hair[0]))}
 if(HS==='flip'){P(6,30,C.hair[0]);P(33,30,C.hair[0]);}
 if(HS==='inner'){for(let x=11;x<29;x++)if(is(x,30,'hairB'))P(x,30,C.hair[3]);}
+if(HS==='pony'){[[29,11],[30,12],[29,12]].forEach(([x,y])=>P(x,y,'#ffc93c'));for(let y=16;y<34;y+=3)P(34,y,C.hair[2])}
+if(HS==='bunhi'){[[17,6],[18,6],[19,6],[20,6],[21,6],[22,6],[23,6]].forEach(([x,y])=>P(x,y,'#ffc93c'));P(18,1,C.hair[0]);P(19,1,C.hair[0])}
+if(HS==='sidepony'){[[30,17],[31,18],[30,18]].forEach(([x,y])=>P(x,y,'#ffc93c'));for(let y=22;y<36;y+=3)P(31,y,C.hair[2])}
+if(HS==='lowtwin'){[[8,27],[9,27],[31,27],[30,27]].forEach(([x,y])=>P(x,y,'#ffc93c'));for(let y=31;y<40;y+=3){P(7,y,C.hair[2]);P(32,y,C.hair[2])}}
+if(opt.acc==='beanie'){for(let x=9;x<31;x+=2)P(x,11,C.band[2]);for(let y=4;y<10;y++)for(let x=11;x<30;x+=3)if(is(x,y,'band'))P(x,y,C.band[2])}
+if(O.scarf){const S=C[O.scarf];for(let x=14;x<27;x+=3){P(x,31,S[2]);P(x,33,S[2])}for(let x=22;x<=25;x++)P(x,45,S[0]);[[22,46],[24,46]].forEach(([x,y])=>P(x,y,S[2]))}
+if(O.rib){for(let y=36;y<47;y++)for(let x=13;x<28;x+=3)if(is(x,y,'torso'))P(x,y,T[2])}
 // バンダナの水玉
 if(opt.acc==='band'){[[13,8],[17,6],[20,5],[23,6],[27,8],[15,8],[25,8]].forEach(([x,y],i)=>P(x,y,i<5?'#fffbe8':'#fff0b8'));P(31,10,C.band[3]);P(30,10,C.band[3]);}
 // 目（ミナ先生の顔と同じ作り: 大きい・きらきら・まつげ）
@@ -240,6 +255,7 @@ if(O.sl==='off'){for(let x=12;x<=27;x++)if(x%2)P(x,36,'#ffffff');P(19,33,C.skin[
 if(O.print==='border'){for(let y=35;y<48;y+=3)for(let x=8;x<32;x++)if(is(x,y,'torso')||is(x,y,'armL')||is(x,y,'armR'))P(x,y,C.navy[1])}
 if(O.print==='star'){[[20,39],[19,40],[20,40],[21,40],[20,41],[18,40],[22,40],[19,42],[21,42]].forEach(([x,y])=>P(x,y,'#ffc93c'))}
 if(O.print==='wave'){[[16,41],[17,40],[18,41],[19,40],[20,41],[21,40],[22,41],[23,40]].forEach(([x,y])=>P(x,y,'#4a9ad8'))}
+if(O.print==='heart'){[[19,39],[21,39],[18,40],[19,40],[20,40],[21,40],[22,40],[19,41],[20,41],[21,41],[20,42]].forEach(([x,y])=>P(x,y,'#ff6a8a'))}
 if(O.print==='moon'){[[20,39],[19,40],[19,41],[20,42],[21,42]].forEach(([x,y])=>P(x,y,'#ffe27a'))}
 if(O.ribbonW){for(let x=13;x<=27;x++)if(is(x,48,'skirt')||is(x,48,'torso'))P(x,48,C[O.ribbonW][1]);P(20,47,C[O.ribbonW][2]);P(19,49,C[O.ribbonW][1]);P(21,49,C[O.ribbonW][1]);}
 if(O.btn)[37,40,43,46].forEach(y=>P(20,y,T[3]));
@@ -310,7 +326,7 @@ function sprite(o){const k=JSON.stringify(o);let c=CACHE.get(k);if(c)return c;
   const out=build(o);c=document.createElement('canvas');c.width=W;c.height=H;const s=c.getContext('2d');
   for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(out[y][x]){s.fillStyle=out[y][x];s.fillRect(x,y,1,1)}
   if(CACHE.size>80)CACHE.delete(CACHE.keys().next().value);CACHE.set(k,c);return c}
-function draw(c,x,y,pose='stand',f=0,opt={}){const L=look(!!opt.night);
+function draw(c,x,y,pose='stand',f=0,opt={}){const L=(window.MIOPX&&MIOPX.look||look)(!!opt.night);
   let arm='down',ex='smile',step=0,bx=0;
   if(pose==='walk'){step=f%2?1:2}
   else if(pose==='wave'){arm='wave';ex=f%4<2?'laugh':'smile'}
@@ -321,7 +337,7 @@ function draw(c,x,y,pose='stand',f=0,opt={}){const L=look(!!opt.night);
   else if(pose==='oops'){ex='oops'}
   else if(pose==='shy'){ex='shy'}
   if(ex==='smile'&&(f*7+3)%23===0)ex='sleep';   // ときどき まばたき
-  const sp=sprite({acc:L.acc,hair:L.hair,ex,arm,step,o:L.o});
+  const sp=sprite({acc:L.acc,hair:L.hair,ex,arm,step,o:L.o,pal:L.pal});
   const t=c.getTransform(),k=t.a||1,fx=x+7,fy=y+32+(opt.dy||0);
   c.save();c.setTransform(1,0,0,1,0,0);c.imageSmoothingEnabled=false;
   c.drawImage(sp,Math.round(t.e+(fx-10)*k)+bx,Math.round(t.f+(fy-48)*k)-(step?1:0),20*k,48*k);c.restore();
@@ -329,13 +345,19 @@ function draw(c,x,y,pose='stand',f=0,opt={}){const L=look(!!opt.night);
 /* ================================================================ お客さん（game/shop-data.js の GUEST_LOOK を 同じ 絵柄で）
    L.pants の 人は 男の人（ズボン・小さい 目・まゆ）、 bun は 年上の 人（小さい 目・めがね） */
 const EYEC=['#4a6a8a','#4a8ad8','#5a3a2a','#6a5a4a','#3a7ac0','#8a5a3a','#3a2a2a','#6aa04a'];
-function guestOpt(L,pose,f){const male=!!L.pants,old=L.style==='bun',i=(typeof GUEST_LOOK!=='undefined'?GUEST_LOOK.indexOf(L):-1);
+function guestOpt(L,pose,f){if(L.gen)return genOpt(L,pose,f);const male=!!L.pants,old=L.style==='bun',i=(typeof GUEST_LOOK!=='undefined'?GUEST_LOOK.indexOf(L):-1);
   const hair={cap:'short',hat:'long',short:'short',bun:'oldbun',long:'long'}[L.style]||'short';
   let arm='down',ex='smile',step=0;
   if(pose==='walk')step=f%2?1:2;else if(pose==='happy'){arm='cheer';ex='laugh'}else if(pose==='think'){arm='think'}
   return {acc:L.style==='cap'?'cap':L.style==='hat'?'hat':'none',hair,ex,arm,step,male,dot:male||old,glass:!!L.glass,shades:!!L.shades,beard:!!L.beard,eyeC:male||old?null:EYEC[i<0?0:i],
     pal:{skin:L.skin,hair:L.hair,gtop:L.coat||L.shirt,gin:L.shirt,glow:L.low,gshoe:L.shoe,gbag:L.bag||'#a06a3a',gcap:L.acc||'#3a5a8a',beard:L.beard||L.hair,red:L.style==='hat'?L.acc:null},
     o:{top:'gtop',sl:L.coat?'long':'short',cuff:'gtop',apron:null,sk:'glow',pants:male?1:0,hem:male?50:old?82:68,neck:'round',socks:0,shoe:'gshoe',coat:L.coat?1:0,bag:L.bag?1:0,flow:old?1:0}}}
+/* いろいろな 組み合わせの お客さん（game/look-mix.js の MIXL.guest が 作る） */
+function genOpt(L,pose,f){let arm='down',ex='smile',step=0;
+  if(pose==='walk')step=f%2?1:2;else if(pose==='happy'){arm='cheer';ex='laugh'}else if(pose==='think'){arm='think'}
+  return {acc:L.acc||'none',hair:L.hs,ex,arm,step,male:L.sex==='m',dot:L.sex==='m'||L.old,glass:!!L.glass,shades:!!L.shades,beard:!!L.beard,eyeC:L.sex==='m'||L.old?null:L.eyeC,
+    pal:{skin:L.skin,hair:L.hairC,gtop:L.topC,gin:L.innerC||L.topC,glow:L.botC,gshoe:L.shoeC,gbag:L.bagC||'#a06a3a',gcap:L.accC||'#3a5a8a',band:L.accC||'#ffc93c',red:L.accC||'#e85a5a',beard:L.hairC,gsc:L.scarfC||'#e85a5a'},
+    o:Object.assign({top:'gtop',cuff:'gtop',apron:null,sk:'glow',socks:0,shoe:'gshoe',bag:L.bag?1:0,scarf:L.scarf?'gsc':null},L.o)}}
 function guest(c,x,y,L,pose='stand',f=0){const sp=sprite(guestOpt(L,pose,f));
   const t=c.getTransform(),k=t.a||1,fx=x+7,fy=y+32;
   c.save();c.setTransform(1,0,0,1,0,0);c.imageSmoothingEnabled=false;
@@ -354,7 +376,7 @@ Object.assign(MINA_LINES,{
  x_mioLook:[['smile','きょうの ミオさんは 「{n}」 らしいよ。 お店で 会ったら 「Nice {w}!」って 言って みて'],
   ['happy','ミオさん、 きょうは 「{n}」 なんだって。 服の ほめ方、 英語で ためして みたら？']]});
 const W1={usual:'apron',pink:'apron',border:'stripes',noapron:'shirt',mini:'skirt',off:'top',check:'skirt',flare:'skirt',long:'skirt',tight:'skirt',tee:'T-shirt',dress:'dress',cami:'shorts',crop:'top',halter:'dress',swim:'swimsuit',bikini:'pareo'};
-if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(['x_mioLook',1,()=>{let h=12;try{h=GH()}catch(e){}if(h<9||h>=21)return null;const L=MIOPX.look(false);return {n:L.n,w:W1[L.id]||'outfit'}},()=>window.SHOP&&SHOP.open?['🃏 ミオに 会いに',()=>SHOP.open()]:null]);
+if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(['x_mioLook',1,()=>{let h=12;try{h=GH()}catch(e){}if(h<9||h>=21)return null;const L=MIOPX.look(false);return {n:L.n,w:W1[L.id]||L.w||'outfit'}},()=>window.SHOP&&SHOP.open?['🃏 ミオに 会いに',()=>SHOP.open()]:null]);
 (window.MINA_REACT_EXT=window.MINA_REACT_EXT||{}).mioLook={act:e=>['r_mioLook',{n:e.ja||'いつもの'}],desc:e=>`ミオの きょうの 服（${e.ja||''}）を 見た`};
 /* お店で その日 はじめて 会った とき、 ミオが 服の ことを ひとこと（1日 1回） */
 window.MIOPX.hello=()=>{const L=MIOPX.look(false),d=new Date().toDateString();let k='';try{k=localStorage.getItem('hoshi_mioLook')||''}catch(e){}

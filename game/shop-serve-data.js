@@ -12,7 +12,13 @@ const SV_WHO=[
  {en:'Joe',ico:'🏄',rel:['surfing buddy','サーフィン仲間']},
  {en:'Luna',ico:'🎨',rel:['art teacher','絵の 先生']},
  {en:'Taku',ico:'🃏',rel:['best friend','親友']},
- {en:'Mei',ico:'🥐',rel:['daughter','娘']}];
+ {en:'Mei',ico:'🥐',rel:['daughter','娘']},
+ {en:'Paul',ico:'✉️',rel:['coworker','同僚']},
+ {en:'Sara',ico:'🩺',rel:['mother','母']},
+ {en:'Dai',ico:'🔨',rel:['son','息子']},
+ {en:'Lily',ico:'💐',rel:['sister','姉']},
+ {en:'Tom',ico:'📷',rel:['wife','妻']},
+ {en:'Yuki',ico:'🎧',rel:['roommate','ルームメイト']}];
 
 /* 世間話: お客さん ひとりずつ（GUESTS と 同じ じゅんばん） */
 const SV_CHAT=[
