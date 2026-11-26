@@ -501,7 +501,10 @@ function mioIdle(T){const m=T.mio,now=Date.now();if(now<m.until||m.walk)return;i
   if(d>.6&&r<.5){m.pose='doze';m.until=now+6000;return}
   if(r<.35){m.walk=pickL([142,152,164,172]);m.pose=pickL(['sweep','stand']);m.until=now+5000}
   else{m.pose=pickL(['stand','stand','sweep','wave']);m.until=now+3000+Math.random()*4000}}
-/* the guest walks: door → shelf → table → (counter) → door */
+/* the guest walks: door → shelf → table → (counter) → door
+   台（x70〜128・y80〜101）の 上に 乗って 見えないように: 台では 向こう側（足 y78）に 立ち、
+   レジへは 台と カウンターの すきま（x126）を 通って 足 y96 へ（その下は 花だんなどの かざり） */
+const TO_CTR=[[126,46],[126,64]];
 function step(T){const now=Date.now();mioIdle(T);
   if(!T.g&&window.HORROR&&HORROR.step(T,now))return;
   /* 🕘 開店・閉店（game/hours.js）: 閉まっている あいだは お客さんが 来ない */
@@ -513,9 +516,9 @@ function step(T){const now=Date.now();mioIdle(T);
       const offer=seller?SHSV.offer(G):null;
       /* 🖼️ たまーに ケースの カードが ほしい お客さん（続けては 来ない） */
       const cw=null;   // 11/22: 作業の じゃまを しない（ケースを ほしがる お客は 来ない）T.lastCase=!!cw;
-      T.g=cw?{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],[34,56],[34,56,'case',3400],[60,52],[92,58],[120,62]],bub:'',st:0,wait:0,caseWant:cw}
-        :offer?{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],[60,52],[92,58],[120,62]],bub:'',st:0,wait:0,seller:1,offer}
-        :{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],...(caseN()&&Math.random()<.45?[[34,56],[34,56,'case',2800]]:[]),[56,46],[56,46,'look',2500],[92,58],[92,58,'think',2600]],bub:'',st:0,wait:0};
+      T.g=cw?{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],[34,56],[34,56,'case',3400],[34,46],...TO_CTR],bub:'',st:0,wait:0,caseWant:cw}
+        :offer?{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],[92,46],...TO_CTR],bub:'',st:0,wait:0,seller:1,offer}
+        :{G,L:GUEST_LOOK[G.l],x:14,y:32,pose:'walk',path:[[14,46],...(caseN()&&Math.random()<.45?[[34,56],[34,56,'case',2800],[34,46]]:[]),[56,46],[56,46,'look',2500],[92,46],[92,46,'think',2600]],bub:'',st:0,wait:0};
       T.status(offer?`🔔 ${esc(T.g.G.n)}が カードを もって 来た！`:`🔔 ${esc(T.g.G.n)}が 来た！`);sf('knock');setTimeout(()=>{if(T.g)T.g.bub=offer?'🎴':''},1500);T.g.bub='!';
       if(T.mio.y<60){T.mio.pose='wave';T.mio.until=now+2500}
       const nt=night()>.6;if(offer){if(Math.random()<.5)mut(T,'m',ML2('sellInMio'),2600);mut(T,'g',ML2('g_sellIn'))}
@@ -542,12 +545,12 @@ function decide(T){const g=T.g,S=SH();
     /* the card they want: their favorite kind, if it's there */
     const fav=S.floor.filter(id=>{const I=C.info(id);return I&&g.G.a.includes(I.a)});
     const id=fav.length&&Math.random()<.7?pickL(fav):pickL(S.floor);
-    if(Math.random()<(fav.includes(id)?.85:.6)){g.want=id;g.path=[[120,62]];g.bub='♪';const I=C.info(id);
+    if(Math.random()<(fav.includes(id)?.85:.6)){g.want=id;g.path=TO_CTR.slice();g.bub='♪';const I=C.info(id);
       T.status(`${esc(g.G.n)}が 「<b>${esc(SHSV?SHSV.word(I):I.en)}</b>」${SHSV&&SHSV.jaOf(I)&&g.plan.k!=='mean'?`（${esc(SHSV.jaOf(I))}）`:''}を もって レジへ`);mut(T,'g',ML2('g_buy'),2200)}
     else{g.bub='…';T.status(`${esc(g.G.n)}は 見ていくだけ みたい`);mut(T,'g',ML2('g_leave'));mut(T,'m',ML2('bye'));return out(T,1200)}
     return}
   if(g.st===1)mioSell(T)}
-function out(T,ms){const g=T.g;g.hold=1;g.out=1;setTimeout(()=>{if(!T.alive||T.g!==g)return;g.hold=0;g.st=9;g.path=[[g.x,46],[14,46],[14,32]];g.bub='';watchOut(T,g)},ms)}
+function out(T,ms){const g=T.g;g.hold=1;g.out=1;setTimeout(()=>{if(!T.alive||T.g!==g)return;g.hold=0;g.st=9;g.path=[...(g.y>50?[[126,46]]:[[g.x,46]]),[14,46],[14,32]];g.bub='';watchOut(T,g)},ms)}
 function watchOut(T,g){
   const fin=()=>{if(T.g===g&&!g.path.length){T.g=null;T.next=Date.now()+90000+Math.random()*90000;T.status('🧑‍💼 ミオが レジで お客さんを まってるよ');SH().guests++;save()}};
   const iv=setInterval(()=>{if(!T.alive){clearInterval(iv);return}if(T.g!==g||!g.path.length){clearInterval(iv);fin()}},300)}
