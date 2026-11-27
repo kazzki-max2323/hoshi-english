@@ -414,7 +414,7 @@ function toFloor(){pause(CT);floor()}
 function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.paused<15*6e4?CT:null;if(CT){CT.alive=false;if(!old&&CT.talk){CT.talk.alive=false;CT.talk=null}}const S=SH();cleanFloor();
   const hrO=window.HOURS?HOURS.isOpen('cg'):true,hrP=window.HOURS&&HOURS.isPrep('cg');
   H.show('cg',`<section class="pnl cgp shp shctr shmain">${top('🃏 カードショップ',`きょう 🪙${S.tday===C.today()?S.tearn:0}`,'cgx')}
-    <div class="shstage"><canvas id="shcv" width="${W*2}" height="${HH*2}"></canvas><div class="shcase" id="shcase"></div><div class="shnotes" id="shnotes"></div><div class="shfls" id="shfls"></div></div>
+    <div class="shstage"><canvas id="shcv" width="${W*4}" height="${HH*4}"></canvas><div class="shcase" id="shcase"></div><div class="shnotes" id="shnotes"></div><div class="shfls" id="shfls"></div></div>
     <div class="shnav">${navBtns()}</div>
     <p class="shst" id="shst">${hrO?'🔔 開店中。 レジは ミオに まかせて、 原石を みがこう':hrP?'🧹 開店 じゅんび中（9時 開店）。 原石の 作業は いつでも できるよ':'🌙 閉店中（9時〜21時）。 ミオは 2階に いるよ。 原石の 作業は いつでも できるよ'}</p>
     <div id="shact" class="shact"></div>
@@ -436,7 +436,7 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
     if(window.MIOCT&&!mioUp(T)&&x>m.x-8&&x<m.x+22&&y>m.y-20&&y<m.y+36){sf('tap');tapMio()}};
   cv.style.cursor='pointer'
   let last=0;
-  const tick=now=>{if(!T.alive||!cv.isConnected){T.alive=false;return}requestAnimationFrame(tick);if(now-last<140)return;last=now;T.f++;step(T);c.setTransform(2,0,0,2,0,0);c.imageSmoothingEnabled=false;   // 2倍の こまかさ（ミオの ドット絵は game/mio-pix.js）
+  const tick=now=>{if(!T.alive||!cv.isConnected){T.alive=false;return}requestAnimationFrame(tick);if(now-last<140)return;last=now;T.f++;step(T);c.setTransform(4,0,0,4,0,0);c.imageSmoothingEnabled=false;   // 2倍の こまかさ（ミオの ドット絵は game/mio-pix.js）
     const d=night(),t=d>.6?'night':d>.25?'dusk':'day';
     room(c,t,T.f);if(window.SHDECO)SHDECO.back(c,t,T.f);table(c,SH().floor.length,t);
     /* Mio: behind the counter, or out on the floor sweeping */
