@@ -1,4 +1,4 @@
-/* ミオの 新しい ドット絵（40x96 の 絵を お店の 中では 20x48 の 大きさで 出す。 2倍の キャンバスで くっきり）
+/* ミオの ドット絵（形は 40x96 の 座標。 11/27 から 2倍の 80x192 で 細かく ぬる。 お店・2階では 20x48 の 大きさで 出す。 4倍の キャンバスで くっきり）
    MIOPX.draw(ctx,x,y,pose,frame,opt): x,y は 前の 14x32 の 左上と 同じ 場所（足もと = x+7, y+32）。 pose = stand / walk / wave / cheer / sweep / doze
      opt.night: 夜の 部屋着、 opt.dy: 下へ ずらす（2階の つくえ など）
    MIOPX.look(night): きょうの 服・髪型（日替わり。 夏は 夏服も、 夜は 部屋着）→ {id,n,en,ja,acc,hair,o}
@@ -6,7 +6,8 @@
    下着姿・見えた系の 絵は 作らない（ミオは 20さいの 大人。 絵が 幼く 見えるので） */
 (()=>{
 const W=40,H=96;
-const pip=(pts)=>(x,y)=>{let c=false;for(let i=0,j=pts.length-1;i<pts.length;j=i++){const[xi,yi]=pts[i],[xj,yj]=pts[j];if(((yi>y)!=(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi))c=!c}return c};
+const pip=(pts)=>{const n=pts.length,X=new Float64Array(n),Y=new Float64Array(n);let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;pts.forEach(([a,b],i)=>{X[i]=a;Y[i]=b;if(a<x0)x0=a;if(a>x1)x1=a;if(b<y0)y0=b;if(b>y1)y1=b});   // はやく: 外わくで さきに はじく
+  return (x,y)=>{if(x<x0||x>x1||y<y0||y>y1)return false;let c=false;for(let i=0,j=n-1;i<n;j=i++){const yi=Y[i],yj=Y[j];if(((yi>y)!=(yj>y))&&(x<(X[j]-X[i])*(y-yi)/(yj-yi)+X[i]))c=!c}return c}};
 const ell=(cx,cy,rx,ry)=>(x,y)=>((x-cx)/rx)**2+((y-cy)/ry)**2<=1;
 const or=(...f)=>(x,y)=>f.some(g=>g(x,y));
 const and=(a,b)=>(x,y)=>a(x,y)&&b(x,y);
@@ -29,7 +30,9 @@ const C={
  night:['#5a6aa8','#3a4880','#2a3562','#1c2446'],knit:['#fff4ea','#f2e2d0','#d8c2a8','#b49a7e'],
  wood:['#d8a868','#b07a3a','#8a5a28','#6a421c'],
  cuff:['#6f9ad0','#4a78b0','#355d8f','#26466e'],
+ sole:['#c08c5c','#9c6c42','#7a4e2e','#5a3720'],
 };
+const mixc=(a,b)=>{const p=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));const A=p(a),B=p(b);return '#'+A.map((v,i)=>Math.round((v+B[i])/2).toString(16).padStart(2,'0')).join('')};
 const ramp=h=>{if(h.length===4)h='#'+[...h.slice(1)].map(c=>c+c).join('');const n=parseInt(h.slice(1),16),R=n>>16,G=(n>>8)&255,B=n&255,hx=(r,g,b)=>'#'+[r,g,b].map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
   return [hx(R+(255-R)*.35,G+(255-G)*.35,B+(255-B)*.35),hx(R,G,B),hx(R*.8,G*.8,B*.8),hx(R*.62,G*.62,B*.62)]};
 const C0=C;
@@ -41,6 +44,7 @@ const HB={bob:BOB,short:pip([[9.4,17],[30.6,17],[30.4,22],[9.6,22]]),oldbun:pip(
  flip:pip([[8,17],[32,17],[32.6,27],[35.4,30.6],[31.6,31.8],[27,30],[13,30],[8.4,31.8],[4.6,30.6],[7.4,27]]),
  inner:pip([[8,17],[32,17],[32.2,28],[30,31.8],[26.6,31],[13.4,31],[10,31.8],[7.8,28]]),
  twin:pip([[8,17],[32,17],[31.6,24],[8.4,24]]),
+ longwave:(x,y)=>{if(y<15)return false;const bot=56+2*Math.sin(x*1.2)-(Math.abs(x-20)>9?1.6:0);if(y>bot)return false;return Math.abs(x-20)<=11.8+1.5*Math.sin(y*.5+.6)+(y>28?Math.min(1.6,(y-28)*.08):0)},
  wavy:or(BOB,ell(7.6,21,1.6,2.2),ell(7.2,26.6,1.8,2.4),ell(32.4,21,1.6,2.2),ell(32.8,26.6,1.8,2.4),ell(10.6,31.4,2.2,1.6),ell(29.4,31.4,2.2,1.6))}[HA]||BOB;
 const extra=[];
 if(HS==='oldbun')extra.push(ell(20,4.2,4.2,3.2));
@@ -60,7 +64,12 @@ const LG=[[14.6,hem-1.5],[19.3,hem-1.5],[19,80],[18.5,89],[15.6,89],[15,80]];
 const LGu=LG.map(([x,y])=>[x,y>80?y-1.6:y]);add('legL',pip(stp===1?LGu:LG),C.skin);add('legR',pip(mir(stp===2?LGu:LG)),C.skin);
 if(O.socks){const SK=[[15.3,85],[18.7,85],[18.6,89.5],[15.5,89.5]];const up=(p,k)=>p.map(([x,y])=>[x,y-(k?1.6:0)]);add('sockL',pip(up(SK,stp===1)),C.sock);add('sockR',pip(mir(up(SK,stp===2))),C.sock);}
 const SH=O.shoe==='slip'?[[14.6,90],[19.2,90],[19.4,94.5],[13,95],[13.2,92]]:[[14.8,89],[19,89],[19.2,94.5],[12.6,95],[13,92]];
-const upS=(p,k)=>p.map(([x,y])=>[x,y-(k?1.6:0)]);add('shoeL',pip(upS(SH,stp===1)),O.shoe==='slip'?C.pinkS:C[O.shoe]);add('shoeR',pip(mir(upS(SH,stp===2))),O.shoe==='slip'?C.pinkS:C[O.shoe]);
+const upS=(p,k)=>p.map(([x,y])=>[x,y-(k?1.6:0)]);
+if(O.shoe==='sandal'){const FT=[[14.8,88.6],[19,88.6],[19.4,93.2],[13,93.8],[13.4,91.2]],SO=[[12.6,93.2],[19.8,93.2],[19.8,95],[12.4,95]],STR=k=>(x,y)=>{const yy=y+(k?1.6:0);return (yy>=90.4&&yy<91.8)||(yy>=88.6&&yy<89.6)};
+  add('footL',pip(upS(FT,stp===1)),C.skin);add('footR',pip(mir(upS(FT,stp===2))),C.skin);
+  add('shoeL',pip(upS(SO,stp===1)),C.sole,{noHi:1});add('shoeR',pip(mir(upS(SO,stp===2))),C.sole,{noHi:1});
+  add('strapL',and(pip(upS(FT,stp===1)),STR(stp===1)),C.sole,{noHi:1});add('strapR',and(pip(mir(upS(FT,stp===2))),STR(stp===2)),C.sole,{noHi:1});}
+else{add('shoeL',pip(upS(SH,stp===1)),O.shoe==='slip'?C.pinkS:C[O.shoe]);add('shoeR',pip(mir(upS(SH,stp===2))),O.shoe==='slip'?C.pinkS:C[O.shoe]);}
 const STY=O.style;
 if(STY&&STY!=='long')add('shoulder',pip([[12.6,32.6],[27.4,32.6],[28.4,38],[28,52],[12,52],[11.6,38]]),C.skin);
 const STP={cami:[[13.2,35.6],[26.8,35.6],[27.6,38],[27,50],[13,50],[12.4,38]],
@@ -112,7 +121,8 @@ const LKS={short:[[9.4,13],[12.4,13],[12.6,19.6],[10.4,21.4]],oldbun:[[9.4,13],[
  bob:[[8.8,13],[12.6,13],[12.8,22],[12.2,27.5],[11.2,31.6],[8.4,29.4]],
  flip:[[8.8,13],[12.6,13],[12.8,22],[12,27],[9.4,30.4],[6,30.6],[8.2,28]],
  inner:[[8.8,13],[12.6,13],[12.8,22],[13.2,28],[13.8,31.2],[10.4,31.8],[8.6,28.6]],
- twin:[[8.8,13],[12.6,13],[12.8,20],[12.2,24],[9.4,24]]};
+ twin:[[8.8,13],[12.6,13],[12.8,20],[12.2,24],[9.4,24]],
+ longwave:[[7.6,15],[13.4,15],[13.6,24],[14.6,30],[16,35],[17,40],[16.6,44.6],[15.4,49],[14,46],[13,42.4],[13.6,39],[12.2,35.6],[11.2,31],[8.6,27.4],[7.8,22]]};
 const LK=LKS[HA]||LKS.bob;
 add('lockL',pip(LK),C.hair);if(HS!=='tuck')add('lockR',pip(mir(LK)),C.hair);
 const BG={short:pip([[10.4,14],[11.5,9],[15,6],[20,5],[25,6],[28.5,9],[29.6,14],[27.6,11.4],[25.4,12.6],[23.4,10.6],[21,12.2],[18.6,10.4],[16.2,12.4],[13.8,10.8],[11.8,13.6]]),
@@ -133,23 +143,43 @@ if(opt.acc==='beanie'){add('band',and(ell(20,11,11.8,9.4),(x,y)=>y<12.4),C.band)
 if(opt.acc==='phones'){add('band',chain([[9.6,19],[10.4,10],[14,5],[20,3.6],[26,5],[29.6,10],[30.4,19]],1.4),C.band);add('cup',or(ell(9.4,21.6,2.9,3.8),ell(30.6,21.6,2.9,3.8)),C.band,{noHi:1})}
 if(opt.acc==='beret')add('band',or(and(ell(19,8,12.4,5.4),(x,y)=>y<10.6),ell(20,2.4,1.2,1.2)),C.band);
 if(O.scarf){add('scarf',or(pip([[14.2,29.6],[25.8,29.6],[27,34.6],[13,34.6]]),pip([[21.6,33.8],[25.2,33.8],[25.8,45.6],[22.2,45.2]])),C[O.scarf]);}
-// ラスタライズ
-const own=[];const img=[];for(let y=0;y<H;y++){own.push(Array(W).fill(-1));img.push(Array(W).fill(null))}
-R.forEach((r,i)=>{for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(r.f(x+.5,y+.5))own[y][x]=i});
-for(let y=0;y<H;y++)for(let x=0;x<W;x++){const i=own[y][x];if(i<0)continue;const r=R[i],f=r.f,inn=(a,b)=>f(a+.5,b+.5);
-  let k=1;
-  if(!inn(x+1,y))k=3;else if(!inn(x+2,y))k=2;
-  else if(!r.noHi&&(!inn(x-1,y)||!inn(x,y-1)))k=0;
-  // 下の面はかげ
-  if(k<2&&!inn(x,y+1)&&r.n!=='band'&&r.n!=='brim')k=2;
-  img[y][x]=r.c[k];}
-const P=(x,y,c)=>{x=Math.floor(x);y=Math.floor(y);if(y>=0&&y<H&&x>=0&&x<W)img[y][x]=c};
+// ラスタライズ（11/27: 2倍の こまかさ 80x192。 形は 40x96 の 座標の まま）
+// かげ: 横の まるみ（左上から 光）5段＋ 上の 物の 落ちかげ＋ 部品の さかいめ線＋ 髪の すじ。 前の 1ドットの 書きこみ（P）は 2x2 で のる
+const SC=2,XW=W*SC,XH=H*SC;
+const T5=new Map(),t5=c=>{let v=T5.get(c);if(!v){v=c.length>4?c:[c[0],mixc(c[0],c[1]),c[1],c[2],c[3]];T5.set(c,v)}return v};
+const masks=R.map(r=>{const m=new Uint8Array(XW*XH);for(let y=0;y<XH;y++)for(let x=0;x<XW;x++)if(r.f((x+.5)/SC,(y+.5)/SC))m[y*XW+x]=1;return m});
+const ownH=new Int16Array(XW*XH).fill(-1);masks.forEach((m,i)=>{for(let j=0;j<m.length;j++)if(m[j])ownH[j]=i});
+const inM=(i,x,y)=>x>=0&&y>=0&&x<XW&&y<XH&&masks[i][y*XW+x]===1;
+const HAIRN={hairB:1,lockL:1,lockR:1,bang:1};
+const tone=new Int8Array(XW*XH).fill(2);
+for(let y=0;y<XH;y++)for(let x=0;x<XW;x++){const i=ownH[y*XW+x];if(i<0)continue;const r=R[i];
+  let xl=x,xr=x;while(inM(i,xl-1,y))xl--;while(inM(i,xr+1,y))xr++;
+  const wid=xr-xl+1,t=(x-xl+.5)/wid;let k=2;
+  if(r.n==='face'){k=t>.9?3:2;if(!inM(i,x,y+2)&&y>52)k=3}
+  else{if(t<.18&&wid>4)k=1;if(t>.7&&wid>3)k=3;if(t>.88&&wid>6)k=4;if(!inM(i,x+1,y))k=Math.max(k,3);
+    if(!inM(i,x,y+1)&&r.n!=='band'&&r.n!=='brim')k=Math.max(k,3);
+    if(!r.noHi&&!inM(i,x,y-1)&&k<3)k=1;}
+  if(HAIRN[r.n]){const u=x/SC+1.4*Math.sin(y/SC*.55+(x<XW/2?0:2.1)),b=((u%3.2)+3.2)%3.2/3.2;
+    if(b<.22)k=Math.max(0,k-1);else if(b>.8)k=Math.min(4,k+1);}
+  tone[y*XW+x]=k}
+const nmH=(x,y)=>{if(x<0||y<0||x>=XW||y>=XH)return '';const i=ownH[y*XW+x];return i<0?'':R[i].n};
+const MAT=r=>HAIRN[r.n]?'hair':r.c;
+for(let y=0;y<XH;y++)for(let x=0;x<XW;x++){const i=ownH[y*XW+x];if(i<0)continue;const r=R[i],n=r.n;
+  // 落ちかげ（上 2ドットに 前の ちがう 物）
+  for(let j=1;j<=2;j++){const a=ownH[(y-j)*XW+x];if(y-j<0||a==null||a<0||a===i)continue;const ra=R[a];
+    if(a>i||n==='neck'){if(MAT(ra)!==MAT(r)||n==='neck'||/^leg|^sock/.test(n))tone[y*XW+x]=Math.max(tone[y*XW+x],j===1&&(n==='neck'||n==='face')?4:3)}break}
+  // さかいめ線（前の 部品が うしろの 部品に 接する ふち）
+  if(/^(strap|cuffS|knot|hb|pom)/.test(n))continue;
+  for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const xx=x+dx,yy=y+dy;if(xx<0||yy<0||xx>=XW||yy>=XH)continue;const j=ownH[yy*XW+xx];if(j<0||j>=i)continue;const r2=R[j];
+    const skin2=r.c===C.skin&&r2.c===C.skin;if(MAT(r)===MAT(r2)&&!skin2)continue;if(skin2&&!/arm|hand|leg|foot/.test(n))continue;
+    tone[y*XW+x]=Math.max(tone[y*XW+x],skin2?3:4);break}}
+const img=[];for(let y=0;y<XH;y++){const row=Array(XW).fill(null);for(let x=0;x<XW;x++){const i=ownH[y*XW+x];if(i>=0)row[x]=t5(R[i].c)[tone[y*XW+x]]}img.push(row)}
+/* 前の 書きこみ用: 40x96 の own（まん中を 見る）・P は 2x2・P1 は 1ドット */
+const own=[];for(let y=0;y<H;y++){const row=[];for(let x=0;x<W;x++)row.push(ownH[(y*SC+1)*XW+x*SC+1]);own.push(row)}
+const P=(x,y,c)=>{x=Math.floor(x);y=Math.floor(y);if(y>=0&&y<H&&x>=0&&x<W)for(let j=0;j<SC;j++)for(let i=0;i<SC;i++)img[y*SC+j][x*SC+i]=c};
+const P1=(x,y,c)=>{x=Math.floor(x);y=Math.floor(y);if(y>=0&&y<XH&&x>=0&&x<XW)img[y][x]=c};
 const is=(x,y,n)=>own[y]&&own[y][x]>=0&&R[own[y][x]].n===n;
 // かげ
-for(let x=12;x<29;x++){for(let y=12;y<20;y++)if(is(x,y,'face')&&!is(x,y-1,'face')){P(x,y,C.skin[2]);break}}
-for(let x=17;x<=23;x++){P(x,30,C.skin[3]);P(x,31,C.skin[2])}
-for(let x=8;x<32;x++){if(is(x,Math.floor(hem)-1,'skirt'))P(x,Math.floor(hem)-1,C[O.sk][3]);if(is(x,Math.floor(hem)-2,'skirt'))P(x,Math.floor(hem)-2,C[O.sk][2])}
-for(let x=12;x<29;x++)if(is(x,Math.ceil(hem),'legL')||is(x,Math.ceil(hem),'legR')){P(x,Math.ceil(hem),C.skin[3]);P(x,Math.ceil(hem)+1,C.skin[2])}
 if(!O.shorts&&!O.flow&&!O.pants&&!O.noSk&&(!O.skt||O.skt==='pleat'||O.skt==='check'))for(let y=Math.min(60,hem-4)+1;y<hem-2;y++){const t=(y-48)*.13;P(Math.round(12.6-t),y,C[O.sk][2]);P(16,y,C[O.sk][3]);P(23,y,C[O.sk][2]);P(Math.round(27.4+t),y,C[O.sk][3])}
 if(O.flow)for(let y=56;y<hem-2;y+=1){if((y>>1)%3===0){P(15,y,C[O.sk][2]);P(24,y,C[O.sk][3])}}
 if(O.skt==='check'){for(let y=49;y<hem;y++)for(let x=8;x<32;x++)if(is(x,y,'skirt')){if(y%5===2)P(x,y,'#f6e0c0');else if(x%5===2)P(x,y,C[O.sk][2])}}
@@ -162,15 +192,11 @@ if(O.pants){for(let y=60;y<88;y++){P(19,y,C[O.sk][3]);P(20,y,C[O.sk][3])}for(let
 if(O.dots){const D=O.dots;for(let y=34;y<88;y++)for(let x=8;x<32;x++){if(!((x+(y%8<4?0:2))%4===0&&y%4===1))continue;const n=own[y][x]>=0?R[own[y][x]].n:'';if(['torso','armL','armR','skirt'].includes(n))P(x,y,D)}}
 if(O.towel){for(let x=11;x<29;x++){if(is(x,37,'torso'))P(x,37,T[2]);if(is(x,38,'torso'))P(x,38,T[0])}for(let y=37;y<62;y++){const x=Math.round(24+(y-37)*.12);if(is(x,y,'torso'))P(x,y,T[2])}for(let y=40;y<62;y+=4)for(let x=12;x<28;x+=3)if(is(x,y,'torso'))P(x,y,T[0]);[[24,38],[25,39],[23,39]].forEach(([x,y])=>P(x,y,T[3]))}
 if(O.frill)for(let x=8;x<32;x++)if(is(x,Math.floor(hem)-1,'skirt')&&x%2)P(x,Math.floor(hem)-1,'#ffffff');
-if(AP==='down')for(let y=36;y<47;y++){if(is(14,y,'torso'))P(14,y,T[2]);if(is(25,y,'torso'))P(25,y,T[2])}
-if(hem<80)[[16,77],[17,78],[22,77],[23,78]].forEach(([x,y])=>P(x,y,C.skin[2]));
 // 髪のつや（天使の輪）とすじ
-if(!['hat','beanie','cap','beret'].includes(opt.acc)){[[14,10],[15,9],[16,9],[17,8],[18,8],[19,8]].forEach(([x,y])=>P(x,y,C.hair[0]));P(20,8,C.hair[0]);}
+if(!['hat','beanie','cap','beret'].includes(opt.acc)){for(let x=27;x<=43;x++){const y=Math.round(19.6-Math.sqrt(Math.max(0,1-((x-35)/9)**2))*3.4);if(nmH(x,y)==='bang'||nmH(x,y)==='hairB'){P1(x,y,C.hair[0]);if(x%3)P1(x,y+1,t5(C.hair)[1])}}}
 if(opt.acc==='pin'){[[26,10],[25,11],[26,11],[27,11],[26,12],[28,13],[27,14],[28,14],[29,14],[28,15]].forEach(([x,y],i)=>P(x,y,i===2||i===7?'#fff6c0':'#ffc93c'));}
 if(opt.acc==='none'||opt.acc==='pin'){[[19,5],[20,6],[20,7]].forEach(([x,y])=>P(x,y,C.hair[3]))}
 if(opt.acc==='hat'){for(let x=5;x<36;x+=3)if(is(x,10,'brim'))P(x,10,C.straw[2]);for(let x=12;x<29;x+=3)if(is(x,5,'band'))P(x,5,C.straw[2]);}
-(['hat','beanie','cap','beret'].includes(opt.acc)?[]:[[16,9],[22,8],[26,10]]).forEach(([x,y])=>{P(x,y,C.hair[2]);P(x+1,y+1,C.hair[2])});
-for(let y=17;y<29;y++){P(10,y,C.hair[2]);if(HS!=='tuck')P(29,y,C.hair[2])}
 if(HS==='halfup'){[[18,6],[19,6],[20,6],[21,6],[22,6]].forEach(([x,y])=>P(x,y,'#ffc93c'));P(20,3,C.hair[0]);P(19,3,C.hair[0]);}
 if(HS==='buns'){[[9,9],[10,10],[11,10],[12,10],[28,10],[29,10],[30,10],[31,9]].forEach(([x,y])=>P(x,y,'#ffc93c'));P(9,5,C.hair[0]);P(10,4,C.hair[0]);P(28,4,C.hair[0]);P(29,4,C.hair[0]);}
 if(HS==='twin'){[[8,19],[9,19],[9,20],[31,19],[30,19],[30,20]].forEach(([x,y])=>P(x,y,'#ffc93c'));for(let y=23;y<31;y+=2){P(5,y,C.hair[2]);P(34,y,C.hair[2])}}
@@ -195,16 +221,20 @@ const PAT={open:['LLLLL','LDWDD','.DWGD','.GGGD','.GllG','..gg.'],
  aside:['LLLLL','LDDWw','LGGDw','.GGGw','.gll.','.....'],
  wide:['.LLL.','LwwwL','LwDwL','LwGwL','.www.','.....'],
  half:['.....','.....','LLLLL','LDGGD','.GllG','..gg.']};
-const EYE=(m,p)=>PAT[p].forEach((r,j)=>[...r].forEach((c,i)=>{if(c==='.')return;const x=m?39-(12+i):12+i;P(x,18+j,EC[c])}));
+const EYE=(m,p)=>{if(p==='open'&&!opt.dot)return EYEH(m);PAT[p].forEach((r,j)=>[...r].forEach((c,i)=>{if(c==='.')return;const x=m?39-(12+i):12+i;P(x,18+j,EC[c])}))};
+/* 細かい 目（左目。 右は 左右反転）: L まつげ D ひとみ I/G/g 虹彩 W 光 */
+const EYEP=['..LLLLLL..','LLLLLLLLL.','.DDDDDDDD.','.DWWDDDDI.','.DWWDDDII.','.DDDDDWGI.','.IDDDDGGI.','.IIIIGGGI.','.IGGllGGI.','..IGllGI..','...IIII...'];
+const EYEH=m=>{const ec={L:ink,D:EC.D,I:EC.G,G:EC.g,l:EC.l,W:'#ffffff'};EYEP.forEach((r,j)=>[...r].forEach((c,i)=>{if(c==='.')return;const x=24+i;P1(m?79-x:x,36+j,ec[c])}));
+  [[23,37],[22,36],[23,36]].forEach(([x,y])=>P1(m?79-x:x,y,ink))};
 const PX=(m,list,c)=>list.forEach(([x,y])=>P(m?39-x:x,y,c));
 const happy=m=>PX(m,[[12,22],[13,21],[14,20],[15,20],[16,21],[17,22],[13,20]],ink);
 const closed=m=>PX(m,[[12,20],[13,21],[14,21],[15,21],[16,21],[17,20],[11,19]],ink);
 const gt=m=>PX(m,[[13,19],[14,20],[15,21],[16,21],[15,22],[14,23],[13,23]],ink);
 if(opt.eyeC){const e=ramp(opt.eyeC);EC.D=e[3];EC.G=e[1];EC.g=e[0];EC.l=e[0]}
 if(opt.dot){EC.D='#2a2a3a';EC.G='#4a3a3a';EC.g='#6a5a5a';PAT.open=['.....','.....','.DDD.','.DWD.','.DGD.','.....'];PAT.wide=['.....','.DDD.','.DWD.','.DDD.','.....','.....']}
-if(ex==='smile'||ex==='pout'||ex==='sad'){EYE(0,'open');EYE(1,'open');if(!opt.dot){P(11,17,ink);P(28,17,ink)}}
+if(ex==='smile'||ex==='pout'||ex==='sad'){EYE(0,'open');EYE(1,'open')}
 if(ex==='laugh'){happy(0);happy(1)}
-if(ex==='wink'){EYE(0,'open');P(11,17,ink);happy(1)}
+if(ex==='wink'){EYE(0,'open');happy(1)}
 if(ex==='wow'){EYE(0,'wide');EYE(1,'wide')}
 if(ex==='shy'){EYE(0,'aside');EYE(1,'aside');P(11,17,ink);P(28,17,ink)}
 if(ex==='oops'){gt(0);gt(1)}
@@ -233,7 +263,9 @@ const M={smile:[[18,25,'#c0505e'],[19,25,'#8a2038'],[20,25,'#8a2038'],[21,25,'#8
  sad:[[18,26,'#b4294a'],[19,25,'#b4294a'],[20,25,'#b4294a'],[21,25,'#b4294a'],[22,26,'#b4294a']],
  sleep:[[19,25,'#b4294a'],[20,25,'#b4294a'],[20,26,'#d8808a']]};
 const mk=opt.male&&(ex==='smile')?'small':{smile:'smile',laugh:'laugh',wink:'smile',wow:'o',shy:'small',oops:'wavy',sleepy:'small',sleep:'sleep',sad:'sad',pout:'flat'}[ex];
-M[mk].forEach(([x,y,c])=>P(x,y,c));
+if(mk==='smile'&&!opt.male){const d='#8a2038',m='#c84060',t='#ff8fa3';P1(35,49,d);P1(44,49,d);for(let x=36;x<=43;x++)P1(x,50,d);P1(36,51,d);P1(43,51,d);for(let x=37;x<=42;x++)P1(x,51,x<39||x>40?m:t);P1(37,52,d);P1(42,52,d);for(let x=38;x<=41;x++)P1(x,52,t);for(let x=38;x<=41;x++)P1(x,53,d)}
+else if(mk==='laugh'){const d='#8a2038',m='#b4294a',t='#ff8fa3';for(let x=34;x<=45;x++)P1(x,50,d);P1(34,51,d);P1(45,51,d);for(let x=35;x<=44;x++)P1(x,51,x<37||x>42?m:'#ffffff');P1(35,52,d);P1(44,52,d);for(let x=36;x<=43;x++)P1(x,52,x<38||x>41?m:t);P1(36,53,d);P1(43,53,d);for(let x=37;x<=42;x++)P1(x,53,t);for(let x=37;x<=42;x++)P1(x,54,d)}
+else M[mk].forEach(([x,y,c])=>P(x,y,c));
 if(ex==='pout'){P(10,24,C.skin[1]);P(29,24,C.skin[1])}
 if(ex==='oops'){[[31,15],[31,16],[30,17],[31,17],[32,17],[31,18]].forEach(([x,y])=>P(x,y,'#8fd3ff'))}
 if(ex==='sad'){[[17,24],[17,25],[16,26]].forEach(([x,y])=>P(x,y,'#8fd3ff'))}
@@ -247,10 +279,11 @@ if(STY==='halter'){[[16,35],[17,34],[18,33],[19,32],[23,35],[22,34],[21,33],[20,
 if(STY==='bikini'){[[15,33],[15,34],[15,35],[24,33],[24,34],[24,35]].forEach(([x,y])=>P(x,y,T[2]));P(20,37,T[3]);P(20,38,T[3]);}
 if(STY==='crop'||STY==='bikini'){P(20,46,C.skin[3]);for(let x=13;x<28;x++)if(is(x,STY==='crop'?44:41,'shoulder'))P(x,STY==='crop'?44:41,C.skin[2]);}
 if(STY==='offknit'){for(let y=37;y<57;y++)for(let x=12;x<29;x+=3)if(is(x,y,'torso'))P(x,y,T[2]);for(let x=11;x<29;x++){if(is(x,57,'torso'))P(x,57,T[3]);if(is(x,36,'torso'))P(x,36,T[0])}[[19,33],[20,33],[21,34],[16,35],[24,35]].forEach(([x,y])=>P(x,y,C.skin[2]));}
+if(O.shorts){for(let x=8;x<32;x++){if(is(x,57,'skirt'))P(x,57,C[O.sk][0]);}P(20,49,'#e8c070');if(O.sk==='denim'){P(15,50,C[O.sk][0]);P(25,50,C[O.sk][0])}}
 if(O.sheen){[[16,40],[17,41],[17,52],[18,55],[18,58],[23,44],[24,50]].forEach(([x,y])=>{if(own[y][x]>=0)P(x,y,T[0])})}
 if(O.robe){for(let y=33;y<46;y++){const d=Math.round((y-33)*.35);P(19-d+3,y,T[2]);}for(let y=47;y<60;y++)P(22,y,T[2]);[[18,33],[19,34],[20,35],[21,36],[19,33],[20,34],[20,33]].forEach(([x,y])=>P(x,y,C.skin[1]));P(19,35,C.skin[2]);}
 if(O.pareo){[[14,49],[13,50],[15,50],[14,51],[13,52]].forEach(([x,y])=>P(x,y,C[O.pareo][2]));for(let y=52;y<62;y+=3)P(Math.round(17+(y-52)*.5),y,C[O.pareo][2]);}
-if(STY&&STY!=='crop'){P(18,34,C.skin[2]);P(21,34,C.skin[2]);P(20,33,C.skin[2]);}
+if(STY&&STY!=='crop'){[[34,67],[35,68],[36,68],[45,67],[44,68],[43,68]].forEach(([x,y])=>P1(x,y,C.skin[2]));}
 if(O.sl==='off'){for(let x=12;x<=27;x++)if(x%2)P(x,36,'#ffffff');P(19,33,C.skin[2]);P(20,33,C.skin[2]);P(16,34,C.skin[2]);P(24,34,C.skin[2]);}
 if(O.print==='border'){for(let y=35;y<48;y+=3)for(let x=8;x<32;x++)if(is(x,y,'torso')||is(x,y,'armL')||is(x,y,'armR'))P(x,y,C.navy[1])}
 if(O.print==='star'){[[20,39],[19,40],[20,40],[21,40],[20,41],[18,40],[22,40],[19,42],[21,42]].forEach(([x,y])=>P(x,y,'#ffc93c'))}
@@ -267,13 +300,12 @@ for(let x=18;x<=22;x+=2)P(x,52,O.apron==='apron'?'#c8d8f0':A[0]);
 for(let x=13;x<=27;x+=2)P(x,ab-2,O.apron==='apron'?'#a8c0e0':A[0]);for(let y=50;y<ab-2;y+=2){P(13,y,A[2]);P(26,y,A[3])}
 P(18,40,A[2]);P(19,40,A[2]);P(20,40,A[2]);P(18,41,A[2]);P(19,41,'#ffd23f');P(19,42,'#ff7a7a');
 P(13,48,A[3]);P(26,48,A[3]);}
-if(AP==='down'&&!stp){P(12,59,C.skin[2]);P(13,59,C.skin[2]);P(26,59,C.skin[2]);P(27,59,C.skin[2]);}
-if(O.shoe!=='slip'){P(13,93,C.shoe[0]);P(14,92,C.shoe[0]);P(25,92,C.shoe[0]);P(26,93,C.shoe[0]);}
+if(O.shoe!=='slip'&&O.shoe!=='sandal'){P(13,93,C.shoe[0]);P(14,92,C.shoe[0]);P(25,92,C.shoe[0]);P(26,93,C.shoe[0]);}
 if(O.socks){P(15,85,C.sock[2]);P(24,85,C.sock[2]);}
 // アウトライン（となりの色を暗くする）
 const dk=(h,a)=>{const n=parseInt(h.slice(1),16);const f=v=>Math.round(v*a);return `rgb(${f(n>>16)},${f((n>>8)&255)},${f(n&255)})`};
 const out=img.map(r=>r.slice());
-for(let y=0;y<H;y++)for(let x=0;x<W;x++){if(img[y][x])continue;
+for(let y=0;y<XH;y++)for(let x=0;x<XW;x++){if(img[y][x])continue;
   for(const[dx,dy]of[[0,1],[1,0],[-1,0],[0,-1]]){const yy=y+dy,xx=x+dx;if(img[yy]&&img[yy][xx]){const c=img[yy][xx];out[y][x]=c.startsWith('#')?dk(c,.42):'#3a2a2a';break}}}
 return out}
 /* ================================================================ 服と 髪型 */
@@ -287,6 +319,7 @@ const OUT=[
  {id:'check',n:'チェックの スカート',en:"Plaid skirt. Very autumn, very me.",ja:'チェックの スカート。 秋っぽくて わたしっぽい。',acc:'pin',o:{top:'tee',sl:'short',apron:'apron',sk:'plaid',skt:'check',hem:66,neck:'round'},w:1},
  {id:'flare',n:'フレアスカート',en:"This skirt spins when I turn! Look!",ja:'この スカート、 回ると ふわって なるの！ 見て！',acc:'ribbon',o:{top:'tee',sl:'short',apron:null,sk:'coral',skt:'flare',hem:68,neck:'round'},w:1},
  {id:'long',n:'ロングスカート',en:"Long skirt today. Feeling calm.",ja:'きょうは ロングスカート。 おちついた 気分。',acc:'pin',o:{top:'tee',sl:'short',apron:'apron',sk:'mint',skt:'maxi',hem:86,flow:1,socks:0,neck:'round'},w:1},
+ {id:'tank',n:'白タンクと デニム',en:"White tank top and denim shorts. Beach style!",ja:'白い タンクトップと デニムの ショートパンツ。 浜辺スタイル！',acc:'none',hair:'longwave',o:{style:'cami',top:'tee',sl:'none',apron:null,sk:'denim',shorts:1,hem:60,neck:'none',socks:0,shoe:'sandal'},w:3},
  {id:'tight',n:'タイトスカート',en:"Tight skirt. I'm a serious shop clerk today.",ja:'タイトスカート。 きょうは まじめな 店員さん。',acc:'none',o:{top:'shirt',sl:'long',apron:null,sk:'black',skt:'tight',hem:63,btn:1},w:1},
 ];
 const SUMMER=[
@@ -310,7 +343,7 @@ const NIGHT=[
  {id:'room',n:'ふわふわ ルームウェア',acc:'pin',o:{style:'cami',top:'lav',sl:'none',apron:null,sk:'lav',shorts:1,hem:60,neck:'none',dots:'#ffffff',socks:0,shoe:'slip'},w:1},
  {id:'robe',n:'ガウン',acc:'none',o:{style:'long',top:'towel',sl:'long',cuff:'towel',apron:null,noSk:1,hem:62,neck:'none',robe:1,belt:'pinkS',socks:0,shoe:'slip'},w:1},
 ];
-const HAIRS=[['bob','いつもの ボブ',4],['flip','外はね',1],['inner','内まき',1],['wavy','ゆるふわ',1],['halfup','ハーフアップ',1],['buns','おだんご 2つ',1],['twin','ちょこんと ツイン',1],['center','センターわけ',1],['side','ななめ 前髪',1],['tuck','かたほう 耳かけ',1],['braid','あみこみ',1]];
+const HAIRS=[['longwave','ゆるふわロング',4],['bob','ボブ',2],['flip','外はね',1],['inner','内まき',1],['wavy','ゆるふわ',1],['halfup','ハーフアップ',1],['buns','おだんご 2つ',1],['twin','ちょこんと ツイン',1],['center','センターわけ',1],['side','ななめ 前髪',1],['tuck','かたほう 耳かけ',1],['braid','あみこみ',1]];
 /* 日付から きまる 数（同じ 日は 同じ 服） */
 const dayKey=()=>{const d=new Date();return d.getFullYear()*1000+d.getMonth()*40+d.getDate()};
 const rnd=s=>{s=Math.imul(s^0x9e3779b9,0x85ebca6b);s^=s>>>13;s=Math.imul(s,0xc2b2ae35);s^=s>>>16;return (s>>>0)/4294967296};
@@ -322,9 +355,10 @@ function look(night){const k=dayKey(),L=night?NIGHT:summer()?OUT.concat(SUMMER):
 
 /* ================================================================ 絵に する */
 const CACHE=new Map();
+const RGB=new Map();function rgbOf(v){let q=RGB.get(v);if(q)return q;if(v[0]==='#'){if(v.length===4)v='#'+[...v.slice(1)].map(c=>c+c).join('');const n=parseInt(v.slice(1,7),16);q=[n>>16,(n>>8)&255,n&255]}else q=(v.match(/\d+/g)||[0,0,0]).slice(0,3).map(Number);RGB.set(v,q);return q}
 function sprite(o){const k=JSON.stringify(o);let c=CACHE.get(k);if(c)return c;
-  const out=build(o);c=document.createElement('canvas');c.width=W;c.height=H;const s=c.getContext('2d');
-  for(let y=0;y<H;y++)for(let x=0;x<W;x++)if(out[y][x]){s.fillStyle=out[y][x];s.fillRect(x,y,1,1)}
+  const out=build(o),OH=out.length,OW=out[0].length;c=document.createElement('canvas');c.width=OW;c.height=OH;const s=c.getContext('2d');
+  const id=s.createImageData(OW,OH),D=id.data;for(let y=0;y<OH;y++)for(let x=0;x<OW;x++){const v=out[y][x];if(!v)continue;const q=rgbOf(v),j=(y*OW+x)*4;D[j]=q[0];D[j+1]=q[1];D[j+2]=q[2];D[j+3]=255}s.putImageData(id,0,0)
   if(CACHE.size>80)CACHE.delete(CACHE.keys().next().value);CACHE.set(k,c);return c}
 function draw(c,x,y,pose='stand',f=0,opt={}){const L=(window.MIOPX&&MIOPX.look||look)(!!opt.night);
   let arm='down',ex='smile',step=0,bx=0;
@@ -374,9 +408,13 @@ Object.assign(MINA_LINES,{
   ['wink','「{n}」… ミオさん、 毎日 服を かえてるんだね。 「What a cute outfit!」も つかえるよ'],
   ['smile','服の 英語、 ミオさんで おぼえちゃおう。 スカートは skirt、 エプロンは apron、 ワンピースは dress だよ']],
  x_mioLook:[['smile','きょうの ミオさんは 「{n}」 らしいよ。 お店で 会ったら 「Nice {w}!」って 言って みて'],
-  ['happy','ミオさん、 きょうは 「{n}」 なんだって。 服の ほめ方、 英語で ためして みたら？']]});
-const W1={usual:'apron',pink:'apron',border:'stripes',noapron:'shirt',mini:'skirt',off:'top',check:'skirt',flare:'skirt',long:'skirt',tight:'skirt',tee:'T-shirt',dress:'dress',cami:'shorts',crop:'top',halter:'dress',swim:'swimsuit',bikini:'pareo'};
+  ['happy','ミオさん、 きょうは 「{n}」 なんだって。 服の ほめ方、 英語で ためして みたら？']],
+ x_mioTank:[['smile','きょうの ミオさん、 白い タンクトップに デニムの ショートパンツだって。 英語でも tank top。 ショートパンツは shorts で、 足が 2つ だから いつも s が つくよ'],
+  ['happy','ゆるふわの ロングヘアの ミオさん、 見た？ 「Your hair looks great!」って ほめて みよう。 hair は ふつう s を つけないよ'],
+  ['wink','デニムは 英語で denim、 ジーンズは jeans。 jeans も shorts と 同じで いつも s つき。 pants（ズボン）も そうだよ']]});
+const W1={tank:'tank top',usual:'apron',pink:'apron',border:'stripes',noapron:'shirt',mini:'skirt',off:'top',check:'skirt',flare:'skirt',long:'skirt',tight:'skirt',tee:'T-shirt',dress:'dress',cami:'shorts',crop:'top',halter:'dress',swim:'swimsuit',bikini:'pareo'};
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(['x_mioLook',1,()=>{let h=12;try{h=GH()}catch(e){}if(h<9||h>=21)return null;const L=MIOPX.look(false);return {n:L.n,w:W1[L.id]||L.w||'outfit'}},()=>window.SHOP&&SHOP.open?['🃏 ミオに 会いに',()=>SHOP.open()]:null]);
+if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(['x_mioTank',1.2,()=>{let h=12;try{h=GH()}catch(e){}if(h<9||h>=21)return null;return MIOPX.look(false).id==='tank'?{}:null},()=>window.SHOP&&SHOP.open?['🃏 ミオに 会いに',()=>SHOP.open()]:null]);
 (window.MINA_REACT_EXT=window.MINA_REACT_EXT||{}).mioLook={act:e=>['r_mioLook',{n:e.ja||'いつもの'}],desc:e=>`ミオの きょうの 服（${e.ja||''}）を 見た`};
 /* お店で その日 はじめて 会った とき、 ミオが 服の ことを ひとこと（1日 1回） */
 window.MIOPX.hello=()=>{const L=MIOPX.look(false),d=new Date().toDateString();let k='';try{k=localStorage.getItem('hoshi_mioLook')||''}catch(e){}

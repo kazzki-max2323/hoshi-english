@@ -82,7 +82,7 @@ function mioNight(r){const pj=r()<.35,c1=pk(r,NCOL),c2=pj?c1:pk(r,NCOL);
   const o=Object.assign({top:'gtop',cuff:'gtop',sk:'glow',apron:null,socks:0,shoe:'slip',print:pr[0]==='dots'?null:pr[0]||null,dots:pr[0]==='dots'?'#ffffff':null},top.o,bot.o,{hem:bot.h});
   if(top.o.style==='cami')o.print=null;
   const n=pj?`${pr[1]}${cn(c1)[1]} パジャマ`:`${cn(c1)[1]} ${top.ja}と ${cn(c2)[1]} ${bot.ja}`;
-  return {id:'nmix',n,acc:r()<.25?'pin':'none',hair:r()<.5?'bob':wp(r,HAIRS,x=>x[2])[0],o,pal:{gtop:cn(c1)[0],gin:cn(c1)[0],glow:cn(c2)[0],gshoe:'#f497b4'}}}
+  return {id:'nmix',n,acc:r()<.25?'pin':'none',hair:r()<.5?'longwave':wp(r,HAIRS,x=>x[2])[0],o,pal:{gtop:cn(c1)[0],gin:cn(c1)[0],glow:cn(c2)[0],gshoe:'#f497b4'}}}
 const LC={};
 MIOPX.look=night=>{const k=dayK()+(night?.5:0);if(LC[k])return LC[k];
   const r=rng(dayK()*13+(night?7:3));let L;

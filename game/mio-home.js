@@ -31,7 +31,7 @@ function open(back){back=back||(()=>SHOP.open());const s=state(),M=HR(),RO=roomO
   const talked=M.td===CG.today(),all=MIOROOM.ids(RO),found=all.filter(id=>RO.seen[id]).length;
   H.show('cg',`<section class="pnl cgp shp mhp">
     <div class="qtop"><button class="x" id="mhx" aria-label="もどる">←</button><b>🏠 2階（ミオの へや）</b><span class="qn">${pad(gh())}</span></div>
-    <div class="shstage mhst"><canvas id="mhcv" width="${W*2}" height="${HH*2}"></canvas></div>
+    <div class="shstage mhst"><canvas id="mhcv" width="${W*4}" height="${HH*4}"></canvas></div>
     <p class="shst">${st}</p>
     <p class="mhfind" id="mhfind">${found<all.length?`👆 へやの 物を タップ <small>🔍 ${found}/${all.length}</small>`:`🔍 へやの 物 ぜんぶ 見た！`}</p>
     <div id="mhbox"></div>
@@ -40,7 +40,7 @@ function open(back){back=back||(()=>SHOP.open());const s=state(),M=HR(),RO=roomO
   </section>`);
   $('mhx').onclick=()=>{sf('back');stop();back()};
   const cv=$('mhcv'),c=cv.getContext('2d');c.imageSmoothingEnabled=false;let f=0,last=0;stop();
-  const a=anim={on:true};const tick=now=>{if(!a.on||!cv.isConnected)return;requestAnimationFrame(tick);if(now-last<160)return;last=now;f++;c.setTransform(2,0,0,2,0,0);c.imageSmoothingEnabled=false;MIOROOM.draw(c,state(),f,RO)};requestAnimationFrame(tick);
+  const a=anim={on:true};const tick=now=>{if(!a.on||!cv.isConnected)return;requestAnimationFrame(tick);if(now-last<160)return;last=now;f++;c.setTransform(4,0,0,4,0,0);c.imageSmoothingEnabled=false;MIOROOM.draw(c,state(),f,RO)};requestAnimationFrame(tick);
   cv.onclick=e=>{const r=cv.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*W,y=(e.clientY-r.top)/r.height*HH,s2=state(),id=MIOROOM.hit(x,y,s2,RO);if(!id)return;
     if(id==='mio'){sf('step');MIOROOM.mioTalk({until:Date.now()+2600});return talk(s2,back)}
     RO.hl={id,until:Date.now()+1400};look(id,s2,RO,back)};

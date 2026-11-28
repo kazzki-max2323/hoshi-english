@@ -414,7 +414,7 @@ function toFloor(){pause(CT);floor()}
 function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.paused<15*6e4?CT:null;if(CT){CT.alive=false;if(!old&&CT.talk){CT.talk.alive=false;CT.talk=null}}const S=SH();cleanFloor();
   const hrO=window.HOURS?HOURS.isOpen('cg'):true,hrP=window.HOURS&&HOURS.isPrep('cg');
   H.show('cg',`<section class="pnl cgp shp shctr shmain">${top('🃏 カードショップ',`きょう 🪙${S.tday===C.today()?S.tearn:0}`,'cgx')}
-    <div class="shstage"><canvas id="shcv" width="${W*2}" height="${HH*2}"></canvas><div class="shcase" id="shcase"></div><div class="shnotes" id="shnotes"></div><div class="shfls" id="shfls"></div></div>
+    <div class="shstage"><canvas id="shcv" width="${W*4}" height="${HH*4}"></canvas><div class="shcase" id="shcase"></div><div class="shnotes" id="shnotes"></div><div class="shfls" id="shfls"></div></div>
     <div class="shnav">${navBtns()}</div>
     <p class="shst" id="shst">${hrO?'🔔 開店中。 レジは ミオに まかせて、 原石を みがこう':hrP?'🧹 開店 じゅんび中（9時 開店）。 原石の 作業は いつでも できるよ':'🌙 閉店中（9時〜21時）。 ミオは 2階に いるよ。 原石の 作業は いつでも できるよ'}</p>
     <div id="shact" class="shact"></div>
@@ -436,14 +436,14 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
     if(window.MIOCT&&!mioUp(T)&&x>m.x-8&&x<m.x+22&&y>m.y-20&&y<m.y+36){sf('tap');tapMio()}};
   cv.style.cursor='pointer'
   let last=0;
-  const tick=now=>{if(!T.alive||!cv.isConnected){T.alive=false;return}requestAnimationFrame(tick);if(now-last<140)return;last=now;T.f++;step(T);c.setTransform(2,0,0,2,0,0);c.imageSmoothingEnabled=false;   // 2倍の こまかさ（ミオの ドット絵は game/mio-pix.js）
+  const tick=now=>{if(!T.alive||!cv.isConnected){T.alive=false;return}requestAnimationFrame(tick);if(now-last<140)return;last=now;T.f++;step(T);c.setTransform(4,0,0,4,0,0);c.imageSmoothingEnabled=false;   // 2倍の こまかさ（ミオの ドット絵は game/mio-pix.js）
     const d=night(),t=d>.6?'night':d>.25?'dusk':'day';
     room(c,t,T.f);if(window.SHDECO)SHDECO.back(c,t,T.f);table(c,SH().floor.length,t);
     /* Mio: behind the counter, or out on the floor sweeping */
-    const m=T.mio;if(m.walk){const dx=m.walk-m.x;if(Math.abs(dx)<1){m.x=m.walk;m.walk=null}else m.x+=Math.sign(dx)}
+    const m=T.mio;if(m.walk){const dx=m.walk-m.x;if(Math.abs(dx)<1){m.x=m.walk;m.walk=null}else m.x+=Math.sign(dx);m.dir=Math.sign(dx)}
     const behind=m.y<60;
     const g=T.g;if(g&&g.y+32<=m.y+32){guest(c,g.x,g.y,g.L,g.pose,T.f>>1)}
-    const mo={night:!!T.down};if(mioUp(T))desk(c);else if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1,mo);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1,mo)}
+    const mo={night:!!T.down,dir:m.dir};if(mioUp(T))desk(c);else if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1,mo);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1,mo)}
     if(g&&g.y+32>m.y+32)guest(c,g.x,g.y,g.L,g.pose,T.f>>1);
     showcase(c,T.f);const on=!!H.shopSongId;player(c,on,T.f);if(window.SHDECO)SHDECO.front(c,t,T.f);
     if(g&&g.bub&&!(T.mu.who==='g'&&T.mu.until>Date.now()))bub(c,g.x+11,g.y-(window.MIOPX?25:9),g.bub);
@@ -478,6 +478,7 @@ const MIO_OPEN=[["We're open! Welcome to Shiosai!","開店でーす！ しおさ
 const MIO_CLOSE=[["Closing time! Good work today, boss.","閉店の 時間！ きょうも おつかれさまでした、 店長。"],["I'll turn the sign to CLOSED. You can keep polishing, OK?","札を CLOSEDに しますね。 原石は そのまま みがいて いいですよ。"]];
 const MIO_PREP=[["Good morning! We open at nine. Did you pick up stones on the beach?","おはようございます！ 9時に 開店です。 浜辺で 原石、 ひろってきました？"],["Getting ready… I'll wipe the counter. You can polish stones!","開店じゅんび… わたしは カウンターを ふきますね。 店長は 原石を どうぞ！"]];
 const MIO_CLOSED=[["We're closed, but the workbench is always open for you.","閉店中だけど、 作業台は いつでも あいてますよ。"],["It's quiet after closing. Perfect for polishing stones.","閉店後は しずか。 原石みがきに ぴったりですね。"]];
+const MIO_OOPS=[["Oops! …You didn't see that, right?","おっと！ …いまの、 見てないよね？"],["Whoa— I tripped! I'm OK, I'm OK!","わっ— つまずいた！ だいじょうぶ、 だいじょうぶ！"],["Oopsie. The floor attacked me.","おっとっと。 床に こうげき された。"]];
 const ORE_MIO_OK=[["A new card! Nice work, boss!","新しい カード！ おつかれさま、 店長！"],["Wow, shiny! I'll make room on the shelf.","わあ、 ぴかぴか！ 売り場、 あけておきますね。"],["You did it! That one looks great.","やったね！ その カード、 すてき。"]];
 /* 売り場から もどったとき: さっきの つづき */
 function resume(T){if(T.keep){const k=T.keep;T.keep=null;if(T.talk&&T.talk.alive)$('shact').replaceWith(k);else T.talk=null}
@@ -499,8 +500,9 @@ function endTalk(T){const k=T.talk;if(!k)return;if(k.close)k.close();k.alive=fal
 function mioIdle(T){const m=T.mio,now=Date.now();if(now<m.until||m.walk)return;if(T.talk&&!T.talk.done){m.pose='stand';m.until=now+2000;return}const d=night();
   const r=Math.random();
   if(d>.6&&r<.5){m.pose='doze';m.until=now+6000;return}
+  if(r>.96&&window.MIOGIF&&MIOGIF.has('oops')){m.pose='oops';m.until=now+3200;mut(T,'m',pickL(MIO_OOPS),3800,1);return}   // ときどき つまずく
   if(r<.35){m.walk=pickL([142,152,164,172]);m.pose=pickL(['sweep','stand']);m.until=now+5000}
-  else{m.pose=pickL(['stand','stand','sweep','wave']);m.until=now+3000+Math.random()*4000}}
+  else{m.pose=pickL(['stand','stand','sweep','wave','stand','cheer']);m.until=now+3000+Math.random()*4000}}
 /* the guest walks: door → shelf → table → (counter) → door
    台（x70〜128・y80〜101）の 上に 乗って 見えないように: 台では 向こう側（足 y78）に 立ち、
    レジへは 台と カウンターの すきま（x126）を 通って 足 y96 へ（その下は 花だんなどの かざり） */
