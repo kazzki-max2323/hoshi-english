@@ -3,36 +3,44 @@
      （sw.js の CORE には 入れない。 読んだ 絵は sw.js が 'hoshienglish-mio' に のこす）
    - 動き: stand（ときどき blink）・wave・walk（左へ 歩く ときは 左右反転）。 ない 動きは stand で 描く
    - 読みこめなかった ときや GIF の 見た目が ない ときは、 前の ドット絵（MIOPX.draw）の まま
+   - night:true の 見た目（パジャマ）は 夜（opt.night: 2階・夜に 下りて くる とき）だけ。 はじめて 夜に 描く ときに 読む
    - localStorage hoshi_mioGif = 'off' で 前の ドット絵、 = '<服>_<髪>' で その 見た目に 固定 */
 (()=>{if(!window.MIO||MIO.gif0)return;
 const BASE='assets/mio/',prev=MIO.draw;MIO.gif0=prev;
 const ALIAS={cheer:'wave',sweep:'stand',doze:'stand',hold:'shy',shy:'stand',oops:'stand',happy:'wave'};
-let IDX=null,cur=null,fail=false,t0=0;const M={};   // M[動き] = {m: json, im: Image, ok}
+let IDX=null,cur=null,curN=null,fail=false,t0=0;const LK={};   // LK[見た目][動き] = {m: json, im: Image, ok}
 function pref(){try{return localStorage.getItem('hoshi_mioGif')||''}catch(e){return ''}}
 function dayN(){const d=new Date();return d.getFullYear()*400+d.getMonth()*31+d.getDate()}
-function pickLook(){if(!IDX)return null;const ks=Object.keys(IDX.looks||{}).filter(k=>(IDX.looks[k].motions||[]).includes('stand'));if(!ks.length)return null;
+function has(k,mo){return ((IDX.looks[k]||{}).motions||[]).includes(mo)}
+function pickLook(){if(!IDX)return null;const ks=Object.keys(IDX.looks||{}).filter(k=>has(k,'stand')&&!IDX.looks[k].night);if(!ks.length)return null;
   const p=pref();if(p==='off')return null;if(ks.includes(p))return p;
-  /* 日がわり: 歩きも そろった 見た目だけ（立ち姿のまま すべって 歩かない ように）。 base（いつもの）は 半分くらいの 日 */
-  const full=ks.filter(k=>IDX.looks[k].motions.includes('walk')&&IDX.looks[k].rot!==false)   // rot:false＝ためしの 見た目（日がわりに 出さない）,base=IDX.base&&full.includes(IDX.base)?IDX.base:null,oth=full.filter(k=>k!==base),d=dayN();
-  if(!full.length)return ks[0];if(base&&(!oth.length||(d*7919)%10<5))return base;return (oth.length?oth:full)[(d*31)%(oth.length||full.length)]}
-function loadMotion(look,k){const o=M[k]={ok:0};
+  /* 日がわり: 歩きも そろった 見た目だけ（立ち姿のまま すべって 歩かない ように）。 rot:false＝ためしの 見た目は 出さない。 base（いつもの）は 半分くらいの 日 */
+  const full=ks.filter(k=>has(k,'walk')&&IDX.looks[k].rot!==false),base=IDX.base&&full.includes(IDX.base)?IDX.base:null,oth=full.filter(k=>k!==base),d=dayN();
+  if(!full.length)return IDX.base&&ks.includes(IDX.base)?IDX.base:ks[0];
+  if(base&&(!oth.length||(d*7919)%10<5))return base;return oth[(d*31)%oth.length]}
+/* 夜の 見た目（night:true の パジャマ など）。 2階・夜に 下りて くる とき（opt.night） */
+function pickNight(){if(!IDX)return null;const p=pref();if(p&&IDX.looks[p]&&IDX.looks[p].night)return p;
+  const ns=Object.keys(IDX.looks||{}).filter(k=>IDX.looks[k].night&&has(k,'stand'));return ns.length?ns[dayN()%ns.length]:null}
+function loadMotion(look,k){const o=(LK[look]=LK[look]||{})[k]={ok:0};
   fetch(BASE+look+'/'+k+'.json').then(r=>{if(!r.ok)throw 0;return r.json()}).then(m=>{o.m=m;const im=new Image();
-    im.onload=()=>{o.im=im;o.ok=1};im.onerror=()=>{o.ok=-1;if(k==='stand')fail=true};im.src=BASE+look+'/'+(m.img||k+'.png')}).catch(()=>{o.ok=-1;if(k==='stand')fail=true})}
+    im.onload=()=>{o.im=im;o.ok=1};im.onerror=()=>{o.ok=-1};im.src=BASE+look+'/'+(m.img||k+'.png')}).catch(()=>{o.ok=-1})}
+function loadLook(look){if(!look||LK[look])return;const L=IDX.looks[look];['stand'].concat(L.motions.filter(k=>k!=='stand')).forEach(k=>loadMotion(look,k))}
 function start(){if(IDX||t0)return;t0=Date.now();
-  fetch(BASE+'index.json').then(r=>{if(!r.ok)throw 0;return r.json()}).then(j=>{IDX=j;cur=pickLook();if(!cur){fail=true;return}
-    const L=IDX.looks[cur];['stand'].concat(L.motions.filter(k=>k!=='stand')).forEach(k=>loadMotion(cur,k))}).catch(()=>{fail=true})}
+  fetch(BASE+'index.json').then(r=>{if(!r.ok)throw 0;return r.json()}).then(j=>{IDX=j;cur=pickLook();curN=pickNight();if(!cur){fail=true;return}loadLook(cur)}).catch(()=>{fail=true})}
 /* 見た目の 名前・服の ひとこと（MIOPX.look）も GIF の 服に あわせる（index.json の pix ＝ mio-pix.js の 服の id） */
-if(window.MIOPX&&MIOPX.look){const lk=MIOPX.look;MIOPX.look=night=>{if(cur&&!fail){const L=IDX.looks[cur],o=L.pix&&(MIOPX.OUT||[]).concat(MIOPX.SUMMER||[]).find(x=>x.id===L.pix);if(o)return o;
-    if(L.en)return Object.assign({},lk(night),{id:cur,n:L.name,en:L.en,ja:L.ja,w:L.w})}return lk(night)}}
-function frameOf(k,now){const o=M[k];const m=o.m;return Math.floor(now/m.ms)%m.n}
+if(window.MIOPX&&MIOPX.look){const lk=MIOPX.look;MIOPX.look=night=>{const id=night&&curN?curN:cur;if(id&&!fail){const L=IDX.looks[id],o=L.pix&&(MIOPX.OUT||[]).concat(MIOPX.SUMMER||[]).find(x=>x.id===L.pix);if(o)return o;
+    if(L.en)return Object.assign({},lk(night),{id,n:L.name,en:L.en,ja:L.ja,w:L.w})}return lk(night)}}
+const ok=(M,k)=>M[k]&&M[k].ok===1;
 function draw(c,x,y,pose,f,opt){opt=opt||{};start();
   if(fail||pref()==='off')return prev(c,x,y,pose,f,opt);
-  if(!M.stand||M.stand.ok!==1){if(Date.now()-t0>4000)return prev(c,x,y,pose,f,opt);return}   // 読みこみ中は 描かない（ちがう 絵が 一瞬 出ないように）
-  let k=M[pose]&&M[pose].ok===1?pose:ALIAS[pose]&&M[ALIAS[pose]]&&M[ALIAS[pose]].ok===1?ALIAS[pose]:'stand';
+  let look=cur;if(opt.night&&curN){loadLook(curN);if(ok(LK[curN],'stand'))look=curN}   // パジャマが 読めるまでは ふだんの 服
+  const M=LK[look]||{};
+  if(!ok(M,'stand')){if(Date.now()-t0>4000)return prev(c,x,y,pose,f,opt);return}   // 読みこみ中は 描かない（ちがう 絵が 一瞬 出ないように）
+  let k=ok(M,pose)?pose:ALIAS[pose]&&ok(M,ALIAS[pose])?ALIAS[pose]:'stand';
   const now=performance.now();
   /* まばたき: 4.2びょうに 1回 くらい */
-  if(k==='stand'&&M.blink&&M.blink.ok===1){const b=M.blink.m,ph=(now+x*37)%4200;if(ph<b.n*b.ms)k='blink'}
-  const o=M[k],m=o.m,i=k==='blink'?Math.min(m.n-1,Math.floor(((now+x*37)%4200)/m.ms)):frameOf(k,now);
+  if(k==='stand'&&ok(M,'blink')){const b=M.blink.m,ph=(now+x*37)%4200;if(ph<b.n*b.ms)k='blink'}
+  const o=M[k],m=o.m,i=k==='blink'?Math.min(m.n-1,Math.floor(((now+x*37)%4200)/m.ms)):Math.floor(now/m.ms)%m.n;
   const flip=m.face&&m.face!=='front'&&((m.face==='right'&&opt.dir<0)||(m.face==='left'&&opt.dir>0));
   const t=c.getTransform(),s=(t.a||1)/4,fx=x+7,fy=y+32+(opt.dy||0);   // 絵は 1マス＝4ドット
   const W=m.w*s,H=m.h*s,X=Math.round(t.e+fx*(t.a||1)-(flip?m.w-m.fx:m.fx)*s),Y=Math.round(t.f+fy*(t.d||1)-m.fy*s);
@@ -41,7 +49,7 @@ function draw(c,x,y,pose,f,opt){opt=opt||{};start();
   c.restore();
   if(pose==='doze'){c.fillStyle='#cfe3ff';c.font='5px monospace';c.fillText(f%2?'z':'Z',x+16,y-12-(f%2)*2)}}
 MIO.draw=draw;
-window.MIOGIF={start,get look(){return cur},get ready(){return !!(M.stand&&M.stand.ok===1)},get index(){return IDX}};
+window.MIOGIF={start,get look(){return cur},get night(){return curN},get ready(){return !!(cur&&ok(LK[cur]||{},'stand'))},get index(){return IDX}};
 })();
 /* ミナ先生の ひとこと（お店で 動く ミオを 見た あと） */
 (()=>{if(!window.MINA_LINES)return;

@@ -49,6 +49,18 @@
    "en": "A denim jumper skirt and a yellow bandana. Ready to work!",
    "ja": "デニムの ジャンパースカートと 黄色い バンダナ。 はたらく じゅんび ばっちり！",
    "w": "bandana"
+  },
+  "pajama_bob": {
+   "name": "水色の パジャマ・ボブ",
+   "motions": [
+    "stand",
+    "blink",
+    "wave"
+   ],
+   "night": true,
+   "en": "My pajamas! Good night soon…",
+   "ja": "パジャマだよ。 もうすぐ おやすみ…",
+   "w": "pajamas"
   }
  },
  "base": "whiteskirt_bob"
