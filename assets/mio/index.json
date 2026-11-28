@@ -43,7 +43,8 @@
    "name": "デニムの ジャンパースカート・ボブ＋黄色バンダナ",
    "motions": [
     "stand",
-    "wave"
+    "wave",
+    "walk"
    ],
    "en": "A denim jumper skirt and a yellow bandana. Ready to work!",
    "ja": "デニムの ジャンパースカートと 黄色い バンダナ。 はたらく じゅんび ばっちり！",
