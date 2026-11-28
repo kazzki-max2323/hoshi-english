@@ -45,6 +45,7 @@
    "name": "デニムの ジャンパースカート・ボブ＋黄色バンダナ",
    "motions": [
     "stand",
+    "blink",
     "wave",
     "walk",
     "sweep"
