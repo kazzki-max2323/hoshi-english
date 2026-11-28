@@ -59,6 +59,7 @@
     "stand",
     "blink",
     "wave",
+    "walk",
     "doze"
    ],
    "night": true,
