@@ -104,6 +104,7 @@ def main():
     p.add_argument('--bg', default='auto', choices=['auto', 'row', 'time'], help='背景の はかり方（auto: 歩きは time＝全コマの 中央値・ほかは row＝行ごと）')
     p.add_argument('--sea', action='store_true', help='背景に 海が ある とき。 足もとの 青い 波・白い あわを けす（青い 服の ときは 使わない）')
     p.add_argument('--base', action='store_true', help='この 見た目を いつもの ミオ（index.json の base）に する')
+    p.add_argument('--align-y', default='ground', choices=['ground', 'frame'], help='たての そろえ方（ground: GIF の 地面の まま・ジャンプも 出る／frame: コマごとに 足の 裏を 下に）')
     p.add_argument('--name', default='', help='見た目の 日本語名（index.json 用）')
     p.add_argument('--format', default='png', choices=['png', 'webp'], help='png（色を へらす・いちばん かるい）か webp（色そのまま・3倍 重い）')
     p.add_argument('--pix', default='', help='服の 名前・ひとことに 使う game/mio-pix.js の 服の id（例 tank）')
@@ -144,12 +145,14 @@ def main():
         cx = [a[0] for a in an]; by = [a[1] for a in an]
         # ちょっとの ずれ（手ぶれ）は 中央値で そろえる・ 大きく 動く ときだけ コマごと
         if max(cx) - min(cx) < 6: cx = [float(np.median(cx))] * len(ix)
-        if max(by) - min(by) < 6: by = [int(np.median(by))] * len(ix)
+        # たては カメラ 固定 なので 地面の 高さ（足の 中央値）で そろえる（ジャンプが 消えない ように）
+        if A.align_y == 'ground' or max(by) - min(by) < 6: by = [int(np.median(by))] * len(ix)
         # 体の まん中を そろえて 置いてから、 ぜんぶの コマで あいている はしを けずる
         L = max(int(np.ceil(c)) + 2 for c in cx)
         R = max(small[i].shape[1] - int(c) + 2 for i, c in zip(ix, cx))
-        W0, H = L + R, A.height + 8
-        fy = H - 2
+        tp = [a[2] for a in an]
+        fy = max(A.height + 6, max(int(b) - int(t) for b, t in zip(by, tp)) + 2)   # ジャンプで 頭が 切れない 高さ
+        W0, H = L + R, fy + 2
         sheet = Image.new('RGBA', (W0 * len(ix), H), (0, 0, 0, 0))
         for n, (i, c, b) in enumerate(zip(ix, cx, by)):
             im = Image.fromarray(small[i])

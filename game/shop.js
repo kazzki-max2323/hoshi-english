@@ -500,7 +500,7 @@ function mioIdle(T){const m=T.mio,now=Date.now();if(now<m.until||m.walk)return;i
   const r=Math.random();
   if(d>.6&&r<.5){m.pose='doze';m.until=now+6000;return}
   if(r<.35){m.walk=pickL([142,152,164,172]);m.pose=pickL(['sweep','stand']);m.until=now+5000}
-  else{m.pose=pickL(['stand','stand','sweep','wave']);m.until=now+3000+Math.random()*4000}}
+  else{m.pose=pickL(['stand','stand','sweep','wave','stand','cheer']);m.until=now+3000+Math.random()*4000}}
 /* the guest walks: door → shelf → table → (counter) → door
    台（x70〜128・y80〜101）の 上に 乗って 見えないように: 台では 向こう側（足 y78）に 立ち、
    レジへは 台と カウンターの すきま（x126）を 通って 足 y96 へ（その下は 花だんなどの かざり） */

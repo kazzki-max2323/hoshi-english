@@ -41,7 +41,7 @@ assets/mio/<服>_<髪>/<動き>.json      コマの 数・大きさ・足の 位
   | `blink` | stand の 間に 4びょうに 1回 | まばたき なし |
   | `wave` | 手を ふる | stand |
   | `walk` | 歩く（右向きで 作る。 左は 反転） | stand |
-  | `cheer` | よろこぶ | wave |
+  | `cheer` | よろこぶ（ジャンプも そのまま。 `--align-y ground`） | wave |
   | `sweep` | そうじ | stand |
   | `doze` | いねむり | stand |
   | `hold` `shy` `oops` | ドキッと できごと（game/mio-doki.js） | stand |
