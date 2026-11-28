@@ -106,6 +106,14 @@ def tmask(a, B, box, thr=60, sea=False):
     r, b = a[..., 0], a[..., 2]
     if sea:   # 海の 背景の とき だけ（青い 服・白い くつしたも 消える ので ふだんは しない）
         m[hem:] &= ~(b[hem:] > r[hem:] - 12)
+        mx, mn = a.max(2), a.min(2); lum = a @ np.array([.3, .59, .11])
+        m[hem:] &= ~((mx[hem:] - mn[hem:] < 28) & (lum[hem:] > 165))   # 白い あわ
+        # よこに 細長い すじ（たてに 6ドット ない もの）は 波
+        lo2 = cut - 10; k = m[lo2:].copy(); v = k.copy()
+        for sh in range(1, 6): v &= np.roll(k, sh, 0)
+        o = v.copy()
+        for sh in range(1, 6): o |= np.roll(v, -sh, 0)
+        m[lo2:] = k & o
         g = a[..., 1]
         m[cut:] &= ~((b[cut:] > r[cut:] + 25) & (b[cut:] > g[cut:]))      # はっきり 青い 所（海）
     # はしっこの 1ドットの かけらを けずって 小さい かたまりを すてる

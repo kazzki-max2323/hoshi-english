@@ -19,6 +19,18 @@
     "walk"
    ],
    "pix": "tank"
+  },
+  "whiteskirt_longwave": {
+   "name": "白タンクと 白スカート・ゆるふわロング",
+   "motions": [
+    "stand",
+    "blink",
+    "wave",
+    "walk"
+   ],
+   "en": "A white top and a white skirt. Simple is best!",
+   "ja": "白い トップスと 白い スカート。 シンプルが いちばん！",
+   "w": "skirt"
   }
  },
  "base": "whiteskirt_bob"
