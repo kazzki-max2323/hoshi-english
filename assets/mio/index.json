@@ -1,0 +1,14 @@
+{
+ "looks": {
+  "tankdenim_longwave": {
+   "name": "白タンクと デニム・ゆるふわロング",
+   "motions": [
+    "stand",
+    "blink",
+    "wave",
+    "walk"
+   ],
+   "pix": "tank"
+  }
+ }
+}

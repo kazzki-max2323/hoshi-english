@@ -440,10 +440,10 @@ function counter(again){const old=again===true&&CT&&CT.paused&&Date.now()-CT.pau
     const d=night(),t=d>.6?'night':d>.25?'dusk':'day';
     room(c,t,T.f);if(window.SHDECO)SHDECO.back(c,t,T.f);table(c,SH().floor.length,t);
     /* Mio: behind the counter, or out on the floor sweeping */
-    const m=T.mio;if(m.walk){const dx=m.walk-m.x;if(Math.abs(dx)<1){m.x=m.walk;m.walk=null}else m.x+=Math.sign(dx)}
+    const m=T.mio;if(m.walk){const dx=m.walk-m.x;if(Math.abs(dx)<1){m.x=m.walk;m.walk=null}else m.x+=Math.sign(dx);m.dir=Math.sign(dx)}
     const behind=m.y<60;
     const g=T.g;if(g&&g.y+32<=m.y+32){guest(c,g.x,g.y,g.L,g.pose,T.f>>1)}
-    const mo={night:!!T.down};if(mioUp(T))desk(c);else if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1,mo);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1,mo)}
+    const mo={night:!!T.down,dir:m.dir};if(mioUp(T))desk(c);else if(behind){MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1,mo);desk(c)}else{desk(c);MIO.draw(c,m.x,m.y,m.walk?'walk':m.pose,T.f>>1,mo)}
     if(g&&g.y+32>m.y+32)guest(c,g.x,g.y,g.L,g.pose,T.f>>1);
     showcase(c,T.f);const on=!!H.shopSongId;player(c,on,T.f);if(window.SHDECO)SHDECO.front(c,t,T.f);
     if(g&&g.bub&&!(T.mu.who==='g'&&T.mu.until>Date.now()))bub(c,g.x+11,g.y-(window.MIOPX?25:9),g.bub);
