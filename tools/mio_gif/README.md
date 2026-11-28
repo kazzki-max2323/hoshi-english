@@ -19,6 +19,7 @@ python3 tools/mio_gif/mio_gif.py g2.gif tankdenim_longwave --split walk:0-29 --f
 - `--preview` で GIF の よこに `_preview.png`（赤い 線＝足の 裏と 体の まん中）が できる。 まず これで コマの 番号と 切りぬきを 見る
 - ぬけすぎ（足が 消える）→ `--thr 45`、 背景が のこる → `--thr 75`
 - 歩きは ふつう 全コマの 中央値を 背景に して 足を ぬく（`--bg time`）。 背景に 海が あって 足もとに 波が のこる → `--sea`（**青い 服の ときは 使わない**。 デニムが 消える。 その ときは `--bg row`）
+- Dreamina などの 動画（mp4）も そのまま わたせる（10コマ/秒の GIF に して 読む）。 背景の 緑が ざらざら → `--key`、 背景が ミント色で 足や はだが 消える → `--thr 35`。 例: `--split cheer:3-30 --key --holes --thr 35`
 - `--base` で その 見た目を いつもの ミオに（index.json の base）
 - `--face right` の GIF は どの 動きも 左へ 向く とき 反転する
 - キャラが 見つからない・となりの 物まで 入る → `--box 150,480`（キャラの いる 横の はんい）
