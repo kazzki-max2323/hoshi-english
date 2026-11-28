@@ -31,7 +31,7 @@ function start(){if(IDX||t0)return;t0=Date.now();
 if(window.MIOPX&&MIOPX.look){const lk=MIOPX.look;MIOPX.look=night=>{const id=night&&curN?curN:cur;if(id&&!fail){const L=IDX.looks[id],o=L.pix&&(MIOPX.OUT||[]).concat(MIOPX.SUMMER||[]).find(x=>x.id===L.pix);if(o)return o;
     if(L.en)return Object.assign({},lk(night),{id,n:L.name,en:L.en,ja:L.ja,w:L.w})}return lk(night)}}
 const ok=(M,k)=>M[k]&&M[k].ok===1;
-const ONCE={oops:1};let ps={k:'',t:0};   // つまずく などは 1回だけ（はじめの コマから・さいごの コマで 止まる）
+const ONCE={oops:1,cheer:1};let ps={k:'',t:0};   // つまずく などは 1回だけ（はじめの コマから・さいごの コマで 止まる）
 function draw(c,x,y,pose,f,opt){opt=opt||{};start();
   if(fail||pref()==='off')return prev(c,x,y,pose,f,opt);
   let look=cur;if(opt.night&&curN){loadLook(curN);if(ok(LK[curN],'stand'))look=curN}   // パジャマが 読めるまでは ふだんの 服
@@ -65,6 +65,7 @@ Object.assign(MINA_LINES,{
   ['smile','ミオさん、 カウンターで うとうと してた？ うとうとは doze off、 こくりと するのは nod off。 「I dozed off!」で 「うとうと しちゃった！」'],
   ['smile','バンダナの ミオさん、 ほうきで おそうじ してた？ はくは sweep。 「She is sweeping the floor.」で 「床を はいている」。 ほうきは broom だよ'],
   ['wink','夜の お店で パジャマの ミオさんが とことこ 歩いて きた？ 「She came downstairs in her pajamas.」で 「パジャマで 下りて きた」。 下の 階へは downstairs だよ'],
+  ['happy','花柄の ワンピースの ミオさん、 ぴょんって はねて よろこんでた？ はねるは hop。 「She hopped with joy.」で 「うれしくて ぴょんと はねた」。 with joy で 「よろこんで」だよ'],
   ['think','手を ふって 「さようなら」は wave goodbye。 「She waved goodbye.」って、 goodbye を うしろに つけるだけ。 かんたんでしょ？']]});
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(['x_mioMove',.8,()=>{let h=12;try{h=GH()}catch(e){}if(h<9||h>=21)return null;return window.MIOGIF&&MIOGIF.ready?{}:null},()=>window.SHOP&&SHOP.open?['🃏 ミオに 会いに',()=>SHOP.open()]:null]);
 })();
