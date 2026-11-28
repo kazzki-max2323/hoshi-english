@@ -55,7 +55,8 @@
    "motions": [
     "stand",
     "blink",
-    "wave"
+    "wave",
+    "doze"
    ],
    "night": true,
    "en": "My pajamas! Good night soon…",
