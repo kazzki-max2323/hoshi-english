@@ -62,6 +62,7 @@ Object.assign(MINA_LINES,{
   ['smile','ミオさん、 ときどき まばたき してるの 気づいた？ まばたきは blink。 「Don\'t blink!」で 「まばたき しないで（見のがさないで）！」'],
   ['wow','ミオさん、 お店で つまずいてた！ つまずくは trip。 「She tripped.」で 「つまずいた」。 そのあと 「Oops!」って 笑ってたでしょ？'],
   ['smile','「Oops!」は 「おっと！」「しまった！」の 軽い ひとこと。 ミオさんみたいに てへっと 笑って 言うと かわいいよ'],
+  ['smile','ミオさん、 カウンターで うとうと してた？ うとうとは doze off、 こくりと するのは nod off。 「I dozed off!」で 「うとうと しちゃった！」'],
   ['think','手を ふって 「さようなら」は wave goodbye。 「She waved goodbye.」って、 goodbye を うしろに つけるだけ。 かんたんでしょ？']]});
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(['x_mioMove',.8,()=>{let h=12;try{h=GH()}catch(e){}if(h<9||h>=21)return null;return window.MIOGIF&&MIOGIF.ready?{}:null},()=>window.SHOP&&SHOP.open?['🃏 ミオに 会いに',()=>SHOP.open()]:null]);
 })();
