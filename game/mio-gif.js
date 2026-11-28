@@ -31,6 +31,7 @@ function start(){if(IDX||t0)return;t0=Date.now();
 if(window.MIOPX&&MIOPX.look){const lk=MIOPX.look;MIOPX.look=night=>{const id=night&&curN?curN:cur;if(id&&!fail){const L=IDX.looks[id],o=L.pix&&(MIOPX.OUT||[]).concat(MIOPX.SUMMER||[]).find(x=>x.id===L.pix);if(o)return o;
     if(L.en)return Object.assign({},lk(night),{id,n:L.name,en:L.en,ja:L.ja,w:L.w})}return lk(night)}}
 const ok=(M,k)=>M[k]&&M[k].ok===1;
+const ONCE={oops:1};let ps={k:'',t:0};   // つまずく などは 1回だけ（はじめの コマから・さいごの コマで 止まる）
 function draw(c,x,y,pose,f,opt){opt=opt||{};start();
   if(fail||pref()==='off')return prev(c,x,y,pose,f,opt);
   let look=cur;if(opt.night&&curN){loadLook(curN);if(ok(LK[curN],'stand'))look=curN}   // パジャマが 読めるまでは ふだんの 服
@@ -40,7 +41,8 @@ function draw(c,x,y,pose,f,opt){opt=opt||{};start();
   const now=performance.now();
   /* まばたき: 4.2びょうに 1回 くらい */
   if(k==='stand'&&ok(M,'blink')){const b=M.blink.m,ph=(now+x*37)%4200;if(ph<b.n*b.ms)k='blink'}
-  const o=M[k],m=o.m,i=k==='blink'?Math.min(m.n-1,Math.floor(((now+x*37)%4200)/m.ms)):Math.floor(now/m.ms)%m.n;
+  if(ps.k!==k)ps={k,t:now};
+  const o=M[k],m=o.m,i=k==='blink'?Math.min(m.n-1,Math.floor(((now+x*37)%4200)/m.ms)):ONCE[k]?Math.min(m.n-1,Math.floor((now-ps.t)/m.ms)):Math.floor(now/m.ms)%m.n;
   const flip=m.face&&m.face!=='front'&&((m.face==='right'&&opt.dir<0)||(m.face==='left'&&opt.dir>0));
   const t=c.getTransform(),s=(t.a||1)/4,fx=x+7,fy=y+32+(opt.dy||0);   // 絵は 1マス＝4ドット
   const W=m.w*s,H=m.h*s,X=Math.round(t.e+fx*(t.a||1)-(flip?m.w-m.fx:m.fx)*s),Y=Math.round(t.f+fy*(t.d||1)-m.fy*s);
@@ -49,7 +51,7 @@ function draw(c,x,y,pose,f,opt){opt=opt||{};start();
   c.restore();
   if(pose==='doze'){c.fillStyle='#cfe3ff';c.font='5px monospace';c.fillText(f%2?'z':'Z',x+16,y-12-(f%2)*2)}}
 MIO.draw=draw;
-window.MIOGIF={start,get look(){return cur},get night(){return curN},get ready(){return !!(cur&&ok(LK[cur]||{},'stand'))},get index(){return IDX}};
+window.MIOGIF={start,has:mo=>!!(cur&&IDX&&!fail&&pref()!=='off'&&has(cur,mo)),get look(){return cur},get night(){return curN},get ready(){return !!(cur&&ok(LK[cur]||{},'stand'))},get index(){return IDX}};
 })();
 /* ミナ先生の ひとこと（お店で 動く ミオを 見た あと） */
 (()=>{if(!window.MINA_LINES)return;
@@ -58,6 +60,8 @@ Object.assign(MINA_LINES,{
   ['happy','ミオさんが 手を ふって きたら、 「Hi, Mio!」って ふり返そう。 あいさつは 短い ほうが しぜんだよ'],
   ['wink','お店の 中を とことこ 歩く ミオさん、 見た？ 歩くは walk。 「She is walking to the shelf.」で 「たなの 方へ 歩いてる」'],
   ['smile','ミオさん、 ときどき まばたき してるの 気づいた？ まばたきは blink。 「Don\'t blink!」で 「まばたき しないで（見のがさないで）！」'],
+  ['wow','ミオさん、 お店で つまずいてた！ つまずくは trip。 「She tripped.」で 「つまずいた」。 そのあと 「Oops!」って 笑ってたでしょ？'],
+  ['smile','「Oops!」は 「おっと！」「しまった！」の 軽い ひとこと。 ミオさんみたいに てへっと 笑って 言うと かわいいよ'],
   ['think','手を ふって 「さようなら」は wave goodbye。 「She waved goodbye.」って、 goodbye を うしろに つけるだけ。 かんたんでしょ？']]});
 if(window.MINA_SENSE&&MINA_SENSE._rules)MINA_SENSE._rules.push(['x_mioMove',.8,()=>{let h=12;try{h=GH()}catch(e){}if(h<9||h>=21)return null;return window.MIOGIF&&MIOGIF.ready?{}:null},()=>window.SHOP&&SHOP.open?['🃏 ミオに 会いに',()=>SHOP.open()]:null]);
 })();

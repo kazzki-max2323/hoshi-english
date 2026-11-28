@@ -478,6 +478,7 @@ const MIO_OPEN=[["We're open! Welcome to Shiosai!","開店でーす！ しおさ
 const MIO_CLOSE=[["Closing time! Good work today, boss.","閉店の 時間！ きょうも おつかれさまでした、 店長。"],["I'll turn the sign to CLOSED. You can keep polishing, OK?","札を CLOSEDに しますね。 原石は そのまま みがいて いいですよ。"]];
 const MIO_PREP=[["Good morning! We open at nine. Did you pick up stones on the beach?","おはようございます！ 9時に 開店です。 浜辺で 原石、 ひろってきました？"],["Getting ready… I'll wipe the counter. You can polish stones!","開店じゅんび… わたしは カウンターを ふきますね。 店長は 原石を どうぞ！"]];
 const MIO_CLOSED=[["We're closed, but the workbench is always open for you.","閉店中だけど、 作業台は いつでも あいてますよ。"],["It's quiet after closing. Perfect for polishing stones.","閉店後は しずか。 原石みがきに ぴったりですね。"]];
+const MIO_OOPS=[["Oops! …You didn't see that, right?","おっと！ …いまの、 見てないよね？"],["Whoa— I tripped! I'm OK, I'm OK!","わっ— つまずいた！ だいじょうぶ、 だいじょうぶ！"],["Oopsie. The floor attacked me.","おっとっと。 床に こうげき された。"]];
 const ORE_MIO_OK=[["A new card! Nice work, boss!","新しい カード！ おつかれさま、 店長！"],["Wow, shiny! I'll make room on the shelf.","わあ、 ぴかぴか！ 売り場、 あけておきますね。"],["You did it! That one looks great.","やったね！ その カード、 すてき。"]];
 /* 売り場から もどったとき: さっきの つづき */
 function resume(T){if(T.keep){const k=T.keep;T.keep=null;if(T.talk&&T.talk.alive)$('shact').replaceWith(k);else T.talk=null}
@@ -499,6 +500,7 @@ function endTalk(T){const k=T.talk;if(!k)return;if(k.close)k.close();k.alive=fal
 function mioIdle(T){const m=T.mio,now=Date.now();if(now<m.until||m.walk)return;if(T.talk&&!T.talk.done){m.pose='stand';m.until=now+2000;return}const d=night();
   const r=Math.random();
   if(d>.6&&r<.5){m.pose='doze';m.until=now+6000;return}
+  if(r>.96&&window.MIOGIF&&MIOGIF.has('oops')){m.pose='oops';m.until=now+3200;mut(T,'m',pickL(MIO_OOPS),3800,1);return}   // ときどき つまずく
   if(r<.35){m.walk=pickL([142,152,164,172]);m.pose=pickL(['sweep','stand']);m.until=now+5000}
   else{m.pose=pickL(['stand','stand','sweep','wave','stand','cheer']);m.until=now+3000+Math.random()*4000}}
 /* the guest walks: door → shelf → table → (counter) → door

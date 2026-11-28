@@ -21,7 +21,7 @@ def comps(fg,x0,x1):
             if 0<=yy<H and x0<=xx<x1 and fg[yy,xx] and not seen[yy,xx]:seen[yy,xx]=True;q.append((yy,xx))
         out.append(p)
   return out
-def seg(a,box,thr=60,legs=False):
+def seg(a,box,thr=60,legs=False,holes=False):
   H,W,_=a.shape;x0,x1=box
   side=np.concatenate([a[:,max(0,x0-120):x0],a[:,x1:x1+120]],1)
   med=np.median(side,1);sd=np.sqrt(((side-med[:,None])**2).sum(2)).mean(1)
@@ -44,7 +44,7 @@ def seg(a,box,thr=60,legs=False):
       if 0<=yy<H and x0<=xx<x1 and ok[yy,xx] and not bgm[yy,xx]:bgm[yy,xx]=True;q.append((yy,xx))
   fg=~bgm;fg[:, :x0]=False;fg[:,x1:]=False
   # 足の あいだなど とじこめられた 背景も ぬく
-  inner=ok&fg&legs;inner[:int(H*0.62)]=False
+  inner=ok&fg&(legs or holes);inner[:int(H*0.62)]=False
   for c in comps(inner,x0,x1):
     if len(c)>30:
       for q in c:fg[q]=False

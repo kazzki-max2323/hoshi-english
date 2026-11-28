@@ -103,6 +103,7 @@ def main():
     p.add_argument('--thr', type=int, default=60, help='背景と みなす 色の ちがい（ぬけすぎ→小さく・のこる→大きく）')
     p.add_argument('--bg', default='auto', choices=['auto', 'row', 'time'], help='背景の はかり方（auto: 歩きは time＝全コマの 中央値・ほかは row＝行ごと）')
     p.add_argument('--sea', action='store_true', help='背景に 海が ある とき。 足もとの 青い 波・白い あわを けす（青い 服の ときは 使わない）')
+    p.add_argument('--holes', action='store_true', help='正面でも 足の あいだに のこった 背景を ぬく（白い 服でも 使える）')
     p.add_argument('--base', action='store_true', help='この 見た目を いつもの ミオ（index.json の base）に する')
     p.add_argument('--align-y', default='ground', choices=['ground', 'frame'], help='たての そろえ方（ground: GIF の 地面の まま・ジャンプも 出る／frame: コマごとに 足の 裏を 下に）')
     p.add_argument('--name', default='', help='見た目の 日本語名（index.json 用）')
@@ -131,7 +132,7 @@ def main():
         B = np.median(np.stack(F), 0)
         cuts = {i: cut(F[i], tmask(F[i], B, box, thr=A.thr, sea=A.sea)) for i in used}
     else:
-        cuts = {i: cut(F[i], seg(F[i], box, thr=A.thr, legs=walk)) for i in used}
+        cuts = {i: cut(F[i], seg(F[i], box, thr=A.thr, legs=walk, holes=A.holes)) for i in used}
     # 大きさ: 立った 高さの 中央値を --height に
     hs = [anchor(cuts[i])[1] - anchor(cuts[i])[2] + 1 for i in used]
     sc = A.height / float(np.median(hs))
