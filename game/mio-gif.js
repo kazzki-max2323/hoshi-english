@@ -11,7 +11,10 @@ let IDX=null,cur=null,fail=false,t0=0;const M={};   // M[動き] = {m: json, im:
 function pref(){try{return localStorage.getItem('hoshi_mioGif')||''}catch(e){return ''}}
 function dayN(){const d=new Date();return d.getFullYear()*400+d.getMonth()*31+d.getDate()}
 function pickLook(){if(!IDX)return null;const ks=Object.keys(IDX.looks||{}).filter(k=>(IDX.looks[k].motions||[]).includes('stand'));if(!ks.length)return null;
-  const p=pref();if(p==='off')return null;if(ks.includes(p))return p;if(IDX.base&&ks.includes(IDX.base))return IDX.base;return ks[(dayN()*7)%ks.length]}   // base＝いつもの 見た目
+  const p=pref();if(p==='off')return null;if(ks.includes(p))return p;
+  /* 日がわり: 歩きも そろった 見た目だけ（立ち姿のまま すべって 歩かない ように）。 base（いつもの）は 半分くらいの 日 */
+  const full=ks.filter(k=>IDX.looks[k].motions.includes('walk')&&IDX.looks[k].rot!==false)   // rot:false＝ためしの 見た目（日がわりに 出さない）,base=IDX.base&&full.includes(IDX.base)?IDX.base:null,oth=full.filter(k=>k!==base),d=dayN();
+  if(!full.length)return ks[0];if(base&&(!oth.length||(d*7919)%10<5))return base;return (oth.length?oth:full)[(d*31)%(oth.length||full.length)]}
 function loadMotion(look,k){const o=M[k]={ok:0};
   fetch(BASE+look+'/'+k+'.json').then(r=>{if(!r.ok)throw 0;return r.json()}).then(m=>{o.m=m;const im=new Image();
     im.onload=()=>{o.im=im;o.ok=1};im.onerror=()=>{o.ok=-1;if(k==='stand')fail=true};im.src=BASE+look+'/'+(m.img||k+'.png')}).catch(()=>{o.ok=-1;if(k==='stand')fail=true})}

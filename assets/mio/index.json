@@ -23,7 +23,8 @@
     "wave",
     "walk"
    ],
-   "pix": "tank"
+   "pix": "tank",
+   "rot": false
   },
   "whiteskirt_longwave": {
    "name": "白タンクと 白スカート・ゆるふわロング",
@@ -35,7 +36,18 @@
    ],
    "en": "A white top and a white skirt. Simple is best!",
    "ja": "白い トップスと 白い スカート。 シンプルが いちばん！",
-   "w": "skirt"
+   "w": "skirt",
+   "rot": false
+  },
+  "denimjumper_bobband": {
+   "name": "デニムの ジャンパースカート・ボブ＋黄色バンダナ",
+   "motions": [
+    "stand",
+    "wave"
+   ],
+   "en": "A denim jumper skirt and a yellow bandana. Ready to work!",
+   "ja": "デニムの ジャンパースカートと 黄色い バンダナ。 はたらく じゅんび ばっちり！",
+   "w": "bandana"
   }
  },
  "base": "whiteskirt_bob"
