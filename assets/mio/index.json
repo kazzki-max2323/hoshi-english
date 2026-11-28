@@ -62,6 +62,16 @@
    "en": "My pajamas! Good night soon…",
    "ja": "パジャマだよ。 もうすぐ おやすみ…",
    "w": "pajamas"
+  },
+  "flowerdress_bob": {
+   "name": "花柄の ワンピース・ボブ",
+   "motions": [
+    "stand",
+    "wave"
+   ],
+   "en": "A flower dress today. Do you like it?",
+   "ja": "きょうは 花柄の ワンピース。 にあう？",
+   "w": "dress"
   }
  },
  "base": "whiteskirt_bob"
