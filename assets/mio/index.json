@@ -45,9 +45,12 @@
    "name": "デニムの ジャンパースカート・ボブ＋黄色バンダナ",
    "motions": [
     "stand",
+    "blink",
     "wave",
     "walk",
-    "sweep"
+    "cheer",
+    "sweep",
+    "shy"
    ],
    "en": "A denim jumper skirt and a yellow bandana. Ready to work!",
    "ja": "デニムの ジャンパースカートと 黄色い バンダナ。 はたらく じゅんび ばっちり！",
@@ -71,8 +74,10 @@
    "name": "花柄の ワンピース・ボブ",
    "motions": [
     "stand",
+    "blink",
     "wave",
-    "walk"
+    "walk",
+    "cheer"
    ],
    "en": "A flower dress today. Do you like it?",
    "ja": "きょうは 花柄の ワンピース。 にあう？",

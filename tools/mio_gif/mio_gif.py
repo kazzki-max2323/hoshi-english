@@ -25,11 +25,20 @@ ID = re.compile(r'^[a-z0-9]+_[a-z0-9]+$')
 MOTIONS = ('stand', 'blink', 'wave', 'walk', 'cheer', 'sweep', 'doze', 'hold', 'shy', 'oops')
 
 
-def load(f):
+def load(f, key=False):
+    if f.lower().endswith(('.mp4', '.mov', '.webm')):   # 動画（Dreamina など）は 10コマ/秒・640x360 の GIF に してから
+        import subprocess, tempfile
+        g = os.path.join(tempfile.mkdtemp(), 'v.gif')
+        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', f, '-vf', 'fps=10,scale=640:360', g], check=True)
+        f = g
     im = Image.open(f)
     fr, ms = [], []
     for x in ImageSequence.Iterator(im):
-        fr.append(np.array(x.copy().convert('RGB')).astype(int))
+        a = np.array(x.copy().convert('RGB')).astype(int)
+        if key:   # 動画の 背景は ざらざらの 緑 → 緑っぽい 所を 1色に そろえる
+            r, g, b = a[..., 0], a[..., 1], a[..., 2]
+            a[(g > r + 18) & (g > b + 10) & (g > 170)] = (200, 235, 200)
+        fr.append(a)
         ms.append(x.info.get('duration', 100) or 100)
     return fr, int(np.median(ms))
 
@@ -103,6 +112,7 @@ def main():
     p.add_argument('--thr', type=int, default=60, help='背景と みなす 色の ちがい（ぬけすぎ→小さく・のこる→大きく）')
     p.add_argument('--bg', default='auto', choices=['auto', 'row', 'time'], help='背景の はかり方（auto: 歩きは time＝全コマの 中央値・ほかは row＝行ごと）')
     p.add_argument('--sea', action='store_true', help='背景に 海が ある とき。 足もとの 青い 波・白い あわを けす（青い 服の ときは 使わない）')
+    p.add_argument('--key', action='store_true', help='背景の 緑が ざらざらの とき（動画）。 緑っぽい 所を 1色に して から ぬく')
     p.add_argument('--holes', action='store_true', help='正面でも 足の あいだに のこった 背景を ぬく（白い 服でも 使える）')
     p.add_argument('--base', action='store_true', help='この 見た目を いつもの ミオ（index.json の base）に する')
     p.add_argument('--align-y', default='ground', choices=['ground', 'frame'], help='たての そろえ方（ground: GIF の 地面の まま・ジャンプも 出る／frame: コマごとに 足の 裏を 下に）')
@@ -114,7 +124,7 @@ def main():
     A = p.parse_args()
     if not ID.match(A.look):
         sys.exit('見た目の 名前は <服>_<髪>（小文字と 数字、 _ は 1つ）。 例: tankdenim_longwave')
-    F, ms = load(A.gif)
+    F, ms = load(A.gif, A.key)
     ms = A.ms or ms
     parts = []
     for s in (A.split.split(',') if A.split else ['stand:0-%d' % (len(F) - 1)]):
