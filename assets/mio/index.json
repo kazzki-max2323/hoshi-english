@@ -1,5 +1,15 @@
 {
  "looks": {
+  "whiteskirt_bob": {
+   "name": "白タンクと 白スカート・ボブ",
+   "motions": [
+    "stand",
+    "walk"
+   ],
+   "en": "A white top and a white skirt. Simple is best!",
+   "ja": "白い トップスと 白い スカート。 シンプルが いちばん！",
+   "w": "skirt"
+  },
   "tankdenim_longwave": {
    "name": "白タンクと デニム・ゆるふわロング",
    "motions": [
@@ -10,5 +20,6 @@
    ],
    "pix": "tank"
   }
- }
+ },
+ "base": "whiteskirt_bob"
 }

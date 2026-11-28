@@ -11,7 +11,7 @@ let IDX=null,cur=null,fail=false,t0=0;const M={};   // M[動き] = {m: json, im:
 function pref(){try{return localStorage.getItem('hoshi_mioGif')||''}catch(e){return ''}}
 function dayN(){const d=new Date();return d.getFullYear()*400+d.getMonth()*31+d.getDate()}
 function pickLook(){if(!IDX)return null;const ks=Object.keys(IDX.looks||{}).filter(k=>(IDX.looks[k].motions||[]).includes('stand'));if(!ks.length)return null;
-  const p=pref();if(p==='off')return null;if(ks.includes(p))return p;return ks[(dayN()*7)%ks.length]}
+  const p=pref();if(p==='off')return null;if(ks.includes(p))return p;if(IDX.base&&ks.includes(IDX.base))return IDX.base;return ks[(dayN()*7)%ks.length]}   // base＝いつもの 見た目
 function loadMotion(look,k){const o=M[k]={ok:0};
   fetch(BASE+look+'/'+k+'.json').then(r=>{if(!r.ok)throw 0;return r.json()}).then(m=>{o.m=m;const im=new Image();
     im.onload=()=>{o.im=im;o.ok=1};im.onerror=()=>{o.ok=-1;if(k==='stand')fail=true};im.src=BASE+look+'/'+(m.img||k+'.png')}).catch(()=>{o.ok=-1;if(k==='stand')fail=true})}
@@ -19,7 +19,8 @@ function start(){if(IDX||t0)return;t0=Date.now();
   fetch(BASE+'index.json').then(r=>{if(!r.ok)throw 0;return r.json()}).then(j=>{IDX=j;cur=pickLook();if(!cur){fail=true;return}
     const L=IDX.looks[cur];['stand'].concat(L.motions.filter(k=>k!=='stand')).forEach(k=>loadMotion(cur,k))}).catch(()=>{fail=true})}
 /* 見た目の 名前・服の ひとこと（MIOPX.look）も GIF の 服に あわせる（index.json の pix ＝ mio-pix.js の 服の id） */
-if(window.MIOPX&&MIOPX.look){const lk=MIOPX.look;MIOPX.look=night=>{if(cur&&!fail){const L=IDX.looks[cur],o=L.pix&&(MIOPX.OUT||[]).concat(MIOPX.SUMMER||[]).find(x=>x.id===L.pix);if(o)return o}return lk(night)}}
+if(window.MIOPX&&MIOPX.look){const lk=MIOPX.look;MIOPX.look=night=>{if(cur&&!fail){const L=IDX.looks[cur],o=L.pix&&(MIOPX.OUT||[]).concat(MIOPX.SUMMER||[]).find(x=>x.id===L.pix);if(o)return o;
+    if(L.en)return Object.assign({},lk(night),{id:cur,n:L.name,en:L.en,ja:L.ja,w:L.w})}return lk(night)}}
 function frameOf(k,now){const o=M[k];const m=o.m;return Math.floor(now/m.ms)%m.n}
 function draw(c,x,y,pose,f,opt){opt=opt||{};start();
   if(fail||pref()==='off')return prev(c,x,y,pose,f,opt);
@@ -29,7 +30,7 @@ function draw(c,x,y,pose,f,opt){opt=opt||{};start();
   /* まばたき: 4.2びょうに 1回 くらい */
   if(k==='stand'&&M.blink&&M.blink.ok===1){const b=M.blink.m,ph=(now+x*37)%4200;if(ph<b.n*b.ms)k='blink'}
   const o=M[k],m=o.m,i=k==='blink'?Math.min(m.n-1,Math.floor(((now+x*37)%4200)/m.ms)):frameOf(k,now);
-  const flip=k==='walk'&&((m.face==='right'&&opt.dir<0)||(m.face==='left'&&opt.dir>0));
+  const flip=m.face&&m.face!=='front'&&((m.face==='right'&&opt.dir<0)||(m.face==='left'&&opt.dir>0));
   const t=c.getTransform(),s=(t.a||1)/4,fx=x+7,fy=y+32+(opt.dy||0);   // 絵は 1マス＝4ドット
   const W=m.w*s,H=m.h*s,X=Math.round(t.e+fx*(t.a||1)-(flip?m.w-m.fx:m.fx)*s),Y=Math.round(t.f+fy*(t.d||1)-m.fy*s);
   c.save();c.setTransform(1,0,0,1,0,0);c.imageSmoothingEnabled=s<1;

@@ -8,14 +8,19 @@ Gemini で 作った ミオの GIF を、 背景を ぬいて・大きさと 足
 python3 tools/mio_gif/mio_gif.py <GIF> <見た目> --split <動き>:<はじめ>-<おわり>,... [--face right] [--name 日本語名] [--pix 服id] [--preview]
 ```
 
-例（いまの 2本）:
+例:
 ```
+# いつもの ミオ（浜辺の 背景の 歩き → --sea。 1コマめ 7 を 横向きの 立ち に）
+python3 tools/mio_gif/mio_gif.py b.gif whiteskirt_bob --split walk:0-29,stand:7 --face right --sea --base --name "白タンクと 白スカート・ボブ"
 python3 tools/mio_gif/mio_gif.py g1.gif tankdenim_longwave --split stand:0-2,blink:3-4,wave:6-26 --name "白タンクと デニム・ゆるふわロング" --pix tank --preview
-python3 tools/mio_gif/mio_gif.py g2.gif tankdenim_longwave --split walk:0-29 --face right --preview
+python3 tools/mio_gif/mio_gif.py g2.gif tankdenim_longwave --split walk:0-29 --face right --bg row --preview
 ```
 
 - `--preview` で GIF の よこに `_preview.png`（赤い 線＝足の 裏と 体の まん中）が できる。 まず これで コマの 番号と 切りぬきを 見る
 - ぬけすぎ（足が 消える）→ `--thr 45`、 背景が のこる → `--thr 75`
+- 歩きは ふつう 全コマの 中央値を 背景に して 足を ぬく（`--bg time`）。 背景に 海が あって 足もとに 波が のこる → `--sea`（**青い 服の ときは 使わない**。 デニムが 消える。 その ときは `--bg row`）
+- `--base` で その 見た目を いつもの ミオに（index.json の base）
+- `--face right` の GIF は どの 動きも 左へ 向く とき 反転する
 - キャラが 見つからない・となりの 物まで 入る → `--box 150,480`（キャラの いる 横の はんい）
 
 ## ファイル名の きまり

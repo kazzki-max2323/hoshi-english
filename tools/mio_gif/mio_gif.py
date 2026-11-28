@@ -17,7 +17,7 @@ import sys, os, re, json, argparse
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 from PIL import Image, ImageSequence
-from seg import seg, comps
+from seg import seg, comps, tmask
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 OUT = os.path.join(ROOT, 'assets', 'mio')
@@ -37,11 +37,12 @@ def load(f):
 def autobox(F, pad=28):
     """キャラの いる 横の はんい。 左右の はしの 色を 背景と みなして、 ちがう 列を さがす"""
     H, W, _ = F[0].shape
-    a = F[len(F) // 2]
-    side = np.concatenate([a[:, :40], a[:, -40:]], 1)
-    med = np.median(side, 1)
-    d = np.sqrt(((a - med[:, None]) ** 2).sum(2))
-    col = (d > 70).sum(0) > H * 0.04
+    cnt = np.zeros(W); col = np.zeros(W, bool)
+    for a in F[::max(1, len(F) // 6)]:
+        side = np.concatenate([a[:, :40], a[:, -40:]], 1)
+        med = np.median(side, 1)
+        d = np.sqrt(((a - med[:, None]) ** 2).sum(2))
+        c1 = (d > 70).sum(0); cnt += c1; col |= c1 > H * 0.04
     xs = np.where(col)[0]
     xs = xs[(xs > 40) & (xs < W - 40)]
     if not len(xs):
@@ -52,7 +53,7 @@ def autobox(F, pad=28):
         if q - p > 12:
             runs.append((s, p)); s = q
     runs.append((s, xs[-1]))
-    s, e = max(runs, key=lambda r: r[1] - r[0])
+    s, e = max(runs, key=lambda r: cnt[r[0]:r[1] + 1].sum())   # いちばん 中身の 多い かたまり
     return max(130, s - pad), min(W - 130, e + pad)
 
 
@@ -100,6 +101,9 @@ def main():
     p.add_argument('--ms', type=int, default=0, help='1コマの 時間（ミリ秒）。 0なら GIF の まま')
     p.add_argument('--box', default='', help='キャラの いる 横の はんい x0,x1（自動で だめな とき）')
     p.add_argument('--thr', type=int, default=60, help='背景と みなす 色の ちがい（ぬけすぎ→小さく・のこる→大きく）')
+    p.add_argument('--bg', default='auto', choices=['auto', 'row', 'time'], help='背景の はかり方（auto: 歩きは time＝全コマの 中央値・ほかは row＝行ごと）')
+    p.add_argument('--sea', action='store_true', help='背景に 海が ある とき。 足もとの 青い 波・白い あわを けす（青い 服の ときは 使わない）')
+    p.add_argument('--base', action='store_true', help='この 見た目を いつもの ミオ（index.json の base）に する')
     p.add_argument('--name', default='', help='見た目の 日本語名（index.json 用）')
     p.add_argument('--format', default='png', choices=['png', 'webp'], help='png（色を へらす・いちばん かるい）か webp（色そのまま・3倍 重い）')
     p.add_argument('--pix', default='', help='服の 名前・ひとことに 使う game/mio-pix.js の 服の id（例 tank）')
@@ -121,7 +125,12 @@ def main():
     walk = A.face != 'front'
     print(f'{len(F)}コマ {ms}ms  はんい x={box}')
     used = sorted({i for _, ix in parts for i in ix})
-    cuts = {i: cut(F[i], seg(F[i], box, thr=A.thr, legs=walk)) for i in used}
+    if A.bg == 'time' or (A.bg == 'auto' and walk):
+        # 歩きは コマで 背景が 見えたり かくれたり する ので、 全コマの 中央値を 背景に して 下半分を ぬく
+        B = np.median(np.stack(F), 0)
+        cuts = {i: cut(F[i], tmask(F[i], B, box, thr=A.thr, sea=A.sea)) for i in used}
+    else:
+        cuts = {i: cut(F[i], seg(F[i], box, thr=A.thr, legs=walk)) for i in used}
     # 大きさ: 立った 高さの 中央値を --height に
     hs = [anchor(cuts[i])[1] - anchor(cuts[i])[2] + 1 for i in used]
     sc = A.height / float(np.median(hs))
@@ -159,7 +168,7 @@ def main():
         else:
             q = sheet.quantize(colors=A.colors, method=Image.Quantize.FASTOCTREE, dither=Image.Dither.NONE)
             q.save(os.path.join(d, name), optimize=True)
-        meta = {'n': len(ix), 'w': int(W), 'h': int(H), 'fx': int(half), 'fy': int(fy), 'ms': ms, 'face': A.face if k == 'walk' else 'front', 'img': name, 'src': os.path.basename(A.gif), 'frames': ix}
+        meta = {'n': len(ix), 'w': int(W), 'h': int(H), 'fx': int(half), 'fy': int(fy), 'ms': ms, 'face': A.face, 'img': name, 'src': os.path.basename(A.gif), 'frames': ix}
         json.dump(meta, open(os.path.join(d, k + '.json'), 'w'), ensure_ascii=False)
         kb = os.path.getsize(os.path.join(d, name)) / 1024
         print(f'  {A.look}/{name}  {len(ix)}コマ {W}x{H}  {kb:.0f}KB')
@@ -177,6 +186,7 @@ def main():
     L = ind['looks'].setdefault(A.look, {'name': A.name or A.look, 'motions': []})
     if A.name: L['name'] = A.name
     if A.pix: L['pix'] = A.pix
+    if A.base: ind['base'] = A.look
     L['motions'] = sorted(set(L['motions']) | set(made), key=MOTIONS.index)
     json.dump(ind, open(ip, 'w'), ensure_ascii=False, indent=1)
     print('index.json:', A.look, L['motions'])
