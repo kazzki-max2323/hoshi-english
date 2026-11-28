@@ -6,7 +6,7 @@
    - localStorage hoshi_mioGif = 'off' で 前の ドット絵、 = '<服>_<髪>' で その 見た目に 固定 */
 (()=>{if(!window.MIO||MIO.gif0)return;
 const BASE='assets/mio/',prev=MIO.draw;MIO.gif0=prev;
-const ALIAS={cheer:'wave',sweep:'stand',doze:'stand',hold:'stand',shy:'stand',oops:'stand',happy:'wave'};
+const ALIAS={cheer:'wave',sweep:'stand',doze:'stand',hold:'shy',shy:'stand',oops:'stand',happy:'wave'};
 let IDX=null,cur=null,fail=false,t0=0;const M={};   // M[動き] = {m: json, im: Image, ok}
 function pref(){try{return localStorage.getItem('hoshi_mioGif')||''}catch(e){return ''}}
 function dayN(){const d=new Date();return d.getFullYear()*400+d.getMonth()*31+d.getDate()}
